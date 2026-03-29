@@ -29,6 +29,24 @@ class RiskScoreExecutionService
     }
 
     /**
+     * Get all registered scores filtered by category.
+     *
+     * @return array<int, array{score_id: string, score_name: string, category: string}>
+     */
+    public function getScoresByCategory(string $category): array
+    {
+        return collect($this->scores)
+            ->filter(fn (PopulationRiskScoreV2Interface $score): bool => $score->category() === $category)
+            ->map(fn (PopulationRiskScoreV2Interface $score): array => [
+                'score_id' => $score->scoreId(),
+                'score_name' => $score->scoreName(),
+                'category' => $score->category(),
+            ])
+            ->values()
+            ->toArray();
+    }
+
+    /**
      * Execute risk score analysis: extract features, compute scores, store results.
      */
     public function execute(RiskScoreAnalysis $analysis, Source $source, AnalysisExecution $execution): void

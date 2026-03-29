@@ -116,6 +116,7 @@ use App\Http\Controllers\Api\V1\StudySiteController;
 use App\Http\Controllers\Api\V1\StudyStatsController;
 use App\Http\Controllers\Api\V1\StudySynthesisController;
 use App\Http\Controllers\Api\V1\StudyTeamController;
+use App\Http\Controllers\Api\V1\SurveyInstrumentController;
 use App\Http\Controllers\Api\V1\SyntheaController;
 use App\Http\Controllers\Api\V1\TextToSqlController;
 use App\Http\Controllers\Api\V1\UserProfileController;
@@ -462,10 +463,20 @@ Route::prefix('v1')->group(function () {
         });
 
         // Risk Score Analysis v2
-        Route::apiResource('risk-score-analyses', RiskScoreAnalysisController::class)->only(['store', 'show']);
-        Route::post('risk-score-analyses/{analysis}/execute', [RiskScoreAnalysisController::class, 'execute']);
-        Route::get('risk-score-analyses/{analysis}/executions/{execution}', [RiskScoreAnalysisController::class, 'executionDetail']);
-        Route::get('risk-score-analyses/{analysis}/executions/{execution}/patients', [RiskScoreAnalysisController::class, 'patients']);
+        Route::middleware('permission:analyses.view')->group(function () {
+            Route::get('risk-score-analyses', [RiskScoreAnalysisController::class, 'index']);
+            Route::get('risk-score-analyses/stats', [RiskScoreAnalysisController::class, 'stats']);
+            Route::get('risk-score-analyses/{analysis}', [RiskScoreAnalysisController::class, 'show']);
+            Route::get('risk-score-analyses/{analysis}/executions/{execution}', [RiskScoreAnalysisController::class, 'executionDetail']);
+            Route::get('risk-score-analyses/{analysis}/executions/{execution}/patients', [RiskScoreAnalysisController::class, 'patients']);
+        });
+        Route::middleware('permission:analyses.create')->group(function () {
+            Route::post('risk-score-analyses', [RiskScoreAnalysisController::class, 'store']);
+            Route::put('risk-score-analyses/{analysis}', [RiskScoreAnalysisController::class, 'update']);
+            Route::delete('risk-score-analyses/{analysis}', [RiskScoreAnalysisController::class, 'destroy']);
+            Route::post('risk-score-analyses/{analysis}/execute', [RiskScoreAnalysisController::class, 'execute']);
+            Route::post('risk-score-analyses/{analysis}/create-cohort', [RiskScoreAnalysisController::class, 'createCohort']);
+        });
 
         // Clinical Coherence (Tier 1 Parthenon-native analyses)
         Route::prefix('sources/{source}/clinical-coherence')->group(function () {
@@ -961,6 +972,7 @@ Route::prefix('v1')->group(function () {
             Route::delete('/users/{user}', [UserController::class, 'destroy']);
             Route::put('/users/{user}/roles', [UserController::class, 'syncRoles']);
             Route::get('/users/{user}/audit', [UserAuditController::class, 'forUser']);
+            Route::post('/users/broadcast-email', [UserController::class, 'broadcastEmail'])->middleware('role:super-admin');
 
             // ── User Audit Log ─────────────────────────────────────────────
             Route::prefix('user-audit')->group(function () {
@@ -1567,6 +1579,32 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve'])->group(funct
         Route::get('/{subjectId}/microbiology', [MorpheusPatientController::class, 'microbiology']);
         Route::get('/{subjectId}/services', [MorpheusPatientController::class, 'services']);
         Route::get('/{subjectId}/event-counts', [MorpheusPatientController::class, 'eventCounts']);
+    });
+});
+
+// ── Survey Instruments (Standard PROs+) ─────────────────────────────────────
+Route::prefix('v1/survey-instruments')->middleware('auth:sanctum')->group(function () {
+    Route::middleware('permission:surveys.view')->group(function () {
+        Route::get('/', [SurveyInstrumentController::class, 'index']);
+        Route::get('/domains', [SurveyInstrumentController::class, 'domains']);
+        Route::get('/stats', [SurveyInstrumentController::class, 'stats']);
+        Route::get('/{instrument}', [SurveyInstrumentController::class, 'show']);
+        Route::get('/{instrument}/items', [SurveyInstrumentController::class, 'itemIndex']);
+    });
+
+    Route::middleware('permission:surveys.create')->group(function () {
+        Route::post('/', [SurveyInstrumentController::class, 'store']);
+        Route::post('/{instrument}/items', [SurveyInstrumentController::class, 'itemStore']);
+    });
+
+    Route::middleware('permission:surveys.edit')->group(function () {
+        Route::put('/{instrument}', [SurveyInstrumentController::class, 'update']);
+        Route::put('/{instrument}/items/{item}', [SurveyInstrumentController::class, 'itemUpdate']);
+    });
+
+    Route::middleware('permission:surveys.delete')->group(function () {
+        Route::delete('/{instrument}', [SurveyInstrumentController::class, 'destroy']);
+        Route::delete('/{instrument}/items/{item}', [SurveyInstrumentController::class, 'itemDestroy']);
     });
 });
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\ExecutionStatus;
 use App\Models\App\AnalysisExecution;
+use App\Models\App\CohortDefinition;
 use App\Models\App\RiskScoreAnalysis;
 use App\Models\App\RiskScoreRunStep;
 use App\Models\App\Source;
@@ -20,6 +21,99 @@ class RiskScoreAnalysisController extends Controller
         private readonly RiskScoreRecommendationService $recommender,
         private readonly RiskScoreExecutionService $executor,
     ) {}
+
+    /**
+     * List risk score analyses with pagination, search, and filters.
+     */
+    public function index(Request $request): JsonResponse
+    {
+        $perPage = (int) $request->query('per_page', '20');
+        $search = $request->query('search');
+        $status = $request->query('status');
+
+        $query = RiskScoreAnalysis::with('author')
+            ->orderBy('updated_at', 'desc');
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'ilike', "%{$search}%")
+                    ->orWhere('description', 'ilike', "%{$search}%");
+            });
+        }
+
+        if ($status) {
+            if ($status === 'draft') {
+                $query->whereDoesntHave('executions');
+            } else {
+                $query->whereHas('executions', function ($q) use ($status) {
+                    $q->whereIn('id', function ($sub) {
+                        $sub->selectRaw('MAX(id)')
+                            ->from('analysis_executions')
+                            ->where('analysis_type', RiskScoreAnalysis::class)
+                            ->groupBy('analysis_id');
+                    })->where('status', $status);
+                });
+            }
+        }
+
+        $analyses = $query->paginate($perPage);
+
+        // Build status facets
+        $totalCount = RiskScoreAnalysis::count();
+        $draftCount = RiskScoreAnalysis::whereDoesntHave('executions')->count();
+        $completedCount = RiskScoreAnalysis::whereHas('executions', function ($q) {
+            $q->where('status', ExecutionStatus::Completed);
+        })->count();
+        $runningCount = RiskScoreAnalysis::whereHas('executions', function ($q) {
+            $q->whereIn('status', [ExecutionStatus::Pending, ExecutionStatus::Running]);
+        })->count();
+        $failedCount = RiskScoreAnalysis::whereHas('executions', function ($q) {
+            $q->where('status', ExecutionStatus::Failed);
+        })->count();
+
+        $response = $analyses->toArray();
+        $response['facets'] = [
+            'status' => [
+                'all' => $totalCount,
+                'draft' => $draftCount,
+                'completed' => $completedCount,
+                'running' => $runningCount,
+                'failed' => $failedCount,
+            ],
+        ];
+
+        return response()->json($response);
+    }
+
+    /**
+     * Aggregate stats for the hub stats bar.
+     */
+    public function stats(): JsonResponse
+    {
+        $total = RiskScoreAnalysis::count();
+
+        $running = AnalysisExecution::where('analysis_type', RiskScoreAnalysis::class)
+            ->whereIn('status', [ExecutionStatus::Pending, ExecutionStatus::Running])
+            ->count();
+
+        $completed = RiskScoreAnalysis::whereHas('executions', function ($q) {
+            $q->where('status', ExecutionStatus::Completed);
+        })->count();
+
+        $patientsScored = RiskScorePatientResult::on('results')
+            ->distinct('person_id')
+            ->count('person_id');
+
+        return response()->json([
+            'data' => [
+                'total' => $total,
+                'running' => $running,
+                'completed' => $completed,
+                'patients_scored' => $patientsScored,
+                'scores_available' => 20,
+            ],
+        ]);
+    }
 
     /**
      * Recommend applicable risk scores for a cohort.
@@ -156,5 +250,105 @@ class RiskScoreAnalysisController extends Controller
         $results = $query->paginate($perPage);
 
         return response()->json($results);
+    }
+
+    /**
+     * Update a risk score analysis name/description.
+     */
+    public function update(Request $request, RiskScoreAnalysis $analysis): JsonResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+        ]);
+
+        $analysis->update($validated);
+
+        $analysis->load(['author', 'executions']);
+
+        return response()->json([
+            'data' => $analysis->fresh(['author', 'executions']),
+        ]);
+    }
+
+    /**
+     * Soft delete a risk score analysis.
+     */
+    public function destroy(RiskScoreAnalysis $analysis): JsonResponse
+    {
+        $analysis->delete();
+
+        return response()->json([
+            'message' => 'Risk score analysis deleted.',
+        ]);
+    }
+
+    /**
+     * Create a cohort from risk score patient results.
+     */
+    public function createCohort(RiskScoreAnalysis $analysis, Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'execution_id' => 'required|integer',
+            'score_id' => 'required|string',
+            'risk_tier' => 'nullable|string',
+            'person_ids' => 'nullable|array',
+            'person_ids.*' => 'integer',
+        ]);
+
+        if (! empty($validated['person_ids'])) {
+            $personIds = $validated['person_ids'];
+        } else {
+            $query = RiskScorePatientResult::on('results')
+                ->where('execution_id', $validated['execution_id'])
+                ->where('score_id', $validated['score_id']);
+
+            if (! empty($validated['risk_tier'])) {
+                $query->where('risk_tier', $validated['risk_tier']);
+            }
+
+            $personIds = $query->pluck('person_id')->unique()->values()->toArray();
+        }
+
+        if (empty($personIds)) {
+            return response()->json([
+                'message' => 'No patients found matching the specified criteria.',
+            ], 422);
+        }
+
+        $cohort = CohortDefinition::create([
+            'name' => $validated['name'],
+            'description' => $validated['description'] ?? null,
+            'expression_json' => [
+                'type' => 'risk_score_derived',
+                'analysis_id' => $analysis->id,
+                'execution_id' => $validated['execution_id'],
+                'score_id' => $validated['score_id'],
+                'risk_tier' => $validated['risk_tier'] ?? null,
+                'patient_count' => count($personIds),
+            ],
+            'author_id' => $request->user()->id,
+        ]);
+
+        // Insert into results.cohort in chunks
+        $today = now()->toDateString();
+        $rows = array_map(fn (int $personId): array => [
+            'cohort_definition_id' => $cohort->id,
+            'subject_id' => $personId,
+            'cohort_start_date' => $today,
+            'cohort_end_date' => $today,
+        ], $personIds);
+
+        $resultsConnection = (new RiskScorePatientResult)->getConnection();
+        foreach (array_chunk($rows, 500) as $chunk) {
+            $resultsConnection->table('cohort')->insert($chunk);
+        }
+
+        return response()->json([
+            'data' => $cohort,
+            'patient_count' => count($personIds),
+        ], 201);
     }
 }
