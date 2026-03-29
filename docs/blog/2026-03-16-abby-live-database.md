@@ -10,6 +10,10 @@ Abby can now answer "What concept sets do we have for diabetes?" and "How many p
 
 <!-- truncate -->
 
+<div style={{borderRadius: '12px', overflow: 'hidden', marginBottom: '2rem'}}>
+  <img src="/docs/img/Abby-AI.png" alt="Abby AI assistant" style={{width: '100%', display: 'block'}} />
+</div>
+
 ---
 
 ## The Problem: An Assistant Disconnected from Her Own Platform

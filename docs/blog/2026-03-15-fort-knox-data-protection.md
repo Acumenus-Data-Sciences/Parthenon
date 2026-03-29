@@ -12,6 +12,10 @@ On March 13–14, 2026, we lost all of it. Then, in an unrelated incident the ne
 
 <!-- truncate -->
 
+<div style={{borderRadius: '12px', overflow: 'hidden', marginBottom: '2rem'}}>
+  <img src="/docs/img/acumenus.png" alt="Acumenus Data Sciences" style={{width: '100%', display: 'block'}} />
+</div>
+
 This is the story of what went wrong, what we found when we looked for the data, and how we built a system that ensures it can never happen a third time.
 
 ---

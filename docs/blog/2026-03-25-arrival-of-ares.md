@@ -12,6 +12,10 @@ This is the biggest feature release in Parthenon's history.
 
 <!-- truncate -->
 
+<div style={{borderRadius: '12px', overflow: 'hidden', marginBottom: '2rem'}}>
+  <img src="/docs/img/parthenon-hero.jpg" alt="The Parthenon" style={{width: '100%', display: 'block'}} />
+</div>
+
 ## What Ares Replaces
 
 To appreciate what Ares does, consider what a typical OHDSI site coordinator juggles today:

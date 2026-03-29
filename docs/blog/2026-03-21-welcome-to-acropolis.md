@@ -16,6 +16,10 @@ This is the story of how we built Acropolis — the infrastructure layer that tu
 
 <!-- truncate -->
 
+<div style={{borderRadius: '12px', overflow: 'hidden', marginBottom: '2rem'}}>
+  <img src="/docs/img/aqueduct.jpg" alt="Roman aqueduct — Acropolis infrastructure" style={{width: '100%', display: 'block'}} />
+</div>
+
 ## Why Infrastructure Belongs in the Application
 
 For two months, Parthenon ran in production with a manual deployment story. Apache sat in front, configured by hand. No auto-TLS — I renewed certificates manually. No container management UI — if a researcher reported a problem, I SSHed in and ran `docker compose ps`. No centralized log view — I `grep`'d through container logs one at a time.

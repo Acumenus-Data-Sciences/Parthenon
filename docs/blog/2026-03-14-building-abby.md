@@ -12,6 +12,10 @@ This post tells the full story: why we built Abby, how the architecture works, w
 
 <!-- truncate -->
 
+<div style={{borderRadius: '12px', overflow: 'hidden', marginBottom: '2rem'}}>
+  <img src="/docs/img/Abby-AI.png" alt="Abby AI assistant" style={{width: '100%', display: 'block'}} />
+</div>
+
 ---
 
 ## The Problem We Set Out to Solve

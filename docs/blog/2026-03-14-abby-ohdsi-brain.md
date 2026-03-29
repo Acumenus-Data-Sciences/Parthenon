@@ -10,6 +10,10 @@ Today we transformed Abby from a capable AI assistant into an OHDSI domain exper
 
 <!-- truncate -->
 
+<div style={{borderRadius: '12px', overflow: 'hidden', marginBottom: '2rem'}}>
+  <img src="/docs/img/Abby-AI.png" alt="Abby AI assistant" style={{width: '100%', display: 'block'}} />
+</div>
+
 ---
 
 ## The Problem: An Assistant Without a Library

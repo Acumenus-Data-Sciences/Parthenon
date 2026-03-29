@@ -10,6 +10,10 @@ After losing app data to an accidental Docker volume wipe and spending 24 hours 
 
 <!-- truncate -->
 
+<div style={{borderRadius: '12px', overflow: 'hidden', marginBottom: '2rem'}}>
+  <img src="/docs/img/acumenus.png" alt="Acumenus Data Sciences" style={{width: '100%', display: 'block'}} />
+</div>
+
 ## The Problem
 
 Parthenon's dev environment had a split-brain database topology:

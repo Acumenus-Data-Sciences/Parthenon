@@ -14,6 +14,10 @@ This is the story of how we tore it down and built **Darkstar** — a production
 
 <!-- truncate -->
 
+<div style={{borderRadius: '12px', overflow: 'hidden', marginBottom: '2rem'}}>
+  <img src="/docs/img/parthenon-hero.jpg" alt="The Parthenon" style={{width: '100%', display: 'block'}} />
+</div>
+
 ## The Inheritance
 
 Parthenon didn't start from scratch. We inherited the R runtime architecture from **OHDSI Broadsea**, the community's standard Docker deployment for the OMOP CDM analytics stack. Broadsea ships a single R container running Plumber v1 — the venerable HTTP API framework for R that's been the community standard since 2017.

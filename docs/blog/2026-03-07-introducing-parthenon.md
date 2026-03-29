@@ -18,6 +18,10 @@ Parthenon is built for this fourth generation.
 
 <!-- truncate -->
 
+<div style={{borderRadius: '12px', overflow: 'hidden', marginBottom: '2rem'}}>
+  <img src="/docs/img/parthenon-hero.jpg" alt="The Parthenon" style={{width: '100%', display: 'block'}} />
+</div>
+
 ## Why We Built This
 
 The problems with traditional healthcare analytics infrastructure are well-documented but stubbornly persistent. Data fragmentation scatters patient information across EHR, laboratory, radiology, and claims platforms with inconsistent terminologies. Analytics teams are overwhelmed with routine reporting demands, leaving limited capacity for the strategic analysis that actually improves outcomes. And the insights that do emerge are retrospective — care gaps identified too late for optimal impact, interventions that are reactive rather than proactive.

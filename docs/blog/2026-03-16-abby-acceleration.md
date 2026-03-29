@@ -10,6 +10,10 @@ What started as "Abby's responses are slow" turned into an 18-hour deep dive tha
 
 <!-- truncate -->
 
+<div style={{borderRadius: '12px', overflow: 'hidden', marginBottom: '2rem'}}>
+  <img src="/docs/img/Abby-AI.png" alt="Abby AI assistant" style={{width: '100%', display: 'block'}} />
+</div>
+
 ---
 
 ## The Starting Point: Three Problems Masquerading as One
