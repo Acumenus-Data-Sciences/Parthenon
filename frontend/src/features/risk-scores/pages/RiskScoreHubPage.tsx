@@ -12,6 +12,9 @@ import {
   Activity,
   LayoutGrid,
   List,
+  ChevronDown,
+  ChevronUp,
+  Info,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { HelpButton } from "@/features/help";
@@ -21,9 +24,10 @@ import {
   useRiskScoreAnalyses,
   useRiskScoreAnalysisStats,
   useAllRiskScoreAnalyses,
+  useRiskScoreCatalogue,
 } from "../hooks/useRiskScores";
 import type { RiskScoreAnalysis } from "../types/riskScore";
-import { ANALYSIS_STATUS_COLORS, CATEGORY_ORDER } from "../types/riskScore";
+import { ANALYSIS_STATUS_COLORS, CATEGORY_ORDER, TIER_COLORS } from "../types/riskScore";
 
 const STATUS_OPTIONS = [
   { value: "draft", label: "Draft", color: ANALYSIS_STATUS_COLORS.draft },
@@ -61,6 +65,7 @@ export default function RiskScoreHubPage() {
   });
   const [showDropdown, setShowDropdown] = useState(false);
   const [drilldownStatus, setDrilldownStatus] = useState<string | null>(null);
+  const [showCatalogue, setShowCatalogue] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
 
   const hasFilters = !!(filterStatus || filterCategory);
@@ -71,6 +76,7 @@ export default function RiskScoreHubPage() {
     category: filterCategory ?? undefined,
   });
   const { data: allAnalysesData } = useAllRiskScoreAnalyses();
+  const { data: catalogue } = useRiskScoreCatalogue();
 
   const facets = data?.facets;
 
@@ -286,20 +292,27 @@ export default function RiskScoreHubPage() {
               { label: "Total", value: stats.total, icon: Briefcase, color: "#C5C0B8", drilldown: null as string | null },
               { label: "Running", value: stats.running, icon: Loader2, color: "#F59E0B", drilldown: "running" },
               { label: "Completed", value: stats.completed, icon: CheckCircle2, color: "#2DD4BF", drilldown: "completed" },
-              { label: "Scores Available", value: stats.scores_available, icon: BarChart3, color: "#60A5FA", drilldown: null },
+              { label: "Scores Available", value: stats.scores_available, icon: BarChart3, color: "#60A5FA", drilldown: "__catalogue__" },
               { label: "Patients Scored", value: stats.patients_scored, icon: Users, color: "#A78BFA", drilldown: null },
             ].map((metric) => {
               const Icon = metric.icon;
-              const isDrilling = metric.drilldown !== null && drilldownStatus === metric.drilldown;
+              const isDrilling =
+                (metric.drilldown === "__catalogue__" && showCatalogue) ||
+                (metric.drilldown !== null && metric.drilldown !== "__catalogue__" && drilldownStatus === metric.drilldown);
               return (
                 <button
                   key={metric.label}
                   type="button"
                   onClick={() => {
-                    if (metric.drilldown === null) {
+                    if (metric.drilldown === "__catalogue__") {
+                      setShowCatalogue((prev) => !prev);
                       setDrilldownStatus(null);
+                    } else if (metric.drilldown === null) {
+                      setDrilldownStatus(null);
+                      setShowCatalogue(false);
                     } else {
                       setDrilldownStatus(drilldownStatus === metric.drilldown ? null : metric.drilldown);
+                      setShowCatalogue(false);
                     }
                   }}
                   className={cn(
@@ -386,6 +399,78 @@ export default function RiskScoreHubPage() {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Score Catalogue Panel */}
+      {showCatalogue && catalogue?.scores && (
+        <div className="rounded-lg border border-[#60A5FA]/20 bg-[#60A5FA]/5 overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-2.5 bg-[#1C1C20] border-b border-[#232328]">
+            <div className="flex items-center gap-2">
+              <BarChart3 size={14} className="text-[#60A5FA]" />
+              <p className="text-[11px] font-semibold text-[#C5C0B8] uppercase tracking-wider">
+                Available Risk Scores
+                <span className="ml-1.5 text-[#5A5650]">({catalogue.scores.length})</span>
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowCatalogue(false)}
+              className="text-[#5A5650] hover:text-[#C5C0B8] transition-colors"
+            >
+              <X size={14} />
+            </button>
+          </div>
+          <div className="p-4 space-y-4 max-h-96 overflow-y-auto">
+            {CATEGORY_ORDER.map((category) => {
+              const categoryScores = catalogue.scores.filter(
+                (s) => s.category === category,
+              );
+              if (categoryScores.length === 0) return null;
+              const catColor = CATEGORY_COLORS[category] ?? "#8A857D";
+              return (
+                <div key={category}>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider mb-2" style={{ color: catColor }}>
+                    {category}
+                    <span className="ml-1 text-[#5A5650]">({categoryScores.length})</span>
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
+                    {categoryScores.map((score) => (
+                      <div
+                        key={score.score_id}
+                        className="flex items-start gap-2.5 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2.5"
+                      >
+                        <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#5A5650] mt-0.5 shrink-0">
+                          {score.score_id}
+                        </span>
+                        <div className="min-w-0">
+                          <p className="text-xs font-medium text-[#F0EDE8] truncate">
+                            {score.score_name}
+                          </p>
+                          <p className="text-[10px] text-[#5A5650] line-clamp-2 mt-0.5">
+                            {score.description}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="px-4 py-2.5 border-t border-[#232328] bg-[#1C1C20]">
+            <button
+              type="button"
+              onClick={() => {
+                setShowCatalogue(false);
+                navigate("/risk-scores/create");
+              }}
+              className="flex items-center gap-1.5 text-xs text-[#2DD4BF] hover:text-[#2DD4BF]/80 transition-colors"
+            >
+              <Plus size={12} />
+              Create analysis with these scores
+            </button>
+          </div>
         </div>
       )}
 

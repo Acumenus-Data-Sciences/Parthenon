@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-03-26)
 Phase: 7-10 parallel (Medications, Conditions, Measurements, Observations)
 Plan: 09-01 completed (growth measurements), phases 7-10 in parallel
 Status: Executing Phases 07-10 in parallel
-Last activity: 2026-03-27 - Completed quick task 8: Integrate Scribe OpenAPI spec into Docusaurus
+Last activity: 2026-03-29 - Completed quick task 10: Populate remaining public domain survey instruments with question items
 
 Progress: [█████████░] 92%
 
@@ -170,6 +170,7 @@ None yet.
 | 7 | Replace Scramble with Scribe for static API documentation | 2026-03-27 | 63c0cd4e7 | [7-replace-scramble-with-scribe-for-api-ref](./quick/7-replace-scramble-with-scribe-for-api-ref/) |
 | 8 | Integrate Scribe OpenAPI spec into Docusaurus site | 2026-03-27 | 713358ee9 | [8-integrate-scribe-openapi-spec-into-docus](./quick/8-integrate-scribe-openapi-spec-into-docus/) |
 | 9 | Fix semantic search right panel empty and selection highlighting | 2026-03-28 | 04d7bf81f | [9-fix-semantic-search-ui-right-panel-empty](./quick/9-fix-semantic-search-ui-right-panel-empty/) |
+| 10 | Populate remaining public domain survey instruments with question items | 2026-03-29 | b5763b7da | [10-populate-remaining-public-domain-survey-](./quick/10-populate-remaining-public-domain-survey-/) |
 | 10 | Populate 29 remaining public domain survey instruments (605 items) | 2026-03-29 | 2932d2605 | [10-populate-remaining-public-domain-survey-](./quick/10-populate-remaining-public-domain-survey-/) |
 
 ## Session Continuity
