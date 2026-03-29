@@ -15,6 +15,7 @@ class SurveyItem extends Model
         'response_type',
         'omop_concept_id',
         'loinc_code',
+        'snomed_code',
         'subscale_name',
         'is_reverse_coded',
         'min_value',

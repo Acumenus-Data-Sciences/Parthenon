@@ -13,6 +13,7 @@ class SurveyAnswerOption extends Model
         'option_value',
         'omop_concept_id',
         'loinc_la_code',
+        'snomed_code',
         'display_order',
     ];
 

@@ -95,6 +95,7 @@ class SurveyInstrumentController extends Controller
         $total = (clone $instruments)->count();
         $domains = (clone $instruments)->distinct('domain')->count('domain');
         $withLoinc = (clone $instruments)->whereNotNull('loinc_panel_code')->count();
+        $withSnomed = (clone $instruments)->where('has_snomed', true)->count();
         $fullOmop = (clone $instruments)->where('omop_coverage', 'yes')->count();
         $partialOmop = (clone $instruments)->where('omop_coverage', 'partial')->count();
         $noOmop = (clone $instruments)->where('omop_coverage', 'no')->count();
@@ -102,11 +103,16 @@ class SurveyInstrumentController extends Controller
         $withItems = SurveyItem::distinct('survey_instrument_id')->count('survey_instrument_id');
         $totalItems = SurveyItem::count();
         $totalAnswerOptions = SurveyAnswerOption::count();
+        $itemsWithSnomed = SurveyItem::whereNotNull('snomed_code')->count();
+        $answersWithSnomed = SurveyAnswerOption::whereNotNull('snomed_code')->count();
+        $itemsWithLoinc = SurveyItem::whereNotNull('loinc_code')->count();
+        $answersWithLoinc = SurveyAnswerOption::whereNotNull('loinc_la_code')->count();
 
         return response()->json([
             'total_instruments' => $total,
             'domains' => $domains,
             'with_loinc' => $withLoinc,
+            'with_snomed' => $withSnomed,
             'full_omop' => $fullOmop,
             'partial_omop' => $partialOmop,
             'no_omop' => $noOmop,
@@ -114,6 +120,10 @@ class SurveyInstrumentController extends Controller
             'instruments_with_items' => $withItems,
             'total_items' => $totalItems,
             'total_answer_options' => $totalAnswerOptions,
+            'items_with_loinc' => $itemsWithLoinc,
+            'items_with_snomed' => $itemsWithSnomed,
+            'answers_with_loinc' => $answersWithLoinc,
+            'answers_with_snomed' => $answersWithSnomed,
         ]);
     }
 

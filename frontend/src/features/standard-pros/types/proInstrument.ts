@@ -6,6 +6,8 @@ export interface ProInstrument {
   items: string;
   hasLoinc: boolean;
   loincCode: string | null;
+  hasSnomed: boolean;
+  snomedCode: string | null;
   omopCoverage: "yes" | "partial" | "no";
   license: "public" | "proprietary";
   licenseDetail: string;

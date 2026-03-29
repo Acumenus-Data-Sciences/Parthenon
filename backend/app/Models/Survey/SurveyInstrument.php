@@ -21,12 +21,14 @@ class SurveyInstrument extends Model
         'item_count',
         'scoring_method',
         'loinc_panel_code',
+        'snomed_code',
         'omop_concept_id',
         'license_type',
         'license_detail',
         'is_public_domain',
         'is_active',
         'omop_coverage',
+        'has_snomed',
         'created_by',
     ];
 
@@ -39,6 +41,7 @@ class SurveyInstrument extends Model
             'scoring_method' => 'array',
             'is_public_domain' => 'boolean',
             'is_active' => 'boolean',
+            'has_snomed' => 'boolean',
             'item_count' => 'integer',
             'omop_concept_id' => 'integer',
         ];
@@ -86,5 +89,10 @@ class SurveyInstrument extends Model
     public function scopePublicDomain(mixed $query): mixed
     {
         return $query->where('is_public_domain', true);
+    }
+
+    public function scopeWithSnomed(mixed $query): mixed
+    {
+        return $query->where('has_snomed', true);
     }
 }

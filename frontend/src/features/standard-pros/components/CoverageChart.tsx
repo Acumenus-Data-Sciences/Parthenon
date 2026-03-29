@@ -57,6 +57,15 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
     ];
   }, [instruments]);
 
+  const snomedData = useMemo(() => {
+    const withSnomed = instruments.filter((i) => i.hasSnomed).length;
+    const without = instruments.length - withSnomed;
+    return [
+      { name: "Has SNOMED", value: withSnomed, fill: "#F59E0B" },
+      { name: "No SNOMED", value: without, fill: "#5A5650" },
+    ];
+  }, [instruments]);
+
   const licenseData = useMemo(() => {
     const pub = instruments.filter((i) => i.license === "public").length;
     const prop = instruments.length - pub;
@@ -187,6 +196,50 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
             </ResponsiveContainer>
             <div className="flex-1 space-y-1.5">
               {loincData.map((entry) => (
+                <div
+                  key={entry.name}
+                  className="flex items-center justify-between text-xs"
+                >
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-2.5 h-2.5 rounded-full"
+                      style={{ backgroundColor: entry.fill }}
+                    />
+                    <span className="text-[#C5C0B8]">{entry.name}</span>
+                  </div>
+                  <span className="font-['IBM_Plex_Mono',monospace] text-[#F0EDE8]">
+                    {entry.value}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* SNOMED Coverage */}
+        <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-5">
+          <h3 className="text-sm font-medium text-[#F0EDE8] mb-3">
+            SNOMED CT Coverage
+          </h3>
+          <div className="flex items-center gap-6">
+            <ResponsiveContainer width={100} height={100}>
+              <PieChart>
+                <Pie
+                  data={snomedData}
+                  innerRadius={28}
+                  outerRadius={44}
+                  paddingAngle={2}
+                  dataKey="value"
+                  stroke="none"
+                >
+                  {snomedData.map((entry) => (
+                    <Cell key={entry.name} fill={entry.fill} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="flex-1 space-y-1.5">
+              {snomedData.map((entry) => (
                 <div
                   key={entry.name}
                   className="flex items-center justify-between text-xs"

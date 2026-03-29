@@ -57,7 +57,13 @@ function ItemCard({ item, index }: { item: SurveyItemApi; index: number }) {
             {item.loinc_code && (
               <span className="inline-flex items-center gap-1 rounded-md bg-[#60A5FA]/10 px-2 py-0.5 text-[10px] font-medium text-[#60A5FA]">
                 <Hash size={10} />
-                {item.loinc_code}
+                LOINC {item.loinc_code}
+              </span>
+            )}
+            {item.snomed_code && (
+              <span className="inline-flex items-center gap-1 rounded-md bg-[#F59E0B]/10 px-2 py-0.5 text-[10px] font-medium text-[#F59E0B]">
+                <Hash size={10} />
+                SNOMED {item.snomed_code}
               </span>
             )}
             {item.subscale_name && (
@@ -96,11 +102,18 @@ function ItemCard({ item, index }: { item: SurveyItemApi; index: number }) {
                   {opt.option_text}
                 </span>
               </div>
-              {opt.loinc_la_code && (
-                <span className="text-[10px] font-['IBM_Plex_Mono',monospace] text-[#5A5650]">
-                  {opt.loinc_la_code}
-                </span>
-              )}
+              <div className="flex items-center gap-2">
+                {opt.loinc_la_code && (
+                  <span className="text-[10px] font-['IBM_Plex_Mono',monospace] text-[#60A5FA]">
+                    {opt.loinc_la_code}
+                  </span>
+                )}
+                {opt.snomed_code && (
+                  <span className="text-[10px] font-['IBM_Plex_Mono',monospace] text-[#F59E0B]">
+                    {opt.snomed_code}
+                  </span>
+                )}
+              </div>
             </div>
           ))}
         </div>
@@ -206,7 +219,7 @@ export default function InstrumentDetailPage() {
       </div>
 
       {/* Metadata cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
         <MetaCard icon={FileText} label="Items" value={String(instrument.item_count)} color="#2DD4BF" />
         <MetaCard icon={BookOpen} label="Answer Options" value={String(totalAnswerOptions)} color="#C9A227" />
         <MetaCard
@@ -214,6 +227,12 @@ export default function InstrumentDetailPage() {
           label="LOINC Panel"
           value={instrument.loinc_panel_code ?? "\u2014"}
           color={instrument.loinc_panel_code ? "#60A5FA" : "#5A5650"}
+        />
+        <MetaCard
+          icon={Hash}
+          label="SNOMED CT"
+          value={instrument.snomed_code ?? "\u2014"}
+          color={instrument.snomed_code ? "#F59E0B" : "#5A5650"}
         />
         <MetaCard
           icon={instrument.is_public_domain ? Unlock : Lock}

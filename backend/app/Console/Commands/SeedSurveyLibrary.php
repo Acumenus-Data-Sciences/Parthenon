@@ -69,12 +69,14 @@ class SeedSurveyLibrary extends Command
                     'item_count' => $data['item_count'] ?? 0,
                     'scoring_method' => $data['scoring_method'] ?? null,
                     'loinc_panel_code' => $data['loinc_panel_code'] ?? null,
+                    'snomed_code' => $data['snomed_code'] ?? null,
                     'omop_concept_id' => $data['omop_concept_id'] ?? null,
                     'license_type' => $data['license_type'] ?? 'public',
                     'license_detail' => $data['license_detail'] ?? null,
                     'is_public_domain' => $data['is_public_domain'] ?? true,
                     'is_active' => true,
                     'omop_coverage' => $data['omop_coverage'] ?? 'no',
+                    'has_snomed' => $data['has_snomed'] ?? ! empty($data['snomed_code']),
                 ];
 
                 if ($instrument) {
@@ -97,6 +99,7 @@ class SeedSurveyLibrary extends Command
                             'response_type' => $itemData['response_type'] ?? 'likert',
                             'omop_concept_id' => $itemData['omop_concept_id'] ?? null,
                             'loinc_code' => $itemData['loinc_code'] ?? null,
+                            'snomed_code' => $itemData['snomed_code'] ?? null,
                             'subscale_name' => $itemData['subscale_name'] ?? null,
                             'is_reverse_coded' => $itemData['is_reverse_coded'] ?? false,
                             'min_value' => $itemData['min_value'] ?? null,
@@ -111,6 +114,7 @@ class SeedSurveyLibrary extends Command
                                 'option_value' => $ans['value'] ?? $ans['option_value'] ?? null,
                                 'omop_concept_id' => $ans['omop_concept_id'] ?? null,
                                 'loinc_la_code' => $ans['loinc_la_code'] ?? $ans['loinc_code'] ?? null,
+                                'snomed_code' => $ans['snomed_code'] ?? null,
                                 'display_order' => $ans['display_order'] ?? $idx + 1,
                             ]);
                         }

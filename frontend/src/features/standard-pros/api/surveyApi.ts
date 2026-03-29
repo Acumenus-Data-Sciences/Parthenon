@@ -13,6 +13,8 @@ export interface SurveyInstrumentApi {
   item_count: number;
   scoring_method: Record<string, unknown> | null;
   loinc_panel_code: string | null;
+  snomed_code: string | null;
+  has_snomed: boolean;
   omop_concept_id: number | null;
   license_type: "public" | "proprietary";
   license_detail: string | null;
@@ -32,6 +34,7 @@ export interface SurveyItemApi {
   response_type: string;
   omop_concept_id: number | null;
   loinc_code: string | null;
+  snomed_code: string | null;
   subscale_name: string | null;
   is_reverse_coded: boolean;
   min_value: string | null;
@@ -47,6 +50,7 @@ export interface SurveyAnswerOptionApi {
   option_value: string | null;
   omop_concept_id: number | null;
   loinc_la_code: string | null;
+  snomed_code: string | null;
   display_order: number;
 }
 
@@ -60,6 +64,7 @@ export interface SurveyStatsApi {
   total_instruments: number;
   domains: number;
   with_loinc: number;
+  with_snomed: number;
   full_omop: number;
   partial_omop: number;
   no_omop: number;
@@ -67,6 +72,10 @@ export interface SurveyStatsApi {
   instruments_with_items: number;
   total_items: number;
   total_answer_options: number;
+  items_with_loinc: number;
+  items_with_snomed: number;
+  answers_with_loinc: number;
+  answers_with_snomed: number;
 }
 
 export interface DomainCountApi {
@@ -138,6 +147,8 @@ export function toProInstrument(api: SurveyInstrumentApi): ProInstrument {
     items: String(api.item_count),
     hasLoinc: api.loinc_panel_code !== null,
     loincCode: api.loinc_panel_code,
+    hasSnomed: api.has_snomed,
+    snomedCode: api.snomed_code,
     omopCoverage: api.omop_coverage,
     license: api.license_type,
     licenseDetail: api.license_detail ?? (api.license_type === "public" ? "Public Domain" : "Proprietary"),

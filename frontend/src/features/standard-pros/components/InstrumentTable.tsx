@@ -95,6 +95,7 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
   const [omopFilter, setOmopFilter] = useState<OmopCoverage | null>(null);
   const [licenseFilter, setLicenseFilter] = useState<"public" | "proprietary" | null>(null);
   const [loincFilter, setLoincFilter] = useState<boolean | null>(null);
+  const [snomedFilter, setSnomedFilter] = useState<boolean | null>(null);
   const [sortField, setSortField] = useState<SortField>("domain");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
 
@@ -123,6 +124,7 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
     if (omopFilter) list = list.filter((i) => i.omopCoverage === omopFilter);
     if (licenseFilter) list = list.filter((i) => i.license === licenseFilter);
     if (loincFilter !== null) list = list.filter((i) => i.hasLoinc === loincFilter);
+    if (snomedFilter !== null) list = list.filter((i) => i.hasSnomed === snomedFilter);
 
     const sorted = [...list].sort((a, b) => {
       const aVal = a[sortField];
@@ -131,7 +133,7 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
       return sortDir === "asc" ? cmp : -cmp;
     });
     return sorted;
-  }, [instruments, search, domainFilter, omopFilter, licenseFilter, loincFilter, sortField, sortDir]);
+  }, [instruments, search, domainFilter, omopFilter, licenseFilter, loincFilter, snomedFilter, sortField, sortDir]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -155,7 +157,8 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
     (domainFilter ? 1 : 0) +
     (omopFilter ? 1 : 0) +
     (licenseFilter ? 1 : 0) +
-    (loincFilter !== null ? 1 : 0);
+    (loincFilter !== null ? 1 : 0) +
+    (snomedFilter !== null ? 1 : 0);
 
   return (
     <div className="space-y-4">
@@ -256,6 +259,25 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
 
           <span className="text-[#2A2A2F]">|</span>
 
+          {/* SNOMED */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-[10px] text-[#5A5650] uppercase tracking-wider">SNOMED</span>
+            <Pill
+              active={snomedFilter === true}
+              label="Has SNOMED"
+              color="#F59E0B"
+              onClick={() => setSnomedFilter(snomedFilter === true ? null : true)}
+            />
+            <Pill
+              active={snomedFilter === false}
+              label="No SNOMED"
+              color="#5A5650"
+              onClick={() => setSnomedFilter(snomedFilter === false ? null : false)}
+            />
+          </div>
+
+          <span className="text-[#2A2A2F]">|</span>
+
           {/* Sort */}
           <div className="flex items-center gap-1.5">
             <ArrowUpDown size={12} className="text-[#5A5650]" />
@@ -293,6 +315,7 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
                   setOmopFilter(null);
                   setLicenseFilter(null);
                   setLoincFilter(null);
+                  setSnomedFilter(null);
                 }}
                 className="rounded-full px-2.5 py-1 text-[11px] font-medium text-[#E85A6B] hover:bg-[#E85A6B]/10 transition-colors"
               >
@@ -341,6 +364,9 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
                 ))}
                 <th className="px-3 py-2.5 text-left text-[#8A857D] font-medium">
                   LOINC
+                </th>
+                <th className="px-3 py-2.5 text-left text-[#8A857D] font-medium">
+                  SNOMED
                 </th>
               </tr>
             </thead>
@@ -399,12 +425,22 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
                   <td className="px-3 py-2.5">
                     <LoincBadge hasLoinc={inst.hasLoinc} code={inst.loincCode} />
                   </td>
+                  <td className="px-3 py-2.5">
+                    {inst.hasSnomed ? (
+                      <span className="inline-flex items-center gap-1 rounded-md bg-[#F59E0B]/10 px-2 py-0.5 text-[10px] font-medium text-[#F59E0B]">
+                        <Check size={10} />
+                        {inst.snomedCode ?? "Yes"}
+                      </span>
+                    ) : (
+                      <span className="text-[10px] text-[#5A5650]">{"\u2014"}</span>
+                    )}
+                  </td>
                 </tr>
               ))}
               {filtered.length === 0 && (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={8}
                     className="px-3 py-8 text-center text-sm text-[#5A5650]"
                   >
                     No instruments match your filters.

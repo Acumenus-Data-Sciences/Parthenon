@@ -33,12 +33,14 @@ class StoreSurveyInstrumentRequest extends FormRequest
             'item_count' => 'sometimes|integer|min:0',
             'scoring_method' => 'nullable|array',
             'loinc_panel_code' => 'nullable|string|max:20',
+            'snomed_code' => 'nullable|string|max:20',
             'omop_concept_id' => 'nullable|integer',
             'license_type' => 'sometimes|string|in:public,proprietary',
             'license_detail' => 'nullable|string|max:255',
             'is_public_domain' => 'sometimes|boolean',
             'is_active' => 'sometimes|boolean',
             'omop_coverage' => 'sometimes|string|in:yes,partial,no',
+            'has_snomed' => 'sometimes|boolean',
         ];
     }
 }

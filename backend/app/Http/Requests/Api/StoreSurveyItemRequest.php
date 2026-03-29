@@ -22,6 +22,7 @@ class StoreSurveyItemRequest extends FormRequest
             'response_type' => 'sometimes|string|in:likert,yes_no,numeric,free_text,multi_select,date',
             'omop_concept_id' => 'nullable|integer',
             'loinc_code' => 'nullable|string|max:20',
+            'snomed_code' => 'nullable|string|max:20',
             'subscale_name' => 'nullable|string|max:60',
             'is_reverse_coded' => 'sometimes|boolean',
             'min_value' => 'nullable|numeric',
@@ -32,6 +33,7 @@ class StoreSurveyItemRequest extends FormRequest
             'answer_options.*.option_value' => 'nullable|numeric',
             'answer_options.*.omop_concept_id' => 'nullable|integer',
             'answer_options.*.loinc_la_code' => 'nullable|string|max:20',
+            'answer_options.*.snomed_code' => 'nullable|string|max:20',
             'answer_options.*.display_order' => 'required_with:answer_options|integer|min:1',
         ];
     }

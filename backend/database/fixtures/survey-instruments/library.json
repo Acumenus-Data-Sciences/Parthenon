@@ -23,7 +23,7 @@
     "loinc_panel_code": "44249-1",
     "omop_concept_id": 756791,
     "license_type": "public",
-    "license_detail": "Public Domain \u2014 Pfizer Inc. has released PHQ-9 into the public domain; no permission required to reproduce, translate, display or distribute.",
+    "license_detail": "Public Domain — Pfizer Inc. has released PHQ-9 into the public domain; no permission required to reproduce, translate, display or distribute.",
     "is_public_domain": true,
     "omop_coverage": "partial",
     "items": [
@@ -170,7 +170,7 @@
       {
         "item_number": 6,
         "loinc_code": "44258-2",
-        "text": "Feeling bad about yourself \u2014 or that you are a failure or have let yourself or your family down",
+        "text": "Feeling bad about yourself — or that you are a failure or have let yourself or your family down",
         "response_type": "likert",
         "options": [
           {
@@ -226,7 +226,7 @@
       {
         "item_number": 8,
         "loinc_code": "44253-3",
-        "text": "Moving or speaking so slowly that other people could have noticed? Or the opposite \u2014 being so fidgety or restless that you have been moving around a lot more than usual",
+        "text": "Moving or speaking so slowly that other people could have noticed? Or the opposite — being so fidgety or restless that you have been moving around a lot more than usual",
         "response_type": "likert",
         "options": [
           {
@@ -304,7 +304,9 @@
           }
         ]
       }
-    ]
+    ],
+    "snomed_code": "720433000",
+    "has_snomed": true
   },
   {
     "abbreviation": "PHQ-2",
@@ -321,7 +323,7 @@
       "subscales": [],
       "interpretation": {
         "0-2": "Screen negative",
-        "3-6": "Screen positive \u2014 administer PHQ-9"
+        "3-6": "Screen positive — administer PHQ-9"
       }
     },
     "loinc_panel_code": "55757-9",
@@ -387,7 +389,9 @@
           }
         ]
       }
-    ]
+    ],
+    "snomed_code": "720434006",
+    "has_snomed": true
   },
   {
     "abbreviation": "GAD-7",
@@ -412,7 +416,7 @@
     "loinc_panel_code": "69737-5",
     "omop_concept_id": 756794,
     "license_type": "public",
-    "license_detail": "Public Domain \u2014 Pfizer Inc. has released GAD-7 into the public domain.",
+    "license_detail": "Public Domain — Pfizer Inc. has released GAD-7 into the public domain.",
     "is_public_domain": true,
     "omop_coverage": "partial",
     "items": [
@@ -612,7 +616,9 @@
           }
         ]
       }
-    ]
+    ],
+    "snomed_code": "720262000",
+    "has_snomed": true
   },
   {
     "abbreviation": "BDI-II",
@@ -640,7 +646,9 @@
     "license_detail": "Copyright Pearson Education. Requires purchase and licensing. Do not reproduce without permission.",
     "is_public_domain": false,
     "omop_coverage": "no",
-    "items": []
+    "items": [],
+    "snomed_code": "273365003",
+    "has_snomed": true
   },
   {
     "abbreviation": "C-SSRS",
@@ -666,7 +674,9 @@
     "license_detail": "Free for use with acknowledgment of Columbia University. Available at cssrs.columbia.edu.",
     "is_public_domain": false,
     "omop_coverage": "no",
-    "items": []
+    "items": [],
+    "snomed_code": "713831004",
+    "has_snomed": true
   },
   {
     "abbreviation": "PANSS",
@@ -692,7 +702,9 @@
     "license_detail": "Copyright Multi-Health Systems (MHS). Requires licensing for use.",
     "is_public_domain": false,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "snomed_code": "273788001",
+    "has_snomed": true
   },
   {
     "abbreviation": "SAPS",
@@ -719,7 +731,8 @@
     "license_detail": "Available from the University of Iowa; free to use with attribution to Dr. Nancy Andreasen.",
     "is_public_domain": true,
     "omop_coverage": "partial",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "SANS",
@@ -747,7 +760,8 @@
     "license_detail": "Available from the University of Iowa; free to use with attribution to Dr. Nancy Andreasen.",
     "is_public_domain": true,
     "omop_coverage": "partial",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "PCL-5",
@@ -775,10 +789,12 @@
     "loinc_panel_code": null,
     "omop_concept_id": null,
     "license_type": "public",
-    "license_detail": "Public domain \u2014 published by the US Department of Veterans Affairs National Center for PTSD.",
+    "license_detail": "Public domain — published by the US Department of Veterans Affairs National Center for PTSD.",
     "is_public_domain": true,
     "omop_coverage": "no",
-    "items": []
+    "items": [],
+    "snomed_code": "446082004",
+    "has_snomed": true
   },
   {
     "abbreviation": "AUDIT",
@@ -1076,7 +1092,9 @@
           }
         ]
       }
-    ]
+    ],
+    "snomed_code": "763138006",
+    "has_snomed": true
   },
   {
     "abbreviation": "DAST-10",
@@ -1105,7 +1123,9 @@
     "license_detail": "Harvey A. Skinner; freely available for clinical and research use.",
     "is_public_domain": true,
     "omop_coverage": "partial",
-    "items": []
+    "items": [],
+    "snomed_code": "273426007",
+    "has_snomed": true
   },
   {
     "abbreviation": "CAGE",
@@ -1122,7 +1142,7 @@
       "subscales": [],
       "interpretation": {
         "0-1": "Screen negative",
-        "2-4": "Screen positive \u2014 further assessment recommended"
+        "2-4": "Screen positive — further assessment recommended"
       }
     },
     "loinc_panel_code": "74043-1",
@@ -1196,7 +1216,9 @@
           }
         ]
       }
-    ]
+    ],
+    "snomed_code": "390901007",
+    "has_snomed": true
   },
   {
     "abbreviation": "ASSIST",
@@ -1224,8 +1246,8 @@
       ],
       "interpretation": {
         "0-3": "Lower risk",
-        "4-26": "Moderate risk \u2014 brief intervention",
-        "27+": "High risk \u2014 referral for assessment and treatment"
+        "4-26": "Moderate risk — brief intervention",
+        "27+": "High risk — referral for assessment and treatment"
       }
     },
     "loinc_panel_code": null,
@@ -1234,7 +1256,8 @@
     "license_detail": "World Health Organization. Freely available at who.int.",
     "is_public_domain": true,
     "omop_coverage": "partial",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "SASSI-3",
@@ -1264,7 +1287,8 @@
     "license_detail": "Copyright SASSI Institute. Requires purchase and certification for administration.",
     "is_public_domain": false,
     "omop_coverage": "partial",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "EQ-5D-3L",
@@ -1294,7 +1318,9 @@
     "license_detail": "Copyright EuroQol Research Foundation. Requires registration and license at euroqol.org. Free for academic non-commercial use.",
     "is_public_domain": false,
     "omop_coverage": "partial",
-    "items": []
+    "items": [],
+    "snomed_code": "736535009",
+    "has_snomed": true
   },
   {
     "abbreviation": "EQ-5D-5L",
@@ -1324,7 +1350,9 @@
     "license_detail": "Copyright EuroQol Research Foundation. Requires registration and license at euroqol.org.",
     "is_public_domain": false,
     "omop_coverage": "partial",
-    "items": []
+    "items": [],
+    "snomed_code": "736534008",
+    "has_snomed": true
   },
   {
     "abbreviation": "SF-36",
@@ -1356,7 +1384,9 @@
     "license_detail": "Copyright RAND Corporation / QualityMetric. Requires licensing for commercial use. RAND 36-item version is free for non-commercial use.",
     "is_public_domain": false,
     "omop_coverage": "partial",
-    "items": []
+    "items": [],
+    "snomed_code": "273829002",
+    "has_snomed": true
   },
   {
     "abbreviation": "SF-12",
@@ -1382,11 +1412,13 @@
     "license_detail": "Copyright QualityMetric. Requires licensing.",
     "is_public_domain": false,
     "omop_coverage": "partial",
-    "items": []
+    "items": [],
+    "snomed_code": "273828005",
+    "has_snomed": true
   },
   {
     "abbreviation": "WHOQOL-BREF",
-    "name": "WHO Quality of Life \u2014 Brief",
+    "name": "WHO Quality of Life — Brief",
     "domain": "Quality of Life",
     "item_count": 26,
     "description": "Twenty-six item abbreviated version of the WHOQOL-100 measuring quality of life across four domains: physical health, psychological health, social relationships, and environment. Developed cross-culturally by the WHO and validated in 15 international field centers.",
@@ -1410,7 +1442,9 @@
     "license_detail": "World Health Organization. Freely available for non-commercial use from who.int.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "snomed_code": "273908001",
+    "has_snomed": true
   },
   {
     "abbreviation": "HUI",
@@ -1442,7 +1476,8 @@
     "license_detail": "Copyright Health Utilities Inc. Requires licensing at healthutilities.com.",
     "is_public_domain": false,
     "omop_coverage": "partial",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "SF-6D",
@@ -1472,11 +1507,12 @@
     "license_detail": "Copyright Medical Outcomes Trust / John Brazier. Requires licensing.",
     "is_public_domain": false,
     "omop_coverage": "partial",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "VAS-Pain",
-    "name": "Visual Analogue Scale \u2014 Pain",
+    "name": "Visual Analogue Scale — Pain",
     "domain": "Pain",
     "item_count": 1,
     "description": "Single-item continuous scale for patient self-rating of pain intensity, presented as a 100mm horizontal line anchored at 'no pain' (0) and 'worst imaginable pain' (100). Widely used in clinical trials and acute care settings.",
@@ -1495,11 +1531,13 @@
     "license_detail": "Public domain. Original methodology by Scott and Huskisson (1976).",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "snomed_code": "273904004",
+    "has_snomed": true
   },
   {
     "abbreviation": "NRS-Pain",
-    "name": "Numeric Rating Scale \u2014 Pain",
+    "name": "Numeric Rating Scale — Pain",
     "domain": "Pain",
     "item_count": 1,
     "description": "Single-item verbal or written 11-point scale (0-10) for pain intensity assessment where 0 = no pain and 10 = worst possible pain. The most widely used pain intensity scale in clinical practice due to its brevity and ease of administration.",
@@ -1523,7 +1561,9 @@
     "license_detail": "Public domain.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "snomed_code": "1144798005",
+    "has_snomed": true
   },
   {
     "abbreviation": "BPI",
@@ -1549,7 +1589,9 @@
     "license_detail": "Charles Cleeland / University of Texas MD Anderson Cancer Center. Free for use; available at mdanderson.org.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "snomed_code": "273373002",
+    "has_snomed": true
   },
   {
     "abbreviation": "MPQ",
@@ -1564,11 +1606,11 @@
         78
       ],
       "subscales": [
-        "Pain Rating Index \u2014 Sensory (PRI-S)",
-        "Pain Rating Index \u2014 Affective (PRI-A)",
-        "Pain Rating Index \u2014 Evaluative (PRI-E)",
-        "Pain Rating Index \u2014 Miscellaneous (PRI-M)",
-        "Pain Rating Index \u2014 Total (PRI-T)",
+        "Pain Rating Index — Sensory (PRI-S)",
+        "Pain Rating Index — Affective (PRI-A)",
+        "Pain Rating Index — Evaluative (PRI-E)",
+        "Pain Rating Index — Miscellaneous (PRI-M)",
+        "Pain Rating Index — Total (PRI-T)",
         "Number of Words Chosen (NWC)",
         "Present Pain Intensity (PPI)"
       ]
@@ -1579,7 +1621,8 @@
     "license_detail": "Copyright Ronald Melzack / Elsevier. Requires permission for reproduction.",
     "is_public_domain": false,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "SF-MPQ",
@@ -1607,7 +1650,8 @@
     "license_detail": "Copyright Ronald Melzack / Elsevier. Requires permission.",
     "is_public_domain": false,
     "omop_coverage": "partial",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "Barthel",
@@ -1828,7 +1872,9 @@
           }
         ]
       }
-    ]
+    ],
+    "snomed_code": "273302005",
+    "has_snomed": true
   },
   {
     "abbreviation": "Katz ADL",
@@ -1855,7 +1901,9 @@
     "license_detail": "Katz et al. (1963). Published in JAMA; public domain.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "snomed_code": "273534002",
+    "has_snomed": true
   },
   {
     "abbreviation": "IADL",
@@ -1878,7 +1926,8 @@
     "license_detail": "Lawton and Brody (1969). Published in Gerontologist; public domain.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "FIM",
@@ -1904,7 +1953,9 @@
     "license_detail": "Copyright Uniform Data System for Medical Rehabilitation (UDSMR). Requires licensing.",
     "is_public_domain": false,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "snomed_code": "273471000",
+    "has_snomed": true
   },
   {
     "abbreviation": "ODI",
@@ -1926,7 +1977,7 @@
         "61-80": "Crippling back pain",
         "81-100": "Bed-bound or exaggerating symptoms"
       },
-      "note": "Score = (total score / 50) \u00d7 100%; if one section missed, score = (total/45) \u00d7 100%"
+      "note": "Score = (total score / 50) × 100%; if one section missed, score = (total/45) × 100%"
     },
     "loinc_panel_code": null,
     "omop_concept_id": null,
@@ -1934,7 +1985,9 @@
     "license_detail": "Fairbank et al. (1980). Published in Physiotherapy; public domain for clinical/research use.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "snomed_code": "273808000",
+    "has_snomed": true
   },
   {
     "abbreviation": "KPS",
@@ -1969,7 +2022,9 @@
     "license_detail": "Karnofsky and Burchenal (1949). Public domain.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "snomed_code": "273544000",
+    "has_snomed": true
   },
   {
     "abbreviation": "ECOG-PS",
@@ -2008,31 +2063,39 @@
         "options": [
           {
             "value": 0,
-            "label": "Fully active, able to carry on all pre-disease activities without restriction"
+            "label": "Fully active, able to carry on all pre-disease activities without restriction",
+            "snomed_code": "425389002"
           },
           {
             "value": 1,
-            "label": "Restricted in physically strenuous activity but ambulatory and able to carry out work of a light or sedentary nature"
+            "label": "Restricted in physically strenuous activity but ambulatory and able to carry out work of a light or sedentary nature",
+            "snomed_code": "422512005"
           },
           {
             "value": 2,
-            "label": "Ambulatory and capable of all self-care but unable to carry out any work activities; up and about more than 50% of waking hours"
+            "label": "Ambulatory and capable of all self-care but unable to carry out any work activities; up and about more than 50% of waking hours",
+            "snomed_code": "422894000"
           },
           {
             "value": 3,
-            "label": "Capable of only limited self-care; confined to bed or chair more than 50% of waking hours"
+            "label": "Capable of only limited self-care; confined to bed or chair more than 50% of waking hours",
+            "snomed_code": "423053003"
           },
           {
             "value": 4,
-            "label": "Completely disabled; cannot carry on any self-care; totally confined to bed or chair"
+            "label": "Completely disabled; cannot carry on any self-care; totally confined to bed or chair",
+            "snomed_code": "423237006"
           },
           {
             "value": 5,
-            "label": "Dead"
+            "label": "Dead",
+            "snomed_code": "419099009"
           }
         ]
       }
-    ]
+    ],
+    "snomed_code": "423740007",
+    "has_snomed": true
   },
   {
     "abbreviation": "RMDQ",
@@ -2055,7 +2118,8 @@
     "license_detail": "Roland and Morris (1983). Published in Spine; free for non-commercial clinical and research use.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "NDI",
@@ -2084,7 +2148,8 @@
     "license_detail": "Vernon and Mior (1991). Copyright Vernon; requires permission for commercial use.",
     "is_public_domain": false,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "EORTC QLQ-C30",
@@ -2122,11 +2187,13 @@
     "license_detail": "Copyright EORTC. Free for use in non-commercial academic research with registration at eortc.org.",
     "is_public_domain": false,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "snomed_code": "273469000",
+    "has_snomed": true
   },
   {
     "abbreviation": "FACT-G",
-    "name": "Functional Assessment of Cancer Therapy \u2014 General",
+    "name": "Functional Assessment of Cancer Therapy — General",
     "domain": "Oncology",
     "item_count": 27,
     "description": "Twenty-seven item cancer-specific quality of life instrument covering four domains: physical well-being, social/family well-being, emotional well-being, and functional well-being. Serves as the core questionnaire for the FACIT measurement system with numerous disease-specific subscales.",
@@ -2149,11 +2216,12 @@
     "license_detail": "Copyright FACIT.org. Free for clinical research with registration. Commercial use requires licensing.",
     "is_public_domain": false,
     "omop_coverage": "no",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "FACIT-F",
-    "name": "Functional Assessment of Chronic Illness Therapy \u2014 Fatigue",
+    "name": "Functional Assessment of Chronic Illness Therapy — Fatigue",
     "domain": "Oncology",
     "item_count": 13,
     "description": "Thirteen-item fatigue subscale from the FACIT measurement system assessing the impact of fatigue and its consequences on daily activities and function in patients with chronic illness and cancer. Can be used as a standalone scale or added to the FACT-G.",
@@ -2172,7 +2240,8 @@
     "license_detail": "Copyright FACIT.org. Free for clinical research with registration.",
     "is_public_domain": false,
     "omop_coverage": "no",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "ESAS",
@@ -2199,7 +2268,8 @@
     "license_detail": "Bruera et al. (1991). Published by the Alberta Cancer Board; freely available.",
     "is_public_domain": true,
     "omop_coverage": "partial",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "EPIC-26",
@@ -2227,7 +2297,8 @@
     "license_detail": "Wei et al. (2000). Published in J Urol; University of Michigan. Free for academic use.",
     "is_public_domain": true,
     "omop_coverage": "no",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "EORTC QLQ-BR23",
@@ -2258,11 +2329,12 @@
     "license_detail": "Copyright EORTC. Free for non-commercial academic research with registration.",
     "is_public_domain": false,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "FACT-An",
-    "name": "Functional Assessment of Cancer Therapy \u2014 Anemia",
+    "name": "Functional Assessment of Cancer Therapy — Anemia",
     "domain": "Oncology",
     "item_count": 40,
     "description": "Forty-item instrument (FACT-G plus 20-item Anemia subscale) measuring quality of life in patients with cancer-related anemia, evaluating fatigue, weakness, and functional impairment due to low hemoglobin levels.",
@@ -2285,7 +2357,8 @@
     "license_detail": "Copyright FACIT.org. Free for clinical research with registration.",
     "is_public_domain": false,
     "omop_coverage": "no",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "MoCA",
@@ -2314,7 +2387,7 @@
         "10-17": "Moderate cognitive impairment",
         "0-9": "Severe cognitive impairment"
       },
-      "note": "Add 1 point if \u226412 years of education; cutoff \u226526 for normal"
+      "note": "Add 1 point if ≤12 years of education; cutoff ≥26 for normal"
     },
     "loinc_panel_code": "72133-2",
     "omop_concept_id": 4254995,
@@ -2322,7 +2395,9 @@
     "license_detail": "Copyright Z. Nasreddine MD. Free for clinical use; commercial/research use requires licensing at mocatest.org.",
     "is_public_domain": false,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "snomed_code": "273644007",
+    "has_snomed": true
   },
   {
     "abbreviation": "MMSE",
@@ -2350,7 +2425,9 @@
     "license_detail": "Copyright Psychological Assessment Resources (PAR). Requires licensing. Previously fee-waived but now requires purchase.",
     "is_public_domain": false,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "snomed_code": "273546003",
+    "has_snomed": true
   },
   {
     "abbreviation": "NIH Toolbox CB",
@@ -2378,7 +2455,8 @@
     "license_detail": "National Institutes of Health. Free for non-commercial research; available through Healthmeasures.net.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "GDS",
@@ -2406,7 +2484,9 @@
     "license_detail": "Yesavage et al. (1982/1986). Available from Stanford University; free for clinical and research use.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "snomed_code": "273487002",
+    "has_snomed": true
   },
   {
     "abbreviation": "FRAIL",
@@ -2433,7 +2513,8 @@
     "license_detail": "Morley et al. (2012). Published in J Nutr Health Aging; free to use.",
     "is_public_domain": true,
     "omop_coverage": "partial",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "Tinetti",
@@ -2463,7 +2544,9 @@
     "license_detail": "Tinetti (1986). Published in JAGS; public domain.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "snomed_code": "273897006",
+    "has_snomed": true
   },
   {
     "abbreviation": "FES",
@@ -2486,7 +2569,8 @@
     "license_detail": "Tinetti et al. (1990). Copyright; requires permission for commercial use. FES-I freely available from ProFaNE.",
     "is_public_domain": false,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "OARS/OMFAQ",
@@ -2515,7 +2599,8 @@
     "license_detail": "Duke University Center for the Study of Aging (1978). Free for non-commercial use.",
     "is_public_domain": true,
     "omop_coverage": "partial",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "KCCQ",
@@ -2538,7 +2623,7 @@
         "Quality of Life (2 items)",
         "Social Limitation (4 items)"
       ],
-      "note": "Higher scores indicate better health status; \u22655 point change considered clinically meaningful"
+      "note": "Higher scores indicate better health status; ≥5 point change considered clinically meaningful"
     },
     "loinc_panel_code": null,
     "omop_concept_id": null,
@@ -2546,7 +2631,9 @@
     "license_detail": "Copyright John Spertus / Saint Luke's Health System. Requires licensing at cvoutcomes.org.",
     "is_public_domain": false,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "snomed_code": "450291000124108",
+    "has_snomed": true
   },
   {
     "abbreviation": "SAQ",
@@ -2575,7 +2662,8 @@
     "license_detail": "Copyright John Spertus. Requires licensing.",
     "is_public_domain": false,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "MLHF",
@@ -2593,7 +2681,7 @@
         "Physical subscale (8 items, 0-40)",
         "Emotional subscale (5 items, 0-25)"
       ],
-      "note": "Higher scores indicate worse quality of life; \u22655 point change clinically meaningful"
+      "note": "Higher scores indicate worse quality of life; ≥5 point change clinically meaningful"
     },
     "loinc_panel_code": null,
     "omop_concept_id": null,
@@ -2601,7 +2689,8 @@
     "license_detail": "Copyright Regents of the University of Minnesota. Requires licensing.",
     "is_public_domain": false,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "MacNew",
@@ -2629,7 +2718,8 @@
     "license_detail": "Copyright MacNew Heart Disease QoL Group. Contact for licensing.",
     "is_public_domain": false,
     "omop_coverage": "partial",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "CAT",
@@ -2657,7 +2747,9 @@
     "license_detail": "GlaxoSmithKline. Free for use in clinical practice and non-commercial research. Available at catestonline.org.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "snomed_code": "446660005",
+    "has_snomed": true
   },
   {
     "abbreviation": "mMRC",
@@ -2686,7 +2778,8 @@
     "license_detail": "Public domain. Based on Fletcher et al. (1959), modified by the Medical Research Council.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "SGRQ",
@@ -2714,7 +2807,8 @@
     "license_detail": "Copyright St. George's Hospital Medical School (Paul Jones). Free for research; requires permission.",
     "is_public_domain": false,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "ACT",
@@ -2741,7 +2835,9 @@
     "license_detail": "QualityMetric / AstraZeneca. Free for clinical use.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "snomed_code": "710815001",
+    "has_snomed": true
   },
   {
     "abbreviation": "PAID",
@@ -2767,7 +2863,8 @@
     "license_detail": "Polonsky et al. (1995). Copyright; contact Joslin Diabetes Center for permission.",
     "is_public_domain": false,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "DDS",
@@ -2799,7 +2896,8 @@
     "license_detail": "Polonsky et al. (2005). Published in Diabetes Care; freely available.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "DTSQ",
@@ -2826,11 +2924,12 @@
     "license_detail": "Copyright Clare Bradley / Royal Holloway University of London. Requires licensing.",
     "is_public_domain": false,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "DSMQ-R",
-    "name": "Diabetes Self-Management Questionnaire \u2014 Revised",
+    "name": "Diabetes Self-Management Questionnaire — Revised",
     "domain": "Diabetes",
     "item_count": 16,
     "description": "Sixteen-item self-report measure of diabetes self-management behaviors including glucose management, dietary control, physical activity, healthcare use, and self-monitoring frequency, revised for use across both type 1 and type 2 diabetes.",
@@ -2854,7 +2953,8 @@
     "license_detail": "Schmitt et al. / German Diabetes Center. Contact for use.",
     "is_public_domain": false,
     "omop_coverage": "partial",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "PedsQL",
@@ -2884,7 +2984,8 @@
     "license_detail": "Copyright James W. Varni. Requires licensing at pedsql.org.",
     "is_public_domain": false,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "CBCL",
@@ -2911,7 +3012,7 @@
         "Externalizing",
         "Total Problems"
       ],
-      "note": "T-scores normalized to population; T \u2265 70 = clinical range; T 65-69 = borderline clinical"
+      "note": "T-scores normalized to population; T ≥ 70 = clinical range; T 65-69 = borderline clinical"
     },
     "loinc_panel_code": null,
     "omop_concept_id": null,
@@ -2919,7 +3020,8 @@
     "license_detail": "Copyright Thomas Achenbach / ASEBA. Requires licensing at aseba.org.",
     "is_public_domain": false,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "SDQ",
@@ -2949,7 +3051,8 @@
     "license_detail": "Copyright Robert Goodman. Free for non-commercial use. Available at sdqinfo.org.",
     "is_public_domain": false,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "PSC-17",
@@ -2981,7 +3084,8 @@
     "license_detail": "Jellinek and Murphy. Free for non-commercial use; available from Massachusetts General Hospital.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "NIHSS",
@@ -3010,7 +3114,9 @@
     "license_detail": "Developed by NIH/NINDS. Public domain. Available at nihstrokescale.org.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "snomed_code": "450741005",
+    "has_snomed": true
   },
   {
     "abbreviation": "mRS",
@@ -3050,35 +3156,44 @@
         "options": [
           {
             "value": 0,
-            "label": "No symptoms at all"
+            "label": "No symptoms at all",
+            "snomed_code": "260389003"
           },
           {
             "value": 1,
-            "label": "No significant disability despite symptoms; able to carry out all usual duties and activities"
+            "label": "No significant disability despite symptoms; able to carry out all usual duties and activities",
+            "snomed_code": "129306004"
           },
           {
             "value": 2,
-            "label": "Slight disability; unable to carry out all previous activities, but able to look after own affairs without assistance"
+            "label": "Slight disability; unable to carry out all previous activities, but able to look after own affairs without assistance",
+            "snomed_code": "129307008"
           },
           {
             "value": 3,
-            "label": "Moderate disability requiring some help, but able to walk without assistance"
+            "label": "Moderate disability requiring some help, but able to walk without assistance",
+            "snomed_code": "129308003"
           },
           {
             "value": 4,
-            "label": "Moderately severe disability; unable to walk without assistance and unable to attend to own bodily needs without assistance"
+            "label": "Moderately severe disability; unable to walk without assistance and unable to attend to own bodily needs without assistance",
+            "snomed_code": "129309006"
           },
           {
             "value": 5,
-            "label": "Severe disability; bedridden, incontinent, and requiring constant nursing care and attention"
+            "label": "Severe disability; bedridden, incontinent, and requiring constant nursing care and attention",
+            "snomed_code": "129310001"
           },
           {
             "value": 6,
-            "label": "Dead"
+            "label": "Dead",
+            "snomed_code": "419099009"
           }
         ]
       }
-    ]
+    ],
+    "snomed_code": "720120008",
+    "has_snomed": true
   },
   {
     "abbreviation": "GCS",
@@ -3134,7 +3249,8 @@
             "value": 4,
             "label": "Spontaneous eye opening"
           }
-        ]
+        ],
+        "snomed_code": "281395000"
       },
       {
         "item_number": 2,
@@ -3163,7 +3279,8 @@
             "value": 5,
             "label": "Oriented/normal conversation"
           }
-        ]
+        ],
+        "snomed_code": "281396004"
       },
       {
         "item_number": 3,
@@ -3196,9 +3313,12 @@
             "value": 6,
             "label": "Obeys commands"
           }
-        ]
+        ],
+        "snomed_code": "281397008"
       }
-    ]
+    ],
+    "snomed_code": "386554004",
+    "has_snomed": true
   },
   {
     "abbreviation": "FOUR",
@@ -3226,7 +3346,8 @@
     "license_detail": "Wijdicks et al. (2005). Mayo Clinic. Published in Mayo Clinic Proceedings; free for clinical use.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "PSQI",
@@ -3260,7 +3381,9 @@
     "license_detail": "Buysse et al. (1989). University of Pittsburgh. Free for clinical and non-commercial research use.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "snomed_code": "273810004",
+    "has_snomed": true
   },
   {
     "abbreviation": "ESS",
@@ -3481,7 +3604,9 @@
           }
         ]
       }
-    ]
+    ],
+    "snomed_code": "273476005",
+    "has_snomed": true
   },
   {
     "abbreviation": "ISI",
@@ -3509,7 +3634,8 @@
     "license_detail": "Charles Morin. Copyright; contact Morin Lab for permission. Free for academic non-commercial use.",
     "is_public_domain": false,
     "omop_coverage": "partial",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "IIEF",
@@ -3537,7 +3663,8 @@
     "license_detail": "Rosen et al. (1997). Copyright; requires permission for commercial use. Available for academic research.",
     "is_public_domain": false,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "FSFI",
@@ -3559,7 +3686,7 @@
         "Satisfaction (3 items)",
         "Pain (3 items)"
       ],
-      "note": "Each domain multiplied by a weighting factor; total = sum of domains; cutoff \u226426.55 indicates sexual dysfunction"
+      "note": "Each domain multiplied by a weighting factor; total = sum of domains; cutoff ≤26.55 indicates sexual dysfunction"
     },
     "loinc_panel_code": null,
     "omop_concept_id": null,
@@ -3567,7 +3694,8 @@
     "license_detail": "Rosen et al. (2000). Copyright; requires permission.",
     "is_public_domain": false,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "WOMAC",
@@ -3594,7 +3722,9 @@
     "license_detail": "Bellamy et al. (1988). Nicholas Bellamy. Free for academic and clinical use. Available at womac.org.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "snomed_code": "273907006",
+    "has_snomed": true
   },
   {
     "abbreviation": "HAQ-DI",
@@ -3626,7 +3756,8 @@
     "license_detail": "Fries et al. (1980). Stanford University. Requires permission for commercial use; free for academic research.",
     "is_public_domain": false,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "DAS28",
@@ -3652,7 +3783,7 @@
         "3.2-5.1": "Moderate disease activity",
         "> 5.1": "High disease activity"
       },
-      "note": "DAS28-ESR = 0.56\u00d7\u221aTJC28 + 0.28\u00d7\u221aSJC28 + 0.70\u00d7ln(ESR) + 0.014\u00d7PGA"
+      "note": "DAS28-ESR = 0.56×√TJC28 + 0.28×√SJC28 + 0.70×ln(ESR) + 0.014×PGA"
     },
     "loinc_panel_code": null,
     "omop_concept_id": null,
@@ -3660,7 +3791,8 @@
     "license_detail": "van der Heijde et al. (1990). Public domain; developed by the DAS-RA Working Group.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "ASQoL",
@@ -3683,7 +3815,8 @@
     "license_detail": "Doward et al. (2003). Copyright Galen Research. Requires licensing.",
     "is_public_domain": false,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "PRAPARE",
@@ -3708,7 +3841,8 @@
     "license_detail": "National Association of Community Health Centers (NACHC). Free for use with attribution.",
     "is_public_domain": true,
     "omop_coverage": "partial",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "AHC HRSN",
@@ -3734,14 +3868,15 @@
     "license_detail": "Centers for Medicare and Medicaid Services. Public domain.",
     "is_public_domain": true,
     "omop_coverage": "partial",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "ASA-PS",
     "name": "American Society of Anesthesiologists Physical Status Classification",
     "domain": "Perioperative",
     "item_count": 1,
-    "description": "Single-item ordinal classification (ASA I\u2013VI) used by anesthesiologists to estimate pre-operative physical health status and perioperative risk. The most widely used perioperative risk assessment tool in surgical settings worldwide.",
+    "description": "Single-item ordinal classification (ASA I–VI) used by anesthesiologists to estimate pre-operative physical health status and perioperative risk. The most widely used perioperative risk assessment tool in surgical settings worldwide.",
     "scoring_method": {
       "type": "ordinal",
       "range": [
@@ -3764,7 +3899,8 @@
     "license_detail": "American Society of Anesthesiologists. Public domain standard classification.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "WHO SSC",
@@ -3791,7 +3927,8 @@
     "license_detail": "World Health Organization (2008). Freely available at who.int/patientsafety.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "PROMIS GH-10",
@@ -4081,7 +4218,8 @@
           }
         ]
       }
-    ]
+    ],
+    "has_snomed": false
   },
   {
     "abbreviation": "PROMIS-29",
@@ -4113,7 +4251,8 @@
     "license_detail": "NIH PROMIS. Free for use. Available at healthmeasures.net.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "PROMIS PF",
@@ -4136,7 +4275,8 @@
     "license_detail": "NIH PROMIS. Free for use. Available at healthmeasures.net.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "PROMIS PI",
@@ -4159,7 +4299,8 @@
     "license_detail": "NIH PROMIS. Free for use. Available at healthmeasures.net.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "PROMIS Fatigue",
@@ -4182,11 +4323,12 @@
     "license_detail": "NIH PROMIS. Free for use. Available at healthmeasures.net.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "PROMIS Anxiety",
-    "name": "PROMIS Emotional Distress \u2014 Anxiety",
+    "name": "PROMIS Emotional Distress — Anxiety",
     "domain": "PROMIS",
     "item_count": 8,
     "description": "PROMIS item bank short form measuring self-reported fear, anxious misery, hyperarousal, and somatic symptoms related to arousal over the past 7 days, available in 4-, 6-, or 8-item short forms or CAT.",
@@ -4205,11 +4347,12 @@
     "license_detail": "NIH PROMIS. Free for use. Available at healthmeasures.net.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "PROMIS Depression",
-    "name": "PROMIS Emotional Distress \u2014 Depression",
+    "name": "PROMIS Emotional Distress — Depression",
     "domain": "PROMIS",
     "item_count": 8,
     "description": "PROMIS item bank short form measuring self-reported negative mood, views of self, social cognition, and decreased positive affect and engagement over the past 7 days, available in 4-, 6-, or 8-item short forms or CAT.",
@@ -4228,7 +4371,8 @@
     "license_detail": "NIH PROMIS. Free for use. Available at healthmeasures.net.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "PROMIS Sleep",
@@ -4251,7 +4395,8 @@
     "license_detail": "NIH PROMIS. Free for use. Available at healthmeasures.net.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "PROMIS SI",
@@ -4274,7 +4419,8 @@
     "license_detail": "NIH PROMIS. Free for use. Available at healthmeasures.net.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "PROMIS CF",
@@ -4297,7 +4443,8 @@
     "license_detail": "NIH PROMIS. Free for use. Available at healthmeasures.net.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "PROMIS PI-3a",
@@ -4320,7 +4467,8 @@
     "license_detail": "NIH PROMIS. Free for use. Available at healthmeasures.net.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "PROMIS Ped",
@@ -4335,8 +4483,8 @@
         100
       ],
       "subscales": [
-        "Physical Function \u2014 Mobility",
-        "Physical Function \u2014 Upper Extremity",
+        "Physical Function — Mobility",
+        "Physical Function — Upper Extremity",
         "Pain Interference",
         "Fatigue",
         "Depressive Symptoms",
@@ -4352,7 +4500,8 @@
     "license_detail": "NIH PROMIS. Free for use. Available at healthmeasures.net.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "NEI VFQ-25",
@@ -4389,7 +4538,8 @@
     "license_detail": "National Eye Institute (NEI). Public domain. Available at nei.nih.gov.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "YGTSS",
@@ -4417,7 +4567,8 @@
     "license_detail": "Leckman et al. (1989). Yale University. Free for clinical and research use.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "MMAS-8",
@@ -4445,11 +4596,12 @@
     "license_detail": "Copyright Donald Morisky. Commercial licensing required at moriskyscale.com. Free for academic research with permission.",
     "is_public_domain": false,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "PHQ-SADS",
-    "name": "Patient Health Questionnaire \u2014 Somatic, Anxiety, and Depressive Symptoms",
+    "name": "Patient Health Questionnaire — Somatic, Anxiety, and Depressive Symptoms",
     "domain": "Mental Health",
     "item_count": 35,
     "description": "Multi-module PHQ instrument combining the PHQ-15 somatic symptom severity scale, GAD-7 anxiety module, and PHQ-9 depression module for comprehensive primary care mental health screening, enabling simultaneous assessment of somatic, anxiety, and depressive comorbidity.",
@@ -4465,14 +4617,15 @@
     "loinc_panel_code": "69729-2",
     "omop_concept_id": null,
     "license_type": "public",
-    "license_detail": "Public Domain \u2014 Pfizer Inc. PHQ instruments released into the public domain.",
+    "license_detail": "Public Domain — Pfizer Inc. PHQ instruments released into the public domain.",
     "is_public_domain": true,
     "omop_coverage": "partial",
-    "items": []
+    "items": [],
+    "has_snomed": false
   },
   {
     "abbreviation": "QOL-1",
-    "name": "Quality of Life Scale \u2014 Single Item",
+    "name": "Quality of Life Scale — Single Item",
     "domain": "Quality of Life",
     "item_count": 6,
     "description": "Single global quality of life assessment item asking patients to rate their overall quality of life on a 5-point scale; sometimes expanded to a 6-item form to capture multiple life domains including physical, psychological, social, environmental, spiritual, and overall quality of life.",
@@ -4491,6 +4644,7 @@
     "license_detail": "Public domain. Referenced in LOINC panel 72355-1.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": []
+    "items": [],
+    "has_snomed": false
   }
 ]
