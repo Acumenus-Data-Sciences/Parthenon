@@ -73,7 +73,7 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
         <h3 className="text-sm font-medium text-[#F0EDE8] mb-4">
           Instruments by Clinical Domain
         </h3>
-        <ResponsiveContainer width="100%" height={320}>
+        <ResponsiveContainer width="100%" height={Math.max(320, domainData.length * 28)}>
           <BarChart
             data={domainData}
             layout="vertical"
