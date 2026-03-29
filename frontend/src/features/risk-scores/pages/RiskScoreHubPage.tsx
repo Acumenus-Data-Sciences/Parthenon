@@ -60,7 +60,7 @@ const CATEGORY_OPTIONS = CATEGORY_ORDER.map((cat) => ({
 
 export default function RiskScoreHubPage() {
   const navigate = useNavigate();
-  const { activeSourceId, defaultSourceId } = useSourceStore();
+  const { activeSourceId, defaultSourceId, sources } = useSourceStore();
   const sourceId = activeSourceId ?? defaultSourceId ?? 0;
   const [page, setPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
@@ -575,11 +575,29 @@ export default function RiskScoreHubPage() {
       {/* ── Score Catalogue Tab ──────────────────────────────────── */}
       {hubTab === "catalogue" && (
         <div className="space-y-6">
-          {!sourceId && (
+          {sourceId > 0 ? (
+            <div className="flex items-center justify-between rounded-xl border border-[#2DD4BF]/20 bg-[#2DD4BF]/5 px-5 py-3">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 size={14} className="text-[#2DD4BF]" />
+                <p className="text-sm text-[#2DD4BF]">
+                  Showing eligibility for{" "}
+                  <span className="font-medium">
+                    {sources.find((s) => s.id === sourceId)?.source_name ?? `Source #${sourceId}`}
+                  </span>
+                </p>
+              </div>
+              {eligibility && (
+                <span className="text-xs text-[#2DD4BF]/70">
+                  {Object.values(eligibility).filter((e) => e.eligible).length} of{" "}
+                  {Object.keys(eligibility).length} scores eligible
+                </span>
+              )}
+            </div>
+          ) : (
             <div className="flex items-center gap-3 rounded-xl border border-[#C9A227]/20 bg-[#C9A227]/5 px-5 py-3">
               <Info size={16} className="text-[#C9A227] shrink-0" />
               <p className="text-sm text-[#C9A227]">
-                Select a data source to check eligibility for each score.
+                Select a data source from the header to check eligibility for each score.
               </p>
             </div>
           )}
