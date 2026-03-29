@@ -32,16 +32,21 @@ const STATUS_OPTIONS = [
   { value: "failed", label: "Failed", color: ANALYSIS_STATUS_COLORS.failed },
 ];
 
+const CATEGORY_COLORS: Record<string, string> = {
+  Cardiovascular: "#E85A6B",
+  "Comorbidity Burden": "#A78BFA",
+  Hepatic: "#F59E0B",
+  Pulmonary: "#60A5FA",
+  Respiratory: "#22D3EE",
+  Metabolic: "#34D399",
+  Endocrine: "#FB923C",
+  Musculoskeletal: "#8A857D",
+};
+
 const CATEGORY_OPTIONS = CATEGORY_ORDER.map((cat) => ({
   value: cat,
   label: cat,
-  color:
-    cat === "Cardiovascular" ? "#E85A6B"
-    : cat === "Comorbidity Burden" ? "#A78BFA"
-    : cat === "Hepatic" ? "#F59E0B"
-    : cat === "Pulmonary" ? "#60A5FA"
-    : cat === "Metabolic" ? "#34D399"
-    : "#FB923C", // Musculoskeletal
+  color: CATEGORY_COLORS[cat] ?? "#8A857D",
 }));
 
 export default function RiskScoreHubPage() {

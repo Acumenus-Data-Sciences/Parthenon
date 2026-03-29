@@ -98,7 +98,9 @@ export const CATEGORY_ORDER = [
   "Comorbidity Burden",
   "Hepatic",
   "Pulmonary",
+  "Respiratory",
   "Metabolic",
+  "Endocrine",
   "Musculoskeletal",
 ] as const;
 

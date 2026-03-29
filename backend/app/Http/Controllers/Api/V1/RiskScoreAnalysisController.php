@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Concerns\SourceAware;
+use App\Context\SourceContext;
 use App\Enums\ExecutionStatus;
 use App\Models\App\AnalysisExecution;
 use App\Models\App\CohortDefinition;
@@ -17,6 +19,8 @@ use Illuminate\Routing\Controller;
 
 class RiskScoreAnalysisController extends Controller
 {
+    use SourceAware;
+
     public function __construct(
         private readonly RiskScoreRecommendationService $recommender,
         private readonly RiskScoreExecutionService $executor,
@@ -100,7 +104,7 @@ class RiskScoreAnalysisController extends Controller
             $q->where('status', ExecutionStatus::Completed);
         })->count();
 
-        $patientsScored = RiskScorePatientResult::on('results')
+        $patientsScored = RiskScorePatientResult::query()
             ->distinct('person_id')
             ->count('person_id');
 
@@ -207,7 +211,7 @@ class RiskScoreAnalysisController extends Controller
     {
         $steps = RiskScoreRunStep::where('execution_id', $execution->id)->get();
 
-        $summaries = RiskScorePatientResult::on('results')
+        $summaries = RiskScorePatientResult::query()
             ->selectRaw(
                 'score_id,
                  risk_tier,
@@ -235,7 +239,7 @@ class RiskScoreAnalysisController extends Controller
      */
     public function patients(RiskScoreAnalysis $analysis, AnalysisExecution $execution, Request $request): JsonResponse
     {
-        $query = RiskScorePatientResult::on('results')
+        $query = RiskScorePatientResult::query()
             ->where('execution_id', $execution->id);
 
         if ($request->filled('score_id')) {
@@ -301,7 +305,7 @@ class RiskScoreAnalysisController extends Controller
         if (! empty($validated['person_ids'])) {
             $personIds = $validated['person_ids'];
         } else {
-            $query = RiskScorePatientResult::on('results')
+            $query = RiskScorePatientResult::query()
                 ->where('execution_id', $validated['execution_id'])
                 ->where('score_id', $validated['score_id']);
 
@@ -341,9 +345,12 @@ class RiskScoreAnalysisController extends Controller
             'cohort_end_date' => $today,
         ], $personIds);
 
-        $resultsConnection = (new RiskScorePatientResult)->getConnection();
+        $execution = AnalysisExecution::findOrFail($validated['execution_id']);
+        $source = Source::findOrFail($execution->source_id);
+        SourceContext::forSource($source);
+
         foreach (array_chunk($rows, 500) as $chunk) {
-            $resultsConnection->table('cohort')->insert($chunk);
+            $this->results()->table('cohort')->insert($chunk);
         }
 
         return response()->json([
