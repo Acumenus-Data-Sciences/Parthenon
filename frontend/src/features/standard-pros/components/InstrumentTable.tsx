@@ -8,7 +8,7 @@ import {
   Check,
   X,
   Minus,
-  Filter,
+  ArrowUpDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ProInstrument, OmopCoverage } from "../types/proInstrument";
@@ -20,6 +20,15 @@ interface InstrumentTableProps {
 
 type SortField = "abbreviation" | "name" | "domain" | "items" | "omopCoverage" | "license";
 type SortDir = "asc" | "desc";
+
+const SORT_OPTIONS: { field: SortField; label: string }[] = [
+  { field: "domain", label: "Domain" },
+  { field: "abbreviation", label: "Abbreviation" },
+  { field: "name", label: "Name" },
+  { field: "items", label: "Items" },
+  { field: "omopCoverage", label: "OMOP" },
+  { field: "license", label: "License" },
+];
 
 function OmopBadge({ coverage }: { coverage: OmopCoverage }) {
   const label =
@@ -41,15 +50,41 @@ function OmopBadge({ coverage }: { coverage: OmopCoverage }) {
 
 function LoincBadge({ hasLoinc, code }: { hasLoinc: boolean; code: string | null }) {
   if (!hasLoinc) {
-    return (
-      <span className="text-[10px] text-[#5A5650]">\u2014</span>
-    );
+    return <span className="text-[10px] text-[#5A5650]">{"\u2014"}</span>;
   }
   return (
     <span className="inline-flex items-center gap-1 rounded-md bg-[#2DD4BF]/10 px-2 py-0.5 text-[10px] font-medium text-[#2DD4BF]">
       <Check size={10} />
       {code ?? "Yes"}
     </span>
+  );
+}
+
+function Pill({
+  active,
+  label,
+  color,
+  onClick,
+}: {
+  active: boolean;
+  label: string;
+  color?: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors whitespace-nowrap",
+        active
+          ? "text-[#0E0E11]"
+          : "bg-[#1A1A1F] text-[#8A857D] hover:text-[#C5C0B8] hover:bg-[#232328]",
+      )}
+      style={active ? { backgroundColor: color ?? "#C9A227" } : undefined}
+    >
+      {label}
+    </button>
   );
 }
 
@@ -62,12 +97,15 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
   const [loincFilter, setLoincFilter] = useState<boolean | null>(null);
   const [sortField, setSortField] = useState<SortField>("domain");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
-  const [showFilters, setShowFilters] = useState(false);
 
   const domains = useMemo(() => {
-    const set = new Set<string>();
-    for (const inst of instruments) set.add(inst.domain);
-    return [...set].sort();
+    const counts = new Map<string, number>();
+    for (const inst of instruments) {
+      counts.set(inst.domain, (counts.get(inst.domain) ?? 0) + 1);
+    }
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .map(([domain, count]) => ({ domain, count }));
   }, [instruments]);
 
   const filtered = useMemo(() => {
@@ -105,8 +143,7 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
   };
 
   const SortIcon = ({ field }: { field: SortField }) => {
-    if (sortField !== field)
-      return <span className="w-3" />;
+    if (sortField !== field) return <span className="w-3" />;
     return sortDir === "asc" ? (
       <ChevronUp size={12} className="text-[#C9A227]" />
     ) : (
@@ -122,189 +159,151 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
 
   return (
     <div className="space-y-4">
-      {/* Search + filter toggle */}
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1">
-          <Search
-            size={14}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
-          />
-          <input
-            type="text"
-            placeholder="Search instruments by name, abbreviation, or domain..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg border border-[#2A2A2F] bg-[#0E0E11] py-2 pl-9 pr-3 text-sm text-[#F0EDE8] placeholder-[#5A5650] outline-none focus:border-[#C9A227]/40 transition-colors"
-          />
-        </div>
-        <button
-          type="button"
-          onClick={() => setShowFilters(!showFilters)}
-          className={cn(
-            "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors",
-            showFilters || activeFilterCount > 0
-              ? "border-[#C9A227]/40 bg-[#C9A227]/5 text-[#C9A227]"
-              : "border-[#2A2A2F] bg-[#141418] text-[#8A857D] hover:text-[#F0EDE8]",
-          )}
-        >
-          <Filter size={14} />
-          Filters
-          {activeFilterCount > 0 && (
-            <span className="ml-1 inline-flex items-center justify-center rounded-full bg-[#C9A227] w-4 h-4 text-[10px] font-bold text-[#0E0E11]">
-              {activeFilterCount}
-            </span>
-          )}
-        </button>
+      {/* ── Search bar ────────────────────────────────────────────────── */}
+      <div className="relative">
+        <Search
+          size={14}
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+        />
+        <input
+          type="text"
+          placeholder="Search instruments by name, abbreviation, or domain..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full rounded-lg border border-[#2A2A2F] bg-[#0E0E11] py-2 pl-9 pr-3 text-sm text-[#F0EDE8] placeholder-[#5A5650] outline-none focus:border-[#C9A227]/40 transition-colors"
+        />
       </div>
 
-      {/* Filter chips */}
-      {showFilters && (
-        <div className="flex flex-wrap gap-3 rounded-xl border border-[#2A2A2F] bg-[#141418] p-4">
-          {/* Domain filter */}
-          <div>
-            <p className="text-[10px] text-[#5A5650] uppercase tracking-wider mb-1.5">
-              Domain
-            </p>
-            <div className="flex flex-wrap gap-1.5">
+      {/* ── Filter + Sort pills ───────────────────────────────────────── */}
+      <div className="space-y-3">
+        {/* Domain pills */}
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] text-[#5A5650] uppercase tracking-wider shrink-0 w-14">
+            Domain
+          </span>
+          <div className="flex flex-wrap gap-1.5">
+            <Pill
+              active={!domainFilter}
+              label="All"
+              color="#C9A227"
+              onClick={() => setDomainFilter(null)}
+            />
+            {domains.map(({ domain, count }) => (
+              <Pill
+                key={domain}
+                active={domainFilter === domain}
+                label={`${domain} (${count})`}
+                color={DOMAIN_COLORS[domain]}
+                onClick={() => setDomainFilter(domainFilter === domain ? null : domain)}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* OMOP + License + LOINC + Sort row */}
+        <div className="flex flex-wrap items-center gap-4">
+          {/* OMOP */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-[10px] text-[#5A5650] uppercase tracking-wider">OMOP</span>
+            {(["yes", "partial", "no"] as const).map((v) => (
+              <Pill
+                key={v}
+                active={omopFilter === v}
+                label={v === "yes" ? "Full" : v === "partial" ? "Partial" : "None"}
+                color={OMOP_COLORS[v]}
+                onClick={() => setOmopFilter(omopFilter === v ? null : v)}
+              />
+            ))}
+          </div>
+
+          <span className="text-[#2A2A2F]">|</span>
+
+          {/* License */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-[10px] text-[#5A5650] uppercase tracking-wider">License</span>
+            <Pill
+              active={licenseFilter === "public"}
+              label="Public"
+              color="#2DD4BF"
+              onClick={() => setLicenseFilter(licenseFilter === "public" ? null : "public")}
+            />
+            <Pill
+              active={licenseFilter === "proprietary"}
+              label="Proprietary"
+              color="#C9A227"
+              onClick={() => setLicenseFilter(licenseFilter === "proprietary" ? null : "proprietary")}
+            />
+          </div>
+
+          <span className="text-[#2A2A2F]">|</span>
+
+          {/* LOINC */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-[10px] text-[#5A5650] uppercase tracking-wider">LOINC</span>
+            <Pill
+              active={loincFilter === true}
+              label="Has LOINC"
+              color="#60A5FA"
+              onClick={() => setLoincFilter(loincFilter === true ? null : true)}
+            />
+            <Pill
+              active={loincFilter === false}
+              label="No LOINC"
+              color="#5A5650"
+              onClick={() => setLoincFilter(loincFilter === false ? null : false)}
+            />
+          </div>
+
+          <span className="text-[#2A2A2F]">|</span>
+
+          {/* Sort */}
+          <div className="flex items-center gap-1.5">
+            <ArrowUpDown size={12} className="text-[#5A5650]" />
+            <span className="text-[10px] text-[#5A5650] uppercase tracking-wider">Sort</span>
+            {SORT_OPTIONS.map((opt) => (
               <button
+                key={opt.field}
                 type="button"
-                onClick={() => setDomainFilter(null)}
+                onClick={() => handleSort(opt.field)}
                 className={cn(
-                  "rounded-md px-2 py-1 text-[10px] font-medium transition-colors",
-                  !domainFilter
+                  "rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors whitespace-nowrap",
+                  sortField === opt.field
                     ? "bg-[#C9A227]/15 text-[#C9A227]"
-                    : "bg-[#1A1A1F] text-[#8A857D] hover:text-[#C5C0B8]",
+                    : "bg-[#1A1A1F] text-[#8A857D] hover:text-[#C5C0B8] hover:bg-[#232328]",
                 )}
               >
-                All
+                {opt.label}
+                {sortField === opt.field && (
+                  <span className="ml-0.5">
+                    {sortDir === "asc" ? "\u2191" : "\u2193"}
+                  </span>
+                )}
               </button>
-              {domains.map((d) => (
-                <button
-                  key={d}
-                  type="button"
-                  onClick={() =>
-                    setDomainFilter(domainFilter === d ? null : d)
-                  }
-                  className={cn(
-                    "rounded-md px-2 py-1 text-[10px] font-medium transition-colors",
-                    domainFilter === d
-                      ? "text-[#0E0E11]"
-                      : "bg-[#1A1A1F] text-[#8A857D] hover:text-[#C5C0B8]",
-                  )}
-                  style={
-                    domainFilter === d
-                      ? { backgroundColor: DOMAIN_COLORS[d] ?? "#5A5650" }
-                      : undefined
-                  }
-                >
-                  {d}
-                </button>
-              ))}
-            </div>
+            ))}
           </div>
 
-          {/* OMOP filter */}
-          <div>
-            <p className="text-[10px] text-[#5A5650] uppercase tracking-wider mb-1.5">
-              OMOP Coverage
-            </p>
-            <div className="flex gap-1.5">
-              {(["yes", "partial", "no"] as const).map((v) => (
-                <button
-                  key={v}
-                  type="button"
-                  onClick={() =>
-                    setOmopFilter(omopFilter === v ? null : v)
-                  }
-                  className={cn(
-                    "rounded-md px-2 py-1 text-[10px] font-medium transition-colors",
-                    omopFilter === v
-                      ? "text-[#0E0E11]"
-                      : "bg-[#1A1A1F] text-[#8A857D] hover:text-[#C5C0B8]",
-                  )}
-                  style={
-                    omopFilter === v
-                      ? { backgroundColor: OMOP_COLORS[v] }
-                      : undefined
-                  }
-                >
-                  {v === "yes" ? "Full" : v === "partial" ? "Partial" : "None"}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* License filter */}
-          <div>
-            <p className="text-[10px] text-[#5A5650] uppercase tracking-wider mb-1.5">
-              License
-            </p>
-            <div className="flex gap-1.5">
-              {(["public", "proprietary"] as const).map((v) => (
-                <button
-                  key={v}
-                  type="button"
-                  onClick={() =>
-                    setLicenseFilter(licenseFilter === v ? null : v)
-                  }
-                  className={cn(
-                    "rounded-md px-2 py-1 text-[10px] font-medium transition-colors",
-                    licenseFilter === v
-                      ? "bg-[#2DD4BF]/15 text-[#2DD4BF]"
-                      : "bg-[#1A1A1F] text-[#8A857D] hover:text-[#C5C0B8]",
-                  )}
-                >
-                  {v === "public" ? "Public Domain" : "Proprietary"}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* LOINC filter */}
-          <div>
-            <p className="text-[10px] text-[#5A5650] uppercase tracking-wider mb-1.5">
-              LOINC Code
-            </p>
-            <div className="flex gap-1.5">
-              {([true, false] as const).map((v) => (
-                <button
-                  key={String(v)}
-                  type="button"
-                  onClick={() =>
-                    setLoincFilter(loincFilter === v ? null : v)
-                  }
-                  className={cn(
-                    "rounded-md px-2 py-1 text-[10px] font-medium transition-colors",
-                    loincFilter === v
-                      ? "bg-[#2DD4BF]/15 text-[#2DD4BF]"
-                      : "bg-[#1A1A1F] text-[#8A857D] hover:text-[#C5C0B8]",
-                  )}
-                >
-                  {v ? "Has LOINC" : "No LOINC"}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Clear */}
+          {/* Clear all */}
           {activeFilterCount > 0 && (
-            <button
-              type="button"
-              onClick={() => {
-                setDomainFilter(null);
-                setOmopFilter(null);
-                setLicenseFilter(null);
-                setLoincFilter(null);
-              }}
-              className="self-end rounded-md px-2 py-1 text-[10px] font-medium text-[#E85A6B] hover:bg-[#E85A6B]/10 transition-colors"
-            >
-              Clear all
-            </button>
+            <>
+              <span className="text-[#2A2A2F]">|</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setDomainFilter(null);
+                  setOmopFilter(null);
+                  setLicenseFilter(null);
+                  setLoincFilter(null);
+                }}
+                className="rounded-full px-2.5 py-1 text-[11px] font-medium text-[#E85A6B] hover:bg-[#E85A6B]/10 transition-colors"
+              >
+                Clear filters ({activeFilterCount})
+              </button>
+            </>
           )}
         </div>
-      )}
+      </div>
 
-      {/* Results count */}
+      {/* ── Results count ──────────────────────────────────────────────── */}
       <p className="text-xs text-[#5A5650]">
         Showing{" "}
         <span className="font-['IBM_Plex_Mono',monospace] text-[#C5C0B8]">
@@ -313,7 +312,7 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
         of {instruments.length} instruments
       </p>
 
-      {/* Table */}
+      {/* ── Table ──────────────────────────────────────────────────────── */}
       <div className="overflow-hidden rounded-xl border border-[#2A2A2F]">
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
@@ -398,10 +397,7 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
                     </span>
                   </td>
                   <td className="px-3 py-2.5">
-                    <LoincBadge
-                      hasLoinc={inst.hasLoinc}
-                      code={inst.loincCode}
-                    />
+                    <LoincBadge hasLoinc={inst.hasLoinc} code={inst.loincCode} />
                   </td>
                 </tr>
               ))}
