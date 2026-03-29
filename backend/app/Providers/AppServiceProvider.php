@@ -66,6 +66,7 @@ use App\Services\Cohort\Builders\EndStrategyBuilder;
 use App\Services\Cohort\Builders\InclusionCriteriaBuilder;
 use App\Services\Cohort\Builders\OccurrenceFilterBuilder;
 use App\Services\Cohort\Builders\PrimaryCriteriaBuilder;
+use App\Services\Cohort\Builders\RiskScoreCriteriaBuilder;
 use App\Services\Cohort\Builders\TemporalWindowBuilder;
 use App\Services\Cohort\CohortGenerationService;
 use App\Services\Cohort\CohortSqlCompiler;
@@ -148,6 +149,7 @@ class AppServiceProvider extends ServiceProvider
                 $app->make(InclusionCriteriaBuilder::class),
                 $app->make(CensoringBuilder::class),
                 $app->make(EndStrategyBuilder::class),
+                $app->make(RiskScoreCriteriaBuilder::class),
             );
         });
 

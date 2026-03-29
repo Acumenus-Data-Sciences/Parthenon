@@ -111,6 +111,13 @@ class CohortExpressionSchema
             $expression['CollapseSettings'] = ['CollapseType' => 'ERA', 'EraPad' => 0];
         }
 
+        // Normalize RiskScoreCriteria (optional)
+        if (! isset($expression['RiskScoreCriteria'])) {
+            $expression['RiskScoreCriteria'] = [];
+        } else {
+            $this->validateRiskScoreCriteria($expression['RiskScoreCriteria']);
+        }
+
         return $expression;
     }
 
@@ -164,6 +171,41 @@ class CohortExpressionSchema
         }
 
         return $group;
+    }
+
+    /**
+     * Validate RiskScoreCriteria entries.
+     *
+     * @param  array<int, mixed>  $criteria
+     *
+     * @throws InvalidArgumentException
+     */
+    private function validateRiskScoreCriteria(array $criteria): void
+    {
+        foreach ($criteria as $index => $criterion) {
+            if (! is_array($criterion)) {
+                throw new InvalidArgumentException("RiskScoreCriteria[{$index}] must be an object.");
+            }
+
+            if (! isset($criterion['analysisId']) || ! is_int($criterion['analysisId'])) {
+                throw new InvalidArgumentException("RiskScoreCriteria[{$index}].analysisId is required and must be an integer.");
+            }
+
+            if (! isset($criterion['scoreId']) || ! is_string($criterion['scoreId'])) {
+                throw new InvalidArgumentException("RiskScoreCriteria[{$index}].scoreId is required and must be a string.");
+            }
+
+            $hasOperator = isset($criterion['operator']) && isset($criterion['value']);
+            $hasTier = isset($criterion['tier']) && is_string($criterion['tier']) && $criterion['tier'] !== '';
+
+            if (! $hasOperator && ! $hasTier) {
+                throw new InvalidArgumentException("RiskScoreCriteria[{$index}] must specify either (operator + value) or tier.");
+            }
+
+            if ($hasOperator && ! in_array($criterion['operator'], ['gt', 'gte', 'lt', 'lte', 'eq'], true)) {
+                throw new InvalidArgumentException("RiskScoreCriteria[{$index}].operator must be one of: gt, gte, lt, lte, eq.");
+            }
+        }
     }
 
     /**

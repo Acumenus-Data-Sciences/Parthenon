@@ -7,6 +7,7 @@ use App\Services\Cohort\Builders\ConceptSetSqlBuilder;
 use App\Services\Cohort\Builders\EndStrategyBuilder;
 use App\Services\Cohort\Builders\InclusionCriteriaBuilder;
 use App\Services\Cohort\Builders\PrimaryCriteriaBuilder;
+use App\Services\Cohort\Builders\RiskScoreCriteriaBuilder;
 use App\Services\Cohort\Schema\CohortExpressionSchema;
 use App\Services\SqlRenderer\SqlRendererService;
 
@@ -20,6 +21,7 @@ class CohortSqlCompiler
         private readonly InclusionCriteriaBuilder $inclusionBuilder,
         private readonly CensoringBuilder $censoringBuilder,
         private readonly EndStrategyBuilder $endStrategyBuilder,
+        private readonly RiskScoreCriteriaBuilder $riskScoreBuilder,
     ) {}
 
     /**
@@ -82,6 +84,12 @@ class CohortSqlCompiler
         );
         $allCtes = array_merge($allCtes, $censorResult['ctes']);
 
+        // Risk score criteria CTEs
+        $riskScoreResult = $this->riskScoreBuilder->build(
+            $expression['RiskScoreCriteria'] ?? []
+        );
+        $allCtes = array_merge($allCtes, $riskScoreResult['ctes']);
+
         // 3. Build end date expression
         $endDateExpr = $this->endStrategyBuilder->build(
             $expression['EndStrategy'],
@@ -105,6 +113,7 @@ class CohortSqlCompiler
         $expressionLimitSql = '';
         if ($expressionLimit['Type'] === 'First') {
             // Wrap in ROW_NUMBER to get first per person
+            $riskScoreWhere = $this->buildRiskScoreWhereClauses($riskScoreResult['filters']);
             $finalSelectCte = <<<SQL
 final_cohort AS (
     SELECT
@@ -113,13 +122,14 @@ final_cohort AS (
         {$finalEndDateExpr} AS end_date,
         ROW_NUMBER() OVER (PARTITION BY ie.person_id ORDER BY ie.start_date) AS rn
     FROM {$fromClause}{$censorJoin}
-    WHERE ie.start_date <= {$endDateExpr}
+    WHERE ie.start_date <= {$endDateExpr}{$riskScoreWhere}
 )
 SQL;
             $allCtes[] = $finalSelectCte;
             $finalSelect = "SELECT {$cohortDefinitionId} AS cohort_definition_id, person_id AS subject_id, start_date AS cohort_start_date, end_date AS cohort_end_date\nFROM final_cohort\nWHERE rn = 1";
         } else {
             // All events
+            $riskScoreWhere = $this->buildRiskScoreWhereClauses($riskScoreResult['filters']);
             $finalSelectCte = <<<SQL
 final_cohort AS (
     SELECT
@@ -127,7 +137,7 @@ final_cohort AS (
         ie.start_date,
         {$finalEndDateExpr} AS end_date
     FROM {$fromClause}{$censorJoin}
-    WHERE ie.start_date <= {$endDateExpr}
+    WHERE ie.start_date <= {$endDateExpr}{$riskScoreWhere}
 )
 SQL;
             $allCtes[] = $finalSelectCte;
@@ -211,6 +221,12 @@ SQL;
         );
         $allCtes = array_merge($allCtes, $censorResult['ctes']);
 
+        // Risk score criteria CTEs
+        $riskScoreResult = $this->riskScoreBuilder->build(
+            $expression['RiskScoreCriteria'] ?? []
+        );
+        $allCtes = array_merge($allCtes, $riskScoreResult['ctes']);
+
         // 3. Build end date expression
         $endDateExpr = $this->endStrategyBuilder->build(
             $expression['EndStrategy'],
@@ -232,6 +248,7 @@ SQL;
         $expressionLimit = $expression['ExpressionLimit'] ?? ['Type' => 'First'];
 
         if ($expressionLimit['Type'] === 'First') {
+            $riskScoreWhere = $this->buildRiskScoreWhereClauses($riskScoreResult['filters']);
             $finalSelectCte = <<<SQL
 final_cohort AS (
     SELECT
@@ -240,12 +257,13 @@ final_cohort AS (
         {$finalEndDateExpr} AS end_date,
         ROW_NUMBER() OVER (PARTITION BY ie.person_id ORDER BY ie.start_date) AS rn
     FROM {$fromClause}{$censorJoin}
-    WHERE ie.start_date <= {$endDateExpr}
+    WHERE ie.start_date <= {$endDateExpr}{$riskScoreWhere}
 )
 SQL;
             $allCtes[] = $finalSelectCte;
             $finalSelect = "SELECT person_id, start_date AS cohort_start_date, end_date AS cohort_end_date\nFROM final_cohort\nWHERE rn = 1\nORDER BY person_id, cohort_start_date";
         } else {
+            $riskScoreWhere = $this->buildRiskScoreWhereClauses($riskScoreResult['filters']);
             $finalSelectCte = <<<SQL
 final_cohort AS (
     SELECT
@@ -253,7 +271,7 @@ final_cohort AS (
         ie.start_date,
         {$finalEndDateExpr} AS end_date
     FROM {$fromClause}{$censorJoin}
-    WHERE ie.start_date <= {$endDateExpr}
+    WHERE ie.start_date <= {$endDateExpr}{$riskScoreWhere}
 )
 SQL;
             $allCtes[] = $finalSelectCte;
@@ -276,5 +294,29 @@ SQL;
             'cdmSchema' => $cdmSchema,
             'vocabSchema' => $vocabSchema,
         ], $dialect);
+    }
+
+    /**
+     * Build WHERE clause fragments for risk score filters.
+     *
+     * @param  list<array{index: int, exclude: bool}>  $filters
+     */
+    private function buildRiskScoreWhereClauses(array $filters): string
+    {
+        if (empty($filters)) {
+            return '';
+        }
+
+        $clauses = [];
+        foreach ($filters as $filter) {
+            $cteName = "risk_score_filter_{$filter['index']}";
+            if ($filter['exclude']) {
+                $clauses[] = "ie.person_id NOT IN (SELECT person_id FROM {$cteName})";
+            } else {
+                $clauses[] = "ie.person_id IN (SELECT person_id FROM {$cteName})";
+            }
+        }
+
+        return "\n      AND ".implode("\n      AND ", $clauses);
     }
 }
