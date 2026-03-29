@@ -22,6 +22,8 @@ import { useSourceStore } from "@/stores/sourceStore";
 import { RiskScoreAnalysisList } from "../components/RiskScoreAnalysisList";
 import { RiskScoreAnalysisCard } from "../components/RiskScoreAnalysisCard";
 import { ScoreCatalogueCard } from "../components/ScoreCatalogueCard";
+import { ScoreDetailModal } from "../components/ScoreDetailModal";
+import { RiskScoreRunModal } from "../components/RiskScoreRunModal";
 import {
   useRiskScoreAnalyses,
   useRiskScoreAnalysisStats,
@@ -72,6 +74,8 @@ export default function RiskScoreHubPage() {
   const [drilldownStatus, setDrilldownStatus] = useState<string | null>(null);
   const [showCatalogue, setShowCatalogue] = useState(false);
   const [hubTab, setHubTab] = useState<"analyses" | "catalogue">("analyses");
+  const [selectedScoreId, setSelectedScoreId] = useState<string | null>(null);
+  const [showRunModal, setShowRunModal] = useState<string | null>(null);
   const searchRef = useRef<HTMLDivElement>(null);
 
   const hasFilters = !!(filterStatus || filterCategory);
@@ -607,9 +611,7 @@ export default function RiskScoreHubPage() {
                     color={color}
                     eligibility={eligibility?.[score.score_id]}
                     sourceSelected={sourceId > 0}
-                    onCreateAnalysis={(scoreId) =>
-                      navigate(`/risk-scores/create?score=${scoreId}`)
-                    }
+                    onClick={() => setSelectedScoreId(score.score_id)}
                   />
                 ))}
               </div>
@@ -622,6 +624,38 @@ export default function RiskScoreHubPage() {
             </div>
           )}
         </div>
+      )}
+      {/* Score Detail Modal */}
+      {selectedScoreId && catalogue?.scores && (() => {
+        const score = catalogue.scores.find((s) => s.score_id === selectedScoreId);
+        if (!score) return null;
+        const catColor = CATEGORY_COLORS[score.category] ?? "#8A857D";
+        return (
+          <ScoreDetailModal
+            score={score}
+            color={catColor}
+            eligibility={eligibility?.[score.score_id]}
+            sourceSelected={sourceId > 0}
+            onClose={() => setSelectedScoreId(null)}
+            onCreateAnalysis={(scoreId) => {
+              setSelectedScoreId(null);
+              navigate(`/risk-scores/create?score=${scoreId}`);
+            }}
+            onRunSingle={(scoreId) => {
+              setSelectedScoreId(null);
+              setShowRunModal(scoreId);
+            }}
+          />
+        );
+      })()}
+
+      {/* Quick Run Modal */}
+      {showRunModal && sourceId > 0 && (
+        <RiskScoreRunModal
+          sourceId={sourceId}
+          scoreIds={[showRunModal]}
+          onClose={() => setShowRunModal(null)}
+        />
       )}
     </div>
   );
