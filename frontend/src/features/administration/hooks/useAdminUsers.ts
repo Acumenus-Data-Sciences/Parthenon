@@ -7,6 +7,7 @@ import {
   deleteUser,
   syncUserRoles,
   fetchAvailableRoles,
+  sendBroadcastEmail,
   type UserFilters,
 } from "../api/adminApi";
 
@@ -62,3 +63,6 @@ export const useSyncUserRoles = () => {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "users"] }),
   });
 };
+
+export const useBroadcastEmail = () =>
+  useMutation({ mutationFn: sendBroadcastEmail });

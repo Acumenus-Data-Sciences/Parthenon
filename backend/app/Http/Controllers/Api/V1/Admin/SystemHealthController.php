@@ -20,30 +20,70 @@ class SystemHealthController extends Controller
     /** @var array<string, callable(): array<string, mixed>> */
     private array $checkers;
 
+    /** Service tier constants for logical grouping in the UI. */
+    private const TIER_CORE = 'Core Platform';
+
+    private const TIER_DATA = 'Data & Search';
+
+    private const TIER_COMPUTE = 'AI & Analytics';
+
+    private const TIER_CLINICAL = 'Clinical Services';
+
+    private const TIER_OPS = 'Monitoring & Communications';
+
+    /** @var array<string, string> */
+    private array $tiers;
+
     public function __construct()
     {
+        // Ordered by dependency: platform → data → compute → domain → ancillary
         $this->checkers = [
+            // Core Platform
             'backend' => fn () => $this->checkBackend(),
             'redis' => fn () => $this->checkRedis(),
-            'hecate' => fn () => $this->checkHecate(),
-            'ai' => fn () => $this->checkAiService(),
-            'blackrabbit' => fn () => $this->checkBlackRabbit(),
-            'darkstar' => fn () => $this->checkRRuntime(),
-            'solr' => fn () => $this->checkSolr(),
-            'orthanc' => fn () => $this->checkOrthanc(),
             'queue' => fn () => $this->checkQueue(),
+            // Data & Search
+            'solr' => fn () => $this->checkSolr(),
+            'hecate' => fn () => $this->checkHecate(),
             'chromadb' => fn () => $this->checkChromaDb(),
+            // AI & Analytics
+            'ai' => fn () => $this->checkAiService(),
+            'darkstar' => fn () => $this->checkRRuntime(),
             'study-agent' => fn () => $this->checkStudyAgent(),
+            'poseidon' => fn () => $this->checkPoseidon(),
+            // Clinical Services
+            'orthanc' => fn () => $this->checkOrthanc(),
+            'blackrabbit' => fn () => $this->checkBlackRabbit(),
+            // Monitoring & Communications
             'grafana' => fn () => $this->checkGrafana(),
             'livekit' => fn () => $this->checkLiveKit(),
+        ];
+
+        $this->tiers = [
+            'backend' => self::TIER_CORE,
+            'redis' => self::TIER_CORE,
+            'queue' => self::TIER_CORE,
+            'solr' => self::TIER_DATA,
+            'hecate' => self::TIER_DATA,
+            'chromadb' => self::TIER_DATA,
+            'ai' => self::TIER_COMPUTE,
+            'darkstar' => self::TIER_COMPUTE,
+            'study-agent' => self::TIER_COMPUTE,
+            'poseidon' => self::TIER_COMPUTE,
+            'orthanc' => self::TIER_CLINICAL,
+            'blackrabbit' => self::TIER_CLINICAL,
+            'grafana' => self::TIER_OPS,
+            'livekit' => self::TIER_OPS,
         ];
     }
 
     public function index(): JsonResponse
     {
         $services = [];
-        foreach ($this->checkers as $checker) {
-            $services[] = $checker();
+        foreach ($this->checkers as $key => $checker) {
+            $result = $checker();
+            $result['tier'] = $this->tiers[$key] ?? self::TIER_OPS;
+            $services[] = $result;
         }
 
         return response()->json([
@@ -88,6 +128,7 @@ class SystemHealthController extends Controller
             'grafana' => [],
             'blackrabbit' => $this->getServiceHttpLogs('blackrabbit'),
             'livekit' => [],
+            'poseidon' => $this->getServiceHttpLogs('poseidon'),
             default => [],
         };
     }
@@ -110,6 +151,7 @@ class SystemHealthController extends Controller
             'grafana' => $this->getGrafanaMetrics(),
             'blackrabbit' => $this->getBlackRabbitMetrics(),
             'livekit' => $this->getLiveKitMetrics(),
+            'poseidon' => $this->getPoseidonMetrics(),
             default => [],
         };
     }
@@ -599,6 +641,7 @@ class SystemHealthController extends Controller
             'orthanc' => 'orthanc|PACS|DICOMweb|dicom-web',
             'chromadb' => 'chroma|ChromaDB|vector',
             'blackrabbit' => 'blackrabbit|BlackRabbit|whiterabbit|WhiteRabbit|profiler|scan',
+            'poseidon' => 'poseidon|Poseidon|dagster|Dagster|dbt',
             default => $service,
         };
 
@@ -1064,6 +1107,63 @@ class SystemHealthController extends Controller
                 'status' => 'down',
                 'message' => $e->getMessage(),
             ];
+        }
+    }
+
+    private function checkPoseidon(): array
+    {
+        $port = config('services.poseidon.port', env('POSEIDON_PORT', '3100'));
+        $url = rtrim(config('services.poseidon.url', "http://poseidon-webserver:{$port}"), '/');
+
+        try {
+            $response = Http::timeout(3)->get("{$url}/server_info");
+
+            if ($response->successful()) {
+                $data = $response->json();
+                $version = $data['dagster_webserver_version'] ?? 'unknown';
+
+                return [
+                    'name' => 'Poseidon (Dagster)',
+                    'key' => 'poseidon',
+                    'status' => 'healthy',
+                    'message' => "Dagster {$version} — dbt + Dagster orchestration.",
+                    'details' => [
+                        'dagster_version' => $version,
+                        'graphql_version' => $data['dagster_graphql_version'] ?? 'unknown',
+                    ],
+                ];
+            }
+
+            return [
+                'name' => 'Poseidon (Dagster)',
+                'key' => 'poseidon',
+                'status' => 'degraded',
+                'message' => "Poseidon returned HTTP {$response->status()}.",
+            ];
+        } catch (\Throwable $e) {
+            return [
+                'name' => 'Poseidon (Dagster)',
+                'key' => 'poseidon',
+                'status' => 'down',
+                'message' => $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getPoseidonMetrics(): array
+    {
+        $port = config('services.poseidon.port', env('POSEIDON_PORT', '3100'));
+        $url = rtrim(config('services.poseidon.url', "http://poseidon-webserver:{$port}"), '/');
+
+        try {
+            $response = Http::timeout(3)->get("{$url}/server_info");
+
+            return $response->successful() ? ($response->json() ?? []) : [];
+        } catch (\Throwable) {
+            return [];
         }
     }
 

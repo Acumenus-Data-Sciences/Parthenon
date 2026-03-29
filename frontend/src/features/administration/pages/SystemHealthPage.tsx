@@ -1,4 +1,5 @@
-import { RefreshCw, ArrowRight } from "lucide-react";
+import { useMemo } from "react";
+import { RefreshCw, ArrowRight, Server, Database, Cpu, HeartPulse, Activity } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Panel, Badge, StatusDot, Button, type BadgeVariant, type StatusDotVariant } from "@/components/ui";
 import type { SystemHealthService } from "@/types/models";
@@ -13,11 +14,29 @@ const STATUS_MAP: Record<string, { badge: BadgeVariant; dot: StatusDotVariant }>
   down:     { badge: "critical", dot: "critical" },
 };
 
+/** Tier display order and icons */
+const TIER_ORDER = [
+  "Core Platform",
+  "Data & Search",
+  "AI & Analytics",
+  "Clinical Services",
+  "Monitoring & Communications",
+] as const;
+
+const TIER_ICONS: Record<string, React.ReactNode> = {
+  "Core Platform":                  <Server className="h-4 w-4" />,
+  "Data & Search":                  <Database className="h-4 w-4" />,
+  "AI & Analytics":                 <Cpu className="h-4 w-4" />,
+  "Clinical Services":             <HeartPulse className="h-4 w-4" />,
+  "Monitoring & Communications":   <Activity className="h-4 w-4" />,
+};
+
 function ServiceCard({ service }: { service: SystemHealthService }) {
   const { badge, dot } = STATUS_MAP[service.status] ?? STATUS_MAP.down;
   const queueDetails = service.details as { pending?: number; failed?: number } | undefined;
   const solrDetails = service.details as { cores?: number; documents?: number } | undefined;
   const orthancDetails = service.details as { studies?: number; instances?: number; disk_size_mb?: number; patients?: number } | undefined;
+  const poseidonDetails = service.details as { dagster_version?: string; graphql_version?: string } | undefined;
 
   return (
     <Link to={`/admin/system-health/${service.key}`}>
@@ -63,6 +82,19 @@ function ServiceCard({ service }: { service: SystemHealthService }) {
           </div>
         )}
 
+        {service.key === "poseidon" && poseidonDetails?.dagster_version !== undefined && (
+          <div className="mt-3 flex gap-4 text-sm">
+            <span className="text-muted-foreground">
+              Dagster:{" "}
+              <span className="font-medium text-foreground">{poseidonDetails.dagster_version}</span>
+            </span>
+            <span className="text-muted-foreground">
+              GraphQL:{" "}
+              <span className="font-medium text-foreground">{poseidonDetails.graphql_version}</span>
+            </span>
+          </div>
+        )}
+
         {service.key === "orthanc" && orthancDetails?.studies !== undefined && (
           <div className="mt-3 flex gap-4 text-sm">
             <span className="text-muted-foreground">
@@ -92,8 +124,57 @@ function ServiceCard({ service }: { service: SystemHealthService }) {
   );
 }
 
+function TierSection({ tier, services }: { tier: string; services: SystemHealthService[] }) {
+  const tierStatus = services.find((s) => s.status === "down")
+    ? "down"
+    : services.find((s) => s.status === "degraded")
+      ? "degraded"
+      : "healthy";
+
+  const { dot } = STATUS_MAP[tierStatus] ?? STATUS_MAP.down;
+
+  return (
+    <div>
+      <div className="mb-3 flex items-center gap-2">
+        <span className="text-muted-foreground">{TIER_ICONS[tier]}</span>
+        <h2 className="text-lg font-semibold text-foreground">{tier}</h2>
+        <StatusDot status={dot} />
+      </div>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {services.map((s) =>
+          s.key === "grafana" ? (
+            <GrafanaLaunchCard
+              key={s.key}
+              service={s}
+              grafanaUrl="/grafana/d/parthenon/parthenon"
+            />
+          ) : s.key === "livekit" ? (
+            <LiveKitConfigPanel key={s.key} service={s} />
+          ) : (
+            <ServiceCard key={s.key} service={s} />
+          )
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function SystemHealthPage() {
   const { data, isLoading, isFetching, refetch, dataUpdatedAt } = useSystemHealth();
+
+  const tiers = useMemo(() => {
+    if (!data?.services) return [];
+    const grouped = new Map<string, SystemHealthService[]>();
+    for (const service of data.services) {
+      const tier = service.tier ?? "Monitoring & Communications";
+      const list = grouped.get(tier) ?? [];
+      list.push(service);
+      grouped.set(tier, list);
+    }
+    return TIER_ORDER
+      .filter((t) => grouped.has(t))
+      .map((t) => ({ tier: t, services: grouped.get(t)! }));
+  }, [data?.services]);
 
   const overallStatus =
     data?.services.find((s) => s.status === "down")
@@ -145,28 +226,25 @@ export default function SystemHealthPage() {
         </Panel>
       )}
 
-      {/* Service cards */}
+      {/* Tiered service groups */}
       {isLoading ? (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {Array.from({ length: 7 }).map((_, i) => (
-            <div key={i} className="h-24 animate-pulse rounded-lg border border-border bg-muted" />
+        <div className="space-y-6">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i}>
+              <div className="mb-3 h-6 w-40 animate-pulse rounded bg-muted" />
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {Array.from({ length: i === 0 ? 3 : 2 }).map((_, j) => (
+                  <div key={j} className="h-24 animate-pulse rounded-lg border border-border bg-muted" />
+                ))}
+              </div>
+            </div>
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {(data?.services ?? []).map((s) =>
-            s.key === "grafana" ? (
-              <GrafanaLaunchCard
-                key={s.key}
-                service={s}
-                grafanaUrl="/grafana/d/parthenon/parthenon"
-              />
-            ) : s.key === "livekit" ? (
-              <LiveKitConfigPanel key={s.key} service={s} />
-            ) : (
-              <ServiceCard key={s.key} service={s} />
-            )
-          )}
+        <div className="space-y-6">
+          {tiers.map(({ tier, services }) => (
+            <TierSection key={tier} tier={tier} services={services} />
+          ))}
         </div>
       )}
 

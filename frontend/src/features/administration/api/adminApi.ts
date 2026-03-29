@@ -49,6 +49,11 @@ export const syncUserRoles = (id: number, roles: string[]) =>
 export const fetchAvailableRoles = () =>
   apiClient.get<Role[]>("/admin/users/roles").then((r) => r.data);
 
+export const sendBroadcastEmail = (data: { subject: string; body: string }) =>
+  apiClient
+    .post<{ message: string; recipient_count: number; failed_count: number }>("/admin/users/broadcast-email", data)
+    .then((r) => r.data);
+
 // ── Roles & Permissions ───────────────────────────────────────────────────────
 
 export type PermissionsByDomain = Record<string, Array<{ id: number; name: string; guard_name: string }>>;

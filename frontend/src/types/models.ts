@@ -120,6 +120,7 @@ export interface SystemHealthService {
   key: string;
   status: "healthy" | "degraded" | "down";
   message: string;
+  tier?: string;
   details?: Record<string, unknown>;
 }
 
