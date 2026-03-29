@@ -9,6 +9,11 @@ import {
   startAsyncScan,
   subscribeScanProgress,
   completeScan,
+  fetchProjectProfileHistory,
+  startProjectAsyncScan,
+  subscribeProjectScanProgress,
+  completeProjectScan,
+  deleteProjectProfile,
   type ScanProgressEvent,
   type ProfileSummary,
 } from "../api";
@@ -162,6 +167,131 @@ export function useRunScanWithProgress(sourceId: number) {
       }
     },
     [sourceId, queryClient],
+  );
+
+  const cancel = useCallback(() => {
+    unsubRef.current?.();
+    setProgress((prev) => ({ ...prev, isScanning: false }));
+  }, []);
+
+  return { startScan, cancel, progress, result, error };
+}
+
+// ---------------------------------------------------------------------------
+// Ingestion Project Profiler Hooks
+// ---------------------------------------------------------------------------
+
+export function useProjectProfileHistory(projectId: number) {
+  return useQuery({
+    queryKey: ["profiler", "project-history", projectId],
+    queryFn: () => fetchProjectProfileHistory(projectId),
+    enabled: projectId > 0,
+    staleTime: 60_000,
+  });
+}
+
+export function useDeleteProjectProfile(projectId: number) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (profileId: number) => deleteProjectProfile(projectId, profileId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["profiler", "project-history", projectId] });
+    },
+  });
+}
+
+export function useRunProjectScanWithProgress(projectId: number) {
+  const queryClient = useQueryClient();
+  const [progress, setProgress] = useState<ScanProgress>({
+    isScanning: false,
+    totalTables: 0,
+    completedTables: 0,
+    currentTable: "",
+    tableResults: [],
+    errors: [],
+    elapsedMs: 0,
+  });
+  const [result, setResult] = useState<ProfileSummary | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const unsubRef = useRef<(() => void) | null>(null);
+
+  const startScan = useCallback(
+    async (request: { tables?: string[]; sample_rows?: number }) => {
+      setProgress({
+        isScanning: true,
+        totalTables: 0,
+        completedTables: 0,
+        currentTable: "Connecting...",
+        tableResults: [],
+        errors: [],
+        elapsedMs: 0,
+      });
+      setResult(null);
+      setError(null);
+
+      try {
+        const { scan_id } = await startProjectAsyncScan(projectId, request);
+
+        unsubRef.current = subscribeProjectScanProgress(
+          projectId,
+          scan_id,
+          (event: ScanProgressEvent) => {
+            setProgress((prev) => {
+              switch (event.event) {
+                case "started":
+                  return { ...prev, totalTables: event.total_tables ?? 0 };
+                case "table_started":
+                  return { ...prev, currentTable: event.table ?? "" };
+                case "table_done":
+                  return {
+                    ...prev,
+                    completedTables: event.index ?? prev.completedTables,
+                    elapsedMs: event.elapsed_ms ? prev.elapsedMs + event.elapsed_ms : prev.elapsedMs,
+                    tableResults: [
+                      ...prev.tableResults,
+                      {
+                        table: event.table ?? "",
+                        rows: event.rows ?? 0,
+                        columns: event.columns ?? 0,
+                        elapsed_ms: event.elapsed_ms ?? 0,
+                      },
+                    ],
+                  };
+                case "error":
+                  return {
+                    ...prev,
+                    errors: [...prev.errors, { table: event.table ?? "", message: event.message ?? "" }],
+                  };
+                case "completed":
+                case "completed_with_errors":
+                  return { ...prev, isScanning: false, elapsedMs: event.total_elapsed_ms ?? prev.elapsedMs };
+                default:
+                  return prev;
+              }
+            });
+          },
+          async () => {
+            try {
+              const profile = await completeProjectScan(projectId, scan_id);
+              setResult(profile);
+              queryClient.invalidateQueries({ queryKey: ["profiler", "project-history", projectId] });
+            } catch (e) {
+              setError(e instanceof Error ? e.message : "Failed to persist scan results");
+            }
+            setProgress((prev) => ({ ...prev, isScanning: false }));
+          },
+          () => {
+            setError("Lost connection to scan progress stream");
+            setProgress((prev) => ({ ...prev, isScanning: false }));
+          },
+        );
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Failed to start scan");
+        setProgress((prev) => ({ ...prev, isScanning: false }));
+      }
+    },
+    [projectId, queryClient],
   );
 
   const cancel = useCallback(() => {

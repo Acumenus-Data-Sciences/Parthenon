@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RunScanRequest;
+use App\Models\App\IngestionProject;
 use App\Models\App\Source;
 use App\Models\App\SourceProfile;
 use App\Services\Profiler\ScanComparisonService;
@@ -209,6 +210,116 @@ class SourceProfilerController extends Controller
     {
         if ($profile->source_id !== $source->id) {
             return response()->json(['error' => 'Profile does not belong to this source'], 404);
+        }
+
+        $profile->delete();
+
+        return response()->json(null, 204);
+    }
+
+    // ── Ingestion Project Profiler Methods ───────────────────────────
+
+    /**
+     * GET /ingestion-projects/{project}/scan-profiles
+     */
+    public function indexForProject(IngestionProject $project): JsonResponse
+    {
+        $profiles = SourceProfile::where('ingestion_project_id', $project->id)
+            ->whereIn('scan_type', ['blackrabbit', 'whiterabbit'])
+            ->orderByDesc('created_at')
+            ->paginate(20, ['id', 'ingestion_project_id', 'scan_type', 'scan_time_seconds', 'overall_grade', 'table_count', 'column_count', 'total_rows', 'summary_json', 'created_at']);
+
+        return response()->json($profiles);
+    }
+
+    /**
+     * POST /ingestion-projects/{project}/scan-profiles/scan-async
+     */
+    public function scanAsyncForProject(RunScanRequest $request, IngestionProject $project): JsonResponse
+    {
+        $dbConfig = $project->db_connection_config;
+
+        if (! $dbConfig || ! is_array($dbConfig)) {
+            return response()->json([
+                'error' => 'No database connection configured',
+                'message' => 'This ingestion project does not have a database connection. Use "Connect to Database" first.',
+            ], 422);
+        }
+
+        try {
+            $scanId = $this->profilerService->startScanFromConfig(
+                $dbConfig,
+                $request->input('tables'),
+                $request->integer('sample_rows', 100000),
+            );
+
+            return response()->json([
+                'data' => ['scan_id' => $scanId, 'ingestion_project_id' => $project->id],
+                'message' => 'Scan started.',
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Profiler async scan request failed for project', [
+                'ingestion_project_id' => $project->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'error' => 'Scan failed to start',
+                'message' => $e->getMessage(),
+            ], 502);
+        }
+    }
+
+    /**
+     * POST /ingestion-projects/{project}/scan-profiles/scan-complete/{scanId}
+     */
+    public function scanCompleteForProject(Request $request, IngestionProject $project, string $scanId): JsonResponse
+    {
+        try {
+            $profile = $this->profilerService->fetchAndPersistForProject($project, $scanId);
+
+            return response()->json([
+                'data' => $profile->only([
+                    'id', 'ingestion_project_id', 'overall_grade', 'table_count',
+                    'column_count', 'total_rows', 'scan_time_seconds', 'summary_json',
+                ]),
+                'message' => 'Scan completed and saved.',
+            ], 201);
+        } catch (\Throwable $e) {
+            Log::error('Profiler scan complete failed for project', [
+                'ingestion_project_id' => $project->id,
+                'scan_id' => $scanId,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'error' => 'Failed to persist scan results',
+                'message' => $e->getMessage(),
+            ], 502);
+        }
+    }
+
+    /**
+     * GET /ingestion-projects/{project}/scan-profiles/{profile}
+     */
+    public function showForProject(IngestionProject $project, SourceProfile $profile): JsonResponse
+    {
+        if ($profile->ingestion_project_id !== $project->id) {
+            return response()->json(['error' => 'Profile does not belong to this project'], 404);
+        }
+
+        $profile->load('fields');
+
+        return response()->json(['data' => $profile]);
+    }
+
+    /**
+     * DELETE /ingestion-projects/{project}/scan-profiles/{profile}
+     */
+    public function destroyForProject(IngestionProject $project, SourceProfile $profile): JsonResponse
+    {
+        if ($profile->ingestion_project_id !== $project->id) {
+            return response()->json(['error' => 'Profile does not belong to this project'], 404);
         }
 
         $profile->delete();

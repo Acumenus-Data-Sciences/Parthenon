@@ -570,3 +570,80 @@ export async function completeScan(
   );
   return data.data;
 }
+
+// ---------------------------------------------------------------------------
+// Ingestion Project Profiler API
+// ---------------------------------------------------------------------------
+
+export async function fetchProjectProfileHistory(projectId: number): Promise<PaginatedProfiles> {
+  const { data } = await apiClient.get<PaginatedProfiles>(
+    `/ingestion-projects/${projectId}/scan-profiles`,
+  );
+  return data;
+}
+
+export async function fetchProjectProfile(projectId: number, profileId: number): Promise<PersistedProfile> {
+  const { data } = await apiClient.get<{ data: PersistedProfile }>(
+    `/ingestion-projects/${projectId}/scan-profiles/${profileId}`,
+  );
+  return data.data;
+}
+
+export async function deleteProjectProfile(projectId: number, profileId: number): Promise<void> {
+  await apiClient.delete(`/ingestion-projects/${projectId}/scan-profiles/${profileId}`);
+}
+
+export async function startProjectAsyncScan(
+  projectId: number,
+  request: { tables?: string[]; sample_rows?: number },
+): Promise<{ scan_id: string; ingestion_project_id: number }> {
+  const { data } = await apiClient.post<{ data: { scan_id: string; ingestion_project_id: number } }>(
+    `/ingestion-projects/${projectId}/scan-profiles/scan-async`,
+    request,
+  );
+  return data.data;
+}
+
+export function subscribeProjectScanProgress(
+  projectId: number,
+  scanId: string,
+  onEvent: (event: ScanProgressEvent) => void,
+  onDone: () => void,
+  onError: (error: Event) => void,
+): () => void {
+  const baseUrl = apiClient.defaults.baseURL ?? "";
+  const token = localStorage.getItem("auth_token") ?? "";
+  const url = `${baseUrl}/ingestion-projects/${projectId}/scan-profiles/scan-progress/${scanId}?token=${token}`;
+
+  const eventSource = new EventSource(url);
+
+  eventSource.onmessage = (e) => {
+    try {
+      const parsed: ScanProgressEvent = JSON.parse(e.data);
+      onEvent(parsed);
+      if (parsed.event === "completed" || parsed.event === "completed_with_errors") {
+        eventSource.close();
+        onDone();
+      }
+    } catch {
+      // ignore parse errors
+    }
+  };
+
+  eventSource.onerror = (e) => {
+    eventSource.close();
+    onError(e);
+  };
+
+  return () => eventSource.close();
+}
+
+export async function completeProjectScan(
+  projectId: number,
+  scanId: string,
+): Promise<ProfileSummary> {
+  const { data } = await apiClient.post<{ data: ProfileSummary }>(
+    `/ingestion-projects/${projectId}/scan-profiles/scan-complete/${scanId}`,
+  );
+  return data.data;
+}

@@ -17,13 +17,12 @@ import {
   Clock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { fetchSources } from "@/features/data-sources/api/sourcesApi";
+import { fetchIngestionProjects, type IngestionProject } from "@/features/ingestion/api/ingestionApi";
 import { useWhiteRabbitHealth, type ScanResult } from "../api";
 import type { ProfileSummary, PersistedFieldProfile } from "../api";
-import { CdmContextPanel } from "../components/CdmContextPanel";
 import ScanProgressIndicator from "../components/ScanProgressIndicator";
-import { useProfileHistory, useRunScanWithProgress, useDeleteProfile, useComparison } from "../hooks/useProfilerData";
-import { fetchProfile } from "../api";
+import { useProjectProfileHistory, useRunProjectScanWithProgress, useDeleteProjectProfile } from "../hooks/useProfilerData";
+import { fetchProjectProfile } from "../api";
 import {
   fmtNumber,
   fmtNumberFull,
@@ -44,8 +43,6 @@ import { TableSizeChart } from "../components/TableSizeChart";
 import { FkRelationshipGraph } from "../components/FkRelationshipGraph";
 import { TableAccordion } from "../components/TableAccordion";
 import { ScanHistorySidebar } from "../components/ScanHistorySidebar";
-import ComparisonSummary from "../components/ComparisonSummary";
-import ComparisonDiff from "../components/ComparisonDiff";
 
 
 // ---------------------------------------------------------------------------
@@ -109,7 +106,7 @@ function transformPersistedToScanResult(
 
 export default function SourceProfilerPage() {
   // -- State ----------------------------------------------------------------
-  const [selectedSourceId, setSelectedSourceId] = useState<number | "">("");
+  const [selectedProjectId, setSelectedProjectId] = useState<number | "">("");
   const [tableFilter, setTableFilter] = useState("");
   const [result, setResult] = useState<ScanResult | null>(null);
   const [resultSourceName, setResultSourceName] = useState("");
@@ -121,10 +118,6 @@ export default function SourceProfilerPage() {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [sampleRows, setSampleRows] = useState(10000);
 
-  const [compareMode, setCompareMode] = useState(false);
-  const [compareCurrentId, setCompareCurrentId] = useState<number>(0);
-  const [compareBaselineId, setCompareBaselineId] = useState<number>(0);
-  const [comparisonFilter, setComparisonFilter] = useState<string | null>(null);
 
   // -- Clear stale localStorage on mount --
   useEffect(() => {
@@ -132,21 +125,25 @@ export default function SourceProfilerPage() {
   }, []);
 
   // -- Queries --------------------------------------------------------------
-  const { data: sources = [] } = useQuery({
-    queryKey: ["sources"],
-    queryFn: fetchSources,
+  const { data: projectsData } = useQuery({
+    queryKey: ["ingestion-projects"],
+    queryFn: fetchIngestionProjects,
   });
+  // Only show projects that have a database connection configured
+  const dbProjects: IngestionProject[] = useMemo(
+    () => (projectsData?.data ?? []).filter((p) => p.db_connection_config != null),
+    [projectsData],
+  );
 
-  const sourceIdNum = Number(selectedSourceId) || 0;
+  const projectIdNum = Number(selectedProjectId) || 0;
   const { data: health } = useWhiteRabbitHealth();
-  const { data: profileHistoryData } = useProfileHistory(sourceIdNum);
+  const { data: profileHistoryData } = useProjectProfileHistory(projectIdNum);
   const profileHistory: ProfileSummary[] = profileHistoryData?.data ?? [];
-  const { startScan, cancel: cancelScan, progress: scanProgress, error: scanError } = useRunScanWithProgress(sourceIdNum);
-  const deleteMutation = useDeleteProfile(sourceIdNum);
-  const comparison = useComparison(sourceIdNum, compareCurrentId, compareBaselineId);
+  const { startScan, cancel: cancelScan, progress: scanProgress, error: scanError } = useRunProjectScanWithProgress(projectIdNum);
+  const deleteMutation = useDeleteProjectProfile(projectIdNum);
 
   // -- Derived data ---------------------------------------------------------
-  const selectedSource = sources.find((s) => s.id === selectedSourceId);
+  const selectedProject = dbProjects.find((p) => p.id === selectedProjectId);
 
   const filteredTables = useMemo(() => {
     if (!result) return [];
@@ -207,7 +204,7 @@ export default function SourceProfilerPage() {
 
   // -- Handlers -------------------------------------------------------------
   const handleScan = useCallback(() => {
-    if (!selectedSourceId) return;
+    if (!selectedProjectId) return;
     const tables = tableFilter
       .split(",")
       .map((t) => t.trim())
@@ -217,17 +214,17 @@ export default function SourceProfilerPage() {
       tables: tables.length ? tables : undefined,
       sample_rows: sampleRows !== 10000 ? sampleRows : undefined,
     });
-  }, [selectedSourceId, tableFilter, sampleRows, startScan]);
+  }, [selectedProjectId, tableFilter, sampleRows, startScan]);
 
   const handleHistorySelect = useCallback(
     async (profile: ProfileSummary) => {
       setTableSearch("");
-      const srcName = selectedSource?.source_name ?? `Source ${selectedSourceId}`;
-      setResultSourceName(srcName);
+      const projName = selectedProject?.name ?? `Project ${selectedProjectId}`;
+      setResultSourceName(projName);
       setSelectedHistoryId(profile.id);
 
       try {
-        const detail = await fetchProfile(sourceIdNum, profile.id);
+        const detail = await fetchProjectProfile(projectIdNum, profile.id);
         const scanResult = transformPersistedToScanResult(detail.fields, profile);
         setResult(scanResult);
       } catch {
@@ -238,7 +235,7 @@ export default function SourceProfilerPage() {
         });
       }
     },
-    [selectedSource, selectedSourceId, sourceIdNum],
+    [selectedProject, selectedProjectId, projectIdNum],
   );
 
   const handleHistoryDelete = useCallback(
@@ -251,13 +248,6 @@ export default function SourceProfilerPage() {
     },
     [selectedHistoryId, deleteMutation],
   );
-
-  const handleCompare = useCallback((currentId: number, baselineId: number) => {
-    setCompareCurrentId(currentId);
-    setCompareBaselineId(baselineId);
-    setCompareMode(true);
-    setComparisonFilter(null);
-  }, []);
 
   const toggleSort = useCallback(
     (field: SortField) => {
@@ -309,11 +299,6 @@ export default function SourceProfilerPage() {
         </div>
       )}
 
-      {/* CDM Context Panel */}
-      {selectedSourceId && Number(selectedSourceId) > 0 && (
-        <CdmContextPanel sourceId={Number(selectedSourceId)} />
-      )}
-
       {/* -- Two-column layout: config + history -- */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left: scan config */}
@@ -327,24 +312,30 @@ export default function SourceProfilerPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <label className="block text-xs font-medium text-[#8A857D] uppercase tracking-wider">
-                  Data Source
+                  Database
                 </label>
                 <select
-                  value={selectedSourceId}
+                  value={selectedProjectId}
                   onChange={(e) =>
-                    setSelectedSourceId(
+                    setSelectedProjectId(
                       e.target.value ? Number(e.target.value) : "",
                     )
                   }
                   className="w-full rounded-lg bg-[#1C1C20] border border-[#2E2E35] px-3 py-2 text-sm text-[#F0EDE8] focus:outline-none focus:border-[#9B1B30]"
                 >
-                  <option value="">Select a source...</option>
-                  {sources.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.source_name}
+                  <option value="">Select a database...</option>
+                  {dbProjects.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                      {p.db_connection_config ? ` (${p.db_connection_config.dbms}://${p.db_connection_config.host}/${p.db_connection_config.database})` : ""}
                     </option>
                   ))}
                 </select>
+                {dbProjects.length === 0 && (
+                  <p className="text-[11px] text-[#5A5650]">
+                    No database connections found. Use the Ingestion tab to connect a database first.
+                  </p>
+                )}
               </div>
 
               <div className="space-y-1.5">
@@ -403,7 +394,7 @@ export default function SourceProfilerPage() {
               <button
                 type="button"
                 onClick={handleScan}
-                disabled={!selectedSourceId || scanProgress.isScanning}
+                disabled={!selectedProjectId || scanProgress.isScanning}
                 className="inline-flex items-center gap-2 rounded-lg bg-[#9B1B30] px-5 py-2.5 text-sm font-medium text-[#F0EDE8] hover:bg-[#B82D42] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {scanProgress.isScanning ? (
@@ -449,7 +440,7 @@ export default function SourceProfilerPage() {
             profiles={profileHistory}
             onSelect={handleHistorySelect}
             onDelete={handleHistoryDelete}
-            onCompare={handleCompare}
+            onCompare={() => {}}
             selectedId={selectedHistoryId}
           />
         </div>
@@ -474,32 +465,10 @@ export default function SourceProfilerPage() {
         </div>
       )}
 
-      {/* -- Comparison View -- */}
-      {compareMode && comparison.data && (
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-white">Scan Comparison</h2>
-            <button
-              onClick={() => setCompareMode(false)}
-              className="text-sm text-gray-400 hover:text-white"
-            >
-              &larr; Back to results
-            </button>
-          </div>
-          <ComparisonSummary
-            data={comparison.data}
-            activeFilter={comparisonFilter}
-            onFilterChange={setComparisonFilter}
-          />
-          <ComparisonDiff
-            data={comparison.data}
-            activeFilter={comparisonFilter}
-          />
-        </div>
-      )}
+      {/* -- Comparison View (placeholder — comparison API for projects coming soon) -- */}
 
       {/* -- Results Dashboard -- */}
-      {result && !scanProgress.isScanning && !compareMode && (
+      {result && !scanProgress.isScanning && (
         <div className="space-y-6">
           {/* Source name + timestamp header */}
           {resultSourceName && (

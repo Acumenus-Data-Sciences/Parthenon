@@ -11,6 +11,7 @@ class SourceProfile extends Model
     protected $fillable = [
         'ingestion_job_id',
         'source_id',
+        'ingestion_project_id',
         'file_name',
         'file_format',
         'file_size',
@@ -43,6 +44,14 @@ class SourceProfile extends Model
     public function ingestionJob(): BelongsTo
     {
         return $this->belongsTo(IngestionJob::class);
+    }
+
+    /**
+     * @return BelongsTo<IngestionProject, $this>
+     */
+    public function ingestionProject(): BelongsTo
+    {
+        return $this->belongsTo(IngestionProject::class);
     }
 
     /**

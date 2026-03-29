@@ -285,6 +285,22 @@ Route::prefix('v1')->group(function () {
             Route::get('/{project}/fhir/sync-runs/{run}', [IngestionProjectController::class, 'fhirSyncRunDetail'])
                 ->middleware('permission:ingestion.view')
                 ->where(['project' => '[0-9]+', 'run' => '[0-9]+']);
+
+            // Source Profiler for ingestion projects with DB connections
+            Route::prefix('{project}/scan-profiles')->where(['project' => '[0-9]+'])->group(function () {
+                Route::get('/', [SourceProfilerController::class, 'indexForProject'])
+                    ->middleware('permission:ingestion.view');
+                Route::post('/scan-async', [SourceProfilerController::class, 'scanAsyncForProject'])
+                    ->middleware('permission:ingestion.run');
+                Route::get('/scan-progress/{scanId}', [SourceProfilerController::class, 'scanProgress'])
+                    ->middleware('permission:ingestion.view');
+                Route::post('/scan-complete/{scanId}', [SourceProfilerController::class, 'scanCompleteForProject'])
+                    ->middleware('permission:ingestion.run');
+                Route::get('/{profile}', [SourceProfilerController::class, 'showForProject'])
+                    ->middleware('permission:ingestion.view');
+                Route::delete('/{profile}', [SourceProfilerController::class, 'destroyForProject'])
+                    ->middleware('permission:ingestion.delete');
+            });
         });
 
         // Poseidon (dbt + Dagster CDM Orchestration)
