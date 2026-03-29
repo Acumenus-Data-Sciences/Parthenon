@@ -11,6 +11,7 @@ import {
   Settings,
   Plus,
   Trash2,
+  Activity,
   Dna,
   ScanLine,
   X,
@@ -24,6 +25,7 @@ import { DemographicFilterEditor } from "./DemographicFilterEditor";
 import { DomainCriteriaSelector, getDomainInfo } from "./DomainCriteriaSelector";
 import { GenomicCriteriaPanel } from "@/features/genomics/components/GenomicCriteriaPanel";
 import { ImagingCriteriaPanel } from "@/features/imaging/components/ImagingCriteriaPanel";
+import { RiskScoreCriteriaSection } from "./RiskScoreCriteriaSection";
 import { useCohortExpressionStore } from "../stores/cohortExpressionStore";
 import type {
   DomainCriterionType,
@@ -117,6 +119,7 @@ export function CohortExpressionEditor() {
   const demographicCount = Array.isArray(expression.DemographicCriteria) ? expression.DemographicCriteria.length : (expression.DemographicCriteria ? 1 : 0);
   const genomicCount = expression.GenomicCriteria?.length ?? 0;
   const imagingCount = expression.ImagingCriteria?.length ?? 0;
+  const riskScoreCount = expression.RiskScoreCriteria?.length ?? 0;
 
   const handleAddDemographic = () => {
     const current = asDemographicArray(expression.DemographicCriteria);
@@ -439,7 +442,19 @@ export function CohortExpressionEditor() {
         </div>
       </CollapsibleSection>
 
-      {/* 9. Qualified Limit */}
+      {/* 9. Risk Score Criteria (Phase 3) */}
+      <CollapsibleSection
+        title="Risk Score Criteria"
+        icon={Activity}
+        iconColor="#9B1B30"
+        badge={riskScoreCount > 0 ? riskScoreCount : undefined}
+      >
+        <div className="space-y-3">
+          <RiskScoreCriteriaSection />
+        </div>
+      </CollapsibleSection>
+
+      {/* 10. Qualified Limit */}
       <CollapsibleSection
         title="Qualified Limit"
         icon={Settings}

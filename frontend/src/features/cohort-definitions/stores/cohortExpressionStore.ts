@@ -10,6 +10,7 @@ import type {
   DomainCriterion,
   GenomicCriterion,
   ImagingCriterion,
+  RiskScoreCriterion,
 } from "../types/cohortExpression";
 
 const defaultExpression: CohortExpression = {
@@ -72,6 +73,7 @@ export function normalizeCohortExpression(
     DemographicCriteria: input.DemographicCriteria ?? [],
     GenomicCriteria: input.GenomicCriteria ?? [],
     ImagingCriteria: input.ImagingCriteria ?? [],
+    RiskScoreCriteria: input.RiskScoreCriteria ?? [],
     QualifiedLimit: input.QualifiedLimit ?? defaultExpression.QualifiedLimit,
     ExpressionLimit: input.ExpressionLimit ?? defaultExpression.ExpressionLimit,
     CollapseSettings: input.CollapseSettings ?? defaultExpression.CollapseSettings,
@@ -118,6 +120,9 @@ interface CohortExpressionStore {
   // Phase 16: Imaging criteria
   addImagingCriterion: (criterion: ImagingCriterion) => void;
   removeImagingCriterion: (index: number) => void;
+  // Phase 3: Risk score criteria
+  addRiskScoreCriterion: (criterion: RiskScoreCriterion) => void;
+  removeRiskScoreCriterion: (index: number) => void;
 
   // State
   reset: (expression?: CohortExpression) => void;
@@ -348,6 +353,24 @@ export const useCohortExpressionStore = create<CohortExpressionStore>()(
         expression: {
           ...s.expression,
           ImagingCriteria: (s.expression.ImagingCriteria ?? []).filter((_, i) => i !== index),
+        },
+      })),
+
+    addRiskScoreCriterion: (criterion) =>
+      set((s) => ({
+        isDirty: true,
+        expression: {
+          ...s.expression,
+          RiskScoreCriteria: [...(s.expression.RiskScoreCriteria ?? []), criterion],
+        },
+      })),
+
+    removeRiskScoreCriterion: (index) =>
+      set((s) => ({
+        isDirty: true,
+        expression: {
+          ...s.expression,
+          RiskScoreCriteria: (s.expression.RiskScoreCriteria ?? []).filter((_, i) => i !== index),
         },
       })),
 

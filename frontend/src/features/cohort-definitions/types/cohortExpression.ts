@@ -172,6 +172,22 @@ export interface ImagingCriterion {
   exclude?: boolean;
 }
 
+// ---------------------------------------------------------------------------
+// Phase 3 — Risk Score Criteria
+// ---------------------------------------------------------------------------
+
+export interface RiskScoreCriterion {
+  id: number;
+  label: string;
+  analysisId: number;
+  scoreId: string;
+  scoreName: string;
+  operator: "gt" | "gte" | "lt" | "lte" | "eq" | null;
+  value: number | null;
+  tier: string | null;
+  exclude: boolean;
+}
+
 export interface CohortExpression {
   ConceptSets: ConceptSetExpression[];
   conceptSets?: ConceptSetExpression[];
@@ -192,6 +208,8 @@ export interface CohortExpression {
   GenomicCriteria?: GenomicCriterion[];
   // Phase 16 extension
   ImagingCriteria?: ImagingCriterion[];
+  // Phase 3 extension
+  RiskScoreCriteria?: RiskScoreCriterion[];
 }
 
 // ---------------------------------------------------------------------------
