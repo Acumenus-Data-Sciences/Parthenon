@@ -2,7 +2,11 @@
 
 namespace App\Providers;
 
+use App\Services\PopulationRisk\ConceptResolutionService;
+use App\Services\PopulationRisk\PatientFeatureExtractor;
 use App\Services\PopulationRisk\PopulationRiskScoreRegistry;
+use App\Services\PopulationRisk\RiskScoreExecutionService;
+use App\Services\PopulationRisk\RiskScoreRecommendationService;
 use App\Services\PopulationRisk\Scores\RS001FraminghamRiskScore;
 use App\Services\PopulationRisk\Scores\RS002PooledCohortEquations;
 use App\Services\PopulationRisk\Scores\RS003CHA2DS2VASc;
@@ -23,12 +27,33 @@ use App\Services\PopulationRisk\Scores\RS017GRACEScore;
 use App\Services\PopulationRisk\Scores\RS018STOPBANGApnea;
 use App\Services\PopulationRisk\Scores\RS019CHADS2Score;
 use App\Services\PopulationRisk\Scores\RS020MultimorbidityBurden;
+use App\Services\PopulationRisk\V2Scores\RS005CharlsonV2;
 use Illuminate\Support\ServiceProvider;
 
 class PopulationRiskServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        $this->app->singleton(ConceptResolutionService::class);
+        $this->app->singleton(PatientFeatureExtractor::class);
+
+        $this->app->singleton(RiskScoreRecommendationService::class, function ($app) {
+            $service = new RiskScoreRecommendationService($app->make(ConceptResolutionService::class));
+            $service->registerV2Score(new RS005CharlsonV2);
+
+            return $service;
+        });
+
+        $this->app->singleton(RiskScoreExecutionService::class, function ($app) {
+            $service = new RiskScoreExecutionService(
+                $app->make(PatientFeatureExtractor::class),
+                $app->make(ConceptResolutionService::class),
+            );
+            $service->registerV2Score(new RS005CharlsonV2);
+
+            return $service;
+        });
+
         $this->app->singleton(PopulationRiskScoreRegistry::class, function () {
             $registry = new PopulationRiskScoreRegistry;
 

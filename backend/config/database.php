@@ -188,6 +188,23 @@ return [
             'sslmode' => 'prefer',
         ],
 
+        // Pancreatic Cancer Corpus CDM — schema-isolated OMOP CDM for
+        // multimodal pancreatic cancer research dataset. Shared vocabulary
+        // from vocab schema.
+        'pancreas' => [
+            'driver' => 'pgsql',
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '5432'),
+            'database' => env('DB_DATABASE', 'parthenon'),
+            'username' => env('DB_USERNAME', 'parthenon'),
+            'password' => env('DB_PASSWORD', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => 'pancreas,vocab,php',
+            'sslmode' => 'prefer',
+        ],
+
         // Data interrogation — read-only CDM access for Abby AI analytics.
         // Uses dedicated abby_analyst role with SELECT-only on omop/results/vocab
         // and full access to temp_abby scratch schema.
