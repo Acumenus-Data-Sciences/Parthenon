@@ -8,10 +8,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\CreateIngestionProjectRequest;
 use App\Http\Requests\Api\StageFilesRequest;
 use App\Jobs\Ingestion\StageFileJob;
+use App\Models\App\FhirConnection;
+use App\Models\App\FhirSyncRun;
 use App\Models\App\FieldProfile;
 use App\Models\App\IngestionJob;
 use App\Models\App\IngestionProject;
 use App\Models\App\SourceProfile;
+use App\Services\Fhir\FhirSyncDispatcherService;
 use App\Services\Ingestion\FileUploadService;
 use App\Services\Ingestion\StagingService;
 use App\Services\Ingestion\StagingSourceService;
@@ -527,5 +530,125 @@ class IngestionProjectController extends Controller
                 'message' => $e->getMessage(),
             ], 502);
         }
+    }
+
+    // ── FHIR Workspace Endpoints ───────────────────────────────────────
+
+    /**
+     * GET /ingestion-projects/{project}/fhir
+     *
+     * Return FHIR workspace data for a project.
+     */
+    public function fhir(IngestionProject $project): JsonResponse
+    {
+        $this->authorize('view', $project);
+
+        $project->load('fhirConnection');
+
+        return response()->json([
+            'project' => $project,
+            'fhir_connection' => $project->fhirConnection,
+            'recent_runs' => FhirSyncRun::where('ingestion_project_id', $project->id)
+                ->orderByDesc('created_at')
+                ->limit(10)
+                ->get(),
+            'available_connections' => FhirConnection::where('is_active', true)->get(),
+            'last_sync_run' => $project->lastFhirSyncRun,
+        ]);
+    }
+
+    /**
+     * POST /ingestion-projects/{project}/fhir/attach-connection
+     *
+     * Attach a FHIR connection and set sync mode on a project.
+     */
+    public function attachFhirConnection(Request $request, IngestionProject $project): JsonResponse
+    {
+        $this->authorize('update', $project);
+
+        $validated = $request->validate([
+            'fhir_connection_id' => ['required', 'integer', 'exists:fhir_connections,id'],
+            'fhir_sync_mode' => ['nullable', 'string', 'in:full,incremental'],
+        ]);
+
+        $project->update([
+            'fhir_connection_id' => $validated['fhir_connection_id'],
+            'fhir_sync_mode' => $validated['fhir_sync_mode'] ?? 'incremental',
+        ]);
+
+        return response()->json([
+            'data' => $project->fresh()->load('fhirConnection'),
+        ]);
+    }
+
+    /**
+     * POST /ingestion-projects/{project}/fhir/sync
+     *
+     * Start a FHIR sync for this project.
+     */
+    public function startFhirSync(Request $request, IngestionProject $project): JsonResponse
+    {
+        $this->authorize('update', $project);
+
+        if (! $project->fhir_connection_id) {
+            return response()->json([
+                'error' => 'No FHIR connection attached to this project.',
+            ], 422);
+        }
+
+        $forceFull = (bool) $request->input('force_full', false);
+
+        try {
+            $dispatcher = app(FhirSyncDispatcherService::class);
+            $run = $dispatcher->startSync(
+                $project->fhirConnection,
+                $forceFull,
+                $project,
+                $request->user()->id,
+            );
+
+            return response()->json([
+                'message' => 'FHIR sync started.',
+                'run' => $run,
+            ], 202);
+        } catch (\DomainException $e) {
+            return response()->json(['error' => $e->getMessage()], 422);
+        } catch (\RuntimeException $e) {
+            return response()->json(['error' => $e->getMessage()], 409);
+        }
+    }
+
+    /**
+     * GET /ingestion-projects/{project}/fhir/sync-runs
+     *
+     * List FHIR sync runs for a project.
+     */
+    public function fhirSyncRuns(IngestionProject $project): JsonResponse
+    {
+        $this->authorize('view', $project);
+
+        $runs = FhirSyncRun::where('ingestion_project_id', $project->id)
+            ->orderByDesc('created_at')
+            ->paginate(20);
+
+        return response()->json($runs);
+    }
+
+    /**
+     * GET /ingestion-projects/{project}/fhir/sync-runs/{run}
+     *
+     * Show a single FHIR sync run detail.
+     */
+    public function fhirSyncRunDetail(IngestionProject $project, FhirSyncRun $run): JsonResponse
+    {
+        $this->authorize('view', $project);
+
+        if ((int) $run->ingestion_project_id !== (int) $project->id) {
+            return response()->json(['message' => 'Sync run does not belong to this project.'], 404);
+        }
+
+        return response()->json([
+            'data' => $run->load('connection', 'triggeredBy'),
+        ]);
     }
 }

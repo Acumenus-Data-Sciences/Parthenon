@@ -10,6 +10,7 @@ class FhirSyncRun extends Model
 {
     protected $fillable = [
         'fhir_connection_id',
+        'ingestion_project_id',
         'status',
         'export_url',
         'since_param',
@@ -52,5 +53,11 @@ class FhirSyncRun extends Model
     public function triggeredBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'triggered_by');
+    }
+
+    /** @return BelongsTo<IngestionProject, $this> */
+    public function ingestionProject(): BelongsTo
+    {
+        return $this->belongsTo(IngestionProject::class);
     }
 }

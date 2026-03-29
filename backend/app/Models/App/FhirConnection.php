@@ -72,4 +72,10 @@ class FhirConnection extends Model
 
     /** Append this computed attribute to JSON. */
     protected $appends = ['has_private_key'];
+
+    /** Whether this connection uses SMART Backend Services (JWT) auth. */
+    public function usesSmartBackendServices(): bool
+    {
+        return ($this->auth_mode ?? 'smart_backend_services') === 'smart_backend_services';
+    }
 }

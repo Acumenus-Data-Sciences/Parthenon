@@ -100,6 +100,7 @@ use App\Http\Controllers\Api\V1\PredictionController;
 use App\Http\Controllers\Api\V1\PublicationController;
 use App\Http\Controllers\Api\V1\QueryLibraryController;
 use App\Http\Controllers\Api\V1\RadiogenomicsController;
+use App\Http\Controllers\Api\V1\RiskScoreAnalysisController;
 use App\Http\Controllers\Api\V1\SccsController;
 use App\Http\Controllers\Api\V1\SourceController;
 use App\Http\Controllers\Api\V1\SourceProfilerController;
@@ -266,6 +267,23 @@ Route::prefix('v1')->group(function () {
             Route::post('/{project}/stage-db', [IngestionProjectController::class, 'stageDb'])
                 ->middleware(['permission:ingestion.upload', 'throttle:5,10'])
                 ->where('project', '[0-9]+');
+
+            // FHIR workspace endpoints (Project Vulcan)
+            Route::get('/{project}/fhir', [IngestionProjectController::class, 'fhir'])
+                ->middleware('permission:ingestion.view')
+                ->where('project', '[0-9]+');
+            Route::post('/{project}/fhir/attach-connection', [IngestionProjectController::class, 'attachFhirConnection'])
+                ->middleware('permission:ingestion.upload')
+                ->where('project', '[0-9]+');
+            Route::post('/{project}/fhir/sync', [IngestionProjectController::class, 'startFhirSync'])
+                ->middleware('permission:ingestion.run')
+                ->where('project', '[0-9]+');
+            Route::get('/{project}/fhir/sync-runs', [IngestionProjectController::class, 'fhirSyncRuns'])
+                ->middleware('permission:ingestion.view')
+                ->where('project', '[0-9]+');
+            Route::get('/{project}/fhir/sync-runs/{run}', [IngestionProjectController::class, 'fhirSyncRunDetail'])
+                ->middleware('permission:ingestion.view')
+                ->where(['project' => '[0-9]+', 'run' => '[0-9]+']);
         });
 
         // Poseidon (dbt + Dagster CDM Orchestration)
@@ -439,8 +457,15 @@ Route::prefix('v1')->group(function () {
             Route::get('/', [PopulationRiskScoreController::class, 'index']);
             Route::post('/run', [PopulationRiskScoreController::class, 'run']);
             Route::get('/eligibility', [PopulationRiskScoreController::class, 'eligibility']);
+            Route::post('/recommend', [RiskScoreAnalysisController::class, 'recommend']);
             Route::get('/{scoreId}', [PopulationRiskScoreController::class, 'show']);
         });
+
+        // Risk Score Analysis v2
+        Route::apiResource('risk-score-analyses', RiskScoreAnalysisController::class)->only(['store', 'show']);
+        Route::post('risk-score-analyses/{analysis}/execute', [RiskScoreAnalysisController::class, 'execute']);
+        Route::get('risk-score-analyses/{analysis}/executions/{execution}', [RiskScoreAnalysisController::class, 'executionDetail']);
+        Route::get('risk-score-analyses/{analysis}/executions/{execution}/patients', [RiskScoreAnalysisController::class, 'patients']);
 
         // Clinical Coherence (Tier 1 Parthenon-native analyses)
         Route::prefix('sources/{source}/clinical-coherence')->group(function () {
