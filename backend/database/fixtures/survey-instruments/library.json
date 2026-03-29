@@ -731,7 +731,1300 @@
     "license_detail": "Available from the University of Iowa; free to use with attribution to Dr. Nancy Andreasen.",
     "is_public_domain": true,
     "omop_coverage": "partial",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "loinc_code": null,
+        "text": "Auditory hallucinations",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "loinc_code": null,
+        "text": "Voices commenting",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "loinc_code": null,
+        "text": "Voices conversing",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "loinc_code": null,
+        "text": "Somatic or tactile hallucinations",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "loinc_code": null,
+        "text": "Olfactory hallucinations",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "loinc_code": null,
+        "text": "Visual hallucinations",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "loinc_code": null,
+        "text": "Global rating of hallucinations",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "loinc_code": null,
+        "text": "Persecutory delusions",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 9,
+        "loinc_code": null,
+        "text": "Delusions of jealousy",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 10,
+        "loinc_code": null,
+        "text": "Delusions of guilt or sin",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 11,
+        "loinc_code": null,
+        "text": "Grandiose delusions",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 12,
+        "loinc_code": null,
+        "text": "Religious delusions",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 13,
+        "loinc_code": null,
+        "text": "Somatic delusions",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 14,
+        "loinc_code": null,
+        "text": "Delusions of reference",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 15,
+        "loinc_code": null,
+        "text": "Delusions of being controlled",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 16,
+        "loinc_code": null,
+        "text": "Delusions of mind reading",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 17,
+        "loinc_code": null,
+        "text": "Thought broadcasting",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 18,
+        "loinc_code": null,
+        "text": "Thought insertion",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 19,
+        "loinc_code": null,
+        "text": "Thought withdrawal",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 20,
+        "loinc_code": null,
+        "text": "Global rating of delusions",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 21,
+        "loinc_code": null,
+        "text": "Clothing and appearance",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 22,
+        "loinc_code": null,
+        "text": "Social and sexual behavior",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 23,
+        "loinc_code": null,
+        "text": "Aggressive and agitated behavior",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 24,
+        "loinc_code": null,
+        "text": "Repetitive or stereotyped behavior",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 25,
+        "loinc_code": null,
+        "text": "Global rating of bizarre behavior",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 26,
+        "loinc_code": null,
+        "text": "Derailment (loose associations)",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 27,
+        "loinc_code": null,
+        "text": "Tangentiality",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 28,
+        "loinc_code": null,
+        "text": "Incoherence (word salad)",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 29,
+        "loinc_code": null,
+        "text": "Illogicality",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 30,
+        "loinc_code": null,
+        "text": "Circumstantiality",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 31,
+        "loinc_code": null,
+        "text": "Pressure of speech",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 32,
+        "loinc_code": null,
+        "text": "Distractible speech",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 33,
+        "loinc_code": null,
+        "text": "Clanging",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 34,
+        "loinc_code": null,
+        "text": "Global rating of positive formal thought disorder",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      }
+    ],
     "has_snomed": false
   },
   {
@@ -760,7 +2053,958 @@
     "license_detail": "Available from the University of Iowa; free to use with attribution to Dr. Nancy Andreasen.",
     "is_public_domain": true,
     "omop_coverage": "partial",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "loinc_code": null,
+        "text": "Unchanging facial expression",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "loinc_code": null,
+        "text": "Decreased spontaneous movements",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "loinc_code": null,
+        "text": "Paucity of expressive gestures",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "loinc_code": null,
+        "text": "Poor eye contact",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "loinc_code": null,
+        "text": "Affective nonresponsivity",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "loinc_code": null,
+        "text": "Lack of vocal inflections",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "loinc_code": null,
+        "text": "Global rating of affective flattening",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "loinc_code": null,
+        "text": "Inappropriate affect",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 9,
+        "loinc_code": null,
+        "text": "Poverty of speech",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 10,
+        "loinc_code": null,
+        "text": "Poverty of content of speech",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 11,
+        "loinc_code": null,
+        "text": "Blocking",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 12,
+        "loinc_code": null,
+        "text": "Increased latency of response",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 13,
+        "loinc_code": null,
+        "text": "Global rating of alogia",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 14,
+        "loinc_code": null,
+        "text": "Grooming and hygiene",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 15,
+        "loinc_code": null,
+        "text": "Impersistence at work or school",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 16,
+        "loinc_code": null,
+        "text": "Physical anergia",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 17,
+        "loinc_code": null,
+        "text": "Global rating of avolition-apathy",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 18,
+        "loinc_code": null,
+        "text": "Recreational interests and activities",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 19,
+        "loinc_code": null,
+        "text": "Sexual interest and activity",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 20,
+        "loinc_code": null,
+        "text": "Ability to feel intimacy and closeness",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 21,
+        "loinc_code": null,
+        "text": "Relationships with friends and peers",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 22,
+        "loinc_code": null,
+        "text": "Global rating of anhedonia-asociality",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 23,
+        "loinc_code": null,
+        "text": "Social inattentiveness",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 24,
+        "loinc_code": null,
+        "text": "Inattentiveness during mental status testing",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 25,
+        "loinc_code": null,
+        "text": "Global rating of attention",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Questionable",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Mild",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Marked",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Severe",
+            "loinc_la": null
+          }
+        ]
+      }
+    ],
     "has_snomed": false
   },
   {
@@ -2825,7 +5069,866 @@
     "license_detail": "World Health Organization. Freely available for non-commercial use from who.int.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "loinc_code": null,
+        "text": "How would you rate your quality of life?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Very poor",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Poor",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Neither poor nor good",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Good",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Very good",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "loinc_code": null,
+        "text": "How satisfied are you with your health?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Very dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Neither satisfied nor dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Satisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Very satisfied",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "loinc_code": null,
+        "text": "To what extent do you feel that physical pain prevents you from doing what you need to do?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A little",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "A moderate amount",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Very much",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "An extreme amount",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "loinc_code": null,
+        "text": "How much do you need any medical treatment to function in your daily life?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A little",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "A moderate amount",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Very much",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "An extreme amount",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "loinc_code": null,
+        "text": "How much do you enjoy life?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A little",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "A moderate amount",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Very much",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "An extreme amount",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "loinc_code": null,
+        "text": "To what extent do you feel your life to be meaningful?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A little",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "A moderate amount",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Very much",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "An extreme amount",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "loinc_code": null,
+        "text": "How well are you able to concentrate?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A little",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderately",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Mostly",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Completely",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "loinc_code": null,
+        "text": "How safe do you feel in your daily life?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A little",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderately",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Mostly",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Completely",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 9,
+        "loinc_code": null,
+        "text": "How healthy is your physical environment?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A little",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderately",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Mostly",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Completely",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 10,
+        "loinc_code": null,
+        "text": "Do you have enough energy for everyday life?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A little",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderately",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Mostly",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Completely",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 11,
+        "loinc_code": null,
+        "text": "Are you able to accept your bodily appearance?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A little",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderately",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Mostly",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Completely",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 12,
+        "loinc_code": null,
+        "text": "Have you enough money to meet your needs?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A little",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderately",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Mostly",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Completely",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 13,
+        "loinc_code": null,
+        "text": "How available to you is the information that you need in your day-to-day life?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A little",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderately",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Mostly",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Completely",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 14,
+        "loinc_code": null,
+        "text": "To what extent do you have the opportunity for leisure activities?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Not at all",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A little",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderately",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Mostly",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Completely",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 15,
+        "loinc_code": null,
+        "text": "How well are you able to get around?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Very poor",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Poor",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Neither poor nor good",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Good",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Very good",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 16,
+        "loinc_code": null,
+        "text": "How satisfied are you with your sleep?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Very dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Neither satisfied nor dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Satisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Very satisfied",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 17,
+        "loinc_code": null,
+        "text": "How satisfied are you with your ability to perform your daily living activities?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Very dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Neither satisfied nor dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Satisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Very satisfied",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 18,
+        "loinc_code": null,
+        "text": "How satisfied are you with your capacity for work?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Very dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Neither satisfied nor dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Satisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Very satisfied",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 19,
+        "loinc_code": null,
+        "text": "How satisfied are you with yourself?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Very dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Neither satisfied nor dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Satisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Very satisfied",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 20,
+        "loinc_code": null,
+        "text": "How satisfied are you with your personal relationships?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Very dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Neither satisfied nor dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Satisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Very satisfied",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 21,
+        "loinc_code": null,
+        "text": "How satisfied are you with your sex life?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Very dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Neither satisfied nor dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Satisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Very satisfied",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 22,
+        "loinc_code": null,
+        "text": "How satisfied are you with the support you get from your friends?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Very dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Neither satisfied nor dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Satisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Very satisfied",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 23,
+        "loinc_code": null,
+        "text": "How satisfied are you with the conditions of your living place?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Very dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Neither satisfied nor dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Satisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Very satisfied",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 24,
+        "loinc_code": null,
+        "text": "How satisfied are you with your access to health services?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Very dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Neither satisfied nor dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Satisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Very satisfied",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 25,
+        "loinc_code": null,
+        "text": "How satisfied are you with your transport?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Very dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Neither satisfied nor dissatisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Satisfied",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Very satisfied",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 26,
+        "loinc_code": null,
+        "text": "How often do you have negative feelings such as blue mood, despair, anxiety, depression?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Never",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Seldom",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Quite often",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Very often",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Always",
+            "loinc_la": null
+          }
+        ]
+      }
+    ],
     "snomed_code": "273908001",
     "has_snomed": true
   },
@@ -5302,7 +8405,440 @@
     "license_detail": "Roland and Morris (1983). Published in Spine; free for non-commercial clinical and research use.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "loinc_code": null,
+        "text": "I stay at home most of the time because of my back",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "loinc_code": null,
+        "text": "I change position frequently to try and get my back comfortable",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "loinc_code": null,
+        "text": "I walk more slowly than usual because of my back",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "loinc_code": null,
+        "text": "Because of my back, I am not doing any of the jobs that I usually do around the house",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "loinc_code": null,
+        "text": "Because of my back, I use a handrail to get upstairs",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "loinc_code": null,
+        "text": "Because of my back, I lie down to rest more often",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "loinc_code": null,
+        "text": "Because of my back, I have to hold on to something to get out of an easy chair",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "loinc_code": null,
+        "text": "Because of my back, I try to get other people to do things for me",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 9,
+        "loinc_code": null,
+        "text": "I get dressed more slowly than usual because of my back",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 10,
+        "loinc_code": null,
+        "text": "I only stand up for short periods of time because of my back",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 11,
+        "loinc_code": null,
+        "text": "Because of my back, I try not to bend or kneel down",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 12,
+        "loinc_code": null,
+        "text": "I find it difficult to get out of a chair because of my back",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 13,
+        "loinc_code": null,
+        "text": "My back is painful almost all the time",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 14,
+        "loinc_code": null,
+        "text": "I find it difficult to turn over in bed because of my back",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 15,
+        "loinc_code": null,
+        "text": "My appetite is not very good because of my back pain",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 16,
+        "loinc_code": null,
+        "text": "I have trouble putting on my socks (or stockings) because of the pain in my back",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 17,
+        "loinc_code": null,
+        "text": "I only walk short distances because of my back pain",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 18,
+        "loinc_code": null,
+        "text": "I sleep less well because of my back",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 19,
+        "loinc_code": null,
+        "text": "Because of my back pain, I get dressed with help from someone else",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 20,
+        "loinc_code": null,
+        "text": "I sit down for most of the day because of my back",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 21,
+        "loinc_code": null,
+        "text": "I avoid heavy jobs around the house because of my back",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 22,
+        "loinc_code": null,
+        "text": "Because of my back pain, I am more irritable and bad tempered with people than usual",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 23,
+        "loinc_code": null,
+        "text": "Because of my back, I go upstairs more slowly than usual",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 24,
+        "loinc_code": null,
+        "text": "I stay in bed most of the time because of my back",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "No",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Yes",
+            "loinc_la": null
+          }
+        ]
+      }
+    ],
     "has_snomed": false
   },
   {
@@ -6232,7 +9768,866 @@
     "license_detail": "Wei et al. (2000). Published in J Urol; University of Michigan. Free for academic use.",
     "is_public_domain": true,
     "omop_coverage": "no",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "loinc_code": null,
+        "text": "Over the past 4 weeks, how often have you leaked urine?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "More than once a day",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "About once a day",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "More than once a week",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "About once a week",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Rarely or never",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "loinc_code": null,
+        "text": "Which of the following best describes your urinary control during the last 4 weeks?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "No urinary control whatsoever",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Frequent dribbling",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Occasional dribbling",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Total control",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "loinc_code": null,
+        "text": "How many pads or adult diapers per day did you usually use to control leakage during the last 4 weeks?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "None",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "1 pad per day",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "2 pads per day",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "3 or more pads per day",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "loinc_code": null,
+        "text": "How big a problem, if any, has dripping or leaking urine been for you during the last 4 weeks?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "No problem",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Very small problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Small problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Big problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "loinc_code": null,
+        "text": "How big a problem, if any, has pain or burning on urination been for you?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "No problem",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Very small problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Small problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Big problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "loinc_code": null,
+        "text": "How big a problem, if any, has bleeding with urination been for you?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "No problem",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Very small problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Small problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Big problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "loinc_code": null,
+        "text": "How big a problem, if any, has weak urine stream or incomplete emptying been for you?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "No problem",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Very small problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Small problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Big problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "loinc_code": null,
+        "text": "How big a problem, if any, has need to urinate frequently during the day been for you?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "No problem",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Very small problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Small problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Big problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 9,
+        "loinc_code": null,
+        "text": "How often have you had rectal urgency (felt like you needed to have a bowel movement right away) during the last 4 weeks?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Rarely or never",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Less than once a week",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "About once a week",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "More than once a week",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "About once a day",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "More than once a day",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 10,
+        "loinc_code": null,
+        "text": "How often have you had uncontrolled leakage of stool during the last 4 weeks?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Rarely or never",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Less than once a week",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "About once a week",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "More than once a week",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "About once a day",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "More than once a day",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 11,
+        "loinc_code": null,
+        "text": "How often have you had bloody stools during the last 4 weeks?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Rarely or never",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Less than once a week",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "About once a week",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "More than once a week",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "About once a day",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "More than once a day",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 12,
+        "loinc_code": null,
+        "text": "How big a problem, if any, have bowel movements been for you during the last 4 weeks?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "No problem",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Very small problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Small problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Big problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 13,
+        "loinc_code": null,
+        "text": "How big a problem, if any, has abdominal/pelvic/rectal pain been for you during the last 4 weeks?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "No problem",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Very small problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Small problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Big problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 14,
+        "loinc_code": null,
+        "text": "Overall, how big a problem have your bowel habits been for you during the last 4 weeks?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "No problem",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Very small problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Small problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Big problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 15,
+        "loinc_code": null,
+        "text": "How would you rate each of the following during the last 4 weeks? Your ability to have an erection",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Very poor",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Poor",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Fair",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Good",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Very good",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 16,
+        "loinc_code": null,
+        "text": "How would you rate each of the following during the last 4 weeks? Your ability to reach orgasm (climax)",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Very poor",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Poor",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Fair",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Good",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Very good",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 17,
+        "loinc_code": null,
+        "text": "How would you describe the usual quality of your erections during the last 4 weeks?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "None at all",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Not firm enough for any sexual activity",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Firm enough for masturbation and foreplay only",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Firm enough for intercourse",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 18,
+        "loinc_code": null,
+        "text": "How often have you had an erection when you wanted one during the last 4 weeks?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Never",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Seldom (less than half the time)",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "About half the time",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Usually (more than half the time)",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Always",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 19,
+        "loinc_code": null,
+        "text": "Overall, how would you rate your ability to function sexually during the last 4 weeks?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Very poor",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Poor",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Fair",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Good",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "Very good",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 20,
+        "loinc_code": null,
+        "text": "How big a problem, if any, has your sexual function or lack of sexual function been for you during the last 4 weeks?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "No problem",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Very small problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Small problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Big problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 21,
+        "loinc_code": null,
+        "text": "How big a problem during the last 4 weeks, if any, has hot flashes been for you?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "No problem",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Very small problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Small problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Big problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 22,
+        "loinc_code": null,
+        "text": "How big a problem during the last 4 weeks, if any, has breast tenderness/enlargement been for you?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "No problem",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Very small problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Small problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Big problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 23,
+        "loinc_code": null,
+        "text": "How big a problem during the last 4 weeks, if any, has feeling depressed been for you?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "No problem",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Very small problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Small problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Big problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 24,
+        "loinc_code": null,
+        "text": "How big a problem during the last 4 weeks, if any, has lack of energy been for you?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "No problem",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Very small problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Small problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Big problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 25,
+        "loinc_code": null,
+        "text": "How big a problem during the last 4 weeks, if any, has change in body weight been for you?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "No problem",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Very small problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Small problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Big problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 26,
+        "loinc_code": null,
+        "text": "Overall, how big a problem has the area of hormonal function been for you during the last 4 weeks?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "No problem",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Very small problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Small problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Big problem",
+            "loinc_la": null
+          }
+        ]
+      }
+    ],
     "has_snomed": false
   },
   {
@@ -6390,7 +10785,284 @@
     "license_detail": "National Institutes of Health. Free for non-commercial research; available through Healthmeasures.net.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "loinc_code": null,
+        "text": "Dimensional Change Card Sort Test - Measures cognitive flexibility and attention by asking participants to match cards by shape or color",
+        "response_type": "performance",
+        "options": [
+          {
+            "value": 0,
+            "label": "Below average (computed score < 85)",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Average (computed score 85-115)",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Above average (computed score > 115)",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "loinc_code": null,
+        "text": "Flanker Inhibitory Control and Attention Test - Measures attention and inhibitory control by identifying direction of a central stimulus amid flanking stimuli",
+        "response_type": "performance",
+        "options": [
+          {
+            "value": 0,
+            "label": "Below average (computed score < 85)",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Average (computed score 85-115)",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Above average (computed score > 115)",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "loinc_code": null,
+        "text": "List Sorting Working Memory Test - Measures working memory by recalling and sequencing visually and orally presented stimuli",
+        "response_type": "performance",
+        "options": [
+          {
+            "value": 0,
+            "label": "Below average (computed score < 85)",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Average (computed score 85-115)",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Above average (computed score > 115)",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "loinc_code": null,
+        "text": "Picture Sequence Memory Test - Measures episodic memory by recalling the sequence of pictured objects and activities",
+        "response_type": "performance",
+        "options": [
+          {
+            "value": 0,
+            "label": "Below average (computed score < 85)",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Average (computed score 85-115)",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Above average (computed score > 115)",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "loinc_code": null,
+        "text": "Pattern Comparison Processing Speed Test - Measures processing speed by asking whether two visual patterns are the same or different",
+        "response_type": "performance",
+        "options": [
+          {
+            "value": 0,
+            "label": "Below average (computed score < 85)",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Average (computed score 85-115)",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Above average (computed score > 115)",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "loinc_code": null,
+        "text": "Picture Vocabulary Test - Measures receptive vocabulary by selecting the picture that most closely matches the meaning of a word",
+        "response_type": "performance",
+        "options": [
+          {
+            "value": 0,
+            "label": "Below average (computed score < 85)",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Average (computed score 85-115)",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Above average (computed score > 115)",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "loinc_code": null,
+        "text": "Oral Reading Recognition Test - Measures reading decoding skill by asking participants to read and pronounce words",
+        "response_type": "performance",
+        "options": [
+          {
+            "value": 0,
+            "label": "Below average (computed score < 85)",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Average (computed score 85-115)",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Above average (computed score > 115)",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "loinc_code": null,
+        "text": "Fluid Cognition Composite Score - Combination of DCCS, Flanker, List Sorting, Pattern Comparison, Picture Sequence",
+        "response_type": "performance",
+        "options": [
+          {
+            "value": 0,
+            "label": "Below average (computed score < 85)",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Average (computed score 85-115)",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Above average (computed score > 115)",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 9,
+        "loinc_code": null,
+        "text": "Crystallized Cognition Composite Score - Combination of Picture Vocabulary and Oral Reading Recognition",
+        "response_type": "performance",
+        "options": [
+          {
+            "value": 0,
+            "label": "Below average (computed score < 85)",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Average (computed score 85-115)",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Above average (computed score > 115)",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 10,
+        "loinc_code": null,
+        "text": "Total Cognition Composite Score - Overall composite of all 7 subtests",
+        "response_type": "performance",
+        "options": [
+          {
+            "value": 0,
+            "label": "Below average (computed score < 85)",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Average (computed score 85-115)",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Above average (computed score > 115)",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 11,
+        "loinc_code": null,
+        "text": "Early Childhood Composite Score - Adapted composite for ages 3-6",
+        "response_type": "performance",
+        "options": [
+          {
+            "value": 0,
+            "label": "Below average (computed score < 85)",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Average (computed score 85-115)",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Above average (computed score > 115)",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 12,
+        "loinc_code": null,
+        "text": "Cognition Battery Standard Score - Age-adjusted standard score for the full battery",
+        "response_type": "performance",
+        "options": [
+          {
+            "value": 0,
+            "label": "Below average (computed score < 85)",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Average (computed score 85-115)",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Above average (computed score > 115)",
+            "loinc_la": null
+          }
+        ]
+      }
+    ],
     "has_snomed": false
   },
   {
@@ -6901,7 +11573,587 @@
     "license_detail": "Tinetti (1986). Published in JAGS; public domain.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "loinc_code": null,
+        "text": "Sitting balance",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Leans or slides in chair",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Steady, safe",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "loinc_code": null,
+        "text": "Arises from chair",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Unable without help",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Able, uses arms to help",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Able without using arms",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "loinc_code": null,
+        "text": "Attempts to arise",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Unable without help",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Able, requires more than one attempt",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Able to rise, one attempt",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "loinc_code": null,
+        "text": "Immediate standing balance (first 5 seconds)",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Unsteady (staggers, moves feet, trunk sway)",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Steady but uses walker or other support",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Steady without walker or other support",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "loinc_code": null,
+        "text": "Standing balance",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Unsteady",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Steady but wide stance and uses support",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Narrow stance without support",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "loinc_code": null,
+        "text": "Nudged (subject at maximum position with feet as close together as possible, examiner pushes lightly on subject's sternum with palm of hand 3 times)",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Begins to fall",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Staggers, grabs, catches self",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Steady",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "loinc_code": null,
+        "text": "Eyes closed (at maximum position as in item 6)",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Unsteady",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Steady",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "loinc_code": null,
+        "text": "Turning 360 degrees — steps",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Discontinuous steps",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Continuous",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 9,
+        "loinc_code": null,
+        "text": "Turning 360 degrees — steadiness",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Unsteady (grabs, staggers)",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Steady",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 10,
+        "loinc_code": null,
+        "text": "Sitting down",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Unsafe (misjudged distance, falls into chair)",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Uses arms or not a smooth motion",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Safe, smooth motion",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 11,
+        "loinc_code": null,
+        "text": "Neck turning (standing, turn head side to side and look up)",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Feet move; unsteady, grabs; complains of vertigo, pain, or restriction",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Decreased ability to turn side-to-side or extend neck, but no staggering, grabbing, or symptoms",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Able to turn head at least half-way side-to-side and able to tilt head back to look at ceiling; no staggering or symptoms",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 12,
+        "loinc_code": null,
+        "text": "One leg standing balance",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Unable or holds for less than 3 seconds",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Able for 3-5 seconds",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Able for more than 5 seconds",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 13,
+        "loinc_code": null,
+        "text": "Back extension (ask subject to lean back as far as possible)",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "No extension or staggers/grabs",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Tries to extend but decreased range compared to other subjects of same age",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Good extension compared to other subjects of same age",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 14,
+        "loinc_code": null,
+        "text": "Reaching up (attempt to remove an object from a shelf high enough to require stretching or standing on toes)",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Unable or unsteady",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Able to get object but needs to steady self by holding on to something",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Able to get object and is steady",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 15,
+        "loinc_code": null,
+        "text": "Bending down (ask subject to pick up small objects from floor such as a pen)",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Unable or unsteady",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Able to get object and is steady",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Able to pick up object and return to standing quickly and easily",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 16,
+        "loinc_code": null,
+        "text": "Sitting down from standing (after walking)",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Unable without help or collapses into chair or lands off center of chair",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Uses arms or not a smooth motion",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Safe, smooth motion",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 17,
+        "loinc_code": null,
+        "text": "Initiation of gait (immediately after told to 'go')",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Any hesitancy or multiple attempts to start",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "No hesitancy",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 18,
+        "loinc_code": null,
+        "text": "Step length — right foot swing",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Does not pass left stance foot with step",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Passes left stance foot",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 19,
+        "loinc_code": null,
+        "text": "Step length — left foot swing",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Does not pass right stance foot with step",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Passes right stance foot",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 20,
+        "loinc_code": null,
+        "text": "Step height — right foot",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Right foot does not clear floor completely with step",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Right foot completely clears floor",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 21,
+        "loinc_code": null,
+        "text": "Step height — left foot",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Left foot does not clear floor completely with step",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Left foot completely clears floor",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 22,
+        "loinc_code": null,
+        "text": "Step symmetry",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Right and left step length not equal (estimate)",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Right and left step appear equal",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 23,
+        "loinc_code": null,
+        "text": "Step continuity",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Stopping or discontinuity between steps",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Steps appear continuous",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 24,
+        "loinc_code": null,
+        "text": "Path (estimated in relation to floor tiles, 12-inch diameter; observe excursion of 1 foot over about 10 ft of course)",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Marked deviation",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Mild/moderate deviation or uses walking aid",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Straight without walking aid",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 25,
+        "loinc_code": null,
+        "text": "Trunk",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Marked sway or uses walking aid",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "No sway but flexion of knees or back or spreads arms out while walking",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "No sway, no flexion, no use of arms, and no use of walking aid",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 26,
+        "loinc_code": null,
+        "text": "Walking stance",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Heels apart",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Heels almost touching while walking",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 27,
+        "loinc_code": null,
+        "text": "Turning while walking",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Staggers, grabs, or stops before turning",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "No staggering, smooth and continuous, does not grab or stop",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 28,
+        "loinc_code": null,
+        "text": "Walking speed (ask patient to walk 15 feet as quickly and as safely as possible)",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Unable or very slow",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Slow to moderate or uses aid",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Fast and safe",
+            "loinc_la": null
+          }
+        ]
+      }
+    ],
     "snomed_code": "273897006",
     "has_snomed": true
   },
@@ -7850,7 +13102,654 @@
     "license_detail": "Polonsky et al. (2005). Published in Diabetes Care; freely available.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "loinc_code": null,
+        "text": "Feeling that diabetes is taking up too much of my mental and physical energy every day",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Not a problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A slight problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "A moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Somewhat serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "A serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "A very serious problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "loinc_code": null,
+        "text": "Feeling that my doctor doesn't know enough about diabetes and diabetes care",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Not a problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A slight problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "A moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Somewhat serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "A serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "A very serious problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "loinc_code": null,
+        "text": "Feeling angry, scared, and/or depressed when I think about living with diabetes",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Not a problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A slight problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "A moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Somewhat serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "A serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "A very serious problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "loinc_code": null,
+        "text": "Feeling that my doctor doesn't give me clear enough directions on how to manage my diabetes",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Not a problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A slight problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "A moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Somewhat serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "A serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "A very serious problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "loinc_code": null,
+        "text": "Feeling that I am not testing my blood sugars frequently enough",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Not a problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A slight problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "A moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Somewhat serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "A serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "A very serious problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "loinc_code": null,
+        "text": "Feeling that I am often failing with my diabetes routine",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Not a problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A slight problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "A moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Somewhat serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "A serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "A very serious problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "loinc_code": null,
+        "text": "Feeling that friends or family are not supportive enough of my self-care efforts",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Not a problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A slight problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "A moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Somewhat serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "A serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "A very serious problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "loinc_code": null,
+        "text": "Feeling that diabetes controls my life",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Not a problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A slight problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "A moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Somewhat serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "A serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "A very serious problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 9,
+        "loinc_code": null,
+        "text": "Feeling that my doctor doesn't take my concerns seriously enough",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Not a problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A slight problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "A moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Somewhat serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "A serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "A very serious problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 10,
+        "loinc_code": null,
+        "text": "Not feeling confident in my day-to-day ability to manage diabetes",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Not a problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A slight problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "A moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Somewhat serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "A serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "A very serious problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 11,
+        "loinc_code": null,
+        "text": "Feeling that I will end up with serious long-term complications, no matter what I do",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Not a problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A slight problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "A moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Somewhat serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "A serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "A very serious problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 12,
+        "loinc_code": null,
+        "text": "Feeling that I am not sticking closely enough to a good meal plan",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Not a problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A slight problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "A moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Somewhat serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "A serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "A very serious problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 13,
+        "loinc_code": null,
+        "text": "Feeling that friends or family don't appreciate how difficult living with diabetes can be",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Not a problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A slight problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "A moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Somewhat serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "A serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "A very serious problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 14,
+        "loinc_code": null,
+        "text": "Feeling overwhelmed by the demands of living with diabetes",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Not a problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A slight problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "A moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Somewhat serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "A serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "A very serious problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 15,
+        "loinc_code": null,
+        "text": "Feeling that I don't have a doctor who I can see regularly enough about my diabetes",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Not a problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A slight problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "A moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Somewhat serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "A serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "A very serious problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 16,
+        "loinc_code": null,
+        "text": "Not feeling motivated to keep up my diabetes self-management",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Not a problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A slight problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "A moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Somewhat serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "A serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "A very serious problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 17,
+        "loinc_code": null,
+        "text": "Feeling that friends or family don't give me the emotional support that I would like",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 1,
+            "label": "Not a problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "A slight problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "A moderate problem",
+            "loinc_la": null
+          },
+          {
+            "value": 4,
+            "label": "Somewhat serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 5,
+            "label": "A serious problem",
+            "loinc_la": null
+          },
+          {
+            "value": 6,
+            "label": "A very serious problem",
+            "loinc_la": null
+          }
+        ]
+      }
+    ],
     "has_snomed": false
   },
   {
@@ -9430,7 +15329,456 @@
     "license_detail": "Buysse et al. (1989). University of Pittsburgh. Free for clinical and non-commercial research use.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "loinc_code": null,
+        "text": "During the past month, what time have you usually gone to bed at night?",
+        "response_type": "text",
+        "options": []
+      },
+      {
+        "item_number": 2,
+        "loinc_code": null,
+        "text": "During the past month, how long (in minutes) has it usually taken you to fall asleep each night?",
+        "response_type": "numeric",
+        "options": []
+      },
+      {
+        "item_number": 3,
+        "loinc_code": null,
+        "text": "During the past month, what time have you usually gotten up in the morning?",
+        "response_type": "text",
+        "options": []
+      },
+      {
+        "item_number": 4,
+        "loinc_code": null,
+        "text": "During the past month, how many hours of actual sleep did you get at night? (This may be different than the number of hours you spent in bed.)",
+        "response_type": "numeric",
+        "options": []
+      },
+      {
+        "item_number": 5,
+        "loinc_code": null,
+        "text": "During the past month, how often have you had trouble sleeping because you cannot get to sleep within 30 minutes",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not during the past month",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Less than once a week",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Once or twice a week",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Three or more times a week",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "loinc_code": null,
+        "text": "During the past month, how often have you had trouble sleeping because you wake up in the middle of the night or early morning",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not during the past month",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Less than once a week",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Once or twice a week",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Three or more times a week",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "loinc_code": null,
+        "text": "During the past month, how often have you had trouble sleeping because you have to get up to use the bathroom",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not during the past month",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Less than once a week",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Once or twice a week",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Three or more times a week",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "loinc_code": null,
+        "text": "During the past month, how often have you had trouble sleeping because you cannot breathe comfortably",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not during the past month",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Less than once a week",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Once or twice a week",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Three or more times a week",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 9,
+        "loinc_code": null,
+        "text": "During the past month, how often have you had trouble sleeping because you cough or snore loudly",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not during the past month",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Less than once a week",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Once or twice a week",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Three or more times a week",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 10,
+        "loinc_code": null,
+        "text": "During the past month, how often have you had trouble sleeping because you feel too cold",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not during the past month",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Less than once a week",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Once or twice a week",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Three or more times a week",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 11,
+        "loinc_code": null,
+        "text": "During the past month, how often have you had trouble sleeping because you feel too hot",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not during the past month",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Less than once a week",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Once or twice a week",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Three or more times a week",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 12,
+        "loinc_code": null,
+        "text": "During the past month, how often have you had trouble sleeping because you had bad dreams",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not during the past month",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Less than once a week",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Once or twice a week",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Three or more times a week",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 13,
+        "loinc_code": null,
+        "text": "During the past month, how often have you had trouble sleeping because you have pain",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not during the past month",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Less than once a week",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Once or twice a week",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Three or more times a week",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 14,
+        "loinc_code": null,
+        "text": "During the past month, how often have you had trouble sleeping because of other reason(s)",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not during the past month",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Less than once a week",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Once or twice a week",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Three or more times a week",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 15,
+        "loinc_code": null,
+        "text": "During the past month, how would you rate your sleep quality overall?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Very good",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Fairly good",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Fairly bad",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Very bad",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 16,
+        "loinc_code": null,
+        "text": "During the past month, how often have you taken medicine to help you sleep (prescribed or 'over the counter')?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not during the past month",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Less than once a week",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Once or twice a week",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Three or more times a week",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 17,
+        "loinc_code": null,
+        "text": "During the past month, how often have you had trouble staying awake while driving, eating meals, or engaging in social activity?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "Not during the past month",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Less than once a week",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Once or twice a week",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Three or more times a week",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 18,
+        "loinc_code": null,
+        "text": "During the past month, how much of a problem has it been for you to keep up enough enthusiasm to get things done?",
+        "response_type": "likert",
+        "options": [
+          {
+            "value": 0,
+            "label": "No problem at all",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Only a very slight problem",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Somewhat of a problem",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "A very big problem",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 19,
+        "loinc_code": null,
+        "text": "Do you have a bed partner or room mate?",
+        "response_type": "categorical",
+        "options": [
+          {
+            "value": 0,
+            "label": "No bed partner or room mate",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Partner/room mate in other room",
+            "loinc_la": null
+          },
+          {
+            "value": 2,
+            "label": "Partner in same room, but not same bed",
+            "loinc_la": null
+          },
+          {
+            "value": 3,
+            "label": "Partner in same bed",
+            "loinc_la": null
+          }
+        ]
+      }
+    ],
     "snomed_code": "273810004",
     "has_snomed": true
   },
@@ -10801,7 +17149,512 @@
     "license_detail": "van der Heijde et al. (1990). Public domain; developed by the DAS-RA Working Group.",
     "is_public_domain": true,
     "omop_coverage": "yes",
-    "items": [],
+    "items": [
+      {
+        "item_number": 1,
+        "loinc_code": null,
+        "text": "Right shoulder — tenderness and swelling assessment",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Absent",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Present",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 2,
+        "loinc_code": null,
+        "text": "Left shoulder — tenderness and swelling assessment",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Absent",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Present",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 3,
+        "loinc_code": null,
+        "text": "Right elbow — tenderness and swelling assessment",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Absent",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Present",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 4,
+        "loinc_code": null,
+        "text": "Left elbow — tenderness and swelling assessment",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Absent",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Present",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 5,
+        "loinc_code": null,
+        "text": "Right wrist — tenderness and swelling assessment",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Absent",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Present",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 6,
+        "loinc_code": null,
+        "text": "Left wrist — tenderness and swelling assessment",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Absent",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Present",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 7,
+        "loinc_code": null,
+        "text": "Right MCP 1 (thumb) — tenderness and swelling assessment",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Absent",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Present",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 8,
+        "loinc_code": null,
+        "text": "Right MCP 2 (index) — tenderness and swelling assessment",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Absent",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Present",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 9,
+        "loinc_code": null,
+        "text": "Right MCP 3 (middle) — tenderness and swelling assessment",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Absent",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Present",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 10,
+        "loinc_code": null,
+        "text": "Right MCP 4 (ring) — tenderness and swelling assessment",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Absent",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Present",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 11,
+        "loinc_code": null,
+        "text": "Right MCP 5 (little) — tenderness and swelling assessment",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Absent",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Present",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 12,
+        "loinc_code": null,
+        "text": "Left MCP 1 (thumb) — tenderness and swelling assessment",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Absent",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Present",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 13,
+        "loinc_code": null,
+        "text": "Left MCP 2 (index) — tenderness and swelling assessment",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Absent",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Present",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 14,
+        "loinc_code": null,
+        "text": "Left MCP 3 (middle) — tenderness and swelling assessment",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Absent",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Present",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 15,
+        "loinc_code": null,
+        "text": "Left MCP 4 (ring) — tenderness and swelling assessment",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Absent",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Present",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 16,
+        "loinc_code": null,
+        "text": "Left MCP 5 (little) — tenderness and swelling assessment",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Absent",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Present",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 17,
+        "loinc_code": null,
+        "text": "Right PIP 1 (thumb) — tenderness and swelling assessment",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Absent",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Present",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 18,
+        "loinc_code": null,
+        "text": "Right PIP 2 (index) — tenderness and swelling assessment",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Absent",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Present",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 19,
+        "loinc_code": null,
+        "text": "Right PIP 3 (middle) — tenderness and swelling assessment",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Absent",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Present",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 20,
+        "loinc_code": null,
+        "text": "Right PIP 4 (ring) — tenderness and swelling assessment",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Absent",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Present",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 21,
+        "loinc_code": null,
+        "text": "Right PIP 5 (little) — tenderness and swelling assessment",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Absent",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Present",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 22,
+        "loinc_code": null,
+        "text": "Left PIP 1 (thumb) — tenderness and swelling assessment",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Absent",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Present",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 23,
+        "loinc_code": null,
+        "text": "Left PIP 2 (index) — tenderness and swelling assessment",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Absent",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Present",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 24,
+        "loinc_code": null,
+        "text": "Left PIP 3 (middle) — tenderness and swelling assessment",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Absent",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Present",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 25,
+        "loinc_code": null,
+        "text": "Left PIP 4 (ring) — tenderness and swelling assessment",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Absent",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Present",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 26,
+        "loinc_code": null,
+        "text": "Left PIP 5 (little) — tenderness and swelling assessment",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Absent",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Present",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 27,
+        "loinc_code": null,
+        "text": "Right knee — tenderness and swelling assessment",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Absent",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Present",
+            "loinc_la": null
+          }
+        ]
+      },
+      {
+        "item_number": 28,
+        "loinc_code": null,
+        "text": "Left knee — tenderness and swelling assessment",
+        "response_type": "binary",
+        "options": [
+          {
+            "value": 0,
+            "label": "Absent",
+            "loinc_la": null
+          },
+          {
+            "value": 1,
+            "label": "Present",
+            "loinc_la": null
+          }
+        ]
+      }
+    ],
     "has_snomed": false
   },
   {
