@@ -1,0 +1,147 @@
+{
+    "id": 223,
+    "name": "FOLFIRINOX Recipients",
+    "description": "PDAC patients who received all three FOLFIRINOX components — fluorouracil (955632), oxaliplatin (1318011), and irinotecan (1367268) — within 90 days of first PDAC diagnosis.",
+    "expression_json": {
+        "ConceptSets": [
+            {
+                "id": 0,
+                "name": "PDAC Condition",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 4180793,
+                                "CONCEPT_CODE": "",
+                                "CONCEPT_NAME": "Malignant tumor of pancreas",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 1,
+                "name": "FOLFIRINOX Components",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 955632,
+                                "CONCEPT_CODE": "",
+                                "CONCEPT_NAME": "Fluorouracil",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1318011,
+                                "CONCEPT_CODE": "",
+                                "CONCEPT_NAME": "Oxaliplatin",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1367268,
+                                "CONCEPT_CODE": "",
+                                "CONCEPT_NAME": "Irinotecan",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            }
+        ],
+        "QualifiedLimit": {
+            "Type": "First"
+        },
+        "ExpressionLimit": {
+            "Type": "First"
+        },
+        "PrimaryCriteria": {
+            "CriteriaList": [
+                {
+                    "ConditionOccurrence": {
+                        "First": true,
+                        "CodesetId": 0
+                    }
+                }
+            ],
+            "ObservationWindow": {
+                "PostDays": 0,
+                "PriorDays": 0
+            }
+        },
+        "CollapseSettings": {
+            "EraPad": 0,
+            "CollapseType": "ERA"
+        },
+        "AdditionalCriteria": {
+            "Type": "ALL",
+            "Groups": [],
+            "CriteriaList": [
+                {
+                    "Criteria": {
+                        "DrugExposure": {
+                            "CodesetId": 1
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 3
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 90,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 0,
+                            "Coeff": 1
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-03-28T18:26:28.000000Z",
+    "updated_at": "2026-03-28T19:33:58.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "pancreatic-cancer",
+        "pdac",
+        "folfirinox",
+        "chemotherapy",
+        "corpus"
+    ],
+    "share_token": null,
+    "share_expires_at": null
+}

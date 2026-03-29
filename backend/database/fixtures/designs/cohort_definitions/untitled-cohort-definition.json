@@ -1,0 +1,198 @@
+{
+    "id": 226,
+    "name": "Untitled Cohort Definition",
+    "description": null,
+    "expression_json": {
+        "ConceptSets": [
+            {
+                "id": 0,
+                "name": "pneumonia",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "domain": "Condition",
+                                "concept_id": 255848,
+                                "concept_code": "233604007",
+                                "concept_name": "Pneumonia",
+                                "vocabulary_id": "SNOMED",
+                                "standard_concept": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": true,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "domain": "Condition",
+                                "concept_id": 4166072,
+                                "concept_code": "45312009",
+                                "concept_name": "Pneumonia in typhoid fever",
+                                "vocabulary_id": "SNOMED",
+                                "standard_concept": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": true,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "domain": "Condition",
+                                "concept_id": 254066,
+                                "concept_code": "233609002",
+                                "concept_name": "Pneumonia caused by Chlamydiaceae",
+                                "vocabulary_id": "SNOMED",
+                                "standard_concept": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": true,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "domain": "Condition",
+                                "concept_id": 4299862,
+                                "concept_code": "38699009",
+                                "concept_name": "Pneumonia caused by Histoplasma capsulatum",
+                                "vocabulary_id": "SNOMED",
+                                "standard_concept": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": true,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "domain": "Condition",
+                                "concept_id": 46270121,
+                                "concept_code": "142931000119100",
+                                "concept_name": "Pneumonia caused by Influenza A virus subtype H1N1",
+                                "vocabulary_id": "SNOMED",
+                                "standard_concept": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": true,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "domain": "Condition",
+                                "concept_id": 4256236,
+                                "concept_code": "409665004",
+                                "concept_name": "Pneumonia caused by aerobic bacteria",
+                                "vocabulary_id": "SNOMED",
+                                "standard_concept": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": true,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "domain": "Condition",
+                                "concept_id": 257908,
+                                "concept_code": "409664000",
+                                "concept_name": "Pneumonia caused by anaerobic bacteria",
+                                "vocabulary_id": "SNOMED",
+                                "standard_concept": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": true,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "domain": "Condition",
+                                "concept_id": 759815,
+                                "concept_code": "10271000175107",
+                                "concept_name": "Pneumonia caused by Enterococcus faecium",
+                                "vocabulary_id": "SNOMED",
+                                "standard_concept": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": true,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "domain": "Condition",
+                                "concept_id": 4050872,
+                                "concept_code": "233620002",
+                                "concept_name": "Pneumonia due to parasitic infestation",
+                                "vocabulary_id": "SNOMED",
+                                "standard_concept": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": true,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "domain": "Condition",
+                                "concept_id": 37016927,
+                                "concept_code": "713084008",
+                                "concept_name": "Pneumonia caused by Human coronavirus",
+                                "vocabulary_id": "SNOMED",
+                                "standard_concept": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": true,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            }
+        ],
+        "EndStrategy": {
+            "DateOffset": {
+                "Offset": 0,
+                "DateField": "StartDate"
+            }
+        },
+        "InclusionRules": [],
+        "QualifiedLimit": {
+            "Type": "First"
+        },
+        "ExpressionLimit": {
+            "Type": "First"
+        },
+        "GenomicCriteria": [],
+        "ImagingCriteria": [],
+        "PrimaryCriteria": {
+            "CriteriaList": [
+                {
+                    "ConditionOccurrence": {
+                        "CodesetId": 0
+                    }
+                }
+            ],
+            "ObservationWindow": {
+                "PostDays": 0,
+                "PriorDays": 0
+            }
+        },
+        "CollapseSettings": {
+            "EraPad": 0,
+            "CollapseType": "ERA"
+        },
+        "CensoringCriteria": [],
+        "DemographicCriteria": [
+            {
+                "Age": {
+                    "Op": "bt",
+                    "Value": 18,
+                    "Extent": 120
+                }
+            }
+        ]
+    },
+    "author_id": 154,
+    "is_public": false,
+    "version": 3,
+    "created_at": "2026-03-29T04:06:37.000000Z",
+    "updated_at": "2026-03-29T04:23:16.000000Z",
+    "deleted_at": null,
+    "tags": null,
+    "share_token": null,
+    "share_expires_at": null
+}
