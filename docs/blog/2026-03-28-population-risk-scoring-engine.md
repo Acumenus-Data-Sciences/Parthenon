@@ -6,6 +6,12 @@ tags: [risk-scores, omop, clinical-analytics, architecture, cohort-analysis, voc
 date: 2026-03-28T12:00:00
 ---
 
+<div style={{borderRadius: '12px', overflow: 'hidden', marginBottom: '2rem'}}>
+<img src="/docs/img/Tyche.png" alt="Tyche, Greek goddess of fortune and chance" style={{width: '100%', display: 'block'}} />
+</div>
+
+*In Greek mythology, **Tyche** was the goddess of fortune, chance, and prosperity. Depicted with a cornucopia of abundance and the wheel of fate, she governed the unpredictable forces that determined whether a city would flourish or fall. The ancient Greeks understood that outcomes are shaped by forces beyond individual control — health, circumstance, and probability. In the Parthenon pantheon, Tyche presides over population risk scoring: the quantification of clinical probability, the stratification of patients by the likelihood of outcomes they cannot fully control, and the transformation of uncertainty into actionable intelligence.*
+
 We built a population risk scoring engine that runs 20 validated clinical risk calculators against any OMOP CDM dataset — then immediately realized the approach was wrong. This post covers what we built, why we tore it apart, and the v2 architecture that replaced "run everything on everyone" with cohort-scoped, recommendation-driven clinical risk analysis.
 
 <!-- truncate -->
