@@ -12,8 +12,6 @@ import {
   Activity,
   LayoutGrid,
   List,
-  ChevronDown,
-  ChevronUp,
   Info,
   RefreshCw,
 } from "lucide-react";
@@ -74,7 +72,6 @@ export default function RiskScoreHubPage() {
   });
   const [showDropdown, setShowDropdown] = useState(false);
   const [drilldownStatus, setDrilldownStatus] = useState<string | null>(null);
-  const [showCatalogue, setShowCatalogue] = useState(false);
   const [hubTab, setHubTab] = useState<"analyses" | "catalogue">("analyses");
   const [selectedScoreId, setSelectedScoreId] = useState<string | null>(null);
   const [showRunModal, setShowRunModal] = useState<string | null>(null);

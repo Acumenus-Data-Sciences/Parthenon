@@ -145,8 +145,9 @@ export function TierBreakdownChart({
               dataKey="count"
               radius={[4, 4, 0, 0]}
               cursor="pointer"
-              onClick={(entry: { tier?: string }) => {
-                if (entry.tier) onTierClick?.(entry.tier);
+              onClick={(entry: unknown) => {
+                const data = entry as { tier?: string };
+                if (data.tier) onTierClick?.(data.tier);
               }}
             >
               {sorted.map((t) => (

@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import {
   X,
-  Loader2,
   CheckCircle2,
   AlertCircle,
   SkipForward,
