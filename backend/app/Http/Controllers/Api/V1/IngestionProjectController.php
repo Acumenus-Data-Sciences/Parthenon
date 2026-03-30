@@ -546,14 +546,16 @@ class IngestionProjectController extends Controller
         $project->load('fhirConnection');
 
         return response()->json([
-            'project' => $project,
-            'fhir_connection' => $project->fhirConnection,
-            'recent_runs' => FhirSyncRun::where('ingestion_project_id', $project->id)
-                ->orderByDesc('created_at')
-                ->limit(10)
-                ->get(),
-            'available_connections' => FhirConnection::where('is_active', true)->get(),
-            'last_sync_run' => $project->lastFhirSyncRun,
+            'data' => [
+                'project' => $project,
+                'fhir_connection' => $project->fhirConnection,
+                'recent_runs' => FhirSyncRun::where('ingestion_project_id', $project->id)
+                    ->orderByDesc('created_at')
+                    ->limit(10)
+                    ->get(),
+                'available_connections' => FhirConnection::where('is_active', true)->get(),
+                'last_sync_run' => $project->lastFhirSyncRun,
+            ],
         ]);
     }
 
@@ -568,7 +570,7 @@ class IngestionProjectController extends Controller
 
         $validated = $request->validate([
             'fhir_connection_id' => ['required', 'integer', 'exists:fhir_connections,id'],
-            'fhir_sync_mode' => ['nullable', 'string', 'in:full,incremental'],
+            'fhir_sync_mode' => ['nullable', 'string', 'in:full,incremental,bulk_group'],
         ]);
 
         $project->update([
@@ -576,8 +578,13 @@ class IngestionProjectController extends Controller
             'fhir_sync_mode' => $validated['fhir_sync_mode'] ?? 'incremental',
         ]);
 
+        $project = $project->fresh()->load('fhirConnection');
+
         return response()->json([
-            'data' => $project->fresh()->load('fhirConnection'),
+            'data' => [
+                'project' => $project,
+                'fhir_connection' => $project->fhirConnection,
+            ],
         ]);
     }
 
@@ -608,8 +615,7 @@ class IngestionProjectController extends Controller
             );
 
             return response()->json([
-                'message' => 'FHIR sync started.',
-                'run' => $run,
+                'data' => $run,
             ], 202);
         } catch (\DomainException $e) {
             return response()->json(['error' => $e->getMessage()], 422);
@@ -629,9 +635,9 @@ class IngestionProjectController extends Controller
 
         $runs = FhirSyncRun::where('ingestion_project_id', $project->id)
             ->orderByDesc('created_at')
-            ->paginate(20);
+            ->get();
 
-        return response()->json($runs);
+        return response()->json(['data' => $runs]);
     }
 
     /**

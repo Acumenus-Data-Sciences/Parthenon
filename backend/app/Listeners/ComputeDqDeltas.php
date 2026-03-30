@@ -40,17 +40,21 @@ class ComputeDqDeltas implements ShouldQueue
     {
         $this->dqHistoryService->computeDeltas($event->release);
 
-        // Invalidate all cached network aggregations
-        Cache::forget('ares:network:overview');
-        Cache::forget('ares:network:coverage');
-        Cache::forget('ares:network:coverage:extended');
-        Cache::forget('ares:network:diversity');
-        Cache::forget('ares:network:geographic-diversity');
-        Cache::forget('ares:network:dq-summary');
-        Cache::forget('ares:network:cost');
-        Cache::forget('ares:network:cost-compare');
+        // Invalidate all cached network aggregations — skip silently if Redis is unavailable
+        try {
+            Cache::forget('ares:network:overview');
+            Cache::forget('ares:network:coverage');
+            Cache::forget('ares:network:coverage:extended');
+            Cache::forget('ares:network:diversity');
+            Cache::forget('ares:network:geographic-diversity');
+            Cache::forget('ares:network:dq-summary');
+            Cache::forget('ares:network:cost');
+            Cache::forget('ares:network:cost-compare');
 
-        // Flush dynamic cost-compare-detailed keys (domain-specific)
-        $this->flushKeysByPattern('ares:network:cost-compare-detailed:*');
+            // Flush dynamic cost-compare-detailed keys (domain-specific)
+            $this->flushKeysByPattern('ares:network:cost-compare-detailed:*');
+        } catch (\Throwable) {
+            // Redis unavailable — cache will expire naturally
+        }
     }
 }

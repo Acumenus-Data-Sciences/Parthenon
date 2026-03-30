@@ -268,7 +268,7 @@ function SectionTitle({
   color,
   title,
 }: {
-  icon: React.ComponentType<{ size?: number; className?: string }>;
+  icon: React.ComponentType<{ size?: number; className?: string; style?: React.CSSProperties }>;
   color: string;
   title: string;
 }) {
@@ -286,7 +286,7 @@ function InsightCard({
   title,
   text,
 }: {
-  icon: React.ComponentType<{ size?: number; className?: string }>;
+  icon: React.ComponentType<{ size?: number; className?: string; style?: React.CSSProperties }>;
   color: string;
   title: string;
   text: string;

@@ -183,6 +183,65 @@ class SurveyInstrumentController extends Controller
         return response()->json(null, 204);
     }
 
+    /**
+     * POST /v1/survey-instruments/{instrument}/clone
+     *
+     * Clone an instrument with all items and answer options.
+     */
+    public function clone(Request $request, SurveyInstrument $instrument): JsonResponse
+    {
+        $instrument->load('items.answerOptions');
+
+        $clone = SurveyInstrument::create([
+            'name' => $request->string('name')->toString() ?: "{$instrument->name} Copy",
+            'abbreviation' => $request->string('abbreviation')->toString() ?: "{$instrument->abbreviation}_COPY_".now()->format('His'),
+            'version' => $instrument->version,
+            'description' => $instrument->description,
+            'domain' => $instrument->domain,
+            'item_count' => $instrument->item_count,
+            'scoring_method' => $instrument->scoring_method,
+            'loinc_panel_code' => $instrument->loinc_panel_code,
+            'snomed_code' => $instrument->snomed_code,
+            'omop_concept_id' => $instrument->omop_concept_id,
+            'license_type' => $instrument->license_type,
+            'license_detail' => $instrument->license_detail,
+            'is_public_domain' => $instrument->is_public_domain,
+            'is_active' => true,
+            'omop_coverage' => $instrument->omop_coverage,
+            'has_snomed' => $instrument->has_snomed,
+            'created_by' => $request->user()?->id,
+        ]);
+
+        foreach ($instrument->items as $item) {
+            $clonedItem = $clone->items()->create([
+                'item_number' => $item->item_number,
+                'item_text' => $item->item_text,
+                'response_type' => $item->response_type,
+                'omop_concept_id' => $item->omop_concept_id,
+                'loinc_code' => $item->loinc_code,
+                'snomed_code' => $item->snomed_code,
+                'subscale_name' => $item->subscale_name,
+                'is_reverse_coded' => $item->is_reverse_coded,
+                'min_value' => $item->min_value,
+                'max_value' => $item->max_value,
+                'display_order' => $item->display_order,
+            ]);
+
+            foreach ($item->answerOptions as $option) {
+                $clonedItem->answerOptions()->create([
+                    'option_text' => $option->option_text,
+                    'option_value' => $option->option_value,
+                    'omop_concept_id' => $option->omop_concept_id,
+                    'loinc_la_code' => $option->loinc_la_code,
+                    'snomed_code' => $option->snomed_code,
+                    'display_order' => $option->display_order,
+                ]);
+            }
+        }
+
+        return response()->json($clone->load('items.answerOptions'), 201);
+    }
+
     // ── Item management ──────────────────────────────────────────────────
 
     /**

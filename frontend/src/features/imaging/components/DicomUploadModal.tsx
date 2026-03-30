@@ -1,5 +1,5 @@
-import { useState, useCallback, useRef, useEffect } from "react";
-import { X, Upload, FileUp, CheckCircle2, AlertCircle, Loader2, ExternalLink } from "lucide-react";
+import { useState, useCallback, useRef } from "react";
+import { X, Upload, FileUp, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import apiClient from "@/lib/api-client";
 import { useSourceStore } from "@/stores/sourceStore";
 

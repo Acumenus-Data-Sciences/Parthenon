@@ -13,7 +13,6 @@ import { ConceptSetItemRow } from "./ConceptSetItemRow";
 import { ConceptSetItemDetailExpander } from "./ConceptSetItemDetailExpander";
 import {
   useResolveConceptSet,
-  useAddConceptSetItem,
   useUpdateConceptSetItem,
   useRemoveConceptSetItem,
   useBulkUpdateConceptSetItems,
@@ -37,7 +36,6 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
     refetch: refetchResolve,
   } = useResolveConceptSet(showResolve ? conceptSet.id : null);
 
-  const addItemMutation = useAddConceptSetItem();
   const updateItemMutation = useUpdateConceptSetItem();
   const removeItemMutation = useRemoveConceptSetItem();
   const bulkUpdateMutation = useBulkUpdateConceptSetItems();

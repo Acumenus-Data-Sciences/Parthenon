@@ -7,6 +7,7 @@ use App\Enums\DaimonType;
 use App\Models\App\Source;
 use App\Models\Results\AchillesResult;
 use App\Services\Database\DynamicConnectionFactory;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class NetworkComparisonService
@@ -95,14 +96,20 @@ class NetworkComparisonService
 
         $sanitized = str_replace(['%', '_'], ['\%', '\_'], $query);
 
-        $results = $this->vocab()
-            ->table('concept')
-            ->select(['concept_id', 'concept_name', 'domain_id', 'vocabulary_id', 'standard_concept'])
-            ->where('concept_name', 'ilike', "%{$sanitized}%")
-            ->where('standard_concept', 'S')
-            ->orderByRaw('CASE WHEN concept_name ILIKE ? THEN 0 ELSE 1 END', ["{$sanitized}%"])
-            ->limit(50)
-            ->get();
+        try {
+            $results = DB::connection('omop')
+                ->table('vocab.concept')
+                ->select(['concept_id', 'concept_name', 'domain_id', 'vocabulary_id', 'standard_concept'])
+                ->where('concept_name', 'ilike', "%{$sanitized}%")
+                ->where('standard_concept', 'S')
+                ->orderByRaw('CASE WHEN concept_name ILIKE ? THEN 0 ELSE 1 END', ["{$sanitized}%"])
+                ->limit(50)
+                ->get();
+        } catch (\Throwable $e) {
+            Log::warning('NetworkComparison: vocab search failed: '.$e->getMessage());
+
+            return [];
+        }
 
         return $results->map(fn ($row) => [
             'concept_id' => $row->concept_id,
@@ -411,11 +418,17 @@ class NetworkComparisonService
      */
     private function resolveConceptNames(array $conceptIds): array
     {
-        return $this->vocab()
-            ->table('concept')
-            ->whereIn('concept_id', $conceptIds)
-            ->pluck('concept_name', 'concept_id')
-            ->toArray();
+        try {
+            return DB::connection('omop')
+                ->table('vocab.concept')
+                ->whereIn('concept_id', $conceptIds)
+                ->pluck('concept_name', 'concept_id')
+                ->toArray();
+        } catch (\Throwable $e) {
+            Log::warning('NetworkComparison: concept name resolution failed: '.$e->getMessage());
+
+            return [];
+        }
     }
 
     /**

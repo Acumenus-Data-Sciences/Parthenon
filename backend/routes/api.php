@@ -116,6 +116,7 @@ use App\Http\Controllers\Api\V1\StudySiteController;
 use App\Http\Controllers\Api\V1\StudyStatsController;
 use App\Http\Controllers\Api\V1\StudySynthesisController;
 use App\Http\Controllers\Api\V1\StudyTeamController;
+use App\Http\Controllers\Api\V1\SurveyCampaignController;
 use App\Http\Controllers\Api\V1\SurveyInstrumentController;
 use App\Http\Controllers\Api\V1\SyntheaController;
 use App\Http\Controllers\Api\V1\TextToSqlController;
@@ -1611,6 +1612,7 @@ Route::prefix('v1/survey-instruments')->middleware('auth:sanctum')->group(functi
 
     Route::middleware('permission:surveys.create')->group(function () {
         Route::post('/', [SurveyInstrumentController::class, 'store']);
+        Route::post('/{instrument}/clone', [SurveyInstrumentController::class, 'clone']);
         Route::post('/{instrument}/items', [SurveyInstrumentController::class, 'itemStore']);
     });
 
@@ -1623,6 +1625,26 @@ Route::prefix('v1/survey-instruments')->middleware('auth:sanctum')->group(functi
         Route::delete('/{instrument}', [SurveyInstrumentController::class, 'destroy']);
         Route::delete('/{instrument}/items/{item}', [SurveyInstrumentController::class, 'itemDestroy']);
     });
+});
+
+Route::prefix('v1/survey-campaigns')->middleware(['auth:sanctum', 'permission:surveys.view'])->group(function () {
+    Route::get('/', [SurveyCampaignController::class, 'index']);
+    Route::get('/{campaign}', [SurveyCampaignController::class, 'show']);
+    Route::get('/{campaign}/stats', [SurveyCampaignController::class, 'stats']);
+});
+
+Route::prefix('v1/survey-campaigns')->middleware(['auth:sanctum', 'permission:surveys.create'])->group(function () {
+    Route::post('/', [SurveyCampaignController::class, 'store']);
+    Route::post('/{campaign}/activate', [SurveyCampaignController::class, 'activate']);
+});
+
+Route::prefix('v1/survey-campaigns')->middleware(['auth:sanctum', 'permission:surveys.edit'])->group(function () {
+    Route::put('/{campaign}', [SurveyCampaignController::class, 'update']);
+    Route::post('/{campaign}/close', [SurveyCampaignController::class, 'close']);
+});
+
+Route::prefix('v1/survey-campaigns')->middleware(['auth:sanctum', 'permission:surveys.delete'])->group(function () {
+    Route::delete('/{campaign}', [SurveyCampaignController::class, 'destroy']);
 });
 
 // Catch-all for unknown API routes

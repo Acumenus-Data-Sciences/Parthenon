@@ -13,6 +13,7 @@ class SurveyConductRecord extends Model
     protected $fillable = [
         'person_id',
         'survey_instrument_id',
+        'campaign_id',
         'survey_concept_id',
         'visit_occurrence_id',
         'survey_start_datetime',
@@ -45,6 +46,14 @@ class SurveyConductRecord extends Model
     public function instrument(): BelongsTo
     {
         return $this->belongsTo(SurveyInstrument::class, 'survey_instrument_id');
+    }
+
+    /**
+     * @return BelongsTo<SurveyCampaign, $this>
+     */
+    public function campaign(): BelongsTo
+    {
+        return $this->belongsTo(SurveyCampaign::class, 'campaign_id');
     }
 
     /**

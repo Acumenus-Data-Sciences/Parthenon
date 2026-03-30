@@ -240,6 +240,7 @@ export interface FhirConnection {
   export_resource_types: string | null;
   target_source_id: number | null;
   sync_config: Record<string, unknown> | null;
+  auth_mode: "backend_services" | "none" | string;
   is_active: boolean;
   incremental_enabled: boolean;
   last_sync_at: string | null;

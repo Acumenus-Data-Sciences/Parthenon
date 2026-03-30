@@ -37,7 +37,7 @@ function OmopBadge({ coverage }: { coverage: OmopCoverage }) {
   );
 }
 
-function ItemCard({ item, index }: { item: SurveyItemApi; index: number }) {
+function ItemCard({ item }: { item: SurveyItemApi; index: number }) {
   const hasAnswers = item.answer_options.length > 0;
 
   return (
@@ -256,7 +256,7 @@ export default function InstrumentDetailPage() {
             Scoring Method
           </h2>
           <div className="flex flex-wrap gap-3">
-            {instrument.scoring_method.type && (
+            {!!instrument.scoring_method.type && (
               <span className="inline-flex items-center gap-1.5 rounded-lg bg-[#0E0E11] border border-[#2A2A2F]/50 px-3 py-1.5 text-xs text-[#C5C0B8]">
                 <span className="text-[10px] text-[#5A5650] uppercase">Type</span>
                 <span className="font-['IBM_Plex_Mono',monospace] font-medium">
@@ -264,7 +264,7 @@ export default function InstrumentDetailPage() {
                 </span>
               </span>
             )}
-            {instrument.scoring_method.range && Array.isArray(instrument.scoring_method.range) && (
+            {!!instrument.scoring_method.range && Array.isArray(instrument.scoring_method.range) && (
               <span className="inline-flex items-center gap-1.5 rounded-lg bg-[#0E0E11] border border-[#2A2A2F]/50 px-3 py-1.5 text-xs text-[#C5C0B8]">
                 <span className="text-[10px] text-[#5A5650] uppercase">Range</span>
                 <span className="font-['IBM_Plex_Mono',monospace] font-medium">
@@ -272,7 +272,7 @@ export default function InstrumentDetailPage() {
                 </span>
               </span>
             )}
-            {instrument.scoring_method.subscales && Array.isArray(instrument.scoring_method.subscales) && (instrument.scoring_method.subscales as string[]).length > 0 && (
+            {!!instrument.scoring_method.subscales && Array.isArray(instrument.scoring_method.subscales) && (instrument.scoring_method.subscales as string[]).length > 0 && (
               <span className="inline-flex items-center gap-1.5 rounded-lg bg-[#0E0E11] border border-[#2A2A2F]/50 px-3 py-1.5 text-xs text-[#C5C0B8]">
                 <span className="text-[10px] text-[#5A5650] uppercase">Subscales</span>
                 <span className="font-['IBM_Plex_Mono',monospace] font-medium">

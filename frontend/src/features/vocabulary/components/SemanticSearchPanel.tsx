@@ -281,7 +281,8 @@ export function SemanticSearchPanel({
   // ---------------------------------------------------------------------------
 
   // Autocomplete disabled — Hecate binary does not expose /api/autocomplete
-  const suggestions: HecateAutocompleteResult[] | undefined = undefined;
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  const suggestions = undefined as HecateAutocompleteResult[] | undefined;
   void debouncedAutocompleteQuery;
 
   // ---------------------------------------------------------------------------

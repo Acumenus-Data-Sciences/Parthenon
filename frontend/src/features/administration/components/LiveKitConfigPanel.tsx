@@ -44,18 +44,18 @@ export function LiveKitConfigPanel({ service }: LiveKitConfigPanelProps) {
   const handleTest = () => {
     const testUrl = provider === "env" ? (config?.env_url ?? "") : url;
     if (!testUrl) {
-      toast({ title: "No URL to test", variant: "warning" });
+      toast.show("warning", "No URL to test");
       return;
     }
     testConnection.mutate(testUrl, {
       onSuccess: (data) => {
-        toast({
-          title: data.reachable ? "Connection successful" : "Connection failed",
-          variant: data.reachable ? "success" : "error",
-        });
+        toast.show(
+          data.reachable ? "success" : "error",
+          data.reachable ? "Connection successful" : "Connection failed",
+        );
       },
       onError: () => {
-        toast({ title: "Connection failed", variant: "error" });
+        toast.show("error", "Connection failed");
       },
     });
   };
@@ -65,12 +65,12 @@ export function LiveKitConfigPanel({ service }: LiveKitConfigPanelProps) {
       { provider, url, api_key: apiKey || undefined, api_secret: apiSecret || undefined },
       {
         onSuccess: () => {
-          toast({ title: "LiveKit configuration saved", variant: "success" });
+          toast.show("success", "LiveKit configuration saved");
           setApiKey("");
           setApiSecret("");
         },
         onError: () => {
-          toast({ title: "Failed to save configuration", variant: "error" });
+          toast.show("error", "Failed to save configuration");
         },
       },
     );

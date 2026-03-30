@@ -131,3 +131,18 @@ parameters:
 			identifier: arrayValues.list
 			count: 1
 			path: app/Support/IncidenceRateResultNormalizer.php
+
+		-
+			message: '#^Direct DB\:\:connection\(''inpatient''\) is banned#'
+			count: 1
+			path: app/Http/Controllers/Api/V1/MorpheusDashboardController.php
+
+		-
+			message: '#^Direct DB\:\:connection\(''inpatient''\) is banned#'
+			count: 1
+			path: app/Http/Controllers/Api/V1/MorpheusPatientController.php
+
+		-
+			message: '#^Direct DB\:\:connection\(''omop''\) is banned#'
+			count: 2
+			path: app/Services/Ares/NetworkComparisonService.php
