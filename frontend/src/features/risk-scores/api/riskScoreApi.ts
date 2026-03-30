@@ -83,10 +83,8 @@ export async function listAnalyses(params?: {
 }
 
 export async function getAnalysisStats(): Promise<RiskScoreAnalysisStats> {
-  const { data } = await apiClient.get<RiskScoreAnalysisStats>(
-    "/risk-score-analyses/stats",
-  );
-  return data;
+  const { data } = await apiClient.get("/risk-score-analyses/stats");
+  return data.data ?? data;
 }
 
 export async function getAnalysis(
