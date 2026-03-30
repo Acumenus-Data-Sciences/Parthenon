@@ -223,14 +223,53 @@ export function RiskScoreRunModal({
         {/* Score results list */}
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-1">
           {mutation.isPending && (
-            <div className="flex items-center justify-center py-12">
-              <Loader2
-                size={20}
-                className="animate-spin text-[#8A857D]"
-              />
-              <span className="ml-2 text-sm text-[#5A5650]">
-                Computing risk scores...
-              </span>
+            <div className="flex flex-col items-center justify-center py-10 gap-4">
+              {/* Circular progress indicator */}
+              <div className="relative w-24 h-24">
+                <svg className="w-24 h-24 -rotate-90" viewBox="0 0 96 96">
+                  {/* Background circle */}
+                  <circle
+                    cx="48" cy="48" r="40"
+                    fill="none"
+                    stroke="#1A1A1E"
+                    strokeWidth="6"
+                  />
+                  {/* Animated progress arc */}
+                  <circle
+                    cx="48" cy="48" r="40"
+                    fill="none"
+                    stroke="url(#progressGradient)"
+                    strokeWidth="6"
+                    strokeLinecap="round"
+                    strokeDasharray={`${251.3 * 0.75} ${251.3 * 0.25}`}
+                    className="animate-spin"
+                    style={{ animationDuration: "2s" }}
+                  />
+                  <defs>
+                    <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#C9A227" />
+                      <stop offset="100%" stopColor="#2DD4BF" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                {/* Elapsed time in center */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="font-['IBM_Plex_Mono',monospace] text-xl font-semibold text-[#C9A227] tabular-nums">
+                    {(elapsed / 1000).toFixed(1)}
+                  </span>
+                  <span className="text-[9px] text-[#5A5650] uppercase tracking-wider">
+                    seconds
+                  </span>
+                </div>
+              </div>
+              <div className="text-center">
+                <p className="text-sm text-[#C5C0B8]">
+                  Computing {scoreIds?.length ?? "all"} risk score{(scoreIds?.length ?? 0) !== 1 ? "s" : ""}...
+                </p>
+                <p className="text-xs text-[#5A5650] mt-1">
+                  This may take a few moments for large populations
+                </p>
+              </div>
             </div>
           )}
 
