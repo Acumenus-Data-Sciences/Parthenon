@@ -82,33 +82,33 @@ export function ScoreDetailModal({
         {/* Body */}
         <div className="px-6 py-5 space-y-5 overflow-y-auto flex-1">
           {/* Eligibility Status — prominent */}
-          {sourceSelected && eligibility ? (
-            <div
-              className={cn(
-                "rounded-lg border px-4 py-3",
-                isEligible
-                  ? "border-[#2DD4BF]/30 bg-[#2DD4BF]/5"
-                  : "border-[#C9A227]/30 bg-[#C9A227]/5",
-              )}
-            >
+          {!sourceSelected ? (
+            <div className="rounded-lg border border-[#C9A227]/20 bg-[#C9A227]/5 px-4 py-3">
               <div className="flex items-center gap-2">
-                {isEligible ? (
-                  <CheckCircle2 size={16} className="text-[#2DD4BF]" />
-                ) : (
-                  <XCircle size={16} className="text-[#C9A227]" />
-                )}
-                <p
-                  className={cn(
-                    "text-sm font-medium",
-                    isEligible ? "text-[#2DD4BF]" : "text-[#C9A227]",
-                  )}
-                >
-                  {isEligible
-                    ? `Eligible — ${patientCount.toLocaleString()} patients have sufficient data`
-                    : "Insufficient data in the active source"}
+                <AlertTriangle size={16} className="text-[#C9A227]" />
+                <p className="text-sm text-[#C9A227]">
+                  Select a data source from the header to check eligibility.
                 </p>
               </div>
-              {!isEligible && missingComponents.length > 0 && (
+            </div>
+          ) : eligibility && isEligible ? (
+            <div className="rounded-lg border border-[#2DD4BF]/30 bg-[#2DD4BF]/5 px-4 py-3">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 size={16} className="text-[#2DD4BF]" />
+                <p className="text-sm font-medium text-[#2DD4BF]">
+                  Eligible — {patientCount.toLocaleString()} patients have sufficient data
+                </p>
+              </div>
+            </div>
+          ) : eligibility && !isEligible ? (
+            <div className="rounded-lg border border-[#C9A227]/30 bg-[#C9A227]/5 px-4 py-3">
+              <div className="flex items-center gap-2">
+                <XCircle size={16} className="text-[#C9A227]" />
+                <p className="text-sm font-medium text-[#C9A227]">
+                  Insufficient data in the active source
+                </p>
+              </div>
+              {missingComponents.length > 0 && (
                 <div className="mt-2 ml-6">
                   <p className="text-xs text-[#C9A227]/80 mb-1">Missing:</p>
                   <ul className="text-xs text-[#C9A227]/70 space-y-0.5">
@@ -120,11 +120,11 @@ export function ScoreDetailModal({
               )}
             </div>
           ) : (
-            <div className="rounded-lg border border-[#C9A227]/20 bg-[#C9A227]/5 px-4 py-3">
+            <div className="rounded-lg border border-[#60A5FA]/20 bg-[#60A5FA]/5 px-4 py-3">
               <div className="flex items-center gap-2">
-                <AlertTriangle size={16} className="text-[#C9A227]" />
-                <p className="text-sm text-[#C9A227]">
-                  Select a data source to check eligibility.
+                <Activity size={16} className="text-[#60A5FA]" />
+                <p className="text-sm text-[#60A5FA]">
+                  Checking eligibility for the active source...
                 </p>
               </div>
             </div>
@@ -243,7 +243,7 @@ export function ScoreDetailModal({
             Close
           </button>
           <div className="flex items-center gap-2">
-            {sourceSelected && isEligible && (
+            {sourceSelected && eligibility && isEligible && (
               <>
                 <button
                   type="button"
@@ -263,9 +263,14 @@ export function ScoreDetailModal({
                 </button>
               </>
             )}
-            {sourceSelected && !isEligible && (
+            {sourceSelected && eligibility && !isEligible && (
               <span className="text-xs text-[#5A5650]">
                 Not eligible for the active source
+              </span>
+            )}
+            {sourceSelected && !eligibility && (
+              <span className="text-xs text-[#60A5FA]">
+                Checking eligibility...
               </span>
             )}
           </div>
