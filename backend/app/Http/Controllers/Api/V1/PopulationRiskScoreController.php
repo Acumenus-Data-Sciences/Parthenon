@@ -201,11 +201,23 @@ class PopulationRiskScoreController extends Controller
             return null;
         }
 
-        // Quick connectivity check with 5-second timeout
+        // Set connection timeout to 5 seconds to avoid hanging on unreachable hosts
+        $connConfig = config("database.connections.{$connection}", []);
+        $origOptions = $connConfig['options'] ?? [];
+        config(["database.connections.{$connection}.options" => array_merge($origOptions, [
+            \PDO::ATTR_TIMEOUT => 5,
+        ])]);
+        DB::purge($connection);
+
+        // Quick connectivity check
         try {
-            DB::connection($connection)->statement('SET statement_timeout = 5000');
             DB::connection($connection)->selectOne('SELECT 1');
+            DB::connection($connection)->statement('SET statement_timeout = 5000');
         } catch (\Throwable) {
+            // Restore original options
+            config(["database.connections.{$connection}.options" => $origOptions]);
+            DB::purge($connection);
+
             return null;
         }
 
@@ -255,12 +267,14 @@ class PopulationRiskScoreController extends Controller
             ];
         }
 
-        // Reset statement timeout
+        // Reset statement timeout and restore connection options
         try {
             DB::connection($connection)->statement('SET statement_timeout = 0');
         } catch (\Throwable) {
             // ignore
         }
+        config(["database.connections.{$connection}.options" => $origOptions]);
+        DB::purge($connection);
 
         return $result;
     }
