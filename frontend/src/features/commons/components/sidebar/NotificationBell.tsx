@@ -1,14 +1,18 @@
 import { useState, useRef, useEffect } from "react";
 import { Bell, MessageSquare, AtSign, ClipboardCheck, Reply } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/Button";
 import { useNotifications, useUnreadNotificationCount, useMarkNotificationsRead } from "../../api";
 import { avatarColor } from "../../utils/avatarColor";
 import type { CommonsNotification } from "../../types";
 
+const PANEL_WIDTH = 384;
+
 export function NotificationBell() {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { data: count = 0 } = useUnreadNotificationCount();
   const { data: notifications = [], refetch } = useNotifications();
@@ -16,13 +20,37 @@ export function NotificationBell() {
 
   useEffect(() => {
     if (!open) return;
+
+    function updatePosition() {
+      if (!panelRef.current || !triggerRef.current) return;
+      const rect = triggerRef.current.getBoundingClientRect();
+      const left = Math.max(12, rect.right - PANEL_WIDTH);
+      const top = rect.bottom + 10;
+      panelRef.current.style.left = `${left}px`;
+      panelRef.current.style.top = `${top}px`;
+    }
+
     function handleClickOutside(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      if (
+        triggerRef.current &&
+        !triggerRef.current.contains(target) &&
+        panelRef.current &&
+        !panelRef.current.contains(target)
+      ) {
         setOpen(false);
       }
     }
+
+    updatePosition();
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+    };
   }, [open]);
 
   function handleOpen() {
@@ -46,7 +74,7 @@ export function NotificationBell() {
   }
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={triggerRef} className="relative">
       <Button
         onClick={handleOpen}
         variant="ghost"
@@ -65,26 +93,29 @@ export function NotificationBell() {
         )}
       </Button>
 
-      {open && (
+      {open && createPortal(
         <div
-          className="absolute right-0 top-full z-30 mt-2 w-80 rounded-md border border-border bg-card shadow-xl"
+          ref={panelRef}
+          className="fixed z-[220] w-96 overflow-hidden rounded-2xl border border-white/10 bg-[#17171c] shadow-[0_24px_80px_rgba(0,0,0,0.55)] ring-1 ring-black/35 backdrop-blur-xl"
           role="dialog"
           aria-label="Notifications"
         >
-          <div className="flex items-center justify-between border-b border-border px-3 py-2">
-            <span className="text-xs font-semibold text-foreground">Notifications</span>
+          <div className="flex items-center justify-between border-b border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.01))] px-4 py-3">
+            <span className="text-xs font-semibold uppercase tracking-[0.18em] text-foreground/90">
+              Notifications
+            </span>
             {notifications.some((n) => !n.read_at) && (
               <button
                 onClick={() => markRead.mutate(undefined)}
-                className="text-[10px] text-primary hover:underline"
+                className="text-[11px] font-medium text-primary transition-colors hover:text-primary/80"
               >
                 Mark all read
               </button>
             )}
           </div>
-          <div className="max-h-80 overflow-y-auto">
+          <div className="max-h-[28rem] overflow-y-auto bg-[#17171c]">
             {notifications.length === 0 ? (
-              <p className="p-4 text-center text-xs text-muted-foreground">
+              <p className="p-6 text-center text-xs text-muted-foreground">
                 No notifications yet
               </p>
             ) : (
@@ -97,7 +128,8 @@ export function NotificationBell() {
               ))
             )}
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );
@@ -128,8 +160,8 @@ function NotificationItem({
   return (
     <button
       onClick={onClick}
-      className={`flex w-full items-start gap-2.5 px-3 py-2.5 text-left hover:bg-muted/50 transition-colors ${
-        isUnread ? "bg-primary/5" : ""
+      className={`flex w-full items-start gap-2.5 border-b border-white/5 px-4 py-3 text-left transition-colors hover:bg-white/[0.04] ${
+        isUnread ? "bg-primary/8" : "bg-transparent"
       }`}
     >
       {n.actor ? (
