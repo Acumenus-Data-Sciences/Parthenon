@@ -1,0 +1,281 @@
+import { useEffect, useMemo, useState } from "react";
+import { Loader2, Search } from "lucide-react";
+import { Modal } from "@/components/ui/Modal";
+import type { SurveyInstrumentApi } from "../../api/surveyApi";
+import type { StoreCampaignPayload, SurveyCampaignDetailApi } from "../../api/campaignApi";
+import type { CohortDefinition } from "@/features/cohort-definitions/types/cohortExpression";
+
+interface NewCampaignModalProps {
+  open: boolean;
+  mode: "create" | "edit";
+  onClose: () => void;
+  instruments: SurveyInstrumentApi[];
+  cohorts: CohortDefinition[];
+  initialCampaign?: SurveyCampaignDetailApi | null;
+  isSaving: boolean;
+  onSubmit: (payload: StoreCampaignPayload) => void;
+}
+
+const baseForm = {
+  name: "",
+  survey_instrument_id: "",
+  cohort_generation_id: "",
+  description: "",
+  cohortQuery: "",
+};
+
+export function NewCampaignModal({
+  open,
+  mode,
+  onClose,
+  instruments,
+  cohorts,
+  initialCampaign,
+  isSaving,
+  onSubmit,
+}: NewCampaignModalProps) {
+  const [form, setForm] = useState(baseForm);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    if (mode === "edit" && initialCampaign) {
+      setForm({
+        name: initialCampaign.name,
+        survey_instrument_id: String(initialCampaign.survey_instrument_id),
+        cohort_generation_id: initialCampaign.cohort_generation_id != null ? String(initialCampaign.cohort_generation_id) : "",
+        description: initialCampaign.description ?? "",
+        cohortQuery: "",
+      });
+      return;
+    }
+
+    setForm(baseForm);
+  }, [open, mode, initialCampaign]);
+
+  const filteredCohorts = useMemo(() => {
+    const query = form.cohortQuery.trim().toLowerCase();
+
+    return cohorts.filter((cohort) => {
+      if (query === "") {
+        return true;
+      }
+
+      return cohort.name.toLowerCase().includes(query) || (cohort.description ?? "").toLowerCase().includes(query);
+    });
+  }, [cohorts, form.cohortQuery]);
+
+  const selectedGeneration = useMemo(() => {
+    const generationId = Number(form.cohort_generation_id);
+
+    if (!Number.isFinite(generationId) || generationId <= 0) {
+      return null;
+    }
+
+    for (const cohort of cohorts) {
+      const match = (cohort.generations ?? []).find((generation) => generation.id === generationId);
+      if (match) {
+        return { cohort, generation: match };
+      }
+    }
+
+    return null;
+  }, [cohorts, form.cohort_generation_id]);
+
+  const canSubmit = form.name.trim() !== "" && form.survey_instrument_id !== "";
+
+  const handleClose = () => {
+    setForm(baseForm);
+    onClose();
+  };
+
+  return (
+    <Modal
+      open={open}
+      onClose={handleClose}
+      title={mode === "create" ? "Create Survey Campaign" : "Edit Draft Campaign"}
+      size="xl"
+      footer={(
+        <div className="flex items-center justify-end gap-3">
+          <button
+            type="button"
+            onClick={handleClose}
+            className="rounded-lg border border-[#2A2A2F] px-4 py-2 text-sm text-[#8A857D] hover:text-[#F0EDE8]"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            disabled={!canSubmit || isSaving}
+            onClick={() => {
+              onSubmit({
+                name: form.name.trim(),
+                survey_instrument_id: Number(form.survey_instrument_id),
+                cohort_generation_id:
+                  form.cohort_generation_id.trim() === ""
+                    ? null
+                    : Number(form.cohort_generation_id),
+                description: form.description.trim() || null,
+              });
+            }}
+            className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isSaving && <Loader2 size={14} className="animate-spin" />}
+            {mode === "create" ? "Create Campaign" : "Save Campaign"}
+          </button>
+        </div>
+      )}
+    >
+      <div className="space-y-5">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <div>
+            <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-[#8A857D]">
+              Campaign Name
+            </label>
+            <input
+              value={form.name}
+              onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
+              placeholder="Baseline mental health intake"
+              className="w-full rounded-lg border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF]"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-[#8A857D]">
+              Instrument
+            </label>
+            <select
+              value={form.survey_instrument_id}
+              onChange={(event) => setForm((current) => ({ ...current, survey_instrument_id: event.target.value }))}
+              className="w-full rounded-lg border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF]"
+            >
+              <option value="">Select an instrument</option>
+              {instruments.map((instrument) => (
+                <option key={instrument.id} value={instrument.id}>
+                  {instrument.abbreviation} - {instrument.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-[#8A857D]">
+            Description
+          </label>
+          <textarea
+            value={form.description}
+            onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
+            rows={3}
+            placeholder="Enrollment wave, inclusion notes, or operational instructions"
+            className="w-full rounded-lg border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF]"
+          />
+        </div>
+
+        <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-4">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <div className="text-xs font-medium uppercase tracking-wider text-[#8A857D]">
+                Cohort Generation
+              </div>
+              <p className="mt-1 text-[11px] text-[#5A5650]">
+                Optional. Pick a completed generation to seed the denominator automatically.
+              </p>
+            </div>
+
+            <div className="relative w-full lg:max-w-sm">
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]" />
+              <input
+                value={form.cohortQuery}
+                onChange={(event) => setForm((current) => ({ ...current, cohortQuery: event.target.value }))}
+                placeholder="Search cohorts"
+                className="w-full rounded-lg border border-[#2A2A2F] bg-[#0E0E11] py-2 pl-9 pr-3 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF]"
+              />
+            </div>
+          </div>
+
+          <div className="mt-4 max-h-[280px] space-y-3 overflow-y-auto pr-1">
+            <button
+              type="button"
+              onClick={() => setForm((current) => ({ ...current, cohort_generation_id: "" }))}
+              className={`w-full rounded-lg border px-3 py-3 text-left ${
+                form.cohort_generation_id === ""
+                  ? "border-[#2DD4BF] bg-[#2DD4BF]/10"
+                  : "border-[#2A2A2F] bg-[#0E0E11]"
+              }`}
+            >
+              <div className="text-sm font-medium text-[#F0EDE8]">No cohort seeding</div>
+              <div className="mt-1 text-[11px] text-[#5A5650]">
+                Create an unseeded campaign and collect only anonymous/public responses.
+              </div>
+            </button>
+
+            {filteredCohorts.map((cohort) => {
+              const generations = (cohort.generations ?? []).filter((generation) => generation.status === "completed");
+
+              if (generations.length === 0) {
+                return null;
+              }
+
+              return (
+                <div key={cohort.id} className="rounded-lg border border-[#2A2A2F] bg-[#0E0E11] p-3">
+                  <div className="text-sm font-medium text-[#F0EDE8]">{cohort.name}</div>
+                  {cohort.description && (
+                    <div className="mt-1 text-[11px] text-[#5A5650]">{cohort.description}</div>
+                  )}
+                  <div className="mt-3 space-y-2">
+                    {generations
+                      .sort((left, right) => right.id - left.id)
+                      .map((generation) => {
+                        const selected = form.cohort_generation_id === String(generation.id);
+                        return (
+                          <button
+                            key={generation.id}
+                            type="button"
+                            onClick={() => setForm((current) => ({ ...current, cohort_generation_id: String(generation.id) }))}
+                            className={`w-full rounded-lg border px-3 py-2 text-left ${
+                              selected
+                                ? "border-[#C9A227] bg-[#C9A227]/10"
+                                : "border-[#2A2A2F] bg-[#141418]"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-xs font-medium text-[#F0EDE8]">
+                                Generation #{generation.id}
+                              </span>
+                              <span className="text-[10px] uppercase tracking-wider text-[#5A5650]">
+                                {generation.person_count ?? 0} persons
+                              </span>
+                            </div>
+                            <div className="mt-1 text-[11px] text-[#8A857D]">
+                              Completed {generation.completed_at ? new Date(generation.completed_at).toLocaleString() : "unknown"}
+                            </div>
+                          </button>
+                        );
+                      })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {selectedGeneration && (
+            <div className="mt-4 rounded-lg border border-[#2DD4BF]/30 bg-[#2DD4BF]/5 px-4 py-3">
+              <div className="text-xs font-medium text-[#2DD4BF]">
+                Selected denominator source
+              </div>
+              <div className="mt-1 text-sm text-[#C5C0B8]">
+                {selectedGeneration.cohort.name} · Generation #{selectedGeneration.generation.id}
+              </div>
+              <div className="mt-1 text-[11px] text-[#8A857D]">
+                {selectedGeneration.generation.person_count ?? 0} persons seeded into the campaign denominator.
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </Modal>
+  );
+}

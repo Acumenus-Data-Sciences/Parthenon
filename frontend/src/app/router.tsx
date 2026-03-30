@@ -31,6 +31,13 @@ export const router = createBrowserRouter(
       ).then((m) => ({ Component: m.default })),
   },
   {
+    path: "/survey/:token",
+    lazy: () =>
+      import(
+        "@/features/standard-pros/pages/PublicSurveyPage"
+      ).then((m) => ({ Component: m.default })),
+  },
+  {
     path: "/",
     element: <ProtectedLayout />,
     children: [

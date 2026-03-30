@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Requests\Api\StoreSurveyCampaignRequest;
 use App\Models\Survey\SurveyCampaign;
+use App\Services\Survey\CampaignSeedService;
+use App\Services\Survey\SurveyImportService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -21,17 +23,30 @@ class SurveyCampaignController extends Controller
             $query->where('status', $request->string('status'));
         }
 
-        return response()->json(
-            $query->paginate(min($request->integer('per_page', 25), 100))
+        $page = $query->paginate(min($request->integer('per_page', 25), 100));
+
+        $page->setCollection(
+            $page->getCollection()->map(function (SurveyCampaign $campaign): array {
+                return [
+                    ...$campaign->toArray(),
+                    'stats' => $this->buildStats($campaign),
+                ];
+            })
         );
+
+        return response()->json($page);
     }
 
-    public function store(StoreSurveyCampaignRequest $request): JsonResponse
-    {
+    public function store(
+        StoreSurveyCampaignRequest $request,
+        CampaignSeedService $campaignSeedService,
+    ): JsonResponse {
         $campaign = SurveyCampaign::create([
             ...$request->validated(),
             'created_by' => $request->user()?->id,
         ]);
+
+        $seeded = $campaignSeedService->seed($campaign);
 
         return response()->json($campaign->fresh(['instrument:id,name,abbreviation', 'creator:id,name']), 201);
     }
@@ -101,6 +116,25 @@ class SurveyCampaignController extends Controller
     public function stats(SurveyCampaign $campaign): JsonResponse
     {
         return response()->json($this->buildStats($campaign));
+    }
+
+    public function import(
+        Request $request,
+        SurveyCampaign $campaign,
+        SurveyImportService $surveyImportService,
+    ): JsonResponse {
+        $validated = $request->validate([
+            'csv_content' => 'required|string',
+        ]);
+
+        $result = $surveyImportService->importCsv(
+            $campaign->loadMissing('instrument.items.answerOptions'),
+            $validated['csv_content'],
+        );
+
+        return response()->json([
+            'data' => $result,
+        ]);
     }
 
     /**

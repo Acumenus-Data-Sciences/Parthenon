@@ -15,6 +15,8 @@ import { INSTRUMENTS } from "../data/instruments";
 import { InstrumentTable } from "../components/InstrumentTable";
 import { CoverageChart } from "../components/CoverageChart";
 import { AboutProsModal } from "../components/AboutProsModal";
+import { BuilderTab } from "../components/builder/BuilderTab";
+import { ConductTab } from "../components/conduct/ConductTab";
 import { useSurveyStats, useSurveyInstrumentsAsProList } from "../hooks/useSurveyInstruments";
 import type { SurveyStatsApi } from "../api/surveyApi";
 
@@ -24,6 +26,7 @@ const TABS = [
   { id: "library", label: "Instrument Library", icon: Library },
   { id: "coverage", label: "Coverage Analytics", icon: PieChart },
   { id: "builder", label: "Survey Builder", icon: Wrench },
+  { id: "conduct", label: "Survey Conduct", icon: ClipboardList },
   { id: "analytics", label: "Analytics", icon: BarChart3 },
 ] as const;
 type Tab = (typeof TABS)[number]["id"];
@@ -64,26 +67,6 @@ function StatsBar({ stats, isLoading }: { stats: SurveyStatsApi | undefined; isL
           </div>
         </div>
       ))}
-    </div>
-  );
-}
-
-/* ── Builder placeholder ─────────────────────────────────────────────── */
-
-function BuilderTab() {
-  return (
-    <div className="flex flex-col items-center justify-center py-16 rounded-xl border border-dashed border-[#2A2A2F] bg-[#141418]">
-      <Wrench size={32} className="text-[#5A5650] mb-3" />
-      <h3 className="text-sm font-medium text-[#F0EDE8] mb-1">
-        Survey Builder
-      </h3>
-      <p className="text-xs text-[#8A857D] text-center max-w-md">
-        Create custom survey instruments with drag-and-drop item ordering,
-        ATHENA concept search, Abby AI mapping suggestions, and REDCap/FHIR/CSV import.
-      </p>
-      <span className="mt-4 inline-block rounded-md bg-[#C9A227]/10 px-3 py-1 text-[10px] font-medium text-[#C9A227] uppercase tracking-wider">
-        Coming Soon
-      </span>
     </div>
   );
 }
@@ -255,6 +238,7 @@ export default function StandardProsPage() {
       {tab === "library" && <InstrumentTable instruments={instruments} />}
       {tab === "coverage" && <CoverageChart instruments={instruments} />}
       {tab === "builder" && <BuilderTab />}
+      {tab === "conduct" && <ConductTab />}
       {tab === "analytics" && <AnalyticsTab />}
 
       {/* About modal */}

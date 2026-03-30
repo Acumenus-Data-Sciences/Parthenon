@@ -98,6 +98,7 @@ use App\Http\Controllers\Api\V1\PopulationRiskScoreController;
 use App\Http\Controllers\Api\V1\PoseidonController;
 use App\Http\Controllers\Api\V1\PredictionController;
 use App\Http\Controllers\Api\V1\PublicationController;
+use App\Http\Controllers\Api\V1\PublicSurveyController;
 use App\Http\Controllers\Api\V1\QueryLibraryController;
 use App\Http\Controllers\Api\V1\RadiogenomicsController;
 use App\Http\Controllers\Api\V1\RiskScoreAnalysisController;
@@ -117,6 +118,7 @@ use App\Http\Controllers\Api\V1\StudyStatsController;
 use App\Http\Controllers\Api\V1\StudySynthesisController;
 use App\Http\Controllers\Api\V1\StudyTeamController;
 use App\Http\Controllers\Api\V1\SurveyCampaignController;
+use App\Http\Controllers\Api\V1\SurveyConductController;
 use App\Http\Controllers\Api\V1\SurveyInstrumentController;
 use App\Http\Controllers\Api\V1\SyntheaController;
 use App\Http\Controllers\Api\V1\TextToSqlController;
@@ -1631,11 +1633,13 @@ Route::prefix('v1/survey-campaigns')->middleware(['auth:sanctum', 'permission:su
     Route::get('/', [SurveyCampaignController::class, 'index']);
     Route::get('/{campaign}', [SurveyCampaignController::class, 'show']);
     Route::get('/{campaign}/stats', [SurveyCampaignController::class, 'stats']);
+    Route::get('/{campaign}/conduct-records', [SurveyConductController::class, 'index']);
 });
 
 Route::prefix('v1/survey-campaigns')->middleware(['auth:sanctum', 'permission:surveys.create'])->group(function () {
     Route::post('/', [SurveyCampaignController::class, 'store']);
     Route::post('/{campaign}/activate', [SurveyCampaignController::class, 'activate']);
+    Route::post('/{campaign}/import', [SurveyCampaignController::class, 'import']);
 });
 
 Route::prefix('v1/survey-campaigns')->middleware(['auth:sanctum', 'permission:surveys.edit'])->group(function () {
@@ -1645,6 +1649,15 @@ Route::prefix('v1/survey-campaigns')->middleware(['auth:sanctum', 'permission:su
 
 Route::prefix('v1/survey-campaigns')->middleware(['auth:sanctum', 'permission:surveys.delete'])->group(function () {
     Route::delete('/{campaign}', [SurveyCampaignController::class, 'destroy']);
+});
+
+Route::prefix('v1/survey-conduct')->middleware(['auth:sanctum', 'permission:surveys.edit'])->group(function () {
+    Route::post('/{conduct}/responses', [SurveyConductController::class, 'storeResponses']);
+});
+
+Route::prefix('v1/survey-public')->group(function () {
+    Route::get('/{token}', [PublicSurveyController::class, 'show']);
+    Route::post('/{token}/responses', [PublicSurveyController::class, 'submit']);
 });
 
 // Catch-all for unknown API routes

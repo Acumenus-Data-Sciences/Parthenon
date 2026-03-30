@@ -23,20 +23,25 @@ export function Modal({
   className,
 }: ModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     if (!open) return;
 
     const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") onCloseRef.current();
     };
     document.addEventListener("keydown", handleEsc);
 
-    // Focus trap — focus modal on open
+    // Focus the shell once on open without stealing focus on subsequent rerenders.
     modalRef.current?.focus();
 
     return () => document.removeEventListener("keydown", handleEsc);
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
 

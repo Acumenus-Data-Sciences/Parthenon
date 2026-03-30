@@ -63,8 +63,9 @@ echo "==> Parthenon deploy"
 # Images are built in CI (GitHub Actions) and pushed to ghcr.io/sudoshi/parthenon-*.
 # Pulling here avoids local rebuilds and speeds up deploys significantly.
 # If GHCR is unreachable or images don't exist yet, fall back to local images.
-# Skip for targeted deploys (--frontend, --db, --docs, --openapi) where no image changes are expected.
-if $FRONTEND_ONLY || $DB_ONLY || $DOCS_ONLY || $OPENAPI_ONLY; then
+# Skip for targeted deploys (--php, --frontend, --db, --docs, --openapi)
+# where no image changes are expected.
+if $PHP_ONLY || $FRONTEND_ONLY || $DB_ONLY || $DOCS_ONLY || $OPENAPI_ONLY; then
   echo ""
   echo "── Skipping image pull (targeted deploy) ──"
 else

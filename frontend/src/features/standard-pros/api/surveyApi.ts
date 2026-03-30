@@ -83,6 +83,47 @@ export interface DomainCountApi {
   instrument_count: number;
 }
 
+export interface SurveyInstrumentPayload {
+  name: string;
+  abbreviation: string;
+  version?: string;
+  description?: string | null;
+  domain: string;
+  item_count?: number;
+  scoring_method?: Record<string, unknown> | null;
+  loinc_panel_code?: string | null;
+  snomed_code?: string | null;
+  omop_concept_id?: number | null;
+  license_type?: "public" | "proprietary";
+  license_detail?: string | null;
+  is_public_domain?: boolean;
+  is_active?: boolean;
+  omop_coverage?: "yes" | "partial" | "no";
+  has_snomed?: boolean;
+}
+
+export interface SurveyItemPayload {
+  item_number: number;
+  item_text: string;
+  response_type: string;
+  omop_concept_id?: number | null;
+  loinc_code?: string | null;
+  snomed_code?: string | null;
+  subscale_name?: string | null;
+  is_reverse_coded?: boolean;
+  min_value?: number | null;
+  max_value?: number | null;
+  display_order: number;
+  answer_options?: Array<{
+    option_text: string;
+    option_value?: number | null;
+    omop_concept_id?: number | null;
+    loinc_la_code?: string | null;
+    snomed_code?: string | null;
+    display_order: number;
+  }>;
+}
+
 /* ── Pagination wrapper ───────────────────────────────────────────── */
 
 export interface PaginatedResponse<T> {
@@ -134,6 +175,72 @@ export async function fetchSurveyInstrument(
     `/survey-instruments/${id}`,
   );
   return data;
+}
+
+export async function createSurveyInstrument(
+  payload: SurveyInstrumentPayload,
+): Promise<SurveyInstrumentApi> {
+  const { data } = await apiClient.post<SurveyInstrumentApi>(
+    "/survey-instruments",
+    payload,
+  );
+  return data;
+}
+
+export async function updateSurveyInstrument(
+  id: number,
+  payload: SurveyInstrumentPayload,
+): Promise<SurveyInstrumentApi> {
+  const { data } = await apiClient.put<SurveyInstrumentApi>(
+    `/survey-instruments/${id}`,
+    payload,
+  );
+  return data;
+}
+
+export async function deleteSurveyInstrument(id: number): Promise<void> {
+  await apiClient.delete(`/survey-instruments/${id}`);
+}
+
+export async function cloneSurveyInstrument(
+  id: number,
+  payload?: { name?: string; abbreviation?: string },
+): Promise<SurveyInstrumentDetailApi> {
+  const { data } = await apiClient.post<SurveyInstrumentDetailApi>(
+    `/survey-instruments/${id}/clone`,
+    payload ?? {},
+  );
+  return data;
+}
+
+export async function createSurveyItem(
+  instrumentId: number,
+  payload: SurveyItemPayload,
+): Promise<SurveyItemApi> {
+  const { data } = await apiClient.post<SurveyItemApi>(
+    `/survey-instruments/${instrumentId}/items`,
+    payload,
+  );
+  return data;
+}
+
+export async function updateSurveyItem(
+  instrumentId: number,
+  itemId: number,
+  payload: SurveyItemPayload,
+): Promise<SurveyItemApi> {
+  const { data } = await apiClient.put<SurveyItemApi>(
+    `/survey-instruments/${instrumentId}/items/${itemId}`,
+    payload,
+  );
+  return data;
+}
+
+export async function deleteSurveyItem(
+  instrumentId: number,
+  itemId: number,
+): Promise<void> {
+  await apiClient.delete(`/survey-instruments/${instrumentId}/items/${itemId}`);
 }
 
 /* ── Adapter: API → frontend ProInstrument type ───────────────────── */

@@ -18,6 +18,8 @@ use Illuminate\Routing\Controller;
  */
 class SurveyInstrumentController extends Controller
 {
+    private const LIBRARY_INSTRUMENT_LOCKED_MESSAGE = 'Library instruments are read-only. Clone the instrument to create an editable copy.';
+
     /**
      * GET /v1/survey-instruments
      *
@@ -166,6 +168,10 @@ class SurveyInstrumentController extends Controller
      */
     public function update(StoreSurveyInstrumentRequest $request, SurveyInstrument $instrument): JsonResponse
     {
+        if ($response = $this->ensureEditableInstrument($instrument)) {
+            return $response;
+        }
+
         $instrument->update($request->validated());
 
         return response()->json($instrument);
@@ -263,6 +269,10 @@ class SurveyInstrumentController extends Controller
      */
     public function itemStore(StoreSurveyItemRequest $request, SurveyInstrument $instrument): JsonResponse
     {
+        if ($response = $this->ensureEditableInstrument($instrument)) {
+            return $response;
+        }
+
         $data = $request->validated();
         $answerOptions = $data['answer_options'] ?? [];
         unset($data['answer_options']);
@@ -287,6 +297,14 @@ class SurveyInstrumentController extends Controller
      */
     public function itemUpdate(StoreSurveyItemRequest $request, SurveyInstrument $instrument, SurveyItem $item): JsonResponse
     {
+        if ($response = $this->ensureEditableInstrument($instrument)) {
+            return $response;
+        }
+
+        if ($item->survey_instrument_id !== $instrument->id) {
+            abort(404);
+        }
+
         $data = $request->validated();
         $answerOptions = $data['answer_options'] ?? null;
         unset($data['answer_options']);
@@ -312,9 +330,28 @@ class SurveyInstrumentController extends Controller
      */
     public function itemDestroy(SurveyInstrument $instrument, SurveyItem $item): JsonResponse
     {
+        if ($response = $this->ensureEditableInstrument($instrument)) {
+            return $response;
+        }
+
+        if ($item->survey_instrument_id !== $instrument->id) {
+            abort(404);
+        }
+
         $item->delete();
         $instrument->update(['item_count' => $instrument->items()->count()]);
 
         return response()->json(null, 204);
+    }
+
+    private function ensureEditableInstrument(SurveyInstrument $instrument): ?JsonResponse
+    {
+        if ($instrument->created_by !== null) {
+            return null;
+        }
+
+        return response()->json([
+            'message' => self::LIBRARY_INSTRUMENT_LOCKED_MESSAGE,
+        ], 422);
     }
 }
