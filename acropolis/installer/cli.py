@@ -103,10 +103,35 @@ def _run_parthenon_installer(config: InstallConfig, console: Console) -> bool:
         return False
 
 
-def run() -> None:
+def run(upgrade: bool = False) -> None:
     """Main infrastructure installer entry point."""
     console = Console()
     _banner(console)
+
+    # ── Upgrade banner ────────────────────────────────────────────────────
+    if upgrade:
+        from acropolis.installer.version import (
+            detect_installed_version, CURRENT_VERSION, UPGRADE_NOTES,
+        )
+
+        installed = detect_installed_version()
+        if installed and installed != CURRENT_VERSION:
+            notes = UPGRADE_NOTES.get(CURRENT_VERSION, {})
+            lines = [f"[bold]Upgrading: v{installed} → v{CURRENT_VERSION}[/bold]\n"]
+            if notes.get("new"):
+                lines.append("[cyan]New Features:[/cyan]")
+                for item in notes["new"]:
+                    lines.append(f"  ✦ {item}")
+            if notes.get("upgraded"):
+                lines.append("\n[cyan]Upgraded:[/cyan]")
+                for item in notes["upgraded"]:
+                    lines.append(f"  ↑ {item}")
+
+            console.print(Panel("\n".join(lines), border_style="cyan", padding=(1, 2)))
+
+            if not questionary.confirm("Proceed with upgrade?", default=True).ask():
+                console.print("[dim]Upgrade cancelled.[/dim]")
+                return
 
     state_path = ACROPOLIS_ROOT / ".install-state.json"
     state = InstallState(state_path)
@@ -334,6 +359,10 @@ def run() -> None:
     )
 
     display_summary(config, topology, edition, services, passed, failed, skipped, console)
+
+    # Write version file
+    from acropolis.installer.version import write_version
+    write_version(edition=edition.tier)
 
     # Clear state on success
     state.clear()

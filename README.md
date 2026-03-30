@@ -154,7 +154,7 @@ Open **http://localhost:8082** — you'll be greeted by the setup wizard.
 | API Reference (173 endpoints) | [/docs/api](https://parthenon.acumenus.net/docs/api) |
 | Atlas → Parthenon Migration Guide | [/docs/migration](https://parthenon.acumenus.net/docs/migration) |
 | Technical Architecture | [SPECS.md](docs/devlog/strategy/SPECS.md) |
-| Roadmap (Phases 15–17) | [ROADMAP.md](docs/devlog/strategy/ROADMAP.md) |
+| Roadmap | [ROADMAP.md](ROADMAP.md) |
 | SDLC & Development Process | [SDLC-plan.md](docs/devlog/strategy/SDLC-plan.md) |
 | Phase devlogs | [docs/devlog/](docs/devlog/) |
 

@@ -2,6 +2,32 @@
 
 All notable changes to Parthenon are documented here.
 
+## [1.0.3] — 2026-03-30
+
+### Added
+- **Risk Scores v2** — 20 validated clinical instruments with cohort-scoped engine, eligibility checking, score catalogue, and detail modal
+- **Standard PROs+** — Survey instrument library with 32 public-domain instruments (685+ items), tabbed workspace, and SNOMED CT coverage tracking
+- **BlackRabbit** — next-gen source profiling replacing WhiteRabbit, with SQL Server, Azure Synapse, and Oracle database support
+- **LiveKit** — real-time voice and video calls in Commons workspaces, powered by LiveKit Cloud
+- **Arachne DataNode** — opt-in federated study execution for participating in OHDSI network studies
+- **Phoebe** — AI-powered concept recommendations from OHDSI concept_recommended table, integrated into Concept Set Editor
+- **Poseidon** — data lakehouse with Dagster orchestration and dbt transformations for incremental CDM ETL
+- **Cohort Risk Score Criteria** — risk score thresholds as inclusion/exclusion criteria in the cohort definition editor
+- **Scribe API docs** — replaced Scramble with Scribe, OpenAPI reference integrated into Docusaurus user manual
+- **Admin broadcast email** — send announcements to all registered users
+
+### Changed
+- **Aqueduct** — full-screen canvas mode, persistent viewport, compact toolbar, universal CDM selector, click-to-map field detail modals
+- **Hecate** — switched to EmbeddingGemma-300M via Ollama, Qdrant upgraded to v1.17.1
+- **Darkstar (R Runtime)** — CohortMethod 6.0.1, PLP 6.6.0, DeepPatientLevelPrediction, DQD support
+- **Nginx** — security headers, template-based config, 5GB upload support
+- **System Health** — service tier grouping with Poseidon health check panel
+
+### Installer
+- Module-grouped setup — services organized by function (Research, Commons, AI & Knowledge, Data Pipeline, Infrastructure)
+- `--upgrade` flag for in-place upgrades with version detection, changelog display, and automatic migrations
+- WhiteRabbit → BlackRabbit automatic migration during upgrade
+
 ## [1.0.0] — 2026-03-23
 
 ### Added

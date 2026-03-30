@@ -268,49 +268,126 @@ def collect(resume_data: dict[str, Any] | None = None) -> dict[str, Any]:
         default=defaults.get("ollama_url", "http://host.docker.internal:11434"),
     ).ask()
 
-    enable_solr = questionary.confirm(
-        "Enable Apache Solr for high-performance search? (Recommended)",
-        default=defaults.get("enable_solr", True),
-    ).ask()
-
-    # --- Optional sidecar services ---
+    # --- Module selection ---
     console.print()
     console.print(
         Panel(
-            "[bold]Optional services extend Parthenon with additional capabilities.[/bold]\n"
-            "[dim]All are optional — you can enable them later by editing .env and "
-            "running docker compose up -d.[/dim]",
-            title="Optional Services",
+            "[bold]Parthenon Modules[/bold]\n\n"
+            "  [cyan]Research[/cyan]       Cohorts, Analyses, Studies\n"
+            "    Arachne      Federated execution\n"
+            "    Darkstar     R runtime (HADES)\n\n"
+            "  [cyan]Commons[/cyan]        Workspace & collaboration\n"
+            "    LiveKit      Voice/video calls\n\n"
+            "  [cyan]AI & Knowledge[/cyan]\n"
+            "    Hecate       Concept search & KG\n"
+            "    Phoebe       Concept recommendations\n"
+            "    Abby         AI assistant\n\n"
+            "  [cyan]Data Pipeline[/cyan]\n"
+            "    BlackRabbit  Source profiling\n"
+            "    Aqueduct     ETL mapping\n"
+            "    Orthanc      DICOM imaging\n\n"
+            "  [cyan]Infrastructure[/cyan]\n"
+            "    Solr         Search engine\n"
+            "    Qdrant       Vector database\n"
+            "    Redis        Cache & queues",
+            title="Module Selection",
             border_style="cyan",
             padding=(1, 2),
         )
     )
 
-    enable_study_agent = questionary.confirm(
+    modules = questionary.checkbox(
+        "Enable modules (all recommended):",
+        choices=[
+            questionary.Choice("Research", value="research", checked=True),
+            questionary.Choice("Commons", value="commons", checked=True),
+            questionary.Choice("AI & Knowledge", value="ai_knowledge", checked=True),
+            questionary.Choice("Data Pipeline", value="data_pipeline", checked=True),
+            questionary.Choice("Infrastructure", value="infrastructure", checked=True),
+        ],
+    ).ask()
+
+    enable_research = "research" in modules
+    enable_commons = "commons" in modules
+    enable_ai = "ai_knowledge" in modules
+    enable_pipeline = "data_pipeline" in modules
+    enable_infra = "infrastructure" in modules
+
+    # Research module
+    enable_study_agent = enable_research and questionary.confirm(
         "Enable Study Designer (AI-assisted study protocol builder)?",
-        default=defaults.get("enable_study_agent", bool(ollama_url)),
+        default=bool(ollama_url),
     ).ask()
 
-    enable_whiterabbit = questionary.confirm(
-        "Enable WhiteRabbit (source database profiling)?",
-        default=defaults.get("enable_whiterabbit", True),
-    ).ask()
+    # Commons — LiveKit credentials
+    enable_livekit = False
+    livekit_url = ""
+    livekit_api_key = ""
+    livekit_api_secret = ""
+    if enable_commons:
+        enable_livekit = questionary.confirm(
+            "Enable LiveKit voice/video calls in Commons?",
+            default=False,
+        ).ask()
+        if enable_livekit:
+            console.print("\n[bold]LiveKit Configuration:[/bold]")
+            livekit_url = questionary.text(
+                "LiveKit URL:",
+                default=defaults.get("livekit_url", "ws://localhost:7880"),
+                validate=lambda v: v.startswith(("ws://", "wss://")) or "URL must start with ws:// or wss://",
+            ).ask()
+            livekit_api_key = questionary.text(
+                "LiveKit API Key:",
+                validate=lambda v: bool(v.strip()) or "API key is required",
+            ).ask()
+            livekit_api_secret = questionary.password(
+                "LiveKit API Secret:",
+                validate=lambda v: bool(v.strip()) or "API secret is required",
+            ).ask()
 
-    enable_fhir_to_cdm = questionary.confirm(
-        "Enable FHIR-to-CDM (FHIR R4 ingestion to OMOP)?",
-        default=defaults.get("enable_fhir_to_cdm", True),
-    ).ask()
-
-    enable_hecate = questionary.confirm(
+    # AI & Knowledge
+    enable_hecate = enable_ai and questionary.confirm(
         "Enable Hecate (vector concept search)?",
-        default=defaults.get("enable_hecate", bool(ollama_url)),
+        default=bool(ollama_url),
+    ).ask()
+    enable_qdrant = enable_hecate
+
+    # Data Pipeline
+    enable_blackrabbit = enable_pipeline and questionary.confirm(
+        "Enable BlackRabbit (source database profiling)?",
+        default=True,
+    ).ask()
+    enable_fhir_to_cdm = enable_pipeline and questionary.confirm(
+        "Enable FHIR-to-CDM (FHIR R4 ingestion to OMOP)?",
+        default=True,
     ).ask()
 
-    enable_qdrant = enable_hecate  # Qdrant is required by Hecate
+    enable_orthanc = False
+    orthanc_user = "parthenon"
+    orthanc_password = ""
+    if enable_pipeline:
+        enable_orthanc = questionary.confirm(
+            "Enable Orthanc (DICOM medical imaging server)?",
+            default=defaults.get("enable_orthanc", False),
+        ).ask()
+        if enable_orthanc:
+            console.print("\n[bold]Orthanc Credentials:[/bold]")
+            orthanc_user = questionary.text(
+                "Orthanc username:",
+                default="parthenon",
+            ).ask()
+            orthanc_password = questionary.text(
+                "Orthanc password (blank = auto-generate):",
+                default="",
+            ).ask()
+            if not orthanc_password:
+                orthanc_password = _generate_password(24)
+                console.print(f"  [dim]Generated: {orthanc_password[:6]}...[/dim]")
 
-    enable_orthanc = questionary.confirm(
-        "Enable Orthanc (DICOM medical imaging server)?",
-        default=defaults.get("enable_orthanc", False),
+    # Infrastructure — Solr moved here
+    enable_solr = enable_infra and questionary.confirm(
+        "Enable Apache Solr for high-performance search? (Recommended)",
+        default=defaults.get("enable_solr", True),
     ).ask()
 
     show_advanced = questionary.confirm("Configure advanced port settings?", default=False).ask()
@@ -346,11 +423,18 @@ def collect(resume_data: dict[str, Any] | None = None) -> dict[str, Any]:
         "ollama_url":        ollama_url,
         "enable_solr":       enable_solr,
         "enable_study_agent": enable_study_agent,
-        "enable_whiterabbit": enable_whiterabbit,
+        "enable_blackrabbit": enable_blackrabbit,
         "enable_fhir_to_cdm": enable_fhir_to_cdm,
         "enable_hecate":     enable_hecate,
         "enable_qdrant":     enable_qdrant,
         "enable_orthanc":    enable_orthanc,
+        "enable_livekit":    enable_livekit,
+        "livekit_url":       livekit_url,
+        "livekit_api_key":   livekit_api_key,
+        "livekit_api_secret": livekit_api_secret,
+        "orthanc_user":      orthanc_user,
+        "orthanc_password":  orthanc_password,
+        "modules":           modules,
         "nginx_port":        nginx_port,
         "postgres_port":     postgres_port,
         "redis_port":        redis_port,
@@ -394,16 +478,32 @@ def build_root_env(cfg: dict[str, Any]) -> str:
         lines.append("STUDY_AGENT_PORT=8765")
         lines.append("LLM_MODEL=gemma3:4b")
         lines.append("EMBED_MODEL=nomic-embed-text")
-    if cfg.get("enable_whiterabbit"):
+    if cfg.get("enable_blackrabbit"):
         lines.append("WHITERABBIT_PORT=8090")
+        lines.append("BLACKRABBIT_SCAN_TIMEOUT_SECONDS=1200")
     if cfg.get("enable_fhir_to_cdm"):
         lines.append("FHIR_TO_CDM_PORT=8091")
     if cfg.get("enable_hecate"):
-        lines.append("HECATE_PORT=8080")
+        lines.append("HECATE_PORT=8088")
     if cfg.get("enable_qdrant"):
         lines.append("QDRANT_PORT=6333")
     if cfg.get("enable_orthanc"):
         lines.append("ORTHANC_PORT=8042")
+        lines.append(f"ORTHANC_USER={cfg.get('orthanc_user', 'parthenon')}")
+        lines.append(f"ORTHANC_PASSWORD={cfg.get('orthanc_password', '')}")
+    if cfg.get("enable_livekit"):
+        lines.append("")
+        lines.append("# LiveKit (Commons voice/video)")
+        lines.append(f"LIVEKIT_URL={cfg.get('livekit_url', '')}")
+        lines.append(f"LIVEKIT_API_KEY={cfg.get('livekit_api_key', '')}")
+        lines.append(f"LIVEKIT_API_SECRET={cfg.get('livekit_api_secret', '')}")
+
+    import os as _os
+    lines.append("")
+    lines.append("# Host user mapping")
+    lines.append(f"HOST_UID={_os.getuid()}")
+    lines.append(f"HOST_GID={_os.getgid()}")
+    lines.append("DB_PORT=5432")
 
     return "\n".join(lines) + "\n"
 
@@ -488,10 +588,13 @@ def build_backend_env(cfg: dict[str, Any]) -> str:
         f"SOLR_CORE_GIS_SPATIAL=gis_spatial\n"
         f"\n"
         f"# Optional sidecar service URLs\n"
-        f"WHITERABBIT_URL={'http://whiterabbit:8090' if cfg.get('enable_whiterabbit') else ''}\n"
+        f"BLACKRABBIT_URL={'http://blackrabbit:8090' if cfg.get('enable_blackrabbit') else ''}\n"
         f"FHIR_TO_CDM_URL={'http://fhir-to-cdm:8091' if cfg.get('enable_fhir_to_cdm') else ''}\n"
-        f"HECATE_URL={'http://hecate:8080' if cfg.get('enable_hecate') else ''}\n"
+        f"HECATE_URL={'http://hecate:8088' if cfg.get('enable_hecate') else ''}\n"
         f"ORTHANC_URL={'http://orthanc:8042' if cfg.get('enable_orthanc') else ''}\n"
+        f"LIVEKIT_URL={cfg.get('livekit_url', '') if cfg.get('enable_livekit') else ''}\n"
+        f"LIVEKIT_API_KEY={cfg.get('livekit_api_key', '') if cfg.get('enable_livekit') else ''}\n"
+        f"LIVEKIT_API_SECRET={cfg.get('livekit_api_secret', '') if cfg.get('enable_livekit') else ''}\n"
     )
 
 

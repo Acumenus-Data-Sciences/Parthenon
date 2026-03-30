@@ -10,7 +10,7 @@ from rich.console import Console
 from rich.table import Table
 
 from acropolis.installer.topology import TopologyConfig
-from acropolis.installer.utils import containers_on_network
+from acropolis.installer.utils import containers_on_network, PARTHENON_ROOT
 
 
 class CuratedService(NamedTuple):
@@ -33,7 +33,6 @@ class DiscoveredService:
 CURATED_SERVICES: list[CuratedService] = [
     # Routable services — exposed through Traefik
     # Ports are container-internal (what Traefik connects to), NOT host-mapped.
-    # e.g. nginx listens on 80 inside the container; 8082 is only the host mapping.
     CuratedService("nginx", "parthenon-nginx", 80, "parthenon", "always"),
     CuratedService("darkstar", "parthenon-darkstar", 8787, "darkstar", "always"),
     CuratedService("python-ai", "parthenon-ai", 8000, "ai", "always"),
@@ -45,8 +44,10 @@ CURATED_SERVICES: list[CuratedService] = [
     CuratedService("grafana", "parthenon-grafana", 3000, "grafana", "if_running"),
     CuratedService("prometheus", "parthenon-prometheus", 9090, "prometheus", "if_running"),
     CuratedService("study-agent", "parthenon-study-agent", 8765, "study-agent", "if_running"),
-    CuratedService("hecate", "parthenon-hecate", 8080, "hecate", "if_running"),
-    CuratedService("whiterabbit", "parthenon-whiterabbit", 8090, "whiterabbit", "if_running"),
+    CuratedService("hecate", "parthenon-hecate", 8088, "hecate", "if_running"),
+    CuratedService("blackrabbit", "parthenon-blackrabbit", 8090, "blackrabbit", "if_running"),
+    CuratedService("arachne-datanode", "parthenon-arachne-datanode", 8880, "arachne", "if_running"),
+    CuratedService("poseidon-webserver", "parthenon-poseidon-webserver", 3100, "poseidon", "if_running"),
     CuratedService("fhir-to-cdm", "parthenon-fhir-to-cdm", 8091, "fhir", "if_running"),
     CuratedService("orthanc", "parthenon-orthanc", 8042, "orthanc", "if_running"),
     # Internal services — recognized but not routable (no Traefik exposure)
@@ -55,6 +56,8 @@ CURATED_SERVICES: list[CuratedService] = [
     CuratedService("redis", "parthenon-redis", 6379, "", "internal"),
     CuratedService("horizon", "parthenon-horizon", 0, "", "internal"),
     CuratedService("chromadb", "parthenon-chromadb", 8000, "", "internal"),
+    CuratedService("qdrant", "parthenon-qdrant", 6333, "", "internal"),
+    CuratedService("poseidon-daemon", "parthenon-poseidon-daemon", 0, "", "internal"),
     CuratedService("loki", "parthenon-loki", 3100, "", "internal"),
     CuratedService("alloy", "parthenon-alloy", 12345, "", "internal"),
     CuratedService("cadvisor", "parthenon-cadvisor", 8080, "", "internal"),
@@ -95,11 +98,63 @@ def match_containers_to_registry(
     return matched, unknown
 
 
+def _migrate_whiterabbit(console: Console) -> bool:
+    """Check for WhiteRabbit and offer migration to BlackRabbit.
+
+    Returns True if migration was performed or not needed.
+    """
+    from acropolis.installer.utils import container_exists
+
+    has_whiterabbit = container_exists("parthenon-whiterabbit")
+    has_blackrabbit = container_exists("parthenon-blackrabbit")
+
+    if not has_whiterabbit or has_blackrabbit:
+        return True
+
+    console.print(
+        "\n[yellow]WhiteRabbit has been replaced by BlackRabbit in v1.0.3[/]\n"
+        "[dim]BlackRabbit adds SQL Server, Azure Synapse, and Oracle database support.[/]\n"
+    )
+
+    migrate = questionary.confirm(
+        "Migrate WhiteRabbit → BlackRabbit now? (stops WhiteRabbit, starts BlackRabbit)",
+        default=True,
+    ).ask()
+
+    if not migrate:
+        console.print("[dim]Skipping migration. WhiteRabbit will not be routed.[/]")
+        return True
+
+    import subprocess
+
+    console.print("[cyan]Stopping WhiteRabbit...[/]")
+    subprocess.run(
+        ["docker", "compose", "stop", "whiterabbit"],
+        cwd=str(PARTHENON_ROOT),
+        capture_output=True,
+    )
+
+    console.print("[cyan]Starting BlackRabbit...[/]")
+    result = subprocess.run(
+        ["docker", "compose", "up", "-d", "blackrabbit"],
+        cwd=str(PARTHENON_ROOT),
+        capture_output=True,
+    )
+
+    if result.returncode == 0:
+        console.print("[green]Migration complete: WhiteRabbit → BlackRabbit[/]\n")
+        return True
+    else:
+        console.print(f"[red]BlackRabbit failed to start: {result.stderr.decode()[:200]}[/]")
+        return False
+
+
 def _discover_local(
     topology: TopologyConfig, console: Console
 ) -> list[DiscoveredService]:
     """Discover services on a local Parthenon installation."""
     network = topology.parthenon_network or "parthenon"
+    _migrate_whiterabbit(console)
     containers = containers_on_network(network)
     console.print(f"[cyan]Found {len(containers)} containers on '{network}' network.[/]")
 

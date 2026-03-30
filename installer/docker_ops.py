@@ -34,7 +34,7 @@ OPTIONAL_SERVICES = {
     "study_agent":  ("study-agent",  "parthenon-study-agent",  120),
     "qdrant":       ("qdrant",       "parthenon-qdrant",       60),
     "hecate":       ("hecate",       "parthenon-hecate",       60),
-    "whiterabbit":  ("whiterabbit",  "parthenon-whiterabbit",  60),
+    "blackrabbit":  ("blackrabbit",  "parthenon-blackrabbit",  60),
     "fhir_to_cdm":  ("fhir-to-cdm", "parthenon-fhir-to-cdm",  60),
     "orthanc":      ("orthanc",      "parthenon-orthanc",      60),
 }

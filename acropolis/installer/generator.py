@@ -139,6 +139,9 @@ cmd_urls() {{
         echo
         echo -e "${{CYAN}}Parthenon:${{NC}}"
         echo -e "  Application        ${{GREEN}}https://parthenon.$DOMAIN${{NC}}"
+        for svc in "${{SERVICES[@]}}"; do
+            echo -e "  $svc               ${{GREEN}}https://$svc.$DOMAIN${{NC}}"
+        done
     fi
 }}
 
@@ -179,11 +182,16 @@ cmd_smoke_test() {{
 }}
 
 cmd_update() {{
-    log_info "Pulling latest images..."
-    docker compose "${{COMPOSE_FILES[@]}}" pull
-    log_info "Restarting services..."
-    docker compose "${{COMPOSE_FILES[@]}}" up -d
-    log_ok "Update complete."
+    log_info "Upgrading Acropolis + Parthenon..."
+    if [[ -f "$PARTHENON_PATH/install.py" ]]; then
+        python3 "$PARTHENON_PATH/install.py" --with-infrastructure --upgrade
+    else
+        log_info "Pulling latest images..."
+        docker compose "${{COMPOSE_FILES[@]}}" pull
+        log_info "Restarting services..."
+        docker compose "${{COMPOSE_FILES[@]}}" up -d
+        log_ok "Update complete."
+    fi
 }}
 
 cmd_reconfigure() {{

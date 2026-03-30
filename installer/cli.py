@@ -129,14 +129,16 @@ def _print_summary(cfg: dict[str, Any]) -> None:
         lines.append(f"  [green]ChromaDB:[/green] http://localhost:8000 (vector database)")
     if cfg.get("enable_study_agent"):
         lines.append(f"  [green]Study AI:[/green] http://localhost:8765 (study designer)")
-    if cfg.get("enable_whiterabbit"):
-        lines.append(f"  [green]Profiler:[/green] http://localhost:8090 (WhiteRabbit)")
+    if cfg.get("enable_blackrabbit"):
+        lines.append(f"  [green]Profiler:[/green] http://localhost:8090 (BlackRabbit)")
     if cfg.get("enable_fhir_to_cdm"):
         lines.append(f"  [green]FHIR CDM:[/green] http://localhost:8091 (FHIR-to-CDM)")
     if cfg.get("enable_hecate"):
-        lines.append(f"  [green]Hecate:[/green]   http://localhost:8080 (concept search)")
+        lines.append(f"  [green]Hecate:[/green]   http://localhost:8088 (concept search)")
     if cfg.get("enable_orthanc"):
         lines.append(f"  [green]Orthanc:[/green]  http://localhost:8042 (DICOM server)")
+    if cfg.get("enable_livekit"):
+        lines.append(f"  [green]LiveKit:[/green]  {cfg.get('livekit_url', 'ws://localhost:7880')} (voice/video)")
     lines.append(f"  [green]GIS:[/green]      PostGIS spatial queries enabled")
 
     next_steps = [
@@ -184,16 +186,60 @@ def _print_summary(cfg: dict[str, Any]) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Upgrade helpers
+# ---------------------------------------------------------------------------
+
+_V103_NEW_VARS = [
+    ("HECATE_PORT", "8088"),
+    ("BLACKRABBIT_SCAN_TIMEOUT_SECONDS", "1200"),
+    ("HOST_UID", str(__import__("os").getuid())),
+    ("HOST_GID", str(__import__("os").getgid())),
+    ("DB_PORT", "5432"),
+    ("LIVEKIT_URL", ""),
+    ("LIVEKIT_API_KEY", ""),
+    ("LIVEKIT_API_SECRET", ""),
+    ("ORTHANC_USER", "parthenon"),
+    ("ORTHANC_PASSWORD", ""),
+]
+
+
+def _append_new_env_vars(env_path: Path) -> None:
+    """Append missing env vars from v1.0.3 to an existing .env file."""
+    if not env_path.exists():
+        return
+
+    content = env_path.read_text()
+    existing_keys = set()
+    for line in content.splitlines():
+        line = line.strip()
+        if line and not line.startswith("#") and "=" in line:
+            key, _, _ = line.partition("=")
+            existing_keys.add(key.strip())
+
+    new_lines = []
+    for var, default in _V103_NEW_VARS:
+        if var not in existing_keys:
+            new_lines.append(f"{var}={default}")
+
+    if new_lines:
+        with open(env_path, "a") as f:
+            f.write("\n# Added by v1.0.3 upgrade\n")
+            f.write("\n".join(new_lines) + "\n")
+        console.print(f"  [green]Added {len(new_lines)} new env vars to {env_path.name}[/green]")
+
+
+# ---------------------------------------------------------------------------
 # Main entry point
 # ---------------------------------------------------------------------------
 
-def run(*, non_interactive: bool = False, pre_seed: dict[str, Any] | None = None) -> None:
+def run(*, non_interactive: bool = False, pre_seed: dict[str, Any] | None = None, upgrade: bool = False) -> None:
     """Run the full 9-phase installer.
 
     Args:
         non_interactive: Skip interactive prompts (use defaults).
         pre_seed: Dict of default values to pre-populate config prompts.
                   Passed from --defaults-file or parent installer (e.g. Acropolis).
+        upgrade: If True, run upgrade flow instead of fresh install.
     """
     console.print(
         Panel(
@@ -203,6 +249,94 @@ def run(*, non_interactive: bool = False, pre_seed: dict[str, Any] | None = None
             padding=(1, 4),
         )
     )
+
+    # ── Upgrade flow ──────────────────────────────────────────────────────
+    if upgrade:
+        from acropolis.installer.version import (
+            detect_installed_version, write_version,
+            CURRENT_VERSION, UPGRADE_NOTES,
+        )
+
+        installed = detect_installed_version()
+        if installed is None:
+            console.print("[yellow]No existing installation detected. Running fresh install.[/yellow]\n")
+            upgrade = False
+        elif installed == CURRENT_VERSION:
+            console.print(f"[green]Already at v{CURRENT_VERSION}. Nothing to upgrade.[/green]")
+            return
+        else:
+            notes = UPGRADE_NOTES.get(CURRENT_VERSION, {})
+            lines = [f"[bold]Upgrading Parthenon: v{installed} → v{CURRENT_VERSION}[/bold]\n"]
+            if notes.get("new"):
+                lines.append("[cyan]New Features:[/cyan]")
+                for item in notes["new"]:
+                    lines.append(f"  ✦ {item}")
+            if notes.get("upgraded"):
+                lines.append("\n[cyan]Upgraded:[/cyan]")
+                for item in notes["upgraded"]:
+                    lines.append(f"  ↑ {item}")
+            if notes.get("migrations"):
+                lines.append("\n[yellow]Migrations:[/yellow]")
+                for item in notes["migrations"]:
+                    lines.append(f"  ⚠ {item}")
+            if notes.get("config_required"):
+                lines.append("\n[cyan]New Config Required:[/cyan]")
+                for item in notes["config_required"]:
+                    lines.append(f"  ? {item}")
+
+            console.print(Panel("\n".join(lines), border_style="cyan", padding=(1, 2)))
+
+            import questionary as _q
+            if not _q.confirm("Proceed with upgrade?", default=True).ask():
+                console.print("[dim]Upgrade cancelled.[/dim]")
+                return
+
+            # Backup current .env
+            env_path = utils.REPO_ROOT / ".env"
+            if env_path.exists():
+                import shutil
+                backup_name = f".env.backup.{installed}"
+                shutil.copy2(env_path, utils.REPO_ROOT / backup_name)
+                console.print(f"[green]Backed up .env to {backup_name}[/green]")
+
+            # Append missing env vars
+            _append_new_env_vars(utils.REPO_ROOT / ".env")
+            _append_new_env_vars(utils.REPO_ROOT / "backend" / ".env")
+
+            # Pull updated images
+            console.print("\n[cyan]Pulling updated images...[/cyan]")
+            utils.run_stream(["docker", "compose", "pull"])
+
+            # Restart services
+            console.print("[cyan]Restarting services...[/cyan]")
+            utils.run_stream(["docker", "compose", "up", "-d"])
+
+            # Run migrations
+            console.print("[cyan]Running database migrations...[/cyan]")
+            utils.run_stream([
+                "docker", "compose", "exec", "-T", "php",
+                "php", "artisan", "migrate", "--force",
+            ])
+
+            # Rebuild frontend
+            console.print("[cyan]Rebuilding frontend...[/cyan]")
+            utils.run_stream([
+                "docker", "compose", "run", "--rm", "--no-deps", "-T", "node",
+                "sh", "-c", "cd /app && npm ci --legacy-peer-deps && npx vite build --mode production",
+            ])
+
+            # Write version file
+            write_version()
+
+            console.print(
+                Panel(
+                    f"[bold green]Upgrade to v{CURRENT_VERSION} complete![/bold green]\n\n"
+                    "Run [bold]./deploy.sh[/bold] to apply PHP caches and verify.",
+                    border_style="green",
+                    padding=(1, 2),
+                )
+            )
+            return
 
     state = _load_state()
     cfg: dict[str, Any] = state.get("config", {})
@@ -332,4 +466,9 @@ def run(*, non_interactive: bool = False, pre_seed: dict[str, Any] | None = None
     # Phase 9 — Complete
     # -----------------------------------------------------------------------
     _clear_state()
+
+    # Write version file
+    from acropolis.installer.version import write_version
+    write_version(modules=cfg.get("modules", []))
+
     _print_summary(cfg)
