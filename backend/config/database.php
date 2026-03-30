@@ -109,6 +109,23 @@ return [
             'sslmode' => 'prefer',
         ],
 
+        // Dedicated PostgreSQL connection for test execution. This must never
+        // resolve to the live application database.
+        'pgsql_testing' => [
+            'driver' => 'pgsql',
+            'url' => env('DB_TEST_URL'),
+            'host' => env('DB_TEST_HOST', env('DB_HOST', '127.0.0.1')),
+            'port' => env('DB_TEST_PORT', env('DB_PORT', '5432')),
+            'database' => env('DB_TEST_DATABASE', 'parthenon_testing'),
+            'username' => env('DB_TEST_USERNAME', env('DB_USERNAME', 'parthenon')),
+            'password' => env('DB_TEST_PASSWORD', env('DB_PASSWORD', '')),
+            'charset' => env('DB_CHARSET', 'utf8'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => 'app,php',
+            'sslmode' => 'prefer',
+        ],
+
         // OMOP CDM + Vocabulary — used by DQD, ingestion, cohort generation,
         // AbbyAI, and all clinical data services. Vocabulary tables live in
         // the shared 'vocab' schema; CDM clinical tables remain in 'omop'.

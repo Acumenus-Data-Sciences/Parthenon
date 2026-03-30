@@ -74,6 +74,8 @@ use App\Services\Cohort\Criteria\CriteriaBuilderRegistry;
 use App\Services\Cohort\Criteria\DemographicCriteriaBuilder;
 use App\Services\Cohort\Schema\CohortExpressionSchema;
 use App\Services\SqlRenderer\SqlRendererService;
+use Illuminate\Console\Events\CommandStarting;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -188,6 +190,12 @@ class AppServiceProvider extends ServiceProvider
             ]);
         }
 
+        $this->configureTestingDatabaseConnection();
+
+        Event::listen(CommandStarting::class, function (CommandStarting $event): void {
+            $this->guardDangerousConsoleCommands($event->command);
+        });
+
         // Ares event → listener mappings
         Event::listen(AchillesRunCompleted::class, CreateAutoRelease::class);
         Event::listen(DqdRunCompleted::class, AssociateDqdWithRelease::class);
@@ -236,5 +244,69 @@ class AppServiceProvider extends ServiceProvider
         PathwayAnalysis::observe(PathwayAnalysisProtectionObserver::class);
         EvidenceSynthesisAnalysis::observe(EvidenceSynthesisAnalysisProtectionObserver::class);
         HeorAnalysis::observe(HeorAnalysisProtectionObserver::class);
+    }
+
+    private function configureTestingDatabaseConnection(): void
+    {
+        $requestedConnection = (string) env('DB_CONNECTION', '');
+        $isTestingRuntime = app()->environment('testing') || $requestedConnection === 'pgsql_testing';
+
+        if (! $isTestingRuntime) {
+            return;
+        }
+
+        $base = Config::get('database.connections.pgsql', []);
+
+        config([
+            'database.connections.pgsql_testing' => array_merge($base, [
+                'url' => env('DB_TEST_URL'),
+                'host' => env('DB_TEST_HOST', $base['host'] ?? '127.0.0.1'),
+                'port' => env('DB_TEST_PORT', $base['port'] ?? '5432'),
+                'database' => env('DB_TEST_DATABASE', 'parthenon_testing'),
+                'username' => env('DB_TEST_USERNAME', $base['username'] ?? 'parthenon'),
+                'password' => env('DB_TEST_PASSWORD', $base['password'] ?? ''),
+                'search_path' => 'app,php',
+            ]),
+            'database.default' => 'pgsql_testing',
+        ]);
+    }
+
+    private function guardDangerousConsoleCommands(string $command): void
+    {
+        if ($command === '') {
+            return;
+        }
+
+        $blockedCommands = [
+            'test',
+            'db:wipe',
+            'migrate:fresh',
+            'migrate:refresh',
+            'migrate:reset',
+        ];
+
+        if (! in_array($command, $blockedCommands, true)) {
+            return;
+        }
+
+        $connectionName = Config::get('database.default', 'pgsql');
+        $databaseName = (string) Config::get("database.connections.{$connectionName}.database", '');
+        $protectedDatabases = collect(explode(',', (string) env('PROTECTED_CONSOLE_DATABASES', 'parthenon')))
+            ->map(fn (string $db) => trim($db))
+            ->filter()
+            ->values()
+            ->all();
+
+        $isProtectedDatabase = in_array($databaseName, $protectedDatabases, true);
+        $isTestingConnection = $connectionName === 'pgsql_testing' || str_ends_with($databaseName, '_testing');
+
+        if ($isTestingConnection || ! $isProtectedDatabase) {
+            return;
+        }
+
+        throw new \RuntimeException(
+            "Refusing to run [{$command}] against protected database [{$databaseName}] ".
+            "on connection [{$connectionName}]. Use a dedicated testing database."
+        );
     }
 }
