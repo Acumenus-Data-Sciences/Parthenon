@@ -26,10 +26,20 @@ export async function fetchCatalogue(): Promise<RiskScoreCatalogue> {
 export async function fetchEligibility(
   sourceId: number,
 ): Promise<EligibilityMap> {
-  const { data } = await apiClient.get<EligibilityMap>(
+  const { data } = await apiClient.get(
     `/sources/${sourceId}/risk-scores/eligibility`,
   );
-  return data;
+  // Backend wraps in { data, cached, cached_at }
+  return data.data ?? data;
+}
+
+export async function refreshEligibility(
+  sourceId: number,
+): Promise<EligibilityMap> {
+  const { data } = await apiClient.post(
+    `/sources/${sourceId}/risk-scores/eligibility/refresh`,
+  );
+  return data.data ?? data;
 }
 
 export async function fetchSourceResults(

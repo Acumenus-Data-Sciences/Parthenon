@@ -9,6 +9,7 @@ use App\Models\Results\PopulationRiskScoreResult;
 use App\Services\PopulationRisk\PopulationRiskScoreEngineService;
 use App\Services\PopulationRisk\PopulationRiskScoreRegistry;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -123,50 +124,145 @@ class PopulationRiskScoreController extends Controller
      */
     public function eligibility(Source $source): JsonResponse
     {
+        $cacheKey = "risk-scores:eligibility:{$source->id}";
+
+        // Return cached results if available
+        $cached = Cache::get($cacheKey);
+        if ($cached !== null) {
+            return response()->json([
+                'data' => $cached,
+                'cached' => true,
+                'cached_at' => Cache::get("{$cacheKey}:timestamp"),
+            ]);
+        }
+
+        // Compute fresh — with per-query timeout protection
+        $result = $this->computeEligibility($source);
+
+        if ($result !== null) {
+            Cache::put($cacheKey, $result, now()->addHours(4));
+            Cache::put("{$cacheKey}:timestamp", now()->toIso8601String(), now()->addHours(4));
+
+            return response()->json([
+                'data' => $result,
+                'cached' => false,
+                'cached_at' => now()->toIso8601String(),
+            ]);
+        }
+
+        return response()->json([
+            'data' => null,
+            'cached' => false,
+            'error' => 'Could not connect to the source database. Use the refresh button to retry.',
+        ], 200);
+    }
+
+    /**
+     * POST /sources/{source}/risk-scores/eligibility/refresh
+     *
+     * Clear cached eligibility and recompute. Returns immediately if source is unreachable.
+     */
+    public function refreshEligibility(Source $source): JsonResponse
+    {
+        $cacheKey = "risk-scores:eligibility:{$source->id}";
+        Cache::forget($cacheKey);
+        Cache::forget("{$cacheKey}:timestamp");
+
+        $result = $this->computeEligibility($source);
+
+        if ($result !== null) {
+            Cache::put($cacheKey, $result, now()->addHours(4));
+            Cache::put("{$cacheKey}:timestamp", now()->toIso8601String(), now()->addHours(4));
+
+            return response()->json([
+                'data' => $result,
+                'cached' => false,
+                'cached_at' => now()->toIso8601String(),
+            ]);
+        }
+
+        return response()->json([
+            'data' => null,
+            'error' => 'Source database is unreachable. Check connection settings.',
+        ], 200);
+    }
+
+    /**
+     * Compute eligibility for all scores on a source, with timeout protection.
+     *
+     * @return array<string, array{eligible: bool, patient_count: int, missing: list<string>}>|null
+     */
+    private function computeEligibility(Source $source): ?array
+    {
         $connection = $source->source_connection ?? 'omop';
         $cdmSchema = $source->getTableQualifier(DaimonType::CDM);
 
         if (! $cdmSchema) {
-            return response()->json(['error' => 'Source has no CDM daimon configured.'], 422);
+            return null;
         }
 
-        $result = [];
+        // Quick connectivity check with 5-second timeout
+        try {
+            DB::connection($connection)->statement('SET statement_timeout = 5000');
+            DB::connection($connection)->selectOne('SELECT 1');
+        } catch (\Throwable) {
+            return null;
+        }
 
+        // Check which tables exist and have rows — batch unique tables first
+        $allTables = [];
         foreach ($this->registry->all() as $score) {
-            $requiredTables = $score->requiredTables();
-            $missing = [];
-            $patientCount = 0;
-
-            foreach ($requiredTables as $table) {
-                try {
-                    $count = DB::connection($connection)
-                        ->selectOne("SELECT COUNT(*) AS cnt FROM {$cdmSchema}.{$table}");
-                    if ((int) ($count->cnt ?? 0) === 0) {
-                        $missing[] = "{$table} (empty)";
-                    }
-                } catch (\Throwable $e) {
-                    $missing[] = "{$table} (not found)";
-                }
+            foreach ($score->requiredTables() as $table) {
+                $allTables[$table] = true;
             }
+        }
 
-            if (empty($missing)) {
-                try {
-                    $row = DB::connection($connection)
-                        ->selectOne("SELECT COUNT(*) AS cnt FROM {$cdmSchema}.person");
-                    $patientCount = (int) ($row->cnt ?? 0);
-                } catch (\Throwable) {
-                    // ignore
+        $tableStatus = [];
+        foreach (array_keys($allTables) as $table) {
+            try {
+                $count = DB::connection($connection)
+                    ->selectOne("SELECT COUNT(*) AS cnt FROM {$cdmSchema}.{$table} LIMIT 1");
+                $tableStatus[$table] = (int) ($count->cnt ?? 0) > 0;
+            } catch (\Throwable) {
+                $tableStatus[$table] = false;
+            }
+        }
+
+        // Get patient count once
+        $patientCount = 0;
+        try {
+            $row = DB::connection($connection)
+                ->selectOne("SELECT COUNT(*) AS cnt FROM {$cdmSchema}.person");
+            $patientCount = (int) ($row->cnt ?? 0);
+        } catch (\Throwable) {
+            // ignore
+        }
+
+        // Build per-score eligibility from table status
+        $result = [];
+        foreach ($this->registry->all() as $score) {
+            $missing = [];
+            foreach ($score->requiredTables() as $table) {
+                if (! ($tableStatus[$table] ?? false)) {
+                    $missing[] = $table;
                 }
             }
 
             $result[$score->scoreId()] = [
                 'eligible' => empty($missing),
-                'patient_count' => $patientCount,
+                'patient_count' => empty($missing) ? $patientCount : 0,
                 'missing' => $missing,
             ];
         }
 
-        return response()->json($result);
+        // Reset statement timeout
+        try {
+            DB::connection($connection)->statement('SET statement_timeout = 0');
+        } catch (\Throwable) {
+            // ignore
+        }
+
+        return $result;
     }
 
     /**

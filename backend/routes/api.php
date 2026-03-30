@@ -474,6 +474,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/', [PopulationRiskScoreController::class, 'index']);
             Route::post('/run', [PopulationRiskScoreController::class, 'run']);
             Route::get('/eligibility', [PopulationRiskScoreController::class, 'eligibility']);
+            Route::post('/eligibility/refresh', [PopulationRiskScoreController::class, 'refreshEligibility']);
             Route::post('/recommend', [RiskScoreAnalysisController::class, 'recommend']);
             Route::get('/{scoreId}', [PopulationRiskScoreController::class, 'show']);
         });

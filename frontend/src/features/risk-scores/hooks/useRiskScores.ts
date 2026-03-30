@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchCatalogue,
   fetchEligibility,
+  refreshEligibility,
   fetchSourceResults,
   fetchScoreDetail,
   runRiskScores,
@@ -46,6 +47,20 @@ export function useRiskScoreEligibility(sourceId: number) {
     queryKey: RISK_SCORE_KEYS.eligibility(sourceId),
     queryFn: () => fetchEligibility(sourceId),
     enabled: sourceId > 0,
+    staleTime: 4 * 60 * 60 * 1000, // 4 hours — matches backend cache TTL
+    retry: 1,
+  });
+}
+
+export function useRefreshEligibility() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (sourceId: number) => refreshEligibility(sourceId),
+    onSuccess: (_data, sourceId) => {
+      qc.invalidateQueries({
+        queryKey: RISK_SCORE_KEYS.eligibility(sourceId),
+      });
+    },
   });
 }
 
