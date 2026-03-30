@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Api\V1\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\App\PacsConnection;
 use App\Models\App\SystemSetting;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -394,10 +396,8 @@ class SystemHealthController extends Controller
             ];
         }
 
-        $baseUrl = $this->orthancBaseUrl($conn);
-
         try {
-            $response = $this->orthancClient($conn)->get("{$baseUrl}/statistics");
+            $response = $this->orthancRequest($conn, '/statistics');
 
             if ($response->successful()) {
                 $stats = $response->json();
@@ -872,10 +872,8 @@ class SystemHealthController extends Controller
             return ['configured' => false];
         }
 
-        $baseUrl = $this->orthancBaseUrl($conn);
-
         try {
-            $response = $this->orthancClient($conn)->get("{$baseUrl}/system");
+            $response = $this->orthancRequest($conn, '/system');
 
             if ($response->successful()) {
                 $sys = $response->json();
@@ -991,15 +989,67 @@ class SystemHealthController extends Controller
         return rtrim(str_replace('/dicom-web', '', $conn->base_url), '/');
     }
 
+    /**
+     * @return list<string>
+     */
+    private function orthancBaseUrls(PacsConnection $conn): array
+    {
+        $primary = $this->orthancBaseUrl($conn);
+        $parts = parse_url($primary);
+
+        if ($parts === false || ! isset($parts['host'])) {
+            return [$primary];
+        }
+
+        $host = strtolower($parts['host']);
+        $scheme = $parts['scheme'] ?? 'http';
+        $port = isset($parts['port']) ? ':'.$parts['port'] : '';
+        $path = isset($parts['path']) ? rtrim($parts['path'], '/') : '';
+
+        $candidates = [$primary];
+        if (in_array($host, ['orthanc', 'parthenon-orthanc'], true)) {
+            $candidates[] = "{$scheme}://127.0.0.1{$port}{$path}";
+            $candidates[] = "{$scheme}://localhost{$port}{$path}";
+        }
+
+        return array_values(array_unique($candidates));
+    }
+
+    private function orthancRequest(PacsConnection $conn, string $endpoint): Response
+    {
+        $lastException = null;
+
+        foreach ($this->orthancBaseUrls($conn) as $baseUrl) {
+            try {
+                return $this->orthancClient($conn)->get("{$baseUrl}{$endpoint}");
+            } catch (ConnectionException $e) {
+                $lastException = $e;
+            }
+        }
+
+        if ($lastException instanceof ConnectionException) {
+            throw $lastException;
+        }
+
+        throw new \RuntimeException('Orthanc request failed without a response.');
+    }
+
     private function orthancClient(PacsConnection $conn): PendingRequest
     {
         $client = Http::timeout(5);
         $credentials = $conn->credentials ?? [];
+        $username = $credentials['username'] ?? '';
+        $password = $credentials['password'] ?? '';
+
+        if (($conn->type ?? null) === 'orthanc') {
+            $username = env('ORTHANC_USER', $username);
+            $password = env('ORTHANC_PASSWORD', $password);
+        }
 
         return match ($conn->auth_type) {
             'basic' => $client->withBasicAuth(
-                $credentials['username'] ?? '',
-                $credentials['password'] ?? '',
+                $username,
+                $password,
             ),
             'bearer' => $client->withToken($credentials['token'] ?? ''),
             default => $client,
