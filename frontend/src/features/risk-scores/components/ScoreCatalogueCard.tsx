@@ -1,14 +1,20 @@
 import {
   CheckCircle2,
+  Clock3,
   XCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { RiskScoreModel, ScoreEligibility } from "../types/riskScore";
+import type {
+  RiskScoreModel,
+  ScoreEligibility,
+  RiskScoreSourceSummaryItem,
+} from "../types/riskScore";
 
 interface ScoreCatalogueCardProps {
   score: RiskScoreModel;
   color: string;
   eligibility: ScoreEligibility | undefined;
+  sourceResult: RiskScoreSourceSummaryItem | undefined;
   sourceSelected: boolean;
   onClick: () => void;
 }
@@ -17,11 +23,13 @@ export function ScoreCatalogueCard({
   score,
   color,
   eligibility,
+  sourceResult,
   sourceSelected,
   onClick,
 }: ScoreCatalogueCardProps) {
   const isEligible = eligibility?.eligible === true;
   const patientCount = eligibility?.patient_count ?? 0;
+  const hasCompletedResult = sourceResult != null;
 
   return (
     <button
@@ -47,29 +55,37 @@ export function ScoreCatalogueCard({
         {score.description}
       </p>
 
-      {/* Eligibility badge */}
-      {sourceSelected && eligibility && (
-        <span
-          className={cn(
-            "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium",
-            isEligible
-              ? "bg-[#2DD4BF]/10 text-[#2DD4BF]"
-              : "bg-[#5A5650]/10 text-[#5A5650]",
-          )}
-        >
-          {isEligible ? (
-            <>
-              <CheckCircle2 size={10} />
-              {patientCount.toLocaleString()} eligible
-            </>
-          ) : (
-            <>
-              <XCircle size={10} />
-              Insufficient data
-            </>
-          )}
-        </span>
-      )}
+      <div className="flex flex-wrap items-center gap-1.5">
+        {sourceSelected && eligibility && (
+          <span
+            className={cn(
+              "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium",
+              isEligible
+                ? "bg-[#2DD4BF]/10 text-[#2DD4BF]"
+                : "bg-[#5A5650]/10 text-[#5A5650]",
+            )}
+          >
+            {isEligible ? (
+              <>
+                <CheckCircle2 size={10} />
+                {patientCount.toLocaleString()} eligible
+              </>
+            ) : (
+              <>
+                <XCircle size={10} />
+                Insufficient data
+              </>
+            )}
+          </span>
+        )}
+
+        {sourceSelected && hasCompletedResult && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-[#60A5FA]/10 px-2 py-0.5 text-[10px] font-medium text-[#60A5FA]">
+            <Clock3 size={10} />
+            Completed
+          </span>
+        )}
+      </div>
     </button>
   );
 }

@@ -30,8 +30,12 @@ import {
   useRiskScoreCatalogue,
   useRiskScoreEligibility,
   useRefreshEligibility,
+  useRiskScoreResults,
 } from "../hooks/useRiskScores";
-import type { RiskScoreAnalysis } from "../types/riskScore";
+import type {
+  RiskScoreAnalysis,
+  RiskScoreSourceSummaryItem,
+} from "../types/riskScore";
 import { ANALYSIS_STATUS_COLORS, CATEGORY_ORDER } from "../types/riskScore";
 
 const STATUS_OPTIONS = [
@@ -87,6 +91,7 @@ export default function RiskScoreHubPage() {
   const { data: allAnalysesData } = useAllRiskScoreAnalyses();
   const { data: catalogue } = useRiskScoreCatalogue();
   const { data: eligibility, isLoading: loadingEligibility } = useRiskScoreEligibility(sourceId);
+  const { data: sourceResults } = useRiskScoreResults(sourceId);
   const refreshEligibilityMutation = useRefreshEligibility();
 
   const facets = data?.facets;
@@ -134,6 +139,41 @@ export default function RiskScoreHubPage() {
       a.executions?.some((e) => e.status === drilldownStatus)
     );
   }, [allAnalysesData, drilldownStatus]);
+
+  const completedV2ScoreIdsForSource = useMemo(() => {
+    const ids = new Set<string>();
+
+    for (const analysis of allAnalysesData?.data ?? []) {
+      const hasCompletedExecutionForSource = analysis.executions?.some(
+        (execution) =>
+          execution.source_id === sourceId && execution.status === "completed",
+      );
+
+      if (!hasCompletedExecutionForSource) continue;
+
+      for (const scoreId of analysis.design_json.scoreIds ?? []) {
+        ids.add(scoreId);
+      }
+    }
+
+    return ids;
+  }, [allAnalysesData, sourceId]);
+
+  const sourceSummaryByScore = useMemo(() => {
+    const map = new Map<string, RiskScoreSourceSummaryItem>();
+
+    for (const summary of sourceResults?.summary ?? []) {
+      map.set(summary.score_id, summary);
+    }
+
+    return map;
+  }, [sourceResults]);
+
+  const legacyOnlySummaries = useMemo(() => {
+    return (sourceResults?.summary ?? []).filter(
+      (summary) => !completedV2ScoreIdsForSource.has(summary.score_id),
+    );
+  }, [sourceResults, completedV2ScoreIdsForSource]);
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -510,6 +550,50 @@ export default function RiskScoreHubPage() {
             )}
           </div>
 
+          {sourceId > 0 && legacyOnlySummaries.length > 0 && (
+            <div className="rounded-xl border border-[#60A5FA]/20 bg-[#60A5FA]/5 px-5 py-4">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-sm font-medium text-[#60A5FA]">
+                    Source-Level Completed Scores
+                  </p>
+                  <p className="mt-1 text-xs text-[#93C5FD]">
+                    {legacyOnlySummaries.length} completed score
+                    {legacyOnlySummaries.length === 1 ? "" : "s"} exist for the active source but are not attached to any v2 analysis execution.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setHubTab("catalogue")}
+                  className="shrink-0 text-xs text-[#60A5FA] hover:text-[#93C5FD] transition-colors"
+                >
+                  Open Catalogue
+                </button>
+              </div>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                {legacyOnlySummaries.map((summary) => (
+                  <button
+                    key={summary.score_id}
+                    type="button"
+                    onClick={() => {
+                      setHubTab("catalogue");
+                      setSelectedScoreId(summary.score_id);
+                    }}
+                    className="rounded-full border border-[#60A5FA]/30 bg-[#60A5FA]/10 px-3 py-1.5 text-left transition-colors hover:bg-[#60A5FA]/20"
+                  >
+                    <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#93C5FD]">
+                      {summary.score_id}
+                    </span>
+                    <span className="ml-2 text-[11px] font-medium text-[#E0F2FE]">
+                      {summary.score_name}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Analysis Content */}
           {viewMode === "table" ? (
             <RiskScoreAnalysisList
@@ -602,6 +686,11 @@ export default function RiskScoreHubPage() {
                     {Object.keys(eligibility).length} scores eligible
                   </span>
                 )}
+                {sourceResults && sourceResults.scores_computed > 0 && (
+                  <span className="text-xs text-[#60A5FA]">
+                    {sourceResults.scores_computed} completed results
+                  </span>
+                )}
                 <button
                   type="button"
                   onClick={() => refreshEligibilityMutation.mutate(sourceId)}
@@ -641,6 +730,11 @@ export default function RiskScoreHubPage() {
                     {scores.filter((s) => eligibility[s.score_id]?.eligible).length} eligible
                   </span>
                 )}
+                {sourceId > 0 && sourceResults && (
+                  <span className="text-[10px] text-[#60A5FA]">
+                    {scores.filter((s) => sourceSummaryByScore.has(s.score_id)).length} completed
+                  </span>
+                )}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
                 {scores.map((score) => (
@@ -649,6 +743,7 @@ export default function RiskScoreHubPage() {
                     score={score}
                     color={color}
                     eligibility={eligibility?.[score.score_id]}
+                    sourceResult={sourceSummaryByScore.get(score.score_id)}
                     sourceSelected={sourceId > 0}
                     onClick={() => setSelectedScoreId(score.score_id)}
                   />

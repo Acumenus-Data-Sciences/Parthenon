@@ -35,7 +35,10 @@ class RiskScoreAnalysisController extends Controller
         $search = $request->query('search');
         $status = $request->query('status');
 
-        $query = RiskScoreAnalysis::with(['author', 'executions'])
+        $query = RiskScoreAnalysis::with([
+            'author',
+            'executions' => fn ($q) => $q->orderByDesc('id'),
+        ])
             ->orderBy('updated_at', 'desc');
 
         if ($search) {
@@ -163,7 +166,10 @@ class RiskScoreAnalysisController extends Controller
      */
     public function show(RiskScoreAnalysis $analysis): JsonResponse
     {
-        $analysis->load(['author', 'executions.source']);
+        $analysis->load([
+            'author',
+            'executions' => fn ($q) => $q->with('source')->orderByDesc('id'),
+        ]);
 
         return response()->json([
             'data' => $analysis,

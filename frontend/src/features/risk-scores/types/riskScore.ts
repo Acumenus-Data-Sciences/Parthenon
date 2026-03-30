@@ -93,6 +93,16 @@ export interface RiskScoreSourceResults {
   >;
 }
 
+export interface RiskScoreSourceSummaryItem {
+  score_id: string;
+  score_name: string;
+  category: string;
+  total_patients: number;
+  avg_confidence: number | null;
+  avg_completeness: number | null;
+  last_run: string | null;
+}
+
 export const CATEGORY_ORDER = [
   "Cardiovascular",
   "Comorbidity Burden",
