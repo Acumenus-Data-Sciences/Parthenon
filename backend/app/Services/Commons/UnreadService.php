@@ -22,7 +22,7 @@ class UnreadService
     {
         $cacheKey = "commons:unread:{$user->id}";
 
-        return Cache::store('redis')->remember($cacheKey, self::CACHE_TTL, function () use ($user) {
+        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($user) {
             return $this->computeUnreadCounts($user);
         });
     }
@@ -32,7 +32,7 @@ class UnreadService
      */
     public function invalidateCache(User $user): void
     {
-        Cache::store('redis')->forget("commons:unread:{$user->id}");
+        Cache::forget("commons:unread:{$user->id}");
     }
 
     /**
@@ -40,7 +40,7 @@ class UnreadService
      */
     public function invalidateCacheForUserId(int $userId): void
     {
-        Cache::store('redis')->forget("commons:unread:{$userId}");
+        Cache::forget("commons:unread:{$userId}");
     }
 
     /**
