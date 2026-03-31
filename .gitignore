@@ -158,3 +158,8 @@ scripts/**/__pycache__/
 
 # Local Wazuh certs
 acropolis/config/wazuh/certs/
+
+# Local packaging artifacts
+build/
+dist/
+.codex
