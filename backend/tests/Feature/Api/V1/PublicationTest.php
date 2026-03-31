@@ -89,7 +89,7 @@ it('returns 503 when AI service is unavailable', function () {
             'context' => ['results_summary' => 'HR 0.85 (0.72-0.99)'],
         ])
         ->assertStatus(503)
-        ->assertJsonPath('message', 'AI service is unavailable. Please try again later.');
+        ->assertJsonPath('message', 'AI narrative generation failed: Connection refused');
 });
 
 it('validates required fields for publication export', function () {

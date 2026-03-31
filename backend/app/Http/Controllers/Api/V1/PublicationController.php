@@ -60,9 +60,9 @@ class PublicationController extends Controller
             return response()->json([
                 'message' => $e->getMessage(),
             ], 422);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return response()->json([
-                'message' => 'AI service is unavailable. Please try again later.',
+                'message' => 'AI narrative generation failed: '.$e->getMessage(),
             ], 503);
         }
     }
