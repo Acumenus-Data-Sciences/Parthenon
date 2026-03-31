@@ -67,6 +67,36 @@ interface StudyListProps {
   searchActive?: boolean;
 }
 
+function renderSortHeader({
+  label,
+  field,
+  sortKey,
+  sortDir,
+  onToggleSort,
+}: {
+  label: string;
+  field: SortKey;
+  sortKey: SortKey | null;
+  sortDir: SortDir;
+  onToggleSort: (field: SortKey) => void;
+}) {
+  return (
+    <th
+      onClick={() => onToggleSort(field)}
+      className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D] cursor-pointer select-none hover:text-[#C5C0B8] transition-colors"
+    >
+      <span className="inline-flex items-center gap-1">
+        {label}
+        {sortKey === field ? (
+          sortDir === "asc" ? <ChevronUp size={12} className="text-[#2DD4BF]" /> : <ChevronDown size={12} className="text-[#2DD4BF]" />
+        ) : (
+          <ChevronUp size={12} className="opacity-0 group-hover:opacity-30" />
+        )}
+      </span>
+    </th>
+  );
+}
+
 export function StudyList({
   studies,
   onSelect,
@@ -101,22 +131,6 @@ export function StudyList({
       return sortDir === "desc" ? -cmp : cmp;
     });
   }, [studies, sortKey, sortDir]);
-
-  const SortHeader = ({ label, field }: { label: string; field: SortKey }) => (
-    <th
-      onClick={() => toggleSort(field)}
-      className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D] cursor-pointer select-none hover:text-[#C5C0B8] transition-colors"
-    >
-      <span className="inline-flex items-center gap-1">
-        {label}
-        {sortKey === field ? (
-          sortDir === "asc" ? <ChevronUp size={12} className="text-[#2DD4BF]" /> : <ChevronDown size={12} className="text-[#2DD4BF]" />
-        ) : (
-          <ChevronUp size={12} className="opacity-0 group-hover:opacity-30" />
-        )}
-      </span>
-    </th>
-  );
 
   if (isLoading) {
     return (
@@ -159,14 +173,14 @@ export function StudyList({
         <table className="w-full">
           <thead>
             <tr className="bg-[#1C1C20]">
-              <SortHeader label="Title" field="title" />
-              <SortHeader label="Type" field="study_type" />
-              <SortHeader label="Status" field="status" />
-              <SortHeader label="Priority" field="priority" />
+              {renderSortHeader({ label: "Title", field: "title", sortKey, sortDir, onToggleSort: toggleSort })}
+              {renderSortHeader({ label: "Type", field: "study_type", sortKey, sortDir, onToggleSort: toggleSort })}
+              {renderSortHeader({ label: "Status", field: "status", sortKey, sortDir, onToggleSort: toggleSort })}
+              {renderSortHeader({ label: "Priority", field: "priority", sortKey, sortDir, onToggleSort: toggleSort })}
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                 PI
               </th>
-              <SortHeader label="Created" field="created_at" />
+              {renderSortHeader({ label: "Created", field: "created_at", sortKey, sortDir, onToggleSort: toggleSort })}
             </tr>
           </thead>
           <tbody>

@@ -216,7 +216,7 @@ function SendInvitationModal({
     if (selectedLink != null) {
       setDeliveryEmail(selectedLink.contact?.delivery_email ?? "");
     }
-  }, [selectedLink?.id]);
+  }, [selectedLink]);
 
   const footer = (
     <div className="flex items-center justify-end gap-3">

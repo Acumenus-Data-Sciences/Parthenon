@@ -36,6 +36,40 @@ interface DomainGroup {
   meanAbsSmd: number | null;
 }
 
+function renderSortableHeader({
+  field,
+  label,
+  className,
+  sortField,
+  onSort,
+}: {
+  field: SortField;
+  label: string;
+  className?: string;
+  sortField: SortField;
+  onSort: (field: SortField) => void;
+}) {
+  return (
+    <th
+      className={cn(
+        "px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-[#8A857D] cursor-pointer hover:text-[#C5C0B8] transition-colors select-none",
+        className,
+      )}
+      onClick={() => onSort(field)}
+    >
+      <span className="inline-flex items-center gap-1">
+        {label}
+        <ArrowUpDown
+          size={10}
+          className={
+            sortField === field ? "text-[#2DD4BF]" : "text-[#5A5650]"
+          }
+        />
+      </span>
+    </th>
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Domain classification
 // ---------------------------------------------------------------------------
@@ -233,34 +267,6 @@ export function FeatureComparisonTable({
     });
   };
 
-  const SortableHeader = ({
-    field,
-    label,
-    className,
-  }: {
-    field: SortField;
-    label: string;
-    className?: string;
-  }) => (
-    <th
-      className={cn(
-        "px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-[#8A857D] cursor-pointer hover:text-[#C5C0B8] transition-colors select-none",
-        className,
-      )}
-      onClick={() => handleSort(field)}
-    >
-      <span className="inline-flex items-center gap-1">
-        {label}
-        <ArrowUpDown
-          size={10}
-          className={
-            sortField === field ? "text-[#2DD4BF]" : "text-[#5A5650]"
-          }
-        />
-      </span>
-    </th>
-  );
-
   const colSpan = hasComparator ? 6 : 3;
 
   return (
@@ -290,38 +296,50 @@ export function FeatureComparisonTable({
           <table className="w-full">
             <thead className="sticky top-0 z-10">
               <tr className="bg-[#1C1C20]">
-                <SortableHeader
-                  field="feature_name"
-                  label="Feature Name"
-                  className="text-left"
-                />
-                <SortableHeader
-                  field="target_count"
-                  label={`${targetLabel} Count`}
-                  className="text-right"
-                />
-                <SortableHeader
-                  field="target_percent"
-                  label={`${targetLabel} %`}
-                  className="text-right"
-                />
+                {renderSortableHeader({
+                  field: "feature_name",
+                  label: "Feature Name",
+                  className: "text-left",
+                  sortField,
+                  onSort: handleSort,
+                })}
+                {renderSortableHeader({
+                  field: "target_count",
+                  label: `${targetLabel} Count`,
+                  className: "text-right",
+                  sortField,
+                  onSort: handleSort,
+                })}
+                {renderSortableHeader({
+                  field: "target_percent",
+                  label: `${targetLabel} %`,
+                  className: "text-right",
+                  sortField,
+                  onSort: handleSort,
+                })}
                 {hasComparator && (
                   <>
-                    <SortableHeader
-                      field="comparator_count"
-                      label={`${comparatorLabel} Count`}
-                      className="text-right"
-                    />
-                    <SortableHeader
-                      field="comparator_percent"
-                      label={`${comparatorLabel} %`}
-                      className="text-right"
-                    />
-                    <SortableHeader
-                      field="smd"
-                      label="SMD"
-                      className="text-right"
-                    />
+                    {renderSortableHeader({
+                      field: "comparator_count",
+                      label: `${comparatorLabel} Count`,
+                      className: "text-right",
+                      sortField,
+                      onSort: handleSort,
+                    })}
+                    {renderSortableHeader({
+                      field: "comparator_percent",
+                      label: `${comparatorLabel} %`,
+                      className: "text-right",
+                      sortField,
+                      onSort: handleSort,
+                    })}
+                    {renderSortableHeader({
+                      field: "smd",
+                      label: "SMD",
+                      className: "text-right",
+                      sortField,
+                      onSort: handleSort,
+                    })}
                   </>
                 )}
               </tr>
