@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Check,
   X,
@@ -695,18 +695,23 @@ export function AtlasMigrationWizard({ onClose }: Props) {
   const isImporting = currentStep === 3 && migrationId !== null;
   const { data: migrationStatus } = useMigrationStatus(migrationId, isImporting ? 2000 : undefined);
 
-  // Auto-advance from import to summary when complete
-  useEffect(() => {
-    if (migrationStatus && (migrationStatus.status === "completed" || migrationStatus.status === "failed") && currentStep === 3) {
-      setTimeout(() => goTo(4), 800);
-    }
-  }, [migrationStatus?.status]);
-
-  function goTo(index: number) {
+  const goTo = useCallback((index: number) => {
     setSlideDir(index > currentStep ? "forward" : "back");
     setAnimKey((k) => k + 1);
     setCurrentStep(index);
-  }
+  }, [currentStep]);
+
+  // Auto-advance from import to summary when complete
+  useEffect(() => {
+    if (
+      migrationStatus &&
+      (migrationStatus.status === "completed" || migrationStatus.status === "failed") &&
+      currentStep === 3
+    ) {
+      const timeoutId = window.setTimeout(() => goTo(4), 800);
+      return () => window.clearTimeout(timeoutId);
+    }
+  }, [migrationStatus, currentStep, goTo]);
 
   async function handleTest() {
     setTestResult(null);

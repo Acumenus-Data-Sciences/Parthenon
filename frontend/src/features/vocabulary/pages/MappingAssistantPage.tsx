@@ -742,14 +742,12 @@ export default function MappingAssistantPage() {
   // Auto-accept high confidence
   const handleAutoAccept = useCallback(() => {
     const threshold = 0.9;
-    let count = 0;
     setDecisions((prev) => {
       const next = new Map(prev);
       for (const r of results) {
         const display = overrides.get(r.source_term) ?? r.best_match;
         if (display && display.confidence >= threshold && next.get(r.source_term) !== "accepted") {
           next.set(r.source_term, "accepted");
-          count++;
         }
       }
       return next;

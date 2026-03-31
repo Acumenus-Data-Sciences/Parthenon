@@ -37,7 +37,11 @@ function RoleEditor({
   const toggle = (perm: string) =>
     setSelected((s) => {
       const n = new Set(s);
-      n.has(perm) ? n.delete(perm) : n.add(perm);
+      if (n.has(perm)) {
+        n.delete(perm);
+      } else {
+        n.add(perm);
+      }
       return n;
     });
 
@@ -45,7 +49,13 @@ function RoleEditor({
     const all = perms.every((p) => selected.has(p.name));
     setSelected((s) => {
       const n = new Set(s);
-      perms.forEach((p) => (all ? n.delete(p.name) : n.add(p.name)));
+      perms.forEach((p) => {
+        if (all) {
+          n.delete(p.name);
+        } else {
+          n.add(p.name);
+        }
+      });
       return n;
     });
   };

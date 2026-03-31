@@ -45,7 +45,11 @@ export function PermissionMatrix({ roles, permissionsByDomain }: Props) {
     if (PROTECTED_ROLES.includes(roleName)) return;
     setMatrix((m) => {
       const s = new Set(m[roleName]);
-      s.has(perm) ? s.delete(perm) : s.add(perm);
+      if (s.has(perm)) {
+        s.delete(perm);
+      } else {
+        s.add(perm);
+      }
       return { ...m, [roleName]: s };
     });
     mark(roleName);
@@ -68,7 +72,11 @@ export function PermissionMatrix({ roles, permissionsByDomain }: Props) {
       const next = { ...m };
       editableRoles.forEach((r) => {
         const s = new Set(next[r.name]);
-        allOn ? s.delete(perm) : s.add(perm);
+        if (allOn) {
+          s.delete(perm);
+        } else {
+          s.add(perm);
+        }
         next[r.name] = s;
       });
       return next;
@@ -85,7 +93,13 @@ export function PermissionMatrix({ roles, permissionsByDomain }: Props) {
       const next = { ...m };
       editableRoles.forEach((r) => {
         const s = new Set(next[r.name]);
-        perms.forEach((p) => (allOn ? s.delete(p.name) : s.add(p.name)));
+        perms.forEach((p) => {
+          if (allOn) {
+            s.delete(p.name);
+          } else {
+            s.add(p.name);
+          }
+        });
         next[r.name] = s;
       });
       return next;
