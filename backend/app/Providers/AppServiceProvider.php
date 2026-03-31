@@ -257,12 +257,22 @@ class AppServiceProvider extends ServiceProvider
 
         $base = Config::get('database.connections.pgsql', []);
 
+        $baseDatabase = (string) ($base['database'] ?? 'parthenon');
+        $configuredTestDatabase = (string) env('DB_TEST_DATABASE', 'parthenon_testing');
+
+        // In CI, phpunit.xml may force DB_TEST_DATABASE=parthenon_testing while the
+        // job provisions only DB_DATABASE=..._test. Prefer the provisioned test DB.
+        $testDatabase = $configuredTestDatabase;
+        if ($configuredTestDatabase === 'parthenon_testing' && str_ends_with($baseDatabase, '_test')) {
+            $testDatabase = $baseDatabase;
+        }
+
         config([
             'database.connections.pgsql_testing' => array_merge($base, [
                 'url' => env('DB_TEST_URL'),
                 'host' => env('DB_TEST_HOST', $base['host'] ?? '127.0.0.1'),
                 'port' => env('DB_TEST_PORT', $base['port'] ?? '5432'),
-                'database' => env('DB_TEST_DATABASE', 'parthenon_testing'),
+                'database' => $testDatabase,
                 'username' => env('DB_TEST_USERNAME', $base['username'] ?? 'parthenon'),
                 'password' => env('DB_TEST_PASSWORD', $base['password'] ?? ''),
                 'search_path' => 'app,php',
