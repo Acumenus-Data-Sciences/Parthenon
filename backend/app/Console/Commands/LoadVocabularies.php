@@ -69,6 +69,12 @@ class LoadVocabularies extends Command
 
     public function handle(): int
     {
+        if (! $this->hasUmlsApiKey()) {
+            $this->error('UMLS_API_KEY is not configured. Vocabulary imports require it for CPT-4 and related vocabulary workflows.');
+
+            return self::FAILURE;
+        }
+
         $zipPath = $this->option('zip');
         $csvPath = $this->option('path');
 
@@ -134,6 +140,11 @@ class LoadVocabularies extends Command
         $this->info('Vocabulary loading complete!');
 
         return self::SUCCESS;
+    }
+
+    private function hasUmlsApiKey(): bool
+    {
+        return trim((string) env('UMLS_API_KEY', '')) !== '';
     }
 
     private function extractZip(string $zipPath): ?string

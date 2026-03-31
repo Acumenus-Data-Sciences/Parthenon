@@ -268,13 +268,13 @@ function SectionTitle({
   color,
   title,
 }: {
-  icon: React.ComponentType<{ size?: number; className?: string; style?: React.CSSProperties }>;
+  icon: React.ComponentType<{ size?: number; className?: string; color?: string }>;
   color: string;
   title: string;
 }) {
   return (
     <div className="flex items-center gap-2 mb-4">
-      <Icon size={16} style={{ color }} />
+      <Icon size={16} color={color} />
       <h3 className="text-sm font-semibold text-[#F0EDE8]">{title}</h3>
     </div>
   );
@@ -286,7 +286,7 @@ function InsightCard({
   title,
   text,
 }: {
-  icon: React.ComponentType<{ size?: number; className?: string; style?: React.CSSProperties }>;
+  icon: React.ComponentType<{ size?: number; className?: string; color?: string }>;
   color: string;
   title: string;
   text: string;
@@ -297,7 +297,7 @@ function InsightCard({
         className="flex items-center justify-center w-7 h-7 rounded-md shrink-0"
         style={{ backgroundColor: `${color}15` }}
       >
-        <Icon size={12} style={{ color }} />
+        <Icon size={12} color={color} />
       </div>
       <div className="flex-1 min-w-0">
         <h4 className="text-[11px] font-semibold text-[#F0EDE8] mb-0.5">{title}</h4>

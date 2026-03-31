@@ -24,6 +24,9 @@ it to Parthenon's installer to avoid prompting for values already collected.
       "app_url":        "https://parthenon.acumenus.net",
       "timezone":       "America/New_York",
       "experience":     "Experienced",
+      "edition":        "Enterprise Edition",
+      "enterprise_key": "example-enterprise-key",
+      "umls_api_key":   "example-umls-api-key",
       "db_password":    "optional-override"
     }
 
@@ -34,7 +37,10 @@ Field details:
 - ``admin_password`` — Pre-populates the admin password (still confirmable).
 - ``app_url``        — Pre-populates the application URL prompt.
 - ``timezone``       — Pre-populates the timezone prompt (IANA format).
-- ``experience``     — Skips the experience-level question ("First-time" or "Experienced").
+- ``experience``     — Pre-populates the experience-level question ("Beginner" or "Experienced").
+- ``edition``        — Pre-selects "Community Edition" or "Enterprise Edition".
+- ``enterprise_key`` — Supplies the Enterprise Edition key when required.
+- ``umls_api_key``   — Supplies the UMLS key required for vocabulary import workflows.
 - ``db_password``    — Pre-populates the database password instead of auto-generating.
 
 Output: ``.install-credentials`` (JSON, chmod 600) is always written after
@@ -58,6 +64,21 @@ from . import utils
 
 console = Console()
 REPO_ROOT = utils.REPO_ROOT
+
+EXPERIENCE_CHOICES = ["Beginner", "Experienced"]
+LEGACY_EXPERIENCE_ALIASES = {"First-time": "Beginner"}
+EDITION_CHOICES = ["Community Edition", "Enterprise Edition"]
+CDM_DIALECT_CHOICES = [
+    "PostgreSQL",
+    "Microsoft SQL Server",
+    "Google BigQuery",
+    "Amazon Redshift",
+    "Snowflake",
+    "Oracle",
+    "Not sure yet / will configure later",
+]
+ENV_CHOICES = ["local", "production"]
+MODULE_CHOICES = ["research", "commons", "ai_knowledge", "data_pipeline", "infrastructure"]
 
 
 def _generate_password(length: int = 24) -> str:
@@ -101,6 +122,222 @@ def _validate_vocab_zip(path: str) -> bool | str:
     return True
 
 
+def _sanitize_modules(modules: list[str] | tuple[str, ...] | None) -> list[str]:
+    if not modules:
+        return list(MODULE_CHOICES)
+    return [module for module in modules if module in MODULE_CHOICES]
+
+
+def _coerce_bool(value: Any, *, default: bool) -> bool:
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        lowered = value.strip().lower()
+        if lowered in {"1", "true", "yes", "y", "on"}:
+            return True
+        if lowered in {"0", "false", "no", "n", "off"}:
+            return False
+    return bool(value)
+
+
+def _coerce_int(value: Any, *, default: int) -> int:
+    if value in (None, ""):
+        return default
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _next_free_port(preferred: int, *, used: set[int]) -> int:
+    port = preferred
+    while port in used or not utils.is_port_free(port):
+        port += 1
+    used.add(port)
+    return port
+
+
+def _resolve_port(seed: dict[str, Any], key: str, *, default: int, used: set[int], fixed: bool = False) -> int:
+    if key in seed and seed.get(key) not in (None, ""):
+        port = _coerce_int(seed.get(key), default=default)
+        used.add(port)
+        return port
+    if fixed:
+        used.add(default)
+        return default
+    return _next_free_port(default, used=used)
+
+
+def _validated_choice(value: Any, *, choices: list[str], default: str) -> str:
+    if isinstance(value, str):
+        value = LEGACY_EXPERIENCE_ALIASES.get(value, value)
+    if isinstance(value, str) and value in choices:
+        return value
+    return default
+
+
+def build_config_defaults(overrides: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Resolve a complete config dict from partial seed values."""
+    seed = dict(overrides or {})
+    modules = _sanitize_modules(seed.get("modules"))
+    if not modules:
+        modules = list(MODULE_CHOICES)
+    used_ports: set[int] = set()
+
+    app_url = (seed.get("app_url") or "http://localhost").strip()
+    ollama_url = (seed.get("ollama_url") or "http://host.docker.internal:11434").strip()
+
+    enable_research = "research" in modules
+    enable_commons = "commons" in modules
+    enable_ai = "ai_knowledge" in modules
+    enable_pipeline = "data_pipeline" in modules
+    enable_infra = "infrastructure" in modules
+
+    cfg = {
+        "experience": _validated_choice(
+            seed.get("experience"),
+            choices=EXPERIENCE_CHOICES,
+            default="Beginner",
+        ),
+        "edition": _validated_choice(
+            seed.get("edition"),
+            choices=EDITION_CHOICES,
+            default="Community Edition",
+        ),
+        "enterprise_key": (seed.get("enterprise_key") or "").strip(),
+        "umls_api_key": (seed.get("umls_api_key") or "").strip(),
+        "vocab_zip_path": (seed.get("vocab_zip_path") or "").strip() or None,
+        "cdm_dialect": _validated_choice(
+            seed.get("cdm_dialect"),
+            choices=CDM_DIALECT_CHOICES,
+            default="PostgreSQL",
+        ),
+        "app_url": app_url,
+        "env": _validated_choice(seed.get("env"), choices=ENV_CHOICES, default="local"),
+        "db_password": seed.get("db_password") or _generate_password(24),
+        "admin_email": (seed.get("admin_email") or "admin@example.com").strip(),
+        "admin_name": (seed.get("admin_name") or "Admin").strip(),
+        "admin_password": seed.get("admin_password") or _generate_password(16),
+        "timezone": (seed.get("timezone") or "UTC").strip(),
+        "include_eunomia": _coerce_bool(seed.get("include_eunomia"), default=True),
+        "ollama_url": ollama_url,
+        "modules": modules,
+        "enable_study_agent": enable_research and _coerce_bool(seed.get("enable_study_agent"), default=bool(ollama_url)),
+        "enable_blackrabbit": enable_pipeline and _coerce_bool(seed.get("enable_blackrabbit"), default=True),
+        "enable_fhir_to_cdm": enable_pipeline and _coerce_bool(seed.get("enable_fhir_to_cdm"), default=True),
+        "enable_hecate": enable_ai and _coerce_bool(seed.get("enable_hecate"), default=False),
+        "enable_qdrant": False,
+        "enable_orthanc": enable_pipeline and _coerce_bool(seed.get("enable_orthanc"), default=False),
+        "enable_livekit": enable_commons and _coerce_bool(seed.get("enable_livekit"), default=False),
+        "livekit_url": (seed.get("livekit_url") or "ws://localhost:7880").strip(),
+        "livekit_api_key": (seed.get("livekit_api_key") or "").strip(),
+        "livekit_api_secret": seed.get("livekit_api_secret") or "",
+        "orthanc_user": (seed.get("orthanc_user") or "parthenon").strip(),
+        "orthanc_password": seed.get("orthanc_password") or "",
+        "enable_solr": enable_infra and _coerce_bool(seed.get("enable_solr"), default=True),
+        "nginx_port": _resolve_port(seed, "nginx_port", default=8082, used=used_ports, fixed=True),
+        "postgres_port": _resolve_port(seed, "postgres_port", default=5480, used=used_ports),
+        "redis_port": _resolve_port(seed, "redis_port", default=6381, used=used_ports),
+        "ai_port": _resolve_port(seed, "ai_port", default=8002, used=used_ports),
+        "solr_port": _resolve_port(seed, "solr_port", default=8983, used=used_ports),
+        "solr_java_mem": (seed.get("solr_java_mem") or "-Xms512m -Xmx2g").strip(),
+        "study_agent_port": _resolve_port(seed, "study_agent_port", default=8765, used=used_ports),
+        "jupyter_port": _resolve_port(seed, "jupyter_port", default=8888, used=used_ports),
+        "r_port": _resolve_port(seed, "r_port", default=8787, used=used_ports),
+        "blackrabbit_port": _resolve_port(seed, "blackrabbit_port", default=8090, used=used_ports),
+        "fhir_to_cdm_port": _resolve_port(seed, "fhir_to_cdm_port", default=8091, used=used_ports),
+        "hecate_port": _resolve_port(seed, "hecate_port", default=8088, used=used_ports),
+        "orthanc_port": _resolve_port(seed, "orthanc_port", default=8042, used=used_ports),
+    }
+
+    if not cfg["enable_livekit"]:
+        cfg["livekit_api_key"] = ""
+        cfg["livekit_api_secret"] = ""
+    if cfg["enable_orthanc"] and not cfg["orthanc_password"]:
+        cfg["orthanc_password"] = _generate_password(24)
+    if not cfg["enable_orthanc"]:
+        cfg["orthanc_password"] = ""
+    if cfg["experience"] == "Beginner":
+        if not seed.get("edition"):
+            cfg["edition"] = "Community Edition"
+        cfg["enterprise_key"] = ""
+        cfg["vocab_zip_path"] = None
+    if cfg["edition"] == "Community Edition":
+        cfg["enterprise_key"] = ""
+
+    cfg["enable_qdrant"] = cfg["enable_hecate"]
+
+    if "datasets" in seed:
+        cfg["datasets"] = seed["datasets"]
+
+    return cfg
+
+
+def validate_config(cfg: dict[str, Any]) -> dict[str, Any]:
+    """Validate config values and return the normalized dict."""
+    normalized = build_config_defaults(cfg)
+
+    if normalized["experience"] not in EXPERIENCE_CHOICES:
+        raise ValueError("experience must be 'Beginner' or 'Experienced'")
+    if normalized["edition"] not in EDITION_CHOICES:
+        raise ValueError("edition must be 'Community Edition' or 'Enterprise Edition'")
+    if normalized["experience"] == "Beginner" and normalized["edition"] != "Community Edition":
+        raise ValueError("Beginner users must use the Community Edition installer path")
+    if normalized["edition"] == "Enterprise Edition" and not normalized["enterprise_key"]:
+        raise ValueError("enterprise_key is required for Enterprise Edition")
+    if not normalized["umls_api_key"]:
+        raise ValueError("umls_api_key is required for vocabulary imports")
+    if normalized["cdm_dialect"] not in CDM_DIALECT_CHOICES:
+        raise ValueError("cdm_dialect is not a supported option")
+    if normalized["env"] not in ENV_CHOICES:
+        raise ValueError("env must be 'local' or 'production'")
+    if not normalized["app_url"]:
+        raise ValueError("app_url is required")
+    if not normalized["admin_email"]:
+        raise ValueError("admin_email is required")
+    if not normalized["admin_name"]:
+        raise ValueError("admin_name is required")
+    if len(normalized["admin_password"]) < 8:
+        raise ValueError("admin_password must be at least 8 characters")
+    if not normalized["timezone"]:
+        raise ValueError("timezone is required")
+
+    for key in [
+        "nginx_port",
+        "postgres_port",
+        "redis_port",
+        "ai_port",
+        "solr_port",
+        "study_agent_port",
+        "jupyter_port",
+        "r_port",
+        "blackrabbit_port",
+        "fhir_to_cdm_port",
+        "hecate_port",
+        "orthanc_port",
+    ]:
+        port = normalized[key]
+        if not isinstance(port, int) or not (1 <= port <= 65535):
+            raise ValueError(f"{key} must be an integer between 1 and 65535")
+
+    if normalized["enable_livekit"]:
+        if not normalized["livekit_url"].startswith(("ws://", "wss://")):
+            raise ValueError("livekit_url must start with ws:// or wss:// when LiveKit is enabled")
+        if not normalized["livekit_api_key"]:
+            raise ValueError("livekit_api_key is required when LiveKit is enabled")
+        if not normalized["livekit_api_secret"]:
+            raise ValueError("livekit_api_secret is required when LiveKit is enabled")
+
+    if normalized["experience"] == "Experienced" and normalized["vocab_zip_path"]:
+        vocab_check = _validate_vocab_zip(normalized["vocab_zip_path"])
+        if vocab_check is not True:
+            raise ValueError(str(vocab_check))
+
+    return normalized
+
+
 def _ask_experience(defaults: dict[str, Any]) -> tuple[str, str | None]:
     """
     Ask experience level, gate first-timers on prerequisites, and
@@ -111,12 +348,12 @@ def _ask_experience(defaults: dict[str, Any]) -> tuple[str, str | None]:
     import questionary
 
     experience: str = questionary.select(
-        "Are you a first-time or experienced OHDSI user/developer?",
-        choices=["First-time", "Experienced"],
-        default=defaults.get("experience", "First-time"),
+        "Beginner or Experienced OHDSI/OMOP User?",
+        choices=["Beginner", "Experienced"],
+        default=defaults.get("experience", "Beginner"),
     ).ask()
 
-    if experience == "First-time":
+    if experience == "Beginner":
         console.print()
         console.print(
             Panel(
@@ -171,21 +408,47 @@ def _ask_experience(defaults: dict[str, Any]) -> tuple[str, str | None]:
     return experience, vocab_zip_path
 
 
-def collect(resume_data: dict[str, Any] | None = None) -> dict[str, Any]:
+def collect(resume_data: dict[str, Any] | None = None, *, non_interactive: bool = False) -> dict[str, Any]:
     """Run the interactive config wizard. Returns a config dict."""
-    import questionary
-
     console.rule("[bold]Phase 2 — Configuration[/bold]")
+    raw_defaults = dict(resume_data or {})
+    defaults = build_config_defaults(raw_defaults)
+
+    if non_interactive:
+        console.print("[dim]Non-interactive mode — using provided defaults and generated values.[/dim]\n")
+        return validate_config(defaults)
+
+    import questionary
     console.print("Answer the prompts below. Press [Enter] to accept defaults.\n")
 
-    defaults = resume_data or {}
-
     # Experience level / prerequisites gate (skip when resuming — already answered)
-    if "experience" not in defaults:
+    if "experience" not in raw_defaults:
         experience, vocab_zip_path = _ask_experience(defaults)
     else:
-        experience = defaults["experience"]
+        experience = LEGACY_EXPERIENCE_ALIASES.get(defaults["experience"], defaults["experience"])
         vocab_zip_path = defaults.get("vocab_zip_path")
+
+    if experience == "Beginner":
+        edition = "Community Edition"
+        enterprise_key = ""
+    else:
+        edition = questionary.select(
+            "Choose an installation edition",
+            choices=EDITION_CHOICES,
+            default=defaults.get("edition", "Community Edition"),
+        ).ask()
+        enterprise_key = ""
+        if edition == "Enterprise Edition":
+            enterprise_key = questionary.password(
+                "Enterprise Key",
+                validate=lambda v: bool(v.strip()) or "Enterprise Key is required for Enterprise Edition",
+            ).ask()
+
+    umls_api_key = questionary.password(
+        "UMLS Key",
+        default=defaults.get("umls_api_key", ""),
+        validate=lambda v: bool(v.strip()) or "UMLS Key is required for vocabulary imports",
+    ).ask()
 
     # --- CDM database ---
     console.print()
@@ -259,7 +522,7 @@ def collect(resume_data: dict[str, Any] | None = None) -> dict[str, Any]:
     ).ask()
 
     include_eunomia = questionary.confirm(
-        "Load Eunomia GiBleed demo dataset? (Recommended — adds sample CDM data)",
+        "Load Eunomia demo CDM? (Recommended — adds sample CDM data)",
         default=True,
     ).ask()
 
@@ -348,7 +611,7 @@ def collect(resume_data: dict[str, Any] | None = None) -> dict[str, Any]:
     # AI & Knowledge
     enable_hecate = enable_ai and questionary.confirm(
         "Enable Hecate (vector concept search)?",
-        default=bool(ollama_url),
+        default=defaults.get("enable_hecate", False),
     ).ask()
     enable_qdrant = enable_hecate
 
@@ -392,24 +655,23 @@ def collect(resume_data: dict[str, Any] | None = None) -> dict[str, Any]:
 
     show_advanced = questionary.confirm("Configure advanced port settings?", default=False).ask()
 
-    nginx_port = 8082
-    postgres_port = 5480
-    redis_port = 6381
-    ai_port = 8002
-    solr_port = 8983
-    solr_java_mem = "-Xms512m -Xmx2g"
+    nginx_port = int(defaults.get("nginx_port", 8082))
+    postgres_port = int(defaults.get("postgres_port", 5480))
+    redis_port = int(defaults.get("redis_port", 6381))
+    ai_port = int(defaults.get("ai_port", 8002))
+    solr_port = int(defaults.get("solr_port", 8983))
+    solr_java_mem = str(defaults.get("solr_java_mem", "-Xms512m -Xmx2g"))
 
     if show_advanced:
-        nginx_port    = int(questionary.text("NGINX_PORT",    default=str(nginx_port)).ask())
-        postgres_port = int(questionary.text("POSTGRES_PORT", default=str(postgres_port)).ask())
-        redis_port    = int(questionary.text("REDIS_PORT",    default=str(redis_port)).ask())
-        ai_port       = int(questionary.text("AI_PORT",       default=str(ai_port)).ask())
+        nginx_port = int(questionary.text("NGINX_PORT", default=str(nginx_port)).ask())
         if enable_solr:
-            solr_port     = int(questionary.text("SOLR_PORT",     default=str(solr_port)).ask())
             solr_java_mem = questionary.text("SOLR_JAVA_MEM", default=solr_java_mem).ask()
 
-    return {
+    return validate_config({
         "experience":        experience,
+        "edition":           edition,
+        "enterprise_key":    enterprise_key,
+        "umls_api_key":      umls_api_key,
         "vocab_zip_path":    vocab_zip_path,
         "cdm_dialect":       cdm_dialect,
         "app_url":           app_url,
@@ -441,13 +703,23 @@ def collect(resume_data: dict[str, Any] | None = None) -> dict[str, Any]:
         "ai_port":           ai_port,
         "solr_port":         solr_port,
         "solr_java_mem":     solr_java_mem,
-    }
+        "study_agent_port":  defaults.get("study_agent_port", 8765),
+        "jupyter_port":      defaults.get("jupyter_port", 8888),
+        "r_port":            defaults.get("r_port", 8787),
+        "blackrabbit_port":  defaults.get("blackrabbit_port", 8090),
+        "fhir_to_cdm_port":  defaults.get("fhir_to_cdm_port", 8091),
+        "hecate_port":       defaults.get("hecate_port", 8088),
+        "orthanc_port":      defaults.get("orthanc_port", 8042),
+    })
 
 
 def build_root_env(cfg: dict[str, Any]) -> str:
     lines = [
         f"# Parthenon — generated by installer",
         f"APP_ENV={cfg['env']}",
+        f"PARTHENON_EDITION={cfg.get('edition', 'Community Edition')}",
+        f"PARTHENON_ENTERPRISE_KEY={cfg.get('enterprise_key', '')}",
+        f"UMLS_API_KEY={cfg.get('umls_api_key', '')}",
         f"DB_PASSWORD={cfg['db_password']}",
         f"",
         f"# Host port mapping",
@@ -456,6 +728,8 @@ def build_root_env(cfg: dict[str, Any]) -> str:
         f"POSTGRES_PORT={cfg['postgres_port']}",
         f"REDIS_PORT={cfg['redis_port']}",
         f"AI_PORT={cfg['ai_port']}",
+        f"JUPYTER_PORT={cfg.get('jupyter_port', 8888)}",
+        f"R_PORT={cfg.get('r_port', 8787)}",
     ]
 
     if cfg.get("enable_solr", True):
@@ -475,20 +749,20 @@ def build_root_env(cfg: dict[str, Any]) -> str:
     lines.append("")
     lines.append("# Optional sidecar services")
     if cfg.get("enable_study_agent"):
-        lines.append("STUDY_AGENT_PORT=8765")
+        lines.append(f"STUDY_AGENT_PORT={cfg.get('study_agent_port', 8765)}")
         lines.append("LLM_MODEL=gemma3:4b")
         lines.append("EMBED_MODEL=nomic-embed-text")
     if cfg.get("enable_blackrabbit"):
-        lines.append("WHITERABBIT_PORT=8090")
+        lines.append(f"WHITERABBIT_PORT={cfg.get('blackrabbit_port', 8090)}")
         lines.append("BLACKRABBIT_SCAN_TIMEOUT_SECONDS=1200")
     if cfg.get("enable_fhir_to_cdm"):
-        lines.append("FHIR_TO_CDM_PORT=8091")
+        lines.append(f"FHIR_TO_CDM_PORT={cfg.get('fhir_to_cdm_port', 8091)}")
     if cfg.get("enable_hecate"):
-        lines.append("HECATE_PORT=8088")
+        lines.append(f"HECATE_PORT={cfg.get('hecate_port', 8088)}")
     if cfg.get("enable_qdrant"):
         lines.append("QDRANT_PORT=6333")
     if cfg.get("enable_orthanc"):
-        lines.append("ORTHANC_PORT=8042")
+        lines.append(f"ORTHANC_PORT={cfg.get('orthanc_port', 8042)}")
         lines.append(f"ORTHANC_USER={cfg.get('orthanc_user', 'parthenon')}")
         lines.append(f"ORTHANC_PASSWORD={cfg.get('orthanc_password', '')}")
     if cfg.get("enable_livekit"):
@@ -568,6 +842,7 @@ def build_backend_env(cfg: dict[str, Any]) -> str:
         f"\n"
         f"MAIL_MAILER=log\n"
         f"RESEND_API_KEY=\n"
+        f"UMLS_API_KEY={cfg.get('umls_api_key', '')}\n"
         f"MAIL_FROM_ADDRESS=noreply@parthenon.local\n"
         f'MAIL_FROM_NAME="${{APP_NAME}}"\n'
         f"\n"
@@ -604,8 +879,9 @@ def _show_diff(path: Path, content: str) -> None:
     console.print(Panel(syntax, expand=False))
 
 
-def write(cfg: dict[str, Any]) -> None:
+def write(cfg: dict[str, Any], *, confirm: bool = True) -> None:
     """Write .env and backend/.env after showing a preview."""
+    cfg = validate_config(cfg)
     root_env = build_root_env(cfg)
     backend_env = build_backend_env(cfg)
 
@@ -613,11 +889,12 @@ def write(cfg: dict[str, Any]) -> None:
     _show_diff(REPO_ROOT / ".env", root_env)
     _show_diff(REPO_ROOT / "backend" / ".env", backend_env)
 
-    import questionary
-    ok = questionary.confirm("Write these files?", default=True).ask()
-    if not ok:
-        console.print("[yellow]Aborted. No files written.[/yellow]")
-        raise SystemExit(0)
+    if confirm:
+        import questionary
+        ok = questionary.confirm("Write these files?", default=True).ask()
+        if not ok:
+            console.print("[yellow]Aborted. No files written.[/yellow]")
+            raise SystemExit(0)
 
     (REPO_ROOT / ".env").write_text(root_env)
     (REPO_ROOT / "backend" / ".env").write_text(backend_env)

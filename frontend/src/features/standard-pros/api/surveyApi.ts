@@ -22,6 +22,8 @@ export interface SurveyInstrumentApi {
   is_active: boolean;
   omop_coverage: "yes" | "partial" | "no";
   items_count?: number;
+  created_by?: number | null;
+  creator?: { id: number; name: string } | null;
   created_at: string;
   updated_at: string;
 }

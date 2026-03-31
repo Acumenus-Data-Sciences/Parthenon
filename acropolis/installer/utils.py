@@ -203,6 +203,24 @@ def generate_password(length: int = 24) -> str:
     return "".join(secrets.choice(alphabet) for _ in range(length))
 
 
+def generate_wazuh_password(length: int = 24) -> str:
+    """Generate a Wazuh-compatible password with mixed character classes."""
+    if length < 12:
+        raise ValueError("Wazuh passwords should be at least 12 characters")
+
+    required_sets = [
+        string.ascii_lowercase,
+        string.ascii_uppercase,
+        string.digits,
+        "!@#$%^&*()-_=+",
+    ]
+    password_chars = [secrets.choice(charset) for charset in required_sets]
+    alphabet = "".join(required_sets)
+    password_chars.extend(secrets.choice(alphabet) for _ in range(length - len(password_chars)))
+    secrets.SystemRandom().shuffle(password_chars)
+    return "".join(password_chars)
+
+
 def network_exists(network_name: str) -> bool:
     """Check if a Docker network exists."""
     result = run(["docker", "network", "inspect", network_name])

@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Panel, Badge, StatusDot, Button, type BadgeVariant, type StatusDotVariant } from "@/components/ui";
 import type { SystemHealthService } from "@/types/models";
 import { useSystemHealth } from "../hooks/useAiProviders";
+import { AcropolisServiceLinks } from "../components/AcropolisServiceLinks";
 import { GisDataPanel } from "../components/GisDataPanel";
 import { GrafanaLaunchCard } from "../components/GrafanaLaunchCard";
 import { LiveKitConfigPanel } from "../components/LiveKitConfigPanel";
@@ -247,6 +248,16 @@ export default function SystemHealthPage() {
           ))}
         </div>
       )}
+
+      <div>
+        <div className="mb-3">
+          <h2 className="text-lg font-semibold text-foreground">Acropolis Services</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Direct launch links for the Acropolis-managed platform services on this host.
+          </p>
+        </div>
+        <AcropolisServiceLinks />
+      </div>
 
       {/* GIS Data Management */}
       <div>

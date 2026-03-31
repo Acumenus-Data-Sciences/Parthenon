@@ -85,6 +85,9 @@ check_container "DataHub Frontend"   "acropolis-datahub-frontend"
 check_container "DataHub GMS"        "acropolis-datahub-gms"
 check_container "Authentik Server"   "acropolis-authentik-server"
 check_container "Authentik Worker"   "acropolis-authentik-worker"
+check_container "Wazuh Manager"      "acropolis-wazuh-manager"
+check_container "Wazuh Indexer"      "acropolis-wazuh-indexer"
+check_container "Wazuh Dashboard"    "acropolis-wazuh-dashboard"
 echo
 
 echo "═══════════════════════════════════════════════════════════"

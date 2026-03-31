@@ -10,7 +10,6 @@ import {
   Save,
   Search,
   Trash2,
-  Upload,
   Wrench,
 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";

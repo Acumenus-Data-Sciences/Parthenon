@@ -31,6 +31,7 @@ TIER_SERVICES: dict[str, list[str]] = {
         "superset-db", "superset-cache",
         "datahub-frontend", "datahub-gms", "datahub-mysql",
         "datahub-opensearch", "datahub-broker",
+        "wazuh-manager", "wazuh-indexer", "wazuh-dashboard",
         "authentik-server", "authentik-worker",
         "authentik-db", "authentik-redis",
     ],
@@ -47,7 +48,7 @@ def _display_tier_table(console: Console) -> None:
     table.add_column("License")
 
     table.add_row("Community", "Traefik, Portainer, pgAdmin", "None")
-    table.add_row("Enterprise", "+ n8n, Superset, DataHub, Authentik", "Key required")
+    table.add_row("Enterprise", "+ n8n, Superset, DataHub, Authentik, Wazuh", "Key required")
 
     console.print(table)
 

@@ -126,17 +126,17 @@ def _print_summary(cfg: dict[str, Any]) -> None:
         solr_port = cfg.get("solr_port", 8983)
         lines.append(f"  [green]Solr:[/green]     http://localhost:{solr_port}/solr/")
     if cfg.get("ollama_url"):
-        lines.append(f"  [green]ChromaDB:[/green] http://localhost:8000 (vector database)")
+        lines.append("  [green]ChromaDB:[/green] internal-only service enabled")
     if cfg.get("enable_study_agent"):
-        lines.append(f"  [green]Study AI:[/green] http://localhost:8765 (study designer)")
+        lines.append(f"  [green]Study AI:[/green] http://localhost:{cfg.get('study_agent_port', 8765)} (study designer)")
     if cfg.get("enable_blackrabbit"):
-        lines.append(f"  [green]Profiler:[/green] http://localhost:8090 (BlackRabbit)")
+        lines.append(f"  [green]Profiler:[/green] http://localhost:{cfg.get('blackrabbit_port', 8090)} (BlackRabbit)")
     if cfg.get("enable_fhir_to_cdm"):
-        lines.append(f"  [green]FHIR CDM:[/green] http://localhost:8091 (FHIR-to-CDM)")
+        lines.append(f"  [green]FHIR CDM:[/green] http://localhost:{cfg.get('fhir_to_cdm_port', 8091)} (FHIR-to-CDM)")
     if cfg.get("enable_hecate"):
-        lines.append(f"  [green]Hecate:[/green]   http://localhost:8088 (concept search)")
+        lines.append(f"  [green]Hecate:[/green]   http://localhost:{cfg.get('hecate_port', 8088)} (concept search)")
     if cfg.get("enable_orthanc"):
-        lines.append(f"  [green]Orthanc:[/green]  http://localhost:8042 (DICOM server)")
+        lines.append(f"  [green]Orthanc:[/green]  http://localhost:{cfg.get('orthanc_port', 8042)} (DICOM server)")
     if cfg.get("enable_livekit"):
         lines.append(f"  [green]LiveKit:[/green]  {cfg.get('livekit_url', 'ws://localhost:7880')} (voice/video)")
     lines.append(f"  [green]GIS:[/green]      PostGIS spatial queries enabled")
@@ -372,8 +372,8 @@ def run(*, non_interactive: bool = False, pre_seed: dict[str, Any] | None = None
     # Phase 2 — Configuration
     # -----------------------------------------------------------------------
     if "config" not in completed:
-        cfg = config.collect(resume_data=cfg or None)
-        config.write(cfg)
+        cfg = config.collect(resume_data=cfg or None, non_interactive=non_interactive)
+        config.write(cfg, confirm=not non_interactive)
         completed.append("config")
         _save_state({"completed_phases": completed, "config": cfg})
     else:

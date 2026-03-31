@@ -80,6 +80,10 @@ class VocabularyImportJob implements ShouldQueue
         $import = $this->import;
 
         try {
+            if (! $this->hasUmlsApiKey()) {
+                throw new \RuntimeException('UMLS_API_KEY is not configured. Vocabulary imports require it for CPT-4 and related vocabulary workflows.');
+            }
+
             $import->update([
                 'status' => 'running',
                 'started_at' => now(),
@@ -174,6 +178,11 @@ class VocabularyImportJob implements ShouldQueue
 
             throw $e;
         }
+    }
+
+    private function hasUmlsApiKey(): bool
+    {
+        return trim((string) env('UMLS_API_KEY', '')) !== '';
     }
 
     private function extractZip(string $zipPath, VocabularyImport $import): string

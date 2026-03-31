@@ -2,7 +2,7 @@ import { CalendarClock, CircleOff, FileUp, Pencil, Play, SquarePen, Trash2, User
 import type { CampaignStatsApi, SurveyCampaignApi } from "../../api/campaignApi";
 
 interface CampaignCardProps {
-  campaign: SurveyCampaignApi & { stats: CampaignStatsApi };
+  campaign: SurveyCampaignApi;
   onActivate: (id: number) => void;
   onClose: (id: number) => void;
   onDelete: (id: number) => void;
@@ -49,7 +49,13 @@ export function CampaignCard({
   onManualEntry,
   isMutating = false,
 }: CampaignCardProps) {
-  const stats = campaign.stats;
+  const stats: CampaignStatsApi = campaign.stats ?? {
+    seeded_total: 0,
+    complete: 0,
+    pending: 0,
+    anonymous: 0,
+    completion_rate: 0,
+  };
   const link = campaign.publish_token ? `${window.location.origin}/survey/${campaign.publish_token}` : null;
 
   return (

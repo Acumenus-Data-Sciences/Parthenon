@@ -87,7 +87,7 @@ Describe a cohort in plain English — *"patients with type 2 diabetes newly sta
 
 ### Recommended: Install with Infrastructure
 
-The full production deployment includes Parthenon plus the Acropolis infrastructure layer: automatic TLS via Traefik, container management via Portainer, database administration via pgAdmin. The Enterprise tier adds n8n workflow automation, Apache Superset BI dashboards, DataHub data catalog, and Authentik SSO.
+The full production deployment includes Parthenon plus the Acropolis infrastructure layer: automatic TLS via Traefik, container management via Portainer, database administration via pgAdmin. The Enterprise tier adds n8n workflow automation, Apache Superset BI dashboards, DataHub data catalog, Authentik SSO, and Wazuh security monitoring.
 
 ```bash
 git clone https://github.com/sudoshi/Parthenon.git
@@ -108,6 +108,12 @@ python3 install.py
 ```
 
 The Rich TUI installer walks through prerequisites, environment setup, container orchestration, and initial seeding in 9 phases.
+
+The guided installer and browser launcher now also require:
+
+- a `Beginner` or `Experienced` OHDSI/OMOP user selection
+- a `UMLS Key` captured up front for vocabulary-import workflows
+- an `Enterprise Key` if `Enterprise Edition` is selected
 
 ### Manual Install
 
@@ -140,9 +146,10 @@ Open **http://localhost:8082** — you'll be greeted by the setup wizard.
 
 1. **Register a CDM source** — Settings → Data Sources → connect your PostgreSQL/OMOP database
 2. **Browse the vocabulary** — verify concepts resolve against your vocabulary schema
-3. **Run Achilles** — Data Explorer → select source → Run Achilles (takes 15–60 min depending on size)
-4. **Create a cohort** — Cohort Definitions → New → build criteria or import an Atlas JSON
-5. **Generate the cohort** — hit Generate, monitor progress, see person counts
+3. **Confirm vocabulary-import prerequisites** — ensure the configured `UMLS_API_KEY` remains available before running CPT-4 or other vocabulary refresh workflows
+4. **Run Achilles** — Data Explorer → select source → Run Achilles (takes 15–60 min depending on size)
+5. **Create a cohort** — Cohort Definitions → New → build criteria or import an Atlas JSON
+6. **Generate the cohort** — hit Generate, monitor progress, see person counts
 
 ---
 

@@ -37,7 +37,7 @@ function OmopBadge({ coverage }: { coverage: OmopCoverage }) {
   );
 }
 
-function ItemCard({ item }: { item: SurveyItemApi; index: number }) {
+function ItemCard({ item }: { item: SurveyItemApi }) {
   const hasAnswers = item.answer_options.length > 0;
 
   return (
@@ -291,8 +291,8 @@ export default function InstrumentDetailPage() {
             Items ({instrument.items.length})
           </h2>
           <div className="space-y-3">
-            {instrument.items.map((item, idx) => (
-              <ItemCard key={item.id} item={item} index={idx} />
+            {instrument.items.map((item) => (
+              <ItemCard key={item.id} item={item} />
             ))}
           </div>
         </div>

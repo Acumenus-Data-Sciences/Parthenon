@@ -32,7 +32,7 @@ BASE_PORTS = [80, 443, 8090]
 EDITION_PORTS: dict[str, list[int]] = {
     "community": [9443, 5050],
     # 8088 = Superset (Acropolis) or Hecate (Parthenon) — check for conflicts
-    "enterprise": [5678, 8088, 8880, 9002, 9042, 9000, 3306, 9200, 9092],
+    "enterprise": [514, 1514, 1515, 55000, 5678, 8088, 8880, 9002, 9042, 9000, 3306, 9200, 9092],
 }
 
 

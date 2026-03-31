@@ -21,6 +21,7 @@ BASE_SERVICES = [
     ("redis",      "parthenon-redis",    30),
     ("php",        "parthenon-php",      120),
     ("python-ai",  "parthenon-ai",       120),
+    ("jupyterhub", "parthenon-jupyterhub", 60),
     ("darkstar",   "parthenon-darkstar",  120),
     ("nginx",      "parthenon-nginx",    30),
     ("horizon",    "parthenon-horizon",  30),
@@ -43,6 +44,27 @@ OPTIONAL_SERVICES = {
 SERVICES = BASE_SERVICES
 
 
+def _compose_service_names(cfg: dict[str, Any] | None = None) -> list[str]:
+    names = [service for service, _, _ in BASE_SERVICES]
+    if cfg is None or cfg.get("enable_solr", True):
+        names.append(SOLR_SERVICE[0])
+    if cfg is None or cfg.get("enable_study_agent"):
+        names.append(OPTIONAL_SERVICES["study_agent"][0])
+    if cfg is None or cfg.get("enable_hecate"):
+        names.extend([OPTIONAL_SERVICES["qdrant"][0], OPTIONAL_SERVICES["hecate"][0]])
+    if cfg is None or cfg.get("enable_blackrabbit"):
+        names.append(OPTIONAL_SERVICES["blackrabbit"][0])
+    if cfg is None or cfg.get("enable_fhir_to_cdm"):
+        names.append(OPTIONAL_SERVICES["fhir_to_cdm"][0])
+    if cfg is None or cfg.get("enable_orthanc"):
+        names.append(OPTIONAL_SERVICES["orthanc"][0])
+    deduped: list[str] = []
+    for name in names:
+        if name not in deduped:
+            deduped.append(name)
+    return deduped
+
+
 def pull() -> None:
     """docker compose pull — stream progress."""
     console.print("[cyan][1/3] Pulling Docker images…[/cyan]")
@@ -60,10 +82,10 @@ def build() -> None:
         sys.exit(1)
 
 
-def start() -> None:
-    """docker compose up -d — start all services."""
+def start(cfg: dict[str, Any] | None = None) -> None:
+    """docker compose up -d — start the selected services."""
     console.print("[cyan][3/3] Starting services…[/cyan]")
-    result = utils.docker_compose(["up", "-d"], check=False)
+    result = utils.docker_compose(["up", "-d", *_compose_service_names(cfg)], check=False)
     if result.returncode != 0:
         console.print("[red]✗ docker compose up -d failed.[/red]")
         sys.exit(1)
@@ -143,5 +165,5 @@ def run(cfg: dict[str, Any] | None = None) -> None:
     console.rule("[bold]Phase 3 — Docker Setup[/bold]")
     pull()
     build()
-    start()
+    start(cfg)
     wait_for_services(cfg)

@@ -1,0 +1,386 @@
+{
+  "title": "Parthenon Roadmap",
+  "description": "Execution project for the Parthenon v1.0.x stabilization arc and v2.0 runway.",
+  "visibility": "PUBLIC",
+  "repo": "sudoshi/Parthenon",
+  "readme": "# Parthenon Roadmap\n\n## Objective\nTrack delivery of the Parthenon stabilization arc described in `ROADMAP.md`, from the March 30, 2026 foundation release through the May 11, 2026 release candidate.\n\n## Current State\nParthenon v1.0.3 is the baseline release. The next six weeks are reserved for hardening, optimization, documentation, security validation, and release preparation.\n\n## Release Philosophy\n- Stabilization: v1.0.3 to v1.0.10\n- Feature maturation: v1.1 to v1.x\n- General availability: v2.0\n- No net-new platform features are planned during the v1.0.x arc unless required to complete stabilization.\n\n## Workflow\n- Use the board view grouped by `Status` as the Kanban board.\n- Use `Release` to filter work into weekly drops.\n- Use `Category` and `Area` to break release work into manageable delivery tracks.\n- Move items to `In Progress` only when implementation has started.\n- Move items to `Done` only after code, validation, and documentation are complete.\n\n## Definition Of Done\n- Relevant code or configuration is merged.\n- Tests or validation evidence exist for the change.\n- User or developer documentation is updated when applicable.\n- Release notes impact is understood for the target version.\n\n## Release Map\n- v1.0.3: Foundation release shipped March 30, 2026.\n- v1.0.4: Test coverage and CI hardening target April 6, 2026.\n- v1.0.5: Data quality and validation target April 13, 2026.\n- v1.0.6: Performance optimization target April 20, 2026.\n- v1.0.7: UX polish and accessibility target April 27, 2026.\n- v1.0.8: Documentation and onboarding target May 1, 2026.\n- v1.0.9: Security audit and hardening target May 4, 2026.\n- v1.0.10: Release candidate target May 11, 2026.\n",
+  "fields": [
+    {
+      "name": "Release",
+      "data_type": "SINGLE_SELECT",
+      "options": [
+        "v1.0.3",
+        "v1.0.4",
+        "v1.0.5",
+        "v1.0.6",
+        "v1.0.7",
+        "v1.0.8",
+        "v1.0.9",
+        "v1.0.10",
+        "v1.1+"
+      ]
+    },
+    {
+      "name": "Category",
+      "data_type": "SINGLE_SELECT",
+      "options": [
+        "Release",
+        "Backend",
+        "Frontend",
+        "E2E",
+        "CI/CD",
+        "Data",
+        "Vocabulary",
+        "Ingestion",
+        "Database",
+        "Infrastructure",
+        "UX",
+        "Accessibility",
+        "Responsive",
+        "Docs",
+        "Help",
+        "Security",
+        "Compliance"
+      ]
+    },
+    {
+      "name": "Priority",
+      "data_type": "SINGLE_SELECT",
+      "options": [
+        "P0",
+        "P1",
+        "P2"
+      ]
+    },
+    {
+      "name": "Area",
+      "data_type": "TEXT"
+    },
+    {
+      "name": "Target Date",
+      "data_type": "DATE"
+    }
+  ],
+  "items": [
+    {
+      "title": "v1.0.3 Foundation release baseline",
+      "body": "Track the March 30, 2026 public starting point for Parthenon. This item anchors the shipped baseline before stabilization work begins.\n\nScope:\n- Confirm the v1.0.3 launch baseline is represented in release notes and project history.\n- Treat all later stabilization work as deltas from this release.\n- Preserve the shipped scope as the acceptance baseline for the v1.0.x arc.",
+      "release": "v1.0.3",
+      "category": "Release",
+      "priority": "P0",
+      "area": "Foundation",
+      "target_date": "2026-03-30",
+      "status": "Done"
+    },
+    {
+      "title": "v1.0.4 Test Coverage and CI Hardening release",
+      "body": "Coordinate the v1.0.4 hardening release targeted for April 6, 2026.\n\nOutcome:\n- Close the largest automated test gaps.\n- Harden CI gates so regressions are caught before deploy.\n- Keep the release scoped to quality only.",
+      "release": "v1.0.4",
+      "category": "Release",
+      "priority": "P0",
+      "area": "Test Coverage & CI Hardening",
+      "target_date": "2026-04-06",
+      "status": "Todo"
+    },
+    {
+      "title": "v1.0.4 Backend test expansion",
+      "body": "Expand backend test coverage for the highest-risk service and integration areas.\n\nScope:\n- Expand Pest coverage across all 56 service namespaces, prioritizing Achilles, DQD, Cohort, and Analysis services.\n- Add integration tests for all 8 database connections and schema search paths.\n- Test RBAC permission enforcement on each route group.\n- Add contract tests for the R Plumber API and Python FastAPI service.",
+      "release": "v1.0.4",
+      "category": "Backend",
+      "priority": "P0",
+      "area": "Backend",
+      "target_date": "2026-04-06",
+      "status": "Todo"
+    },
+    {
+      "title": "v1.0.4 Frontend unit and component testing",
+      "body": "Stand up frontend unit testing and cover the critical client-side state and workflow components.\n\nScope:\n- Add Vitest and React Testing Library infrastructure.\n- Cover critical Zustand stores.\n- Add component tests for cohort builder, concept set editor, and analysis configuration.\n- Add snapshot coverage for dark clinical theme consistency.",
+      "release": "v1.0.4",
+      "category": "Frontend",
+      "priority": "P0",
+      "area": "Frontend",
+      "target_date": "2026-04-06",
+      "status": "Todo"
+    },
+    {
+      "title": "v1.0.4 End-to-end coverage expansion",
+      "body": "Deepen Playwright coverage across the full research workflow and specialized modules.\n\nScope:\n- Cover login to cohort to analysis to results.\n- Add GIS Explorer, imaging viewer, and genomics workflows.\n- Validate Chromium, Firefox, and WebKit coverage.",
+      "release": "v1.0.4",
+      "category": "E2E",
+      "priority": "P1",
+      "area": "E2E",
+      "target_date": "2026-04-06",
+      "status": "Todo"
+    },
+    {
+      "title": "v1.0.4 CI/CD hardening",
+      "body": "Strengthen automated quality gates and deployment safety.\n\nScope:\n- Add ESLint and Vitest to pre-commit checks.\n- Build a GitHub Actions sequence for lint, test, build, and deploy gating.\n- Detect OpenAPI spec drift between generated types and live API responses.",
+      "release": "v1.0.4",
+      "category": "CI/CD",
+      "priority": "P0",
+      "area": "CI/CD",
+      "target_date": "2026-04-06",
+      "status": "Todo"
+    },
+    {
+      "title": "v1.0.5 Data Quality and Validation release",
+      "body": "Coordinate the v1.0.5 data integrity release targeted for April 13, 2026.\n\nOutcome:\n- Validate the correctness of characterization, vocabulary, ingestion, and schema behavior.\n- Catch silent data integrity problems before performance work begins.",
+      "release": "v1.0.5",
+      "category": "Release",
+      "priority": "P0",
+      "area": "Data Quality & Validation",
+      "target_date": "2026-04-13",
+      "status": "Todo"
+    },
+    {
+      "title": "v1.0.5 Achilles and DQD validation",
+      "body": "Audit characterization and data quality behavior across all supported CDM sources.\n\nScope:\n- Audit Achilles SQL template schema substitution.\n- Validate DQD execution against OHDSI conformance benchmarks.\n- Fix edge cases in per-source results schema routing.",
+      "release": "v1.0.5",
+      "category": "Data",
+      "priority": "P0",
+      "area": "Achilles & DQD",
+      "target_date": "2026-04-13",
+      "status": "Todo"
+    },
+    {
+      "title": "v1.0.5 Vocabulary validation",
+      "body": "Verify vocabulary completeness and retrieval quality.\n\nScope:\n- Validate Solr vocabulary index completeness against `vocab.concept`.\n- Fix concept search ranking for synonyms and multi-word queries.\n- Audit hierarchy traversal in concept set resolution.",
+      "release": "v1.0.5",
+      "category": "Vocabulary",
+      "priority": "P1",
+      "area": "Vocabulary",
+      "target_date": "2026-04-13",
+      "status": "Todo"
+    },
+    {
+      "title": "v1.0.5 Ingestion and ETL validation",
+      "body": "Validate the ingestion pipeline from source profiling through CDM load.\n\nScope:\n- Test WhiteRabbit scan through ETL mapping through CDM load end to end.\n- Add checksums and row-count verification to ingestion jobs.\n- Validate FHIR-to-CDM fidelity for Condition, MedicationRequest, and Observation resources.",
+      "release": "v1.0.5",
+      "category": "Ingestion",
+      "priority": "P0",
+      "area": "Ingestion & ETL",
+      "target_date": "2026-04-13",
+      "status": "Todo"
+    },
+    {
+      "title": "v1.0.5 Database validation",
+      "body": "Audit migration safety and database integrity guardrails.\n\nScope:\n- Audit all 210 migrations for idempotency and rollback safety.\n- Validate foreign key behavior across schema boundaries.\n- Add database CHECK constraints for OMOP CDM required fields.",
+      "release": "v1.0.5",
+      "category": "Database",
+      "priority": "P0",
+      "area": "Database",
+      "target_date": "2026-04-13",
+      "status": "Todo"
+    },
+    {
+      "title": "v1.0.6 Performance Optimization release",
+      "body": "Coordinate the v1.0.6 performance release targeted for April 20, 2026.\n\nOutcome:\n- Improve responsiveness for large OMOP workloads in API, UI, and infrastructure layers.\n- Prioritize the slowest user-facing bottlenecks first.",
+      "release": "v1.0.6",
+      "category": "Release",
+      "priority": "P0",
+      "area": "Performance Optimization",
+      "target_date": "2026-04-20",
+      "status": "Todo"
+    },
+    {
+      "title": "v1.0.6 Backend performance optimization",
+      "body": "Profile and optimize the backend hotspots responsible for slow research workflows.\n\nScope:\n- Optimize the top 20 slowest API endpoints.\n- Add Redis caching for expensive vocabulary and ancestor queries.\n- Remove N+1 patterns across CdmModel queries.\n- Add indexes for Achilles joins and cohort inclusion queries.\n- Tune Horizon concurrency for analysis execution jobs.",
+      "release": "v1.0.6",
+      "category": "Backend",
+      "priority": "P0",
+      "area": "Backend",
+      "target_date": "2026-04-20",
+      "status": "Todo"
+    },
+    {
+      "title": "v1.0.6 Frontend performance optimization",
+      "body": "Improve rendering and interaction performance in the heaviest frontend modules.\n\nScope:\n- Virtualize large data tables.\n- Add skeleton states and optimistic updates across TanStack Query usage.\n- Reduce unnecessary re-renders in the cohort builder and concept set editor.\n- Lazy-load GIS, imaging, and genomics feature bundles.",
+      "release": "v1.0.6",
+      "category": "Frontend",
+      "priority": "P1",
+      "area": "Frontend",
+      "target_date": "2026-04-20",
+      "status": "Todo"
+    },
+    {
+      "title": "v1.0.6 Infrastructure performance optimization",
+      "body": "Tune the platform infrastructure for large OMOP and analytics workloads.\n\nScope:\n- Tune PostgreSQL memory and cache settings for OMOP usage.\n- Optimize Solr analyzers, field types, and cache settings across configsets.\n- Profile Docker resource allocation and enforce memory and CPU limits.\n- Optimize the Vite production build for bundle size and compression.",
+      "release": "v1.0.6",
+      "category": "Infrastructure",
+      "priority": "P1",
+      "area": "Infrastructure",
+      "target_date": "2026-04-20",
+      "status": "Todo"
+    },
+    {
+      "title": "v1.0.7 UX Polish and Accessibility release",
+      "body": "Coordinate the v1.0.7 user experience release targeted for April 27, 2026.\n\nOutcome:\n- Standardize research workflows and navigation patterns.\n- Reach WCAG 2.1 AA across the product surface.\n- Improve usability on tablet and large-screen research setups.",
+      "release": "v1.0.7",
+      "category": "Release",
+      "priority": "P0",
+      "area": "UX Polish & Accessibility",
+      "target_date": "2026-04-27",
+      "status": "Todo"
+    },
+    {
+      "title": "v1.0.7 Navigation and layout standardization",
+      "body": "Make navigation and page-level interaction patterns consistent across all modules.\n\nScope:\n- Audit and standardize navigation patterns across 39 feature modules.\n- Ensure consistent breadcrumbs, titles, and back-navigation.\n- Standardize empty states, error boundaries, and loading indicators.\n- Group sidebar modules by research phase for discoverability.",
+      "release": "v1.0.7",
+      "category": "UX",
+      "priority": "P1",
+      "area": "Navigation & Layout",
+      "target_date": "2026-04-27",
+      "status": "Todo"
+    },
+    {
+      "title": "v1.0.7 Clinical workflow polish",
+      "body": "Tighten the highest-value research interactions so users can move through studies with less friction.\n\nScope:\n- Streamline cohort definition through results workflows.\n- Add contextual help and inline documentation links.\n- Improve concept set drag-and-drop behavior.\n- Polish Abby chat history, suggestions, and inline result presentation.",
+      "release": "v1.0.7",
+      "category": "UX",
+      "priority": "P1",
+      "area": "Clinical Workflows",
+      "target_date": "2026-04-27",
+      "status": "Todo"
+    },
+    {
+      "title": "v1.0.7 Accessibility audit and remediation",
+      "body": "Close accessibility gaps across the application surface.\n\nScope:\n- Run a WCAG 2.1 AA audit across all modules.\n- Add keyboard navigation for core interactive workflows.\n- Improve screen reader support for data tables, charts, and the OHIF viewer.\n- Validate dark theme color contrast.",
+      "release": "v1.0.7",
+      "category": "Accessibility",
+      "priority": "P0",
+      "area": "Accessibility",
+      "target_date": "2026-04-27",
+      "status": "Todo"
+    },
+    {
+      "title": "v1.0.7 Responsive workspace audit",
+      "body": "Make research workspace layouts work cleanly across tablet and large-screen breakpoints.\n\nScope:\n- Audit tablet and large-screen layouts.\n- Ensure modals, drawers, and panels scale appropriately.",
+      "release": "v1.0.7",
+      "category": "Responsive",
+      "priority": "P2",
+      "area": "Responsive Design",
+      "target_date": "2026-04-27",
+      "status": "Todo"
+    },
+    {
+      "title": "v1.0.8 Documentation and Onboarding release",
+      "body": "Coordinate the v1.0.8 docs release targeted for May 1, 2026.\n\nOutcome:\n- Make the platform teachable for new users and maintainable for contributors.\n- Improve product onboarding and contextual guidance.",
+      "release": "v1.0.8",
+      "category": "Release",
+      "priority": "P0",
+      "area": "Documentation & Onboarding",
+      "target_date": "2026-05-01",
+      "status": "Todo"
+    },
+    {
+      "title": "v1.0.8 User manual completion",
+      "body": "Finish end-user documentation for core workflows and onboarding.\n\nScope:\n- Complete all 14 user manual parts with screenshots, walkthroughs, and clinical examples.\n- Add a 5-minute first cohort quickstart using Eunomia.\n- Document Abby capabilities with example prompts.\n- Add tutorial-ready walkthroughs for the top 10 research workflows.",
+      "release": "v1.0.8",
+      "category": "Docs",
+      "priority": "P0",
+      "area": "User Manual",
+      "target_date": "2026-05-01",
+      "status": "Todo"
+    },
+    {
+      "title": "v1.0.8 Developer documentation completion",
+      "body": "Round out the material needed to understand, operate, and extend the platform.\n\nScope:\n- Publish API reference from the OpenAPI spec with examples.\n- Write the architecture guide covering schema design, service patterns, and Docker topology.\n- Add a contributor guide with setup, testing, and PR workflow.\n- Document all Artisan commands and their use cases.",
+      "release": "v1.0.8",
+      "category": "Docs",
+      "priority": "P1",
+      "area": "Developer Documentation",
+      "target_date": "2026-05-01",
+      "status": "Todo"
+    },
+    {
+      "title": "v1.0.8 In-app help and onboarding improvements",
+      "body": "Improve product-native guidance for first-time and intermittent users.\n\nScope:\n- Expand contextual help per feature.\n- Improve the SetupWizard flow for super-admin onboarding.\n- Add guided tours for cohort building, vocabulary exploration, and analysis setup.",
+      "release": "v1.0.8",
+      "category": "Help",
+      "priority": "P1",
+      "area": "In-App Help",
+      "target_date": "2026-05-01",
+      "status": "Todo"
+    },
+    {
+      "title": "v1.0.9 Security Audit and Hardening release",
+      "body": "Coordinate the v1.0.9 security release targeted for May 4, 2026.\n\nOutcome:\n- Validate the existing HIGHSEC model end to end.\n- Produce evidence suitable for external review and compliance documentation.",
+      "release": "v1.0.9",
+      "category": "Release",
+      "priority": "P0",
+      "area": "Security Audit & Hardening",
+      "target_date": "2026-05-04",
+      "status": "Todo"
+    },
+    {
+      "title": "v1.0.9 Authentication and authorization audit",
+      "body": "Verify that authentication, authorization, and ownership checks are enforced across the API surface.\n\nScope:\n- Pen-test all API controllers for auth bypass, privilege escalation, and IDOR.\n- Validate Sanctum token lifecycle behavior.\n- Audit every route in `api.php` against the auth, permission, and ownership model.\n- Confirm RBAC role hierarchy boundaries.",
+      "release": "v1.0.9",
+      "category": "Security",
+      "priority": "P0",
+      "area": "Authentication & Authorization",
+      "target_date": "2026-05-04",
+      "status": "Todo"
+    },
+    {
+      "title": "v1.0.9 Data protection audit",
+      "body": "Validate data protection controls and read-only enforcement around sensitive data paths.\n\nScope:\n- Confirm no unauthenticated route exposes PHI, PII, or clinical data.\n- Audit Abby interrogation connection read-only behavior.\n- Review shared cohort link token quality and time bounds.\n- Validate CdmModel read-only enforcement on clinical tables.",
+      "release": "v1.0.9",
+      "category": "Security",
+      "priority": "P0",
+      "area": "Data Protection",
+      "target_date": "2026-05-04",
+      "status": "Todo"
+    },
+    {
+      "title": "v1.0.9 Infrastructure security audit",
+      "body": "Validate infrastructure-level protections across the deployed stack.\n\nScope:\n- Verify all Docker containers run as non-root.\n- Audit secret file permissions.\n- Enforce authentication for Redis, Orthanc, and Grafana.\n- Scan Docker images for known CVEs.\n- Review network segmentation between containers.",
+      "release": "v1.0.9",
+      "category": "Security",
+      "priority": "P1",
+      "area": "Infrastructure",
+      "target_date": "2026-05-04",
+      "status": "Todo"
+    },
+    {
+      "title": "v1.0.9 Compliance evidence package",
+      "body": "Turn security hardening work into reviewable evidence.\n\nScope:\n- Document HIPAA technical safeguards implemented in Parthenon.\n- Generate a security controls matrix mapping HIGHSEC rules to implementation evidence.\n- Prepare artifacts for third-party security review.",
+      "release": "v1.0.9",
+      "category": "Compliance",
+      "priority": "P1",
+      "area": "Compliance",
+      "target_date": "2026-05-04",
+      "status": "Todo"
+    },
+    {
+      "title": "v1.0.10 Release Candidate",
+      "body": "Coordinate the final stabilization release candidate targeted for May 11, 2026.\n\nOutcome:\n- Consolidate everything validated during v1.0.x into a polished release candidate.\n- Confirm the platform is ready for the next phase of feature maturation and cloud readiness.",
+      "release": "v1.0.10",
+      "category": "Release",
+      "priority": "P0",
+      "area": "Release Candidate",
+      "target_date": "2026-05-11",
+      "status": "Todo"
+    },
+    {
+      "title": "v1.0.10 Final stabilization sweep and release readiness",
+      "body": "Close the v1.0.x arc with a final release readiness sweep.\n\nScope:\n- Verify that all accepted stabilization work is complete or explicitly deferred.\n- Re-run critical quality, performance, documentation, and security validation.\n- Prepare release notes, acceptance checklist, and handoff into v1.1 planning.",
+      "release": "v1.0.10",
+      "category": "Release",
+      "priority": "P0",
+      "area": "Release Candidate",
+      "target_date": "2026-05-11",
+      "status": "Todo"
+    },
+    {
+      "title": "v1.1+ Feature maturation planning",
+      "body": "Capture the post-stabilization runway without mixing it into the v1.0.x quality sprint.\n\nScope:\n- Keep federation, integrations, and new capabilities out of the stabilization arc unless required.\n- Use this as the placeholder for v1.1 and later planning once the release candidate is complete.",
+      "release": "v1.1+",
+      "category": "Release",
+      "priority": "P2",
+      "area": "Feature Maturation",
+      "target_date": "2026-05-12",
+      "status": "Todo"
+    }
+  ]
+}

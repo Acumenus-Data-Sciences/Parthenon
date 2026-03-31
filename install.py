@@ -75,6 +75,12 @@ def _parse_args() -> argparse.Namespace:
         default=False,
         help="Upgrade an existing installation to the latest version",
     )
+    parser.add_argument(
+        "--non-interactive",
+        action="store_true",
+        default=False,
+        help="Run without questionary prompts, using defaults and --defaults-file values",
+    )
     return parser.parse_args()
 
 
@@ -103,7 +109,7 @@ def main() -> None:
             from acropolis.installer.cli import run as run_infrastructure
             run_infrastructure(upgrade=args.upgrade)
         else:
-            run(pre_seed=defaults, upgrade=args.upgrade)
+            run(pre_seed=defaults, upgrade=args.upgrade, non_interactive=args.non_interactive)
     except KeyboardInterrupt:
         print("\n\nInstall cancelled by user.")
         sys.exit(130)

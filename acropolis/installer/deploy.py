@@ -45,8 +45,39 @@ SERVICE_TIMEOUTS: dict[str, dict[str, int]] = {
         "acropolis-datahub-frontend": 120,
         "acropolis-datahub-gms": 120,
         "acropolis-authentik-server": 60,
+        "acropolis-wazuh-manager": 180,
+        "acropolis-wazuh-indexer": 180,
+        "acropolis-wazuh-dashboard": 180,
     },
 }
+
+
+def prepare_wazuh_assets(edition: EditionConfig, console: Console) -> bool:
+    """Generate Wazuh TLS certificates before the first enterprise deploy."""
+    if edition.tier != "enterprise":
+        return True
+
+    cert_root = REPO_ROOT / "config" / "wazuh" / "certs"
+    root_ca = cert_root / "root-ca.pem"
+    if root_ca.exists():
+        return True
+
+    cert_root.mkdir(parents=True, exist_ok=True)
+    console.print("[cyan]Generating Wazuh certificates...[/]")
+    rc = run_stream(
+        [
+            "docker", "run", "--rm",
+            "-e", "CERT_TOOL_VERSION=4.14",
+            "-v", f"{cert_root.resolve()}:/certificates/",
+            "-v", f"{(REPO_ROOT / 'config' / 'wazuh' / 'certs.yml').resolve()}:/config/certs.yml:ro",
+            "wazuh/wazuh-certs-generator:0.0.4",
+        ],
+        cwd=REPO_ROOT,
+    )
+    if rc != 0:
+        console.print("[red]Failed to generate Wazuh certificates.[/]")
+        return False
+    return True
 
 
 def _compose_args(edition: EditionConfig) -> list[str]:
@@ -228,6 +259,8 @@ def deploy(edition: EditionConfig, console: Console) -> bool:
 
     pull_images(edition, console)
     build_images(edition, console)
+    if not prepare_wazuh_assets(edition, console):
+        return False
     start_services(edition, console)
 
     console.print("\n[cyan]Waiting for services to become healthy...[/]\n")

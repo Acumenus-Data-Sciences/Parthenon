@@ -43,6 +43,7 @@ def run_smoke_tests(
             "acropolis-traefik", "acropolis-portainer", "acropolis-pgadmin",
             "acropolis-n8n", "acropolis-superset",
             "acropolis-datahub-frontend", "acropolis-authentik-server",
+            "acropolis-wazuh-manager", "acropolis-wazuh-indexer", "acropolis-wazuh-dashboard",
         ],
     }
 
@@ -114,6 +115,7 @@ def display_summary(
         url_table.add_row("Superset", f"https://superset.{domain}")
         url_table.add_row("DataHub", f"https://datahub.{domain}")
         url_table.add_row("Authentik", f"https://auth.{domain}")
+        url_table.add_row("Wazuh", f"https://wazuh.{domain}")
 
     if topology.mode != "standalone":
         url_table.add_row("Parthenon", f"https://parthenon.{domain}")

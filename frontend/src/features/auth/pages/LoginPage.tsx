@@ -95,7 +95,7 @@ export function LoginPage() {
           style={{
             position: "absolute",
             inset: 0,
-            backgroundImage: "url(/parthenon.jpg)",
+            backgroundImage: "url(/parthenon-login-bg.png)",
             backgroundSize: "cover",
             backgroundPosition: "center 40%",
             filter: "brightness(0.78) saturate(1.05) contrast(1.08)",

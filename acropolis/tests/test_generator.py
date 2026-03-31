@@ -22,6 +22,7 @@ def test_generate_enterprise_edition():
         services=["portainer", "pgadmin", "n8n", "superset"],
     )
     assert "docker-compose.enterprise.yml" in script
+    assert "https://wazuh.$DOMAIN" in script
 
 
 def test_generate_has_all_commands():

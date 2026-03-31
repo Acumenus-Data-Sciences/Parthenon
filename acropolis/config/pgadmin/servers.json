@@ -8,17 +8,7 @@
       "MaintenanceDB": "parthenon",
       "Username": "parthenon",
       "SSLMode": "prefer",
-      "Comment": "Parthenon application database (Docker PostgreSQL 16)"
-    },
-    "2": {
-      "Name": "OHDSI (Host PG 17)",
-      "Group": "Acropolis",
-      "Host": "host.docker.internal",
-      "Port": 5432,
-      "MaintenanceDB": "ohdsi",
-      "Username": "smudoshi",
-      "SSLMode": "prefer",
-      "Comment": "OMOP CDM + Vocabulary (Host PostgreSQL 17)"
+      "Comment": "Parthenon application database"
     }
   }
 }

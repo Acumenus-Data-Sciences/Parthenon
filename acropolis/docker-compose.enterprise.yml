@@ -2,7 +2,7 @@
 # Acropolis — Enterprise Edition Services
 # =============================================================================
 # Requires: docker-compose.yml (base) + docker-compose.community.yml
-# Includes: n8n, Apache Superset, DataHub, Authentik
+# Includes: n8n, Apache Superset, DataHub, Authentik, Wazuh
 #
 # License: Commercial license required. See docs/editions.md
 # =============================================================================
@@ -381,7 +381,11 @@ services:
       - "traefik.http.middlewares.authentik.forwardauth.trustForwardHeader=true"
       - "traefik.http.middlewares.authentik.forwardauth.authResponseHeaders=X-authentik-username,X-authentik-groups,X-authentik-email,X-authentik-name,X-authentik-uid,X-authentik-jwt,X-authentik-meta-jwks,X-authentik-meta-outpost,X-authentik-meta-provider,X-authentik-meta-app,X-authentik-meta-version"
     healthcheck:
-      test: ["CMD-SHELL", "wget -q --spider http://localhost:9000/-/health/live/ || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "python3 -c \"import sys, urllib.request; urllib.request.urlopen('http://localhost:9000/-/health/live/'); sys.exit(0)\" || exit 1",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -410,6 +414,141 @@ services:
     networks:
       - acropolis
 
+  # ── Wazuh — Security Monitoring / SIEM / XDR ────────────────────────────
+  wazuh-manager:
+    container_name: acropolis-wazuh-manager
+    image: wazuh/wazuh-manager:4.14.4
+    hostname: wazuh.manager
+    restart: unless-stopped
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 655360
+        hard: 655360
+    ports:
+      - "1514:1514"
+      - "1515:1515"
+      - "514:514/udp"
+      - "55000:55000"
+    environment:
+      - INDEXER_URL=https://wazuh.indexer:9200
+      - INDEXER_USERNAME=admin
+      - INDEXER_PASSWORD=${WAZUH_INDEXER_PASSWORD:-SecretPassword}
+      - FILEBEAT_SSL_VERIFICATION_MODE=full
+      - SSL_CERTIFICATE_AUTHORITIES=/etc/ssl/root-ca.pem
+      - SSL_CERTIFICATE=/etc/ssl/filebeat.pem
+      - SSL_KEY=/etc/ssl/filebeat.key
+      - API_USERNAME=wazuh-wui
+      - API_PASSWORD=${WAZUH_API_PASSWORD:-MyS3cr37P450r.*-}
+    volumes:
+      - wazuh_api_configuration:/var/ossec/api/configuration
+      - wazuh_etc:/var/ossec/etc
+      - wazuh_logs:/var/ossec/logs
+      - wazuh_queue:/var/ossec/queue
+      - wazuh_integrations:/var/ossec/integrations
+      - wazuh_active_response:/var/ossec/active-response/bin
+      - wazuh_agentless:/var/ossec/agentless
+      - wazuh_wodles:/var/ossec/wodles
+      - filebeat_etc:/etc/filebeat
+      - filebeat_var:/var/lib/filebeat
+      - ./config/wazuh/certs/root-ca-manager.pem:/etc/ssl/root-ca.pem:ro
+      - ./config/wazuh/certs/wazuh.manager.pem:/etc/ssl/filebeat.pem:ro
+      - ./config/wazuh/certs/wazuh.manager-key.pem:/etc/ssl/filebeat.key:ro
+      - ./config/wazuh/wazuh_cluster/wazuh_manager.conf:/wazuh-config-mount/etc/ossec.conf:ro
+    depends_on:
+      wazuh-indexer:
+        condition: service_healthy
+    networks:
+      acropolis:
+        aliases:
+          - wazuh.manager
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sk https://localhost:55000 >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+
+  wazuh-indexer:
+    container_name: acropolis-wazuh-indexer
+    image: wazuh/wazuh-indexer:4.14.4
+    hostname: wazuh.indexer
+    restart: unless-stopped
+    environment:
+      - OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - wazuh_indexer_data:/var/lib/wazuh-indexer
+      - ./config/wazuh/certs/root-ca.pem:/usr/share/wazuh-indexer/config/certs/root-ca.pem:ro
+      - ./config/wazuh/certs/wazuh.indexer-key.pem:/usr/share/wazuh-indexer/config/certs/wazuh.indexer.key:ro
+      - ./config/wazuh/certs/wazuh.indexer.pem:/usr/share/wazuh-indexer/config/certs/wazuh.indexer.pem:ro
+      - ./config/wazuh/certs/admin.pem:/usr/share/wazuh-indexer/config/certs/admin.pem:ro
+      - ./config/wazuh/certs/admin-key.pem:/usr/share/wazuh-indexer/config/certs/admin-key.pem:ro
+      - ./config/wazuh/wazuh_indexer/wazuh.indexer.yml:/usr/share/wazuh-indexer/config/opensearch.yml:ro
+      - ./config/wazuh/wazuh_indexer/internal_users.yml:/usr/share/wazuh-indexer/config/opensearch-security/internal_users.yml:ro
+    networks:
+      acropolis:
+        aliases:
+          - wazuh.indexer
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sk -u admin:${WAZUH_INDEXER_PASSWORD:-SecretPassword} https://localhost:9200 >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+
+  wazuh-dashboard:
+    container_name: acropolis-wazuh-dashboard
+    image: wazuh/wazuh-dashboard:4.14.4
+    hostname: wazuh.dashboard
+    restart: unless-stopped
+    environment:
+      - INDEXER_USERNAME=admin
+      - INDEXER_PASSWORD=${WAZUH_INDEXER_PASSWORD:-SecretPassword}
+      - WAZUH_API_URL=https://wazuh.manager
+      - DASHBOARD_USERNAME=kibanaserver
+      - DASHBOARD_PASSWORD=${WAZUH_DASHBOARD_PASSWORD:-kibanaserver}
+      - API_USERNAME=wazuh-wui
+      - API_PASSWORD=${WAZUH_API_PASSWORD:-MyS3cr37P450r.*-}
+    volumes:
+      - ./config/wazuh/certs/wazuh.dashboard.pem:/usr/share/wazuh-dashboard/certs/wazuh.dashboard.pem:ro
+      - ./config/wazuh/certs/wazuh.dashboard-key.pem:/usr/share/wazuh-dashboard/certs/wazuh.dashboard-key.pem:ro
+      - ./config/wazuh/certs/root-ca.pem:/usr/share/wazuh-dashboard/certs/root-ca.pem:ro
+      - ./config/wazuh/wazuh_dashboard/opensearch_dashboards.yml:/usr/share/wazuh-dashboard/config/opensearch_dashboards.yml:ro
+      - ./config/wazuh/wazuh_dashboard/wazuh.yml:/usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml:ro
+      - wazuh_dashboard_config:/usr/share/wazuh-dashboard/data/wazuh/config
+      - wazuh_dashboard_custom:/usr/share/wazuh-dashboard/plugins/wazuh/public/assets/custom
+    depends_on:
+      wazuh-indexer:
+        condition: service_healthy
+      wazuh-manager:
+        condition: service_healthy
+    networks:
+      acropolis:
+        aliases:
+          - wazuh.dashboard
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.wazuh.rule=Host(`wazuh.${DOMAIN:-acumenus.net}`)"
+      - "traefik.http.routers.wazuh.entrypoints=websecure"
+      - "traefik.http.routers.wazuh.tls.certresolver=letsencrypt"
+      - "traefik.http.services.wazuh.loadbalancer.server.port=5601"
+      - "traefik.http.routers.wazuh.middlewares=authentik@docker"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sk https://localhost:5601/login >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+
 volumes:
   n8n_data:
   superset_db_data:
@@ -422,6 +561,20 @@ volumes:
   authentik_redis_data:
   authentik_media:
   authentik_templates:
+  wazuh_api_configuration:
+  wazuh_etc:
+  wazuh_logs:
+  wazuh_queue:
+  wazuh_var_multigroups:
+  wazuh_integrations:
+  wazuh_active_response:
+  wazuh_agentless:
+  wazuh_wodles:
+  filebeat_etc:
+  filebeat_var:
+  wazuh_indexer_data:
+  wazuh_dashboard_config:
+  wazuh_dashboard_custom:
 
 networks:
   acropolis:

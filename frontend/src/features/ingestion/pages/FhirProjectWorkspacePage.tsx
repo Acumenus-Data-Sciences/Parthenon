@@ -24,6 +24,8 @@ import {
 import type { FhirProjectWorkspace } from "../api/ingestionApi";
 import type { FhirConnection, FhirSyncRun } from "@/features/administration/api/adminApi";
 
+type AuthAwareFhirConnection = FhirConnection & { auth_mode?: FhirConnection["auth_mode"] };
+
 const FhirIngestionPanel = lazy(
   () => import("@/features/etl/components/FhirIngestionPanel"),
 );
@@ -293,7 +295,7 @@ function ConnectedView({
   onSync,
 }: {
   workspace: FhirProjectWorkspace;
-  connection: FhirConnection;
+  connection: AuthAwareFhirConnection;
   runs: FhirSyncRun[];
   activeRun: FhirSyncRun | null;
   syncInProgress: boolean;

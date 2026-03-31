@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Parthenon Installer</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-wash"></div>
+        <div class="hero-card glass">
+          <div class="accent-line"></div>
+          <h1>Parthenon</h1>
+          <p class="hero-subtitle">Unified Outcomes Research Platform</p>
+          <p class="hero-copy">
+            Set up Parthenon through a guided installation flow for researchers
+            and deployment teams. Configure your environment, verify system
+            readiness, and launch the platform with a clean, dependable setup.
+          </p>
+          <div class="hero-chips">
+            <span>Cohorts</span>
+            <span>Characterization</span>
+            <span>Estimation</span>
+            <span>Prediction</span>
+            <span>Imaging</span>
+            <span>GIS</span>
+          </div>
+        </div>
+      </section>
+      <div class="divider"></div>
+      <section class="workspace">
+        <div class="workspace-shell glass">
+          <header class="workspace-header">
+            <h2>Install Parthenon</h2>
+            <p>Configure the environment, run installer checks, and start deployment.</p>
+          </header>
+          <div class="workspace-body">
+            <aside class="steps glass-soft" id="steps"></aside>
+            <main class="content">
+              <div class="banner" id="banner" hidden></div>
+              <div class="content-head">
+                <h3 id="step-title"></h3>
+                <p id="step-subtitle"></p>
+              </div>
+              <div class="progress-track glass-soft">
+                <div class="progress-fill" id="progress-fill"></div>
+              </div>
+              <div class="glass-soft content-card">
+                <div id="step-content"></div>
+              </div>
+              <div class="glass-soft action-bar">
+                <div class="action-flags">
+                  <label class="checkbox-row">
+                    <input type="checkbox" id="upgrade" />
+                    <span>Upgrade existing installation</span>
+                  </label>
+                  <button class="btn secondary" id="dry-run-btn" type="button">Dry Run: Off</button>
+                </div>
+                <div class="buttons">
+                  <button class="btn secondary" id="back-btn">Back</button>
+                  <button class="btn secondary" id="next-btn">Next</button>
+                  <button class="btn secondary" id="validate-btn">Validate</button>
+                  <button class="btn primary" id="install-btn">Start Installation</button>
+                </div>
+              </div>
+            </main>
+          </div>
+        </div>
+      </section>
+    </div>
+    <div class="modal-backdrop" id="onboarding-modal" hidden>
+      <div class="modal-panel glass" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+        <div class="accent-line"></div>
+        <div class="section-kicker">Welcome</div>
+        <h2 id="onboarding-title">Begin the installation path</h2>
+        <p class="section-copy">
+          Choose the user profile that best matches the person or team this installation is for.
+          This decision determines which edition path Parthenon will allow.
+        </p>
+        <div class="choice-group">
+          <div class="choice-label">Beginner or Experienced OHDSI/OMOP User</div>
+          <div class="choice-grid modal-choice-grid" id="experience-modal-choices">
+            <button type="button" class="choice-card" data-modal-experience="Beginner">
+              <span class="choice-title">Beginner</span>
+              <span class="choice-body">New to OHDSI/OMOP or installing Parthenon for the first time. Community Edition is the supported path.</span>
+            </button>
+            <button type="button" class="choice-card" data-modal-experience="Experienced">
+              <span class="choice-title">Experienced</span>
+              <span class="choice-body">Comfortable with OHDSI/OMOP setup and deployment choices. Community or Enterprise Edition can be selected later.</span>
+            </button>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <div class="modal-status" id="onboarding-status">Select a path to continue.</div>
+          <div class="buttons">
+            <button class="btn primary" id="onboarding-continue" type="button">Continue</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <template id="field-template">
+      <label class="field">
+        <span class="field-label"></span>
+        <input class="field-input" />
+      </label>
+    </template>
+    <script src="/app.js"></script>
+  </body>
+</html>

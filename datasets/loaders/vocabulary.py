@@ -1,6 +1,7 @@
 """Loader for the OMOP Vocabulary (Athena ZIP)."""
 from __future__ import annotations
 
+import os
 import subprocess
 import shlex
 from pathlib import Path
@@ -8,6 +9,25 @@ from pathlib import Path
 from rich.console import Console
 
 from datasets.loaders import REPO_ROOT, _exec_php, _query_count
+
+
+def _resolve_umls_api_key() -> str:
+    env_value = os.environ.get("UMLS_API_KEY", "").strip()
+    if env_value:
+        return env_value
+
+    env_file = REPO_ROOT / ".env"
+    if not env_file.exists():
+        return ""
+
+    for raw_line in env_file.read_text().splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        if key.strip() == "UMLS_API_KEY":
+            return value.strip().strip('"').strip("'")
+    return ""
 
 
 def is_loaded() -> bool:
@@ -67,6 +87,14 @@ def load(
     zip_path = Path(zip_path).expanduser().resolve()
     if not zip_path.is_file():
         console.print(f"[red]ZIP file not found: {zip_path}[/red]")
+        return False
+
+    umls_api_key = _resolve_umls_api_key()
+    if not umls_api_key:
+        console.print(
+            "[red]UMLS_API_KEY is not configured. Vocabulary imports require a UMLS key "
+            "for CPT-4 and related vocabulary workflows.[/red]"
+        )
         return False
 
     # ------------------------------------------------------------------

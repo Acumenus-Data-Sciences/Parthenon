@@ -11,12 +11,29 @@ from typing import NamedTuple
 from rich.console import Console
 from rich.table import Table
 
-from . import utils
+from . import config, utils
 
 console = Console()
 
-REQUIRED_PORTS = [8082, 5480, 6381, 8002, 8787, 8983, 6333, 8000, 8042, 8080, 8090, 8091, 8765]
 MIN_DISK_GB = 5.0
+BASE_PORT_FIELDS = [
+    ("nginx_port", "NGINX"),
+    ("postgres_port", "Postgres"),
+    ("redis_port", "Redis"),
+    ("ai_port", "AI"),
+    ("jupyter_port", "JupyterHub"),
+    ("r_port", "Darkstar"),
+]
+OPTIONAL_PORTS = [
+    ("enable_solr", "solr_port", "Solr"),
+    ("enable_study_agent", "study_agent_port", "Study Agent"),
+    ("enable_blackrabbit", "blackrabbit_port", "BlackRabbit"),
+    ("enable_fhir_to_cdm", "fhir_to_cdm_port", "FHIR-to-CDM"),
+    ("enable_hecate", "hecate_port", "Hecate"),
+    ("enable_hecate", 6333, "Qdrant API"),
+    ("enable_hecate", 6334, "Qdrant gRPC"),
+    ("enable_orthanc", "orthanc_port", "Orthanc"),
+]
 
 
 class CheckResult(NamedTuple):
@@ -97,13 +114,38 @@ def _check_docker_group() -> CheckResult:
     )
 
 
-def _check_ports() -> list[CheckResult]:
-    results = []
-    for port in REQUIRED_PORTS:
-        if utils.is_port_free(port):
-            results.append(CheckResult(f"Port {port} free", "ok", "available"))
+def required_ports(cfg: dict[str, object] | None = None) -> list[tuple[int, str]]:
+    normalized = config.build_config_defaults(cfg)
+    ports: list[tuple[int, str]] = []
+    seen: set[int] = set()
+
+    def add(port: int, label: str) -> None:
+        if port in seen:
+            return
+        seen.add(port)
+        ports.append((port, label))
+
+    for key, label in BASE_PORT_FIELDS:
+        add(int(normalized[key]), label)
+
+    for flag, port_or_field, label in OPTIONAL_PORTS:
+        if not normalized.get(flag):
+            continue
+        if isinstance(port_or_field, str):
+            add(int(normalized[port_or_field]), label)
         else:
-            results.append(CheckResult(f"Port {port} free", "fail", f"port {port} is in use — stop the process using it or change port in .env"))
+            add(port_or_field, label)
+
+    return ports
+
+
+def _check_ports(cfg: dict[str, object] | None = None) -> list[CheckResult]:
+    results = []
+    for port, label in required_ports(cfg):
+        if utils.is_port_free(port):
+            results.append(CheckResult(f"Port {port} free", "ok", f"{label} host port available"))
+        else:
+            results.append(CheckResult(f"Port {port} free", "fail", f"{label} host port {port} is in use — stop the process using it or change the mapped port"))
     return results
 
 
@@ -142,7 +184,7 @@ def _check_vendor() -> CheckResult:
     )
 
 
-def run_checks() -> list[CheckResult]:
+def run_checks(cfg: dict[str, object] | None = None) -> list[CheckResult]:
     """Run all preflight checks and return the results."""
     checks: list[CheckResult] = []
     checks.append(_check_python())
@@ -151,7 +193,7 @@ def run_checks() -> list[CheckResult]:
     checks.append(_check_compose())
     checks.append(_check_daemon())
     checks.append(_check_docker_group())
-    checks.extend(_check_ports())
+    checks.extend(_check_ports(cfg))
     checks.append(_check_disk())
     checks.append(_check_repo())
     checks.append(_check_existing_install())
@@ -181,10 +223,10 @@ def assert_no_failures(checks: list[CheckResult]) -> None:
         sys.exit(1)
 
 
-def run(*, interactive: bool = True) -> list[CheckResult]:
+def run(*, interactive: bool = True, cfg: dict[str, object] | None = None) -> list[CheckResult]:
     """Execute preflight phase. Returns checks list."""
     console.rule("[bold]Phase 1 — Preflight Checks[/bold]")
-    checks = run_checks()
+    checks = run_checks(cfg)
     display_results(checks)
     assert_no_failures(checks)
 

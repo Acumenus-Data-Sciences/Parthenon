@@ -133,6 +133,7 @@ cmd_urls() {{
         echo -e "  Superset           ${{GREEN}}https://superset.$DOMAIN${{NC}}"
         echo -e "  DataHub            ${{GREEN}}https://datahub.$DOMAIN${{NC}}"
         echo -e "  Authentik          ${{GREEN}}https://auth.$DOMAIN${{NC}}"
+        echo -e "  Wazuh              ${{GREEN}}https://wazuh.$DOMAIN${{NC}}"
     fi
 
     if [[ "$PARTHENON_MODE" != "standalone" ]]; then

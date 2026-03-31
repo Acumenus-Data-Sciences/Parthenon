@@ -16,6 +16,20 @@ PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 VOCAB_ZIP="$PROJECT_DIR/vocabulary_download_v5_{602535d6-0fc1-4ebb-82af-137b3b9d1de9}_1772038962310.zip"
 WORK_DIR="/tmp/vocab_load"
 
+if [ -f "$PROJECT_DIR/.env" ]; then
+  # Export installer-managed environment, including UMLS_API_KEY.
+  set -a
+  # shellcheck disable=SC1091
+  source "$PROJECT_DIR/.env"
+  set +a
+fi
+
+if [ -z "${UMLS_API_KEY:-}" ]; then
+  echo "ERROR: UMLS_API_KEY is not configured."
+  echo "Set it in $PROJECT_DIR/.env before loading vocabulary. CPT-4 and related vocabulary workflows require it."
+  exit 1
+fi
+
 # DB connection
 PG_HOST="localhost"
 PG_PORT="5432"

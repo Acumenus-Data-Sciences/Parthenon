@@ -2,7 +2,7 @@
 
 This is the Acropolis infrastructure installer, now integrated into the
 Parthenon monorepo. It adds Traefik, Portainer, pgAdmin, and optionally
-enterprise services (n8n, Superset, DataHub, Authentik) on top of Parthenon.
+enterprise services (n8n, Superset, DataHub, Authentik, Wazuh) on top of Parthenon.
 
 Flow:
   Phase 1: Preflight checks (Docker, ports, disk)
@@ -32,6 +32,7 @@ from acropolis.installer.config import (
     write_env_file,
     write_credentials_file,
     write_pgadmin_servers,
+    write_wazuh_configs,
 )
 from acropolis.installer.deploy import deploy, teardown
 from acropolis.installer.discovery import DiscoveredService, discover_services
@@ -241,6 +242,8 @@ def run(upgrade: bool = False) -> None:
         write_credentials_file(config, edition, topology)
         if edition.tier in ("community", "enterprise"):
             write_pgadmin_servers(config)
+        if edition.tier == "enterprise":
+            write_wazuh_configs(config)
         console.print("[green]Configuration files written.[/]")
 
         state.data["config"] = {

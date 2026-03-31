@@ -2,6 +2,7 @@
 """Tests for installer.preflight module."""
 from unittest.mock import patch
 from installer.preflight import (
+    EDITION_PORTS,
     CheckResult,
     check_python_version,
     check_docker_version,
@@ -108,3 +109,11 @@ def test_run_preflight_returns_list(*mocks):
     results = run_preflight()
     assert isinstance(results, list)
     assert all(isinstance(r, CheckResult) for r in results)
+
+
+def test_enterprise_ports_include_wazuh_agent_ports():
+    ports = EDITION_PORTS["enterprise"]
+    assert 514 in ports
+    assert 1514 in ports
+    assert 1515 in ports
+    assert 55000 in ports
