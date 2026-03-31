@@ -264,7 +264,7 @@ jobs:
   #         path: docs/screenshots/screenshots/
 
   openapi-export:
-    name: OpenAPI Spec (Scramble)
+    name: OpenAPI Spec (Scribe)
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -315,7 +315,7 @@ jobs:
         working-directory: backend
         run: cp .env.example .env && php artisan key:generate
 
-      - name: Export OpenAPI spec
+      - name: Export OpenAPI spec with Scribe
         working-directory: backend
         env:
           DB_CONNECTION: pgsql
