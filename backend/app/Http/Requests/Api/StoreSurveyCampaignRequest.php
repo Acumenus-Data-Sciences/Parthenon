@@ -21,6 +21,7 @@ class StoreSurveyCampaignRequest extends FormRequest
             'survey_instrument_id' => 'required|exists:survey_instruments,id',
             'cohort_generation_id' => 'nullable|integer|exists:cohort_generations,id',
             'description' => 'nullable|string',
+            'requires_honest_broker' => 'sometimes|boolean',
         ];
     }
 }

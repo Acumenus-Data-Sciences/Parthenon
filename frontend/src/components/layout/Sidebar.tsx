@@ -41,6 +41,7 @@ import {
   PanelsTopLeft,
   ScrollText,
   NotebookPen,
+  ShieldUser,
   type LucideIcon,
 } from "lucide-react";
 import { HelpSlideOver } from "@/features/help/components/HelpSlideOver";
@@ -135,6 +136,7 @@ const navItems: NavItem[] = [
     children: [
       { path: "/admin", label: "Admin Dashboard", icon: Settings },
       { path: "/admin/system-health", label: "System Health", icon: Activity },
+      { path: "/admin/honest-broker", label: "Honest Broker", icon: ShieldUser },
       { path: "/admin/users", label: "Users", icon: UsersRound },
       { path: "/admin/user-audit", label: "Audit Log", icon: ScrollText },
       { path: "/admin/roles", label: "Roles & Permissions", icon: ShieldCheck, superAdminOnly: true },
@@ -152,6 +154,7 @@ const routeHelpKeys: Record<string, string> = {
   "/admin/fhir-connections": "admin.fhir-connections",
   "/admin/fhir-export": "admin.fhir-export",
   "/admin/fhir-sync-monitor": "admin.fhir-sync-monitor",
+  "/admin/honest-broker": "administration",
   "/admin/notifications": "admin.notifications",
   "/admin/roles": "admin.roles",
   "/admin/system-health": "admin.system-health",

@@ -681,6 +681,13 @@ export const router = createBrowserRouter(
               ),
           },
           {
+            path: "honest-broker",
+            lazy: () =>
+              import("@/features/administration/pages/HonestBrokerPage").then(
+                (m) => ({ Component: m.default }),
+              ),
+          },
+          {
             path: "system-health/:key",
             lazy: () =>
               import("@/features/administration/pages/ServiceDetailPage").then(

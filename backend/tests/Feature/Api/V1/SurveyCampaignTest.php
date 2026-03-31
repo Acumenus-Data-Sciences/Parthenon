@@ -21,6 +21,14 @@ function researcherUser(): User
     return $user;
 }
 
+function surveyAdminUser(): User
+{
+    $user = User::factory()->create();
+    $user->assignRole('admin');
+
+    return $user;
+}
+
 function surveyInstrument(): SurveyInstrument
 {
     return SurveyInstrument::create([
@@ -136,7 +144,7 @@ it('updates a draft campaign', function () {
 });
 
 it('deletes a campaign', function () {
-    $user = researcherUser();
+    $user = surveyAdminUser();
     $campaign = SurveyCampaign::create([
         'name' => 'Delete Me',
         'survey_instrument_id' => surveyInstrument()->id,

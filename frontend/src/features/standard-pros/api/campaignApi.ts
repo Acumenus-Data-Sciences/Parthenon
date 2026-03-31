@@ -8,6 +8,7 @@ export interface SurveyCampaignApi {
   status: "draft" | "active" | "closed";
   publish_token: string | null;
   description: string | null;
+  requires_honest_broker: boolean;
   closed_at: string | null;
   created_by: number | null;
   created_at: string;
@@ -42,11 +43,86 @@ export interface SurveyConductRecordApi {
   survey_instrument_id: number;
   campaign_id: number | null;
   completion_status: string;
+  blinded_participant_id?: string | null;
   total_score: string | null;
   survey_start_datetime: string | null;
   survey_end_datetime: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface HonestBrokerLinkApi {
+  id: number;
+  survey_campaign_id: number;
+  survey_conduct_id: number | null;
+  person_id: number | null;
+  blinded_participant_id: string;
+  match_status: string;
+  submitted_at: string | null;
+  notes: string | null;
+  contact?: HonestBrokerContactApi | null;
+  latest_invitation?: HonestBrokerInvitationApi | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface HonestBrokerContactApi {
+  id: number;
+  survey_honest_broker_link_id: number;
+  preferred_channel: "email" | "sms";
+  delivery_email: string | null;
+  delivery_phone: string | null;
+  last_sent_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface HonestBrokerInvitationApi {
+  id: number;
+  survey_campaign_id: number;
+  survey_honest_broker_link_id: number;
+  survey_honest_broker_contact_id: number | null;
+  delivery_channel: "email" | "sms";
+  delivery_status: string;
+  token_last_four: string;
+  sent_at: string | null;
+  opened_at: string | null;
+  submitted_at: string | null;
+  expires_at: string | null;
+  revoked_at: string | null;
+  last_error: string | null;
+  message_subject: string | null;
+  created_at: string;
+  updated_at: string;
+  link?: {
+    id: number;
+    blinded_participant_id: string;
+    person_id: number | null;
+  } | null;
+  contact?: HonestBrokerContactApi | null;
+}
+
+export interface HonestBrokerAuditLogApi {
+  id: number;
+  survey_campaign_id: number | null;
+  survey_honest_broker_link_id: number | null;
+  survey_honest_broker_invitation_id: number | null;
+  action: string;
+  metadata: Record<string, unknown> | null;
+  occurred_at: string;
+  actor: {
+    id: number;
+    name: string;
+    email: string;
+  } | null;
+  link: {
+    id: number;
+    blinded_participant_id: string;
+  } | null;
+  invitation: {
+    id: number;
+    token_last_four: string;
+  } | null;
 }
 
 export interface PaginatedCampaignResponse {
@@ -62,6 +138,7 @@ export interface StoreCampaignPayload {
   survey_instrument_id: number;
   cohort_generation_id?: number | null;
   description?: string | null;
+  requires_honest_broker?: boolean;
 }
 
 export async function fetchCampaigns(params?: {
@@ -178,6 +255,107 @@ export async function storeConductResponses(
     responses,
     replace_existing: true,
   });
+
+  return data.data;
+}
+
+export async function fetchCampaignHonestBrokerLinks(
+  campaignId: number,
+): Promise<HonestBrokerLinkApi[]> {
+  const { data } = await apiClient.get<{ data: HonestBrokerLinkApi[] }>(
+    `/survey-campaigns/${campaignId}/honest-broker-links`,
+  );
+
+  return data.data;
+}
+
+export async function createCampaignHonestBrokerLink(
+  campaignId: number,
+  payload: {
+    respondent_identifier: string;
+    person_id?: number | null;
+    notes?: string | null;
+  },
+): Promise<HonestBrokerLinkApi> {
+  const { data } = await apiClient.post<{ data: HonestBrokerLinkApi }>(
+    `/survey-campaigns/${campaignId}/honest-broker-links`,
+    payload,
+  );
+
+  return data.data;
+}
+
+export async function upsertCampaignHonestBrokerContact(
+  campaignId: number,
+  linkId: number,
+  payload: {
+    delivery_email?: string | null;
+    delivery_phone?: string | null;
+    preferred_channel?: "email" | "sms";
+  },
+): Promise<HonestBrokerContactApi> {
+  const { data } = await apiClient.put<{ data: HonestBrokerContactApi }>(
+    `/survey-campaigns/${campaignId}/honest-broker-links/${linkId}/contact`,
+    payload,
+  );
+
+  return data.data;
+}
+
+export async function fetchCampaignHonestBrokerInvitations(
+  campaignId: number,
+): Promise<HonestBrokerInvitationApi[]> {
+  const { data } = await apiClient.get<{ data: HonestBrokerInvitationApi[] }>(
+    `/survey-campaigns/${campaignId}/honest-broker-invitations`,
+  );
+
+  return data.data;
+}
+
+export async function sendCampaignHonestBrokerInvitation(
+  campaignId: number,
+  payload: {
+    survey_honest_broker_link_id: number;
+    delivery_email?: string | null;
+    delivery_phone?: string | null;
+    preferred_channel?: "email" | "sms";
+  },
+): Promise<{ invitation: HonestBrokerInvitationApi; survey_url: string }> {
+  const { data } = await apiClient.post<{
+    data: { invitation: HonestBrokerInvitationApi; survey_url: string };
+  }>(`/survey-campaigns/${campaignId}/honest-broker-invitations`, payload);
+
+  return data.data;
+}
+
+export async function resendCampaignHonestBrokerInvitation(
+  campaignId: number,
+  invitationId: number,
+): Promise<{ invitation: HonestBrokerInvitationApi; survey_url: string }> {
+  const { data } = await apiClient.post<{
+    data: { invitation: HonestBrokerInvitationApi; survey_url: string };
+  }>(`/survey-campaigns/${campaignId}/honest-broker-invitations/${invitationId}/resend`);
+
+  return data.data;
+}
+
+export async function revokeCampaignHonestBrokerInvitation(
+  campaignId: number,
+  invitationId: number,
+): Promise<HonestBrokerInvitationApi> {
+  const { data } = await apiClient.post<{ data: HonestBrokerInvitationApi }>(
+    `/survey-campaigns/${campaignId}/honest-broker-invitations/${invitationId}/revoke`,
+  );
+
+  return data.data;
+}
+
+export async function fetchCampaignHonestBrokerAuditLogs(
+  campaignId: number,
+): Promise<HonestBrokerAuditLogApi[]> {
+  const { data } = await apiClient.get<{ data: HonestBrokerAuditLogApi[] }>(
+    `/survey-campaigns/${campaignId}/honest-broker-audit-logs`,
+  );
 
   return data.data;
 }

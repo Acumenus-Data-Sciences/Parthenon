@@ -2,6 +2,7 @@
 
 namespace App\Models\Survey;
 
+use App\Models\App\CohortGeneration;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,6 +17,7 @@ class SurveyCampaign extends Model
         'status',
         'publish_token',
         'description',
+        'requires_honest_broker',
         'closed_at',
         'created_by',
     ];
@@ -27,6 +29,7 @@ class SurveyCampaign extends Model
     {
         return [
             'cohort_generation_id' => 'integer',
+            'requires_honest_broker' => 'boolean',
             'closed_at' => 'datetime',
         ];
     }
@@ -48,11 +51,43 @@ class SurveyCampaign extends Model
     }
 
     /**
+     * @return HasMany<SurveyHonestBrokerLink, $this>
+     */
+    public function honestBrokerLinks(): HasMany
+    {
+        return $this->hasMany(SurveyHonestBrokerLink::class, 'survey_campaign_id');
+    }
+
+    /**
+     * @return HasMany<SurveyHonestBrokerInvitation, $this>
+     */
+    public function honestBrokerInvitations(): HasMany
+    {
+        return $this->hasMany(SurveyHonestBrokerInvitation::class, 'survey_campaign_id');
+    }
+
+    /**
+     * @return HasMany<SurveyHonestBrokerAuditLog, $this>
+     */
+    public function honestBrokerAuditLogs(): HasMany
+    {
+        return $this->hasMany(SurveyHonestBrokerAuditLog::class, 'survey_campaign_id');
+    }
+
+    /**
      * @return BelongsTo<User, $this>
      */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * @return BelongsTo<CohortGeneration, $this>
+     */
+    public function cohortGeneration(): BelongsTo
+    {
+        return $this->belongsTo(CohortGeneration::class, 'cohort_generation_id');
     }
 
     public function scopeActive(mixed $query): mixed

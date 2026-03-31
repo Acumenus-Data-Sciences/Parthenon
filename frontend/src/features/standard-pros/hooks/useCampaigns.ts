@@ -2,13 +2,21 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   activateCampaign,
   closeCampaign,
+  createCampaignHonestBrokerLink,
   createCampaign,
   deleteCampaign,
   fetchCampaign,
+  fetchCampaignHonestBrokerAuditLogs,
   fetchCampaignConductRecords,
+  fetchCampaignHonestBrokerLinks,
+  fetchCampaignHonestBrokerInvitations,
   fetchCampaigns,
   importCampaignResponses,
+  resendCampaignHonestBrokerInvitation,
+  revokeCampaignHonestBrokerInvitation,
+  sendCampaignHonestBrokerInvitation,
   storeConductResponses,
+  upsertCampaignHonestBrokerContact,
   updateCampaign,
   type StoreCampaignPayload,
 } from "../api/campaignApi";
@@ -45,6 +53,30 @@ export function useCampaignConductRecords(
   return useQuery({
     queryKey: [...CAMPAIGN_KEYS.all, "conduct-records", campaignId, params] as const,
     queryFn: () => fetchCampaignConductRecords(campaignId!, params),
+    enabled: campaignId != null && campaignId > 0,
+  });
+}
+
+export function useCampaignHonestBrokerLinks(campaignId: number | null) {
+  return useQuery({
+    queryKey: [...CAMPAIGN_KEYS.all, "honest-broker-links", campaignId] as const,
+    queryFn: () => fetchCampaignHonestBrokerLinks(campaignId!),
+    enabled: campaignId != null && campaignId > 0,
+  });
+}
+
+export function useCampaignHonestBrokerInvitations(campaignId: number | null) {
+  return useQuery({
+    queryKey: [...CAMPAIGN_KEYS.all, "honest-broker-invitations", campaignId] as const,
+    queryFn: () => fetchCampaignHonestBrokerInvitations(campaignId!),
+    enabled: campaignId != null && campaignId > 0,
+  });
+}
+
+export function useCampaignHonestBrokerAuditLogs(campaignId: number | null) {
+  return useQuery({
+    queryKey: [...CAMPAIGN_KEYS.all, "honest-broker-audit-logs", campaignId] as const,
+    queryFn: () => fetchCampaignHonestBrokerAuditLogs(campaignId!),
     enabled: campaignId != null && campaignId > 0,
   });
 }
@@ -138,6 +170,120 @@ export function useStoreConductResponses() {
       queryClient.invalidateQueries({ queryKey: CAMPAIGN_KEYS.all });
       queryClient.invalidateQueries({ queryKey: CAMPAIGN_KEYS.detail(variables.campaignId) });
       queryClient.invalidateQueries({ queryKey: [...CAMPAIGN_KEYS.all, "conduct-records", variables.campaignId] });
+    },
+  });
+}
+
+export function useCreateCampaignHonestBrokerLink() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      campaignId,
+      payload,
+    }: {
+      campaignId: number;
+      payload: {
+        respondent_identifier: string;
+        person_id?: number | null;
+        notes?: string | null;
+      };
+    }) => createCampaignHonestBrokerLink(campaignId, payload),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: CAMPAIGN_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: CAMPAIGN_KEYS.detail(variables.campaignId) });
+      queryClient.invalidateQueries({
+        queryKey: [...CAMPAIGN_KEYS.all, "honest-broker-links", variables.campaignId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [...CAMPAIGN_KEYS.all, "conduct-records", variables.campaignId],
+      });
+    },
+  });
+}
+
+export function useUpsertCampaignHonestBrokerContact() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      campaignId,
+      linkId,
+      payload,
+    }: {
+      campaignId: number;
+      linkId: number;
+      payload: {
+        delivery_email?: string | null;
+        delivery_phone?: string | null;
+        preferred_channel?: "email" | "sms";
+      };
+    }) => upsertCampaignHonestBrokerContact(campaignId, linkId, payload),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: [...CAMPAIGN_KEYS.all, "honest-broker-links", variables.campaignId] });
+      queryClient.invalidateQueries({ queryKey: [...CAMPAIGN_KEYS.all, "honest-broker-invitations", variables.campaignId] });
+    },
+  });
+}
+
+export function useSendCampaignHonestBrokerInvitation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      campaignId,
+      payload,
+    }: {
+      campaignId: number;
+      payload: {
+        survey_honest_broker_link_id: number;
+        delivery_email?: string | null;
+        delivery_phone?: string | null;
+        preferred_channel?: "email" | "sms";
+      };
+    }) => sendCampaignHonestBrokerInvitation(campaignId, payload),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: [...CAMPAIGN_KEYS.all, "honest-broker-links", variables.campaignId] });
+      queryClient.invalidateQueries({ queryKey: [...CAMPAIGN_KEYS.all, "honest-broker-invitations", variables.campaignId] });
+      queryClient.invalidateQueries({ queryKey: CAMPAIGN_KEYS.detail(variables.campaignId) });
+    },
+  });
+}
+
+export function useResendCampaignHonestBrokerInvitation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      campaignId,
+      invitationId,
+    }: {
+      campaignId: number;
+      invitationId: number;
+    }) => resendCampaignHonestBrokerInvitation(campaignId, invitationId),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: [...CAMPAIGN_KEYS.all, "honest-broker-links", variables.campaignId] });
+      queryClient.invalidateQueries({ queryKey: [...CAMPAIGN_KEYS.all, "honest-broker-invitations", variables.campaignId] });
+      queryClient.invalidateQueries({ queryKey: [...CAMPAIGN_KEYS.all, "honest-broker-audit-logs", variables.campaignId] });
+    },
+  });
+}
+
+export function useRevokeCampaignHonestBrokerInvitation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      campaignId,
+      invitationId,
+    }: {
+      campaignId: number;
+      invitationId: number;
+    }) => revokeCampaignHonestBrokerInvitation(campaignId, invitationId),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: [...CAMPAIGN_KEYS.all, "honest-broker-links", variables.campaignId] });
+      queryClient.invalidateQueries({ queryKey: [...CAMPAIGN_KEYS.all, "honest-broker-invitations", variables.campaignId] });
+      queryClient.invalidateQueries({ queryKey: [...CAMPAIGN_KEYS.all, "honest-broker-audit-logs", variables.campaignId] });
     },
   });
 }

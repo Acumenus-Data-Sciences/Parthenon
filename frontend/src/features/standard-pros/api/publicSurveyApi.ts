@@ -35,6 +35,9 @@ export interface PublicSurveyCampaignApi {
   name: string;
   description: string | null;
   status: "active";
+  requires_respondent_identifier?: boolean;
+  blinded_participant_id?: string | null;
+  delivery_status?: string | null;
   instrument: PublicSurveyInstrumentApi;
 }
 

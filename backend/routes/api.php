@@ -119,6 +119,7 @@ use App\Http\Controllers\Api\V1\StudySynthesisController;
 use App\Http\Controllers\Api\V1\StudyTeamController;
 use App\Http\Controllers\Api\V1\SurveyCampaignController;
 use App\Http\Controllers\Api\V1\SurveyConductController;
+use App\Http\Controllers\Api\V1\SurveyHonestBrokerController;
 use App\Http\Controllers\Api\V1\SurveyInstrumentController;
 use App\Http\Controllers\Api\V1\SyntheaController;
 use App\Http\Controllers\Api\V1\TextToSqlController;
@@ -1645,6 +1646,17 @@ Route::prefix('v1/survey-campaigns')->middleware(['auth:sanctum', 'permission:su
 Route::prefix('v1/survey-campaigns')->middleware(['auth:sanctum', 'permission:surveys.edit'])->group(function () {
     Route::put('/{campaign}', [SurveyCampaignController::class, 'update']);
     Route::post('/{campaign}/close', [SurveyCampaignController::class, 'close']);
+});
+
+Route::prefix('v1/survey-campaigns')->middleware(['auth:sanctum', 'role:data-steward|admin|super-admin'])->group(function () {
+    Route::get('/{campaign}/honest-broker-links', [SurveyHonestBrokerController::class, 'index']);
+    Route::post('/{campaign}/honest-broker-links', [SurveyHonestBrokerController::class, 'store']);
+    Route::put('/{campaign}/honest-broker-links/{link}/contact', [SurveyHonestBrokerController::class, 'upsertContact']);
+    Route::get('/{campaign}/honest-broker-invitations', [SurveyHonestBrokerController::class, 'invitations']);
+    Route::get('/{campaign}/honest-broker-audit-logs', [SurveyHonestBrokerController::class, 'auditLogs']);
+    Route::post('/{campaign}/honest-broker-invitations', [SurveyHonestBrokerController::class, 'sendInvitation']);
+    Route::post('/{campaign}/honest-broker-invitations/{invitation}/resend', [SurveyHonestBrokerController::class, 'resendInvitation']);
+    Route::post('/{campaign}/honest-broker-invitations/{invitation}/revoke', [SurveyHonestBrokerController::class, 'revokeInvitation']);
 });
 
 Route::prefix('v1/survey-campaigns')->middleware(['auth:sanctum', 'permission:surveys.delete'])->group(function () {

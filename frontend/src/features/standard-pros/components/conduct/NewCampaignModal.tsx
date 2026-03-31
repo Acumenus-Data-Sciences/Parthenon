@@ -21,6 +21,7 @@ const baseForm = {
   survey_instrument_id: "",
   cohort_generation_id: "",
   description: "",
+  requires_honest_broker: false,
   cohortQuery: "",
 };
 
@@ -47,6 +48,7 @@ export function NewCampaignModal({
         survey_instrument_id: String(initialCampaign.survey_instrument_id),
         cohort_generation_id: initialCampaign.cohort_generation_id != null ? String(initialCampaign.cohort_generation_id) : "",
         description: initialCampaign.description ?? "",
+        requires_honest_broker: initialCampaign.requires_honest_broker ?? false,
         cohortQuery: "",
       });
       return;
@@ -118,6 +120,7 @@ export function NewCampaignModal({
                     ? null
                     : Number(form.cohort_generation_id),
                 description: form.description.trim() || null,
+                requires_honest_broker: form.requires_honest_broker,
               });
             }}
             className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] disabled:cursor-not-allowed disabled:opacity-50"
@@ -173,6 +176,21 @@ export function NewCampaignModal({
             className="w-full rounded-lg border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF]"
           />
         </div>
+
+        <label className="flex items-start gap-3 rounded-xl border border-[#2A2A2F] bg-[#141418] p-4">
+          <input
+            type="checkbox"
+            checked={form.requires_honest_broker}
+            onChange={(event) => setForm((current) => ({ ...current, requires_honest_broker: event.target.checked }))}
+            className="mt-1 h-4 w-4 rounded border-[#2A2A2F] bg-[#0E0E11] text-[#2DD4BF] focus:ring-[#2DD4BF]"
+          />
+          <div>
+            <div className="text-sm font-medium text-[#F0EDE8]">Require Honest Broker</div>
+            <p className="mt-1 text-[11px] text-[#8A857D]">
+              Public respondents must be pre-registered by an honest broker before their answers can be linked to OMOP person IDs.
+            </p>
+          </div>
+        </label>
 
         <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-4">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">

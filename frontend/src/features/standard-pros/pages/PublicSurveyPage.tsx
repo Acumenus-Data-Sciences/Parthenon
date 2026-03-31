@@ -267,23 +267,37 @@ export default function PublicSurveyPage() {
         <SurveyHeader campaign={surveyQuery.data} />
 
         <div className="rounded-[28px] border border-[#D8D3C8] bg-[#FFF8F2] p-6 shadow-[0_24px_80px_rgba(83,58,33,0.08)]">
-          <div className="grid gap-4 md:grid-cols-[1.2fr_0.8fr]">
-            <div>
-              <div className="text-sm font-medium text-[#2F2A24]">
-                Optional participant identifier
-              </div>
+          {surveyQuery.data.requires_respondent_identifier === false ? (
+            <div className="rounded-2xl border border-[#D8D3C8] bg-white px-4 py-4">
+              <div className="text-sm font-medium text-[#2F2A24]">Secure broker invitation</div>
               <p className="mt-1 text-xs leading-relaxed text-[#6D6256]">
-                Leave this blank for anonymous submission, or enter the code provided by your study team.
+                This survey link is already bound to your blinded participant record.
+                {surveyQuery.data.blinded_participant_id
+                  ? ` Reference: ${surveyQuery.data.blinded_participant_id}.`
+                  : ""}
               </p>
             </div>
-            <input
-              type="text"
-              value={respondentIdentifier}
-              onChange={(event) => setRespondentIdentifier(event.target.value)}
-              placeholder="Study ID or external reference"
-              className="w-full rounded-xl border border-[#D8D3C8] bg-white px-4 py-3 text-sm text-[#2F2A24] outline-none focus:border-[#C66B3D]"
-            />
-          </div>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-[1.2fr_0.8fr]">
+              <div>
+                <div className="text-sm font-medium text-[#2F2A24]">
+                  {surveyQuery.data.requires_respondent_identifier ? "Participant identifier required" : "Optional participant identifier"}
+                </div>
+                <p className="mt-1 text-xs leading-relaxed text-[#6D6256]">
+                  {surveyQuery.data.requires_respondent_identifier
+                    ? "Enter the code provided by your study team to submit this protected survey."
+                    : "Leave this blank for anonymous submission, or enter the code provided by your study team."}
+                </p>
+              </div>
+              <input
+                type="text"
+                value={respondentIdentifier}
+                onChange={(event) => setRespondentIdentifier(event.target.value)}
+                placeholder="Study ID or external reference"
+                className="w-full rounded-xl border border-[#D8D3C8] bg-white px-4 py-3 text-sm text-[#2F2A24] outline-none focus:border-[#C66B3D]"
+              />
+            </div>
+          )}
         </div>
 
         <div className="space-y-4">

@@ -5,10 +5,15 @@ namespace App\Models\Survey;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class SurveyConductRecord extends Model
 {
     protected $table = 'survey_conduct';
+
+    protected $hidden = [
+        'source_identifier',
+    ];
 
     protected $fillable = [
         'person_id',
@@ -62,6 +67,14 @@ class SurveyConductRecord extends Model
     public function responses(): HasMany
     {
         return $this->hasMany(SurveyResponse::class, 'survey_conduct_id');
+    }
+
+    /**
+     * @return HasOne<SurveyHonestBrokerLink, $this>
+     */
+    public function honestBrokerLink(): HasOne
+    {
+        return $this->hasOne(SurveyHonestBrokerLink::class, 'survey_conduct_id');
     }
 
     public function scopeComplete(mixed $query): mixed

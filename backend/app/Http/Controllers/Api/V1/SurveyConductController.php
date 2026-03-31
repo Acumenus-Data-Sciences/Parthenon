@@ -13,14 +13,21 @@ class SurveyConductController extends Controller
 {
     public function index(Request $request, SurveyCampaign $campaign): JsonResponse
     {
-        $query = $campaign->conductRecords()->orderBy('person_id');
+        $query = $campaign->conductRecords()
+            ->with('honestBrokerLink:id,survey_conduct_id,blinded_participant_id')
+            ->orderBy('person_id');
 
         if ($request->filled('status')) {
             $query->where('completion_status', $request->string('status'));
         }
 
         return response()->json([
-            'data' => $query->get(),
+            'data' => $query->get()->map(function (SurveyConductRecord $conduct): array {
+                return [
+                    ...$conduct->toArray(),
+                    'blinded_participant_id' => $conduct->honestBrokerLink?->blinded_participant_id,
+                ];
+            }),
         ]);
     }
 
