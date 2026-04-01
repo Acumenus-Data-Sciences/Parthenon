@@ -345,6 +345,15 @@ services:
       - jupyter_users
     restart: unless-stopped
 
+  # Build-only: image used by JupyterHub DockerSpawner (not started by compose)
+  jupyter-user:
+    image: parthenon-jupyter-user:latest
+    build:
+      context: .
+      dockerfile: docker/jupyter-user/Dockerfile
+    profiles:
+      - build
+
   finngen-runner:
     container_name: parthenon-finngen-runner
     image: ghcr.io/sudoshi/parthenon-finngen-runner:latest

@@ -14473,6 +14473,278 @@
     "has_snomed": true
   },
   {
+    "abbreviation": "KCCQ-12",
+    "name": "Kansas City Cardiomyopathy Questionnaire-12",
+    "version": "2012",
+    "domain": "Cardiovascular",
+    "item_count": 12,
+    "description": "Twelve-item validated short form of the KCCQ for heart failure patients. Assesses physical limitations (showering, walking, jogging), symptom frequency (swelling, fatigue, shortness of breath, orthopnea), quality of life (enjoyment, satisfaction), and social limitation (hobbies, work/chores, visiting). Produces Overall Summary Score (OSS) and Clinical Summary Score (CSS) on a 0–100 scale. Higher scores indicate better health status; ≥5 point change is the established MCID.",
+    "scoring_method": {
+      "type": "subscale_mean",
+      "range": [0, 100],
+      "subscales": [
+        "Physical Limitation (items 1a, 1b, 1c)",
+        "Symptom Frequency (items 2, 3, 4, 5)",
+        "Quality of Life (items 6, 7)",
+        "Social Limitation (items 8a, 8b, 8c)"
+      ],
+      "summary_scores": {
+        "Overall Summary Score (OSS)": "Mean of Physical Limitation, Symptom Frequency, Quality of Life, and Social Limitation subscale scores",
+        "Clinical Summary Score (CSS)": "Mean of Physical Limitation and Symptom Frequency subscale scores"
+      },
+      "formula": "Each item scored as ((item_value - 1) / (item_max - 1)) × 100, then averaged within subscale. Items with response 'Limited for other reasons or did not do the activity' (value=6) are excluded from scoring.",
+      "note": "Higher scores indicate better health status. ≥5 point change considered clinically meaningful (MCID). Copyright John Spertus / Saint Luke's Health System."
+    },
+    "loinc_panel_code": "77430-6",
+    "omop_concept_id": null,
+    "license_type": "proprietary",
+    "license_detail": "Copyright John Spertus / Saint Luke's Health System. Requires licensing at cvoutcomes.org.",
+    "is_public_domain": false,
+    "omop_coverage": "yes",
+    "snomed_code": null,
+    "has_snomed": false,
+    "items": [
+      {
+        "item_number": 1,
+        "text": "Physical limitations — Showering/bathing: How much are you limited by heart failure (shortness of breath or fatigue) in your ability to do this activity over the past 2 weeks?",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Physical Limitation",
+        "is_reverse_coded": false,
+        "min_value": 1,
+        "max_value": 5,
+        "display_order": 1,
+        "options": [
+          { "text": "Extremely Limited", "value": 1, "loinc_la_code": null, "display_order": 1 },
+          { "text": "Quite a bit Limited", "value": 2, "loinc_la_code": null, "display_order": 2 },
+          { "text": "Moderately Limited", "value": 3, "loinc_la_code": null, "display_order": 3 },
+          { "text": "Slightly Limited", "value": 4, "loinc_la_code": null, "display_order": 4 },
+          { "text": "Not at all Limited", "value": 5, "loinc_la_code": null, "display_order": 5 },
+          { "text": "Limited for other reasons or did not do the activity", "value": 6, "loinc_la_code": null, "display_order": 6 }
+        ]
+      },
+      {
+        "item_number": 2,
+        "text": "Physical limitations — Walking 1 block on level ground: How much are you limited by heart failure (shortness of breath or fatigue) in your ability to do this activity over the past 2 weeks?",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Physical Limitation",
+        "is_reverse_coded": false,
+        "min_value": 1,
+        "max_value": 5,
+        "display_order": 2,
+        "options": [
+          { "text": "Extremely Limited", "value": 1, "loinc_la_code": null, "display_order": 1 },
+          { "text": "Quite a bit Limited", "value": 2, "loinc_la_code": null, "display_order": 2 },
+          { "text": "Moderately Limited", "value": 3, "loinc_la_code": null, "display_order": 3 },
+          { "text": "Slightly Limited", "value": 4, "loinc_la_code": null, "display_order": 4 },
+          { "text": "Not at all Limited", "value": 5, "loinc_la_code": null, "display_order": 5 },
+          { "text": "Limited for other reasons or did not do the activity", "value": 6, "loinc_la_code": null, "display_order": 6 }
+        ]
+      },
+      {
+        "item_number": 3,
+        "text": "Physical limitations — Hurrying or jogging (as if to catch a bus): How much are you limited by heart failure (shortness of breath or fatigue) in your ability to do this activity over the past 2 weeks?",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Physical Limitation",
+        "is_reverse_coded": false,
+        "min_value": 1,
+        "max_value": 5,
+        "display_order": 3,
+        "options": [
+          { "text": "Extremely Limited", "value": 1, "loinc_la_code": null, "display_order": 1 },
+          { "text": "Quite a bit Limited", "value": 2, "loinc_la_code": null, "display_order": 2 },
+          { "text": "Moderately Limited", "value": 3, "loinc_la_code": null, "display_order": 3 },
+          { "text": "Slightly Limited", "value": 4, "loinc_la_code": null, "display_order": 4 },
+          { "text": "Not at all Limited", "value": 5, "loinc_la_code": null, "display_order": 5 },
+          { "text": "Limited for other reasons or did not do the activity", "value": 6, "loinc_la_code": null, "display_order": 6 }
+        ]
+      },
+      {
+        "item_number": 4,
+        "text": "Over the past 2 weeks, how many times did you have swelling in your feet, ankles or legs when you woke up in the morning?",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Symptom Frequency",
+        "is_reverse_coded": false,
+        "min_value": 1,
+        "max_value": 5,
+        "display_order": 4,
+        "options": [
+          { "text": "Every morning", "value": 1, "loinc_la_code": null, "display_order": 1 },
+          { "text": "3 or more times per week but not every day", "value": 2, "loinc_la_code": null, "display_order": 2 },
+          { "text": "1-2 times per week", "value": 3, "loinc_la_code": null, "display_order": 3 },
+          { "text": "Less than once a week", "value": 4, "loinc_la_code": null, "display_order": 4 },
+          { "text": "Never over the past 2 weeks", "value": 5, "loinc_la_code": null, "display_order": 5 }
+        ]
+      },
+      {
+        "item_number": 5,
+        "text": "Over the past 2 weeks, on average, how many times has fatigue limited your ability to do what you wanted?",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Symptom Frequency",
+        "is_reverse_coded": false,
+        "min_value": 1,
+        "max_value": 7,
+        "display_order": 5,
+        "options": [
+          { "text": "All of the time", "value": 1, "loinc_la_code": null, "display_order": 1 },
+          { "text": "Several times per day", "value": 2, "loinc_la_code": null, "display_order": 2 },
+          { "text": "At least once a day", "value": 3, "loinc_la_code": null, "display_order": 3 },
+          { "text": "3 or more times per week but not every day", "value": 4, "loinc_la_code": null, "display_order": 4 },
+          { "text": "1-2 times per week", "value": 5, "loinc_la_code": null, "display_order": 5 },
+          { "text": "Less than once a week", "value": 6, "loinc_la_code": null, "display_order": 6 },
+          { "text": "Never over the past 2 weeks", "value": 7, "loinc_la_code": null, "display_order": 7 }
+        ]
+      },
+      {
+        "item_number": 6,
+        "text": "Over the past 2 weeks, on average, how many times has shortness of breath limited your ability to do what you wanted?",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Symptom Frequency",
+        "is_reverse_coded": false,
+        "min_value": 1,
+        "max_value": 7,
+        "display_order": 6,
+        "options": [
+          { "text": "All of the time", "value": 1, "loinc_la_code": null, "display_order": 1 },
+          { "text": "Several times per day", "value": 2, "loinc_la_code": null, "display_order": 2 },
+          { "text": "At least once a day", "value": 3, "loinc_la_code": null, "display_order": 3 },
+          { "text": "3 or more times per week but not every day", "value": 4, "loinc_la_code": null, "display_order": 4 },
+          { "text": "1-2 times per week", "value": 5, "loinc_la_code": null, "display_order": 5 },
+          { "text": "Less than once a week", "value": 6, "loinc_la_code": null, "display_order": 6 },
+          { "text": "Never over the past 2 weeks", "value": 7, "loinc_la_code": null, "display_order": 7 }
+        ]
+      },
+      {
+        "item_number": 7,
+        "text": "Over the past 2 weeks, on average, how many times have you been forced to sleep sitting up in a chair or with at least 3 pillows to prop you up because of shortness of breath?",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Symptom Frequency",
+        "is_reverse_coded": false,
+        "min_value": 1,
+        "max_value": 5,
+        "display_order": 7,
+        "options": [
+          { "text": "Every night", "value": 1, "loinc_la_code": null, "display_order": 1 },
+          { "text": "3 or more times per week but not every day", "value": 2, "loinc_la_code": null, "display_order": 2 },
+          { "text": "1-2 times per week", "value": 3, "loinc_la_code": null, "display_order": 3 },
+          { "text": "Less than once a week", "value": 4, "loinc_la_code": null, "display_order": 4 },
+          { "text": "Never over the past 2 weeks", "value": 5, "loinc_la_code": null, "display_order": 5 }
+        ]
+      },
+      {
+        "item_number": 8,
+        "text": "Over the past 2 weeks, how much has your heart failure limited your enjoyment of life?",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Quality of Life",
+        "is_reverse_coded": false,
+        "min_value": 1,
+        "max_value": 5,
+        "display_order": 8,
+        "options": [
+          { "text": "It has extremely limited my enjoyment of life", "value": 1, "loinc_la_code": null, "display_order": 1 },
+          { "text": "It has limited my enjoyment of life quite a bit", "value": 2, "loinc_la_code": null, "display_order": 2 },
+          { "text": "It has moderately limited my enjoyment of life", "value": 3, "loinc_la_code": null, "display_order": 3 },
+          { "text": "It has slightly limited my enjoyment of life", "value": 4, "loinc_la_code": null, "display_order": 4 },
+          { "text": "It has not limited my enjoyment of life at all", "value": 5, "loinc_la_code": null, "display_order": 5 }
+        ]
+      },
+      {
+        "item_number": 9,
+        "text": "If you had to spend the rest of your life with your heart failure the way it is right now, how would you feel about this?",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Quality of Life",
+        "is_reverse_coded": false,
+        "min_value": 1,
+        "max_value": 5,
+        "display_order": 9,
+        "options": [
+          { "text": "Not at all satisfied", "value": 1, "loinc_la_code": null, "display_order": 1 },
+          { "text": "Mostly dissatisfied", "value": 2, "loinc_la_code": null, "display_order": 2 },
+          { "text": "Somewhat satisfied", "value": 3, "loinc_la_code": null, "display_order": 3 },
+          { "text": "Mostly satisfied", "value": 4, "loinc_la_code": null, "display_order": 4 },
+          { "text": "Completely satisfied", "value": 5, "loinc_la_code": null, "display_order": 5 }
+        ]
+      },
+      {
+        "item_number": 10,
+        "text": "Social limitation — Hobbies, recreational activities: How much has your heart failure limited your participation in this activity over the past 2 weeks?",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Social Limitation",
+        "is_reverse_coded": false,
+        "min_value": 1,
+        "max_value": 5,
+        "display_order": 10,
+        "options": [
+          { "text": "Severely Limited", "value": 1, "loinc_la_code": null, "display_order": 1 },
+          { "text": "Limited quite a bit", "value": 2, "loinc_la_code": null, "display_order": 2 },
+          { "text": "Moderately limited", "value": 3, "loinc_la_code": null, "display_order": 3 },
+          { "text": "Slightly limited", "value": 4, "loinc_la_code": null, "display_order": 4 },
+          { "text": "Did not limit at all", "value": 5, "loinc_la_code": null, "display_order": 5 },
+          { "text": "Does not apply or did not do for other reasons", "value": 6, "loinc_la_code": null, "display_order": 6 }
+        ]
+      },
+      {
+        "item_number": 11,
+        "text": "Social limitation — Working or doing household chores: How much has your heart failure limited your participation in this activity over the past 2 weeks?",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Social Limitation",
+        "is_reverse_coded": false,
+        "min_value": 1,
+        "max_value": 5,
+        "display_order": 11,
+        "options": [
+          { "text": "Severely Limited", "value": 1, "loinc_la_code": null, "display_order": 1 },
+          { "text": "Limited quite a bit", "value": 2, "loinc_la_code": null, "display_order": 2 },
+          { "text": "Moderately limited", "value": 3, "loinc_la_code": null, "display_order": 3 },
+          { "text": "Slightly limited", "value": 4, "loinc_la_code": null, "display_order": 4 },
+          { "text": "Did not limit at all", "value": 5, "loinc_la_code": null, "display_order": 5 },
+          { "text": "Does not apply or did not do for other reasons", "value": 6, "loinc_la_code": null, "display_order": 6 }
+        ]
+      },
+      {
+        "item_number": 12,
+        "text": "Social limitation — Visiting family or friends out of your home: How much has your heart failure limited your participation in this activity over the past 2 weeks?",
+        "response_type": "ordinal",
+        "loinc_code": null,
+        "snomed_code": null,
+        "subscale_name": "Social Limitation",
+        "is_reverse_coded": false,
+        "min_value": 1,
+        "max_value": 5,
+        "display_order": 12,
+        "options": [
+          { "text": "Severely Limited", "value": 1, "loinc_la_code": null, "display_order": 1 },
+          { "text": "Limited quite a bit", "value": 2, "loinc_la_code": null, "display_order": 2 },
+          { "text": "Moderately limited", "value": 3, "loinc_la_code": null, "display_order": 3 },
+          { "text": "Slightly limited", "value": 4, "loinc_la_code": null, "display_order": 4 },
+          { "text": "Did not limit at all", "value": 5, "loinc_la_code": null, "display_order": 5 },
+          { "text": "Does not apply or did not do for other reasons", "value": 6, "loinc_la_code": null, "display_order": 6 }
+        ]
+      }
+    ]
+  },
+  {
     "abbreviation": "SAQ",
     "name": "Seattle Angina Questionnaire",
     "domain": "Cardiovascular",

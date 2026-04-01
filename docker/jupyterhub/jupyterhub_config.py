@@ -22,6 +22,7 @@ c.JupyterHub.bind_url = "http://0.0.0.0:8000/jupyter"
 # hub_ip makes the internal API listen on all interfaces so containers can reach it.
 # hub_connect_url tells spawned servers the Hub's address on the Docker network.
 c.JupyterHub.hub_ip = "0.0.0.0"
+c.JupyterHub.hub_bind_url = "http://0.0.0.0:8081"
 c.JupyterHub.hub_connect_url = "http://parthenon-jupyterhub:8081"
 
 # ── Iframe embedding ──
@@ -38,6 +39,7 @@ from dockerspawner import DockerSpawner
 
 c.JupyterHub.spawner_class = DockerSpawner
 c.DockerSpawner.image = os.environ.get("JUPYTER_IMAGE", "parthenon-jupyter-user")
+c.DockerSpawner.pull_policy = "never"  # Image is built locally, never pull from Docker Hub
 c.DockerSpawner.network_name = os.environ.get(
     "JUPYTER_USER_NETWORK_NAME", "parthenon_jupyter_users"
 )
