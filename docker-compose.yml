@@ -86,7 +86,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 1G
+          memory: 2G
     networks:
       - parthenon
     restart: unless-stopped
@@ -760,10 +760,24 @@ services:
     image: grafana/grafana:11.4.0
     environment:
       - GF_AUTH_ANONYMOUS_ENABLED=false
-      - GF_SERVER_ROOT_URL=https://parthenon.acumenus.net/grafana
+      - GF_SERVER_ROOT_URL=https://grafana.acumenus.net
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-changeme}
+      - GF_AUTH_GENERIC_OAUTH_ENABLED=true
+      - GF_AUTH_GENERIC_OAUTH_NAME=Authentik
+      - GF_AUTH_GENERIC_OAUTH_CLIENT_ID=grafana
+      - GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET=a8a257c38bc35968229b2bb85e5907899bd5c02299381714aa8e707fea385474
+      - GF_AUTH_GENERIC_OAUTH_SCOPES=openid profile email
+      - GF_AUTH_GENERIC_OAUTH_AUTH_URL=https://auth.acumenus.net/application/o/authorize/
+      - GF_AUTH_GENERIC_OAUTH_TOKEN_URL=https://auth.acumenus.net/application/o/token/
+      - GF_AUTH_GENERIC_OAUTH_API_URL=https://auth.acumenus.net/application/o/userinfo/
+      - GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH=contains(groups[*], 'Grafana Admins') && 'Admin' || 'Viewer'
+      - GF_AUTH_SIGNOUT_REDIRECT_URL=https://auth.acumenus.net/application/o/grafana/end-session/
+    env_file:
+      - acropolis/.env
+    ports:
+      - "3000:3000"
     volumes:
       - grafana_data:/var/lib/grafana
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro

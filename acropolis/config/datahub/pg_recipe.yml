@@ -1,0 +1,44 @@
+pipeline_name: parthenon-postgres
+source:
+  type: postgres
+  config:
+    host_port: "172.28.0.1:5432"
+    database: "parthenon"
+    username: "smudoshi"
+    password: "${POSTGRES_PASSWORD:-acumenus}"
+    schema_pattern:
+      allow:
+        - "app"
+        - "omop"
+        - "vocab"
+        - "results"
+        - "irsf"
+        - "irsf_results"
+        - "pancreas"
+        - "pancreas_results"
+        - "atlantic_health"
+        - "mimiciv"
+        - "poseidon_dagster"
+      deny:
+        - "pg_.*"
+        - "information_schema"
+    include_tables: true
+    include_views: true
+    profiling:
+      enabled: false
+    stateful_ingestion:
+      enabled: true
+
+transformers:
+  - type: simple_add_dataset_ownership
+    config:
+      owner_urns:
+        - "urn:li:corpuser:akadmin@acumenus.net"
+      ownership_type: "DATAOWNER"
+      replace_existing: false
+
+sink:
+  type: datahub-rest
+  config:
+    server: "http://datahub-gms:8080"
+    token: "${DATAHUB_ACCESS_TOKEN}"

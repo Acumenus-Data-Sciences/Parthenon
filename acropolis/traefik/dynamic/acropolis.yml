@@ -1,26 +1,6 @@
-# Generated local routes for Authentik and Wazuh
+# Acropolis shared transport config
+# Service routes are handled by Docker labels in compose files
 http:
-  routers:
-    authentik:
-      rule: "Host(`auth.192.168.1.58.sslip.io`)"
-      entryPoints:
-        - web
-      service: authentik
-    wazuh:
-      rule: "Host(`wazuh.192.168.1.58.sslip.io`)"
-      entryPoints:
-        - web
-      service: wazuh
-  services:
-    authentik:
-      loadBalancer:
-        servers:
-          - url: "http://authentik-server:9000"
-    wazuh:
-      loadBalancer:
-        serversTransport: insecureTransport
-        servers:
-          - url: "https://wazuh-dashboard:5601"
   serversTransports:
     insecureTransport:
       insecureSkipVerify: true

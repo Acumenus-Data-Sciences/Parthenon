@@ -1,0 +1,37 @@
+---
+_meta:
+  type: "config"
+  config_version: 2
+
+config:
+  dynamic:
+    authc:
+      basic_internal_auth_domain:
+        description: "Authenticate via HTTP Basic against internal users database"
+        http_enabled: true
+        transport_enabled: true
+        order: 0
+        http_authenticator:
+          type: basic
+          challenge: false
+        authentication_backend:
+          type: intern
+      saml_auth_domain:
+        http_enabled: true
+        transport_enabled: false
+        order: 1
+        http_authenticator:
+          type: saml
+          challenge: true
+          config:
+            idp:
+              metadata_file: "/usr/share/wazuh-indexer/config/opensearch-security/idp-metadata.xml"
+              entity_id: "https://auth.acumenus.net"
+            sp:
+              entity_id: "wazuh"
+            kibana_url: "https://wazuh.acumenus.net/"
+            roles_key: Roles
+            subject_key: http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress
+            exchange_key: "a46323b6d32a726ff351db2c275764ee9aa49f1d06541e9986a6790faf502560"
+        authentication_backend:
+          type: noop

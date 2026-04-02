@@ -156,8 +156,12 @@ scripts/**/__pycache__/
 .pgpass
 .claude/worktrees/
 
-# Local Wazuh certs
+# Local Wazuh certs and secrets
 acropolis/config/wazuh/certs/
+acropolis/config/wazuh/wazuh_cluster/authd.pass
+
+# Traefik ACME/Let's Encrypt certs
+acropolis/traefik/acme/
 
 # Local packaging artifacts
 build/
