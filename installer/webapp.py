@@ -18,7 +18,18 @@ from urllib.parse import urlparse
 from . import config, launcher, preflight, utils
 
 
-STATIC_DIR = Path(__file__).resolve().parent / "web"
+STATIC_DIR = launcher.resource_path("installer/web")
+
+_CONTENT_TYPES: dict[str, str] = {
+    ".html": "text/html; charset=utf-8",
+    ".js": "application/javascript; charset=utf-8",
+    ".css": "text/css; charset=utf-8",
+    ".png": "image/png",
+    ".jpg": "image/jpeg",
+    ".svg": "image/svg+xml",
+    ".ico": "image/x-icon",
+    ".json": "application/json",
+}
 
 
 def _read_json(handler: BaseHTTPRequestHandler) -> dict[str, Any]:
@@ -45,6 +56,7 @@ class InstallState:
     success: bool = False
     summary: dict[str, Any] | None = None
     thread: threading.Thread | None = None
+    proc: subprocess.Popen | None = None
 
 
 class InstallerBackend:
@@ -190,6 +202,8 @@ class InstallerBackend:
                 text=True,
                 bufsize=1,
             )
+            with self._lock:
+                self.install_state.proc = proc
             assert proc.stdout is not None
             for line in proc.stdout:
                 with self._lock:
@@ -239,18 +253,25 @@ class InstallerHandler(BaseHTTPRequestHandler):
             self.send_header("Cache-Control", "no-store")
             self.end_headers()
             return
-        if parsed.path == "/app.js":
-            self._serve_file(STATIC_DIR / "app.js", "application/javascript; charset=utf-8")
-            return
-        if parsed.path == "/styles.css":
-            self._serve_file(STATIC_DIR / "styles.css", "text/css; charset=utf-8")
-            return
+        # Special case: background image served from frontend assets
         if parsed.path == "/assets/parthenon-login-bg.png":
             self._serve_file(launcher.resource_path("frontend/public/parthenon-login-bg.png"), "image/png")
             return
+        # Generalized static file serving with path traversal prevention
+        requested = (STATIC_DIR / parsed.path.lstrip("/")).resolve()
+        if requested.is_file() and str(requested).startswith(str(STATIC_DIR.resolve())):
+            ext = requested.suffix.lower()
+            content_type = _CONTENT_TYPES.get(ext)
+            if content_type:
+                self._serve_file(requested, content_type)
+                return
         self.send_error(HTTPStatus.NOT_FOUND)
 
     def do_POST(self) -> None:  # noqa: N802
+        origin = self.headers.get("Origin", "")
+        if origin and not origin.startswith(("http://127.0.0.1", "http://localhost")):
+            _json(self, {"error": "Forbidden origin"}, status=403)
+            return
         parsed = urlparse(self.path)
         try:
             payload = _read_json(self)
@@ -288,8 +309,19 @@ class InstallerHandler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
 
-def _find_port() -> int:
-    return 7777
+def _find_port(preferred: int = 7777) -> int:
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        sock.bind(("127.0.0.1", preferred))
+        sock.close()
+        return preferred
+    except OSError:
+        sock.close()
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.bind(("127.0.0.1", 0))
+        port = sock.getsockname()[1]
+        sock.close()
+        return port
 
 
 def main() -> None:
@@ -310,3 +342,6 @@ def main() -> None:
         pass
     finally:
         server.server_close()
+        if backend.install_state.proc and backend.install_state.proc.poll() is None:
+            backend.install_state.proc.terminate()
+            backend.install_state.proc.wait(timeout=5)
