@@ -1,6 +1,52 @@
+# Local overrides — host port mappings for Apache reverse proxy + fixes
 services:
+  # Authentik bootstrap credentials
   authentik-worker:
     environment:
       AUTHENTIK_BOOTSTRAP_EMAIL: ${AUTHENTIK_BOOTSTRAP_EMAIL}
       AUTHENTIK_BOOTSTRAP_PASSWORD: ${AUTHENTIK_BOOTSTRAP_PASSWORD}
       AUTHENTIK_BOOTSTRAP_TOKEN: ${AUTHENTIK_BOOTSTRAP_TOKEN}
+
+  # Expose service ports to host for Apache proxy
+  n8n:
+    ports:
+      - "5678:5678"
+
+  superset:
+    ports:
+      - "8089:8088"
+    environment:
+      - PYTHONPATH=/app/superset_home/.local/lib/python3.10/site-packages
+    command: >
+      bash -c "uv pip install --system --target /app/superset_home/.local/lib/python3.10/site-packages psycopg2-binary authlib && /usr/bin/run-server.sh"
+
+  superset-worker:
+    environment:
+      - PYTHONPATH=/app/superset_home/.local/lib/python3.10/site-packages
+    command: >
+      bash -c "uv pip install --system --target /app/superset_home/.local/lib/python3.10/site-packages psycopg2-binary authlib && celery --app=superset.tasks.celery_app:app worker --pool=prefork -O fair -c 4"
+
+  superset-beat:
+    environment:
+      - PYTHONPATH=/app/superset_home/.local/lib/python3.10/site-packages
+    command: >
+      bash -c "uv pip install --system --target /app/superset_home/.local/lib/python3.10/site-packages psycopg2-binary authlib && celery --app=superset.tasks.celery_app:app beat --pidfile /tmp/celerybeat.pid --schedule /tmp/celerybeat-schedule"
+
+  datahub-frontend:
+    ports: []
+
+  portainer:
+    ports:
+      - "9443:9443"
+
+  pgadmin:
+    ports:
+      - "5050:80"
+
+  authentik-server:
+    ports:
+      - "9000:9000"
+
+  wazuh-dashboard:
+    ports:
+      - "5601:5601"

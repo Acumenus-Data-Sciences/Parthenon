@@ -10,7 +10,7 @@ services:
   # ── Portainer CE — Container Management ───────────────────────────────────
   portainer:
     container_name: acropolis-portainer
-    image: portainer/portainer-ce:2.25.1
+    image: portainer/portainer-ce:2.39.1
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -22,6 +22,7 @@ services:
       - "traefik.http.routers.portainer.rule=Host(`portainer.${DOMAIN:-acumenus.net}`)"
       - "traefik.http.routers.portainer.entrypoints=websecure"
       - "traefik.http.routers.portainer.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.portainer.middlewares=authentik@docker"
       - "traefik.http.services.portainer.loadbalancer.server.scheme=https"
       - "traefik.http.services.portainer.loadbalancer.server.port=9443"
       - "traefik.http.services.portainer.loadbalancer.serversTransport=insecureTransport@file"
@@ -35,16 +36,19 @@ services:
   # ── pgAdmin 4 — Database Administration ──────────────────────────────────
   pgadmin:
     container_name: acropolis-pgadmin
-    image: dpage/pgadmin4:9
+    image: dpage/pgadmin4:9.14
     restart: unless-stopped
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@acumenus.net}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-changeme}
       PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "True"
       PGADMIN_SERVER_JSON_FILE: /pgadmin4/servers.json
+      AUTHENTIK_PGADMIN_CLIENT_ID: ${AUTHENTIK_PGADMIN_CLIENT_ID}
+      AUTHENTIK_PGADMIN_CLIENT_SECRET: ${AUTHENTIK_PGADMIN_CLIENT_SECRET}
     volumes:
       - pgadmin_data:/var/lib/pgadmin
       - ./config/pgadmin/servers.json:/pgadmin4/servers.json:ro
+      - ./config/pgadmin/config_local.py:/pgadmin4/config_local.py:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
@@ -54,6 +58,7 @@ services:
       - "traefik.http.routers.pgadmin.rule=Host(`pgadmin.${DOMAIN:-acumenus.net}`)"
       - "traefik.http.routers.pgadmin.entrypoints=websecure"
       - "traefik.http.routers.pgadmin.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.pgadmin.middlewares=authentik@docker"
       - "traefik.http.services.pgadmin.loadbalancer.server.port=80"
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:80/misc/ping"]
