@@ -92,6 +92,7 @@ use App\Http\Controllers\Api\V1\NotificationPreferenceController;
 use App\Http\Controllers\Api\V1\OnboardingController;
 use App\Http\Controllers\Api\V1\PathwayController;
 use App\Http\Controllers\Api\V1\PatientProfileController;
+use App\Http\Controllers\Api\V1\PatientSimilarityController;
 use App\Http\Controllers\Api\V1\PhenotypeLibraryController;
 use App\Http\Controllers\Api\V1\PopulationCharacterizationController;
 use App\Http\Controllers\Api\V1\PopulationRiskScoreController;
@@ -719,6 +720,18 @@ Route::prefix('v1')->group(function () {
         Route::get('sources/{source}/profiles/{personId}/notes', [PatientProfileController::class, 'notes']);
         Route::get('sources/{source}/profiles/{personId}', [PatientProfileController::class, 'show']);
         Route::get('sources/{source}/cohorts/{cohortDefinitionId}/members', [PatientProfileController::class, 'members']);
+
+        // Patient Similarity
+        Route::prefix('patient-similarity')->group(function () {
+            Route::post('/search', [PatientSimilarityController::class, 'search'])
+                ->middleware(['permission:patient-similarity.view', 'throttle:30,1']);
+            Route::get('/dimensions', [PatientSimilarityController::class, 'dimensions'])
+                ->middleware('permission:patient-similarity.view');
+            Route::get('/status/{sourceId}', [PatientSimilarityController::class, 'status'])
+                ->middleware('permission:patient-similarity.view');
+            Route::post('/compute', [PatientSimilarityController::class, 'compute'])
+                ->middleware(['permission:patient-similarity.compute', 'throttle:5,60']);
+        });
 
         // Negative Control Outcomes
         Route::post('negative-controls/suggest', [NegativeControlController::class, 'suggest']);
