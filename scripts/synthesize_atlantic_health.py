@@ -950,6 +950,21 @@ def phase_8_index_and_cleanup(conn, dry_run=False):
             log(8, f"  VACUUM ANALYZE {ATLANTIC}.{table}...")
             cur.execute(f"VACUUM ANALYZE {ATLANTIC}.{table}")
 
+    # ── Step 4b: Refresh materialized views (still in autocommit) ───────
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT matviewname FROM pg_matviews WHERE schemaname = %s",
+            (ATLANTIC,),
+        )
+        matviews = [row[0] for row in cur.fetchall()]
+        if matviews:
+            for mv in matviews:
+                log(8, f"  REFRESH MATERIALIZED VIEW {ATLANTIC}.{mv}...")
+                cur.execute(f"REFRESH MATERIALIZED VIEW {ATLANTIC}.{mv}")
+            log(8, f"  Refreshed {len(matviews)} materialized view(s)")
+        else:
+            log(8, "  No materialized views to refresh")
+
     # Switch back to transactional mode for remaining writes
     conn.autocommit = False
 
@@ -1026,19 +1041,20 @@ def phase_8_index_and_cleanup(conn, dry_run=False):
 
         try:
             import redis as redis_lib  # type: ignore
+            # Laravel cache uses Redis db1 (REDIS_CACHE_DB in config/database.php)
+            cache_db = int(redis_env.get("REDIS_CACHE_DB", "1"))
             r = redis_lib.Redis(
                 host=redis_host,
                 port=redis_port,
                 password=redis_password,
+                db=cache_db,
                 socket_connect_timeout=5,
             )
             r.ping()
             # Flush keys that match Morpheus / AtlanticHealth patterns
             patterns = [
-                "morpheus:*",
-                "atlantic_health:*",
+                "*morpheus*",
                 "*atlantic*",
-                "parthenon:*atlantic*",
             ]
             flushed = 0
             for pattern in patterns:
@@ -1046,7 +1062,7 @@ def phase_8_index_and_cleanup(conn, dry_run=False):
                 if keys:
                     r.delete(*keys)
                     flushed += len(keys)
-            log(8, f"Redis: flushed {flushed} cache key(s)")
+            log(8, f"Redis db{cache_db}: flushed {flushed} cache key(s)")
         except ImportError:
             log(8, "WARNING: 'redis' Python package not installed — cache not flushed")
             log(8, "  Run: pip install redis   (or: php artisan cache:clear)")
