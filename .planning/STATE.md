@@ -172,9 +172,10 @@ None yet.
 | 9 | Fix semantic search right panel empty and selection highlighting | 2026-03-28 | 04d7bf81f | [9-fix-semantic-search-ui-right-panel-empty](./quick/9-fix-semantic-search-ui-right-panel-empty/) |
 | 10 | Populate remaining public domain survey instruments with question items | 2026-03-29 | b5763b7da | [10-populate-remaining-public-domain-survey-](./quick/10-populate-remaining-public-domain-survey-/) |
 | 10 | Populate 29 remaining public domain survey instruments (605 items) | 2026-03-29 | 2932d2605 | [10-populate-remaining-public-domain-survey-](./quick/10-populate-remaining-public-domain-survey-/) |
+| 12 | Implement all critical Wazuh post-install hardening (FIM, SCA, logs, demo users, ISM) | 2026-04-02 | 69da309c9 | [12-implement-all-critical-wazuh-post-instal](./quick/12-implement-all-critical-wazuh-post-instal/) |
 
 ## Session Continuity
 
-Last session: 2026-03-29T22:46:59Z
-Stopped at: Completed quick-10 (Populate remaining public domain survey instruments)
+Last session: 2026-04-02T19:16:11Z
+Stopped at: Completed quick-12 (Wazuh post-install security hardening)
 Resume file: None
