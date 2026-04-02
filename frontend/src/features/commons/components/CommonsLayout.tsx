@@ -204,18 +204,17 @@ export function CommonsLayout() {
                   </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
-                  <div className="rounded-xl border border-[#2a2a31] bg-[#111115] px-3 py-2 text-right">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                      Members
-                    </p>
-                    <p className="text-sm font-semibold text-foreground">{members.length}</p>
-                  </div>
-                  <div className="rounded-xl border border-[#2a2a31] bg-[#111115] px-3 py-2 text-right">
-                    <p className="flex items-center justify-end gap-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                      <Users className="h-3 w-3" />
-                      Active
-                    </p>
-                    <p className="text-sm font-semibold text-foreground">{activePresenceCount}</p>
+                  <div className="flex items-center gap-3 rounded-xl border border-[#2a2a31] bg-[#111115] px-4 py-2">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Members</span>
+                      <span className="text-sm font-semibold text-foreground">{members.length}</span>
+                    </div>
+                    <div className="h-4 w-px bg-white/[0.08]" />
+                    <div className="flex items-center gap-1.5">
+                      <Users className="h-3 w-3 text-muted-foreground" />
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Active</span>
+                      <span className="text-sm font-semibold text-foreground">{activePresenceCount}</span>
+                    </div>
                   </div>
                   {!activeCall ? (
                     <button
