@@ -1,0 +1,192 @@
+<!-- Parthenon / Acropolis — Custom Wazuh Rules -->
+<!-- Rule IDs: 100001–100099 reserved for this deployment -->
+<!-- Tags: hipaa_*, pci_dss_*, gdpr_*, nist_800_53_* for compliance mapping -->
+
+<group name="local,">
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- SSH / Authentication                                                  -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- Elevate SSH brute force to critical -->
+  <rule id="100001" level="12">
+    <if_sid>5763</if_sid>
+    <description>SSH brute force attack detected (8+ failures)</description>
+    <group>authentication_failed,attack,pci_dss_10.2.4,pci_dss_10.2.5,hipaa_164.312.b,nist_800_53_AC.7,</group>
+  </rule>
+
+  <!-- SSH key file modification (from FIM) -->
+  <rule id="100002" level="10">
+    <if_sid>550,553,554</if_sid>
+    <match>.ssh/authorized_keys|.ssh/id_rsa|.ssh/id_ed25519</match>
+    <description>SSH key file modified — possible credential compromise</description>
+    <group>syscheck,authentication,pci_dss_10.5.5,hipaa_164.312.b,nist_800_53_AC.6,</group>
+  </rule>
+
+  <!-- Sudo abuse — user ran sudo with suspicious commands -->
+  <rule id="100003" level="10">
+    <if_sid>5401,5402</if_sid>
+    <match>COMMAND=/bin/bash|COMMAND=/bin/sh|COMMAND=/usr/bin/passwd</match>
+    <description>Suspicious sudo command: interactive shell or password change</description>
+    <group>sudo,pci_dss_10.2.2,hipaa_164.312.a.1,nist_800_53_AC.6,</group>
+  </rule>
+
+  <!-- Failed sudo attempt -->
+  <rule id="100004" level="8">
+    <if_sid>5401</if_sid>
+    <match>NOT in sudoers</match>
+    <description>Unauthorized sudo attempt — user not in sudoers</description>
+    <group>sudo,authentication_failed,pci_dss_10.2.4,hipaa_164.312.a.1,</group>
+  </rule>
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- Firewall (UFW)                                                        -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- UFW blocked connection (informational) -->
+  <rule id="100010" level="3">
+    <decoded_as>iptables</decoded_as>
+    <match>UFW BLOCK</match>
+    <description>UFW blocked incoming connection</description>
+    <group>firewall,pci_dss_1.2.1,nist_800_53_SC.7,</group>
+  </rule>
+
+  <!-- UFW high volume blocks from single source -->
+  <rule id="100011" level="8" frequency="20" timeframe="60">
+    <if_matched_sid>100010</if_matched_sid>
+    <same_source_ip />
+    <description>UFW: 20+ blocked connections from same IP in 60s — possible scan or attack</description>
+    <group>firewall,attack,pci_dss_1.2.1,hipaa_164.312.e.1,nist_800_53_SC.7,</group>
+  </rule>
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- PostgreSQL                                                            -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- PostgreSQL authentication failure -->
+  <rule id="100020" level="5">
+    <decoded_as>postgresql_log</decoded_as>
+    <match>password authentication failed|no pg_hba.conf entry</match>
+    <description>PostgreSQL authentication failure</description>
+    <group>postgresql,authentication_failed,pci_dss_10.2.4,hipaa_164.312.d,</group>
+  </rule>
+
+  <!-- PostgreSQL repeated auth failures -->
+  <rule id="100021" level="10" frequency="5" timeframe="120">
+    <if_matched_sid>100020</if_matched_sid>
+    <same_source_ip />
+    <description>PostgreSQL brute force: 5+ auth failures in 2 minutes</description>
+    <group>postgresql,attack,pci_dss_10.2.4,hipaa_164.312.d,nist_800_53_AC.7,</group>
+  </rule>
+
+  <!-- PostgreSQL fatal error -->
+  <rule id="100022" level="8">
+    <decoded_as>postgresql_log</decoded_as>
+    <match>FATAL:</match>
+    <description>PostgreSQL fatal error</description>
+    <group>postgresql,service_availability,pci_dss_10.6.1,</group>
+  </rule>
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- Apache / Web Server                                                   -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- Apache error — high severity -->
+  <rule id="100030" level="7">
+    <if_sid>30309</if_sid>
+    <match>AH01630|AH01797|AH00126</match>
+    <description>Apache critical error: client denied, proxy error, or invalid URI</description>
+    <group>apache,web,pci_dss_6.5.1,</group>
+  </rule>
+
+  <!-- Apache 403 flood from single IP -->
+  <rule id="100031" level="8" frequency="15" timeframe="30">
+    <if_sid>30105</if_sid>
+    <same_source_ip />
+    <description>Apache: 15+ forbidden requests from same IP in 30s — directory enumeration</description>
+    <group>apache,web,attack,pci_dss_6.5.8,nist_800_53_SI.4,</group>
+  </rule>
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- Docker                                                                -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- Docker container started -->
+  <rule id="100040" level="3">
+    <if_sid>87901</if_sid>
+    <match>start</match>
+    <description>Docker container started</description>
+    <group>docker,pci_dss_10.2.7,</group>
+  </rule>
+
+  <!-- Docker container stopped -->
+  <rule id="100041" level="5">
+    <if_sid>87901</if_sid>
+    <match>stop|die|kill</match>
+    <description>Docker container stopped or killed</description>
+    <group>docker,service_availability,pci_dss_10.2.7,</group>
+  </rule>
+
+  <!-- Docker exec into container -->
+  <rule id="100042" level="8">
+    <if_sid>87903</if_sid>
+    <description>Docker exec: interactive session opened in container</description>
+    <group>docker,pci_dss_10.2.2,hipaa_164.312.a.1,nist_800_53_AC.6,</group>
+  </rule>
+
+  <!-- Docker container created with privileged mode -->
+  <rule id="100043" level="12">
+    <if_sid>87901</if_sid>
+    <match>Privileged</match>
+    <description>CRITICAL: Privileged Docker container created — host escape risk</description>
+    <group>docker,pci_dss_2.2.1,hipaa_164.312.a.1,nist_800_53_AC.6,</group>
+  </rule>
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- File Integrity (FIM enhancements)                                     -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- Sensitive config file changed -->
+  <rule id="100050" level="10">
+    <if_sid>550,553,554</if_sid>
+    <match>/etc/passwd|/etc/shadow|/etc/sudoers|/etc/ssh/sshd_config</match>
+    <description>Critical system file modified — possible privilege escalation</description>
+    <group>syscheck,pci_dss_10.5.5,pci_dss_11.5,hipaa_164.312.b,nist_800_53_SI.7,</group>
+  </rule>
+
+  <!-- Application .env file changed -->
+  <rule id="100051" level="10">
+    <if_sid>550,553,554</if_sid>
+    <match>.env</match>
+    <description>Application .env file modified — possible credential change</description>
+    <group>syscheck,pci_dss_10.5.5,hipaa_164.312.b,</group>
+  </rule>
+
+  <!-- Binary in /usr/bin or /usr/sbin changed -->
+  <rule id="100052" level="12">
+    <if_sid>550,553,554</if_sid>
+    <match>/usr/bin/|/usr/sbin/</match>
+    <description>System binary modified — possible rootkit or supply chain attack</description>
+    <group>syscheck,rootkit,pci_dss_11.5,hipaa_164.312.b,nist_800_53_SI.7,</group>
+  </rule>
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- Service Health                                                        -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- Systemd service failure -->
+  <rule id="100060" level="7">
+    <if_sid>5900</if_sid>
+    <match>entered failed state|Failed with result</match>
+    <description>Systemd service entered failed state</description>
+    <group>systemd,service_availability,pci_dss_10.6.1,</group>
+  </rule>
+
+  <!-- Out of memory kill -->
+  <rule id="100061" level="12">
+    <match>Out of memory: Killed process|oom-killer</match>
+    <description>OOM killer invoked — system memory exhausted</description>
+    <group>system,service_availability,pci_dss_10.6.1,nist_800_53_SI.4,</group>
+  </rule>
+
+</group>

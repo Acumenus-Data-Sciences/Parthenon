@@ -1,0 +1,8 @@
+<!-- Parthenon / Acropolis — Custom Wazuh Decoders -->
+<!-- Keep it minimal — Wazuh built-in decoders handle most formats -->
+<!-- Only add decoders for truly custom log formats here -->
+
+<!-- Placeholder — add custom decoders as needed -->
+<decoder name="local_decoder_example">
+  <program_name>local_decoder_example</program_name>
+</decoder>
