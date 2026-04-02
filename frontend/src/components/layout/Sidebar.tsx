@@ -109,6 +109,7 @@ const navItems: NavItem[] = [
     icon: Microscope,
     children: [
       { path: "/profiles", label: "Patient Profiles", icon: UserCircle },
+      { path: "/patient-similarity", label: "Patient Similarity", icon: UsersRound },
       { path: "/risk-scores", label: "Risk Scores", icon: Activity },
       { path: "/standard-pros", label: "Standard PROs+", icon: ClipboardList },
       { path: "/genomics", label: "Genomics", icon: Dna },

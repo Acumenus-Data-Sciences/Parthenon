@@ -409,6 +409,14 @@ export const router = createBrowserRouter(
         ],
       },
       // ── Risk Scores ──────���───────────────────────────────────────────
+      // ── Patient Similarity ────────────────────────────────────────
+      {
+        path: "patient-similarity",
+        lazy: () =>
+          import(
+            "@/features/patient-similarity/pages/PatientSimilarityPage"
+          ).then((m) => ({ Component: m.default })),
+      },
       {
         path: "risk-scores",
         children: [
