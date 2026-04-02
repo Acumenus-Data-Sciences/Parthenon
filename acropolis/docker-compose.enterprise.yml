@@ -476,7 +476,7 @@ services:
 
   authentik-server:
     container_name: acropolis-authentik-server
-    image: ghcr.io/goauthentik/server:2025.2
+    image: ghcr.io/goauthentik/server:2026.2.1
     restart: unless-stopped
     command: server
     environment:
@@ -521,7 +521,7 @@ services:
 
   authentik-worker:
     container_name: acropolis-authentik-worker
-    image: ghcr.io/goauthentik/server:2025.2
+    image: ghcr.io/goauthentik/server:2026.2.1
     restart: unless-stopped
     command: worker
     environment:

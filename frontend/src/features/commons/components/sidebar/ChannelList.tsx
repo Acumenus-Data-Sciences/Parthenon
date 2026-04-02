@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
 import type { Channel } from "../../types";
 import { useUnreadCounts, useDirectMessages } from "../../api";
-import { avatarColor } from "../../utils/avatarColor";
+import { UserAvatar } from "../UserAvatar";
 import { ChannelSearch } from "./ChannelSearch";
 import { CreateChannelModal } from "./CreateChannelModal";
 import { CreateDirectMessageModal } from "./CreateDirectMessageModal";
@@ -118,12 +118,7 @@ export function ChannelList({ channels, activeSlug }: ChannelListProps) {
             }`}
             >
             {dm.other_user && (
-              <div
-                className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[8px] font-semibold text-white"
-                style={{ backgroundColor: avatarColor(dm.other_user.id) }}
-              >
-                {dm.other_user.name.split(" ").map((p) => p[0]).join("").toUpperCase().slice(0, 2)}
-              </div>
+              <UserAvatar user={dm.other_user} size="sm" />
             )}
             <span className="truncate">
               {dm.other_user?.name ?? "Unknown"}

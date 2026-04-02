@@ -17,7 +17,7 @@ import {
   useDeleteWikiArticle,
   useWikiRevisions,
 } from "../../api";
-import { avatarColor } from "../../utils/avatarColor";
+import { UserAvatar } from "../UserAvatar";
 import type { WikiArticle } from "../../types";
 import { useAuthStore } from "@/stores/authStore";
 import { Modal } from "@/components/ui/Modal";
@@ -246,23 +246,7 @@ function ArticleDetail({
         <div style={{ marginTop: "var(--space-2)", display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
           {article.author && (
             <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
-              <div
-                style={{
-                  width: 20,
-                  height: 20,
-                  borderRadius: "50%",
-                  backgroundColor: avatarColor(article.author.id),
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 9,
-                  fontWeight: 600,
-                  color: "#fff",
-                  flexShrink: 0,
-                }}
-              >
-                {article.author.name[0]?.toUpperCase()}
-              </div>
+              <UserAvatar user={article.author} size="sm" />
               <span style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>
                 {article.author.name}
               </span>

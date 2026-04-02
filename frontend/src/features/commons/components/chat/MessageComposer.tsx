@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, type KeyboardEvent } from "react";
 import { Bold, Italic, Code, Paperclip, Link, X } from "lucide-react";
 import type { ChannelMember, ObjectSearchResult } from "../../types";
-import { avatarColor } from "../../utils/avatarColor";
+import { UserAvatar } from "../UserAvatar";
 import { ReferencePicker } from "./ReferencePicker";
 import { dispatchAbbyMentionEvent } from "../abby/AbbyMentionHandler";
 
@@ -262,12 +262,7 @@ export function MessageComposer({ channelName, onSend, disabled, onKeyDown, memb
                   i === mentionIndex ? "bg-muted text-foreground" : "text-foreground hover:bg-muted"
                 }`}
               >
-                <div
-                  className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[8px] font-semibold text-white"
-                  style={{ backgroundColor: avatarColor(member.user_id) }}
-                >
-                  {member.user.name.split(" ").map((p) => p[0]).join("").toUpperCase().slice(0, 2)}
-                </div>
+                <UserAvatar user={{ id: member.user_id, name: member.user.name }} size="sm" />
                 <span>{member.user.name}</span>
                 {member.role !== "member" && (
                   <span className="ml-auto text-[10px] text-muted-foreground">{member.role}</span>

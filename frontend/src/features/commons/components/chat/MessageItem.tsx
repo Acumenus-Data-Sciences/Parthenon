@@ -5,7 +5,7 @@ import rehypeSanitize from "rehype-sanitize";
 import { ChevronDown, SmilePlus, Reply, Pin } from "lucide-react";
 import type { Message } from "../../types";
 import { useToggleReaction, usePinMessage, useCreateReviewRequest } from "../../api";
-import { avatarColor } from "../../utils/avatarColor";
+import { UserAvatar } from "../UserAvatar";
 import { MessageActionMenu } from "./MessageActionMenu";
 import { EditMessageInline } from "./EditMessageInline";
 import { DeleteConfirmation } from "./DeleteConfirmation";
@@ -71,12 +71,7 @@ export function MessageItem({
               </div>
             </div>
           )}
-        <div
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-xs font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]"
-          style={{ backgroundColor: avatarColor(message.user.id) }}
-        >
-          {getInitials(message.user.name)}
-        </div>
+        <UserAvatar user={message.user} />
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline gap-2">
             <span className="text-[13px] font-semibold tracking-tight text-foreground">
@@ -209,13 +204,4 @@ function ActionBarButton({ icon: Icon, label, onClick }: { icon: React.Component
       <Icon className="h-3.5 w-3.5" />
     </button>
   );
-}
-
-function getInitials(name: string): string {
-  return name
-    .split(" ")
-    .map((p) => p[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
 }

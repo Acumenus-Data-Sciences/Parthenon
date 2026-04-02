@@ -23,7 +23,7 @@ class MemberController extends Controller
         $this->authorize('view', $channel);
 
         $members = ChannelMember::where('channel_id', $channel->id)
-            ->with('user:id,name,email')
+            ->with('user:id,name,email,avatar')
             ->orderBy('joined_at')
             ->get();
 
@@ -49,7 +49,7 @@ class MemberController extends Controller
             ['role' => 'member', 'joined_at' => now()],
         );
 
-        $member->load('user:id,name,email');
+        $member->load('user:id,name,email,avatar');
 
         return response()->json(['data' => $member], 201);
     }
@@ -87,7 +87,7 @@ class MemberController extends Controller
         ]);
 
         $member->update(['notification_preference' => $request->input('notification_preference')]);
-        $member->load('user:id,name,email');
+        $member->load('user:id,name,email,avatar');
 
         return response()->json(['data' => $member]);
     }

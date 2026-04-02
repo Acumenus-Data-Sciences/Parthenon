@@ -106,7 +106,7 @@ class ObjectReferenceController extends Controller
     {
         $refs = ObjectReference::where('referenceable_type', $type)
             ->where('referenceable_id', $id)
-            ->with(['message.user:id,name', 'message.channel:id,slug'])
+            ->with(['message.user:id,name,avatar', 'message.channel:id,slug'])
             ->orderByDesc('created_at')
             ->limit(50)
             ->get();

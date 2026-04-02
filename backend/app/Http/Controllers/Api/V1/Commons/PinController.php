@@ -23,7 +23,7 @@ class PinController extends Controller
         $this->authorize('view', $channel);
 
         $pins = PinnedMessage::where('channel_id', $channel->id)
-            ->with(['message.user:id,name', 'pinner:id,name'])
+            ->with(['message.user:id,name,avatar', 'pinner:id,name,avatar'])
             ->orderByDesc('pinned_at')
             ->get()
             ->map(function (PinnedMessage $pin) {
@@ -62,7 +62,7 @@ class PinController extends Controller
             ['pinned_by' => $request->user()->id],
         );
 
-        $pin->load(['message.user:id,name', 'pinner:id,name']);
+        $pin->load(['message.user:id,name,avatar', 'pinner:id,name,avatar']);
 
         return response()->json([
             'data' => [

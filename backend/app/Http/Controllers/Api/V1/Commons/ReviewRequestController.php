@@ -28,7 +28,7 @@ class ReviewRequestController extends Controller
         $this->authorize('view', $channel);
 
         $reviews = ReviewRequest::where('channel_id', $channel->id)
-            ->with(['message:id,body,user_id,created_at', 'message.user:id,name', 'requester:id,name', 'reviewer:id,name'])
+            ->with(['message:id,body,user_id,created_at', 'message.user:id,name,avatar', 'requester:id,name,avatar', 'reviewer:id,name,avatar'])
             ->orderByDesc('created_at')
             ->limit(50)
             ->get();
@@ -67,7 +67,7 @@ class ReviewRequestController extends Controller
             'status' => 'pending',
         ]);
 
-        $review->load(['requester:id,name', 'reviewer:id,name']);
+        $review->load(['requester:id,name,avatar', 'reviewer:id,name,avatar']);
 
         // Notify the assigned reviewer (or message author if no specific reviewer)
         $notifyUserId = $request->input('reviewer_id') ?? $message->user_id;
@@ -98,7 +98,7 @@ class ReviewRequestController extends Controller
             'resolved_at' => now(),
         ]);
 
-        $review->load(['requester:id,name', 'reviewer:id,name']);
+        $review->load(['requester:id,name,avatar', 'reviewer:id,name,avatar']);
 
         // Notify the requester
         $this->notificationService->notifyReviewResolved(

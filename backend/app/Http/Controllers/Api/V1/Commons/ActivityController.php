@@ -22,7 +22,7 @@ class ActivityController extends Controller
         $this->authorize('view', $channel);
 
         $query = Activity::where('channel_id', $channel->id)
-            ->with('user:id,name')
+            ->with('user:id,name,avatar')
             ->orderByDesc('created_at');
 
         if ($request->filled('type')) {
@@ -36,7 +36,7 @@ class ActivityController extends Controller
 
     public function global(Request $request): JsonResponse
     {
-        $query = Activity::with(['user:id,name', 'channel:id,slug,name'])
+        $query = Activity::with(['user:id,name,avatar', 'channel:id,slug,name'])
             ->orderByDesc('created_at');
 
         if ($request->filled('type')) {

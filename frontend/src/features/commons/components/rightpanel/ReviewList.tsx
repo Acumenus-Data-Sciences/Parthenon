@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Check, X, Clock, ClipboardCheck } from "lucide-react";
 import { useReviews, useResolveReview } from "../../api";
-import { avatarColor } from "../../utils/avatarColor";
+import { UserAvatar } from "../UserAvatar";
 
 interface ReviewListProps {
   slug: string;
@@ -106,12 +106,7 @@ function ReviewItem({
 
           {review.message?.user && (
             <div className="mt-1.5 flex items-center gap-1.5">
-              <div
-                className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[7px] font-semibold text-white"
-                style={{ backgroundColor: avatarColor(review.message.user.id) }}
-              >
-                {review.message.user.name[0]?.toUpperCase()}
-              </div>
+              <UserAvatar user={review.message.user} size="sm" />
               <span className="text-[10px] text-muted-foreground">
                 {review.message.user.name}
               </span>

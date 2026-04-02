@@ -6,7 +6,7 @@ import {
   useDeleteAnnouncement,
   useToggleBookmark,
 } from "../../api";
-import { avatarColor } from "../../utils/avatarColor";
+import { UserAvatar } from "../UserAvatar";
 import type { Announcement } from "../../types";
 import { useAuthStore } from "@/stores/authStore";
 import { Modal } from "@/components/ui/Modal";
@@ -139,23 +139,7 @@ function AnnouncementCard({
       }}>
         {announcement.user && (
           <>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: 20,
-                height: 20,
-                borderRadius: "50%",
-                fontSize: 9,
-                fontWeight: 600,
-                color: "#fff",
-                flexShrink: 0,
-                backgroundColor: avatarColor(announcement.user.id),
-              }}
-            >
-              {announcement.user.name[0]?.toUpperCase()}
-            </div>
+            <UserAvatar user={announcement.user} size="sm" />
             <span style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>
               {announcement.user.name}
             </span>

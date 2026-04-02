@@ -53,7 +53,7 @@ class DirectMessageController extends Controller
 
         $channels = Channel::where('type', 'dm')
             ->whereHas('members', fn ($q) => $q->where('user_id', $user->id))
-            ->with(['members.user:id,name,email'])
+            ->with(['members.user:id,name,email,avatar'])
             ->withCount('members')
             ->withMax('messages', 'created_at')
             ->orderByDesc('messages_max_created_at')

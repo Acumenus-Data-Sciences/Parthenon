@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { useSearchMessages } from "../../api";
-import { avatarColor } from "../../utils/avatarColor";
+import { UserAvatar } from "../UserAvatar";
 
 interface SearchPanelProps {
   slug: string;
@@ -52,17 +52,7 @@ export function SearchPanel({ slug }: SearchPanelProps) {
                 className="rounded-xl border border-[#25252b] bg-[#111115] px-3 py-3 transition-colors hover:border-[#31313a] hover:bg-[#15151a]"
               >
               <div className="flex items-start gap-2">
-                <div
-                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[9px] font-semibold text-white"
-                  style={{ backgroundColor: avatarColor(msg.user.id) }}
-                >
-                  {msg.user.name
-                    .split(" ")
-                    .map((p) => p[0])
-                    .join("")
-                    .toUpperCase()
-                    .slice(0, 2)}
-                </div>
+                <UserAvatar user={msg.user} size="sm" />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline gap-1.5">
                     <span className="text-xs font-semibold text-foreground">

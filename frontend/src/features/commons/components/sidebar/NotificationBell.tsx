@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/Button";
 import { useNotifications, useUnreadNotificationCount, useMarkNotificationsRead } from "../../api";
-import { avatarColor } from "../../utils/avatarColor";
+import { UserAvatar } from "../UserAvatar";
 import type { CommonsNotification } from "../../types";
 
 const PANEL_WIDTH = 384;
@@ -165,12 +165,7 @@ function NotificationItem({
       }`}
     >
       {n.actor ? (
-        <div
-          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[9px] font-semibold text-white"
-          style={{ backgroundColor: avatarColor(n.actor.id) }}
-        >
-          {n.actor.name[0]?.toUpperCase()}
-        </div>
+        <UserAvatar user={n.actor} size="sm" />
       ) : (
         <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted">
           <Icon className="h-3 w-3 text-muted-foreground" />

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Modal } from "@/components/ui/Modal";
 import { toast } from "@/components/ui/Toast";
 import { useCreateDirectMessage, useDirectMessageUserSearch } from "../../api";
-import { avatarColor } from "../../utils/avatarColor";
+import { UserAvatar } from "../UserAvatar";
 
 interface CreateDirectMessageModalProps {
   onClose: () => void;
@@ -97,17 +97,7 @@ export function CreateDirectMessageModal({
                     : "hover:bg-muted"
                 }`}
               >
-                <div
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold text-white"
-                  style={{ backgroundColor: avatarColor(user.id) }}
-                >
-                  {user.name
-                    .split(" ")
-                    .map((part) => part[0])
-                    .join("")
-                    .toUpperCase()
-                    .slice(0, 2)}
-                </div>
+                <UserAvatar user={user} />
                 <div className="min-w-0">
                   <div className="truncate text-sm text-foreground">{user.name}</div>
                   <div className="truncate text-xs text-muted-foreground">{user.email}</div>

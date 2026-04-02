@@ -36,7 +36,7 @@ class MessageController extends Controller
         $query = Message::where('channel_id', $channel->id)
             ->whereNull('deleted_at')
             ->whereNull('parent_id')
-            ->with(['user:id,name', 'objectReferences', 'attachments'])
+            ->with(['user:id,name,avatar', 'objectReferences', 'attachments'])
             ->withCount('replies')
             ->withMax('replies', 'created_at')
             ->orderByDesc('id');
@@ -96,7 +96,7 @@ class MessageController extends Controller
         }
 
         // Fire notifications
-        $message->load('user:id,name');
+        $message->load('user:id,name,avatar');
         if ($channel->type === 'dm') {
             $this->notificationService->notifyDirectMessage($message, $channel->id);
         } else {
@@ -151,7 +151,7 @@ class MessageController extends Controller
                 $q->where('parent_id', $parent->id)
                     ->orWhereIn('parent_id', $childIds);
             })
-            ->with('user:id,name')
+            ->with('user:id,name,avatar')
             ->orderBy('created_at', 'asc')
             ->get();
 
@@ -177,7 +177,7 @@ class MessageController extends Controller
         $query = Message::whereNull('deleted_at')
             ->whereNull('parent_id')
             ->whereRaw("to_tsvector('english', body) @@ plainto_tsquery('english', ?)", [$request->input('q')])
-            ->with(['user:id,name', 'channel:id,slug,name'])
+            ->with(['user:id,name,avatar', 'channel:id,slug,name'])
             ->orderByDesc('created_at')
             ->limit(50);
 

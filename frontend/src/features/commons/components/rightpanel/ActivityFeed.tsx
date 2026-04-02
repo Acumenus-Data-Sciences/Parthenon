@@ -8,7 +8,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useActivities } from "../../api";
-import { avatarColor } from "../../utils/avatarColor";
+import { UserAvatar } from "../UserAvatar";
 
 interface ActivityFeedProps {
   slug: string;
@@ -76,12 +76,7 @@ export function ActivityFeed({ slug }: ActivityFeedProps) {
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5">
                 {item.user && (
-                  <div
-                    className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[7px] font-semibold text-white"
-                    style={{ backgroundColor: avatarColor(item.user.id) }}
-                  >
-                    {item.user.name[0]?.toUpperCase()}
-                  </div>
+                  <UserAvatar user={item.user} size="sm" />
                 )}
                 <span className="text-xs text-foreground">{item.title}</span>
               </div>

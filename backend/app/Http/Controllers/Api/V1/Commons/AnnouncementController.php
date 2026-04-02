@@ -18,7 +18,7 @@ class AnnouncementController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $query = Announcement::with('user:id,name')
+        $query = Announcement::with('user:id,name,avatar')
             ->orderByDesc('is_pinned')
             ->orderByDesc('created_at');
 
@@ -87,7 +87,7 @@ class AnnouncementController extends Controller
             'expires_at' => $validated['expires_at'] ?? null,
         ]);
 
-        $announcement->load('user:id,name');
+        $announcement->load('user:id,name,avatar');
 
         return response()->json(['data' => $announcement], 201);
     }
@@ -109,7 +109,7 @@ class AnnouncementController extends Controller
         ]);
 
         $announcement->update($validated);
-        $announcement->load('user:id,name');
+        $announcement->load('user:id,name,avatar');
 
         return response()->json(['data' => $announcement]);
     }

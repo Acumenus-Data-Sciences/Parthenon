@@ -4,7 +4,7 @@ import { toast } from "@/components/ui/Toast";
 import { useAuthStore } from "@/stores/authStore";
 import { useCreateDirectMessage } from "../../api";
 import type { ChannelMember, PresenceUser } from "../../types";
-import { avatarColor } from "../../utils/avatarColor";
+import { UserAvatar } from "../UserAvatar";
 
 interface MemberListProps {
   members: ChannelMember[];
@@ -64,17 +64,7 @@ export function MemberList({ members, presenceUsers = [] }: MemberListProps) {
             className="mx-3 mb-2 flex items-center gap-2.5 rounded-xl border border-[#25252b] bg-[#111115] px-3 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] transition-colors hover:border-[#31313a] hover:bg-[#15151a]"
           >
           <div className="relative shrink-0">
-            <div
-              className="flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-semibold text-white"
-              style={{ backgroundColor: avatarColor(member.user_id) }}
-            >
-              {member.user.name
-                .split(" ")
-                .map((p) => p[0])
-                .join("")
-                .toUpperCase()
-                .slice(0, 2)}
-            </div>
+            <UserAvatar user={{ id: member.user_id, name: member.user.name }} size="sm" />
             {isOnline && (
               <span
                 className={`absolute -bottom-px -right-px h-2.5 w-2.5 rounded-full ring-2 ring-[#151518] ${

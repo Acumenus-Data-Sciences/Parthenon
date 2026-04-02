@@ -3,7 +3,7 @@ import { toast } from "@/components/ui/Toast";
 import { useAuthStore } from "@/stores/authStore";
 import type { PresenceUser } from "../../types";
 import { useCreateDirectMessage } from "../../api";
-import { avatarColor } from "../../utils/avatarColor";
+import { UserAvatar } from "../UserAvatar";
 
 interface OnlineUsersProps {
   users: PresenceUser[];
@@ -44,12 +44,7 @@ export function OnlineUsers({ users }: OnlineUsersProps) {
       {currentUser && (
         <div className="mb-3 rounded-xl border border-[#232328] bg-[#111115] px-3 py-2.5">
           <div className="flex items-center gap-2">
-            <div
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold text-white"
-              style={{ backgroundColor: avatarColor(currentUser.id) }}
-            >
-              {getInitials(currentUser.name)}
-            </div>
+            <UserAvatar user={currentUser} size="sm" />
             <div className="min-w-0">
               <p className="text-xs font-medium text-foreground">You</p>
               <p className="text-[11px] text-muted-foreground">
@@ -88,12 +83,7 @@ export function OnlineUsers({ users }: OnlineUsersProps) {
               className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-[13px] transition-colors hover:bg-muted/50"
             >
               <div className="relative shrink-0">
-                <div
-                  className="flex h-6 w-6 items-center justify-center rounded-full text-[8px] font-semibold text-white"
-                  style={{ backgroundColor: avatarColor(user.id) }}
-                >
-                  {getInitials(user.name)}
-                </div>
+                <UserAvatar user={user} size="sm" />
                 <span className="absolute -bottom-px -right-px h-[7px] w-[7px] rounded-full bg-green-500 ring-1 ring-card" />
               </div>
               <span className="truncate text-foreground">{user.name}</span>
@@ -112,13 +102,4 @@ export function OnlineUsers({ users }: OnlineUsersProps) {
       </div>
     </div>
   );
-}
-
-function getInitials(name: string): string {
-  return name
-    .split(" ")
-    .map((p) => p[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
 }

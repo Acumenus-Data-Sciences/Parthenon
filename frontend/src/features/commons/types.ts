@@ -1,6 +1,7 @@
 export interface ChannelUser {
   id: number;
   name: string;
+  avatar?: string | null;
 }
 
 export interface SearchableUser extends ChannelUser {
