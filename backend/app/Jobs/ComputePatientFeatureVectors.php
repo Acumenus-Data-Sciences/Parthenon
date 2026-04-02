@@ -6,6 +6,7 @@ use App\Concerns\SourceAware;
 use App\Context\SourceContext;
 use App\Models\App\PatientFeatureVector;
 use App\Models\App\Source;
+use App\Services\PatientSimilarity\EmbeddingClient;
 use App\Services\PatientSimilarity\SimilarityFeatureExtractor;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -31,7 +32,7 @@ class ComputePatientFeatureVectors implements ShouldQueue
         $this->onQueue('similarity');
     }
 
-    public function handle(SimilarityFeatureExtractor $extractor): void
+    public function handle(SimilarityFeatureExtractor $extractor, EmbeddingClient $embeddingClient): void
     {
         $sourceId = $this->source->source_id;
         Log::info('ComputePatientFeatureVectors: starting', ['source_id' => $sourceId]);
@@ -92,7 +93,48 @@ class ComputePatientFeatureVectors implements ShouldQueue
             ]);
         }
 
-        // Step 4: create IVFFlat index if enough patients
+        // Step 4: generate embeddings via AI service in batches
+        Log::info('ComputePatientFeatureVectors: generating embeddings', ['source_id' => $sourceId]);
+
+        $embeddingBatchSize = 200;
+        $embeddingBatches = array_chunk($personIds, $embeddingBatchSize);
+        $embeddingsGenerated = 0;
+
+        foreach ($embeddingBatches as $embBatchIndex => $embBatchIds) {
+            $featureRows = PatientFeatureVector::where('source_id', $sourceId)
+                ->whereIn('person_id', $embBatchIds)
+                ->get();
+
+            $batchForEmbedding = [];
+            foreach ($featureRows as $row) {
+                $batchForEmbedding[] = array_merge($row->toArray(), ['person_id' => $row->person_id]);
+            }
+
+            $embeddings = $embeddingClient->embedBatch($batchForEmbedding);
+
+            foreach ($embeddings as $pid => $embedding) {
+                $embeddingStr = '['.implode(',', $embedding).']';
+                DB::statement(
+                    'UPDATE patient_feature_vectors SET embedding = ?::public.vector WHERE source_id = ? AND person_id = ?',
+                    [$embeddingStr, $sourceId, $pid]
+                );
+                $embeddingsGenerated++;
+            }
+
+            Log::info('ComputePatientFeatureVectors: embedding batch complete', [
+                'source_id' => $sourceId,
+                'batch' => $embBatchIndex + 1,
+                'total_batches' => count($embeddingBatches),
+                'embeddings_in_batch' => count($embeddings),
+            ]);
+        }
+
+        Log::info('ComputePatientFeatureVectors: embeddings generated', [
+            'source_id' => $sourceId,
+            'total_embeddings' => $embeddingsGenerated,
+        ]);
+
+        // Step 5: create IVFFlat index if enough patients
         if ($totalPatients >= 100) {
             try {
                 DB::statement(
@@ -107,7 +149,7 @@ class ComputePatientFeatureVectors implements ShouldQueue
             }
         }
 
-        // Step 5: invalidate similarity cache for this source
+        // Step 6: invalidate similarity cache for this source
         Cache::forget("patient_similarity_cache:{$sourceId}");
 
         Log::info('ComputePatientFeatureVectors: complete', [

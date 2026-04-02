@@ -15,6 +15,7 @@ use App\Services\PatientSimilarity\Scorers\GenomicScorer;
 use App\Services\PatientSimilarity\Scorers\MeasurementScorer;
 use App\Services\PatientSimilarity\Scorers\ProcedureScorer;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 final class PatientSimilarityService
 {
@@ -191,7 +192,12 @@ final class PatientSimilarityService
     }
 
     /**
-     * Embedding-based ANN search (Phase 2 stub — falls back to interpretable).
+     * Embedding-based ANN search using pgvector cosine distance.
+     *
+     * Retrieves candidate patients via ANN (approximate nearest neighbor) search
+     * on pre-computed embeddings, then re-scores them with interpretable dimension
+     * scorers for explainability. Falls back to interpretable search if the seed
+     * patient has no embedding.
      *
      * @param  array<string, float>  $weights
      * @param  array<string, mixed>  $filters
@@ -205,12 +211,69 @@ final class PatientSimilarityService
         float $minScore,
         array $filters = [],
     ): array {
-        // Phase 2: implement ANN search via Python embedding service
-        // For now, fall back to interpretable search
-        $results = $this->searchInterpretable($seed, $source, $weights, $limit, $minScore, $filters);
-        $results['mode'] = 'embedding_fallback';
+        $seedData = $seed->toArray();
+        $embeddingStr = $seed->getRawOriginal('embedding');
 
-        return $results;
+        if (! $embeddingStr) {
+            return $this->searchInterpretable($seed, $source, $weights, $limit, $minScore, $filters);
+        }
+
+        $candidateLimit = min(200, max($limit * 4, 100));
+
+        $query = 'SELECT person_id, 1 - (embedding <=> ?::public.vector) AS cosine_similarity
+                  FROM patient_feature_vectors
+                  WHERE source_id = ? AND person_id != ? AND embedding IS NOT NULL';
+        $params = [$embeddingStr, $source->id, $seed->person_id];
+
+        if (! empty($filters['gender_concept_id'])) {
+            $query .= ' AND gender_concept_id = ?';
+            $params[] = $filters['gender_concept_id'];
+        }
+        if (! empty($filters['age_range'])) {
+            $query .= ' AND age_bucket BETWEEN ? AND ?';
+            $params[] = intdiv((int) $filters['age_range'][0], 5);
+            $params[] = intdiv((int) $filters['age_range'][1], 5);
+        }
+
+        $query .= ' ORDER BY embedding <=> ?::public.vector LIMIT ?';
+        $params[] = $embeddingStr;
+        $params[] = $candidateLimit;
+
+        $candidateRows = DB::select($query, $params);
+        $candidateIds = array_map(fn ($r) => (int) $r->person_id, $candidateRows);
+
+        $candidates = PatientFeatureVector::where('source_id', $source->id)
+            ->whereIn('person_id', $candidateIds)
+            ->get()
+            ->keyBy('person_id');
+
+        $scored = [];
+        foreach ($candidates as $candidate) {
+            $result = $this->scorePatientPair($seedData, $candidate->toArray(), $weights);
+            if ($result['overall_score'] >= $minScore) {
+                $scored[] = array_merge($result, ['person_id' => $candidate->person_id]);
+            }
+        }
+
+        usort($scored, static fn (array $a, array $b): int => $b['overall_score'] <=> $a['overall_score']);
+        $scored = array_slice($scored, 0, $limit);
+
+        return [
+            'seed' => [
+                'person_id' => $seed->person_id,
+                'age_bucket' => $seed->age_bucket,
+                'gender_concept_id' => $seed->gender_concept_id,
+                'condition_count' => $seed->condition_count,
+                'lab_count' => $seed->lab_count,
+                'dimensions_available' => $seed->dimensions_available,
+            ],
+            'mode' => 'embedding',
+            'similar_patients' => $scored,
+            'metadata' => [
+                'candidates_evaluated' => count($candidateRows),
+                'dimensions_used' => array_keys($weights),
+            ],
+        ];
     }
 
     /**
