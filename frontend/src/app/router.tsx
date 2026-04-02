@@ -418,6 +418,13 @@ export const router = createBrowserRouter(
           ).then((m) => ({ Component: m.default })),
       },
       {
+        path: "patient-similarity/compare",
+        lazy: () =>
+          import(
+            "@/features/patient-similarity/pages/PatientComparisonPage"
+          ).then((m) => ({ Component: m.default })),
+      },
+      {
         path: "risk-scores",
         children: [
           {

@@ -4,8 +4,15 @@ import {
   fetchComputeStatus,
   searchSimilarPatients,
   triggerCompute,
+  searchFromCohort,
+  exportCohort,
+  comparePatients,
 } from "../api/patientSimilarityApi";
-import type { SimilaritySearchParams } from "../types/patientSimilarity";
+import type {
+  SimilaritySearchParams,
+  CohortSimilaritySearchParams,
+  CohortExportParams,
+} from "../types/patientSimilarity";
 
 export const SIMILARITY_KEYS = {
   dimensions: ["patient-similarity", "dimensions"] as const,
@@ -13,6 +20,8 @@ export const SIMILARITY_KEYS = {
     ["patient-similarity", "status", sourceId] as const,
   search: (params: SimilaritySearchParams) =>
     ["patient-similarity", "search", params] as const,
+  compare: (personA: number, personB: number, sourceId: number) =>
+    ["patient-similarity", "compare", personA, personB, sourceId] as const,
 };
 
 export function useSimilarityDimensions() {
@@ -54,5 +63,35 @@ export function useTriggerCompute() {
         queryKey: SIMILARITY_KEYS.status(variables.sourceId),
       });
     },
+  });
+}
+
+// ── Cohort Integration ────────────────────────────────────────────
+
+export function useCohortSimilaritySearch() {
+  return useMutation({
+    mutationFn: (params: CohortSimilaritySearchParams) =>
+      searchFromCohort(params),
+  });
+}
+
+export function useExportCohort() {
+  return useMutation({
+    mutationFn: (params: CohortExportParams) => exportCohort(params),
+  });
+}
+
+// ── Patient Comparison ────────────────────────────────────────────
+
+export function useComparePatients(
+  personA: number,
+  personB: number,
+  sourceId: number,
+) {
+  return useQuery({
+    queryKey: SIMILARITY_KEYS.compare(personA, personB, sourceId),
+    queryFn: () => comparePatients(personA, personB, sourceId),
+    enabled: personA > 0 && personB > 0 && sourceId > 0,
+    staleTime: 5 * 60 * 1000,
   });
 }

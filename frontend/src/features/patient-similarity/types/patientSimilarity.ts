@@ -61,3 +61,49 @@ export interface ComputeStatus {
   staleness_warning: boolean;
   days_since_compute: number | null;
 }
+
+// ── Cohort Integration ────────────────────────────────────────────
+
+export interface CohortSimilaritySearchParams {
+  cohort_definition_id: number;
+  source_id: number;
+  strategy: "centroid" | "exemplar";
+  mode?: string;
+  weights?: Record<string, number>;
+  limit?: number;
+  min_score?: number;
+}
+
+export interface CohortExportParams {
+  cache_id: number;
+  name: string;
+  description?: string;
+  min_score?: number;
+}
+
+export interface CohortExportResult {
+  cohort_definition_id: number;
+  patient_count: number;
+  name: string;
+}
+
+// ── Patient Comparison ────────────────────────────────────────────
+
+export interface PatientFeatureSet {
+  person_id: number;
+  demographics: { age: number; gender: string } | null;
+  conditions: Array<{ concept_id: number; concept_name: string }>;
+  drugs: Array<{ concept_id: number; concept_name: string }>;
+  procedures: Array<{ concept_id: number; concept_name: string }>;
+  measurements: Array<{ concept_id: number; concept_name: string; value?: number }>;
+}
+
+export interface PatientComparisonResult {
+  person_a: PatientFeatureSet;
+  person_b: PatientFeatureSet;
+  dimension_scores: DimensionScores;
+  overall_score: number;
+  shared_conditions: Array<{ concept_id: number; concept_name: string }>;
+  shared_drugs: Array<{ concept_id: number; concept_name: string }>;
+  shared_procedures: Array<{ concept_id: number; concept_name: string }>;
+}
