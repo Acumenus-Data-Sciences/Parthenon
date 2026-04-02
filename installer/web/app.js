@@ -1,11 +1,19 @@
-const stepMeta = [
+const experiencedSteps = [
   ["launch", "1. Environment", "Choose the Parthenon workspace"],
   ["preflight", "2. Readiness", "Check this machine before install"],
-  ["basics", "3. Install Path", "Choose the product edition and deployment defaults"],
+  ["basics", "3. Install Path", "Edition, license keys, and deployment defaults"],
   ["credentials", "4. Access", "Create administrator and database credentials"],
   ["modules", "5. Services", "Select platform modules and supporting services"],
   ["review", "6. Confirm", "Review settings and start installation"],
 ];
+
+const beginnerSteps = [
+  ["beginner_setup", "1. Setup", "Your admin account and workspace"],
+  ["beginner_check", "2. Check", "Verify this machine is ready"],
+  ["beginner_install", "3. Install", "Deploy Parthenon and start using it"],
+];
+
+let stepMeta = experiencedSteps;
 
 const state = {
   bootstrap: null,
@@ -92,12 +100,7 @@ function setBanner(text = "", kind = "info") {
 }
 
 function syncActionButtons() {
-  const dryRun = Boolean(state.currentValues.dry_run);
-  const dryRunBtn = $("dry-run-btn");
-  if (dryRunBtn) {
-    dryRunBtn.textContent = dryRun ? "Dry Run: On" : "Dry Run: Off";
-    dryRunBtn.classList.toggle("active", dryRun);
-  }
+  // Dry run is set once from the modal — no runtime toggle needed
 }
 
 function snapshotValues() {
@@ -118,10 +121,17 @@ function showStep(index) {
     child.classList.toggle("active", childIndex === index);
     child.classList.toggle("done", childIndex < index);
   });
+  const isBeginner = state.selectedExperience === "Beginner";
   $("back-btn").disabled = index === 0;
   $("next-btn").disabled = index === stepMeta.length - 1;
-  $("validate-btn").disabled = index !== stepMeta.length - 1;
-  $("install-btn").disabled = index !== stepMeta.length - 1;
+  // In beginner mode, hide the action bar install/validate buttons (install is inline on step 3)
+  $("validate-btn").disabled = isBeginner || index !== stepMeta.length - 1;
+  $("install-btn").disabled = isBeginner || index !== stepMeta.length - 1;
+  if (isBeginner) {
+    $("validate-btn").style.display = "none";
+    $("install-btn").style.display = "none";
+    $("upgrade").parentElement.style.display = "none";
+  }
   syncActionButtons();
 }
 
@@ -136,7 +146,15 @@ function renderFields(fields) {
               ? `<select class="field-select" data-field="${key}">
                   ${options.map((option) => `<option value="${option}">${option}</option>`).join("")}
                  </select>`
-              : `<input class="field-input" data-field="${key}" type="${secret ? "password" : "text"}" />`
+              : secret
+                ? `<div class="secret-field">
+                     <input class="field-input" data-field="${key}" type="password" />
+                     <button type="button" class="eye-toggle" data-eye-for="${key}" aria-label="Toggle visibility">
+                       <svg class="eye-icon eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                       <svg class="eye-icon eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                     </button>
+                   </div>`
+                : `<input class="field-input" data-field="${key}" type="text" />`
           }
         </label>
       `,
@@ -182,36 +200,39 @@ function renderStep() {
   const stepKey = stepMeta[state.currentStep][0];
 
   if (stepKey === "launch") {
-    const launchCopy = state.bootstrap.platform.windows
-      ? "On Windows, enter either the Parthenon repo path or the WSL repo path before continuing."
-      : "Confirm the Parthenon repo path for this installation before continuing.";
     const windowsFields = state.bootstrap.platform.windows
       ? `
-          <div class="grid">
-            ${renderFields([
-              { key: "wsl_distro", label: "WSL distro" },
-              { key: "wsl_repo_path", label: "WSL repo path" },
-            ])}
-          </div>
+          <section class="section glass-soft">
+            <div class="section-kicker">WSL Configuration</div>
+            <h4>Windows Subsystem for Linux</h4>
+            <p class="section-copy">Parthenon runs inside WSL. Specify the distro and path if the repo lives inside the WSL filesystem.</p>
+            <div class="grid two">
+              ${renderFields([
+                { key: "wsl_distro", label: "WSL distro" },
+                { key: "wsl_repo_path", label: "WSL repo path" },
+              ])}
+            </div>
+          </section>
         `
       : "";
     container.innerHTML = `
       <div class="page">
         <section class="section glass-soft">
-          <h4>Launch Context</h4>
-          <p class="section-copy">${launchCopy}</p>
+          <div class="section-kicker">Workspace</div>
+          <h4>Parthenon Repository</h4>
+          <p class="section-copy">${
+            state.bootstrap.platform.windows
+              ? "Confirm the path to the Parthenon repository. On Windows, you may also specify a WSL path below."
+              : "Confirm the local path to the Parthenon repository. The installer will write configuration files and start Docker services from this directory."
+          }</p>
           <div class="grid">
-            ${renderFields([{ key: "repo_path", label: "Parthenon repo path" }])}
-          </div>
-          ${windowsFields}
-          <div class="inline-actions">
-            <button class="btn secondary" id="browse-repo">Browse</button>
+            ${renderFields([{ key: "repo_path", label: "Repository path" }])}
           </div>
         </section>
+        ${windowsFields}
       </div>
     `;
     bindValues();
-    $("browse-repo").addEventListener("click", () => alert("Use the repo path field directly for now."));
     return;
   }
 
@@ -219,67 +240,135 @@ function renderStep() {
     container.innerHTML = `
       <div class="page">
         <section class="section glass-soft">
-          <h4>System Readiness</h4>
-          <p class="section-copy">Run preflight checks on the selected repo before continuing. The wizard will not advance past this step while failures remain.</p>
+          <div class="section-kicker">System Check</div>
+          <h4>Verify Environment</h4>
+          <p class="section-copy">Acropolis checks that Docker, Compose, disk space, and required ports are available. The wizard will not advance while failures remain.</p>
           <div class="inline-actions">
-            <button class="btn secondary" id="run-preflight">Run Preflight Checks</button>
+            <button class="btn primary" id="run-preflight">Run Preflight Checks</button>
           </div>
+        </section>
+        <section class="section glass-soft" id="preflight-results-section" style="display:none;">
+          <div class="section-kicker">Results</div>
+          <h4>Check Results</h4>
           <div id="preflight-output" class="preflight-summary"></div>
         </section>
       </div>
     `;
-    $("run-preflight").addEventListener("click", runPreflight);
-    renderPreflight();
+    $("run-preflight").addEventListener("click", async () => {
+      await runPreflight();
+      const resultsSection = $("preflight-results-section");
+      if (resultsSection) resultsSection.style.display = "";
+    });
+    if (state.preflight) {
+      const resultsSection = $("preflight-results-section");
+      if (resultsSection) resultsSection.style.display = "";
+      renderPreflight();
+    }
     return;
   }
 
   if (stepKey === "basics") {
     container.innerHTML = `
       <div class="page">
-        <section class="section glass-soft decision-section">
-          <div class="section-kicker">Primary Decision</div>
-          <h4>Confirm the product edition</h4>
-          <p class="section-copy">The user profile was chosen before the wizard opened. Use this step to confirm the product edition and complete the installation defaults for this environment.</p>
-          ${renderChoiceCards("edition", "Edition", [
-            {
-              value: "Community Edition",
-              title: "Community Edition",
-              body: "Standard guided installation path for general deployment and evaluation.",
-            },
-            {
-              value: "Enterprise Edition",
-              title: "Enterprise Edition",
-              body: "Requires an Enterprise Key before the installer can proceed.",
-            },
-          ])}
-          <div class="grid two compact-grid">
-            ${renderFields([{ key: "enterprise_key", label: "Enterprise Key" }])}
-          </div>
-        </section>
         <section class="section glass-soft">
-          <div class="section-kicker">Deployment Defaults</div>
-          <h4>Configure the runtime defaults</h4>
-          <p class="section-copy">After the install path is selected, set the deployment values for this environment.</p>
+          <div class="section-kicker">Edition &amp; Licensing</div>
+          <h4>Install Path &amp; Keys</h4>
+          <p class="section-copy">Select the edition and provide any license keys. The Community Edition is free. Enterprise Edition unlocks SSO, Superset, DataHub, Wazuh, and n8n.</p>
           <div class="grid two">
             ${renderFields([
-              { key: "cdm_dialect", label: "CDM database", type: "select", options: defaults ? ["PostgreSQL", "Microsoft SQL Server", "Google BigQuery", "Amazon Redshift", "Snowflake", "Oracle", "Not sure yet / will configure later"] : [] },
-              { key: "app_url", label: "App URL" },
-              { key: "env", label: "Environment", type: "select", options: ["local", "production"] },
-              { key: "timezone", label: "Timezone" },
-              { key: "ollama_url", label: "Ollama URL" },
-              { key: "vocab_zip_path", label: "Athena vocabulary ZIP" },
+              { key: "edition", label: "Edition", type: "select", options: ["Community Edition", "Enterprise Edition"] },
+              { key: "enterprise_key", label: "Enterprise license key", secret: true },
+              { key: "umls_api_key", label: "UMLS API key", secret: true },
             ])}
+          </div>
+          <div class="field" style="margin-top: 0.95rem;">
+            <span class="field-label">Athena vocabulary ZIP</span>
+            <div class="file-picker-row">
+              <input class="field-input" data-field="vocab_zip_path" type="text" placeholder="/path/to/vocabulary_download_v5.zip" />
+              <button class="btn secondary" id="browse-vocab" type="button">Browse</button>
+            </div>
           </div>
           <div class="inline-actions">
             <label class="checkbox-row">
               <input type="checkbox" data-field="include_eunomia" />
-              <span>Load Eunomia demo CDM</span>
+              <span>Include Eunomia demo dataset (GiBleed, recommended for evaluation)</span>
             </label>
           </div>
+        </section>
+        <section class="section glass-soft">
+          <div class="section-kicker">Environment</div>
+          <h4>Deployment Configuration</h4>
+          <p class="section-copy">Set the base URL, database dialect, and timezone for this installation.</p>
+          <div class="grid two">
+            ${renderFields([
+              { key: "app_url", label: "Application URL" },
+              { key: "env", label: "Environment", type: "select", options: ["local", "production"] },
+              { key: "cdm_dialect", label: "CDM database dialect", type: "select", options: defaults ? ["PostgreSQL", "Microsoft SQL Server", "Google BigQuery", "Amazon Redshift", "Snowflake", "Oracle", "Not sure yet / will configure later"] : [] },
+              { key: "timezone", label: "Timezone" },
+            ])}
+          </div>
+        </section>
+        <section class="section glass-soft">
+          <div class="section-kicker">AI Services</div>
+          <h4>Language Model Configuration</h4>
+          <p class="section-copy">Parthenon uses a frontier LLM for Abby AI assistant, concept mapping, and clinical NLP. A local Ollama instance provides on-premise models like MedGemma.</p>
+          <div class="grid two">
+            ${renderFields([
+              { key: "frontier_api_key", label: "Frontier model API key (Claude, OpenAI, etc.)", secret: true },
+              { key: "ollama_url", label: "Ollama URL" },
+            ])}
+          </div>
+          <div class="inline-actions">
+            <label class="checkbox-row">
+              <input type="checkbox" data-field="install_ollama" />
+              <span>Install Ollama automatically (downloads ~2 GB, sets up local model serving)</span>
+            </label>
+          </div>
+          <p class="section-hint" id="ollama-hint"></p>
         </section>
       </div>
     `;
     bindValues();
+    // Ollama hint based on detection
+    const ollamaHint = $("ollama-hint");
+    const ollamaCheckbox = document.querySelector('[data-field="install_ollama"]');
+    if (ollamaHint && state.bootstrap.ollama) {
+      const { installed, running } = state.bootstrap.ollama;
+      if (installed && running) {
+        ollamaHint.textContent = "Ollama is installed and running on this machine.";
+        ollamaHint.classList.add("hint-ok");
+        if (ollamaCheckbox) ollamaCheckbox.checked = false;
+      } else if (installed) {
+        ollamaHint.textContent = "Ollama is installed but not currently running. The installer can start it for you.";
+        ollamaHint.classList.add("hint-warn");
+      } else {
+        ollamaHint.textContent = "Ollama is not installed. Check the box above to install it during setup.";
+        ollamaHint.classList.add("hint-warn");
+        if (ollamaCheckbox && !state.currentValues.hasOwnProperty("install_ollama")) {
+          ollamaCheckbox.checked = true;
+          state.currentValues.install_ollama = true;
+        }
+      }
+    }
+    $("browse-vocab").addEventListener("click", () => {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = ".zip";
+      input.addEventListener("change", () => {
+        if (input.files && input.files[0]) {
+          const vocabField = document.querySelector('[data-field="vocab_zip_path"]');
+          if (vocabField) {
+            // Browsers only expose the filename, not the full path.
+            // Show the filename as a hint; user should paste the full path.
+            const name = input.files[0].name;
+            vocabField.value = name;
+            vocabField.placeholder = `Selected: ${name} — paste full path if needed`;
+            state.currentValues = { ...state.currentValues, ...getPayload() };
+          }
+        }
+      });
+      input.click();
+    });
     return;
   }
 
@@ -287,18 +376,29 @@ function renderStep() {
     container.innerHTML = `
       <div class="page">
         <section class="section glass-soft">
-          <h4>Credentials</h4>
+          <div class="section-kicker">Administrator</div>
+          <h4>Admin Account</h4>
+          <p class="section-copy">The first user account is created during installation with the super-admin role. A temporary password is generated and emailed after first login.</p>
           <div class="grid two">
             ${renderFields([
               { key: "admin_email", label: "Admin email" },
-              { key: "admin_name", label: "Admin name" },
+              { key: "admin_name", label: "Display name" },
+            ])}
+          </div>
+        </section>
+        <section class="section glass-soft">
+          <div class="section-kicker">Security</div>
+          <h4>Passwords</h4>
+          <p class="section-copy">Secure passwords are pre-generated. You can accept the defaults or generate new ones. Passwords are saved to <code>.install-credentials</code> after installation.</p>
+          <div class="grid two">
+            ${renderFields([
               { key: "admin_password", label: "Admin password", secret: true },
-              { key: "db_password", label: "DB password", secret: true },
+              { key: "db_password", label: "Database password", secret: true },
             ])}
           </div>
           <div class="inline-actions">
-            <button class="btn secondary" id="regen-admin">Generate Admin Password</button>
-            <button class="btn secondary" id="regen-db">Generate DB Password</button>
+            <button class="btn secondary" id="regen-admin">Regenerate Admin Password</button>
+            <button class="btn secondary" id="regen-db">Regenerate DB Password</button>
           </div>
         </section>
       </div>
@@ -310,10 +410,32 @@ function renderStep() {
   }
 
   if (stepKey === "modules") {
+    const isEnterprise = (state.currentValues.edition || "Community Edition") === "Enterprise Edition";
+    const enterpriseSection = isEnterprise
+      ? `
+        <section class="section glass-soft">
+          <div class="section-kicker">Acropolis Enterprise</div>
+          <h4>Infrastructure Services</h4>
+          <p class="section-copy">Enterprise Edition includes these production-grade infrastructure services behind the Traefik SSO gateway. All are enabled by default &mdash; uncheck any you want to skip.</p>
+          ${renderCheckboxGrid([
+            ["enable_authentik", "Authentik SSO"],
+            ["enable_superset", "Apache Superset"],
+            ["enable_datahub", "DataHub Catalog"],
+            ["enable_wazuh", "Wazuh SIEM"],
+            ["enable_n8n", "n8n Workflows"],
+            ["enable_portainer", "Portainer CE"],
+            ["enable_pgadmin", "pgAdmin 4"],
+            ["enable_grafana", "Grafana Monitoring"],
+          ])}
+        </section>
+      `
+      : "";
     container.innerHTML = `
       <div class="page">
         <section class="section glass-soft">
-          <h4>Modules</h4>
+          <div class="section-kicker">Platform Modules</div>
+          <h4>Core Capabilities</h4>
+          <p class="section-copy">Select which module groups to enable. Each group activates related services and UI features. All modules are enabled by default.</p>
           ${renderCheckboxGrid([
             ["research", "Research"],
             ["commons", "Commons"],
@@ -323,36 +445,33 @@ function renderStep() {
           ])}
         </section>
         <section class="section glass-soft">
-          <h4>Optional Services</h4>
+          <div class="section-kicker">Add-On Services</div>
+          <h4>Optional Components</h4>
+          <p class="section-copy">These services extend the platform with specialized capabilities. Each is tied to a parent module group and is disabled when its parent is off.</p>
           ${renderCheckboxGrid([
             ["enable_study_agent", "Study Designer"],
-            ["enable_hecate", "Hecate"],
-            ["enable_blackrabbit", "BlackRabbit"],
+            ["enable_hecate", "Hecate AI"],
+            ["enable_blackrabbit", "BlackRabbit ETL"],
             ["enable_fhir_to_cdm", "FHIR-to-CDM"],
-            ["enable_orthanc", "Orthanc"],
-            ["enable_livekit", "LiveKit"],
+            ["enable_orthanc", "Orthanc DICOM"],
+            ["enable_livekit", "LiveKit RTC"],
             ["enable_solr", "Apache Solr"],
           ])}
         </section>
+        ${enterpriseSection}
         <section class="section glass-soft">
-          <h4>Service Credentials</h4>
+          <div class="section-kicker">Service Configuration</div>
+          <h4>Credentials &amp; Ports</h4>
+          <p class="section-copy">Configure credentials for optional services that require them, and set the primary entrypoint port. Internal service ports are auto-assigned.</p>
           <div class="grid two">
             ${renderFields([
+              { key: "nginx_port", label: "NGINX entrypoint port" },
+              { key: "solr_java_mem", label: "Solr JVM memory" },
               { key: "livekit_url", label: "LiveKit URL" },
               { key: "livekit_api_key", label: "LiveKit API key" },
               { key: "livekit_api_secret", label: "LiveKit API secret", secret: true },
               { key: "orthanc_user", label: "Orthanc user" },
               { key: "orthanc_password", label: "Orthanc password", secret: true },
-            ])}
-          </div>
-        </section>
-        <section class="section glass-soft">
-          <h4>Ports</h4>
-          <p class="section-copy">Only the NGINX entrypoint port must be reserved up front. The installer auto-selects free host ports for the internal services it starts.</p>
-          <div class="grid three">
-            ${renderFields([
-              { key: "nginx_port", label: "NGINX" },
-              { key: "solr_java_mem", label: "Solr JVM memory" },
             ])}
           </div>
         </section>
@@ -367,16 +486,192 @@ function renderStep() {
     container.innerHTML = `
       <div class="page">
         <section class="section glass-soft">
+          <div class="section-kicker">Summary</div>
           <h4>Review Configuration</h4>
-          <textarea class="field-textarea" readonly>${formatReview(payload)}</textarea>
+          <p class="section-copy">Verify your settings before starting the installation. Use <strong>Validate</strong> to check for errors, or <strong>Start Installation</strong> to begin.</p>
+          ${formatReview(payload)}
         </section>
         <section class="section glass-soft">
-          <h4>Installer Output</h4>
-          <textarea class="field-textarea" id="install-log" readonly></textarea>
+          <div class="section-kicker">Output</div>
+          <h4>Installer Log</h4>
+          <p class="section-copy">Real-time output from the installation process will appear below once started.</p>
+          <textarea class="field-textarea" id="install-log" readonly placeholder="Waiting for installation to start..."></textarea>
         </section>
       </div>
     `;
     syncInstallStatus();
+  }
+
+  // ── Beginner flow ──────────────────────────────────────────────────────────
+
+  if (stepKey === "beginner_setup") {
+    const windowsFields = state.bootstrap.platform.windows
+      ? `
+          <div class="grid two">
+            ${renderFields([
+              { key: "wsl_distro", label: "WSL distro" },
+              { key: "wsl_repo_path", label: "WSL repo path" },
+            ])}
+          </div>
+        `
+      : "";
+    container.innerHTML = `
+      <div class="page">
+        <section class="section glass-soft">
+          <div class="section-kicker">Administrator</div>
+          <h4>Who is this installation for?</h4>
+          <p class="section-copy">Create the first admin account. Leave the password blank to auto-generate one. Credentials are saved to <code>.install-credentials</code> after installation.</p>
+          <div class="grid two">
+            ${renderFields([
+              { key: "admin_email", label: "Your email address" },
+              { key: "admin_name", label: "Display name" },
+              { key: "admin_password", label: "Admin password (optional)", secret: true },
+            ])}
+          </div>
+        </section>
+        <section class="section glass-soft">
+          <div class="section-kicker">Workspace</div>
+          <h4>Parthenon Repository</h4>
+          <p class="section-copy">Confirm the path to the cloned Parthenon repository. This is usually auto-detected.</p>
+          <div class="grid">
+            ${renderFields([{ key: "repo_path", label: "Repository path" }])}
+          </div>
+          ${windowsFields}
+        </section>
+      </div>
+    `;
+    bindValues();
+    return;
+  }
+
+  if (stepKey === "beginner_check") {
+    container.innerHTML = `
+      <div class="page">
+        <section class="section glass-soft">
+          <div class="section-kicker">System Check</div>
+          <h4>Verify Your Machine</h4>
+          <p class="section-copy">Acropolis checks that Docker, Compose, and disk space are available. Once all checks pass, you can proceed to install.</p>
+          <div class="inline-actions">
+            <button class="btn primary" id="run-preflight">Run Checks</button>
+          </div>
+        </section>
+        <section class="section glass-soft" id="preflight-results-section" style="display:none;">
+          <div class="section-kicker">Results</div>
+          <h4>Check Results</h4>
+          <div id="preflight-output" class="preflight-summary"></div>
+        </section>
+      </div>
+    `;
+    $("run-preflight").addEventListener("click", async () => {
+      await runPreflight();
+      const resultsSection = $("preflight-results-section");
+      if (resultsSection) resultsSection.style.display = "";
+    });
+    if (state.preflight) {
+      const resultsSection = $("preflight-results-section");
+      if (resultsSection) resultsSection.style.display = "";
+      renderPreflight();
+    }
+    return;
+  }
+
+  if (stepKey === "beginner_install") {
+    container.innerHTML = `
+      <div class="page">
+        <section class="section glass-soft beginner-ready-section">
+          <div class="section-kicker">Ready</div>
+          <h4>Install Parthenon</h4>
+          <p class="section-copy">
+            Community Edition will be installed with all default modules enabled and the
+            Eunomia demo dataset included. After installation, log in and the setup wizard
+            will guide you through vocabulary import, data sources, and AI configuration.
+          </p>
+          <div class="beginner-summary">
+            <div class="review-grid">
+              <div class="review-group">
+                <div class="review-group-title">Your Installation</div>
+                <div class="review-row"><span class="review-label">Edition</span><span class="review-value">Community Edition</span></div>
+                <div class="review-row"><span class="review-label">Admin</span><span class="review-value">${state.currentValues.admin_email || "admin@example.com"}</span></div>
+                <div class="review-row"><span class="review-label">URL</span><span class="review-value">${state.currentValues.app_url || "http://localhost:8082"}</span></div>
+                <div class="review-row"><span class="review-label">Demo Data</span><span class="review-value">Eunomia (GiBleed)</span></div>
+                <div class="review-row"><span class="review-label">Repo</span><span class="review-value">${state.currentValues.repo_path || state.bootstrap.repo_path}</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="inline-actions" style="margin-top: 1.2rem;">
+            <button class="btn primary beginner-install-btn" id="beginner-start-install">Install Parthenon</button>
+          </div>
+        </section>
+        <section class="section glass-soft" id="beginner-log-section" style="display:none;">
+          <div class="section-kicker">Progress</div>
+          <h4>Installation Log</h4>
+          <textarea class="field-textarea" id="install-log" readonly placeholder="Waiting to start..."></textarea>
+        </section>
+        <section class="section glass-soft" id="beginner-done-section" style="display:none;">
+          <div class="section-kicker">Complete</div>
+          <h4>Parthenon is Ready</h4>
+          <p class="section-copy" id="beginner-done-copy"></p>
+          <div class="inline-actions">
+            <a class="btn primary" id="beginner-open-link" href="#" target="_blank" rel="noopener noreferrer">Open Parthenon</a>
+          </div>
+        </section>
+      </div>
+    `;
+    $("beginner-start-install").addEventListener("click", async () => {
+      try {
+        // Set beginner defaults (preserve dry_run from modal)
+        state.currentValues = {
+          ...state.currentValues,
+          experience: "Beginner",
+          edition: "Community Edition",
+          include_eunomia: true,
+          upgrade: false,
+        };
+        const payload = getPayload();
+        await api("/api/install/start", "POST", payload);
+        $("beginner-start-install").disabled = true;
+        $("beginner-start-install").textContent = "Installing...";
+        $("beginner-log-section").style.display = "";
+        setBanner("Installation started. This may take a few minutes.", "info");
+        // Poll for completion
+        clearInterval(state.installPolling);
+        state.installPolling = setInterval(async () => {
+          try {
+            const status = await api("/api/install/status");
+            if ($("install-log")) {
+              $("install-log").value = (status.logs || []).join("\n");
+              $("install-log").scrollTop = $("install-log").scrollHeight;
+            }
+            if (!status.running) {
+              clearInterval(state.installPolling);
+              if (status.success) {
+                const appUrl = state.currentValues.app_url || "http://localhost:8082";
+                setBanner("Installation complete.", "success");
+                $("beginner-start-install").textContent = "Installed";
+                $("beginner-done-section").style.display = "";
+                $("beginner-done-copy").innerHTML =
+                  "Your Parthenon instance is live. Log in with your admin email and the temporary password from <code>.install-credentials</code>. " +
+                  "The setup wizard inside Parthenon will help you configure vocabulary, data sources, and AI services.";
+                $("beginner-open-link").href = appUrl;
+                $("beginner-open-link").textContent = "Open Parthenon \u2192";
+              } else {
+                setBanner(status.status, "error");
+                $("beginner-start-install").disabled = false;
+                $("beginner-start-install").textContent = "Retry Installation";
+              }
+            }
+          } catch (err) {
+            clearInterval(state.installPolling);
+            setBanner("Lost connection to installer: " + err.message, "error");
+            $("beginner-start-install").disabled = false;
+            $("beginner-start-install").textContent = "Retry Installation";
+          }
+        }, 1000);
+      } catch (error) {
+        setBanner(error.message, "error");
+      }
+    });
+    return;
   }
 }
 
@@ -399,6 +694,17 @@ function bindValues() {
     });
     node.addEventListener("input", () => {
       state.currentValues = { ...state.currentValues, ...getPayload() };
+    });
+  });
+  document.querySelectorAll(".eye-toggle").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const key = btn.dataset.eyeFor;
+      const input = document.querySelector(`[data-field="${key}"]`);
+      if (!input) return;
+      const showing = input.type === "text";
+      input.type = showing ? "password" : "text";
+      btn.classList.toggle("showing", !showing);
     });
   });
   document.querySelectorAll("[data-choice-field]").forEach((node) => {
@@ -441,6 +747,7 @@ function closeOnboardingModal() {
 
 function applyExperienceSelection(experience) {
   state.selectedExperience = experience;
+  stepMeta = experience === "Beginner" ? beginnerSteps : experiencedSteps;
   state.currentValues = {
     ...state.currentValues,
     experience,
@@ -457,34 +764,67 @@ function formatReview(payload) {
         ? "provided"
         : "missing"
       : "not required";
-  const umlsState = payload.umls_api_key ? "provided" : "missing";
-  return [
-    "Launch context",
-    `  Repo path: ${payload.repo_path || "(default)"}`,
-    ...(state.bootstrap?.platform?.windows
-      ? [
-          `  WSL distro: ${payload.wsl_distro || "(default WSL distro)"}`,
-          `  WSL repo path: ${payload.wsl_repo_path || "(derived from repo path)"}`,
-        ]
-      : []),
-    "",
-    "Core setup",
-    `  Experience: ${payload.experience}`,
-    `  Edition: ${payload.edition}`,
-    `  Enterprise key: ${enterpriseState}`,
-    `  UMLS API Key: ${umlsState}`,
-    `  CDM database: ${payload.cdm_dialect}`,
-    `  App URL: ${payload.app_url}`,
-    `  Environment: ${payload.env}`,
-    `  Timezone: ${payload.timezone}`,
-    `  Demo dataset: ${payload.include_eunomia ? "yes" : "no"}`,
-    "",
-    "Modules",
-    `  Enabled groups: ${payload.modules.join(", ") || "(none)"}`,
-    "",
-    "Action",
-    `  Upgrade existing install: ${payload.upgrade ? "yes" : "no"}`,
-  ].join("\n");
+
+  function row(label, value) {
+    return `<div class="review-row"><span class="review-label">${label}</span><span class="review-value">${value || "&mdash;"}</span></div>`;
+  }
+
+  function group(title, rows) {
+    return `<div class="review-group"><div class="review-group-title">${title}</div>${rows}</div>`;
+  }
+
+  const wslRows = state.bootstrap?.platform?.windows
+    ? row("WSL Distro", payload.wsl_distro || "(default)") + row("WSL Repo Path", payload.wsl_repo_path || "(derived)")
+    : "";
+
+  const services = [];
+  if (payload.enable_study_agent) services.push("Study Designer");
+  if (payload.enable_hecate) services.push("Hecate AI");
+  if (payload.enable_blackrabbit) services.push("BlackRabbit ETL");
+  if (payload.enable_fhir_to_cdm) services.push("FHIR-to-CDM");
+  if (payload.enable_orthanc) services.push("Orthanc DICOM");
+  if (payload.enable_livekit) services.push("LiveKit RTC");
+  if (payload.enable_solr) services.push("Apache Solr");
+
+  return `<div class="review-grid">`
+    + group("Environment",
+        row("Repository", payload.repo_path || "(default)")
+        + wslRows
+        + row("Application URL", payload.app_url)
+        + row("Environment", payload.env)
+        + row("Timezone", payload.timezone))
+    + group("Edition",
+        row("Experience", payload.experience)
+        + row("Edition", payload.edition)
+        + row("Enterprise Key", enterpriseState)
+        + row("CDM Dialect", payload.cdm_dialect)
+        + row("Demo Dataset", payload.include_eunomia ? "Eunomia (GiBleed)" : "None"))
+    + group("Access",
+        row("Admin Email", payload.admin_email)
+        + row("Admin Name", payload.admin_name)
+        + row("Admin Password", payload.admin_password ? "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" : "not set")
+        + row("DB Password", payload.db_password ? "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" : "not set"))
+    + group("AI Services",
+        row("Frontier API Key", payload.frontier_api_key ? "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" : "not set")
+        + row("Ollama URL", payload.ollama_url || "&mdash;")
+        + row("Install Ollama", payload.install_ollama ? "Yes" : "No"))
+    + (payload.edition === "Enterprise Edition"
+      ? group("Acropolis Enterprise",
+          row("Authentik SSO", payload.enable_authentik ? "Enabled" : "Skipped")
+          + row("Apache Superset", payload.enable_superset ? "Enabled" : "Skipped")
+          + row("DataHub Catalog", payload.enable_datahub ? "Enabled" : "Skipped")
+          + row("Wazuh SIEM", payload.enable_wazuh ? "Enabled" : "Skipped")
+          + row("n8n Workflows", payload.enable_n8n ? "Enabled" : "Skipped")
+          + row("Portainer CE", payload.enable_portainer ? "Enabled" : "Skipped")
+          + row("pgAdmin 4", payload.enable_pgadmin ? "Enabled" : "Skipped")
+          + row("Grafana", payload.enable_grafana ? "Enabled" : "Skipped"))
+      : "")
+    + group("Platform",
+        row("Module Groups", payload.modules.join(", ") || "(none)")
+        + row("Optional Services", services.join(", ") || "(none)")
+        + row("NGINX Port", payload.nginx_port)
+        + row("Upgrade Mode", payload.upgrade ? "Yes" : "No"))
+    + `</div>`;
 }
 
 async function validateCurrentStep() {
@@ -506,14 +846,10 @@ async function validateCurrentStep() {
       if (!state.preflight) throw new Error("Run preflight checks before continuing");
       if (state.preflight.failures > 0) throw new Error("Resolve preflight failures before continuing");
     } else if (step === "basics") {
-      if (!payload.experience) throw new Error("Select whether the installer is for a beginner or experienced OHDSI/OMOP user");
-      if (payload.experience === "Beginner" && payload.edition !== "Community Edition") {
-        throw new Error("Beginner users can only proceed with Community Edition");
-      }
       if (payload.edition === "Enterprise Edition" && !String(payload.enterprise_key || "").trim()) {
-        throw new Error("Enter the Enterprise Key before continuing");
+        throw new Error("Enterprise license key is required for Enterprise Edition");
       }
-      if (!payload.app_url) throw new Error("App URL is required");
+      if (!payload.app_url) throw new Error("Application URL is required");
       if (!payload.timezone) throw new Error("Timezone is required");
     } else if (step === "credentials") {
       if (!payload.admin_email || !payload.admin_email.includes("@"))
@@ -525,6 +861,17 @@ async function validateCurrentStep() {
     } else if (step === "modules") {
       if (!payload.modules || payload.modules.length === 0)
         throw new Error("Select at least one module group");
+    } else if (step === "beginner_setup") {
+      await api("/api/validate-launch", "POST", {
+        repo_path: payload.repo_path,
+        wsl_distro: payload.wsl_distro,
+        wsl_repo_path: payload.wsl_repo_path,
+      });
+      if (!payload.admin_email || !payload.admin_email.includes("@"))
+        throw new Error("A valid email address is required");
+    } else if (step === "beginner_check") {
+      if (!state.preflight) throw new Error("Run checks before continuing");
+      if (state.preflight.failures > 0) throw new Error("Resolve failures before continuing");
     }
     setBanner("");
     return true;
@@ -685,40 +1032,17 @@ async function pollInstall() {
 
 function syncDynamicState() {
   const payload = getPayload();
-  const beginner = payload.experience === "Beginner";
-  const vocab = document.querySelector('[data-field="vocab_zip_path"]');
-  if (vocab) vocab.disabled = beginner;
 
+  // Enterprise key: only enabled when Enterprise Edition is selected
   const edition = document.querySelector('[data-field="edition"]');
   const enterpriseKey = document.querySelector('[data-field="enterprise_key"]');
-  if (edition) {
-    if (beginner) {
-      edition.value = "Community Edition";
-      edition.disabled = true;
-    } else {
-      edition.disabled = false;
-    }
-  }
   const enterprise = (edition ? edition.value : payload.edition) === "Enterprise Edition";
   if (enterpriseKey) {
     enterpriseKey.disabled = !enterprise;
     if (!enterprise) enterpriseKey.value = "";
   }
 
-  document.querySelectorAll("[data-choice-group]").forEach((group) => {
-    const field = group.dataset.choiceGroup;
-    const input = document.querySelector(`[data-field="${field}"]`);
-    const currentValue = input ? input.value : "";
-    group.querySelectorAll("[data-choice-value]").forEach((card) => {
-      const selected = card.dataset.choiceValue === currentValue;
-      card.classList.toggle("selected", selected);
-      card.setAttribute("aria-pressed", selected ? "true" : "false");
-      if (card.dataset.choiceValue === "Enterprise Edition") {
-        card.classList.toggle("choice-disabled", beginner);
-      }
-    });
-  });
-
+  // Module → service dependency gating
   const research = !!payload.research;
   const commons = !!payload.commons;
   const ai = !!payload.ai_knowledge;
@@ -739,6 +1063,7 @@ function syncDynamicState() {
   setCheckbox("enable_orthanc", pipeline);
   setCheckbox("enable_solr", infra);
 
+  // Service credential fields: only enabled when the parent service is on
   const setField = (key, enabled) => {
     const node = document.querySelector(`[data-field="${key}"]`);
     if (node) node.disabled = !enabled;
@@ -748,18 +1073,39 @@ function syncDynamicState() {
   const solr = infra && document.querySelector('[data-field="enable_solr"]')?.checked;
   ["livekit_url", "livekit_api_key", "livekit_api_secret"].forEach((key) => setField(key, !!livekit));
   ["orthanc_user", "orthanc_password"].forEach((key) => setField(key, !!orthanc));
-  ["solr_port", "solr_java_mem"].forEach((key) => setField(key, !!solr));
+  ["solr_java_mem"].forEach((key) => setField(key, !!solr));
 
   state.currentValues = { ...state.currentValues, ...getPayload() };
 }
 
 async function init() {
   state.bootstrap = await api("/api/bootstrap");
+  const d = state.bootstrap.defaults;
+  // Derive individual module booleans from the modules array so checkboxes bind correctly
+  const mods = d.modules || [];
   state.currentValues = {
-    ...state.bootstrap.defaults,
+    ...d,
     repo_path: state.bootstrap.repo_path,
     wsl_distro: state.bootstrap.wsl_distro,
     wsl_repo_path: state.bootstrap.wsl_repo_path,
+    research: mods.includes("research"),
+    commons: mods.includes("commons"),
+    ai_knowledge: mods.includes("ai_knowledge"),
+    data_pipeline: mods.includes("data_pipeline"),
+    infrastructure: mods.includes("infrastructure"),
+    frontier_api_key: d.frontier_api_key || "",
+    install_ollama: false,
+    umls_api_key: d.umls_api_key || "",
+    // Enterprise services default on (opt-out model)
+    enable_authentik: d.enable_authentik !== false,
+    enable_superset: d.enable_superset !== false,
+    enable_datahub: d.enable_datahub !== false,
+    enable_wazuh: d.enable_wazuh !== false,
+    enable_n8n: d.enable_n8n !== false,
+    // Community infra services default on
+    enable_portainer: d.enable_portainer !== false,
+    enable_pgadmin: d.enable_pgadmin !== false,
+    enable_grafana: d.enable_grafana !== false,
   };
   state.selectedExperience = state.currentValues.experience || "";
   buildSteps();
@@ -769,14 +1115,26 @@ async function init() {
   });
   const submitOnboarding = () => {
     const experience = state.selectedExperience || state.currentValues.experience || state.bootstrap?.defaults?.experience || "Beginner";
+    const dryRun = $("modal-dry-run-toggle").checked;
     applyExperienceSelection(experience);
     state.currentValues = {
       ...state.currentValues,
       experience,
+      dry_run: dryRun,
     };
     setBanner("");
     closeOnboardingModal();
+    buildSteps();
     showStep(0);
+    // Hide experienced-only controls in beginner mode
+    const isBeginner = experience === "Beginner";
+    $("validate-btn").style.display = isBeginner ? "none" : "";
+    // Dry run toggle moved to modal
+    $("upgrade").parentElement.style.display = isBeginner ? "none" : "";
+    // Show persistent dry run banner
+    if (dryRun) {
+      setBanner("Dry run mode. No files will be written and no services will be started.", "info");
+    }
     return true;
   };
   $("onboarding-continue").addEventListener("click", submitOnboarding);
@@ -795,17 +1153,7 @@ async function init() {
   });
   $("validate-btn").addEventListener("click", validateAll);
   $("install-btn").addEventListener("click", startInstall);
-  $("dry-run-btn").addEventListener("click", () => {
-    const nextDryRun = !state.currentValues.dry_run;
-    state.currentValues = { ...state.currentValues, dry_run: nextDryRun };
-    syncActionButtons();
-    setBanner(
-      nextDryRun
-        ? "Dry run mode enabled. You can move through the wizard without resolving launch or preflight blockers."
-        : "Dry run mode disabled. Normal step validation is active again.",
-      nextDryRun ? "success" : "info",
-    );
-  });
+  // Dry run toggle is now in the modal — no action bar button needed
   setBanner("");
   openOnboardingModal();
 }

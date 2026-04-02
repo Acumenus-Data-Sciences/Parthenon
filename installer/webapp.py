@@ -74,6 +74,23 @@ class InstallerBackend:
         finally:
             utils.REPO_ROOT = original_repo_root
 
+    @staticmethod
+    def _detect_ollama() -> dict[str, Any]:
+        """Check if Ollama is installed and reachable."""
+        import shutil
+        installed = shutil.which("ollama") is not None
+        running = False
+        if installed:
+            try:
+                result = subprocess.run(
+                    ["ollama", "list"],
+                    capture_output=True, text=True, timeout=5,
+                )
+                running = result.returncode == 0
+            except Exception:
+                pass
+        return {"installed": installed, "running": running}
+
     def bootstrap(self) -> dict[str, Any]:
         defaults = config.build_config_defaults()
         return {
@@ -82,6 +99,7 @@ class InstallerBackend:
             "wsl_distro": launcher.default_wsl_distro(),
             "wsl_repo_path": launcher.default_wsl_repo_path(),
             "platform": {"windows": launcher.is_windows_host()},
+            "ollama": self._detect_ollama(),
         }
 
     def validate_launch_context(self, payload: dict[str, Any]) -> dict[str, str]:

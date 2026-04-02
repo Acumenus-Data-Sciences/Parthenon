@@ -268,6 +268,20 @@ def build_config_defaults(overrides: dict[str, Any] | None = None) -> dict[str, 
         cfg["enterprise_key"] = ""
 
     cfg["enable_qdrant"] = cfg["enable_hecate"]
+    cfg["frontier_api_key"] = seed.get("frontier_api_key") or ""
+    cfg["install_ollama"] = _coerce_bool(seed.get("install_ollama"), default=False)
+
+    # Acropolis enterprise services (opt-out: default True when Enterprise)
+    is_enterprise = cfg["edition"] == "Enterprise Edition"
+    cfg["enable_authentik"] = is_enterprise and _coerce_bool(seed.get("enable_authentik"), default=True)
+    cfg["enable_superset"] = is_enterprise and _coerce_bool(seed.get("enable_superset"), default=True)
+    cfg["enable_datahub"] = is_enterprise and _coerce_bool(seed.get("enable_datahub"), default=True)
+    cfg["enable_wazuh"] = is_enterprise and _coerce_bool(seed.get("enable_wazuh"), default=True)
+    cfg["enable_n8n"] = is_enterprise and _coerce_bool(seed.get("enable_n8n"), default=True)
+    # Community infra services (Enterprise only — Community Edition doesn't include Acropolis services)
+    cfg["enable_portainer"] = is_enterprise and _coerce_bool(seed.get("enable_portainer"), default=True)
+    cfg["enable_pgadmin"] = is_enterprise and _coerce_bool(seed.get("enable_pgadmin"), default=True)
+    cfg["enable_grafana"] = is_enterprise and _coerce_bool(seed.get("enable_grafana"), default=True)
 
     if "datasets" in seed:
         cfg["datasets"] = seed["datasets"]
@@ -287,7 +301,7 @@ def validate_config(cfg: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("Beginner users must use the Community Edition installer path")
     if normalized["edition"] == "Enterprise Edition" and not normalized["enterprise_key"]:
         raise ValueError("enterprise_key is required for Enterprise Edition")
-    if not normalized["umls_api_key"]:
+    if normalized["experience"] != "Beginner" and not normalized["umls_api_key"]:
         raise ValueError("umls_api_key is required for vocabulary imports")
     if normalized["cdm_dialect"] not in CDM_DIALECT_CHOICES:
         raise ValueError("cdm_dialect is not a supported option")

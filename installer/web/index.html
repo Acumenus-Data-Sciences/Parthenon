@@ -11,22 +11,44 @@
       <section class="hero">
         <div class="hero-bg"></div>
         <div class="hero-wash"></div>
-        <div class="hero-card glass">
+        <div class="hero-card">
           <div class="accent-line"></div>
-          <h1>Parthenon</h1>
-          <p class="hero-subtitle">Unified Outcomes Research Platform</p>
+          <h1>Acropolis</h1>
+          <p class="hero-subtitle">Universal Installer &amp; Deployment Platform</p>
           <p class="hero-copy">
-            Set up Parthenon through a guided installation flow for researchers
-            and deployment teams. Configure your environment, verify system
-            readiness, and launch the platform with a clean, dependable setup.
+            Acropolis is the deployment and configuration platform from
+            <a href="https://www.acumenus.io" target="_blank" rel="noopener noreferrer" class="hero-link">Acumenus Data Sciences</a>.
+            It provisions the full
+            <a href="https://github.com/sudoshi/Parthenon" target="_blank" rel="noopener noreferrer" class="hero-link">Parthenon</a>
+            stack &mdash; from infrastructure and SSO to OMOP CDM services
+            &mdash; through a single guided flow.
+          </p>
+          <p class="hero-copy" style="margin-top: 0.8rem;">
+            Deploy the <strong style="color: var(--text-secondary);">Community Edition</strong> free of charge, or
+            unlock the <strong style="color: var(--text-secondary);">Enterprise Edition</strong> with a license key
+            for SSO, advanced analytics, and production-grade infrastructure.
           </p>
           <div class="hero-chips">
-            <span>Cohorts</span>
-            <span>Characterization</span>
-            <span>Estimation</span>
-            <span>Prediction</span>
-            <span>Imaging</span>
-            <span>GIS</span>
+            <span>Community</span>
+            <span>Enterprise</span>
+            <span>SSO Gateway</span>
+            <span>OMOP CDM</span>
+            <span>Analytics</span>
+            <span>Monitoring</span>
+          </div>
+          <div class="hero-links">
+            <a href="https://github.com/sudoshi/Parthenon" target="_blank" rel="noopener noreferrer" class="hero-nav-link">
+              View on GitHub &rarr;
+            </a>
+            <a href="https://discord.gg/GkkT7dzmwf" target="_blank" rel="noopener noreferrer" class="hero-nav-link">
+              Join our Discord &rarr;
+            </a>
+          </div>
+          <div class="hero-footer">
+            <span class="hero-version">OMOP CDM v5.4</span>
+            <a href="https://www.acumenus.io" target="_blank" rel="noopener noreferrer" class="hero-attribution">
+              Acumenus Data Sciences
+            </a>
           </div>
         </div>
       </section>
@@ -57,7 +79,6 @@
                     <input type="checkbox" id="upgrade" />
                     <span>Upgrade existing installation</span>
                   </label>
-                  <button class="btn secondary" id="dry-run-btn" type="button">Dry Run: Off</button>
                 </div>
                 <div class="buttons">
                   <button class="btn secondary" id="back-btn">Back</button>
@@ -75,23 +96,30 @@
       <div class="modal-panel glass" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
         <div class="accent-line"></div>
         <div class="section-kicker">Welcome</div>
-        <h2 id="onboarding-title">Begin the installation path</h2>
+        <h2 id="onboarding-title">Choose your path</h2>
         <p class="section-copy">
-          Choose the user profile that best matches the person or team this installation is for.
-          This decision determines which edition path Parthenon will allow.
+          How would you like to set up Parthenon? Beginners get a 3-step express install.
+          Experienced users get full control over edition, services, ports, and AI configuration.
         </p>
         <div class="choice-group">
-          <div class="choice-label">Beginner or Experienced OHDSI/OMOP User</div>
+          <div class="choice-label">Installation Mode</div>
           <div class="choice-grid modal-choice-grid" id="experience-modal-choices">
             <button type="button" class="choice-card" data-modal-experience="Beginner">
-              <span class="choice-title">Beginner</span>
-              <span class="choice-body">New to OHDSI/OMOP or installing Parthenon for the first time. Community Edition is the supported path.</span>
+              <span class="choice-title">Express Install</span>
+              <span class="choice-body">3 steps: enter your email, verify the machine, click install. Community Edition with all defaults. Configure everything else from inside Parthenon after login.</span>
             </button>
             <button type="button" class="choice-card" data-modal-experience="Experienced">
-              <span class="choice-title">Experienced</span>
-              <span class="choice-body">Comfortable with OHDSI/OMOP setup and deployment choices. Community or Enterprise Edition can be selected later.</span>
+              <span class="choice-title">Advanced Setup</span>
+              <span class="choice-body">Full 6-step wizard with edition selection, license keys, AI configuration, module toggles, enterprise services, and port customization.</span>
             </button>
           </div>
+        </div>
+        <div class="modal-dry-run">
+          <label class="checkbox-row">
+            <input type="checkbox" id="modal-dry-run-toggle" />
+            <span>Dry Run</span>
+          </label>
+          <p class="modal-dry-run-hint">Walk through the installer without writing files or starting services. Useful for previewing the workflow.</p>
         </div>
         <div class="modal-actions">
           <div class="modal-status" id="onboarding-status">Select a path to continue.</div>
