@@ -2,22 +2,33 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Concerns\SourceAware;
+use App\Context\SourceContext;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PatientSimilarityComputeRequest;
+use App\Http\Requests\PatientSimilarityExportCohortRequest;
 use App\Http\Requests\PatientSimilaritySearchRequest;
 use App\Jobs\ComputePatientFeatureVectors;
+use App\Models\App\CohortDefinition;
+use App\Models\App\PatientFeatureVector;
+use App\Models\App\PatientSimilarityCache;
 use App\Models\App\SimilarityDimension;
 use App\Models\App\Source;
+use App\Services\PatientSimilarity\CohortCentroidBuilder;
 use App\Services\PatientSimilarity\PatientSimilarityService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 /**
  * @group Patient Similarity Engine
  */
 class PatientSimilarityController extends Controller
 {
+    use SourceAware;
+
     public function __construct(
         private readonly PatientSimilarityService $service,
+        private readonly CohortCentroidBuilder $centroidBuilder,
     ) {}
 
     /**
@@ -152,6 +163,263 @@ class PatientSimilarityController extends Controller
             ]);
         } catch (\Throwable $e) {
             return $this->errorResponse('Failed to retrieve similarity status', $e);
+        }
+    }
+
+    /**
+     * POST /v1/patient-similarity/search-from-cohort
+     *
+     * Find patients similar to a cohort centroid or exemplar.
+     */
+    public function searchFromCohort(Request $request): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'cohort_definition_id' => ['required', 'integer', 'exists:cohort_definitions,id'],
+                'source_id' => ['required', 'integer', 'exists:sources,id'],
+                'mode' => ['sometimes', 'string', 'in:interpretable,embedding'],
+                'weights' => ['sometimes', 'array'],
+                'weights.*' => ['numeric', 'min:0', 'max:10'],
+                'limit' => ['sometimes', 'integer', 'min:1', 'max:100'],
+                'min_score' => ['sometimes', 'numeric', 'min:0', 'max:1'],
+                'strategy' => ['sometimes', 'string', 'in:centroid,exemplar'],
+                'filters' => ['sometimes', 'array'],
+            ]);
+
+            $source = Source::with('daimons')->findOrFail($validated['source_id']);
+            $strategy = $validated['strategy'] ?? 'centroid';
+            $limit = $validated['limit'] ?? 20;
+            $minScore = $validated['min_score'] ?? 0.0;
+            $filters = $validated['filters'] ?? [];
+
+            // Merge user-supplied weights with dimension defaults
+            $dimensions = SimilarityDimension::active()->get();
+            $weights = [];
+            foreach ($dimensions as $dimension) {
+                $weights[$dimension->key] = $validated['weights'][$dimension->key]
+                    ?? $dimension->default_weight;
+            }
+
+            // Get cohort member person_ids from results.cohort
+            SourceContext::forSource($source);
+            $memberRows = $this->results()
+                ->table('cohort')
+                ->where('cohort_definition_id', $validated['cohort_definition_id'])
+                ->pluck('subject_id')
+                ->map(fn ($id) => (int) $id)
+                ->unique()
+                ->values()
+                ->all();
+
+            if (empty($memberRows)) {
+                return response()->json([
+                    'data' => [],
+                    'meta' => [
+                        'error' => 'Cohort has no members. Generate the cohort first.',
+                        'cohort_definition_id' => $validated['cohort_definition_id'],
+                    ],
+                ]);
+            }
+
+            // Build centroid from cohort members
+            $centroid = $this->centroidBuilder->buildCentroid($memberRows, $source);
+
+            $results = $this->service->searchFromCentroid(
+                centroidData: $centroid,
+                source: $source,
+                excludePersonIds: $memberRows,
+                weights: $weights,
+                limit: $limit,
+                minScore: $minScore,
+                filters: $filters,
+            );
+
+            return response()->json([
+                'data' => $results,
+                'meta' => [
+                    'strategy' => $strategy,
+                    'cohort_definition_id' => (int) $validated['cohort_definition_id'],
+                    'cohort_member_count' => count($memberRows),
+                    'source_id' => $source->id,
+                    'limit' => $limit,
+                    'min_score' => $minScore,
+                    'count' => count($results['similar_patients'] ?? []),
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            return $this->errorResponse('Cohort similarity search failed', $e);
+        }
+    }
+
+    /**
+     * POST /v1/patient-similarity/export-cohort
+     *
+     * Export cached similarity results as a new cohort definition.
+     */
+    public function exportCohort(PatientSimilarityExportCohortRequest $request): JsonResponse
+    {
+        try {
+            $validated = $request->validated();
+
+            $cache = PatientSimilarityCache::findOrFail($validated['cache_id']);
+            $results = $cache->results;
+            $minScore = $validated['min_score'] ?? 0.0;
+
+            // Filter similar_patients by min_score
+            $similarPatients = $results['similar_patients'] ?? [];
+            $filteredPatients = array_filter(
+                $similarPatients,
+                fn (array $p) => ($p['overall_score'] ?? 0) >= $minScore
+            );
+
+            $personIds = array_map(fn (array $p) => (int) $p['person_id'], $filteredPatients);
+
+            if (empty($personIds)) {
+                return response()->json([
+                    'error' => 'No patients meet the minimum score threshold.',
+                    'min_score' => $minScore,
+                ], 422);
+            }
+
+            // Create cohort definition
+            $cohort = CohortDefinition::create([
+                'name' => $validated['cohort_name'],
+                'description' => $validated['cohort_description'] ?? 'Generated from patient similarity search results.',
+                'expression_json' => [
+                    'type' => 'patient_similarity_export',
+                    'cache_id' => $cache->id,
+                    'seed_person_id' => $cache->seed_person_id,
+                    'source_id' => $cache->source_id,
+                    'min_score' => $minScore,
+                ],
+                'author_id' => $request->user()->id,
+                'is_public' => false,
+            ]);
+
+            // Insert person_ids into results.cohort via source-aware connection
+            $source = Source::with('daimons')->findOrFail($cache->source_id);
+            SourceContext::forSource($source);
+
+            $today = now()->toDateString();
+            $rows = array_map(fn (int $personId) => [
+                'cohort_definition_id' => $cohort->id,
+                'subject_id' => $personId,
+                'cohort_start_date' => $today,
+                'cohort_end_date' => $today,
+            ], $personIds);
+
+            $this->results()->table('cohort')->insert($rows);
+
+            return response()->json([
+                'data' => [
+                    'cohort_definition_id' => $cohort->id,
+                    'patient_count' => count($personIds),
+                    'cohort_name' => $cohort->name,
+                ],
+            ], 201);
+        } catch (\Throwable $e) {
+            return $this->errorResponse('Cohort export failed', $e);
+        }
+    }
+
+    /**
+     * GET /v1/patient-similarity/compare
+     *
+     * Compare two patients head-to-head.
+     */
+    public function compare(Request $request): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'person_a' => ['required', 'integer'],
+                'person_b' => ['required', 'integer'],
+                'source_id' => ['required', 'integer', 'exists:sources,id'],
+            ]);
+
+            $source = Source::findOrFail($validated['source_id']);
+
+            $vectorA = PatientFeatureVector::query()
+                ->forSource($source->id)
+                ->where('person_id', $validated['person_a'])
+                ->first();
+
+            $vectorB = PatientFeatureVector::query()
+                ->forSource($source->id)
+                ->where('person_id', $validated['person_b'])
+                ->first();
+
+            if ($vectorA === null || $vectorB === null) {
+                $missing = [];
+                if ($vectorA === null) {
+                    $missing[] = $validated['person_a'];
+                }
+                if ($vectorB === null) {
+                    $missing[] = $validated['person_b'];
+                }
+
+                return response()->json([
+                    'error' => 'Feature vectors not found for one or both patients.',
+                    'missing_person_ids' => $missing,
+                ], 404);
+            }
+
+            // Score with default dimension weights
+            $dimensions = SimilarityDimension::active()->get();
+            $weights = [];
+            foreach ($dimensions as $dimension) {
+                $weights[$dimension->key] = $dimension->default_weight;
+            }
+
+            $dataA = $vectorA->toArray();
+            $dataB = $vectorB->toArray();
+
+            $scores = $this->service->scorePatientPair($dataA, $dataB, $weights);
+
+            // Compute shared features
+            $sharedConditions = array_values(array_intersect(
+                $dataA['condition_concepts'] ?? [],
+                $dataB['condition_concepts'] ?? []
+            ));
+            $sharedDrugs = array_values(array_intersect(
+                $dataA['drug_concepts'] ?? [],
+                $dataB['drug_concepts'] ?? []
+            ));
+            $sharedProcedures = array_values(array_intersect(
+                $dataA['procedure_concepts'] ?? [],
+                $dataB['procedure_concepts'] ?? []
+            ));
+
+            return response()->json([
+                'data' => [
+                    'person_a' => [
+                        'person_id' => $vectorA->person_id,
+                        'age_bucket' => $vectorA->age_bucket,
+                        'gender_concept_id' => $vectorA->gender_concept_id,
+                        'condition_count' => $vectorA->condition_count,
+                        'lab_count' => $vectorA->lab_count,
+                        'dimensions_available' => $vectorA->dimensions_available,
+                    ],
+                    'person_b' => [
+                        'person_id' => $vectorB->person_id,
+                        'age_bucket' => $vectorB->age_bucket,
+                        'gender_concept_id' => $vectorB->gender_concept_id,
+                        'condition_count' => $vectorB->condition_count,
+                        'lab_count' => $vectorB->lab_count,
+                        'dimensions_available' => $vectorB->dimensions_available,
+                    ],
+                    'scores' => $scores,
+                    'shared_features' => [
+                        'conditions' => $sharedConditions,
+                        'drugs' => $sharedDrugs,
+                        'procedures' => $sharedProcedures,
+                        'condition_count' => count($sharedConditions),
+                        'drug_count' => count($sharedDrugs),
+                        'procedure_count' => count($sharedProcedures),
+                    ],
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            return $this->errorResponse('Patient comparison failed', $e);
         }
     }
 

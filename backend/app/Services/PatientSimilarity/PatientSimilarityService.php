@@ -277,6 +277,91 @@ final class PatientSimilarityService
     }
 
     /**
+     * Search from a centroid (virtual patient) — used for cohort-seeded search.
+     *
+     * Works like searchInterpretable but takes a centroid array instead of a model,
+     * and excludes a list of person_ids (the cohort members) from results.
+     *
+     * @param  array<string, mixed>  $centroidData  Virtual patient feature array (person_id = 0)
+     * @param  array<int>  $excludePersonIds  Person IDs to exclude (cohort members)
+     * @param  array<string, float>  $weights
+     * @param  array<string, mixed>  $filters
+     * @return array<string, mixed>
+     */
+    public function searchFromCentroid(
+        array $centroidData,
+        Source $source,
+        array $excludePersonIds,
+        array $weights,
+        int $limit,
+        float $minScore,
+        array $filters = [],
+    ): array {
+        $query = PatientFeatureVector::query()
+            ->forSource($source->id);
+
+        // Exclude cohort members
+        if (! empty($excludePersonIds)) {
+            $query->whereNotIn('person_id', $excludePersonIds);
+        }
+
+        // Apply pre-filters
+        if (! empty($filters['gender_concept_id'])) {
+            $query->where('gender_concept_id', (int) $filters['gender_concept_id']);
+        }
+
+        if (! empty($filters['age_range'])) {
+            $range = $filters['age_range'];
+            $minAge = (int) ($range['min'] ?? 0);
+            $maxAge = (int) ($range['max'] ?? 120);
+            $minBucket = intdiv($minAge, 5);
+            $maxBucket = intdiv($maxAge, 5);
+            $query->whereBetween('age_bucket', [$minBucket, $maxBucket]);
+        }
+
+        $candidates = $query->get();
+        $totalCandidates = $candidates->count();
+
+        // Score each candidate against the centroid
+        $scored = [];
+        foreach ($candidates as $candidate) {
+            $result = $this->scorePatientPair($centroidData, $candidate->toArray(), $weights);
+
+            if ($result['overall_score'] >= $minScore) {
+                $scored[] = [
+                    'person_id' => $candidate->person_id,
+                    'overall_score' => $result['overall_score'],
+                    'dimension_scores' => $result['dimension_scores'],
+                    'age_bucket' => $candidate->age_bucket,
+                    'gender_concept_id' => $candidate->gender_concept_id,
+                ];
+            }
+        }
+
+        usort($scored, static fn (array $a, array $b): int => $b['overall_score'] <=> $a['overall_score']);
+        $scored = array_slice($scored, 0, $limit);
+
+        return [
+            'seed' => [
+                'person_id' => 0,
+                'type' => 'centroid',
+                'member_count' => count($excludePersonIds),
+                'dimensions_available' => $centroidData['dimensions_available'] ?? [],
+            ],
+            'mode' => 'interpretable',
+            'similar_patients' => $scored,
+            'metadata' => [
+                'total_candidates' => $totalCandidates,
+                'above_threshold' => count($scored),
+                'weights' => $weights,
+                'min_score' => $minScore,
+                'excluded_members' => count($excludePersonIds),
+                'computed_at' => now()->toIso8601String(),
+            ],
+        ];
+    }
+
+    /**
      * Score similarity between two patients across all weighted dimensions.
      *
      * @param  array<string, mixed>  $seedData  Seed patient feature vector data
