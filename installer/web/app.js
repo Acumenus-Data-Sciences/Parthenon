@@ -18,6 +18,13 @@ const state = {
 
 const $ = (id) => document.getElementById(id);
 
+function generateSecurePassword(length) {
+  const charset = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789";
+  const values = new Uint32Array(length);
+  crypto.getRandomValues(values);
+  return Array.from(values, (v) => charset[v % charset.length]).join("");
+}
+
 async function api(path, method = "GET", body) {
   const res = await fetch(path, {
     method,
@@ -297,8 +304,8 @@ function renderStep() {
       </div>
     `;
     bindValues();
-    $("regen-admin").onclick = () => ($('[data-field="admin_password"]').value = Math.random().toString(36).slice(2, 18));
-    $("regen-db").onclick = () => ($('[data-field="db_password"]').value = Math.random().toString(36).slice(2, 26));
+    $("regen-admin").onclick = () => ($('[data-field="admin_password"]').value = generateSecurePassword(16));
+    $("regen-db").onclick = () => ($('[data-field="db_password"]').value = generateSecurePassword(24));
     return;
   }
 
@@ -508,6 +515,16 @@ async function validateCurrentStep() {
       }
       if (!payload.app_url) throw new Error("App URL is required");
       if (!payload.timezone) throw new Error("Timezone is required");
+    } else if (step === "credentials") {
+      if (!payload.admin_email || !payload.admin_email.includes("@"))
+        throw new Error("A valid admin email is required");
+      if (!payload.admin_password || payload.admin_password.length < 8)
+        throw new Error("Admin password must be at least 8 characters");
+      if (!payload.db_password || payload.db_password.length < 8)
+        throw new Error("Database password must be at least 8 characters");
+    } else if (step === "modules") {
+      if (!payload.modules || payload.modules.length === 0)
+        throw new Error("Select at least one module group");
     }
     setBanner("");
     return true;
@@ -628,12 +645,13 @@ async function syncInstallStatus() {
 async function pollInstall() {
   clearInterval(state.installPolling);
   state.installPolling = setInterval(async () => {
-    const status = await api("/api/install/status");
-    setBanner(status.status, status.success ? "success" : status.running ? "info" : "error");
-    if ($("install-log")) {
-      $("install-log").value = (status.logs || []).join("\n");
-      $("install-log").scrollTop = $("install-log").scrollHeight;
-    }
+    try {
+      const status = await api("/api/install/status");
+      setBanner(status.status, status.success ? "success" : status.running ? "info" : "error");
+      if ($("install-log")) {
+        $("install-log").value = (status.logs || []).join("\n");
+        $("install-log").scrollTop = $("install-log").scrollHeight;
+      }
       if (!status.running) {
         clearInterval(state.installPolling);
         if (status.success && status.summary) {
@@ -644,21 +662,25 @@ async function pollInstall() {
               <section class="section glass-soft">
                 <h4>Installation Complete</h4>
                 <textarea class="field-textarea" readonly>${[
-                "Parthenon installed successfully.",
-                "",
-                `URL: ${payload.app_url}`,
-                `Admin email: ${payload.admin_email}`,
-                "Admin password: saved to .install-credentials",
-                "Database password: saved to .install-credentials",
-              ].join("\n")}</textarea>
-            </section>
-          </div>
-        `;
+                  "Parthenon installed successfully.",
+                  "",
+                  `URL: ${payload.app_url}`,
+                  `Admin email: ${payload.admin_email}`,
+                  "Admin password: saved to .install-credentials",
+                  "Database password: saved to .install-credentials",
+                ].join("\n")}</textarea>
+              </section>
+            </div>
+          `;
         } else {
           setBanner(status.status, "error");
         }
       }
-    }, 1000);
+    } catch (err) {
+      clearInterval(state.installPolling);
+      setBanner("Lost connection to installer server: " + err.message, "error");
+    }
+  }, 1000);
 }
 
 function syncDynamicState() {
