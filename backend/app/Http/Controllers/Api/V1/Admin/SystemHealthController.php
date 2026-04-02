@@ -579,7 +579,7 @@ class SystemHealthController extends Controller
     private function checkAuthentik(): array
     {
         try {
-            $response = Http::timeout(3)->get('http://host.docker.internal:9000/-/health/live/');
+            $response = Http::timeout(3)->get('http://acropolis-authentik-server:9000/-/health/live/');
 
             return [
                 'name' => 'Authentik (SSO)',
@@ -595,7 +595,7 @@ class SystemHealthController extends Controller
     private function checkWazuh(): array
     {
         try {
-            $response = Http::withoutVerifying()->timeout(3)->get('https://host.docker.internal:5601/');
+            $response = Http::withoutVerifying()->timeout(3)->get('https://acropolis-wazuh-dashboard:5601/');
 
             return [
                 'name' => 'Wazuh (SIEM)',
@@ -611,7 +611,7 @@ class SystemHealthController extends Controller
     private function checkN8n(): array
     {
         try {
-            $response = Http::timeout(3)->get('http://host.docker.internal:5678/healthz');
+            $response = Http::timeout(3)->get('http://acropolis-n8n:5678/healthz');
 
             return [
                 'name' => 'n8n (Workflows)',
@@ -627,7 +627,7 @@ class SystemHealthController extends Controller
     private function checkSuperset(): array
     {
         try {
-            $response = Http::timeout(3)->get('http://host.docker.internal:8089/health');
+            $response = Http::timeout(3)->get('http://acropolis-superset:8088/health');
 
             return [
                 'name' => 'Superset (BI)',
@@ -643,7 +643,7 @@ class SystemHealthController extends Controller
     private function checkDataHub(): array
     {
         try {
-            $response = Http::timeout(3)->get('http://host.docker.internal:9002/health');
+            $response = Http::timeout(3)->get('http://acropolis-datahub-frontend:9002/health');
 
             return [
                 'name' => 'DataHub (Catalog)',
@@ -659,7 +659,7 @@ class SystemHealthController extends Controller
     private function checkPortainer(): array
     {
         try {
-            $response = Http::withoutVerifying()->withoutRedirecting()->timeout(3)->get('https://host.docker.internal:9443/api/system/status');
+            $response = Http::withoutVerifying()->withoutRedirecting()->timeout(3)->get('https://acropolis-portainer:9443/api/system/status');
             $reachable = $response->status() < 500;
 
             return [
@@ -676,7 +676,7 @@ class SystemHealthController extends Controller
     private function checkPgAdmin(): array
     {
         try {
-            $response = Http::timeout(3)->get('http://host.docker.internal:5050/misc/ping');
+            $response = Http::timeout(3)->get('http://acropolis-pgadmin:80/misc/ping');
 
             return [
                 'name' => 'pgAdmin',

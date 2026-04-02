@@ -62,6 +62,7 @@ services:
           memory: 1G
     networks:
       - parthenon
+      - acropolis
     restart: unless-stopped
 
   node:
@@ -755,48 +756,7 @@ services:
 
   # ── Monitoring Stack ─────────────────────────────────────────────────────
 
-  grafana:
-    container_name: parthenon-grafana
-    image: grafana/grafana:11.4.0
-    environment:
-      - GF_AUTH_ANONYMOUS_ENABLED=false
-      - GF_SERVER_ROOT_URL=https://grafana.acumenus.net
-      - GF_SERVER_SERVE_FROM_SUB_PATH=true
-      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-changeme}
-      - GF_AUTH_GENERIC_OAUTH_ENABLED=true
-      - GF_AUTH_GENERIC_OAUTH_NAME=Authentik
-      - GF_AUTH_GENERIC_OAUTH_CLIENT_ID=grafana
-      - GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET=a8a257c38bc35968229b2bb85e5907899bd5c02299381714aa8e707fea385474
-      - GF_AUTH_GENERIC_OAUTH_SCOPES=openid profile email
-      - GF_AUTH_GENERIC_OAUTH_AUTH_URL=https://auth.acumenus.net/application/o/authorize/
-      - GF_AUTH_GENERIC_OAUTH_TOKEN_URL=https://auth.acumenus.net/application/o/token/
-      - GF_AUTH_GENERIC_OAUTH_API_URL=https://auth.acumenus.net/application/o/userinfo/
-      - GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH=contains(groups[*], 'Grafana Admins') && 'Admin' || 'Viewer'
-      - GF_AUTH_SIGNOUT_REDIRECT_URL=https://auth.acumenus.net/application/o/grafana/end-session/
-    env_file:
-      - acropolis/.env
-    ports:
-      - "3000:3000"
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
-    healthcheck:
-      test: ["CMD-SHELL", "wget -q --spider http://localhost:3000/api/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-    networks:
-      - parthenon
-    depends_on:
-      - prometheus
-      - loki
-    restart: unless-stopped
+  # Grafana moved to acropolis/docker-compose.community.yml
 
   prometheus:
     container_name: parthenon-prometheus
@@ -1041,7 +1001,6 @@ volumes:
   finngen-runner-r-lib:
   hecate-data:
   ohif-dist:
-  grafana_data:
   prometheus_data:
   loki_data:
   alloy_data:
@@ -1052,5 +1011,8 @@ networks:
   parthenon:
     name: parthenon
     driver: bridge
+  acropolis:
+    name: acropolis_network
+    external: true
   jupyter_users:
     name: parthenon_jupyter_users

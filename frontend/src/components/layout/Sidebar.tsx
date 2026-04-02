@@ -37,6 +37,7 @@ import {
   FlaskRound,
   Microscope,
   Activity,
+  Hammer,
   MessageSquare,
   PanelsTopLeft,
   ScrollText,
@@ -119,7 +120,7 @@ const navItems: NavItem[] = [
   {
     path: "/query-assistant",
     label: "Tools",
-    icon: Activity,
+    icon: Hammer,
     children: [
       { path: "/jupyter", label: "Jupyter", icon: NotebookPen },
       { path: "/workbench", label: "Workbench", icon: PanelsTopLeft },
