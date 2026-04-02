@@ -70,6 +70,7 @@ OPTIONAL_ROUTERS: list[tuple[str, dict[str, Any]]] = [
     ("app.routers.text_to_sql", {"prefix": "/text-to-sql", "tags": ["text-to-sql"]}),
     ("app.routers.gis_import", {}),
     ("app.routers.genomics", {}),
+    ("app.routers.patient_similarity", {"tags": ["patient-similarity"]}),
 ]
 
 for module_name, kwargs in OPTIONAL_ROUTERS:
