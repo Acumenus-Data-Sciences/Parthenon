@@ -34,7 +34,7 @@ class ComputePatientFeatureVectors implements ShouldQueue
 
     public function handle(SimilarityFeatureExtractor $extractor, EmbeddingClient $embeddingClient): void
     {
-        $sourceId = $this->source->source_id;
+        $sourceId = $this->source->id;
         Log::info('ComputePatientFeatureVectors: starting', ['source_id' => $sourceId]);
 
         // Register source context so SourceAware trait can resolve connections
