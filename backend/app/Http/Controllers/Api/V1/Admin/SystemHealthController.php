@@ -33,6 +33,8 @@ class SystemHealthController extends Controller
 
     private const TIER_OPS = 'Monitoring & Communications';
 
+    private const TIER_ACROPOLIS = 'Acropolis Infrastructure';
+
     /** @var array<string, string> */
     private array $tiers;
 
@@ -59,6 +61,14 @@ class SystemHealthController extends Controller
             // Monitoring & Communications
             'grafana' => fn () => $this->checkGrafana(),
             'livekit' => fn () => $this->checkLiveKit(),
+            // Acropolis Infrastructure
+            'authentik' => fn () => $this->checkAuthentik(),
+            'wazuh' => fn () => $this->checkWazuh(),
+            'n8n' => fn () => $this->checkN8n(),
+            'superset' => fn () => $this->checkSuperset(),
+            'datahub' => fn () => $this->checkDataHub(),
+            'portainer' => fn () => $this->checkPortainer(),
+            'pgadmin' => fn () => $this->checkPgAdmin(),
         ];
 
         $this->tiers = [
@@ -74,8 +84,15 @@ class SystemHealthController extends Controller
             'poseidon' => self::TIER_COMPUTE,
             'orthanc' => self::TIER_CLINICAL,
             'blackrabbit' => self::TIER_CLINICAL,
-            'grafana' => self::TIER_OPS,
+            'grafana' => self::TIER_ACROPOLIS,
             'livekit' => self::TIER_OPS,
+            'authentik' => self::TIER_ACROPOLIS,
+            'wazuh' => self::TIER_ACROPOLIS,
+            'n8n' => self::TIER_ACROPOLIS,
+            'superset' => self::TIER_ACROPOLIS,
+            'datahub' => self::TIER_ACROPOLIS,
+            'portainer' => self::TIER_ACROPOLIS,
+            'pgadmin' => self::TIER_ACROPOLIS,
         ];
     }
 
@@ -131,6 +148,7 @@ class SystemHealthController extends Controller
             'blackrabbit' => $this->getServiceHttpLogs('blackrabbit'),
             'livekit' => [],
             'poseidon' => $this->getServiceHttpLogs('poseidon'),
+            'authentik', 'wazuh', 'n8n', 'superset', 'datahub', 'portainer', 'pgadmin' => [],
             default => [],
         };
     }
@@ -154,6 +172,7 @@ class SystemHealthController extends Controller
             'blackrabbit' => $this->getBlackRabbitMetrics(),
             'livekit' => $this->getLiveKitMetrics(),
             'poseidon' => $this->getPoseidonMetrics(),
+            'authentik', 'wazuh', 'n8n', 'superset', 'datahub', 'portainer', 'pgadmin' => [],
             default => [],
         };
     }
@@ -554,6 +573,119 @@ class SystemHealthController extends Controller
             return $response->successful() ? ($response->json() ?? []) : [];
         } catch (\Throwable) {
             return [];
+        }
+    }
+
+    private function checkAuthentik(): array
+    {
+        try {
+            $response = Http::timeout(3)->get('http://host.docker.internal:9000/-/health/live/');
+
+            return [
+                'name' => 'Authentik (SSO)',
+                'key' => 'authentik',
+                'status' => $response->successful() ? 'healthy' : 'degraded',
+                'message' => $response->successful() ? 'Identity provider is running.' : "Authentik returned HTTP {$response->status()}.",
+            ];
+        } catch (\Throwable $e) {
+            return ['name' => 'Authentik (SSO)', 'key' => 'authentik', 'status' => 'down', 'message' => $e->getMessage()];
+        }
+    }
+
+    private function checkWazuh(): array
+    {
+        try {
+            $response = Http::withoutVerifying()->timeout(3)->get('https://host.docker.internal:5601/');
+
+            return [
+                'name' => 'Wazuh (SIEM)',
+                'key' => 'wazuh',
+                'status' => $response->status() < 500 ? 'healthy' : 'degraded',
+                'message' => $response->status() < 500 ? 'Security monitoring dashboard is running.' : "Wazuh returned HTTP {$response->status()}.",
+            ];
+        } catch (\Throwable $e) {
+            return ['name' => 'Wazuh (SIEM)', 'key' => 'wazuh', 'status' => 'down', 'message' => $e->getMessage()];
+        }
+    }
+
+    private function checkN8n(): array
+    {
+        try {
+            $response = Http::timeout(3)->get('http://host.docker.internal:5678/healthz');
+
+            return [
+                'name' => 'n8n (Workflows)',
+                'key' => 'n8n',
+                'status' => $response->successful() ? 'healthy' : 'degraded',
+                'message' => $response->successful() ? 'Workflow automation is running.' : "n8n returned HTTP {$response->status()}.",
+            ];
+        } catch (\Throwable $e) {
+            return ['name' => 'n8n (Workflows)', 'key' => 'n8n', 'status' => 'down', 'message' => $e->getMessage()];
+        }
+    }
+
+    private function checkSuperset(): array
+    {
+        try {
+            $response = Http::timeout(3)->get('http://host.docker.internal:8089/health');
+
+            return [
+                'name' => 'Superset (BI)',
+                'key' => 'superset',
+                'status' => $response->successful() ? 'healthy' : 'degraded',
+                'message' => $response->successful() ? 'Analytics workspace is running.' : "Superset returned HTTP {$response->status()}.",
+            ];
+        } catch (\Throwable $e) {
+            return ['name' => 'Superset (BI)', 'key' => 'superset', 'status' => 'down', 'message' => $e->getMessage()];
+        }
+    }
+
+    private function checkDataHub(): array
+    {
+        try {
+            $response = Http::timeout(3)->get('http://host.docker.internal:9002/health');
+
+            return [
+                'name' => 'DataHub (Catalog)',
+                'key' => 'datahub',
+                'status' => $response->successful() ? 'healthy' : 'degraded',
+                'message' => $response->successful() ? 'Data catalog is running.' : "DataHub returned HTTP {$response->status()}.",
+            ];
+        } catch (\Throwable $e) {
+            return ['name' => 'DataHub (Catalog)', 'key' => 'datahub', 'status' => 'down', 'message' => $e->getMessage()];
+        }
+    }
+
+    private function checkPortainer(): array
+    {
+        try {
+            $response = Http::withoutVerifying()->withoutRedirecting()->timeout(3)->get('https://host.docker.internal:9443/api/system/status');
+            $reachable = $response->status() < 500;
+
+            return [
+                'name' => 'Portainer',
+                'key' => 'portainer',
+                'status' => $reachable ? 'healthy' : 'degraded',
+                'message' => $reachable ? 'Container management is running.' : "Portainer returned HTTP {$response->status()}.",
+            ];
+        } catch (\Throwable $e) {
+            return ['name' => 'Portainer', 'key' => 'portainer', 'status' => 'down', 'message' => $e->getMessage()];
+        }
+    }
+
+    private function checkPgAdmin(): array
+    {
+        try {
+            $response = Http::timeout(3)->get('http://host.docker.internal:5050/misc/ping');
+
+            return [
+                'name' => 'pgAdmin',
+                'key' => 'pgadmin',
+                'status' => $response->successful() ? 'healthy' : 'degraded',
+                'message' => $response->successful() ? 'Database admin console is running.' : "pgAdmin returned HTTP {$response->status()}.",
+            ];
+        } catch (\Throwable $e) {
+            return ['name' => 'pgAdmin', 'key' => 'pgadmin', 'status' => 'down', 'message' => $e->getMessage()];
         }
     }
 

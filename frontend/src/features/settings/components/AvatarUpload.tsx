@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Camera, Trash2, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUploadAvatar, useDeleteAvatar } from "../hooks/useProfile";
@@ -14,8 +14,20 @@ export function AvatarUpload() {
   const deleteMutation = useDeleteAvatar();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
+  const [localPreview, setLocalPreview] = useState<string | null>(null);
 
-  const avatarUrl = user?.avatar ? `/storage/${user.avatar}` : null;
+  // Clean up blob URL on unmount
+  useEffect(() => {
+    return () => {
+      if (localPreview) URL.revokeObjectURL(localPreview);
+    };
+  }, [localPreview]);
+
+  // Build display URL: local blob preview > server avatar > nothing
+  const serverAvatarUrl = user?.avatar
+    ? `/storage/${user.avatar}`
+    : null;
+  const displayUrl = localPreview ?? serverAvatarUrl;
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     setError(null);
@@ -27,21 +39,44 @@ export function AvatarUpload() {
       return;
     }
 
+    // Instant client-side preview
+    const blobUrl = URL.createObjectURL(file);
+    setLocalPreview(blobUrl);
+
     uploadMutation.mutate(file, {
       onSuccess: (response) => {
+        // Update the auth store — persisted to localStorage
         if (user) {
           updateUser({ ...user, avatar: response.avatar });
         }
+        // Preload the server image before clearing the blob preview
+        const img = new Image();
+        img.onload = () => {
+          URL.revokeObjectURL(blobUrl);
+          setLocalPreview(null);
+        };
+        img.onerror = () => {
+          // Server image failed — keep blob as permanent preview
+        };
+        img.src = `/storage/${response.avatar}`;
       },
-      onError: () => setError("Upload failed. Please try again."),
+      onError: () => {
+        setError("Upload failed. Please try again.");
+        // Revert preview
+        URL.revokeObjectURL(blobUrl);
+        setLocalPreview(null);
+      },
     });
 
-    // Reset input so same file can be re-selected
     e.target.value = "";
   };
 
   const handleDelete = () => {
     setError(null);
+    if (localPreview) {
+      URL.revokeObjectURL(localPreview);
+      setLocalPreview(null);
+    }
     deleteMutation.mutate(undefined, {
       onSuccess: () => {
         if (user) {
@@ -56,7 +91,6 @@ export function AvatarUpload() {
 
   return (
     <div className="flex items-center gap-6">
-      {/* Avatar preview */}
       <div className="relative">
         <div
           className={cn(
@@ -64,14 +98,19 @@ export function AvatarUpload() {
             "flex items-center justify-center bg-[#1A1A1F] text-[#5A5650]",
           )}
         >
-          {isLoading ? (
-            <Loader2 size={24} className="animate-spin" />
-          ) : avatarUrl ? (
-            <img
-              src={avatarUrl}
-              alt={user?.name ?? "Avatar"}
-              className="w-full h-full object-cover"
-            />
+          {displayUrl ? (
+            <div className="relative w-full h-full">
+              <img
+                src={displayUrl}
+                alt={user?.name ?? "Avatar"}
+                className="w-full h-full object-cover"
+              />
+              {isLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
+                  <Loader2 size={24} className="animate-spin text-white" />
+                </div>
+              )}
+            </div>
           ) : (
             <span className="text-3xl font-bold">
               {user?.name?.charAt(0).toUpperCase() ?? "?"}
@@ -80,7 +119,6 @@ export function AvatarUpload() {
         </div>
       </div>
 
-      {/* Actions */}
       <div className="space-y-2">
         <input
           ref={fileInputRef}
@@ -101,7 +139,7 @@ export function AvatarUpload() {
           <Camera size={14} />
           Upload Photo
         </button>
-        {avatarUrl && (
+        {displayUrl && (
           <button
             type="button"
             onClick={handleDelete}

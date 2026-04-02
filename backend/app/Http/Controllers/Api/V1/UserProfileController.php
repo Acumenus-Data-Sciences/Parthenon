@@ -45,7 +45,7 @@ class UserProfileController extends Controller
 
         $file = $request->file('avatar');
         $extension = $file->getClientOriginalExtension();
-        $filename = "avatars/{$user->id}.{$extension}";
+        $filename = "avatars/{$user->id}_".substr(md5((string) time()), 0, 8).".{$extension}";
 
         // Reprocess image via Intervention to strip EXIF/embedded scripts
         $image = $this->imageManager->read($file->getRealPath());
@@ -58,7 +58,9 @@ class UserProfileController extends Controller
             default => $image->toJpeg(quality: 85),
         };
 
-        Storage::disk('public')->put($filename, (string) $encoded);
+        if (! Storage::disk('public')->put($filename, (string) $encoded)) {
+            return response()->json(['message' => 'Failed to save avatar file'], 500);
+        }
 
         $user->update(['avatar' => $filename]);
 

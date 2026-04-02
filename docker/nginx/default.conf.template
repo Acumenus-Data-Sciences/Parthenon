@@ -192,6 +192,11 @@ server {
     }
 
     # ── Storage assets (avatars, uploads, etc.) ───────────────────────────
+    location /storage/avatars/ {
+        alias /var/www/html/storage/app/public/avatars/;
+        expires 1m;
+        add_header Cache-Control "public, must-revalidate";
+    }
     location /storage/ {
         alias /var/www/html/storage/app/public/;
         expires 30d;

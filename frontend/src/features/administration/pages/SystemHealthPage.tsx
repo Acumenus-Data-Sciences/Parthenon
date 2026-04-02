@@ -1,12 +1,10 @@
 import { useMemo } from "react";
-import { RefreshCw, ArrowRight, Server, Database, Cpu, HeartPulse, Activity } from "lucide-react";
+import { RefreshCw, ArrowRight, Server, Database, Cpu, HeartPulse, Activity, Building2, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Panel, Badge, StatusDot, Button, type BadgeVariant, type StatusDotVariant } from "@/components/ui";
 import type { SystemHealthService } from "@/types/models";
 import { useSystemHealth } from "../hooks/useAiProviders";
-import { AcropolisServiceLinks } from "../components/AcropolisServiceLinks";
 import { GisDataPanel } from "../components/GisDataPanel";
-import { GrafanaLaunchCard } from "../components/GrafanaLaunchCard";
 import { LiveKitConfigPanel } from "../components/LiveKitConfigPanel";
 
 const STATUS_MAP: Record<string, { badge: BadgeVariant; dot: StatusDotVariant }> = {
@@ -22,6 +20,7 @@ const TIER_ORDER = [
   "AI & Analytics",
   "Clinical Services",
   "Monitoring & Communications",
+  "Acropolis Infrastructure",
 ] as const;
 
 const TIER_ICONS: Record<string, React.ReactNode> = {
@@ -30,7 +29,27 @@ const TIER_ICONS: Record<string, React.ReactNode> = {
   "AI & Analytics":                 <Cpu className="h-4 w-4" />,
   "Clinical Services":             <HeartPulse className="h-4 w-4" />,
   "Monitoring & Communications":   <Activity className="h-4 w-4" />,
+  "Acropolis Infrastructure":      <Building2 className="h-4 w-4" />,
 };
+
+const ACROPOLIS_SUBDOMAINS: Record<string, string> = {
+  authentik: "auth",
+  wazuh: "wazuh",
+  n8n: "n8n",
+  superset: "superset",
+  datahub: "datahub",
+  portainer: "portainer",
+  pgadmin: "pgadmin",
+  grafana: "grafana",
+};
+
+function getAcropolisUrl(key: string): string {
+  const subdomain = ACROPOLIS_SUBDOMAINS[key];
+  if (!subdomain) return "#";
+  const hostname = window.location.hostname;
+  const baseHost = hostname.startsWith("parthenon.") ? hostname.slice("parthenon.".length) : hostname;
+  return `${window.location.protocol}//${subdomain}.${baseHost}/`;
+}
 
 function ServiceCard({ service }: { service: SystemHealthService }) {
   const { badge, dot } = STATUS_MAP[service.status] ?? STATUS_MAP.down;
@@ -38,89 +57,108 @@ function ServiceCard({ service }: { service: SystemHealthService }) {
   const solrDetails = service.details as { cores?: number; documents?: number } | undefined;
   const orthancDetails = service.details as { studies?: number; instances?: number; disk_size_mb?: number; patients?: number } | undefined;
   const poseidonDetails = service.details as { dagster_version?: string; graphql_version?: string } | undefined;
+  const isAcropolis = service.tier === "Acropolis Infrastructure";
 
-  return (
-    <Link to={`/admin/system-health/${service.key}`}>
-      <Panel className="group h-full cursor-pointer transition-colors hover:border-primary/50">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <StatusDot status={dot} />
-            <div>
-              <p className="font-semibold text-foreground">{service.name}</p>
-              <p className="mt-0.5 text-sm text-muted-foreground">{service.message}</p>
-            </div>
+  const cardContent = (
+    <Panel className="group h-full cursor-pointer transition-colors hover:border-primary/50">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <StatusDot status={dot} />
+          <div>
+            <p className="font-semibold text-foreground">{service.name}</p>
+            <p className="mt-0.5 text-sm text-muted-foreground">{service.message}</p>
           </div>
-          <Badge variant={badge}>{service.status}</Badge>
         </div>
+        <Badge variant={badge}>{service.status}</Badge>
+      </div>
 
-        {queueDetails?.pending !== undefined && (
-          <div className="mt-3 flex gap-4 text-sm">
-            <span className="text-muted-foreground">
-              Pending:{" "}
-              <span className="font-medium text-foreground">{queueDetails.pending ?? 0}</span>
+      {queueDetails?.pending !== undefined && (
+        <div className="mt-3 flex gap-4 text-sm">
+          <span className="text-muted-foreground">
+            Pending:{" "}
+            <span className="font-medium text-foreground">{queueDetails.pending ?? 0}</span>
+          </span>
+          <span className="text-muted-foreground">
+            Failed:{" "}
+            <span
+              className={`font-medium ${(queueDetails.failed ?? 0) > 0 ? "text-destructive" : "text-foreground"}`}
+            >
+              {queueDetails.failed ?? 0}
             </span>
-            <span className="text-muted-foreground">
-              Failed:{" "}
-              <span
-                className={`font-medium ${(queueDetails.failed ?? 0) > 0 ? "text-destructive" : "text-foreground"}`}
-              >
-                {queueDetails.failed ?? 0}
-              </span>
-            </span>
-          </div>
-        )}
+          </span>
+        </div>
+      )}
 
-        {service.key === "solr" && solrDetails?.cores !== undefined && (
-          <div className="mt-3 flex gap-4 text-sm">
-            <span className="text-muted-foreground">
-              Cores:{" "}
-              <span className="font-medium text-foreground">{solrDetails.cores}</span>
-            </span>
-            <span className="text-muted-foreground">
-              Documents:{" "}
-              <span className="font-medium text-foreground">{solrDetails.documents?.toLocaleString() ?? 0}</span>
-            </span>
-          </div>
-        )}
+      {service.key === "solr" && solrDetails?.cores !== undefined && (
+        <div className="mt-3 flex gap-4 text-sm">
+          <span className="text-muted-foreground">
+            Cores:{" "}
+            <span className="font-medium text-foreground">{solrDetails.cores}</span>
+          </span>
+          <span className="text-muted-foreground">
+            Documents:{" "}
+            <span className="font-medium text-foreground">{solrDetails.documents?.toLocaleString() ?? 0}</span>
+          </span>
+        </div>
+      )}
 
-        {service.key === "poseidon" && poseidonDetails?.dagster_version !== undefined && (
-          <div className="mt-3 flex gap-4 text-sm">
-            <span className="text-muted-foreground">
-              Dagster:{" "}
-              <span className="font-medium text-foreground">{poseidonDetails.dagster_version}</span>
-            </span>
-            <span className="text-muted-foreground">
-              GraphQL:{" "}
-              <span className="font-medium text-foreground">{poseidonDetails.graphql_version}</span>
-            </span>
-          </div>
-        )}
+      {service.key === "poseidon" && poseidonDetails?.dagster_version !== undefined && (
+        <div className="mt-3 flex gap-4 text-sm">
+          <span className="text-muted-foreground">
+            Dagster:{" "}
+            <span className="font-medium text-foreground">{poseidonDetails.dagster_version}</span>
+          </span>
+          <span className="text-muted-foreground">
+            GraphQL:{" "}
+            <span className="font-medium text-foreground">{poseidonDetails.graphql_version}</span>
+          </span>
+        </div>
+      )}
 
-        {service.key === "orthanc" && orthancDetails?.studies !== undefined && (
-          <div className="mt-3 flex gap-4 text-sm">
-            <span className="text-muted-foreground">
-              Studies:{" "}
-              <span className="font-medium text-foreground">{orthancDetails.studies?.toLocaleString()}</span>
+      {service.key === "orthanc" && orthancDetails?.studies !== undefined && (
+        <div className="mt-3 flex gap-4 text-sm">
+          <span className="text-muted-foreground">
+            Studies:{" "}
+            <span className="font-medium text-foreground">{orthancDetails.studies?.toLocaleString()}</span>
+          </span>
+          <span className="text-muted-foreground">
+            Instances:{" "}
+            <span className="font-medium text-foreground">{orthancDetails.instances?.toLocaleString()}</span>
+          </span>
+          <span className="text-muted-foreground">
+            Disk:{" "}
+            <span className="font-medium text-foreground">
+              {(orthancDetails.disk_size_mb ?? 0) >= 1024
+                ? `${((orthancDetails.disk_size_mb ?? 0) / 1024).toFixed(1)} GB`
+                : `${orthancDetails.disk_size_mb} MB`}
             </span>
-            <span className="text-muted-foreground">
-              Instances:{" "}
-              <span className="font-medium text-foreground">{orthancDetails.instances?.toLocaleString()}</span>
-            </span>
-            <span className="text-muted-foreground">
-              Disk:{" "}
-              <span className="font-medium text-foreground">
-                {(orthancDetails.disk_size_mb ?? 0) >= 1024
-                  ? `${((orthancDetails.disk_size_mb ?? 0) / 1024).toFixed(1)} GB`
-                  : `${orthancDetails.disk_size_mb} MB`}
-              </span>
-            </span>
-          </div>
-        )}
+          </span>
+        </div>
+      )}
 
+      {isAcropolis ? (
+        <div className="mt-3 flex items-center gap-1 text-sm font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
+          Open Service <ExternalLink className="h-3.5 w-3.5" />
+        </div>
+      ) : (
         <div className="mt-3 flex items-center gap-1 text-sm font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
           View details <ArrowRight className="h-3.5 w-3.5" />
         </div>
-      </Panel>
+      )}
+    </Panel>
+  );
+
+  if (isAcropolis) {
+    return (
+      <a href={getAcropolisUrl(service.key)} target="_blank" rel="noopener noreferrer">
+        {cardContent}
+      </a>
+    );
+  }
+
+  return (
+    <Link to={`/admin/system-health/${service.key}`}>
+      {cardContent}
     </Link>
   );
 }
@@ -143,13 +181,7 @@ function TierSection({ tier, services }: { tier: string; services: SystemHealthS
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {services.map((s) =>
-          s.key === "grafana" ? (
-            <GrafanaLaunchCard
-              key={s.key}
-              service={s}
-              grafanaUrl="/grafana/d/parthenon/parthenon"
-            />
-          ) : s.key === "livekit" ? (
+          s.key === "livekit" ? (
             <LiveKitConfigPanel key={s.key} service={s} />
           ) : (
             <ServiceCard key={s.key} service={s} />
@@ -248,16 +280,6 @@ export default function SystemHealthPage() {
           ))}
         </div>
       )}
-
-      <div>
-        <div className="mb-3">
-          <h2 className="text-lg font-semibold text-foreground">Acropolis Services</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Direct launch links for the Acropolis-managed platform services on this host.
-          </p>
-        </div>
-        <AcropolisServiceLinks />
-      </div>
 
       {/* GIS Data Management */}
       <div>

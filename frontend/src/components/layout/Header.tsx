@@ -26,7 +26,8 @@ function UserDropdown() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const avatarUrl = user?.avatar ? `/storage/${user.avatar}` : null;
+  const avatarUrl = user?.avatar ? `/storage/${user.avatar}?v=${user.updated_at ?? ''}` : null;
+  const [avatarError, setAvatarError] = useState(false);
 
   return (
     <div ref={ref} className="relative">
@@ -35,11 +36,12 @@ function UserDropdown() {
         className="btn btn-ghost btn-sm"
         style={{ gap: "var(--space-1)" }}
       >
-        {avatarUrl ? (
+        {avatarUrl && !avatarError ? (
           <img
             src={avatarUrl}
             alt={user?.name ?? ""}
             className="w-6 h-6 rounded-full object-cover"
+            onError={() => setAvatarError(true)}
           />
         ) : (
           <User size={16} />
