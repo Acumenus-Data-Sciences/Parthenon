@@ -71,6 +71,9 @@ class RolePermissionSeeder extends Seeder
 
         // ── Survey instruments / PROs ────────────────────────────────────
         'surveys' => ['view', 'create', 'edit', 'delete'],
+
+        // ── Patient similarity engine ────────────────────────────────────
+        'patient-similarity' => ['view', 'compute'],
     ];
 
     /**
@@ -113,6 +116,7 @@ class RolePermissionSeeder extends Seeder
             'profiler.view',
             'etl.view', 'etl.create', 'etl.export',
             'surveys.view', 'surveys.create', 'surveys.edit',
+            'patient-similarity.view',
         ],
 
         // Responsible for data pipelines and CDM quality.
@@ -127,6 +131,7 @@ class RolePermissionSeeder extends Seeder
             'analyses.view',
             'profiler.view', 'profiler.scan',
             'etl.view', 'etl.create', 'etl.export',
+            'patient-similarity.compute',
         ],
 
         // Reviews and approves AI concept mapping suggestions.
@@ -153,6 +158,7 @@ class RolePermissionSeeder extends Seeder
             'profiler.view',
             'etl.view',
             'surveys.view',
+            'patient-similarity.view',
         ],
     ];
 
