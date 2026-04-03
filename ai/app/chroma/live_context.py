@@ -222,7 +222,7 @@ def _tool_search_concept_sets(engine: Engine, keywords: list[str]) -> str:
                    STRING_AGG(DISTINCT c.concept_name, ', ' ORDER BY c.concept_name) as concept_names
             FROM app.concept_sets cs
             LEFT JOIN app.concept_set_items csi ON csi.concept_set_id = cs.id
-            LEFT JOIN omop.concept c ON c.concept_id = csi.concept_id
+            LEFT JOIN vocab.concept c ON c.concept_id = csi.concept_id
             WHERE cs.deleted_at IS NULL
             GROUP BY cs.id, cs.name, cs.description
             ORDER BY cs.name LIMIT 25
@@ -236,7 +236,7 @@ def _tool_search_concept_sets(engine: Engine, keywords: list[str]) -> str:
                    STRING_AGG(DISTINCT c.concept_name, ', ' ORDER BY c.concept_name) as concept_names
             FROM app.concept_sets cs
             LEFT JOIN app.concept_set_items csi ON csi.concept_set_id = cs.id
-            LEFT JOIN omop.concept c ON c.concept_id = csi.concept_id
+            LEFT JOIN vocab.concept c ON c.concept_id = csi.concept_id
             WHERE cs.deleted_at IS NULL AND ({cond})
             GROUP BY cs.id, cs.name, cs.description
             ORDER BY cs.name LIMIT 25
@@ -317,7 +317,7 @@ def _tool_query_vocabulary(engine: Engine, keywords: list[str]) -> str:
     query = text(f"""
         SELECT c.concept_id, c.concept_name, c.domain_id, c.vocabulary_id,
                c.concept_class_id, c.standard_concept
-        FROM omop.concept c
+        FROM vocab.concept c
         WHERE ({cond}) AND c.standard_concept = 'S'
         ORDER BY c.concept_name
         LIMIT 15
@@ -350,7 +350,7 @@ def _tool_get_achilles_stats(engine: Engine, keywords: list[str]) -> str:
 
     # Total persons
     r = _exec_one(engine, text(
-        "SELECT count_value FROM achilles_results.achilles_results WHERE analysis_id = 1 LIMIT 1"
+        "SELECT count_value FROM results.achilles_results WHERE analysis_id = 1 LIMIT 1"
     ))
     total_persons = r["count_value"] if r else 0
 
@@ -361,8 +361,8 @@ def _tool_get_achilles_stats(engine: Engine, keywords: list[str]) -> str:
     if not keywords or any(k.lower() in ("condition", "disease", "diagnosis") for k in keywords):
         rows = _exec(engine, text("""
             SELECT c.concept_name, ar.count_value
-            FROM achilles_results.achilles_results ar
-            JOIN omop.concept c ON c.concept_id = CAST(ar.stratum_1 AS INTEGER)
+            FROM results.achilles_results ar
+            JOIN vocab.concept c ON c.concept_id = CAST(ar.stratum_1 AS INTEGER)
             WHERE ar.analysis_id = 400
             ORDER BY ar.count_value DESC LIMIT 10
         """))
@@ -376,8 +376,8 @@ def _tool_get_achilles_stats(engine: Engine, keywords: list[str]) -> str:
     if not keywords or any(k.lower() in ("drug", "medication", "prescription", "rx") for k in keywords):
         rows = _exec(engine, text("""
             SELECT c.concept_name, ar.count_value
-            FROM achilles_results.achilles_results ar
-            JOIN omop.concept c ON c.concept_id = CAST(ar.stratum_1 AS INTEGER)
+            FROM results.achilles_results ar
+            JOIN vocab.concept c ON c.concept_id = CAST(ar.stratum_1 AS INTEGER)
             WHERE ar.analysis_id = 700
             ORDER BY ar.count_value DESC LIMIT 10
         """))
@@ -392,8 +392,8 @@ def _tool_get_achilles_stats(engine: Engine, keywords: list[str]) -> str:
         cond = " OR ".join(f"c.concept_name ILIKE :kw{i}" for i in range(len(keywords)))
         rows = _exec(engine, text(f"""
             SELECT c.concept_name, c.domain_id, ar.count_value
-            FROM achilles_results.achilles_results ar
-            JOIN omop.concept c ON c.concept_id = CAST(ar.stratum_1 AS INTEGER)
+            FROM results.achilles_results ar
+            JOIN vocab.concept c ON c.concept_id = CAST(ar.stratum_1 AS INTEGER)
             WHERE ar.analysis_id IN (400, 600, 700, 800) AND ({cond})
             ORDER BY ar.count_value DESC LIMIT 10
         """), _kw_params(keywords))
@@ -413,7 +413,7 @@ def _tool_get_dqd_summary(engine: Engine) -> str:
         rows = _exec(engine, text("""
             SELECT check_name, category, num_violated_rows, num_denominator_rows,
                    threshold_value, notes_value
-            FROM achilles_results.dqd_results
+            FROM app.dqd_results
             WHERE num_violated_rows > 0
             ORDER BY num_violated_rows DESC LIMIT 10
         """))
@@ -460,7 +460,7 @@ def _tool_get_cdm_summary(engine: Engine) -> str:
 
     # Person count from Achilles
     person_row = _exec_one(engine, text(
-        "SELECT count_value FROM achilles_results.achilles_results WHERE analysis_id = 1 LIMIT 1"
+        "SELECT count_value FROM results.achilles_results WHERE analysis_id = 1 LIMIT 1"
     ))
     if person_row:
         sections.append(f"**Total Persons in CDM:** {person_row['count_value']:,}")
@@ -477,7 +477,7 @@ def _tool_get_cdm_summary(engine: Engine) -> str:
                 WHEN 2100 THEN 'Device Exposures'
             END as domain,
             SUM(ar.count_value) as total
-        FROM achilles_results.achilles_results ar
+        FROM results.achilles_results ar
         WHERE ar.analysis_id IN (200, 400, 600, 700, 800, 2100)
         GROUP BY ar.analysis_id
         ORDER BY total DESC
@@ -492,7 +492,7 @@ def _tool_get_cdm_summary(engine: Engine) -> str:
     # Vocabulary stats
     rows = _exec(engine, text("""
         SELECT domain_id, COUNT(*) as cnt
-        FROM omop.concept WHERE standard_concept = 'S'
+        FROM vocab.concept WHERE standard_concept = 'S'
         GROUP BY domain_id ORDER BY cnt DESC LIMIT 8
     """))
     if rows:

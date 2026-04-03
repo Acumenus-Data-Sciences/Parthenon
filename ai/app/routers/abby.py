@@ -283,6 +283,25 @@ OUTPUT SCHEMA:
 }
 """
 
+# ── Shared capability preamble ──────────────────────────────────────────────
+# Prepended to every page-specific prompt so Abby knows what she can do.
+
+CAPABILITY_PREAMBLE = (
+    "You have read-only access to the Parthenon PostgreSQL database (OMOP CDM v5.4) "
+    "as the abby_analyst role. When the user asks data questions — patient counts, "
+    "top conditions, lab distributions, drug frequencies, cohort sizes — you have "
+    "live context tools that automatically query the database on your behalf. "
+    "You can and should give specific numbers, not generic explanations.\n\n"
+    "Available data schemas: vocab (7M+ OMOP concepts), omop (Acumenus CDM, ~1M patients), "
+    "pancreas (361-patient pancreatic cancer corpus), irsf (IRSF Natural History Study), "
+    "mimiciv (MIMIC-IV ICU data), atlantic_health (Atlantic Health CDM), "
+    "results/pancreas_results/irsf_results (Achilles characterization output).\n\n"
+    "When a user asks 'how many patients have X' or 'what are the top Y', answer with "
+    "actual data from the CDM. If the live context doesn't cover their question, say what "
+    "data you'd need and suggest they use the Data Explorer or Text-to-SQL feature "
+    "for custom queries.\n\n"
+)
+
 PAGE_SYSTEM_PROMPTS: dict[str, str] = {
     "cohort_builder": (
         "You are Abby, a clinical informatics assistant. "
@@ -626,9 +645,10 @@ def _build_chat_system_prompt(request: ChatRequest) -> str:
       3. Live database — real-time query of Parthenon's concept sets, cohorts, analyses
       4. Page data — entity-specific data passed from the frontend
     """
-    system_prompt = PAGE_SYSTEM_PROMPTS.get(
+    page_prompt = PAGE_SYSTEM_PROMPTS.get(
         request.page_context, PAGE_SYSTEM_PROMPTS["general"]
     )
+    system_prompt = CAPABILITY_PREAMBLE + page_prompt
 
     # ── Step 1: Help knowledge (static, page-specific) ──────────────────────
     help_context = _get_help_context(request.page_context)
@@ -696,7 +716,11 @@ def _build_chat_system_prompt(request: ChatRequest) -> str:
         except Exception:
             _dq_redis = None
 
-        profile_service = DataProfileService(engine=_dq_engine, redis_client=_dq_redis)
+        profile_service = DataProfileService(
+            engine=_dq_engine,
+            redis_client=_dq_redis,
+            cdm_schema=settings.knowledge_cdm_schema,
+        )
 
         # Gather metrics then detect gaps (API requires explicit arguments)
         person_count = profile_service.get_person_count()

@@ -165,8 +165,8 @@ services:
       - ./OHDSI-scraper/medical_textbooks_extracted:/app/medical_textbooks:ro
       - ./backend/storage/app:/var/www/html/storage/app:ro
     environment:
-      - DATABASE_URL=postgresql://claude_dev:${HECATE_PG_PASSWORD}@host.docker.internal:5432/parthenon
-      - GIS_DATABASE_URL=postgresql://claude_dev:${HECATE_PG_PASSWORD}@host.docker.internal:5432/parthenon
+      - DATABASE_URL=postgresql://abby_analyst:${ABBY_PG_PASSWORD}@host.docker.internal:5432/parthenon
+      - GIS_DATABASE_URL=postgresql://abby_analyst:${ABBY_PG_PASSWORD}@host.docker.internal:5432/parthenon
       - REDIS_URL=redis://redis:6379/2
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
       - OLLAMA_MODEL=${OLLAMA_MODEL:-MedAIBase/MedGemma1.5:4b}
@@ -185,7 +185,7 @@ services:
       - PHI_DETECTION_ENABLED=${PHI_DETECTION_ENABLED:-true}
       - CLOUD_MONTHLY_BUDGET_USD=${CLOUD_MONTHLY_BUDGET_USD:-500}
       - KNOWLEDGE_CDM_SCHEMA=omop
-      - KNOWLEDGE_VOCAB_SCHEMA=omop
+      - KNOWLEDGE_VOCAB_SCHEMA=vocab
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -785,6 +785,55 @@ services:
       - parthenon
     restart: unless-stopped
 
+  postgres-exporter:
+    container_name: parthenon-postgres-exporter
+    image: prometheuscommunity/postgres-exporter:v0.16.0
+    environment:
+      DATA_SOURCE_URI: "postgres:5432/parthenon?sslmode=disable"
+      DATA_SOURCE_USER: parthenon
+      DATA_SOURCE_PASS: ${DB_PASSWORD:-secret}
+      PG_EXPORTER_DISABLE_DEFAULT_METRICS: "false"
+      PG_EXPORTER_DISABLE_SETTINGS_METRICS: "false"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:9187/metrics || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+    networks:
+      - parthenon
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  redis-exporter:
+    container_name: parthenon-redis-exporter
+    image: oliver006/redis_exporter:v1.66.0-alpine
+    environment:
+      REDIS_ADDR: "redis://redis:6379"
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-parthenon_redis_secret}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:9121/metrics || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+    networks:
+      - parthenon
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
   cadvisor:
     container_name: parthenon-cadvisor
     image: gcr.io/cadvisor/cadvisor:v0.51.0
@@ -814,7 +863,6 @@ services:
   node-exporter:
     container_name: parthenon-node-exporter
     image: prom/node-exporter:v1.8.2
-    network_mode: host
     pid: host
     volumes:
       - /proc:/host/proc:ro
@@ -835,6 +883,8 @@ services:
       resources:
         limits:
           memory: 128M
+    networks:
+      - parthenon
     restart: unless-stopped
 
   loki:
