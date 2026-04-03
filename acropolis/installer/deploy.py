@@ -18,14 +18,11 @@ from acropolis.installer.utils import (
     REPO_ROOT,
 )
 
-# Compose file sets by tier
+# Unified compose entrypoint — docker-compose.yml uses `include:` to layer
+# base + community + enterprise + local. All tiers use the same file.
 COMPOSE_FILES: dict[str, list[str]] = {
-    "community": ["-f", "docker-compose.yml", "-f", "docker-compose.community.yml"],
-    "enterprise": [
-        "-f", "docker-compose.yml",
-        "-f", "docker-compose.community.yml",
-        "-f", "docker-compose.enterprise.yml",
-    ],
+    "community": ["-f", "docker-compose.yml"],
+    "enterprise": ["-f", "docker-compose.yml"],
 }
 
 # Container names and their health check timeouts

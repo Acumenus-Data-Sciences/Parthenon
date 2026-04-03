@@ -29,7 +29,8 @@ class InstallConfig:
     # Per-service credentials
     pgadmin_email: str = ""
     pgadmin_password: str = ""
-    portainer_password: str = ""
+    grafana_admin_user: str = "admin"
+    grafana_admin_password: str = ""
     n8n_user: str = "admin"
     n8n_password: str = ""
     superset_user: str = "admin"
@@ -39,6 +40,9 @@ class InstallConfig:
     datahub_mysql_password: str = ""
     datahub_mysql_root_password: str = ""
     datahub_secret: str = ""
+    datahub_system_client_secret: str = ""
+    datahub_token_signing_key: str = ""
+    datahub_token_salt: str = ""
     authentik_secret: str = ""
     authentik_db_password: str = ""
     wazuh_api_password: str = ""
@@ -142,8 +146,8 @@ def collect_config(
         config.pgadmin_password = questionary.text(
             "pgAdmin password:", default=generate_password(24)
         ).ask()
-        config.portainer_password = questionary.text(
-            "Portainer admin password:", default=generate_password(16)
+        config.grafana_admin_password = questionary.text(
+            "Grafana admin password:", default=generate_password(16)
         ).ask()
 
     # Enterprise credentials
@@ -162,6 +166,9 @@ def collect_config(
         config.datahub_mysql_password = generate_password(24)
         config.datahub_mysql_root_password = generate_password(24)
         config.datahub_secret = generate_password(32)
+        config.datahub_system_client_secret = generate_password(64)
+        config.datahub_token_signing_key = generate_password(32)
+        config.datahub_token_salt = generate_password(32)
         config.authentik_secret = generate_password(48)
         config.authentik_db_password = generate_password(24)
         config.wazuh_api_password = generate_wazuh_password(24)
@@ -208,6 +215,9 @@ def write_env_file(
             "",
             f"PGADMIN_EMAIL={config.pgadmin_email}",
             f"PGADMIN_PASSWORD={config.pgadmin_password}",
+            "",
+            f"GRAFANA_ADMIN_USER={config.grafana_admin_user}",
+            f"GRAFANA_ADMIN_PASSWORD={config.grafana_admin_password}",
         ])
 
     if edition.tier == "enterprise":
@@ -226,6 +236,9 @@ def write_env_file(
             f"DATAHUB_MYSQL_PASSWORD={config.datahub_mysql_password}",
             f"DATAHUB_MYSQL_ROOT_PASSWORD={config.datahub_mysql_root_password}",
             f"DATAHUB_SECRET={config.datahub_secret}",
+            f"DATAHUB_SYSTEM_CLIENT_SECRET={config.datahub_system_client_secret}",
+            f"DATAHUB_TOKEN_SERVICE_SIGNING_KEY={config.datahub_token_signing_key}",
+            f"DATAHUB_TOKEN_SERVICE_SALT={config.datahub_token_salt}",
             "",
             f"AUTHENTIK_SECRET_KEY={config.authentik_secret}",
             f"AUTHENTIK_DB_PASSWORD={config.authentik_db_password}",
@@ -233,20 +246,8 @@ def write_env_file(
             f"AUTHENTIK_BOOTSTRAP_PASSWORD={bootstrap_password}",
             f"AUTHENTIK_BOOTSTRAP_TOKEN={bootstrap_token}",
             "",
-            "# Authentik SSO — OAuth2/OIDC Credentials",
-            "# Auto-populated by Authentik bootstrap (Phase 7.5)",
-            "AUTHENTIK_GRAFANA_CLIENT_ID=",
-            "AUTHENTIK_GRAFANA_CLIENT_SECRET=",
-            "GRAFANA_OAUTH_CLIENT_ID=",
-            "GRAFANA_OAUTH_CLIENT_SECRET=",
-            "AUTHENTIK_SUPERSET_CLIENT_ID=",
-            "AUTHENTIK_SUPERSET_CLIENT_SECRET=",
-            "AUTHENTIK_DATAHUB_CLIENT_ID=",
-            "AUTHENTIK_DATAHUB_CLIENT_SECRET=",
-            "AUTHENTIK_PGADMIN_CLIENT_ID=",
-            "AUTHENTIK_PGADMIN_CLIENT_SECRET=",
-            "AUTHENTIK_PORTAINER_CLIENT_ID=",
-            "AUTHENTIK_PORTAINER_CLIENT_SECRET=",
+            "# Authentik SSO — Forward Auth Only (via Traefik middleware)",
+            "# Services use their own internal login after the Traefik SSO gate.",
             "",
             "WAZUH_INDEXER_PASSWORD=SecretPassword",
             "WAZUH_DASHBOARD_PASSWORD=kibanaserver",
@@ -582,7 +583,8 @@ def write_credentials_file(
     if edition.tier in ("community", "enterprise"):
         lines.extend([
             f"pgAdmin: {config.pgadmin_email} / {config.pgadmin_password}",
-            f"Portainer: admin / {config.portainer_password}",
+            f"Grafana: {config.grafana_admin_user} / {config.grafana_admin_password}",
+            "Portainer: admin / (set on first login)",
         ])
 
     if edition.tier == "enterprise":
