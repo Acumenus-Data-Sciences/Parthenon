@@ -14,18 +14,103 @@ permissions:
   contents: write
 
 jobs:
-  pyinstaller:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-22.04
-            suffix: linux
-            ext: ""
-          - os: windows-2022
-            suffix: win
-            ext: ".exe"
-    runs-on: ${{ matrix.os }}
+  linux:
+    name: Linux installer
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install PyInstaller
+        run: pip install pyinstaller
+
+      - name: Build binary
+        working-directory: installer
+        run: pyinstaller acropolis-install.spec
+
+      - name: Create double-clickable package
+        run: |
+          mkdir -p pkg
+          cp installer/dist/acropolis-install pkg/acropolis-install
+          chmod +x pkg/acropolis-install
+          # Create .desktop file for Linux desktop environments
+          cat > pkg/Acropolis-Installer.desktop << 'DESKTOP'
+          [Desktop Entry]
+          Name=Acropolis Installer
+          Comment=Install Parthenon — Unified Outcomes Research Platform
+          Exec=./acropolis-install
+          Terminal=true
+          Type=Application
+          Categories=Development;
+          DESKTOP
+          chmod +x pkg/Acropolis-Installer.desktop
+          # Package as tar.gz preserving permissions
+          cd pkg && tar czf ../acropolis-install-linux.tar.gz *
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: acropolis-install-linux
+          path: acropolis-install-linux.tar.gz
+
+  macos:
+    name: macOS installer (universal)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Build Cosmopolitan APE
+        run: python3 installer/build_cosmo.py -o dist/acropolis-install.com
+
+      - name: Create .command launcher and .zip
+        run: |
+          mkdir -p pkg
+          cp dist/acropolis-install.com pkg/acropolis-install.com
+          chmod +x pkg/acropolis-install.com
+
+          # Create .command file — macOS opens these in Terminal on double-click
+          cat > "pkg/Install Parthenon.command" << 'CMD'
+          #!/bin/bash
+          # Acropolis — Parthenon Installer
+          # This file opens in Terminal when double-clicked on macOS.
+
+          DIR="$(cd "$(dirname "$0")" && pwd)"
+          BINARY="$DIR/acropolis-install.com"
+
+          # Remove macOS quarantine flag (download protection)
+          xattr -d com.apple.quarantine "$BINARY" 2>/dev/null
+          chmod +x "$BINARY"
+
+          echo ""
+          echo "  ========================================================"
+          echo "    Acropolis — Parthenon Remote Installer"
+          echo "  ========================================================"
+          echo ""
+
+          exec "$BINARY" "$@"
+          CMD
+          chmod +x "pkg/Install Parthenon.command"
+
+          # Zip preserving permissions and resource forks
+          cd pkg && zip -r ../acropolis-install-macos.zip . -x ".*"
+
+      - name: Verify zip contents
+        run: unzip -l acropolis-install-macos.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: acropolis-install-macos
+          path: acropolis-install-macos.zip
+
+  windows:
+    name: Windows installer (WSL)
+    runs-on: windows-2022
     steps:
       - uses: actions/checkout@v4
 
@@ -42,41 +127,15 @@ jobs:
 
       - name: Rename binary
         working-directory: installer/dist
-        run: mv acropolis-install${{ matrix.ext }} acropolis-install-${{ matrix.suffix }}${{ matrix.ext }}
+        run: mv acropolis-install.exe acropolis-install-win.exe
 
       - uses: actions/upload-artifact@v4
         with:
-          name: acropolis-install-${{ matrix.suffix }}
-          path: installer/dist/acropolis-install-${{ matrix.suffix }}${{ matrix.ext }}
-
-  cosmo:
-    name: Cosmopolitan APE (universal)
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Build APE binary
-        run: python3 installer/build_cosmo.py -o dist/acropolis-install.com
-
-      - name: Verify APE
-        run: |
-          ls -lh dist/acropolis-install.com
-          file dist/acropolis-install.com
-          # Verify the zip contents include the installer package
-          unzip -l dist/acropolis-install.com | grep "installer/" | head -5
-          echo "APE binary built and verified."
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: acropolis-install-cosmo
-          path: dist/acropolis-install.com
+          name: acropolis-install-win
+          path: installer/dist/acropolis-install-win.exe
 
   release:
-    needs: [pyinstaller, cosmo]
+    needs: [linux, macos, windows]
     if: always() && !cancelled()
     runs-on: ubuntu-22.04
     steps:
@@ -89,8 +148,7 @@ jobs:
       - name: Collect release assets
         run: |
           mkdir -p release-assets
-          # Copy whichever platform binaries were built (some may be missing)
-          for name in acropolis-install-linux acropolis-install-cosmo acropolis-install-win; do
+          for name in acropolis-install-linux acropolis-install-macos acropolis-install-win; do
             if [ -d "artifacts/${name}" ]; then
               cp artifacts/${name}/* release-assets/
               echo "Collected: ${name}"

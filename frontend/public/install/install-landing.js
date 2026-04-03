@@ -5,8 +5,8 @@
   const CURL_CMD = "curl -fsSL https://parthenon.acumenus.net/install.sh | sh";
 
   const BINARIES = {
-    "linux": "acropolis-install-linux",
-    "macos": "acropolis-install.com",
+    "linux": "acropolis-install-linux.tar.gz",
+    "macos": "acropolis-install-macos.zip",
     "windows": "acropolis-install-win.exe",
   };
 
@@ -49,16 +49,10 @@
     }
   }
 
-  const RUN_CMDS = {
-    linux: "cd ~/Downloads && chmod +x acropolis-install-linux && ./acropolis-install-linux",
-    macos: "cd ~/Downloads && chmod +x acropolis-install.com && ./acropolis-install.com",
-    windows: "wsl -- bash -c 'chmod +x /mnt/c/Users/$USER/Downloads/acropolis-install-win.exe && /mnt/c/Users/$USER/Downloads/acropolis-install-win.exe'",
-  };
-
-  const POST_NOTES = {
-    linux: "",
-    macos: 'macOS may show a security warning. If blocked, run: <code class="inline-code">xattr -d com.apple.quarantine ~/Downloads/acropolis-install.com</code>',
-    windows: "Open a WSL terminal first. The installer runs inside your WSL Linux environment.",
+  const POST_INSTRUCTIONS = {
+    linux: 'Extract the archive and double-click <strong>acropolis-install</strong>, or run it from Terminal.',
+    macos: 'Unzip the download and double-click <strong>"Install Parthenon"</strong>. It opens Terminal and runs the installer automatically.',
+    windows: 'Double-click <strong>acropolis-install-win.exe</strong>. It will detect WSL and launch the installer inside your Linux environment.',
   };
 
   function setupCopyButton(btnId, textFn) {
@@ -86,10 +80,8 @@
   }
 
   function setPostDownload(platform) {
-    const runCmd = document.getElementById("run-cmd");
-    const postNote = document.getElementById("post-note");
-    if (runCmd) runCmd.textContent = RUN_CMDS[platform] || RUN_CMDS.linux;
-    if (postNote) postNote.innerHTML = POST_NOTES[platform] || "";
+    const el = document.getElementById("post-instructions");
+    if (el) el.innerHTML = POST_INSTRUCTIONS[platform] || POST_INSTRUCTIONS.linux;
   }
 
   async function init() {
@@ -99,7 +91,6 @@
     highlightPlatform(platform);
     setPostDownload(platform);
     setupCopyButton("copy-btn", CURL_CMD);
-    setupCopyButton("copy-run-btn", () => document.getElementById("run-cmd")?.textContent || "");
   }
 
   if (document.readyState === "loading") {
