@@ -19,23 +19,25 @@
         &mdash; in one guided flow.
       </p>
 
-      <a id="download-btn" class="download-btn" href="https://github.com/sudoshi/Parthenon/releases/latest" download>
-        Download for Linux
-      </a>
+      <div class="download-grid">
+        <a id="dl-linux" class="download-btn" href="https://github.com/sudoshi/Parthenon/releases/latest">
+          <span class="dl-label">Linux</span>
+          <span class="dl-hint">x64 / arm64</span>
+        </a>
+        <a id="dl-macos" class="download-btn" href="https://github.com/sudoshi/Parthenon/releases/latest">
+          <span class="dl-label">macOS</span>
+          <span class="dl-hint">Apple Silicon / Intel</span>
+        </a>
+        <a id="dl-windows" class="download-btn" href="https://github.com/sudoshi/Parthenon/releases/latest">
+          <span class="dl-label">Windows</span>
+          <span class="dl-hint">Runs inside WSL 2</span>
+        </a>
+      </div>
 
       <div class="curl-block">
         <code>curl -fsSL https://parthenon.acumenus.net/install.sh | sh</code>
         <button id="copy-btn" class="copy-btn" type="button">Copy</button>
       </div>
-
-      <p class="fallback">
-        Having trouble? Download directly:
-        <span id="fallback-links">
-          <a href="https://github.com/sudoshi/Parthenon/releases/latest">Linux</a> &middot;
-          <a href="https://github.com/sudoshi/Parthenon/releases/latest">macOS</a> &middot;
-          <a href="https://github.com/sudoshi/Parthenon/releases/latest">Windows (WSL)</a>
-        </span>
-      </p>
 
       <div class="requirements">
         <strong>Requirements</strong><br />

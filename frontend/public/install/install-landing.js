@@ -4,38 +4,17 @@
   const REPO = "sudoshi/Parthenon";
   const CURL_CMD = "curl -fsSL https://parthenon.acumenus.net/install.sh | sh";
 
+  const BINARIES = {
+    linux: "acropolis-install-linux",
+    macos: "acropolis-install-macos",
+    windows: "acropolis-install-win.exe",
+  };
+
   function detectPlatform() {
     const ua = navigator.userAgent.toLowerCase();
-    if (ua.includes("win")) return "Windows (WSL)";
-    if (ua.includes("mac")) return "macOS";
-    return "Linux";
-  }
-
-  function setButtonLabel(platform, tag) {
-    const btn = document.getElementById("download-btn");
-    if (!btn) return;
-    const label = `Download for ${platform}`;
-    const tagSpan = tag ? `<span class="release-tag">${tag}</span>` : "";
-    btn.innerHTML = label + tagSpan;
-  }
-
-  function setDownloadUrl(tag) {
-    const btn = document.getElementById("download-btn");
-    if (!btn) return;
-    // Primary download always points to the install script / cosmo binary
-    btn.href = tag
-      ? `https://github.com/${REPO}/releases/download/${tag}/acropolis-install.com`
-      : `https://github.com/${REPO}/releases/latest`;
-  }
-
-  function setFallbackLinks(tag) {
-    const container = document.getElementById("fallback-links");
-    if (!container || !tag) return;
-    const base = `https://github.com/${REPO}/releases/download/${tag}`;
-    container.innerHTML =
-      `<a href="${base}/acropolis-install-linux-x64">Linux</a> · ` +
-      `<a href="${base}/acropolis-install-macos-arm64">macOS</a> · ` +
-      `<a href="${base}/acropolis-install-linux-x64">Windows (WSL)</a>`;
+    if (ua.includes("win")) return "windows";
+    if (ua.includes("mac")) return "macos";
+    return "linux";
   }
 
   async function fetchLatestRelease() {
@@ -49,6 +28,27 @@
     }
   }
 
+  function setDownloadLinks(tag) {
+    const fallback = `https://github.com/${REPO}/releases/latest`;
+    for (const [platform, binary] of Object.entries(BINARIES)) {
+      const btn = document.getElementById(`dl-${platform}`);
+      if (btn) {
+        btn.href = tag
+          ? `https://github.com/${REPO}/releases/download/${tag}/${binary}`
+          : fallback;
+      }
+    }
+  }
+
+  function highlightPlatform(platform) {
+    for (const key of Object.keys(BINARIES)) {
+      const btn = document.getElementById(`dl-${key}`);
+      if (btn) {
+        btn.classList.toggle("active", key === platform);
+      }
+    }
+  }
+
   function initCopyButton() {
     const btn = document.getElementById("copy-btn");
     if (!btn) return;
@@ -58,7 +58,6 @@
         btn.textContent = "Copied!";
         setTimeout(() => { btn.textContent = "Copy"; }, 2000);
       } catch {
-        // Fallback for non-HTTPS contexts
         const ta = document.createElement("textarea");
         ta.value = CURL_CMD;
         ta.style.position = "fixed";
@@ -76,9 +75,8 @@
   async function init() {
     const platform = detectPlatform();
     const tag = await fetchLatestRelease();
-    setButtonLabel(platform, tag);
-    setDownloadUrl(tag);
-    setFallbackLinks(tag);
+    setDownloadLinks(tag);
+    highlightPlatform(platform);
     initCopyButton();
   }
 
