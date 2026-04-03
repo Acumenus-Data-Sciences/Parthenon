@@ -131,6 +131,30 @@ class AchillesController extends Controller
     }
 
     /**
+     * GET /v1/sources/{source}/achilles/domains/{domain}/hierarchy
+     *
+     * Returns hierarchical treemap data from concept_hierarchy table.
+     * For Drug: ATC classification tree. For other domains: flat list (until MedDRA loaded).
+     */
+    public function domainHierarchy(Source $source, string $domain): JsonResponse
+    {
+        if (! in_array($domain, AchillesResultReaderService::ALLOWED_DOMAINS, true)) {
+            return response()->json([
+                'error' => 'Invalid domain',
+                'message' => 'Domain must be one of: '.implode(', ', AchillesResultReaderService::ALLOWED_DOMAINS),
+            ], 422);
+        }
+
+        try {
+            $data = $this->reader->getConceptHierarchy($source, $domain);
+
+            return response()->json(['data' => $data]);
+        } catch (\Throwable $e) {
+            return $this->errorResponse("Failed to retrieve concept hierarchy for {$domain}", $e);
+        }
+    }
+
+    /**
      * GET /v1/sources/{source}/achilles/temporal-trends?domain={domain}
      *
      * Returns temporal trends (monthly counts) for a domain.

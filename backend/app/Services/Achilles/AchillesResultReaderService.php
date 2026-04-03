@@ -8,6 +8,7 @@ use App\Models\Results\AchillesAnalysis;
 use App\Models\Results\AchillesPerformance;
 use App\Models\Results\AchillesResult;
 use App\Models\Results\AchillesResultDist;
+use App\Models\Results\ConceptHierarchy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -40,6 +41,12 @@ class AchillesResultReaderService
     private function ap(): Builder
     {
         return AchillesPerformance::on($this->results()->getName())->newQuery();
+    }
+
+    /** @return Builder<ConceptHierarchy> */
+    private function ch(): Builder
+    {
+        return ConceptHierarchy::on($this->results()->getName())->newQuery();
     }
 
     /**
@@ -619,6 +626,182 @@ class AchillesResultReaderService
             'max' => (float) $row->max_value,
             'count' => (int) $row->count_value,
         ])->values()->toArray();
+    }
+
+    /**
+     * Map domain slug to concept_hierarchy treemap label.
+     *
+     * @var array<string, string>
+     */
+    private const DOMAIN_TREEMAP_MAP = [
+        'condition' => 'Condition',
+        'drug' => 'Drug',
+        'procedure' => 'Procedure',
+        'measurement' => 'Measurement',
+        'observation' => 'Observation',
+        'visit' => 'Visit',
+    ];
+
+    /**
+     * Check whether concept_hierarchy data exists for a domain.
+     */
+    public function hasConceptHierarchy(Source $source, string $domain): bool
+    {
+        $treemap = self::DOMAIN_TREEMAP_MAP[$domain] ?? null;
+
+        if ($treemap === null) {
+            return false;
+        }
+
+        return $this->ch()->forDomain($treemap)->exists();
+    }
+
+    /**
+     * Get hierarchical treemap data from the concept_hierarchy table.
+     *
+     * Returns hierarchy grouped by the deepest available level. For Drug this
+     * produces ATC 1st → 2nd → 3rd class groupings. For domains without
+     * hierarchical vocabulary (no MedDRA for Condition, etc.) returns a flat
+     * list of concept names with counts from achilles_results.
+     *
+     * @return array{
+     *     domain: string,
+     *     hasHierarchy: bool,
+     *     hierarchy: array<int, array{
+     *         name: string,
+     *         concept_id: int|null,
+     *         count: int,
+     *         children: array<int, array{
+     *             name: string,
+     *             concept_id: int|null,
+     *             count: int,
+     *             children: array<int, array{name: string, concept_id: int|null, count: int}>
+     *         }>
+     *     }>
+     * }
+     */
+    public function getConceptHierarchy(Source $source, string $domain): array
+    {
+        $treemap = self::DOMAIN_TREEMAP_MAP[$domain] ?? null;
+
+        if ($treemap === null) {
+            return ['domain' => $domain, 'hasHierarchy' => false, 'hierarchy' => []];
+        }
+
+        $analysisMap = self::DOMAIN_ANALYSIS_MAP[$domain] ?? null;
+        $countAnalysisId = $analysisMap['count'] ?? null;
+
+        // Get concept counts from achilles_results for this domain
+        $conceptCounts = [];
+        if ($countAnalysisId !== null) {
+            $conceptCounts = $this->ar()->forAnalysis($countAnalysisId)
+                ->whereNotNull('stratum_1')
+                ->pluck('count_value', 'stratum_1')
+                ->mapWithKeys(fn ($count, $id) => [(int) $id => (int) $count])
+                ->toArray();
+        }
+
+        // Check if this domain has hierarchical data (level3 = deepest populated level for most)
+        $hasHierarchy = $this->ch()
+            ->forDomain($treemap)
+            ->whereNotNull('level1_concept_name')
+            ->exists();
+
+        if (! $hasHierarchy) {
+            // Flat mode: return top concepts by count (same as domainSummary but capped at 100)
+            $topConcepts = collect($conceptCounts)
+                ->sortDesc()
+                ->take(100)
+                ->map(fn (int $count, int $conceptId) => [
+                    'name' => $this->resolveConceptName($conceptId),
+                    'concept_id' => $conceptId,
+                    'count' => $count,
+                ])
+                ->values()
+                ->toArray();
+
+            return ['domain' => $domain, 'hasHierarchy' => false, 'hierarchy' => $topConcepts];
+        }
+
+        // Hierarchical mode: join concept_hierarchy with achilles_results in SQL
+        // to aggregate counts at each hierarchy level without loading millions of rows.
+        $resultsConn = $this->results();
+        $resultsSchema = $resultsConn->getConfig('search_path') ?? 'results';
+        // Extract the first schema from search_path (e.g., "results,php" → "results")
+        $resultsSchema = explode(',', $resultsSchema)[0];
+
+        $rows = $resultsConn->select("
+            SELECT
+                ch.level3_concept_id, ch.level3_concept_name,
+                ch.level2_concept_id, ch.level2_concept_name,
+                ch.level1_concept_id, ch.level1_concept_name,
+                SUM(ar.count_value) AS total_count
+            FROM {$resultsSchema}.concept_hierarchy ch
+            INNER JOIN {$resultsSchema}.achilles_results ar
+                ON ar.stratum_1 = ch.concept_id::text
+                AND ar.analysis_id = ?
+            WHERE ch.treemap = ?
+                AND ch.level1_concept_name IS NOT NULL
+            GROUP BY
+                ch.level3_concept_id, ch.level3_concept_name,
+                ch.level2_concept_id, ch.level2_concept_name,
+                ch.level1_concept_id, ch.level1_concept_name
+            HAVING SUM(ar.count_value) > 0
+        ", [$countAnalysisId, $treemap]);
+
+        // Build tree from pre-aggregated rows
+        $tree = [];
+
+        foreach ($rows as $row) {
+            $count = (int) $row->total_count;
+            $l3Name = $row->level3_concept_name;
+            $l3Id = $row->level3_concept_id ? (int) $row->level3_concept_id : null;
+            $l2Name = $row->level2_concept_name;
+            $l2Id = $row->level2_concept_id ? (int) $row->level2_concept_id : null;
+            $l1Name = $row->level1_concept_name;
+            $l1Id = $row->level1_concept_id ? (int) $row->level1_concept_id : null;
+
+            if ($l3Name !== null) {
+                $tree[$l3Name] ??= ['name' => $l3Name, 'concept_id' => $l3Id, 'count' => 0, 'children' => []];
+                $tree[$l3Name]['count'] += $count;
+
+                if ($l2Name !== null) {
+                    $tree[$l3Name]['children'][$l2Name] ??= ['name' => $l2Name, 'concept_id' => $l2Id, 'count' => 0, 'children' => []];
+                    $tree[$l3Name]['children'][$l2Name]['count'] += $count;
+
+                    $tree[$l3Name]['children'][$l2Name]['children'][$l1Name] ??= ['name' => $l1Name, 'concept_id' => $l1Id, 'count' => 0];
+                    $tree[$l3Name]['children'][$l2Name]['children'][$l1Name]['count'] += $count;
+                }
+            } elseif ($l2Name !== null) {
+                $tree[$l2Name] ??= ['name' => $l2Name, 'concept_id' => $l2Id, 'count' => 0, 'children' => []];
+                $tree[$l2Name]['count'] += $count;
+
+                $tree[$l2Name]['children'][$l1Name] ??= ['name' => $l1Name, 'concept_id' => $l1Id, 'count' => 0, 'children' => []];
+                $tree[$l2Name]['children'][$l1Name]['count'] += $count;
+            } else {
+                $tree[$l1Name] ??= ['name' => $l1Name, 'concept_id' => $l1Id, 'count' => 0, 'children' => []];
+                $tree[$l1Name]['count'] += $count;
+            }
+        }
+
+        // Sort by count descending at each level, convert children from associative to indexed
+        $sortAndIndex = function (array $nodes) use (&$sortAndIndex): array {
+            usort($nodes, fn ($a, $b) => $b['count'] <=> $a['count']);
+
+            return array_map(function ($node) use ($sortAndIndex) {
+                if (! empty($node['children'])) {
+                    $node['children'] = $sortAndIndex(array_values($node['children']));
+                } else {
+                    $node['children'] = [];
+                }
+
+                return $node;
+            }, $nodes);
+        };
+
+        $hierarchy = $sortAndIndex(array_values($tree));
+
+        return ['domain' => $domain, 'hasHierarchy' => true, 'hierarchy' => $hierarchy];
     }
 
     /**

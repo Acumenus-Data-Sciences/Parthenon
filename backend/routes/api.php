@@ -341,6 +341,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/observation-periods', [AchillesController::class, 'observationPeriods']);
             Route::get('/domains/{domain}', [AchillesController::class, 'domainSummary']);
             Route::get('/domains/{domain}/concepts/{conceptId}', [AchillesController::class, 'conceptDrilldown']);
+            Route::get('/domains/{domain}/hierarchy', [AchillesController::class, 'domainHierarchy']);
             Route::get('/temporal-trends', [AchillesController::class, 'temporalTrends']);
             Route::get('/analyses', [AchillesController::class, 'analyses']);
             Route::get('/performance', [AchillesController::class, 'performance']);

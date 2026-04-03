@@ -1,8 +1,9 @@
 import { useState, useCallback } from "react";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useDomainSummary, useTemporalTrends } from "../hooks/useAchillesData";
+import { useDomainSummary, useTemporalTrends, useConceptHierarchy } from "../hooks/useAchillesData";
 import { TopConceptsBar } from "../components/charts/TopConceptsBar";
+import { HierarchyTreemap } from "../components/charts/HierarchyTreemap";
 import { TemporalTrendChart } from "../components/charts/TemporalTrendChart";
 import { ConceptDrilldownPanel } from "../components/ConceptDrilldownPanel";
 import type { Domain } from "../types/dataExplorer";
@@ -27,6 +28,7 @@ export default function DomainTab({ sourceId, initialDomain }: DomainTabProps) {
   const [selectedConceptId, setSelectedConceptId] = useState<number | null>(null);
 
   const domainSummary = useDomainSummary(sourceId, activeDomain);
+  const conceptHierarchy = useConceptHierarchy(sourceId, activeDomain);
   const temporalTrends = useTemporalTrends(sourceId, activeDomain);
 
   const handleConceptClick = useCallback((conceptId: number) => {
@@ -102,6 +104,15 @@ export default function DomainTab({ sourceId, initialDomain }: DomainTabProps) {
               Failed to load {DOMAIN_LABELS[activeDomain]} data
             </p>
           </div>
+        )}
+
+        {/* Classification hierarchy treemap */}
+        {conceptHierarchy.data?.hierarchy && conceptHierarchy.data.hierarchy.length > 0 && (
+          <HierarchyTreemap
+            data={conceptHierarchy.data.hierarchy}
+            hasHierarchy={conceptHierarchy.data.hasHierarchy}
+            domain={activeDomain}
+          />
         )}
 
         {/* Top concepts */}

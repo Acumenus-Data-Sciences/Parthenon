@@ -6,6 +6,7 @@ import {
   fetchObservationPeriods,
   fetchDomainSummary,
   fetchConceptDrilldown,
+  fetchConceptHierarchy,
   fetchTemporalTrends,
   fetchHeelResults,
   fetchHeelRuns,
@@ -66,6 +67,15 @@ export function useConceptDrilldown(
     queryKey: ["achilles", "concept-drilldown", sourceId, domain, conceptId],
     queryFn: () => fetchConceptDrilldown(sourceId, domain, conceptId!),
     enabled: sourceId > 0 && conceptId != null && conceptId > 0,
+  });
+}
+
+export function useConceptHierarchy(sourceId: number, domain: string) {
+  return useQuery({
+    queryKey: ["achilles", "concept-hierarchy", sourceId, domain],
+    queryFn: () => fetchConceptHierarchy(sourceId, domain),
+    enabled: sourceId > 0 && domain.length > 0,
+    staleTime: 5 * 60 * 1000, // Cache for 5 min — hierarchy data is stable
   });
 }
 

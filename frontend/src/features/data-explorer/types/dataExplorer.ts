@@ -170,6 +170,23 @@ export const CATEGORY_LABELS: Record<DqdCategory, string> = {
 };
 
 // ---------------------------------------------------------------------------
+// Concept Hierarchy (treemap)
+// ---------------------------------------------------------------------------
+
+export interface HierarchyNode {
+  name: string;
+  concept_id: number | null;
+  count: number;
+  children?: HierarchyNode[];
+}
+
+export interface ConceptHierarchyResponse {
+  domain: string;
+  hasHierarchy: boolean;
+  hierarchy: HierarchyNode[];
+}
+
+// ---------------------------------------------------------------------------
 // Achilles Heel types
 // ---------------------------------------------------------------------------
 

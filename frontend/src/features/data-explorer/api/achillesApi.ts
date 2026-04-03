@@ -5,6 +5,7 @@ import type {
   ObservationPeriods,
   DomainSummary,
   ConceptDrilldown,
+  ConceptHierarchyResponse,
   TemporalTrendPoint,
   AnalysisInfo,
   PerformanceEntry,
@@ -65,6 +66,16 @@ export async function fetchConceptDrilldown(
     `${BASE(sourceId)}/domains/${domain}/concepts/${conceptId}`,
   );
   return unwrap<ConceptDrilldown>(data);
+}
+
+export async function fetchConceptHierarchy(
+  sourceId: number,
+  domain: string,
+): Promise<ConceptHierarchyResponse> {
+  const { data } = await apiClient.get(
+    `${BASE(sourceId)}/domains/${domain}/hierarchy`,
+  );
+  return unwrap<ConceptHierarchyResponse>(data);
 }
 
 export async function fetchTemporalTrends(
