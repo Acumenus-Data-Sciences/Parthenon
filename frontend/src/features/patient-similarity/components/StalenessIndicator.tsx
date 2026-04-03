@@ -5,11 +5,20 @@ interface StalenessIndicatorProps {
   sourceId: number;
 }
 
+function daysSinceCompute(latestComputedAt: string | null): number | null {
+  if (!latestComputedAt) return null;
+  const computed = new Date(latestComputedAt);
+  const now = new Date();
+  return Math.floor((now.getTime() - computed.getTime()) / (1000 * 60 * 60 * 24));
+}
+
 export function StalenessIndicator({ sourceId }: StalenessIndicatorProps) {
   const { data: status, isLoading } = useComputeStatus(sourceId);
   const computeMutation = useTriggerCompute();
 
   if (isLoading || !status) return null;
+
+  const daysAgo = daysSinceCompute(status.latest_computed_at);
 
   if (status.staleness_warning) {
     return (
@@ -17,8 +26,8 @@ export function StalenessIndicator({ sourceId }: StalenessIndicatorProps) {
         <AlertTriangle size={14} className="text-[#C9A227] shrink-0" />
         <span className="text-xs text-[#C9A227]">
           Features are stale
-          {status.days_since_compute !== null
-            ? ` (${status.days_since_compute}d ago)`
+          {daysAgo !== null
+            ? ` (${daysAgo}d ago)`
             : ""}
         </span>
         <button
@@ -39,11 +48,11 @@ export function StalenessIndicator({ sourceId }: StalenessIndicatorProps) {
 
   return (
     <span className="text-[10px] text-[#5A5650]">
-      {status.days_since_compute !== null
-        ? `Updated ${status.days_since_compute}d ago`
+      {daysAgo !== null
+        ? `Updated ${daysAgo}d ago`
         : "Not yet computed"}
       {" \u00B7 "}
-      {status.patient_count.toLocaleString()} patients
+      {status.total_vectors.toLocaleString()} patients
     </span>
   );
 }

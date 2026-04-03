@@ -13,37 +13,32 @@ import type {
 export async function searchSimilarPatients(
   params: SimilaritySearchParams,
 ): Promise<SimilaritySearchResult> {
-  const { data } = await apiClient.post<SimilaritySearchResult>(
-    "/patient-similarity/search",
-    params,
-  );
-  return data;
+  const { data } = await apiClient.post("/patient-similarity/search", params);
+  return data.data ?? data;
 }
 
 export async function fetchDimensions(): Promise<SimilarityDimension[]> {
-  const { data } = await apiClient.get<{ dimensions: SimilarityDimension[] }>(
-    "/patient-similarity/dimensions",
-  );
-  return data.dimensions;
+  const { data } = await apiClient.get("/patient-similarity/dimensions");
+  return data.data ?? data;
 }
 
 export async function fetchComputeStatus(
   sourceId: number,
 ): Promise<ComputeStatus> {
-  const { data } = await apiClient.get<ComputeStatus>(
+  const { data } = await apiClient.get(
     `/patient-similarity/status/${sourceId}`,
   );
-  return data;
+  return data.data ?? data;
 }
 
 export async function triggerCompute(
   sourceId: number,
   force?: boolean,
 ): Promise<{ status: string; message?: string }> {
-  const { data } = await apiClient.post<{ status: string; message?: string }>(
-    "/patient-similarity/compute",
-    { source_id: sourceId, force: force ?? false },
-  );
+  const { data } = await apiClient.post("/patient-similarity/compute", {
+    source_id: sourceId,
+    force: force ?? false,
+  });
   return data;
 }
 
@@ -52,21 +47,21 @@ export async function triggerCompute(
 export async function searchFromCohort(
   params: CohortSimilaritySearchParams,
 ): Promise<SimilaritySearchResult> {
-  const { data } = await apiClient.post<SimilaritySearchResult>(
+  const { data } = await apiClient.post(
     "/patient-similarity/search-from-cohort",
     params,
   );
-  return data;
+  return data.data ?? data;
 }
 
 export async function exportCohort(
   params: CohortExportParams,
 ): Promise<CohortExportResult> {
-  const { data } = await apiClient.post<CohortExportResult>(
+  const { data } = await apiClient.post(
     "/patient-similarity/export-cohort",
     params,
   );
-  return data;
+  return data.data ?? data;
 }
 
 // ── Patient Comparison ────────────────────────────────────────────
@@ -76,9 +71,8 @@ export async function comparePatients(
   personB: number,
   sourceId: number,
 ): Promise<PatientComparisonResult> {
-  const { data } = await apiClient.get<PatientComparisonResult>(
-    "/patient-similarity/compare",
-    { params: { person_a: personA, person_b: personB, source_id: sourceId } },
-  );
-  return data;
+  const { data } = await apiClient.get("/patient-similarity/compare", {
+    params: { person_a: personA, person_b: personB, source_id: sourceId },
+  });
+  return data.data ?? data;
 }

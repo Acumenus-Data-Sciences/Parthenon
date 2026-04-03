@@ -67,12 +67,14 @@ class PatientSimilarityController extends Controller
 
             // Tiered access: strip person-level details if user lacks profiles.view
             if (! $request->user()->can('profiles.view')) {
-                $results = array_map(function (array $patient): array {
+                $results['similar_patients'] = array_map(function (array $patient): array {
                     return [
                         'overall_score' => $patient['overall_score'] ?? null,
                         'dimension_scores' => $patient['dimension_scores'] ?? [],
+                        'age_bucket' => $patient['age_bucket'] ?? null,
+                        'gender_concept_id' => $patient['gender_concept_id'] ?? null,
                     ];
-                }, $results);
+                }, $results['similar_patients'] ?? []);
             }
 
             return response()->json([
@@ -83,7 +85,7 @@ class PatientSimilarityController extends Controller
                     'source_id' => $source->id,
                     'limit' => $limit,
                     'min_score' => $minScore,
-                    'count' => count($results),
+                    'count' => count($results['similar_patients'] ?? []),
                 ],
             ]);
         } catch (\Throwable $e) {

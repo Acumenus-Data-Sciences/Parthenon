@@ -3,7 +3,6 @@ import { ArrowLeft, Loader2, AlertCircle } from "lucide-react";
 import { DimensionScoreBar } from "../components/DimensionScoreBar";
 import { useComparePatients } from "../hooks/usePatientSimilarity";
 import type {
-  PatientFeatureSet,
   PatientComparisonResult,
   DimensionScores,
 } from "../types/patientSimilarity";
@@ -14,12 +13,18 @@ function getOverallScoreColor(score: number): string {
   return "#8A857D";
 }
 
+function formatGender(genderConceptId: number | null): string {
+  if (genderConceptId === 8507) return "Male";
+  if (genderConceptId === 8532) return "Female";
+  return "Unknown";
+}
+
 function PatientColumn({
   label,
   patient,
 }: {
   label: string;
-  patient: PatientFeatureSet;
+  patient: PatientComparisonResult["person_a"];
 }) {
   return (
     <div className="flex-1 min-w-0">
@@ -32,78 +37,58 @@ function PatientColumn({
         <h4 className="text-[10px] text-[#5A5650] uppercase tracking-wider mb-2">
           Demographics
         </h4>
-        {patient.demographics ? (
-          <div className="flex items-center gap-3 text-sm text-[#C5C0B8]">
-            <span>{patient.demographics.gender}</span>
-            <span className="text-[#5A5650]">/</span>
-            <span>{patient.demographics.age}y</span>
+        <div className="flex items-center gap-3 text-sm text-[#C5C0B8]">
+          <span>{formatGender(patient.gender_concept_id)}</span>
+          <span className="text-[#5A5650]">/</span>
+          <span>
+            {patient.age_bucket != null
+              ? `${patient.age_bucket * 5}-${patient.age_bucket * 5 + 4}y`
+              : "N/A"}
+          </span>
+        </div>
+      </div>
+
+      {/* Counts */}
+      <div className="rounded-lg border border-[#232328] bg-[#151518] p-3 mb-3">
+        <h4 className="text-[10px] text-[#5A5650] uppercase tracking-wider mb-2">
+          Feature Counts
+        </h4>
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-[#8A857D]">Conditions</span>
+            <span className="text-[#C5C0B8] font-medium tabular-nums">
+              {patient.condition_count}
+            </span>
+          </div>
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-[#8A857D]">Labs</span>
+            <span className="text-[#C5C0B8] font-medium tabular-nums">
+              {patient.lab_count}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Dimensions Available */}
+      <div className="rounded-lg border border-[#232328] bg-[#151518] p-3">
+        <h4 className="text-[10px] text-[#5A5650] uppercase tracking-wider mb-2">
+          Dimensions Available
+        </h4>
+        {patient.dimensions_available.length > 0 ? (
+          <div className="flex flex-wrap gap-1">
+            {patient.dimensions_available.map((dim) => (
+              <span
+                key={dim}
+                className="rounded bg-[#232328] px-1.5 py-0.5 text-[10px] text-[#C5C0B8]"
+              >
+                {dim}
+              </span>
+            ))}
           </div>
         ) : (
-          <span className="text-xs text-[#5A5650]">N/A</span>
+          <span className="text-xs text-[#5A5650]">None</span>
         )}
       </div>
-
-      {/* Conditions */}
-      <FeatureList
-        title="Conditions"
-        items={patient.conditions}
-        color="#E85A6B"
-      />
-
-      {/* Drugs */}
-      <FeatureList title="Drugs" items={patient.drugs} color="#C9A227" />
-
-      {/* Procedures */}
-      <FeatureList
-        title="Procedures"
-        items={patient.procedures}
-        color="#2DD4BF"
-      />
-
-      {/* Measurements */}
-      <FeatureList
-        title="Measurements"
-        items={patient.measurements}
-        color="#8B5CF6"
-      />
-    </div>
-  );
-}
-
-function FeatureList({
-  title,
-  items,
-  color,
-}: {
-  title: string;
-  items: Array<{ concept_id: number; concept_name: string }>;
-  color: string;
-}) {
-  return (
-    <div className="rounded-lg border border-[#232328] bg-[#151518] p-3 mb-3">
-      <div className="flex items-center justify-between mb-2">
-        <h4 className="text-[10px] text-[#5A5650] uppercase tracking-wider">
-          {title}
-        </h4>
-        <span className="text-[10px] font-medium tabular-nums" style={{ color }}>
-          {items.length}
-        </span>
-      </div>
-      {items.length > 0 ? (
-        <div className="space-y-1 max-h-40 overflow-y-auto">
-          {items.map((item) => (
-            <div
-              key={item.concept_id}
-              className="text-xs text-[#C5C0B8] truncate"
-              title={item.concept_name}
-            >
-              {item.concept_name}
-            </div>
-          ))}
-        </div>
-      ) : (
-        <span className="text-xs text-[#5A5650]">None</span>
-      )}
     </div>
   );
 }
@@ -113,6 +98,8 @@ function SharedSection({
 }: {
   comparison: PatientComparisonResult;
 }) {
+  const { shared_features } = comparison;
+
   return (
     <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
       <h3 className="text-xs text-[#5A5650] uppercase tracking-wider mb-3">
@@ -123,55 +110,67 @@ function SharedSection({
           <div className="flex items-center justify-between mb-1">
             <span className="text-xs text-[#8A857D]">Conditions</span>
             <span className="text-xs font-medium text-[#E85A6B] tabular-nums">
-              {comparison.shared_conditions.length}
+              {shared_features.condition_count}
             </span>
           </div>
-          <div className="space-y-0.5 max-h-32 overflow-y-auto">
-            {comparison.shared_conditions.map((c) => (
-              <div
-                key={c.concept_id}
-                className="text-[11px] text-[#C5C0B8] truncate"
-              >
-                {c.concept_name}
-              </div>
-            ))}
-          </div>
+          {shared_features.conditions.length > 0 ? (
+            <div className="space-y-0.5 max-h-32 overflow-y-auto">
+              {shared_features.conditions.map((conceptId) => (
+                <div
+                  key={conceptId}
+                  className="text-[11px] text-[#C5C0B8] truncate tabular-nums"
+                >
+                  Concept {conceptId}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <span className="text-xs text-[#5A5650]">None</span>
+          )}
         </div>
         <div>
           <div className="flex items-center justify-between mb-1">
             <span className="text-xs text-[#8A857D]">Drugs</span>
             <span className="text-xs font-medium text-[#C9A227] tabular-nums">
-              {comparison.shared_drugs.length}
+              {shared_features.drug_count}
             </span>
           </div>
-          <div className="space-y-0.5 max-h-32 overflow-y-auto">
-            {comparison.shared_drugs.map((d) => (
-              <div
-                key={d.concept_id}
-                className="text-[11px] text-[#C5C0B8] truncate"
-              >
-                {d.concept_name}
-              </div>
-            ))}
-          </div>
+          {shared_features.drugs.length > 0 ? (
+            <div className="space-y-0.5 max-h-32 overflow-y-auto">
+              {shared_features.drugs.map((conceptId) => (
+                <div
+                  key={conceptId}
+                  className="text-[11px] text-[#C5C0B8] truncate tabular-nums"
+                >
+                  Concept {conceptId}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <span className="text-xs text-[#5A5650]">None</span>
+          )}
         </div>
         <div>
           <div className="flex items-center justify-between mb-1">
             <span className="text-xs text-[#8A857D]">Procedures</span>
             <span className="text-xs font-medium text-[#2DD4BF] tabular-nums">
-              {comparison.shared_procedures.length}
+              {shared_features.procedure_count}
             </span>
           </div>
-          <div className="space-y-0.5 max-h-32 overflow-y-auto">
-            {comparison.shared_procedures.map((p) => (
-              <div
-                key={p.concept_id}
-                className="text-[11px] text-[#C5C0B8] truncate"
-              >
-                {p.concept_name}
-              </div>
-            ))}
-          </div>
+          {shared_features.procedures.length > 0 ? (
+            <div className="space-y-0.5 max-h-32 overflow-y-auto">
+              {shared_features.procedures.map((conceptId) => (
+                <div
+                  key={conceptId}
+                  className="text-[11px] text-[#C5C0B8] truncate tabular-nums"
+                >
+                  Concept {conceptId}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <span className="text-xs text-[#5A5650]">None</span>
+          )}
         </div>
       </div>
     </div>
@@ -316,8 +315,8 @@ export default function PatientComparisonPage() {
         <>
           {/* Dimension Scores */}
           <DimensionScoresPanel
-            scores={comparison.dimension_scores}
-            overallScore={comparison.overall_score}
+            scores={comparison.scores.dimension_scores}
+            overallScore={comparison.scores.overall_score}
           />
 
           {/* Shared Features */}

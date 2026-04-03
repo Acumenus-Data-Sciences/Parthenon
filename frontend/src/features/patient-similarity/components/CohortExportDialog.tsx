@@ -31,7 +31,7 @@ export function CohortExportDialog({
     exportMutation.mutate(
       {
         cache_id: cacheId,
-        name: name.trim(),
+        cohort_name: name.trim(),
         description: description.trim() || undefined,
         min_score: minScore,
       },

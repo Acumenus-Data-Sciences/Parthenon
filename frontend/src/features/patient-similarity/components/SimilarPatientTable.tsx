@@ -9,16 +9,19 @@ interface SimilarPatientTableProps {
   sourceId?: number;
 }
 
+function formatGender(genderConceptId: number | undefined): string {
+  if (genderConceptId === 8507) return "M";
+  if (genderConceptId === 8532) return "F";
+  return "?";
+}
+
 function formatPatientSummary(patient: SimilarPatient): string {
   const parts: string[] = [];
-  if (patient.demographics) {
-    const g = patient.demographics.gender === "FEMALE" ? "F" : "M";
-    parts.push(`${g}, ${patient.demographics.age}y`);
+  if (patient.gender_concept_id != null || patient.age_bucket != null) {
+    const g = formatGender(patient.gender_concept_id);
+    const age = patient.age_bucket != null ? `${patient.age_bucket * 5}-${patient.age_bucket * 5 + 4}y` : "?y";
+    parts.push(`${g}, ${age}`);
   }
-  const condCount = patient.shared_conditions?.length ?? 0;
-  const drugCount = patient.shared_drugs?.length ?? 0;
-  if (condCount > 0) parts.push(`${condCount} cond`);
-  if (drugCount > 0) parts.push(`${drugCount} drugs`);
   return parts.join(" \u00B7 ") || "\u2014";
 }
 

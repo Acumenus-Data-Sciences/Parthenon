@@ -21,19 +21,17 @@ export interface SimilarPatient {
   person_id?: number;
   overall_score: number;
   dimension_scores: DimensionScores;
-  shared_conditions?: Array<{ concept_id: number; concept_name: string }>;
-  shared_drugs?: Array<{ concept_id: number; concept_name: string }>;
-  shared_variants?: Array<{ variant_id: string; gene: string }>;
-  demographics?: { age: number; gender: string };
+  age_bucket?: number;
+  gender_concept_id?: number;
 }
 
 export interface SeedPatient {
   person_id: number;
-  age_bucket: string | null;
+  age_bucket: number | null;
   gender_concept_id: number | null;
-  condition_count: number;
-  lab_count: number;
   dimensions_available: string[];
+  condition_count?: number;
+  lab_count?: number;
 }
 
 export interface SimilaritySearchResult {
@@ -56,10 +54,11 @@ export interface SimilaritySearchParams {
 
 export interface ComputeStatus {
   source_id: number;
-  patient_count: number;
-  last_computed_at: string | null;
+  source_name?: string;
+  total_vectors: number;
+  latest_computed_at: string | null;
   staleness_warning: boolean;
-  days_since_compute: number | null;
+  staleness_threshold_days?: number;
 }
 
 // ── Cohort Integration ────────────────────────────────────────────
@@ -76,7 +75,7 @@ export interface CohortSimilaritySearchParams {
 
 export interface CohortExportParams {
   cache_id: number;
-  name: string;
+  cohort_name: string;
   description?: string;
   min_score?: number;
 }
@@ -84,26 +83,38 @@ export interface CohortExportParams {
 export interface CohortExportResult {
   cohort_definition_id: number;
   patient_count: number;
-  name: string;
+  cohort_name: string;
 }
 
 // ── Patient Comparison ────────────────────────────────────────────
 
-export interface PatientFeatureSet {
-  person_id: number;
-  demographics: { age: number; gender: string } | null;
-  conditions: Array<{ concept_id: number; concept_name: string }>;
-  drugs: Array<{ concept_id: number; concept_name: string }>;
-  procedures: Array<{ concept_id: number; concept_name: string }>;
-  measurements: Array<{ concept_id: number; concept_name: string; value?: number }>;
-}
-
 export interface PatientComparisonResult {
-  person_a: PatientFeatureSet;
-  person_b: PatientFeatureSet;
-  dimension_scores: DimensionScores;
-  overall_score: number;
-  shared_conditions: Array<{ concept_id: number; concept_name: string }>;
-  shared_drugs: Array<{ concept_id: number; concept_name: string }>;
-  shared_procedures: Array<{ concept_id: number; concept_name: string }>;
+  person_a: {
+    person_id: number;
+    age_bucket: number | null;
+    gender_concept_id: number | null;
+    condition_count: number;
+    lab_count: number;
+    dimensions_available: string[];
+  };
+  person_b: {
+    person_id: number;
+    age_bucket: number | null;
+    gender_concept_id: number | null;
+    condition_count: number;
+    lab_count: number;
+    dimensions_available: string[];
+  };
+  scores: {
+    overall_score: number;
+    dimension_scores: DimensionScores;
+  };
+  shared_features: {
+    conditions: number[];
+    drugs: number[];
+    procedures: number[];
+    condition_count: number;
+    drug_count: number;
+    procedure_count: number;
+  };
 }
