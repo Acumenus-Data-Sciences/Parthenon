@@ -367,8 +367,24 @@ def bootstrap_authentik(
         fwd_provider_name = f"{svc.display_name} Forward Auth"
 
         # ── Layer 1: Proxy provider + forward-auth app ──────────────────
-        if fwd_provider_name in existing_proxy:
-            proxy_provider = existing_proxy[fwd_provider_name]
+        # Find existing proxy provider by name patterns OR by external_host URL.
+        # Providers may have been created manually or by an older bootstrap with
+        # different naming (e.g. "n8n Automation Provider" vs "n8n Forward Auth").
+        proxy_provider = None
+        for candidate in [fwd_provider_name,
+                          f"{svc.display_name} Provider",
+                          f"{svc.display_name} Forward Auth Provider"]:
+            if candidate in existing_proxy:
+                proxy_provider = existing_proxy[candidate]
+                break
+        if proxy_provider is None:
+            # Fallback: match by external_host URL
+            for p in existing_proxy.values():
+                if p.get("external_host", "").rstrip("/") == external_host.rstrip("/"):
+                    proxy_provider = p
+                    break
+
+        if proxy_provider is not None:
             console.print("[dim]proxy exists[/]", end=" ")
         else:
             try:
