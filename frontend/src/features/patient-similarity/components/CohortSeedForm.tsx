@@ -23,7 +23,7 @@ export function CohortSeedForm({
   const { data: cohortsData, isLoading: cohortsLoading } =
     useCohortDefinitions({ limit: 100 });
 
-  const cohorts = cohortsData?.data ?? [];
+  const cohorts = cohortsData?.items ?? [];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
