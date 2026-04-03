@@ -53,25 +53,22 @@ jobs:
           path: installer/dist/acropolis-install-${{ matrix.suffix }}${{ matrix.ext }}
 
   pyinstaller-macos-x64:
-    name: PyInstaller (macOS x64 cross-compile)
-    runs-on: macos-14
+    name: PyInstaller (macOS x64)
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          architecture: x64
 
-      - name: Install universal Python and PyInstaller
-        run: |
-          # Install x86_64 Python via Homebrew for cross-compilation
-          arch -x86_64 /usr/bin/python3 -m pip install pyinstaller 2>/dev/null || pip install pyinstaller
+      - name: Install PyInstaller
+        run: pip install pyinstaller
 
       - name: Build x64 binary
         working-directory: installer
-        run: |
-          # PyInstaller --target-arch for cross-compilation on Apple Silicon
-          pyinstaller acropolis-install.spec --target-arch x86_64 2>/dev/null || pyinstaller acropolis-install.spec
+        run: pyinstaller acropolis-install.spec
 
       - name: Rename binary
         working-directory: installer/dist
