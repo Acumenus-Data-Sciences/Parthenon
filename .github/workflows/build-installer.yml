@@ -148,8 +148,40 @@ jobs:
           name: parthenon-snap
           path: ${{ steps.snapcraft.outputs.snap }}
 
+  deb:
+    name: Debian package
+    needs: [linux]
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: acropolis-install-linux
+          path: artifacts
+
+      - name: Extract Linux binary
+        run: |
+          cd artifacts
+          tar xzf acropolis-install-linux.tar.gz
+
+      - name: Install nfpm
+        run: |
+          curl -sfL https://github.com/goreleaser/nfpm/releases/download/v2.41.1/nfpm_2.41.1_linux_amd64.tar.gz | tar xz -C /usr/local/bin nfpm
+
+      - name: Build .deb
+        working-directory: installer
+        run: |
+          cp ../artifacts/acropolis-install .
+          nfpm package --config nfpm.yaml --packager deb --target ../parthenon-installer_1.0.3_amd64.deb
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: parthenon-deb
+          path: parthenon-installer_1.0.3_amd64.deb
+
   release:
-    needs: [linux, macos, windows, snap]
+    needs: [linux, macos, windows, snap, deb]
     if: always() && !cancelled()
     runs-on: ubuntu-22.04
     steps:
@@ -162,7 +194,7 @@ jobs:
       - name: Collect release assets
         run: |
           mkdir -p release-assets
-          for name in acropolis-install-linux acropolis-install-macos acropolis-install-win parthenon-snap; do
+          for name in acropolis-install-linux acropolis-install-macos acropolis-install-win parthenon-snap parthenon-deb; do
             if [ -d "artifacts/${name}" ]; then
               cp artifacts/${name}/* release-assets/
               echo "Collected: ${name}"

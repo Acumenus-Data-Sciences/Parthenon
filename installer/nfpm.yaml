@@ -1,0 +1,26 @@
+name: parthenon-installer
+arch: amd64
+platform: linux
+version: v1.0.3
+section: devel
+priority: optional
+maintainer: "Acumenus Data Sciences <noreply@acumenus.net>"
+description: |
+  Acropolis installer for Parthenon — unified OHDSI outcomes research platform.
+  Run 'parthenon-install' after installation to start the guided setup wizard.
+homepage: https://github.com/sudoshi/Parthenon
+license: Apache-2.0
+contents:
+  - src: acropolis-install
+    dst: /usr/local/bin/parthenon-install
+    file_info:
+      mode: 0755
+  - src: parthenon-installer.desktop
+    dst: /usr/share/applications/parthenon-installer.desktop
+    file_info:
+      mode: 0644
+depends:
+  - docker.io | docker-ce
+  - git
+recommends:
+  - docker-compose-plugin

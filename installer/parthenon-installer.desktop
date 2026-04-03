@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Parthenon Installer
+Comment=Install Parthenon — Unified Outcomes Research Platform
+Exec=parthenon-install
+Terminal=true
+Type=Application
+Categories=Development;Science;
+Keywords=OHDSI;OMOP;CDM;research;healthcare;
