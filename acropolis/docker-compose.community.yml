@@ -20,8 +20,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.portainer.rule=Host(`portainer.${DOMAIN:-acumenus.net}`)"
-      - "traefik.http.routers.portainer.entrypoints=websecure"
-      - "traefik.http.routers.portainer.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.portainer.entrypoints=web"
       - "traefik.http.routers.portainer.middlewares=authentik@docker"
       - "traefik.http.services.portainer.loadbalancer.server.scheme=https"
       - "traefik.http.services.portainer.loadbalancer.server.port=9443"
@@ -56,8 +55,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.pgadmin.rule=Host(`pgadmin.${DOMAIN:-acumenus.net}`)"
-      - "traefik.http.routers.pgadmin.entrypoints=websecure"
-      - "traefik.http.routers.pgadmin.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.pgadmin.entrypoints=web"
       - "traefik.http.routers.pgadmin.middlewares=authentik@docker"
       - "traefik.http.services.pgadmin.loadbalancer.server.port=80"
     healthcheck:
@@ -67,11 +65,64 @@ services:
       retries: 3
       start_period: 30s
 
+  # ── Grafana — Observability Dashboard ──────────────────────────────────────
+  grafana:
+    container_name: acropolis-grafana
+    image: grafana/grafana:11.4.0
+    restart: unless-stopped
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_SERVER_ROOT_URL: https://grafana.${DOMAIN:-acumenus.net}
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-changeme}
+      GF_AUTH_GENERIC_OAUTH_ENABLED: "true"
+      GF_AUTH_GENERIC_OAUTH_NAME: Authentik
+      GF_AUTH_GENERIC_OAUTH_CLIENT_ID: ${GRAFANA_OAUTH_CLIENT_ID:-grafana}
+      GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: ${GRAFANA_OAUTH_CLIENT_SECRET}
+      GF_AUTH_GENERIC_OAUTH_SCOPES: openid profile email
+      GF_AUTH_GENERIC_OAUTH_AUTH_URL: https://auth.${DOMAIN:-acumenus.net}/application/o/authorize/
+      GF_AUTH_GENERIC_OAUTH_TOKEN_URL: https://auth.${DOMAIN:-acumenus.net}/application/o/token/
+      GF_AUTH_GENERIC_OAUTH_API_URL: https://auth.${DOMAIN:-acumenus.net}/application/o/userinfo/
+      GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH: "contains(groups[*], 'Grafana Admins') && 'Admin' || 'Viewer'"
+      GF_AUTH_SIGNOUT_REDIRECT_URL: https://auth.${DOMAIN:-acumenus.net}/application/o/grafana/end-session/
+    env_file:
+      - .env
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ../monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    networks:
+      - acropolis
+      - parthenon
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=acropolis_network"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.${DOMAIN:-acumenus.net}`)"
+      - "traefik.http.routers.grafana.entrypoints=web"
+      - "traefik.http.routers.grafana.middlewares=authentik@docker"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
 volumes:
   portainer_data:
   pgadmin_data:
+  grafana_data:
+    external: true
+    name: parthenon_grafana_data
 
 networks:
   acropolis:
     external: true
     name: acropolis_network
+  parthenon:
+    external: true
+    name: parthenon

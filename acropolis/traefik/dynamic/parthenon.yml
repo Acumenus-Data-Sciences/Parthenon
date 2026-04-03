@@ -31,11 +31,7 @@ http:
       entryPoints:
         - web
       service: parthenon-morpheus
-    parthenon-grafana:
-      rule: "Host(`grafana.acumenus.net`)"
-      entryPoints:
-        - web
-      service: parthenon-grafana
+    # Grafana moved to acropolis community compose (Docker labels handle routing)
     parthenon-hecate:
       rule: "Host(`hecate.acumenus.net`)"
       entryPoints:
@@ -108,15 +104,12 @@ http:
     parthenon-morpheus:
       loadBalancer:
         servers:
-          - url: "http://parthenon-morpheus-ingest:8000"
-    parthenon-grafana:
-      loadBalancer:
-        servers:
-          - url: "http://parthenon-grafana:3000"
+          - url: "http://parthenon-morpheus-ingest:8004"
+    # parthenon-grafana: moved to acropolis community compose
     parthenon-hecate:
       loadBalancer:
         servers:
-          - url: "http://parthenon-hecate:8088"
+          - url: "http://parthenon-hecate:8080"
     parthenon-blackrabbit:
       loadBalancer:
         servers:

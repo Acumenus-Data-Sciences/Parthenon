@@ -43,8 +43,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.n8n.rule=Host(`n8n.${DOMAIN:-acumenus.net}`)"
-      - "traefik.http.routers.n8n.entrypoints=websecure"
-      - "traefik.http.routers.n8n.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.n8n.entrypoints=web"
       - "traefik.http.services.n8n.loadbalancer.server.port=5678"
       - "traefik.http.routers.n8n.middlewares=authentik@docker"
     healthcheck:
@@ -91,7 +90,10 @@ services:
     container_name: acropolis-superset
     image: apache/superset:6.0.0
     restart: unless-stopped
+    command: >
+      bash -c "pip install psycopg2-binary 2>/dev/null; /app/docker/entrypoints/run-server.sh"
     environment:
+      - PYTHONPATH=/app/superset_home/.local/lib/python3.10/site-packages
       - SUPERSET_SECRET_KEY=${SUPERSET_SECRET_KEY:-CHANGE_ME_TO_A_RANDOM_SECRET}
       - SUPERSET_CONFIG_PATH=/app/superset_config.py
       - DATABASE_HOST=superset-db
@@ -106,6 +108,7 @@ services:
     volumes:
       - superset_home:/app/superset_home
       - ./config/superset/superset_config.py:/app/superset_config.py:ro
+      - ./config/superset/requirements-local.txt:/app/docker/requirements-local.txt:ro
     depends_on:
       superset-db:
         condition: service_healthy
@@ -118,8 +121,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.superset.rule=Host(`superset.${DOMAIN:-acumenus.net}`)"
-      - "traefik.http.routers.superset.entrypoints=websecure"
-      - "traefik.http.routers.superset.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.superset.entrypoints=web"
       - "traefik.http.services.superset.loadbalancer.server.port=8088"
       - "traefik.http.routers.superset.middlewares=authentik@docker"
     healthcheck:
@@ -127,14 +129,16 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 60s
+      start_period: 120s
 
   superset-worker:
     container_name: acropolis-superset-worker
     image: apache/superset:6.0.0
     restart: unless-stopped
-    command: celery --app=superset.tasks.celery_app:app worker --pool=prefork -O fair -c 4
+    command: >
+      bash -c "pip install psycopg2-binary 2>/dev/null; celery --app=superset.tasks.celery_app:app worker --pool=prefork -O fair -c 4"
     environment:
+      - PYTHONPATH=/app/superset_home/.local/lib/python3.10/site-packages
       - SUPERSET_SECRET_KEY=${SUPERSET_SECRET_KEY:-CHANGE_ME_TO_A_RANDOM_SECRET}
       - SUPERSET_CONFIG_PATH=/app/superset_config.py
       - DATABASE_HOST=superset-db
@@ -147,6 +151,7 @@ services:
     volumes:
       - superset_home:/app/superset_home
       - ./config/superset/superset_config.py:/app/superset_config.py:ro
+      - ./config/superset/requirements-local.txt:/app/docker/requirements-local.txt:ro
     depends_on:
       superset-db:
         condition: service_healthy
@@ -167,8 +172,10 @@ services:
     container_name: acropolis-superset-beat
     image: apache/superset:6.0.0
     restart: unless-stopped
-    command: celery --app=superset.tasks.celery_app:app beat --pidfile /tmp/celerybeat.pid --schedule /tmp/celerybeat-schedule
+    command: >
+      bash -c "pip install psycopg2-binary 2>/dev/null; celery --app=superset.tasks.celery_app:app beat --pidfile /tmp/celerybeat.pid --schedule /tmp/celerybeat-schedule"
     environment:
+      - PYTHONPATH=/app/superset_home/.local/lib/python3.10/site-packages
       - SUPERSET_SECRET_KEY=${SUPERSET_SECRET_KEY:-CHANGE_ME_TO_A_RANDOM_SECRET}
       - SUPERSET_CONFIG_PATH=/app/superset_config.py
       - DATABASE_HOST=superset-db
@@ -181,6 +188,7 @@ services:
     volumes:
       - superset_home:/app/superset_home
       - ./config/superset/superset_config.py:/app/superset_config.py:ro
+      - ./config/superset/requirements-local.txt:/app/docker/requirements-local.txt:ro
     depends_on:
       superset-db:
         condition: service_healthy
@@ -188,6 +196,12 @@ services:
         condition: service_healthy
     networks:
       - acropolis
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /tmp/celerybeat.pid && kill -0 $(cat /tmp/celerybeat.pid)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   # ── DataHub — Data Catalog & Lineage ─────────────────────────────────────
   datahub-mysql:
@@ -429,8 +443,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.datahub.rule=Host(`datahub.${DOMAIN:-acumenus.net}`)"
-      - "traefik.http.routers.datahub.entrypoints=websecure"
-      - "traefik.http.routers.datahub.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.datahub.entrypoints=web"
       - "traefik.http.services.datahub.loadbalancer.server.port=9002"
       - "traefik.http.routers.datahub.middlewares=authentik@docker"
     healthcheck:
@@ -489,6 +502,9 @@ services:
       AUTHENTIK_HOST: https://auth.${DOMAIN:-acumenus.net}
       AUTHENTIK_INSECURE: "false"
       AUTHENTIK_LISTEN__TRUSTED_PROXY_CIDRS: 0.0.0.0/0,::/0
+      AUTHENTIK_BOOTSTRAP_EMAIL: ${AUTHENTIK_BOOTSTRAP_EMAIL:-akadmin@acumenus.net}
+      AUTHENTIK_BOOTSTRAP_PASSWORD: ${AUTHENTIK_BOOTSTRAP_PASSWORD}
+      AUTHENTIK_BOOTSTRAP_TOKEN: ${AUTHENTIK_BOOTSTRAP_TOKEN}
     volumes:
       - authentik_media:/media
       - authentik_templates:/templates
@@ -497,13 +513,14 @@ services:
         condition: service_healthy
       authentik-redis:
         condition: service_healthy
+    ports:
+      - "9000:9000"
     networks:
       - acropolis
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.authentik.rule=Host(`auth.${DOMAIN:-acumenus.net}`)"
-      - "traefik.http.routers.authentik.entrypoints=websecure"
-      - "traefik.http.routers.authentik.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.authentik.entrypoints=web"
       - "traefik.http.services.authentik.loadbalancer.server.port=9000"
       - "traefik.http.middlewares.authentik.forwardauth.address=http://acropolis-authentik-server:9000/outpost.goauthentik.io/auth/traefik"
       - "traefik.http.middlewares.authentik.forwardauth.trustForwardHeader=true"
@@ -676,9 +693,10 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.wazuh.rule=Host(`wazuh.${DOMAIN:-acumenus.net}`)"
-      - "traefik.http.routers.wazuh.entrypoints=websecure"
-      - "traefik.http.routers.wazuh.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.wazuh.entrypoints=web"
       - "traefik.http.services.wazuh.loadbalancer.server.port=5601"
+      - "traefik.http.services.wazuh.loadbalancer.server.scheme=https"
+      - "traefik.http.services.wazuh.loadbalancer.serversTransport=insecureTransport@file"
       - "traefik.http.routers.wazuh.middlewares=authentik@docker"
     healthcheck:
       test: ["CMD-SHELL", "curl -sk https://localhost:5601/login >/dev/null || exit 1"]
