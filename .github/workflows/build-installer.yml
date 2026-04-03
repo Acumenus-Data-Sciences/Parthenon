@@ -60,11 +60,11 @@ jobs:
 
       - name: Download Cosmopolitan Python
         run: |
-          curl -sSfL -o python3 https://cosmo.zip/pub/cosmos/bin/python
-          chmod +x python3
+          curl -sSfL -o cosmo-python https://cosmo.zip/pub/cosmos/bin/python
+          chmod +x cosmo-python
 
       - name: Validate stdlib compatibility
-        run: ./python3 installer/test_cosmo_compat.py
+        run: ./cosmo-python installer/test_cosmo_compat.py
 
       # TODO: actual APE packaging step — placeholder for now
 
