@@ -63,6 +63,13 @@ jobs:
           curl -sSfL -o cosmo-python https://cosmo.zip/pub/cosmos/bin/python
           chmod +x cosmo-python
 
+      - name: Disable binfmt_misc .NET handler
+        run: |
+          # GitHub Actions runners register .NET as a binfmt_misc handler
+          # which intercepts APE (Actually Portable Executable) binaries.
+          # Unregister it so the kernel runs APEs natively.
+          sudo sh -c 'echo -1 > /proc/sys/fs/binfmt_misc/CLR' 2>/dev/null || true
+
       - name: Validate stdlib compatibility
         run: ./cosmo-python installer/test_cosmo_compat.py
 
