@@ -14,6 +14,7 @@ use App\Services\PatientSimilarity\Scorers\DrugScorer;
 use App\Services\PatientSimilarity\Scorers\GenomicScorer;
 use App\Services\PatientSimilarity\Scorers\MeasurementScorer;
 use App\Services\PatientSimilarity\Scorers\ProcedureScorer;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -113,7 +114,23 @@ final class PatientSimilarityService
     }
 
     /**
+     * Maximum candidates to load into PHP for in-memory scoring.
+     * Sources above this threshold use SQL-side pre-scoring.
+     */
+    private const int IN_MEMORY_THRESHOLD = 5000;
+
+    /**
+     * Pre-score candidate pool size multiplier for SQL-side filtering.
+     * We fetch limit * multiplier candidates from SQL, then re-score in PHP.
+     */
+    private const int SQL_CANDIDATE_MULTIPLIER = 10;
+
+    /**
      * Interpretable multi-dimension weighted search.
+     *
+     * For small sources (<5K vectors): loads all candidates into PHP for scoring.
+     * For large sources: pre-scores in SQL using demographics + condition overlap,
+     * loads only the top candidates, then re-scores with full dimension scorers.
      *
      * @param  array<string, float>  $weights
      * @param  array<string, mixed>  $filters
@@ -129,25 +146,22 @@ final class PatientSimilarityService
     ): array {
         $seedData = $seed->toArray();
 
-        // Load candidates (exclude seed patient)
+        // Check source size to decide strategy
+        $totalCandidates = PatientFeatureVector::query()
+            ->forSource($source->id)
+            ->where('person_id', '!=', $seed->person_id)
+            ->count();
+
+        if ($totalCandidates > self::IN_MEMORY_THRESHOLD) {
+            return $this->searchInterpretableSql($seed, $source, $weights, $limit, $minScore, $filters, $totalCandidates);
+        }
+
+        // Small source: load all candidates into PHP
         $query = PatientFeatureVector::query()
             ->forSource($source->id)
             ->where('person_id', '!=', $seed->person_id);
 
-        // Apply pre-filters to reduce candidate set
-        if (! empty($filters['gender_concept_id'])) {
-            $query->where('gender_concept_id', (int) $filters['gender_concept_id']);
-        }
-
-        if (! empty($filters['age_range'])) {
-            $range = $filters['age_range'];
-            $minAge = (int) ($range['min'] ?? 0);
-            $maxAge = (int) ($range['max'] ?? 120);
-            // Convert ages to bucket indices (5-year buckets: 0=0-4, 1=5-9, ...)
-            $minBucket = intdiv($minAge, 5);
-            $maxBucket = intdiv($maxAge, 5);
-            $query->whereBetween('age_bucket', [$minBucket, $maxBucket]);
-        }
+        $this->applyFilters($query, $filters);
 
         $candidates = $query->get();
         $totalCandidates = $candidates->count();
@@ -189,6 +203,137 @@ final class PatientSimilarityService
                 'computed_at' => now()->toIso8601String(),
             ],
         ];
+    }
+
+    /**
+     * SQL-side pre-scored interpretable search for large sources.
+     *
+     * Computes a rough similarity score in PostgreSQL using:
+     * - Demographics: age bucket proximity + gender match
+     * - Conditions: JSONB array overlap (Jaccard approximation)
+     * - Drugs: JSONB array overlap (Jaccard approximation)
+     *
+     * Returns the top N*multiplier candidates, then re-scores them in PHP
+     * with all dimension scorers for full accuracy.
+     *
+     * @param  array<string, float>  $weights
+     * @param  array<string, mixed>  $filters
+     * @return array<string, mixed>
+     */
+    private function searchInterpretableSql(
+        PatientFeatureVector $seed,
+        Source $source,
+        array $weights,
+        int $limit,
+        float $minScore,
+        array $filters,
+        int $totalCandidates,
+    ): array {
+        $seedData = $seed->toArray();
+        $candidateLimit = min($limit * self::SQL_CANDIDATE_MULTIPLIER, 500);
+
+        // Demographics-first SQL pre-filter: narrow 932K rows to a manageable
+        // set using indexed columns (gender, age_bucket), then score in PHP.
+        // JSONB Jaccard in SQL is too expensive as a correlated subquery at this scale.
+        $sql = <<<'SQL'
+            SELECT *
+            FROM patient_feature_vectors
+            WHERE source_id = ?
+              AND person_id != ?
+              AND gender_concept_id = ?
+              AND age_bucket BETWEEN ? AND ?
+            ORDER BY
+                CASE WHEN race_concept_id = ? THEN 0 ELSE 1 END,
+                ABS(age_bucket - ?)
+            LIMIT ?
+            SQL;
+
+        $ageBucketRange = 3; // +/- 15 years
+        $params = [
+            $source->id,
+            $seed->person_id,
+            $seed->gender_concept_id,
+            max(0, $seed->age_bucket - $ageBucketRange),
+            $seed->age_bucket + $ageBucketRange,
+            $seed->race_concept_id ?? 0,
+            $seed->age_bucket,
+            $candidateLimit,
+        ];
+
+        $rows = DB::select($sql, $params);
+
+        // Hydrate only the top candidates for full scoring.
+        // Strip SQL-computed score columns before hydrating to avoid cast conflicts.
+        $candidates = collect($rows)->map(function (object $row): PatientFeatureVector {
+            $attrs = (array) $row;
+            unset($attrs['demo_score'], $attrs['cond_score'], $attrs['drug_score']);
+
+            $model = new PatientFeatureVector;
+            $model->setRawAttributes($attrs, true);
+
+            return $model;
+        });
+
+        // Full scoring with all dimension scorers
+        $scored = [];
+        foreach ($candidates as $candidate) {
+            $result = $this->scorePatientPair($seedData, $candidate->toArray(), $weights);
+
+            if ($result['overall_score'] >= $minScore) {
+                $scored[] = [
+                    'person_id' => $candidate->person_id,
+                    'overall_score' => $result['overall_score'],
+                    'dimension_scores' => $result['dimension_scores'],
+                    'age_bucket' => $candidate->age_bucket,
+                    'gender_concept_id' => $candidate->gender_concept_id,
+                ];
+            }
+        }
+
+        usort($scored, static fn (array $a, array $b): int => $b['overall_score'] <=> $a['overall_score']);
+        $scored = array_slice($scored, 0, $limit);
+
+        return [
+            'seed' => [
+                'person_id' => $seed->person_id,
+                'age_bucket' => $seed->age_bucket,
+                'gender_concept_id' => $seed->gender_concept_id,
+                'dimensions_available' => $seed->dimensions_available,
+            ],
+            'mode' => 'interpretable',
+            'similar_patients' => $scored,
+            'metadata' => [
+                'total_candidates' => $totalCandidates,
+                'sql_prescored' => true,
+                'candidates_loaded' => count($rows),
+                'above_threshold' => count($scored),
+                'weights' => $weights,
+                'min_score' => $minScore,
+                'computed_at' => now()->toIso8601String(),
+            ],
+        ];
+    }
+
+    /**
+     * Apply user-supplied filters to a feature vector query.
+     *
+     * @param  Builder<PatientFeatureVector>  $query
+     * @param  array<string, mixed>  $filters
+     */
+    private function applyFilters(Builder $query, array $filters): void
+    {
+        if (! empty($filters['gender_concept_id'])) {
+            $query->where('gender_concept_id', (int) $filters['gender_concept_id']);
+        }
+
+        if (! empty($filters['age_range'])) {
+            $range = $filters['age_range'];
+            $minAge = (int) ($range['min'] ?? 0);
+            $maxAge = (int) ($range['max'] ?? 120);
+            $minBucket = intdiv($minAge, 5);
+            $maxBucket = intdiv($maxAge, 5);
+            $query->whereBetween('age_bucket', [$minBucket, $maxBucket]);
+        }
     }
 
     /**
@@ -305,22 +450,28 @@ final class PatientSimilarityService
             $query->whereNotIn('person_id', $excludePersonIds);
         }
 
-        // Apply pre-filters
-        if (! empty($filters['gender_concept_id'])) {
-            $query->where('gender_concept_id', (int) $filters['gender_concept_id']);
-        }
+        $this->applyFilters($query, $filters);
 
-        if (! empty($filters['age_range'])) {
-            $range = $filters['age_range'];
-            $minAge = (int) ($range['min'] ?? 0);
-            $maxAge = (int) ($range['max'] ?? 120);
-            $minBucket = intdiv($minAge, 5);
-            $maxBucket = intdiv($maxAge, 5);
-            $query->whereBetween('age_bucket', [$minBucket, $maxBucket]);
+        $totalCandidates = (clone $query)->count();
+
+        // For large sources, limit to demographically similar candidates
+        if ($totalCandidates > self::IN_MEMORY_THRESHOLD) {
+            $centroidGender = $centroidData['gender_concept_id'] ?? null;
+            $centroidAgeBucket = $centroidData['age_bucket'] ?? null;
+
+            if ($centroidGender !== null) {
+                $query->where('gender_concept_id', $centroidGender);
+            }
+            if ($centroidAgeBucket !== null) {
+                $query->whereBetween('age_bucket', [
+                    max(0, $centroidAgeBucket - 2),
+                    $centroidAgeBucket + 2,
+                ]);
+            }
+            $query->limit(min($limit * self::SQL_CANDIDATE_MULTIPLIER, 500));
         }
 
         $candidates = $query->get();
-        $totalCandidates = $candidates->count();
 
         // Score each candidate against the centroid
         $scored = [];

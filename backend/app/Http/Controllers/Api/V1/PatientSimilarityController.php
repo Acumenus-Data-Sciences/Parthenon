@@ -16,6 +16,7 @@ use App\Models\App\SimilarityDimension;
 use App\Models\App\Source;
 use App\Services\PatientSimilarity\CohortCentroidBuilder;
 use App\Services\PatientSimilarity\PatientSimilarityService;
+use App\Services\PatientSimilarity\SimilarityExplainer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -29,6 +30,7 @@ class PatientSimilarityController extends Controller
     public function __construct(
         private readonly PatientSimilarityService $service,
         private readonly CohortCentroidBuilder $centroidBuilder,
+        private readonly SimilarityExplainer $explainer,
     ) {}
 
     /**
@@ -65,6 +67,14 @@ class PatientSimilarityController extends Controller
                 filters: $filters,
             );
 
+            // Cache may return more results than requested limit — trim
+            if (count($results['similar_patients'] ?? []) > $limit) {
+                $results['similar_patients'] = array_slice($results['similar_patients'], 0, $limit);
+            }
+
+            // Enrich results with shared features and similarity explanations
+            $results = $this->enrichSearchResults($results, $source->id);
+
             // Tiered access: strip person-level details if user lacks profiles.view
             if (! $request->user()->can('profiles.view')) {
                 $results['similar_patients'] = array_map(function (array $patient): array {
@@ -73,6 +83,8 @@ class PatientSimilarityController extends Controller
                         'dimension_scores' => $patient['dimension_scores'] ?? [],
                         'age_bucket' => $patient['age_bucket'] ?? null,
                         'gender_concept_id' => $patient['gender_concept_id'] ?? null,
+                        'shared_features' => $patient['shared_features'] ?? null,
+                        'similarity_summary' => $patient['similarity_summary'] ?? null,
                     ];
                 }, $results['similar_patients'] ?? []);
             }
@@ -391,38 +403,99 @@ class PatientSimilarityController extends Controller
                 $dataB['procedure_concepts'] ?? []
             ));
 
-            return response()->json([
-                'data' => [
-                    'person_a' => [
-                        'person_id' => $vectorA->person_id,
-                        'age_bucket' => $vectorA->age_bucket,
-                        'gender_concept_id' => $vectorA->gender_concept_id,
-                        'condition_count' => $vectorA->condition_count,
-                        'lab_count' => $vectorA->lab_count,
-                        'dimensions_available' => $vectorA->dimensions_available,
-                    ],
-                    'person_b' => [
-                        'person_id' => $vectorB->person_id,
-                        'age_bucket' => $vectorB->age_bucket,
-                        'gender_concept_id' => $vectorB->gender_concept_id,
-                        'condition_count' => $vectorB->condition_count,
-                        'lab_count' => $vectorB->lab_count,
-                        'dimensions_available' => $vectorB->dimensions_available,
-                    ],
-                    'scores' => $scores,
-                    'shared_features' => [
-                        'conditions' => $sharedConditions,
-                        'drugs' => $sharedDrugs,
-                        'procedures' => $sharedProcedures,
-                        'condition_count' => count($sharedConditions),
-                        'drug_count' => count($sharedDrugs),
-                        'procedure_count' => count($sharedProcedures),
-                    ],
+            $rawResult = [
+                'person_a' => [
+                    'person_id' => $vectorA->person_id,
+                    'age_bucket' => $vectorA->age_bucket,
+                    'gender_concept_id' => $vectorA->gender_concept_id,
+                    'condition_count' => $vectorA->condition_count,
+                    'lab_count' => $vectorA->lab_count,
+                    'dimensions_available' => $vectorA->dimensions_available,
                 ],
-            ]);
+                'person_b' => [
+                    'person_id' => $vectorB->person_id,
+                    'age_bucket' => $vectorB->age_bucket,
+                    'gender_concept_id' => $vectorB->gender_concept_id,
+                    'condition_count' => $vectorB->condition_count,
+                    'lab_count' => $vectorB->lab_count,
+                    'dimensions_available' => $vectorB->dimensions_available,
+                ],
+                'scores' => $scores,
+                'shared_features' => [
+                    'conditions' => $sharedConditions,
+                    'drugs' => $sharedDrugs,
+                    'procedures' => $sharedProcedures,
+                    'condition_count' => count($sharedConditions),
+                    'drug_count' => count($sharedDrugs),
+                    'procedure_count' => count($sharedProcedures),
+                ],
+            ];
+
+            // Resolve concept IDs to human-readable names
+            $enriched = $this->explainer->enrichComparison($rawResult);
+
+            return response()->json(['data' => $enriched]);
         } catch (\Throwable $e) {
             return $this->errorResponse('Patient comparison failed', $e);
         }
+    }
+
+    /**
+     * Enrich search results with shared features and similarity explanations.
+     *
+     * Loads the seed + candidate feature vectors and passes them through
+     * the SimilarityExplainer for concept name resolution and narrative generation.
+     *
+     * @param  array<string, mixed>  $results  Raw search results
+     * @return array<string, mixed> Enriched results
+     */
+    private function enrichSearchResults(array $results, int $sourceId): array
+    {
+        $similarPatients = $results['similar_patients'] ?? [];
+        if ($similarPatients === []) {
+            return $results;
+        }
+
+        $seedPersonId = $results['seed']['person_id'] ?? null;
+        if ($seedPersonId === null) {
+            return $results;
+        }
+
+        // Collect person IDs to load
+        $personIds = array_filter(
+            array_merge(
+                [$seedPersonId],
+                array_map(fn (array $p): int => (int) ($p['person_id'] ?? 0), $similarPatients),
+            ),
+        );
+
+        // Batch load feature vectors
+        $vectors = PatientFeatureVector::query()
+            ->forSource($sourceId)
+            ->whereIn('person_id', $personIds)
+            ->get()
+            ->keyBy('person_id');
+
+        $seedVector = $vectors->get($seedPersonId);
+        if ($seedVector === null) {
+            return $results;
+        }
+
+        $seedData = $seedVector->toArray();
+        $candidateVectors = [];
+        foreach ($vectors as $personId => $vector) {
+            if ($personId !== $seedPersonId) {
+                $candidateVectors[$personId] = $vector->toArray();
+            }
+        }
+
+        $results['similar_patients'] = $this->explainer->enrichResults(
+            $seedData,
+            $similarPatients,
+            $candidateVectors,
+        );
+
+        return $results;
     }
 
     /**

@@ -17,12 +17,32 @@ export interface DimensionScores {
   genomics: number | null;
 }
 
+export interface ResolvedConcept {
+  concept_id: number;
+  name: string;
+}
+
+export interface SharedFeatureCategory {
+  shared_count: number;
+  seed_count: number;
+  candidate_count: number;
+  top_shared: ResolvedConcept[];
+}
+
+export interface SharedFeatures {
+  conditions: SharedFeatureCategory;
+  drugs: SharedFeatureCategory;
+  procedures: SharedFeatureCategory;
+}
+
 export interface SimilarPatient {
   person_id?: number;
   overall_score: number;
   dimension_scores: DimensionScores;
   age_bucket?: number;
   gender_concept_id?: number;
+  shared_features?: SharedFeatures;
+  similarity_summary?: string;
 }
 
 export interface SeedPatient {
@@ -116,5 +136,8 @@ export interface PatientComparisonResult {
     condition_count: number;
     drug_count: number;
     procedure_count: number;
+    condition_names?: ResolvedConcept[];
+    drug_names?: ResolvedConcept[];
+    procedure_names?: ResolvedConcept[];
   };
 }

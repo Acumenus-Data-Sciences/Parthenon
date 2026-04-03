@@ -1,6 +1,9 @@
+import { Fragment, useState } from "react";
 import { Link } from "react-router-dom";
+import { ChevronDown, ChevronRight, FlaskConical, Pill, Stethoscope } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { DimensionScoreBar } from "./DimensionScoreBar";
-import type { SimilarPatient } from "../types/patientSimilarity";
+import type { SimilarPatient, SharedFeatureCategory } from "../types/patientSimilarity";
 
 interface SimilarPatientTableProps {
   patients: SimilarPatient[];
@@ -31,12 +34,62 @@ function getOverallScoreColor(score: number): string {
   return "#8A857D";
 }
 
+function SharedFeaturePills({ category, icon, label }: {
+  category: SharedFeatureCategory;
+  icon: React.ReactNode;
+  label: string;
+}) {
+  if (category.shared_count === 0) return null;
+
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-center gap-1.5 text-[10px] font-semibold text-[#5A5650] uppercase tracking-wider">
+        {icon}
+        {label}
+        <span className="text-[#8A857D] font-normal normal-case">
+          ({category.shared_count} of {category.seed_count} shared)
+        </span>
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {category.top_shared.map((concept) => (
+          <span
+            key={concept.concept_id}
+            className="inline-flex items-center rounded-md bg-[#1C1C20] border border-[#2A2A30] px-2 py-0.5 text-xs text-[#C5C0B8]"
+            title={`Concept ID: ${concept.concept_id}`}
+          >
+            {concept.name}
+          </span>
+        ))}
+        {category.shared_count > category.top_shared.length && (
+          <span className="inline-flex items-center text-[10px] text-[#5A5650] px-1">
+            +{category.shared_count - category.top_shared.length} more
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function SimilarPatientTable({
   patients,
   showPersonId,
   seedPersonId,
   sourceId,
 }: SimilarPatientTableProps) {
+  const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
+
+  const toggleRow = (index: number) => {
+    setExpandedRows((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
+  };
+
   if (patients.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
@@ -51,6 +104,7 @@ export function SimilarPatientTable({
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-[#151518] border-b border-[#232328]">
+              <th className="px-2 py-2.5 w-8" />
               <th className="px-3 py-2.5 text-left text-[10px] font-semibold text-[#5A5650] uppercase tracking-wider w-12">
                 #
               </th>
@@ -86,86 +140,139 @@ export function SimilarPatientTable({
           <tbody>
             {patients.map((patient, index) => {
               const scoreColor = getOverallScoreColor(patient.overall_score);
+              const isExpanded = expandedRows.has(index);
+              const hasDetails = patient.shared_features != null || patient.similarity_summary != null;
               const compareUrl =
                 seedPersonId && sourceId && patient.person_id
                   ? `/patient-similarity/compare?person_a=${seedPersonId}&person_b=${patient.person_id}&source_id=${sourceId}`
                   : null;
 
+              const rowKey = patient.person_id ?? index;
               return (
-                <tr
-                  key={patient.person_id ?? index}
-                  className="border-b border-[#1C1C20] hover:bg-[#1C1C20]/50 transition-colors"
-                >
-                  <td className="px-3 py-2.5 text-xs text-[#5A5650] tabular-nums">
-                    {index + 1}
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <span
-                      className="font-['IBM_Plex_Mono',monospace] text-sm font-semibold tabular-nums"
-                      style={{ color: scoreColor }}
-                    >
-                      {patient.overall_score.toFixed(3)}
-                    </span>
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <div className="text-xs text-[#C5C0B8]">
-                      {formatPatientSummary(patient)}
-                    </div>
-                    {showPersonId && patient.person_id && (
-                      <div className="text-[10px] text-[#5A5650] mt-0.5 tabular-nums">
-                        ID: {patient.person_id}
-                      </div>
+                <Fragment key={rowKey}>
+                  <tr
+                    className={cn(
+                      "border-b border-[#1C1C20] transition-colors",
+                      hasDetails ? "cursor-pointer hover:bg-[#1C1C20]/50" : "hover:bg-[#1C1C20]/30",
+                      isExpanded && "bg-[#1C1C20]/30",
                     )}
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <DimensionScoreBar
-                      score={patient.dimension_scores.demographics}
-                      label="Demographics"
-                    />
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <DimensionScoreBar
-                      score={patient.dimension_scores.conditions}
-                      label="Conditions"
-                    />
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <DimensionScoreBar
-                      score={patient.dimension_scores.measurements}
-                      label="Labs"
-                    />
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <DimensionScoreBar
-                      score={patient.dimension_scores.drugs}
-                      label="Drugs"
-                    />
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <DimensionScoreBar
-                      score={patient.dimension_scores.procedures}
-                      label="Procedures"
-                    />
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <DimensionScoreBar
-                      score={patient.dimension_scores.genomics}
-                      label="Genomics"
-                    />
-                  </td>
-                  <td className="px-3 py-2.5 text-right">
-                    {compareUrl ? (
-                      <Link
-                        to={compareUrl}
-                        className="text-xs text-[#2DD4BF] hover:text-[#2DD4BF]/80 font-medium transition-colors"
+                    onClick={() => hasDetails && toggleRow(index)}
+                  >
+                    <td className="px-2 py-2.5 text-[#5A5650]">
+                      {hasDetails && (
+                        isExpanded
+                          ? <ChevronDown size={14} />
+                          : <ChevronRight size={14} />
+                      )}
+                    </td>
+                    <td className="px-3 py-2.5 text-xs text-[#5A5650] tabular-nums">
+                      {index + 1}
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <span
+                        className="font-['IBM_Plex_Mono',monospace] text-sm font-semibold tabular-nums"
+                        style={{ color: scoreColor }}
                       >
-                        Compare
-                      </Link>
-                    ) : (
-                      <span className="text-xs text-[#323238]">--</span>
-                    )}
-                  </td>
-                </tr>
+                        {patient.overall_score.toFixed(3)}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <div className="text-xs text-[#C5C0B8]">
+                        {formatPatientSummary(patient)}
+                      </div>
+                      {showPersonId && patient.person_id && (
+                        <div className="text-[10px] text-[#5A5650] mt-0.5 tabular-nums">
+                          ID: {patient.person_id}
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <DimensionScoreBar
+                        score={patient.dimension_scores.demographics}
+                        label="Demographics"
+                      />
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <DimensionScoreBar
+                        score={patient.dimension_scores.conditions}
+                        label="Conditions"
+                      />
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <DimensionScoreBar
+                        score={patient.dimension_scores.measurements}
+                        label="Labs"
+                      />
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <DimensionScoreBar
+                        score={patient.dimension_scores.drugs}
+                        label="Drugs"
+                      />
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <DimensionScoreBar
+                        score={patient.dimension_scores.procedures}
+                        label="Procedures"
+                      />
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <DimensionScoreBar
+                        score={patient.dimension_scores.genomics}
+                        label="Genomics"
+                      />
+                    </td>
+                    <td className="px-3 py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
+                      {compareUrl ? (
+                        <Link
+                          to={compareUrl}
+                          className="text-xs text-[#2DD4BF] hover:text-[#2DD4BF]/80 font-medium transition-colors"
+                        >
+                          Compare
+                        </Link>
+                      ) : (
+                        <span className="text-xs text-[#323238]">--</span>
+                      )}
+                    </td>
+                  </tr>
+                  {/* Expanded detail row */}
+                  {isExpanded && hasDetails && (
+                    <tr className="border-b border-[#1C1C20] bg-[#131316]">
+                      <td />
+                      <td colSpan={10} className="px-4 py-3">
+                        <div className="space-y-3">
+                          {/* Similarity narrative */}
+                          {patient.similarity_summary && (
+                            <p className="text-xs text-[#C5C0B8] leading-relaxed">
+                              {patient.similarity_summary}
+                            </p>
+                          )}
+
+                          {/* Shared feature pills */}
+                          {patient.shared_features && (
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <SharedFeaturePills
+                                category={patient.shared_features.conditions}
+                                icon={<Stethoscope size={11} className="text-[#9B1B30]" />}
+                                label="Conditions"
+                              />
+                              <SharedFeaturePills
+                                category={patient.shared_features.drugs}
+                                icon={<Pill size={11} className="text-[#2DD4BF]" />}
+                                label="Medications"
+                              />
+                              <SharedFeaturePills
+                                category={patient.shared_features.procedures}
+                                icon={<FlaskConical size={11} className="text-[#C9A227]" />}
+                                label="Procedures"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
               );
             })}
           </tbody>
