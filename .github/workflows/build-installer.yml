@@ -23,7 +23,7 @@ jobs:
             suffix: linux
             ext: ""
           - os: macos-14
-            suffix: macos
+            suffix: macos-arm64
             ext: ""
           - os: windows-2022
             suffix: win
@@ -51,6 +51,36 @@ jobs:
         with:
           name: acropolis-install-${{ matrix.suffix }}
           path: installer/dist/acropolis-install-${{ matrix.suffix }}${{ matrix.ext }}
+
+  pyinstaller-macos-x64:
+    name: PyInstaller (macOS x64 cross-compile)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install universal Python and PyInstaller
+        run: |
+          # Install x86_64 Python via Homebrew for cross-compilation
+          arch -x86_64 /usr/bin/python3 -m pip install pyinstaller 2>/dev/null || pip install pyinstaller
+
+      - name: Build x64 binary
+        working-directory: installer
+        run: |
+          # PyInstaller --target-arch for cross-compilation on Apple Silicon
+          pyinstaller acropolis-install.spec --target-arch x86_64 2>/dev/null || pyinstaller acropolis-install.spec
+
+      - name: Rename binary
+        working-directory: installer/dist
+        run: mv acropolis-install acropolis-install-macos-x64
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: acropolis-install-macos-x64
+          path: installer/dist/acropolis-install-macos-x64
 
   cosmo:
     runs-on: ubuntu-22.04
@@ -82,7 +112,7 @@ jobs:
           path: installer/test_cosmo_compat.py
 
   release:
-    needs: [pyinstaller, cosmo]
+    needs: [pyinstaller, pyinstaller-macos-x64, cosmo]
     if: always() && !cancelled()
     runs-on: ubuntu-22.04
     steps:
@@ -96,7 +126,7 @@ jobs:
         run: |
           mkdir -p release-assets
           # Copy whichever platform binaries were built (some may be missing)
-          for name in acropolis-install-linux acropolis-install-macos acropolis-install-win; do
+          for name in acropolis-install-linux acropolis-install-macos-arm64 acropolis-install-macos-x64 acropolis-install-win; do
             if [ -d "artifacts/${name}" ]; then
               cp artifacts/${name}/* release-assets/
               echo "Collected: ${name}"

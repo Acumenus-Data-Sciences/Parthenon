@@ -5,15 +5,25 @@
   const CURL_CMD = "curl -fsSL https://parthenon.acumenus.net/install.sh | sh";
 
   const BINARIES = {
-    linux: "acropolis-install-linux",
-    macos: "acropolis-install-macos",
-    windows: "acropolis-install-win.exe",
+    "linux": "acropolis-install-linux",
+    "macos-arm64": "acropolis-install-macos-arm64",
+    "macos-x64": "acropolis-install-macos-x64",
+    "windows": "acropolis-install-win.exe",
   };
 
   function detectPlatform() {
     const ua = navigator.userAgent.toLowerCase();
     if (ua.includes("win")) return "windows";
-    if (ua.includes("mac")) return "macos";
+    if (ua.includes("mac")) {
+      // Detect Apple Silicon via GL renderer or platform
+      try {
+        const canvas = document.createElement("canvas");
+        const gl = canvas.getContext("webgl");
+        const renderer = gl ? gl.getParameter(gl.RENDERER) : "";
+        if (renderer.toLowerCase().includes("apple")) return "macos-arm64";
+      } catch {}
+      return "macos-arm64"; // Default to arm64 for modern Macs
+    }
     return "linux";
   }
 
