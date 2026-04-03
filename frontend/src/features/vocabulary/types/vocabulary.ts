@@ -125,3 +125,13 @@ export interface MapsFromResult {
   total: number;
   concept_id: number;
 }
+
+export interface ConceptTreeNode {
+  concept_id: number;
+  concept_name: string;
+  domain_id: string;
+  vocabulary_id: string;
+  concept_class_id: string;
+  child_count: number;
+  depth: number;
+}

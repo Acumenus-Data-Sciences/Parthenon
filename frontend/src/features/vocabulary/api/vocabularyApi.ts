@@ -12,6 +12,7 @@ import type {
   ConceptComparisonEntry,
   MapsFromResult,
   SuggestResult,
+  ConceptTreeNode,
 } from "../types/vocabulary";
 
 const BASE = "/vocabulary";
@@ -149,6 +150,18 @@ export async function getConceptMapsFrom(
     params: { limit, offset },
   });
   return data;
+}
+
+export async function fetchConceptTreeChildren(
+  parentConceptId: number,
+  domainId?: string,
+): Promise<ConceptTreeNode[]> {
+  const params: Record<string, unknown> = { parent_concept_id: parentConceptId };
+  if (domainId) {
+    params.domain_id = domainId;
+  }
+  const { data } = await apiClient.get(`${BASE}/tree`, { params });
+  return data.data ?? [];
 }
 
 export type { ConceptRelationship };

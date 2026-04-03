@@ -13,6 +13,7 @@ use App\Services\AiService;
 use App\Services\Solr\VocabularySearchService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 /**
  * @group Vocabulary
@@ -242,32 +243,264 @@ class VocabularyController extends Controller
     /**
      * GET /v1/vocabulary/concepts/{id}/hierarchy
      *
-     * Get the ancestor hierarchy of a concept (root first).
+     * Return a nested hierarchy tree for a concept:
+     * ancestors (with siblings at each level) -> selected concept (is_current) -> children.
      */
     public function hierarchy(int $id): JsonResponse
     {
-        $concept = Concept::findOrFail($id);
+        // Use explicit vocab.concept to avoid omop.concept shadow table
+        $connName = 'omop';
+        $conceptRow = DB::connection($connName)
+            ->selectOne('SELECT concept_id, concept_name, domain_id, vocabulary_id, concept_class_id, standard_concept FROM vocab.concept WHERE concept_id = ?', [$id]);
 
-        $ancestors = $concept->ancestors()
-            ->with('ancestor')
-            ->orderByDesc('min_levels_of_separation')
-            ->limit(100)
-            ->get()
-            ->map(fn (ConceptAncestor $ca) => [
-                'concept_id' => $ca->ancestor_concept_id,
-                'concept_name' => $ca->ancestor?->concept_name,
-                'domain_id' => $ca->ancestor?->domain_id,
-                'vocabulary_id' => $ca->ancestor?->vocabulary_id,
-                'concept_class_id' => $ca->ancestor?->concept_class_id,
-                'standard_concept' => $ca->ancestor?->standard_concept,
-                'min_levels_of_separation' => $ca->min_levels_of_separation,
-                'max_levels_of_separation' => $ca->max_levels_of_separation,
-            ]);
+        if (! $conceptRow) {
+            abort(404, "Concept {$id} not found");
+        }
+
+        $concept = $conceptRow;
+
+        // Get single canonical ancestor path by walking up concept_tree parent chain.
+        // This avoids the explosion from concept_ancestor which returns ALL ancestor
+        // paths for concepts with multiple parents (e.g., Aspirin maps to 80+ ATC classes).
+        // Built iteratively in PHP since recursive CTEs can't use LIMIT per step.
+        $ancestors = [];
+        $currentId = $id;
+        $domain = $concept->domain_id;
+        $maxHops = 25;
+
+        for ($hop = 0; $hop < $maxHops; $hop++) {
+            $parent = DB::connection($connName)
+                ->selectOne('
+                    SELECT ct.parent_concept_id,
+                           c.concept_id, c.concept_name, c.domain_id,
+                           c.vocabulary_id, c.concept_class_id, c.standard_concept
+                    FROM vocab.concept_tree ct
+                    JOIN vocab.concept c ON c.concept_id = ct.parent_concept_id
+                    WHERE ct.child_concept_id = ?
+                      AND ct.domain_id = ?
+                      AND ct.parent_concept_id > 0
+                    ORDER BY ct.parent_concept_id
+                    LIMIT 1
+                ', [$currentId, $domain]);
+
+            if (! $parent) {
+                break;
+            }
+
+            $parent->distance = $hop + 1;
+            $ancestors[] = $parent;
+            $currentId = $parent->concept_id;
+        }
+
+        // Reverse so root is first (most distant ancestor first)
+        $ancestors = array_reverse($ancestors);
+
+        // Fallback: if concept is not in concept_tree, use concept_ancestor (limited depth)
+        if (empty($ancestors)) {
+            $ancestors = DB::connection($connName)
+                ->select("
+                    SELECT
+                        ca.ancestor_concept_id AS concept_id,
+                        c.concept_name, c.domain_id, c.vocabulary_id,
+                        c.concept_class_id, c.standard_concept,
+                        ca.min_levels_of_separation AS distance
+                    FROM vocab.concept_ancestor ca
+                    JOIN vocab.concept c ON c.concept_id = ca.ancestor_concept_id
+                    WHERE ca.descendant_concept_id = ?
+                      AND ca.min_levels_of_separation BETWEEN 1 AND 10
+                      AND c.standard_concept IN ('S', 'C')
+                      AND c.domain_id = ?
+                    ORDER BY ca.min_levels_of_separation DESC
+                    LIMIT 15
+                ", [$id, $domain]);
+        }
+
+        // Get immediate children of the selected concept
+        $children = DB::connection($connName)
+            ->select("
+                SELECT
+                    ca.descendant_concept_id AS concept_id,
+                    c.concept_name,
+                    c.domain_id,
+                    c.vocabulary_id,
+                    c.concept_class_id,
+                    c.standard_concept
+                FROM vocab.concept_ancestor ca
+                JOIN vocab.concept c ON c.concept_id = ca.descendant_concept_id
+                WHERE ca.ancestor_concept_id = ?
+                  AND ca.min_levels_of_separation = 1
+                  AND c.standard_concept IN ('S', 'C')
+                ORDER BY c.concept_name
+                LIMIT 50
+            ", [$id]);
+
+        // Get siblings at each ancestor level (concepts sharing the same parent)
+        $siblingsByParent = [];
+        foreach ($ancestors as $i => $ancestor) {
+            if ($i === 0) {
+                continue; // root has no parent to find siblings under
+            }
+            $parentId = $ancestors[$i - 1]->concept_id;
+            $siblings = DB::connection($connName)
+                ->select("
+                    SELECT
+                        ca.descendant_concept_id AS concept_id,
+                        c.concept_name,
+                        c.domain_id,
+                        c.vocabulary_id,
+                        c.concept_class_id,
+                        c.standard_concept
+                    FROM vocab.concept_ancestor ca
+                    JOIN vocab.concept c ON c.concept_id = ca.descendant_concept_id
+                    WHERE ca.ancestor_concept_id = ?
+                      AND ca.min_levels_of_separation = 1
+                      AND ca.descendant_concept_id != ?
+                      AND c.standard_concept IN ('S', 'C')
+                    ORDER BY c.concept_name
+                    LIMIT 50
+                ", [$parentId, $ancestor->concept_id]);
+            $siblingsByParent[$ancestor->concept_id] = $siblings;
+        }
+
+        // Also get siblings of the selected concept itself
+        if (! empty($ancestors)) {
+            $immediateParentId = $ancestors[count($ancestors) - 1]->concept_id;
+            $selfSiblings = DB::connection($connName)
+                ->select("
+                    SELECT
+                        ca.descendant_concept_id AS concept_id,
+                        c.concept_name,
+                        c.domain_id,
+                        c.vocabulary_id,
+                        c.concept_class_id,
+                        c.standard_concept
+                    FROM vocab.concept_ancestor ca
+                    JOIN vocab.concept c ON c.concept_id = ca.descendant_concept_id
+                    WHERE ca.ancestor_concept_id = ?
+                      AND ca.min_levels_of_separation = 1
+                      AND ca.descendant_concept_id != ?
+                      AND c.standard_concept IN ('S', 'C')
+                    ORDER BY c.concept_name
+                    LIMIT 50
+                ", [$immediateParentId, $id]);
+        } else {
+            $selfSiblings = [];
+        }
+
+        // Build the selected concept node
+        $currentNode = [
+            'concept_id' => $concept->concept_id,
+            'concept_name' => $concept->concept_name,
+            'domain_id' => $concept->domain_id,
+            'vocabulary_id' => $concept->vocabulary_id,
+            'concept_class_id' => $concept->concept_class_id,
+            'standard_concept' => $concept->standard_concept,
+            'depth' => 0,
+            'is_current' => true,
+            'children' => array_map(fn ($c) => [
+                'concept_id' => $c->concept_id,
+                'concept_name' => $c->concept_name,
+                'domain_id' => $c->domain_id,
+                'vocabulary_id' => $c->vocabulary_id,
+                'concept_class_id' => $c->concept_class_id,
+                'standard_concept' => $c->standard_concept,
+                'depth' => 1,
+            ], $children),
+        ];
+
+        // Build sibling nodes for the selected concept
+        $selfSiblingNodes = array_map(fn ($s) => [
+            'concept_id' => $s->concept_id,
+            'concept_name' => $s->concept_name,
+            'domain_id' => $s->domain_id,
+            'vocabulary_id' => $s->vocabulary_id,
+            'concept_class_id' => $s->concept_class_id,
+            'standard_concept' => $s->standard_concept,
+            'depth' => 0,
+        ], $selfSiblings);
+
+        // Wrap: immediate parent contains current node + its siblings
+        $currentLevel = array_merge([$currentNode], $selfSiblingNodes);
+
+        // Build tree bottom-up: wrap each ancestor level around the current level
+        $depth = 0;
+        for ($i = count($ancestors) - 1; $i >= 0; $i--) {
+            $ancestor = $ancestors[$i];
+            $depth++;
+
+            // Sibling nodes at this level
+            $levelSiblings = array_map(fn ($s) => [
+                'concept_id' => $s->concept_id,
+                'concept_name' => $s->concept_name,
+                'domain_id' => $s->domain_id,
+                'vocabulary_id' => $s->vocabulary_id,
+                'concept_class_id' => $s->concept_class_id,
+                'standard_concept' => $s->standard_concept,
+                'depth' => $depth,
+            ], $siblingsByParent[$ancestor->concept_id] ?? []);
+
+            $ancestorNode = [
+                'concept_id' => $ancestor->concept_id,
+                'concept_name' => $ancestor->concept_name,
+                'domain_id' => $ancestor->domain_id,
+                'vocabulary_id' => $ancestor->vocabulary_id,
+                'concept_class_id' => $ancestor->concept_class_id,
+                'standard_concept' => $ancestor->standard_concept,
+                'depth' => $depth,
+                'children' => $currentLevel,
+            ];
+
+            $currentLevel = array_merge([$ancestorNode], $levelSiblings);
+        }
+
+        // If there's a single root, return it directly. Otherwise wrap in a virtual root.
+        $tree = count($currentLevel) === 1 ? $currentLevel[0] : [
+            'concept_id' => 0,
+            'concept_name' => $concept->domain_id,
+            'domain_id' => $concept->domain_id,
+            'vocabulary_id' => '',
+            'concept_class_id' => '',
+            'standard_concept' => null,
+            'depth' => $depth + 1,
+            'children' => $currentLevel,
+        ];
+
+        return response()->json(['data' => $tree]);
+    }
+
+    /**
+     * GET /v1/vocabulary/tree
+     *
+     * Browse the concept_tree. Returns children of a given parent concept.
+     * parent_concept_id=0 (default) returns domain roots.
+     */
+    public function tree(Request $request): JsonResponse
+    {
+        $parentId = (int) $request->query('parent_concept_id', '0');
+        $domainId = $request->query('domain_id');
+
+        $query = DB::connection('omop')
+            ->table('concept_tree AS ct')
+            ->select([
+                'ct.child_concept_id AS concept_id',
+                'ct.child_name AS concept_name',
+                'ct.domain_id',
+                'ct.vocabulary_id',
+                'ct.concept_class_id',
+                'ct.child_depth AS depth',
+            ])
+            ->selectRaw('(SELECT COUNT(*) FROM vocab.concept_tree ct2 WHERE ct2.parent_concept_id = ct.child_concept_id AND ct2.domain_id = ct.domain_id) AS child_count')
+            ->where('ct.parent_concept_id', $parentId);
+
+        if ($domainId) {
+            $query->where('ct.domain_id', $domainId);
+        }
+
+        $results = $query->orderBy('ct.child_name')->limit(500)->get();
 
         return response()->json([
-            'data' => $ancestors,
-            'count' => $ancestors->count(),
-            'concept_id' => $id,
+            'data' => $results,
+            'parent_concept_id' => $parentId,
         ]);
     }
 

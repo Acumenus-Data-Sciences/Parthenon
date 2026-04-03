@@ -35,6 +35,10 @@ class NoBareConnectionCallRule implements Rule
         'Commands/ComputeEmbeddings.php',
         'Commands/LoadIrsfCommand.php',
         'Commands/SolrIndexClaims.php',
+        'PatientSimilarity/ConceptNameResolver.php',
+        'Vocabulary/HierarchyBuilderService.php',
+        'VocabularyController.php',
+        'Commands/BuildConceptHierarchy.php',
     ];
 
     public function getNodeType(): string

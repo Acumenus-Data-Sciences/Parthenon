@@ -139,6 +139,10 @@ class LoadVocabularies extends Command
         $this->newLine();
         $this->info('Vocabulary loading complete!');
 
+        $this->newLine();
+        $this->info('Building concept hierarchy tree...');
+        $this->call('vocabulary:build-hierarchy', ['--populate-results' => true]);
+
         return self::SUCCESS;
     }
 
