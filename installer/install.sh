@@ -1,5 +1,5 @@
 #!/bin/sh
-# Parthenon installer bootstrap — curl -fsSL https://install.acumenus.net | sh
+# Parthenon installer bootstrap — curl -fsSL https://parthenon.acumenus.net/install.sh | sh
 set -e
 
 REPO="sudoshi/Parthenon"

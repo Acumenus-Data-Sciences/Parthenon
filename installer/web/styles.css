@@ -833,6 +833,38 @@ body.modal-open .app-shell {
   max-width: 50rem;
 }
 
+.modal-experimental {
+  position: relative;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.experimental-link {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid var(--accent-muted);
+  letter-spacing: 0.3px;
+  transition: color 200ms;
+}
+
+.experimental-link:hover {
+  color: var(--accent-light);
+}
+
+.experimental-hint {
+  font-size: var(--text-xs);
+  color: var(--text-ghost);
+  line-height: 1.4;
+}
+
 .modal-panel .btn.primary {
   min-width: 10rem;
   min-height: 42px;

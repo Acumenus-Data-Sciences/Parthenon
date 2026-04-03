@@ -2,7 +2,7 @@
   "use strict";
 
   const REPO = "sudoshi/Parthenon";
-  const CURL_CMD = "curl -fsSL https://install.acumenus.net | sh";
+  const CURL_CMD = "curl -fsSL https://parthenon.acumenus.net/install.sh | sh";
 
   function detectPlatform() {
     const ua = navigator.userAgent.toLowerCase();
