@@ -236,6 +236,24 @@ class AuthentikAPI:
         result = self.get("/api/v3/outposts/instances/?page_size=50")
         return result.get("results", [])
 
+    def list_saml_providers(self) -> list[dict]:
+        """List all SAML providers."""
+        result = self.get("/api/v3/providers/saml/?page_size=100")
+        return result.get("results", [])
+
+    def list_property_mappings(self, managed_prefix: str = "") -> list[dict]:
+        """List scope/property mappings, optionally filtered by managed prefix."""
+        path = "/api/v3/propertymappings/all/?page_size=200"
+        if managed_prefix:
+            path += f"&managed__startswith={managed_prefix}"
+        result = self.get(path)
+        return result.get("results", [])
+
+    def list_certificate_keypairs(self) -> list[dict]:
+        """List certificate-key pairs."""
+        result = self.get("/api/v3/crypto/certificatekeypairs/?page_size=50")
+        return result.get("results", [])
+
 
 def _read_env_file() -> dict[str, str]:
     """Parse the .env file into a dict."""
@@ -347,6 +365,391 @@ def _find_proxy_provider(
         if p.get("external_host", "").rstrip("/") == external_host.rstrip("/"):
             return p
     return None
+
+
+def _generate_client_id(length: int = 40) -> str:
+    """Generate a URL-safe random client ID (no ! character)."""
+    import secrets
+    import string
+
+    alphabet = string.ascii_letters + string.digits + "-_"
+    return "".join(secrets.choice(alphabet) for _ in range(length))
+
+
+def _lookup_oidc_prerequisites(api: AuthentikAPI, console: Console) -> dict:
+    """Look up scope mappings and signing key needed for OAuth2 providers.
+
+    Returns dict with keys: scope_mapping_pks (list), signing_key_pk (str|None).
+    """
+    console.print("  Looking up OIDC scope mappings...", end=" ")
+
+    # Find openid, profile, email scope mappings
+    all_mappings = api.list_property_mappings(
+        "goauthentik.io/providers/oauth2/scope-"
+    )
+    target_scopes = {"openid", "profile", "email"}
+    scope_pks: list[str] = []
+    for m in all_mappings:
+        managed = m.get("managed", "")
+        for scope in target_scopes:
+            if managed.endswith(f"/scope-{scope}"):
+                scope_pks.append(m["pk"])
+                break
+
+    # Find signing key (prefer authentik self-signed, fallback to any with key_data)
+    keypairs = api.list_certificate_keypairs()
+    signing_key_pk = None
+    for kp in keypairs:
+        if "authentik" in kp.get("name", "").lower() and kp.get("key_data"):
+            signing_key_pk = kp["pk"]
+            break
+    if not signing_key_pk and keypairs:
+        for kp in keypairs:
+            if kp.get("key_data"):
+                signing_key_pk = kp["pk"]
+                break
+
+    console.print(
+        f"[green]OK ({len(scope_pks)} scopes, "
+        f"key={'found' if signing_key_pk else 'none'})[/]"
+    )
+    return {"scope_mapping_pks": scope_pks, "signing_key_pk": signing_key_pk}
+
+
+def _lookup_saml_prerequisites(api: AuthentikAPI, console: Console) -> dict:
+    """Look up SAML property mappings and signing key.
+
+    Returns dict with keys: saml_mapping_pks (list), signing_key_pk (str|None).
+    """
+    console.print("  Looking up SAML property mappings...", end=" ")
+
+    all_mappings = api.list_property_mappings("goauthentik.io/providers/saml")
+    saml_pks = [m["pk"] for m in all_mappings]
+
+    keypairs = api.list_certificate_keypairs()
+    signing_key_pk = None
+    for kp in keypairs:
+        if "authentik" in kp.get("name", "").lower() and kp.get("key_data"):
+            signing_key_pk = kp["pk"]
+            break
+    if not signing_key_pk and keypairs:
+        for kp in keypairs:
+            if kp.get("key_data"):
+                signing_key_pk = kp["pk"]
+                break
+
+    console.print(
+        f"[green]OK ({len(saml_pks)} mappings, "
+        f"key={'found' if signing_key_pk else 'none'})[/]"
+    )
+    return {"saml_mapping_pks": saml_pks, "signing_key_pk": signing_key_pk}
+
+
+def _bootstrap_oidc_provider(
+    api: AuthentikAPI,
+    sso_def: NativeSsoDef,
+    domain: str,
+    auth_flow_pk: str,
+    inval_flow_pk: str,
+    oidc_prereqs: dict,
+    console: Console,
+) -> dict | None:
+    """Create or update an OAuth2 provider for an OIDC service.
+
+    Returns the provider dict on success, None on failure.
+    Writes client_id and client_secret to .env via _update_env_var.
+    """
+    console.print(f"  {sso_def.display_name}...", end=" ")
+
+    redirect_uris = "\n".join(
+        uri.replace("{domain}", domain) for uri in sso_def.redirect_uris
+    )
+
+    # Check if provider already exists
+    existing = api.list_oauth2_providers()
+    provider = None
+    for p in existing:
+        if p.get("name") == sso_def.display_name:
+            provider = p
+            break
+
+    env_vars = _read_env_file()
+    client_id = env_vars.get(sso_def.env_client_id, "")
+    client_secret = env_vars.get(sso_def.env_client_secret, "")
+
+    if provider:
+        # Update redirect URIs in case domain changed
+        try:
+            api.patch(
+                f"/api/v3/providers/oauth2/{provider['pk']}/",
+                {"redirect_uris": redirect_uris},
+            )
+        except (HTTPError, URLError):
+            pass
+        console.print("[dim]provider exists[/]", end=" ")
+    else:
+        # Generate new credentials
+        if not client_id:
+            client_id = _generate_client_id(40)
+        if not client_secret:
+            client_secret = _generate_client_id(64)
+
+        payload: dict = {
+            "name": sso_def.display_name,
+            "authorization_flow": auth_flow_pk,
+            "invalidation_flow": inval_flow_pk,
+            "client_type": "confidential",
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "redirect_uris": redirect_uris,
+            "property_mappings": oidc_prereqs["scope_mapping_pks"],
+            "access_code_validity": "minutes=1",
+            "access_token_validity": "minutes=10",
+            "refresh_token_validity": "days=30",
+            "sub_mode": "hashed_user_id",
+            "include_claims_in_id_token": True,
+        }
+        if oidc_prereqs.get("signing_key_pk"):
+            payload["signing_key"] = oidc_prereqs["signing_key_pk"]
+
+        try:
+            provider = api.post("/api/v3/providers/oauth2/", payload)
+            console.print("[green]provider created[/]", end=" ")
+        except HTTPError as e:
+            body = e.read().decode() if hasattr(e, "read") else str(e)
+            console.print(f"[red]provider failed: {body}[/]")
+            return None
+
+    # Persist credentials to .env
+    if client_id:
+        _update_env_var(sso_def.env_client_id, client_id)
+    if client_secret:
+        _update_env_var(sso_def.env_client_secret, client_secret)
+
+    return provider
+
+
+def _bootstrap_saml_provider(
+    api: AuthentikAPI,
+    sso_def: NativeSsoDef,
+    domain: str,
+    auth_flow_pk: str,
+    inval_flow_pk: str,
+    saml_prereqs: dict,
+    console: Console,
+) -> dict | None:
+    """Create or update a SAML provider for Wazuh.
+
+    Returns the provider dict on success, None on failure.
+    Writes exchange key to .env via _update_env_var.
+    """
+    import secrets
+
+    console.print(f"  {sso_def.display_name}...", end=" ")
+
+    acs_url = sso_def.saml_acs_url.replace("{domain}", domain)
+
+    # Check if provider already exists
+    existing = api.list_saml_providers()
+    provider = None
+    for p in existing:
+        if p.get("name") == sso_def.display_name:
+            provider = p
+            break
+
+    if provider:
+        console.print("[dim]provider exists[/]", end=" ")
+    else:
+        payload: dict = {
+            "name": sso_def.display_name,
+            "authorization_flow": auth_flow_pk,
+            "invalidation_flow": inval_flow_pk,
+            "acs_url": acs_url,
+            "audience": sso_def.saml_audience,
+            "sp_binding": "post",
+            "assertion_valid_not_before": "minutes=-5",
+            "assertion_valid_not_on_or_after": "minutes=5",
+            "session_valid_not_on_or_after": "hours=8",
+            "digest_algorithm": "http://www.w3.org/2001/04/xmlenc#sha256",
+            "signature_algorithm": (
+                "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"
+            ),
+        }
+        if saml_prereqs.get("signing_key_pk"):
+            payload["signing_kp"] = saml_prereqs["signing_key_pk"]
+            payload["verification_kp"] = saml_prereqs["signing_key_pk"]
+        if saml_prereqs.get("saml_mapping_pks"):
+            payload["property_mappings"] = saml_prereqs["saml_mapping_pks"]
+
+        try:
+            provider = api.post("/api/v3/providers/saml/", payload)
+            console.print("[green]provider created[/]", end=" ")
+        except HTTPError as e:
+            body = e.read().decode() if hasattr(e, "read") else str(e)
+            console.print(f"[red]provider failed: {body}[/]")
+            return None
+
+    # Generate and persist exchange key
+    env_vars = _read_env_file()
+    exchange_key = env_vars.get("WAZUH_SAML_EXCHANGE_KEY", "")
+    if not exchange_key:
+        exchange_key = secrets.token_hex(32)
+    _update_env_var("WAZUH_SAML_EXCHANGE_KEY", exchange_key)
+
+    return provider
+
+
+def _create_native_sso_application(
+    api: AuthentikAPI,
+    sso_def: NativeSsoDef,
+    provider_pk: int,
+    domain: str,
+    console: Console,
+) -> bool:
+    """Create the native SSO application (e.g. grafana-oidc, wazuh-saml).
+
+    Idempotent -- updates provider link if app already exists.
+    """
+    existing_apps = {a["slug"]: a for a in api.list_applications()}
+
+    if sso_def.app_slug in existing_apps:
+        app = existing_apps[sso_def.app_slug]
+        if app.get("provider") != provider_pk:
+            try:
+                api.patch(
+                    f"/api/v3/core/applications/{sso_def.app_slug}/",
+                    {"provider": provider_pk},
+                )
+            except (HTTPError, URLError):
+                pass
+        console.print("[dim]app exists[/]", end=" ")
+    else:
+        # Find the base service's external_host for launch URL
+        launch_url = ""
+        for svc in SERVICE_DEFS:
+            if svc.name == sso_def.service_name:
+                launch_url = svc.external_host.replace("{domain}", domain)
+                break
+
+        try:
+            api.post(
+                "/api/v3/core/applications/",
+                {
+                    "name": sso_def.display_name,
+                    "slug": sso_def.app_slug,
+                    "provider": provider_pk,
+                    "meta_launch_url": launch_url,
+                    "policy_engine_mode": "any",
+                },
+            )
+            console.print("[green]app created[/]", end=" ")
+        except HTTPError:
+            pass
+
+    console.print("[green]OK[/]")
+    return True
+
+
+def _download_wazuh_idp_metadata(
+    api: AuthentikAPI,
+    domain: str,
+    console: Console,
+) -> bool:
+    """Download Wazuh SAML IdP metadata from Authentik and save to config.
+
+    Fetches via the local API (localhost:9000) to avoid TLS issues,
+    then replaces localhost:9000 references with the external auth URL.
+    """
+    console.print("  Downloading Wazuh IdP metadata...", end=" ")
+
+    try:
+        saml_providers = api.list_saml_providers()
+        wazuh_provider = None
+        for p in saml_providers:
+            if p.get("name") == "Wazuh SAML":
+                wazuh_provider = p
+                break
+
+        if not wazuh_provider:
+            console.print("[yellow]SAML provider not found, skipping[/]")
+            return False
+
+        # Fetch metadata XML
+        metadata_url = (
+            f"/api/v3/providers/saml/{wazuh_provider['pk']}/metadata/?download"
+        )
+        req = Request(
+            f"{api.base_url}{metadata_url}",
+            method="GET",
+        )
+        req.add_header("Authorization", f"Bearer {api.token}")
+        req.add_header("Accept", "application/xml")
+        response = urlopen(req, timeout=30)
+        metadata_xml = response.read().decode()
+
+        # Replace localhost:9000 with external auth URL
+        external_auth = f"https://auth.{domain}"
+        metadata_xml = metadata_xml.replace(
+            "http://localhost:9000", external_auth
+        )
+        metadata_xml = metadata_xml.replace(
+            "https://localhost:9000", external_auth
+        )
+
+        # Save to Wazuh indexer config directory
+        metadata_path = (
+            REPO_ROOT / "config" / "wazuh" / "wazuh_indexer" / "idp-metadata.xml"
+        )
+        metadata_path.parent.mkdir(parents=True, exist_ok=True)
+        metadata_path.write_text(metadata_xml)
+
+        console.print(
+            f"[green]OK (saved to {metadata_path.relative_to(REPO_ROOT)})[/]"
+        )
+        return True
+
+    except (HTTPError, URLError, OSError) as e:
+        console.print(f"[yellow]skipped ({e})[/]")
+        return False
+
+
+def _apply_wazuh_security_config(console: Console) -> bool:
+    """Apply Wazuh security config via securityadmin.sh.
+
+    This is needed after writing the IdP metadata to enable SAML auth
+    in the Wazuh indexer's security plugin.
+    """
+    from acropolis.installer.utils import exec_in_container
+
+    console.print("  Applying Wazuh security config...", end=" ")
+    try:
+        result = exec_in_container(
+            "acropolis-wazuh.indexer-1",
+            [
+                "/usr/share/wazuh-indexer/plugins/opensearch-security"
+                "/tools/securityadmin.sh",
+                "-cd",
+                "/usr/share/wazuh-indexer/opensearch-security/",
+                "-nhnv",
+                "-cacert",
+                "/usr/share/wazuh-indexer/config/certs/root-ca.pem",
+                "-cert",
+                "/usr/share/wazuh-indexer/config/certs/admin.pem",
+                "-key",
+                "/usr/share/wazuh-indexer/config/certs/admin-key.pem",
+                "-h",
+                "localhost",
+            ],
+        )
+        if result.returncode == 0:
+            console.print("[green]OK[/]")
+            return True
+        else:
+            console.print(f"[yellow]exit code {result.returncode}[/]")
+            return False
+    except Exception as e:
+        console.print(f"[yellow]skipped ({e})[/]")
+        return False
 
 
 def bootstrap_authentik(
@@ -516,9 +919,65 @@ def bootstrap_authentik(
     except (HTTPError, URLError) as e:
         console.print(f"[yellow]skipped ({e})[/]")
 
+    # ── Native SSO (OIDC + SAML) ─────────────────────────────────────
+    console.print("\n[bold cyan]Native SSO Providers[/]\n")
+
+    # Lookup prerequisites once
+    oidc_prereqs = _lookup_oidc_prerequisites(api, console)
+    saml_prereqs = _lookup_saml_prerequisites(api, console)
+
+    native_sso_count = 0
+    for sso_def in NATIVE_SSO_DEFS:
+        if sso_def.sso_type == "oidc":
+            provider = _bootstrap_oidc_provider(
+                api,
+                sso_def,
+                domain,
+                auth_flow_pk,
+                inval_flow_pk,
+                oidc_prereqs,
+                console,
+            )
+        elif sso_def.sso_type == "saml":
+            provider = _bootstrap_saml_provider(
+                api,
+                sso_def,
+                domain,
+                auth_flow_pk,
+                inval_flow_pk,
+                saml_prereqs,
+                console,
+            )
+        else:
+            continue
+
+        if provider:
+            _create_native_sso_application(
+                api,
+                sso_def,
+                provider["pk"],
+                domain,
+                console,
+            )
+            native_sso_count += 1
+
+    # ── Wazuh IdP metadata and security config ────────────────────────
+    wazuh_saml_defs = [d for d in NATIVE_SSO_DEFS if d.sso_type == "saml"]
+    if wazuh_saml_defs:
+        _download_wazuh_idp_metadata(api, domain, console)
+        # Only apply security config if Wazuh indexer is running
+        wazuh_health = container_health("acropolis-wazuh.indexer-1")
+        if wazuh_health == "healthy":
+            _apply_wazuh_security_config(console)
+        else:
+            console.print(
+                "  [dim]Wazuh indexer not running — skipping securityadmin[/]"
+            )
+
     console.print(
         f"\n  [green]Authentik SSO bootstrap complete: "
-        f"{len(outpost_provider_pks)} forward-auth services configured[/]"
+        f"{len(outpost_provider_pks)} forward-auth + "
+        f"{native_sso_count} native SSO providers[/]"
     )
 
     return True
