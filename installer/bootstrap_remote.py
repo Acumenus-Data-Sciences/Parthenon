@@ -218,14 +218,24 @@ def main(argv: list[str] | None = None) -> None:
     repo_path = acquire_repo(args.dir)
     print()
 
+    # Launch the repo's own installer as a subprocess using system Python.
+    # install.py bootstraps pip deps (rich, questionary) before importing
+    # the installer package, so they don't need to be pre-installed.
+    print("Launching Parthenon installer...\n")
     os.chdir(repo_path)
-    if str(repo_path) not in sys.path:
-        sys.path.insert(0, str(repo_path))
 
-    _ensure_pip_deps()
+    # Find system Python (not the PyInstaller-bundled one)
+    system_python = shutil.which("python3") or shutil.which("python")
+    if not system_python:
+        print("Python 3 not found. Install Python 3.9+ and retry.")
+        sys.exit(1)
 
-    from installer.webapp import main as webapp_main
-    webapp_main(remote=True, repo_path=str(repo_path))
+    # Use install.py --webapp which bootstraps deps then runs webapp.main()
+    rc = subprocess.run(
+        [system_python, "install.py", "--webapp"],
+        cwd=str(repo_path),
+    ).returncode
+    sys.exit(rc)
 
 
 if __name__ == "__main__":

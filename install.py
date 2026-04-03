@@ -81,6 +81,12 @@ def _parse_args() -> argparse.Namespace:
         default=False,
         help="Run without questionary prompts, using defaults and --defaults-file values",
     )
+    parser.add_argument(
+        "--webapp",
+        action="store_true",
+        default=False,
+        help="Launch the web-based installer UI (used by the remote installer binary)",
+    )
     return parser.parse_args()
 
 
@@ -103,6 +109,10 @@ def main() -> None:
             print(f"Warning: defaults file {args.defaults_file} not found, ignoring.\n")
 
     try:
+        if args.webapp:
+            from installer.webapp import main as webapp_main
+            webapp_main(remote=True)
+            return
         if args.with_infrastructure:
             # Run the Acropolis infrastructure installer, which will call
             # the Parthenon installer internally if Parthenon isn't running yet.

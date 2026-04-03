@@ -177,7 +177,7 @@ def poll_health(
     return statuses
 
 
-def run_post_init(edition: EditionConfig, console: Console) -> None:
+def run_post_init(edition: EditionConfig, console: Console, domain: str = "") -> None:
     """Run post-start initialization for services that need it."""
     if edition.tier != "enterprise":
         return
@@ -218,6 +218,15 @@ def run_post_init(edition: EditionConfig, console: Console) -> None:
     else:
         console.print("[yellow]failed (non-fatal)[/]")
 
+    # Authentik SSO bootstrap — register OAuth2 providers and applications
+    if domain:
+        from acropolis.installer.authentik import bootstrap_authentik
+        if not bootstrap_authentik(domain, console):
+            console.print(
+                "[yellow]Authentik SSO bootstrap failed (non-fatal). "
+                "Services will use Traefik forward-auth only.[/]"
+            )
+
 
 def handle_failures(
     statuses: dict[str, str], edition: EditionConfig, console: Console
@@ -253,7 +262,7 @@ def handle_failures(
     return action != "abort"
 
 
-def deploy(edition: EditionConfig, console: Console) -> bool:
+def deploy(edition: EditionConfig, console: Console, domain: str = "") -> bool:
     """Phase 7: Full deploy sequence. Returns True on success."""
     console.print("\n[bold cyan]Phase 7: Docker Deploy[/]\n")
 
@@ -269,7 +278,7 @@ def deploy(edition: EditionConfig, console: Console) -> bool:
     if not handle_failures(statuses, edition, console):
         return False
 
-    run_post_init(edition, console)
+    run_post_init(edition, console, domain=domain)
     return True
 
 

@@ -211,6 +211,8 @@ def write_env_file(
         ])
 
     if edition.tier == "enterprise":
+        bootstrap_token = generate_password(48)
+        bootstrap_password = generate_password(32)
         lines.extend([
             "",
             f"N8N_AUTH_USER={config.n8n_user}",
@@ -227,6 +229,24 @@ def write_env_file(
             "",
             f"AUTHENTIK_SECRET_KEY={config.authentik_secret}",
             f"AUTHENTIK_DB_PASSWORD={config.authentik_db_password}",
+            f"AUTHENTIK_BOOTSTRAP_EMAIL=akadmin@{config.domain}",
+            f"AUTHENTIK_BOOTSTRAP_PASSWORD={bootstrap_password}",
+            f"AUTHENTIK_BOOTSTRAP_TOKEN={bootstrap_token}",
+            "",
+            "# Authentik SSO — OAuth2/OIDC Credentials",
+            "# Auto-populated by Authentik bootstrap (Phase 7.5)",
+            "AUTHENTIK_GRAFANA_CLIENT_ID=",
+            "AUTHENTIK_GRAFANA_CLIENT_SECRET=",
+            "GRAFANA_OAUTH_CLIENT_ID=",
+            "GRAFANA_OAUTH_CLIENT_SECRET=",
+            "AUTHENTIK_SUPERSET_CLIENT_ID=",
+            "AUTHENTIK_SUPERSET_CLIENT_SECRET=",
+            "AUTHENTIK_DATAHUB_CLIENT_ID=",
+            "AUTHENTIK_DATAHUB_CLIENT_SECRET=",
+            "AUTHENTIK_PGADMIN_CLIENT_ID=",
+            "AUTHENTIK_PGADMIN_CLIENT_SECRET=",
+            "AUTHENTIK_PORTAINER_CLIENT_ID=",
+            "AUTHENTIK_PORTAINER_CLIENT_SECRET=",
             "",
             "WAZUH_INDEXER_PASSWORD=SecretPassword",
             "WAZUH_DASHBOARD_PASSWORD=kibanaserver",

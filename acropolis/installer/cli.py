@@ -315,7 +315,7 @@ def run(upgrade: bool = False) -> None:
         state.start_phase(7)
         state.save()
 
-        success = deploy(edition, console)
+        success = deploy(edition, console, domain=config.domain)
         if not success:
             console.print("[red]Deployment aborted.[/]")
             teardown(edition, console)

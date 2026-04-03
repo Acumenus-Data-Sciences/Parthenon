@@ -72,6 +72,8 @@ THEME_DEFAULT = {
 import logging
 from flask_appbuilder.security.manager import AUTH_OAUTH
 
+_AUTH_DOMAIN = f"auth.{os.environ.get('DOMAIN', 'acumenus.net')}"
+
 AUTH_TYPE = AUTH_OAUTH
 OAUTH_PROVIDERS = [
     {
@@ -81,9 +83,9 @@ OAUTH_PROVIDERS = [
         "remote_app": {
             "client_id": os.environ.get("AUTHENTIK_SUPERSET_CLIENT_ID"),
             "client_secret": os.environ.get("AUTHENTIK_SUPERSET_CLIENT_SECRET"),
-            "server_metadata_url": "https://auth.acumenus.net/application/o/superset/.well-known/openid-configuration",
-            "api_base_url": "https://auth.acumenus.net/application/o/",
-            "userinfo_endpoint": "https://auth.acumenus.net/application/o/userinfo/",
+            "server_metadata_url": f"https://{_AUTH_DOMAIN}/application/o/superset/.well-known/openid-configuration",
+            "api_base_url": f"https://{_AUTH_DOMAIN}/application/o/",
+            "userinfo_endpoint": f"https://{_AUTH_DOMAIN}/application/o/userinfo/",
             "client_kwargs": {"scope": "openid email profile"},
         },
     }

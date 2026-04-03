@@ -103,6 +103,7 @@ services:
       - DATABASE_PASSWORD=${SUPERSET_DB_PASSWORD:-superset}
       - REDIS_HOST=superset-cache
       - REDIS_PORT=6379
+      - DOMAIN=${DOMAIN:-acumenus.net}
       - AUTHENTIK_SUPERSET_CLIENT_ID=${AUTHENTIK_SUPERSET_CLIENT_ID}
       - AUTHENTIK_SUPERSET_CLIENT_SECRET=${AUTHENTIK_SUPERSET_CLIENT_SECRET}
     volumes:
@@ -422,8 +423,8 @@ services:
       - AUTH_OIDC_ENABLED=true
       - AUTH_OIDC_CLIENT_ID=${AUTHENTIK_DATAHUB_CLIENT_ID}
       - AUTH_OIDC_CLIENT_SECRET=${AUTHENTIK_DATAHUB_CLIENT_SECRET}
-      - AUTH_OIDC_DISCOVERY_URI=https://auth.acumenus.net/application/o/datahub/.well-known/openid-configuration
-      - AUTH_OIDC_BASE_URL=https://datahub.acumenus.net
+      - AUTH_OIDC_DISCOVERY_URI=https://auth.${DOMAIN:-acumenus.net}/application/o/datahub/.well-known/openid-configuration
+      - AUTH_OIDC_BASE_URL=https://datahub.${DOMAIN:-acumenus.net}
       - AUTH_OIDC_SCOPE=openid profile email
       - AUTH_OIDC_USER_NAME_CLAIM=email
       - AUTH_OIDC_JIT_PROVISIONING_ENABLED=true
