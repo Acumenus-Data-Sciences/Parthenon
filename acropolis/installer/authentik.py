@@ -1,99 +1,113 @@
 # installer/authentik.py
-"""Authentik SSO bootstrap — creates OAuth2 providers and applications via API.
+"""Authentik SSO bootstrap — creates proxy + OAuth2 providers and applications.
 
-This module runs after Authentik is healthy (Phase 7) and:
-1. Creates OAuth2/OIDC providers for each downstream service
-2. Creates Authentik applications linked to those providers
-3. Configures the embedded outpost to proxy all applications
-4. Writes the real client IDs/secrets back to .env
+Authentik requires TWO provider types per service:
+
+1. **Proxy provider** + forward-auth application (`{slug}-fwd`):
+   Used by the Traefik `authentik@docker` middleware. The embedded outpost
+   intercepts requests and redirects unauthenticated users to Authentik login.
+
+2. **OAuth2/OIDC provider** + OIDC application (`{slug}`):
+   Used by services that do native OIDC login (Superset, DataHub, pgAdmin,
+   Grafana). These providers issue real OAuth2 tokens with client_id/secret.
+
+Both provider types must be linked to separate applications and registered
+with the embedded outpost. The bootstrap creates both layers and writes
+the OAuth2 credentials to .env.
 
 Idempotent — safe to re-run on an existing Authentik instance.
 """
 from __future__ import annotations
 
 import json
-import os
 import re
 import time
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Optional
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 from rich.console import Console
 
-from acropolis.installer.utils import REPO_ROOT, container_health, generate_password
+from acropolis.installer.utils import REPO_ROOT, container_health
 
 
 @dataclass
-class OAuthApp:
-    """Definition of a downstream service that needs an OAuth2 provider."""
+class ServiceDef:
+    """Definition of a downstream service needing Authentik SSO."""
 
-    name: str  # Authentik application slug (e.g. "superset")
+    name: str  # Slug base (e.g. "superset")
     display_name: str  # Human-readable name
-    redirect_uris: list[str]  # OAuth2 redirect URIs (with {domain} placeholder)
-    launch_url: str  # Application launch URL (with {domain} placeholder)
-    # Which .env vars to write the client_id and client_secret to
+    external_host: str  # External URL template (with {domain} placeholder)
+    # OAuth2/OIDC redirect URIs for native login (with {domain} placeholder)
+    oidc_redirect_uris: list[str]
+    # Which .env vars to write the OAuth2 client_id/secret to
     env_client_id: str
     env_client_secret: str
     # Whether this service does native OIDC (vs just Traefik forward-auth)
     native_oidc: bool = True
 
 
-# All services that need OAuth2 providers in Authentik
-OAUTH_APPS: list[OAuthApp] = [
-    OAuthApp(
+# All services gated by Authentik
+SERVICE_DEFS: list[ServiceDef] = [
+    ServiceDef(
         name="grafana",
         display_name="Grafana",
-        redirect_uris=["https://grafana.{domain}/login/generic_oauth"],
-        launch_url="https://grafana.{domain}/",
+        external_host="https://grafana.{domain}",
+        oidc_redirect_uris=["https://grafana.{domain}/login/generic_oauth"],
         env_client_id="GRAFANA_OAUTH_CLIENT_ID",
         env_client_secret="GRAFANA_OAUTH_CLIENT_SECRET",
     ),
-    OAuthApp(
+    ServiceDef(
         name="superset",
         display_name="Apache Superset",
-        redirect_uris=[
-            "https://superset.{domain}/oauth-authorized/authentik",
-        ],
-        launch_url="https://superset.{domain}/",
+        external_host="https://superset.{domain}",
+        oidc_redirect_uris=["https://superset.{domain}/oauth-authorized/authentik"],
         env_client_id="AUTHENTIK_SUPERSET_CLIENT_ID",
         env_client_secret="AUTHENTIK_SUPERSET_CLIENT_SECRET",
     ),
-    OAuthApp(
+    ServiceDef(
         name="datahub",
         display_name="DataHub",
-        redirect_uris=["https://datahub.{domain}/callback/oidc"],
-        launch_url="https://datahub.{domain}/",
+        external_host="https://datahub.{domain}",
+        oidc_redirect_uris=["https://datahub.{domain}/callback/oidc"],
         env_client_id="AUTHENTIK_DATAHUB_CLIENT_ID",
         env_client_secret="AUTHENTIK_DATAHUB_CLIENT_SECRET",
     ),
-    OAuthApp(
+    ServiceDef(
         name="pgadmin",
         display_name="pgAdmin",
-        redirect_uris=["https://pgadmin.{domain}/oauth2/authorize"],
-        launch_url="https://pgadmin.{domain}/",
+        external_host="https://pgadmin.{domain}",
+        oidc_redirect_uris=["https://pgadmin.{domain}/oauth2/authorize"],
         env_client_id="AUTHENTIK_PGADMIN_CLIENT_ID",
         env_client_secret="AUTHENTIK_PGADMIN_CLIENT_SECRET",
     ),
-    OAuthApp(
+    ServiceDef(
         name="portainer",
         display_name="Portainer",
-        redirect_uris=["https://portainer.{domain}/"],
-        launch_url="https://portainer.{domain}/",
+        external_host="https://portainer.{domain}",
+        oidc_redirect_uris=[],
         env_client_id="AUTHENTIK_PORTAINER_CLIENT_ID",
         env_client_secret="AUTHENTIK_PORTAINER_CLIENT_SECRET",
-        native_oidc=False,  # Forward-auth only
+        native_oidc=False,
     ),
-    OAuthApp(
+    ServiceDef(
         name="n8n",
-        display_name="n8n Workflow Automation",
-        redirect_uris=["https://n8n.{domain}/"],
-        launch_url="https://n8n.{domain}/",
+        display_name="n8n",
+        external_host="https://n8n.{domain}",
+        oidc_redirect_uris=[],
         env_client_id="AUTHENTIK_N8N_CLIENT_ID",
         env_client_secret="AUTHENTIK_N8N_CLIENT_SECRET",
-        native_oidc=False,  # Forward-auth only
+        native_oidc=False,
+    ),
+    ServiceDef(
+        name="wazuh",
+        display_name="Wazuh SIEM",
+        external_host="https://wazuh.{domain}",
+        oidc_redirect_uris=[],
+        env_client_id="",
+        env_client_secret="",
+        native_oidc=False,
     ),
 ]
 
@@ -131,63 +145,31 @@ class AuthentikAPI:
     def patch(self, path: str, data: dict) -> dict:
         return self._request("PATCH", path, data)
 
-    def list_providers(self) -> list[dict]:
+    def list_oauth2_providers(self) -> list[dict]:
         """List all OAuth2 providers."""
         result = self.get("/api/v3/providers/oauth2/?page_size=100")
         return result.get("results", [])
 
-    def create_provider(
-        self,
-        name: str,
-        redirect_uris: str,
-        client_id: Optional[str] = None,
-        client_secret: Optional[str] = None,
-    ) -> dict:
-        """Create an OAuth2/OIDC provider. Returns the created provider."""
-        payload: dict = {
-            "name": name,
-            "authorization_flow": None,  # Will be set after lookup
-            "invalidation_flow": None,  # Will be set after lookup
-            "redirect_uris": redirect_uris,
-            "client_type": "confidential",
-            "signing_key": None,  # Will be set after lookup
-            "sub_mode": "hashed_user_id",
-            "include_claims_in_id_token": True,
-            "property_mappings": [],  # Will auto-populate with defaults
-        }
-        if client_id:
-            payload["client_id"] = client_id
-        if client_secret:
-            payload["client_secret"] = client_secret
-        return self.post("/api/v3/providers/oauth2/", payload)
+    def list_proxy_providers(self) -> list[dict]:
+        """List all proxy providers."""
+        result = self.get("/api/v3/providers/proxy/?page_size=100")
+        return result.get("results", [])
+
+    def list_all_providers(self) -> list[dict]:
+        """List all providers (any type)."""
+        result = self.get("/api/v3/providers/all/?page_size=200")
+        return result.get("results", [])
 
     def list_applications(self) -> list[dict]:
         """List all applications."""
         result = self.get("/api/v3/core/applications/?page_size=100")
         return result.get("results", [])
 
-    def create_application(
-        self,
-        name: str,
-        slug: str,
-        provider_pk: int,
-        launch_url: str,
-    ) -> dict:
-        """Create an application linked to a provider."""
-        return self.post(
-            "/api/v3/core/applications/",
-            {
-                "name": name,
-                "slug": slug,
-                "provider": provider_pk,
-                "meta_launch_url": launch_url,
-                "policy_engine_mode": "any",
-            },
-        )
-
     def list_flows(self, designation: str) -> list[dict]:
         """List flows by designation (authorization, invalidation, etc.)."""
-        result = self.get(f"/api/v3/flows/instances/?designation={designation}&page_size=50")
+        result = self.get(
+            f"/api/v3/flows/instances/?designation={designation}&page_size=50"
+        )
         return result.get("results", [])
 
     def list_certificate_keypairs(self) -> list[dict]:
@@ -199,10 +181,6 @@ class AuthentikAPI:
         """List all outposts."""
         result = self.get("/api/v3/outposts/instances/?page_size=50")
         return result.get("results", [])
-
-    def update_outpost(self, pk: str, data: dict) -> dict:
-        """Update an outpost."""
-        return self.patch(f"/api/v3/outposts/instances/{pk}/", data)
 
     def list_property_mappings(self, managed_only: bool = True) -> list[dict]:
         """List OIDC scope property mappings."""
@@ -235,7 +213,6 @@ def _update_env_var(key: str, value: str) -> None:
     if pattern.search(content):
         content = pattern.sub(f"{key}={value}", content)
     else:
-        # Append under the OAuth section
         if not content.endswith("\n"):
             content += "\n"
         content += f"{key}={value}\n"
@@ -268,10 +245,8 @@ def _wait_for_api(api: AuthentikAPI, console: Console, timeout: int = 60) -> boo
             return True
         except HTTPError as e:
             if e.code == 403:
-                # Token invalid — try to reset it via Django shell
                 console.print("[yellow]token expired, resetting...[/]", end=" ")
                 if _reset_bootstrap_token(api.token, console):
-                    # Retry immediately
                     try:
                         api.get("/api/v3/core/applications/?page_size=1")
                         console.print("[green]OK[/]")
@@ -295,7 +270,8 @@ def _reset_bootstrap_token(token_key: str, console: Console) -> bool:
         "from authentik.core.models import Token, User; "
         "admin = User.objects.get(username='akadmin'); "
         "Token.objects.filter(identifier='api-admin').delete(); "
-        f"Token.objects.create(identifier='api-admin', user=admin, key='{token_key}', intent='api', expiring=False); "
+        f"Token.objects.create(identifier='api-admin', user=admin, key='{token_key}', "
+        "intent='api', expiring=False); "
         "print('OK')"
     )
     result = exec_in_container(
@@ -309,10 +285,16 @@ def bootstrap_authentik(
     domain: str,
     console: Console,
 ) -> bool:
-    """Bootstrap Authentik OAuth2 providers and applications.
+    """Bootstrap Authentik SSO — proxy providers, OAuth2 providers, and applications.
 
-    Creates providers and applications for all downstream services,
-    configures the embedded outpost, and writes real credentials to .env.
+    For each service, creates:
+    - A proxy provider + forward-auth app ({slug}-fwd) for Traefik middleware
+    - An OAuth2 provider + OIDC app ({slug}) for native OIDC login (if applicable)
+    - Configures the embedded outpost with all providers
+    - Writes OAuth2 credentials to .env
+
+    Idempotent and safe on existing installations. Never reassigns existing
+    application providers — creates new ones alongside.
 
     Returns True on success, False on failure.
     """
@@ -325,46 +307,38 @@ def bootstrap_authentik(
         console.print("[red]AUTHENTIK_BOOTSTRAP_TOKEN not found in .env[/]")
         return False
 
-    # Wait for Authentik
     if not _wait_for_authentik(console):
         return False
 
-    # Connect to API (internal Docker URL)
     api = AuthentikAPI("http://localhost:9000", token)
     if not _wait_for_api(api, console):
         return False
 
     # ── Lookup prerequisites ────────────────────────────────────────────
-    console.print("  Looking up authorization flows...", end=" ")
+    console.print("  Looking up flows and keys...", end=" ")
 
-    # Find the default authorization flow
-    auth_flows = api.list_flows("authorization")
     auth_flow_pk = None
-    for flow in auth_flows:
+    for flow in api.list_flows("authorization"):
         if "default-provider-authorization" in flow.get("slug", ""):
             auth_flow_pk = flow["pk"]
             break
-    if not auth_flow_pk and auth_flows:
-        auth_flow_pk = auth_flows[0]["pk"]
+    if not auth_flow_pk:
+        flows = api.list_flows("authorization")
+        auth_flow_pk = flows[0]["pk"] if flows else None
 
-    # Find the default invalidation flow
-    inval_flows = api.list_flows("invalidation")
     inval_flow_pk = None
-    for flow in inval_flows:
+    for flow in api.list_flows("invalidation"):
         if "default-provider-invalidation" in flow.get("slug", ""):
             inval_flow_pk = flow["pk"]
             break
-    if not inval_flow_pk and inval_flows:
-        inval_flow_pk = inval_flows[0]["pk"]
+    if not inval_flow_pk:
+        flows = api.list_flows("invalidation")
+        inval_flow_pk = flows[0]["pk"] if flows else None
 
     if not auth_flow_pk or not inval_flow_pk:
-        console.print("[red]FAILED[/]")
-        console.print("[red]Could not find authorization/invalidation flows[/]")
+        console.print("[red]FAILED — missing flows[/]")
         return False
-    console.print("[green]OK[/]")
 
-    # Find signing key (certificate keypair)
-    console.print("  Looking up signing keys...", end=" ")
     keypairs = api.list_certificate_keypairs()
     signing_key = None
     for kp in keypairs:
@@ -373,95 +347,121 @@ def bootstrap_authentik(
             break
     if not signing_key and keypairs:
         signing_key = keypairs[0]["pk"]
-    console.print("[green]OK[/]" if signing_key else "[yellow]none (tokens unsigned)[/]")
 
-    # Get default OIDC scope mappings
-    console.print("  Looking up property mappings...", end=" ")
-    mappings = api.list_property_mappings()
-    mapping_pks = [m["pk"] for m in mappings]
-    console.print(f"[green]{len(mapping_pks)} found[/]")
+    mapping_pks = [m["pk"] for m in api.list_property_mappings()]
+    console.print("[green]OK[/]")
 
     # ── Get existing state ──────────────────────────────────────────────
-    existing_providers = {p["name"]: p for p in api.list_providers()}
+    existing_proxy = {p["name"]: p for p in api.list_proxy_providers()}
+    existing_oauth2 = {p["name"]: p for p in api.list_oauth2_providers()}
     existing_apps = {a["slug"]: a for a in api.list_applications()}
 
-    # ── Create providers and applications ───────────────────────────────
+    # Track all provider PKs that should be in the outpost
+    outpost_provider_pks: list[int] = []
     created_credentials: dict[str, tuple[str, str]] = {}
 
-    for app_def in OAUTH_APPS:
-        provider_name = f"{app_def.display_name} OAuth2"
-        console.print(f"  {app_def.display_name}...", end=" ")
+    for svc in SERVICE_DEFS:
+        console.print(f"  {svc.display_name}...", end=" ")
+        external_host = svc.external_host.replace("{domain}", domain)
+        fwd_slug = f"{svc.name}-fwd"
+        fwd_provider_name = f"{svc.display_name} Forward Auth"
 
-        # Check if provider already exists
-        if provider_name in existing_providers:
-            provider = existing_providers[provider_name]
-            client_id = provider.get("client_id", "")
-            client_secret = provider.get("client_secret", "")
-            console.print("[dim]provider exists[/]", end=" ")
+        # ── Layer 1: Proxy provider + forward-auth app ──────────────────
+        if fwd_provider_name in existing_proxy:
+            proxy_provider = existing_proxy[fwd_provider_name]
+            console.print("[dim]proxy exists[/]", end=" ")
         else:
-            # Build redirect URIs as list of {matching_mode, url} objects
-            redirect_uri_objects = [
-                {"matching_mode": "strict", "url": uri.replace("{domain}", domain)}
-                for uri in app_def.redirect_uris
-            ]
-
-            # Create the provider
-            payload: dict = {
-                "name": provider_name,
-                "authorization_flow": auth_flow_pk,
-                "invalidation_flow": inval_flow_pk,
-                "redirect_uris": redirect_uri_objects,
-                "client_type": "confidential",
-                "sub_mode": "hashed_user_id",
-                "include_claims_in_id_token": True,
-                "property_mappings": mapping_pks,
-            }
-            if signing_key:
-                payload["signing_key"] = signing_key
-
             try:
-                provider = api.post("/api/v3/providers/oauth2/", payload)
-                client_id = provider.get("client_id", "")
-                client_secret = provider.get("client_secret", "")
-                console.print("[green]provider created[/]", end=" ")
-            except HTTPError as e:
-                body = e.read().decode() if hasattr(e, "read") else str(e)
-                console.print(f"[red]provider failed: {body}[/]")
-                continue
-
-        # Create or update application
-        if app_def.name in existing_apps:
-            existing_app = existing_apps[app_def.name]
-            # If app exists but points to a different provider, update it
-            if existing_app.get("provider") != provider["pk"]:
-                try:
-                    api.patch(
-                        f"/api/v3/core/applications/{app_def.name}/",
-                        {"provider": provider["pk"]},
-                    )
-                    console.print("[green]app updated[/]")
-                except HTTPError:
-                    console.print("[dim]app exists[/]")
-            else:
-                console.print("[dim]app exists[/]")
-        else:
-            launch_url = app_def.launch_url.replace("{domain}", domain)
-            try:
-                api.create_application(
-                    name=app_def.display_name,
-                    slug=app_def.name,
-                    provider_pk=provider["pk"],
-                    launch_url=launch_url,
+                proxy_provider = api.post(
+                    "/api/v3/providers/proxy/",
+                    {
+                        "name": fwd_provider_name,
+                        "authorization_flow": auth_flow_pk,
+                        "invalidation_flow": inval_flow_pk,
+                        "external_host": external_host,
+                        "mode": "forward_single",
+                    },
                 )
-                console.print("[green]app created[/]")
+                console.print("[green]proxy[/]", end=" ")
             except HTTPError as e:
                 body = e.read().decode() if hasattr(e, "read") else str(e)
-                console.print(f"[red]app failed: {body}[/]")
+                console.print(f"[red]proxy failed: {body}[/]")
                 continue
 
-        # Store credentials for .env update
-        if client_id and client_secret:
-            created_credentials[app_def.name] = (client_id, client_secret)
+        outpost_provider_pks.append(proxy_provider["pk"])
+
+        # Forward-auth application
+        if fwd_slug not in existing_apps:
+            try:
+                api.post(
+                    "/api/v3/core/applications/",
+                    {
+                        "name": f"{svc.display_name} (Forward Auth)",
+                        "slug": fwd_slug,
+                        "provider": proxy_provider["pk"],
+                        "meta_launch_url": external_host,
+                        "policy_engine_mode": "any",
+                    },
+                )
+            except HTTPError:
+                pass  # Non-fatal — app may exist under different slug
+
+        # ── Layer 2: OAuth2 provider + OIDC app (native OIDC only) ──────
+        if svc.native_oidc:
+            oauth2_provider_name = f"{svc.display_name} OAuth2"
+
+            if oauth2_provider_name in existing_oauth2:
+                oauth2_provider = existing_oauth2[oauth2_provider_name]
+            else:
+                redirect_uri_objects = [
+                    {"matching_mode": "strict", "url": uri.replace("{domain}", domain)}
+                    for uri in svc.oidc_redirect_uris
+                ]
+                payload: dict = {
+                    "name": oauth2_provider_name,
+                    "authorization_flow": auth_flow_pk,
+                    "invalidation_flow": inval_flow_pk,
+                    "redirect_uris": redirect_uri_objects,
+                    "client_type": "confidential",
+                    "sub_mode": "hashed_user_id",
+                    "include_claims_in_id_token": True,
+                    "property_mappings": mapping_pks,
+                }
+                if signing_key:
+                    payload["signing_key"] = signing_key
+
+                try:
+                    oauth2_provider = api.post("/api/v3/providers/oauth2/", payload)
+                except HTTPError as e:
+                    body = e.read().decode() if hasattr(e, "read") else str(e)
+                    console.print(f"[red]oauth2 failed: {body}[/]")
+                    continue
+
+            outpost_provider_pks.append(oauth2_provider["pk"])
+
+            # OIDC application — create if missing, but NEVER reassign existing
+            if svc.name not in existing_apps:
+                try:
+                    api.post(
+                        "/api/v3/core/applications/",
+                        {
+                            "name": svc.display_name,
+                            "slug": svc.name,
+                            "provider": oauth2_provider["pk"],
+                            "meta_launch_url": external_host,
+                            "policy_engine_mode": "any",
+                        },
+                    )
+                except HTTPError:
+                    pass  # Non-fatal
+
+            # Store credentials
+            client_id = oauth2_provider.get("client_id", "")
+            client_secret = oauth2_provider.get("client_secret", "")
+            if client_id and client_secret:
+                created_credentials[svc.name] = (client_id, client_secret)
+
+        console.print("[green]OK[/]")
 
     # ── Configure embedded outpost ──────────────────────────────────────
     console.print("  Configuring embedded outpost...", end=" ")
@@ -474,21 +474,12 @@ def bootstrap_authentik(
                 break
 
         if embedded:
-            # Outpost.providers expects provider PKs (integers), not application PKs
-            # Get all our newly created provider PKs
-            all_providers = api.list_providers()
-            our_provider_names = {f"{a.display_name} OAuth2" for a in OAUTH_APPS}
-            new_provider_pks = [
-                p["pk"]
-                for p in all_providers
-                if p["name"] in our_provider_names
-            ]
-
-            # Merge with existing providers on the outpost
             existing_pks = embedded.get("providers", [])
-            merged_pks = list(set(existing_pks + new_provider_pks))
-
-            api.update_outpost(embedded["pk"], {"providers": merged_pks})
+            merged_pks = list(set(existing_pks + outpost_provider_pks))
+            api.patch(
+                f"/api/v3/outposts/instances/{embedded['pk']}/",
+                {"providers": merged_pks},
+            )
             console.print(f"[green]OK ({len(merged_pks)} providers)[/]")
         else:
             console.print("[yellow]no embedded outpost found[/]")
@@ -498,20 +489,23 @@ def bootstrap_authentik(
     # ── Write credentials to .env ───────────────────────────────────────
     console.print("  Updating .env with OAuth2 credentials...", end=" ")
     updates = 0
-    for app_def in OAUTH_APPS:
-        if app_def.name in created_credentials:
-            client_id, client_secret = created_credentials[app_def.name]
-            _update_env_var(app_def.env_client_id, client_id)
-            _update_env_var(app_def.env_client_secret, client_secret)
-            # Grafana uses duplicate env vars (GRAFANA_OAUTH_* and AUTHENTIK_GRAFANA_*)
-            if app_def.name == "grafana":
+    for svc in SERVICE_DEFS:
+        if svc.name in created_credentials and svc.env_client_id:
+            client_id, client_secret = created_credentials[svc.name]
+            _update_env_var(svc.env_client_id, client_id)
+            _update_env_var(svc.env_client_secret, client_secret)
+            # Grafana uses duplicate env vars
+            if svc.name == "grafana":
                 _update_env_var("AUTHENTIK_GRAFANA_CLIENT_ID", client_id)
                 _update_env_var("AUTHENTIK_GRAFANA_CLIENT_SECRET", client_secret)
             updates += 1
     console.print(f"[green]{updates} services configured[/]")
 
-    # ── Summary ─────────────────────────────────────────────────────────
-    console.print(f"\n  [green]Authentik SSO bootstrap complete: "
-                  f"{len(created_credentials)}/{len(OAUTH_APPS)} services configured[/]")
+    console.print(
+        f"\n  [green]Authentik SSO bootstrap complete: "
+        f"{len(created_credentials)}/{sum(1 for s in SERVICE_DEFS if s.native_oidc)} "
+        f"OIDC services + "
+        f"{len(SERVICE_DEFS)} forward-auth services configured[/]"
+    )
 
     return True
