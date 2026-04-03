@@ -16,12 +16,13 @@ permissions:
 jobs:
   pyinstaller:
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: ubuntu-22.04
             suffix: linux
             ext: ""
-          - os: macos-13
+          - os: macos-14
             suffix: macos
             ext: ""
           - os: windows-2022
@@ -59,6 +60,7 @@ jobs:
 
       - name: Download Cosmopolitan Python
         run: |
+          curl -sSfL -o python3 https://cosmo.zip/pub/cosmos/v/4.0.2/bin/python3 || \
           curl -sSfL -o python3 https://cosmo.zip/pub/cosmos/bin/python3
           chmod +x python3
 
@@ -75,7 +77,7 @@ jobs:
 
   release:
     needs: [pyinstaller, cosmo]
-    if: always() && needs.pyinstaller.result == 'success'
+    if: always() && !cancelled()
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
@@ -87,10 +89,17 @@ jobs:
       - name: Collect release assets
         run: |
           mkdir -p release-assets
-          cp artifacts/acropolis-install-linux/acropolis-install-linux release-assets/
-          cp artifacts/acropolis-install-macos/acropolis-install-macos release-assets/
-          cp artifacts/acropolis-install-win/acropolis-install-win.exe release-assets/
+          # Copy whichever platform binaries were built (some may be missing)
+          for name in acropolis-install-linux acropolis-install-macos acropolis-install-win; do
+            if [ -d "artifacts/${name}" ]; then
+              cp artifacts/${name}/* release-assets/
+              echo "Collected: ${name}"
+            else
+              echo "Skipped (not built): ${name}"
+            fi
+          done
           cp installer/install.sh release-assets/
+          ls -lh release-assets/
 
       - name: Generate checksums
         working-directory: release-assets
