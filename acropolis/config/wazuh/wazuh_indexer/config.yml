@@ -13,6 +13,25 @@ config:
         order: 0
         http_authenticator:
           type: basic
-          challenge: true
+          challenge: false
         authentication_backend:
           type: intern
+      saml_auth_domain:
+        description: "Authenticate via Authentik SAML"
+        http_enabled: true
+        transport_enabled: false
+        order: 1
+        http_authenticator:
+          type: saml
+          challenge: true
+          config:
+            idp:
+              metadata_file: '/usr/share/wazuh-indexer/config/opensearch-security/idp-metadata.xml'
+              entity_id: 'https://auth.acumenus.net'
+            sp:
+              entity_id: wazuh-saml
+            kibana_url: https://wazuh.acumenus.net
+            roles_key: http://schemas.xmlsoap.org/claims/Group
+            exchange_key: '2ac570e0b547fefef81237c0572ccad93fd81cd03dd75b3bbb79f109ba7e0641'
+        authentication_backend:
+          type: noop

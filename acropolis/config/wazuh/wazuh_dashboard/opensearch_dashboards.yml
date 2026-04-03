@@ -13,3 +13,8 @@ uiSettings.overrides.defaultRoute: /app/wz-home
 opensearch_security.cookie.ttl: 900000
 opensearch_security.session.ttl: 900000
 opensearch_security.session.keepalive: false
+
+# Authentik SAML SSO
+opensearch_security.auth.multiple_auth_enabled: true
+opensearch_security.auth.type: ["basicauth","saml"]
+server.xsrf.allowlist: ["/_opendistro/_security/saml/acs", "/_opendistro/_security/saml/logout", "/_opendistro/_security/saml/acs/idpinitiated"]

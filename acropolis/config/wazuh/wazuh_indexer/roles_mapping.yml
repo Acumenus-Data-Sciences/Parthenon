@@ -8,9 +8,12 @@ all_access:
   backend_roles:
     - "admin"
     - "all_access"
+    - "authentik Admins"
   users:
     - "admin"
-  description: "Maps admin and SAML all_access to all_access role"
+    - "akadmin"
+    - "sudoshi"
+  description: "Maps admin and Authentik SAML users to all_access role"
 
 own_index:
   reserved: false

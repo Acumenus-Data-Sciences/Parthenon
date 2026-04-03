@@ -650,6 +650,7 @@ services:
       - ./config/wazuh/wazuh_indexer/internal_users.yml:/usr/share/wazuh-indexer/config/opensearch-security/internal_users.yml:ro
       - ./config/wazuh/wazuh_indexer/config.yml:/usr/share/wazuh-indexer/config/opensearch-security/config.yml:ro
       - ./config/wazuh/wazuh_indexer/roles_mapping.yml:/usr/share/wazuh-indexer/config/opensearch-security/roles_mapping.yml:ro
+      - ./config/wazuh/wazuh_indexer/idp-metadata.xml:/usr/share/wazuh-indexer/config/opensearch-security/idp-metadata.xml:ro
     networks:
       acropolis:
         aliases:
