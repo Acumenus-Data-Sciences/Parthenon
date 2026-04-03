@@ -16,19 +16,13 @@ apps:
     command: bin/parthenon-install
 
 parts:
-  installer:
-    plugin: dump
-    source: .
-    source-type: local
-    organize:
-      installer/*: lib/parthenon/installer/
-      install.py: lib/parthenon/install.py
-    override-prime: |
-      craftctl default
-      mkdir -p bin
-      pip install --target=lib/parthenon/deps rich questionary 2>/dev/null || python3 -m pip install --target=lib/parthenon/deps rich questionary --break-system-packages
-      printf '#!/usr/bin/env python3\nimport sys, os\nbase = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "lib", "parthenon")\nsys.path.insert(0, os.path.join(base, "deps"))\nsys.path.insert(0, base)\nfrom installer.bootstrap_remote import main\nmain()\n' > bin/parthenon-install
-      chmod +x bin/parthenon-install
-    stage:
-      - lib/parthenon/
-      - bin/
+  binary:
+    plugin: nil
+    override-build: |
+      mkdir -p ${CRAFT_PART_INSTALL}/bin
+      RELEASE_URL="https://github.com/sudoshi/Parthenon/releases/download/v1.0.3/acropolis-install-linux.tar.gz"
+      curl -fsSL "${RELEASE_URL}" | tar xz -C ${CRAFT_PART_INSTALL}/bin/
+      mv ${CRAFT_PART_INSTALL}/bin/acropolis-install ${CRAFT_PART_INSTALL}/bin/parthenon-install
+      chmod +x ${CRAFT_PART_INSTALL}/bin/parthenon-install
+    build-packages:
+      - curl
