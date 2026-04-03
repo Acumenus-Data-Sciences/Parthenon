@@ -185,8 +185,112 @@ jobs:
           name: parthenon-deb
           path: parthenon-installer_1.0.3_amd64.deb
 
+  sign-macos:
+    name: Sign + notarize macOS
+    needs: [macos]
+    runs-on: macos-14
+    continue-on-error: true
+    if: ${{ vars.APPLE_SIGNING_ENABLED == 'true' }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: acropolis-install-macos
+          path: artifacts
+
+      - name: Unzip macOS package
+        run: |
+          mkdir -p work
+          cd work && unzip ../artifacts/acropolis-install-macos.zip
+
+      - name: Import Apple certificate
+        env:
+          APPLE_CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+        run: |
+          echo "$APPLE_CERTIFICATE_BASE64" | base64 --decode > cert.p12
+          security create-keychain -p "" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "" build.keychain
+          security import cert.p12 -k build.keychain -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k "" build.keychain
+          rm cert.p12
+
+      - name: Sign binary
+        run: |
+          codesign --sign "Developer ID Application: ${{ vars.APPLE_TEAM_NAME }}" \
+            --options runtime --timestamp \
+            work/acropolis-install.com
+
+      - name: Create signed .pkg
+        run: |
+          pkgbuild --root work \
+            --identifier io.acumenus.parthenon-installer \
+            --version 1.0.3 \
+            --install-location /usr/local/bin \
+            unsigned.pkg
+          productsign --sign "Developer ID Installer: ${{ vars.APPLE_TEAM_NAME }}" \
+            unsigned.pkg \
+            Parthenon-Installer-1.0.3.pkg
+          rm unsigned.pkg
+
+      - name: Notarize
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+        run: |
+          xcrun notarytool submit Parthenon-Installer-1.0.3.pkg \
+            --apple-id "$APPLE_ID" \
+            --team-id "$APPLE_TEAM_ID" \
+            --password "$APPLE_APP_PASSWORD" \
+            --wait --timeout 10m
+          xcrun stapler staple Parthenon-Installer-1.0.3.pkg
+
+      - name: Re-zip signed macOS package
+        run: |
+          cd work && zip -r ../acropolis-install-macos-signed.zip . -x ".*"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: acropolis-install-macos-signed
+          path: |
+            acropolis-install-macos-signed.zip
+            Parthenon-Installer-1.0.3.pkg
+
+  sign-windows:
+    name: Sign Windows exe
+    needs: [windows]
+    runs-on: windows-2022
+    continue-on-error: true
+    if: ${{ vars.WINDOWS_SIGNING_ENABLED == 'true' }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: acropolis-install-win
+          path: artifacts
+
+      - name: Import certificate
+        env:
+          WINDOWS_CERTIFICATE_BASE64: ${{ secrets.WINDOWS_CERTIFICATE_BASE64 }}
+          WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+        run: |
+          $certBytes = [Convert]::FromBase64String($env:WINDOWS_CERTIFICATE_BASE64)
+          [IO.File]::WriteAllBytes("cert.pfx", $certBytes)
+          Import-PfxCertificate -FilePath cert.pfx -CertStoreLocation Cert:\CurrentUser\My -Password (ConvertTo-SecureString -String $env:WINDOWS_CERTIFICATE_PASSWORD -AsPlainText -Force)
+          Remove-Item cert.pfx
+
+      - name: Sign exe
+        run: |
+          $cert = Get-ChildItem Cert:\CurrentUser\My -CodeSigningCert | Select-Object -First 1
+          Set-AuthenticodeSignature -FilePath artifacts/acropolis-install-win.exe -Certificate $cert -TimestampServer "http://timestamp.digicert.com"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: acropolis-install-win-signed
+          path: artifacts/acropolis-install-win.exe
+
   release:
-    needs: [linux, macos, windows, snap, deb]
+    needs: [linux, macos, windows, snap, deb, sign-macos, sign-windows]
     if: always() && !cancelled()
     runs-on: ubuntu-22.04
     steps:
@@ -199,7 +303,25 @@ jobs:
       - name: Collect release assets
         run: |
           mkdir -p release-assets
-          for name in acropolis-install-linux acropolis-install-macos acropolis-install-win parthenon-snap parthenon-deb; do
+
+          # Prefer signed artifacts when available, fall back to unsigned
+          if [ -d "artifacts/acropolis-install-macos-signed" ]; then
+            cp artifacts/acropolis-install-macos-signed/* release-assets/
+            echo "Collected: macOS (signed + notarized)"
+          elif [ -d "artifacts/acropolis-install-macos" ]; then
+            cp artifacts/acropolis-install-macos/* release-assets/
+            echo "Collected: macOS (unsigned)"
+          fi
+
+          if [ -d "artifacts/acropolis-install-win-signed" ]; then
+            cp artifacts/acropolis-install-win-signed/* release-assets/
+            echo "Collected: Windows (signed)"
+          elif [ -d "artifacts/acropolis-install-win" ]; then
+            cp artifacts/acropolis-install-win/* release-assets/
+            echo "Collected: Windows (unsigned)"
+          fi
+
+          for name in acropolis-install-linux parthenon-snap parthenon-deb; do
             if [ -d "artifacts/${name}" ]; then
               cp artifacts/${name}/* release-assets/
               echo "Collected: ${name}"
