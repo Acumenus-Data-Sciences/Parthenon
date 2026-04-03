@@ -176,6 +176,45 @@ h1 {
 .fallback a { color: var(--accent); text-decoration: none; }
 .fallback a:hover { text-decoration: underline; }
 
+.install-method {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+}
+
+.install-method .curl-block {
+  margin-top: 0.5rem;
+}
+
+.method-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--accent);
+  margin-bottom: 0.25rem;
+}
+
+.method-note {
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  color: var(--text-ghost);
+  line-height: 1.5;
+}
+
+.method-note a {
+  color: var(--text-muted);
+  text-decoration: none;
+  border-bottom: 1px solid var(--text-ghost);
+}
+
+.method-note a:hover {
+  color: var(--accent);
+}
+
 .divider-line {
   text-align: center;
   margin: 1rem 0;

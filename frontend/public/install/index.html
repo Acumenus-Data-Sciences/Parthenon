@@ -14,37 +14,53 @@
       <p class="subtitle">Unified Outcomes Research Platform on OMOP CDM</p>
       <p class="description">
         Deploy the full Parthenon stack with a single command. The Acropolis
-        installer provisions infrastructure, configures SSO, loads OMOP
-        vocabularies, and starts all services &mdash; community or enterprise
-        &mdash; in one guided flow.
+        installer provisions infrastructure, configures services, loads OMOP
+        vocabularies, and starts the platform &mdash; community or enterprise
+        &mdash; through a guided flow.
       </p>
 
-      <div class="download-grid">
-        <a id="dl-linux" class="download-btn" href="https://github.com/sudoshi/Parthenon/releases/latest">
-          <span class="dl-label">Linux</span>
-          <span class="dl-hint">Download .tar.gz</span>
-        </a>
-        <a id="dl-macos" class="download-btn" href="https://github.com/sudoshi/Parthenon/releases/latest">
-          <span class="dl-label">macOS</span>
-          <span class="dl-hint">Intel + Apple Silicon</span>
-        </a>
-        <a id="dl-windows" class="download-btn" href="https://github.com/sudoshi/Parthenon/releases/latest">
-          <span class="dl-label">Windows</span>
-          <span class="dl-hint">Download .exe</span>
-        </a>
+      <div class="install-method">
+        <div class="method-label">macOS + Linux</div>
+        <div class="curl-block">
+          <code>brew tap sudoshi/parthenon</code>
+          <button class="copy-btn" data-copy="brew tap sudoshi/parthenon" type="button">Copy</button>
+        </div>
+        <div class="curl-block">
+          <code>brew install parthenon-installer</code>
+          <button class="copy-btn" data-copy="brew install parthenon-installer" type="button">Copy</button>
+        </div>
+        <div class="curl-block">
+          <code>parthenon-install</code>
+          <button class="copy-btn" data-copy="parthenon-install" type="button">Copy</button>
+        </div>
+        <p class="method-note">Requires <a href="https://brew.sh" target="_blank" rel="noopener noreferrer">Homebrew</a>. Works on macOS (Intel + Apple Silicon) and Linux.</p>
       </div>
 
-      <div class="post-download" id="post-download">
-        <p id="post-instructions"></p>
+      <div class="install-method">
+        <div class="method-label">Ubuntu / Debian</div>
+        <div class="curl-block">
+          <code>sudo snap install parthenon-installer --classic</code>
+          <button class="copy-btn" data-copy="sudo snap install parthenon-installer --classic" type="button">Copy</button>
+        </div>
+        <p class="method-note">Coming soon. Snap package in review.</p>
+      </div>
+
+      <div class="install-method">
+        <div class="method-label">Windows</div>
+        <div class="curl-block">
+          <code>winget install Acumenus.ParthenonInstaller</code>
+          <button class="copy-btn" data-copy="winget install Acumenus.ParthenonInstaller" type="button">Copy</button>
+        </div>
+        <p class="method-note">Coming soon. Requires WSL 2 and Docker Desktop.</p>
       </div>
 
       <div class="divider-line">
-        <span>or use Terminal</span>
+        <span>or use the install script</span>
       </div>
 
       <div class="curl-block">
-        <code id="install-cmd">curl -fsSL https://parthenon.acumenus.net/install.sh | sh</code>
-        <button id="copy-btn" class="copy-btn" type="button">Copy</button>
+        <code>curl -fsSL https://parthenon.acumenus.net/install.sh | sh</code>
+        <button class="copy-btn" data-copy="curl -fsSL https://parthenon.acumenus.net/install.sh | sh" type="button">Copy</button>
       </div>
 
       <div class="requirements">
