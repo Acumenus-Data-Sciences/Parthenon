@@ -2,6 +2,9 @@
 # Apache Superset — Configuration
 # =============================================================================
 # Docs: https://superset.apache.org/docs/configuration/configuring-superset
+#
+# Authentication: Authentik forward auth via Traefik middleware.
+# No native OAuth2/OIDC — Superset uses its own admin login after the SSO gate.
 # =============================================================================
 import os
 
@@ -67,54 +70,6 @@ THEME_DEFAULT = {
         "brandAppName": "Acropolis Analytics",
     }
 }
-
-# ── Authentik SSO ──────────────────────────────────────────────────────────
-import logging
-from flask_appbuilder.security.manager import AUTH_OAUTH
-
-_AUTH_DOMAIN = f"auth.{os.environ.get('DOMAIN', 'acumenus.net')}"
-
-AUTH_TYPE = AUTH_OAUTH
-OAUTH_PROVIDERS = [
-    {
-        "name": "authentik",
-        "token_key": "access_token",
-        "icon": "fa-key",
-        "remote_app": {
-            "client_id": os.environ.get("AUTHENTIK_SUPERSET_CLIENT_ID"),
-            "client_secret": os.environ.get("AUTHENTIK_SUPERSET_CLIENT_SECRET"),
-            "server_metadata_url": f"https://{_AUTH_DOMAIN}/application/o/superset/.well-known/openid-configuration",
-            "api_base_url": f"https://{_AUTH_DOMAIN}/application/o/",
-            "userinfo_endpoint": f"https://{_AUTH_DOMAIN}/application/o/userinfo/",
-            "client_kwargs": {"scope": "openid email profile"},
-        },
-    }
-]
-
-AUTH_USER_REGISTRATION = True
-AUTH_USER_REGISTRATION_ROLE = "Gamma"
-
-logger = logging.getLogger(__name__)
-
-from superset.security import SupersetSecurityManager
-
-
-class CustomSsoSecurityManager(SupersetSecurityManager):
-    def oauth_user_info(self, provider, response=None):
-        me = self.appbuilder.sm.oauth_remotes[provider].get("userinfo/")
-        me.raise_for_status()
-        data = me.json()
-        logger.debug("Authentik userinfo: %s", data)
-        return {
-            "username": data.get("preferred_username", ""),
-            "name": data.get("name", ""),
-            "email": data.get("email", ""),
-            "first_name": data.get("given_name", ""),
-            "last_name": data.get("family_name", ""),
-        }
-
-
-CUSTOM_SECURITY_MANAGER = CustomSsoSecurityManager
 
 # ── OMOP Database Connections ───────────────────────────────────────────────
 # Pre-configure in Superset UI or via API:

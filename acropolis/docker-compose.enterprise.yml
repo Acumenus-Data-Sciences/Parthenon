@@ -103,9 +103,6 @@ services:
       - DATABASE_PASSWORD=${SUPERSET_DB_PASSWORD:-superset}
       - REDIS_HOST=superset-cache
       - REDIS_PORT=6379
-      - DOMAIN=${DOMAIN:-acumenus.net}
-      - AUTHENTIK_SUPERSET_CLIENT_ID=${AUTHENTIK_SUPERSET_CLIENT_ID}
-      - AUTHENTIK_SUPERSET_CLIENT_SECRET=${AUTHENTIK_SUPERSET_CLIENT_SECRET}
     volumes:
       - superset_home:/app/superset_home
       - ./config/superset/superset_config.py:/app/superset_config.py:ro
@@ -421,17 +418,8 @@ services:
       - DATAHUB_SYSTEM_CLIENT_SECRET=${DATAHUB_SYSTEM_CLIENT_SECRET}
       - DATAHUB_TOKEN_SERVICE_SIGNING_KEY=${DATAHUB_TOKEN_SERVICE_SIGNING_KEY}
       - DATAHUB_TOKEN_SERVICE_SALT=${DATAHUB_TOKEN_SERVICE_SALT}
-      # OIDC SSO via Authentik
-      - AUTH_OIDC_ENABLED=true
-      - AUTH_OIDC_CLIENT_ID=${AUTHENTIK_DATAHUB_CLIENT_ID}
-      - AUTH_OIDC_CLIENT_SECRET=${AUTHENTIK_DATAHUB_CLIENT_SECRET}
-      - AUTH_OIDC_DISCOVERY_URI=https://auth.${DOMAIN:-acumenus.net}/application/o/datahub/.well-known/openid-configuration
-      - AUTH_OIDC_BASE_URL=https://datahub.${DOMAIN:-acumenus.net}
-      - AUTH_OIDC_SCOPE=openid profile email
-      - AUTH_OIDC_USER_NAME_CLAIM=email
-      - AUTH_OIDC_JIT_PROVISIONING_ENABLED=true
-      - AUTH_OIDC_PRE_PROVISIONING_REQUIRED=false
-      # Native login alongside OIDC for admin token generation
+      # Native login only — Authentik forward auth handles the SSO gate
+      - AUTH_OIDC_ENABLED=false
       - AUTH_JAAS_ENABLED=true
       # Theme V2 (required for v1.4+)
       - THEME_V2_ENABLED=true
