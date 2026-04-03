@@ -639,7 +639,6 @@ services:
       - ./config/wazuh/wazuh_indexer/internal_users.yml:/usr/share/wazuh-indexer/config/opensearch-security/internal_users.yml:ro
       - ./config/wazuh/wazuh_indexer/config.yml:/usr/share/wazuh-indexer/config/opensearch-security/config.yml:ro
       - ./config/wazuh/wazuh_indexer/roles_mapping.yml:/usr/share/wazuh-indexer/config/opensearch-security/roles_mapping.yml:ro
-      - ./config/wazuh/wazuh_indexer/idp-metadata.xml:/usr/share/wazuh-indexer/config/opensearch-security/idp-metadata.xml:ro
     networks:
       acropolis:
         aliases:
@@ -690,7 +689,7 @@ services:
       - "traefik.http.services.wazuh.loadbalancer.serversTransport=insecureTransport@file"
       - "traefik.http.routers.wazuh.middlewares=authentik@docker"
     healthcheck:
-      test: ["CMD-SHELL", "curl -sk https://localhost:5601/login >/dev/null || exit 1"]
+      test: ["CMD-SHELL", "curl -sk -u admin:${WAZUH_INDEXER_PASSWORD:-SecretPassword} https://localhost:5601/api/status >/dev/null 2>&1 || curl -sk https://localhost:5601 -o /dev/null -w '%{http_code}' | grep -q '[23]' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5

@@ -18,19 +18,19 @@ services:
     environment:
       - PYTHONPATH=/app/superset_home/.local/lib/python3.10/site-packages
     command: >
-      bash -c "uv pip install --system --target /app/superset_home/.local/lib/python3.10/site-packages psycopg2-binary authlib && /usr/bin/run-server.sh"
+      bash -c "uv pip install --system --target /app/superset_home/.local/lib/python3.10/site-packages psycopg2-binary && /usr/bin/run-server.sh"
 
   superset-worker:
     environment:
       - PYTHONPATH=/app/superset_home/.local/lib/python3.10/site-packages
     command: >
-      bash -c "uv pip install --system --target /app/superset_home/.local/lib/python3.10/site-packages psycopg2-binary authlib && celery --app=superset.tasks.celery_app:app worker --pool=prefork -O fair -c 4"
+      bash -c "uv pip install --system --target /app/superset_home/.local/lib/python3.10/site-packages psycopg2-binary && celery --app=superset.tasks.celery_app:app worker --pool=prefork -O fair -c 4"
 
   superset-beat:
     environment:
       - PYTHONPATH=/app/superset_home/.local/lib/python3.10/site-packages
     command: >
-      bash -c "uv pip install --system --target /app/superset_home/.local/lib/python3.10/site-packages psycopg2-binary authlib && celery --app=superset.tasks.celery_app:app beat --pidfile /tmp/celerybeat.pid --schedule /tmp/celerybeat-schedule"
+      bash -c "uv pip install --system --target /app/superset_home/.local/lib/python3.10/site-packages psycopg2-binary && celery --app=superset.tasks.celery_app:app beat --pidfile /tmp/celerybeat.pid --schedule /tmp/celerybeat-schedule"
 
   datahub-frontend:
     ports: []

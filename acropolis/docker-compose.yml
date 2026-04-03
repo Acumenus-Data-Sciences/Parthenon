@@ -1,0 +1,18 @@
+# =============================================================================
+# Acropolis — Unified Compose Entrypoint
+# =============================================================================
+# This is the ONLY file you should reference. It layers all compose files:
+#
+#   docker compose up -d           # Start everything
+#   docker compose ps              # Check health
+#   docker compose down            # Stop everything
+#
+# DO NOT use individual compose files directly — this file ensures the
+# correct layering order and prevents orphan containers.
+# =============================================================================
+
+include:
+  - docker-compose.base.yml
+  - docker-compose.community.yml
+  - docker-compose.enterprise.yml
+  - docker-compose.local.yml
