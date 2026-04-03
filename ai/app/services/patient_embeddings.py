@@ -49,7 +49,8 @@ def _encode_and_project(texts: list[str], target_dim: int) -> NDArray[np.float64
     pooled = arr.mean(axis=0)  # (768,)
 
     # Project to target dimension via truncation
-    return pooled[:target_dim]
+    projected: NDArray[np.float64] = pooled[:target_dim]
+    return projected
 
 
 def _encode_demographics(features: dict) -> NDArray[np.float64]:

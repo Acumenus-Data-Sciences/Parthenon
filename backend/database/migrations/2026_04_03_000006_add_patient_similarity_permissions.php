@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Spatie\Permission\Exceptions\RoleDoesNotExist;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
@@ -16,16 +17,14 @@ return new class extends Migration
             ['name' => 'patient-similarity.compute', 'guard_name' => 'web'],
         );
 
-        // Assign view to researcher and viewer roles
-        $researcher = Role::findByName('researcher', 'web');
-        $researcher->givePermissionTo($view);
-
-        $viewer = Role::findByName('viewer', 'web');
-        $viewer->givePermissionTo($view);
-
-        // Assign compute to data-steward role
-        $dataSteward = Role::findByName('data-steward', 'web');
-        $dataSteward->givePermissionTo($compute);
+        // Assign to roles if they exist (roles may not be seeded yet in CI)
+        try {
+            Role::findByName('researcher', 'web')->givePermissionTo($view);
+            Role::findByName('viewer', 'web')->givePermissionTo($view);
+            Role::findByName('data-steward', 'web')->givePermissionTo($compute);
+        } catch (RoleDoesNotExist $e) {
+            // Roles will be assigned when RolePermissionSeeder runs
+        }
     }
 
     public function down(): void
