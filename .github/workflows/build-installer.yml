@@ -22,9 +22,6 @@ jobs:
           - os: ubuntu-22.04
             suffix: linux
             ext: ""
-          - os: macos-14
-            suffix: macos-arm64
-            ext: ""
           - os: windows-2022
             suffix: win
             ext: ".exe"
@@ -52,64 +49,36 @@ jobs:
           name: acropolis-install-${{ matrix.suffix }}
           path: installer/dist/acropolis-install-${{ matrix.suffix }}${{ matrix.ext }}
 
-  pyinstaller-macos-x64:
-    name: PyInstaller (macOS x64)
-    runs-on: macos-15
+  cosmo:
+    name: Cosmopolitan APE (universal)
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          architecture: x64
 
-      - name: Install PyInstaller
-        run: pip install pyinstaller
+      - name: Build APE binary
+        run: python3 installer/build_cosmo.py -o dist/acropolis-install.com
 
-      - name: Build x64 binary
-        working-directory: installer
-        run: pyinstaller acropolis-install.spec
-
-      - name: Rename binary
-        working-directory: installer/dist
-        run: mv acropolis-install acropolis-install-macos-x64
+      - name: Verify APE
+        run: |
+          ls -lh dist/acropolis-install.com
+          # Disable binfmt_misc .NET handler that conflicts with APE
+          sudo sh -c 'echo -1 > /proc/sys/fs/binfmt_misc/cli' 2>/dev/null || true
+          # Assimilate to native ELF for testing on this runner
+          dist/acropolis-install.com --assimilate 2>/dev/null || true
+          # Verify the embedded installer package is importable
+          dist/acropolis-install.com -c "from installer.bootstrap_remote import main; print('import OK')"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: acropolis-install-macos-x64
-          path: installer/dist/acropolis-install-macos-x64
-
-  cosmo:
-    runs-on: ubuntu-22.04
-    continue-on-error: true
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download Cosmopolitan Python
-        run: |
-          curl -sSfL -o cosmo-python https://cosmo.zip/pub/cosmos/bin/python
-          chmod +x cosmo-python
-
-      - name: Assimilate APE binary
-        run: |
-          # APE binaries can conflict with binfmt_misc handlers on GitHub runners.
-          # Use the built-in --assimilate flag to convert the APE into a native ELF,
-          # or fall back to sh invocation if assimilate is unavailable.
-          ./cosmo-python --assimilate 2>/dev/null || sh ./cosmo-python --assimilate 2>/dev/null || true
-
-      - name: Validate stdlib compatibility
-        run: ./cosmo-python installer/test_cosmo_compat.py
-
-      # TODO: actual APE packaging step — placeholder for now
-
-      - uses: actions/upload-artifact@v4
-        if: success()
-        with:
-          name: cosmo-compat-report
-          path: installer/test_cosmo_compat.py
+          name: acropolis-install-cosmo
+          path: dist/acropolis-install.com
 
   release:
-    needs: [pyinstaller, pyinstaller-macos-x64, cosmo]
+    needs: [pyinstaller, cosmo]
     if: always() && !cancelled()
     runs-on: ubuntu-22.04
     steps:
@@ -123,7 +92,7 @@ jobs:
         run: |
           mkdir -p release-assets
           # Copy whichever platform binaries were built (some may be missing)
-          for name in acropolis-install-linux acropolis-install-macos-arm64 acropolis-install-macos-x64 acropolis-install-win; do
+          for name in acropolis-install-linux acropolis-install-cosmo acropolis-install-win; do
             if [ -d "artifacts/${name}" ]; then
               cp artifacts/${name}/* release-assets/
               echo "Collected: ${name}"
