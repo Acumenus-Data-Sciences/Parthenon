@@ -1,0 +1,30 @@
+PackageIdentifier: Acumenus.ParthenonInstaller
+PackageVersion: 1.0.3
+PackageName: Parthenon Installer
+Publisher: Acumenus Data Sciences
+PublisherUrl: https://www.acumenus.io
+PublisherSupportUrl: https://github.com/sudoshi/Parthenon/issues
+PackageUrl: https://github.com/sudoshi/Parthenon
+License: Apache-2.0
+LicenseUrl: https://github.com/sudoshi/Parthenon/blob/main/LICENSE
+ShortDescription: Acropolis installer for Parthenon — unified OHDSI outcomes research platform
+Description: |
+  One-command setup for Parthenon, the unified OHDSI outcomes research platform
+  on OMOP CDM v5.4. Handles Docker setup, repository cloning, and guided
+  configuration through a web-based wizard. Requires WSL 2 and Docker Desktop.
+Tags:
+  - healthcare
+  - research
+  - ohdsi
+  - omop
+  - docker
+  - installer
+Installers:
+  - Architecture: x64
+    InstallerType: portable
+    InstallerUrl: https://github.com/sudoshi/Parthenon/releases/download/v1.0.3/acropolis-install-win.exe
+    InstallerSha256: f25a79d7240c99d5cfa5db45d91e0bdc24f0eeca8ee725f7ac1e38a0b07b9268
+    Commands:
+      - parthenon-install
+ManifestType: singleton
+ManifestVersion: 1.6.0
