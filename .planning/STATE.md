@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-03-26)
 Phase: 7-10 parallel (Medications, Conditions, Measurements, Observations)
 Plan: 09-01 completed (growth measurements), phases 7-10 in parallel
 Status: Executing Phases 07-10 in parallel
-Last activity: 2026-04-03 - Completed quick task 14: OIDC SSO for Grafana via Authentik
+Last activity: 2026-04-03 - Completed quick task 15: Native SSO bootstrap for Acropolis installer
 
 Progress: [█████████░] 92%
 
@@ -175,9 +175,10 @@ None yet.
 | 12 | Implement all critical Wazuh post-install hardening (FIM, SCA, logs, demo users, ISM) | 2026-04-02 | 69da309c9 | [12-implement-all-critical-wazuh-post-instal](./quick/12-implement-all-critical-wazuh-post-instal/) |
 | 13 | Harden webapp installer: port fallback, secure passwords, step validation, CSRF, subprocess cleanup | 2026-04-02 | bbdd1fa3e | [13-webapp-installer-refinement-port-fallbac](./quick/13-webapp-installer-refinement-port-fallbac/) |
 | 14 | OIDC SSO for Grafana via Authentik — OAuth2 provider + Generic OAuth config | 2026-04-03 | 57e098975 | [14-oidc-sso-for-grafana-via-authentik-creat](./quick/14-oidc-sso-for-grafana-via-authentik-creat/) |
+| 15 | Native SSO bootstrap for Acropolis installer (OIDC + SAML for all services) | 2026-04-03 | 052467c97 | [15-update-acropolis-installer-authentik-py-](./quick/15-update-acropolis-installer-authentik-py-/) |
 
 ## Session Continuity
 
-Last session: 2026-04-02T21:58:33Z
-Stopped at: Completed quick-13 (webapp installer refinement)
+Last session: 2026-04-03T23:51:11Z
+Stopped at: Completed quick-15 (native SSO bootstrap for Acropolis installer)
 Resume file: None
