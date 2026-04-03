@@ -60,8 +60,7 @@ jobs:
 
       - name: Download Cosmopolitan Python
         run: |
-          curl -sSfL -o python3 https://cosmo.zip/pub/cosmos/v/4.0.2/bin/python3 || \
-          curl -sSfL -o python3 https://cosmo.zip/pub/cosmos/bin/python3
+          curl -sSfL -o python3 https://cosmo.zip/pub/cosmos/bin/python
           chmod +x python3
 
       - name: Validate stdlib compatibility
