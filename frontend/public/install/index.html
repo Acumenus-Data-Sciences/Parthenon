@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Install Parthenon — Acumenus Data Sciences</title>
+    <meta name="description" content="One-command installation of Parthenon, the unified OHDSI outcomes research platform on OMOP CDM v5.4." />
+    <link rel="stylesheet" href="/install/install-landing.css" />
+  </head>
+  <body>
+    <div class="card">
+      <div class="accent-line"></div>
+      <h1>Install Parthenon</h1>
+      <p class="subtitle">Unified Outcomes Research Platform on OMOP CDM</p>
+      <p class="description">
+        Deploy the full Parthenon stack with a single command. The Acropolis
+        installer provisions infrastructure, configures SSO, loads OMOP
+        vocabularies, and starts all services &mdash; community or enterprise
+        &mdash; in one guided flow.
+      </p>
+
+      <a id="download-btn" class="download-btn" href="https://github.com/sudoshi/Parthenon/releases/latest" download>
+        Download for Linux
+      </a>
+
+      <div class="curl-block">
+        <code>curl -fsSL https://parthenon.acumenus.net/install.sh | sh</code>
+        <button id="copy-btn" class="copy-btn" type="button">Copy</button>
+      </div>
+
+      <p class="fallback">
+        Having trouble? Download directly:
+        <span id="fallback-links">
+          <a href="https://github.com/sudoshi/Parthenon/releases/latest">Linux</a> &middot;
+          <a href="https://github.com/sudoshi/Parthenon/releases/latest">macOS</a> &middot;
+          <a href="https://github.com/sudoshi/Parthenon/releases/latest">Windows (WSL)</a>
+        </span>
+      </p>
+
+      <div class="requirements">
+        <strong>Requirements</strong><br />
+        8 GB RAM &middot; 20 GB disk &middot; Docker &amp; Docker Compose<br />
+        Linux (x64/arm64), macOS (Apple Silicon/Intel), or Windows via WSL 2
+      </div>
+
+      <div class="footer">
+        <a href="https://github.com/sudoshi/Parthenon" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://discord.gg/GkkT7dzmwf" target="_blank" rel="noopener noreferrer">Discord</a>
+        <a href="https://www.acumenus.io" target="_blank" rel="noopener noreferrer">Acumenus Data Sciences</a>
+      </div>
+    </div>
+
+    <script src="/install/install-landing.js"></script>
+  </body>
+</html>

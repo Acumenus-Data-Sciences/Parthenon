@@ -312,6 +312,33 @@ export function LoginPage() {
             >
               Join our Discord Community &rarr;
             </a>
+            <a
+              href="/install"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--text-xs)",
+                color: "var(--text-ghost)",
+                textDecoration: "none",
+                borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+                letterSpacing: "0.3px",
+                transition: "color 200ms",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "var(--accent)";
+                e.currentTarget.style.borderBottomColor = "var(--accent-muted)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = "var(--text-ghost)";
+                e.currentTarget.style.borderBottomColor = "rgba(255, 255, 255, 0.08)";
+              }}
+            >
+              Experimental Installer &rarr;
+            </a>
           </div>
 
           {/* Version + Acumenus */}
