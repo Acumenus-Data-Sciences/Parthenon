@@ -161,7 +161,7 @@ class ComputePatientFeatureVectors implements ShouldQueue
     public function failed(\Throwable $e): void
     {
         Log::error('ComputePatientFeatureVectors: job failed', [
-            'source_id' => $this->source->source_id,
+            'source_id' => $this->source->id,
             'error' => $e->getMessage(),
             'trace' => $e->getTraceAsString(),
         ]);
