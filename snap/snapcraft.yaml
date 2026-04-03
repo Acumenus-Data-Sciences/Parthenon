@@ -19,21 +19,25 @@ parts:
   installer:
     plugin: python
     source: .
-    python-packages:
-      - rich>=13.0
-      - questionary>=2.0
-    organize:
-      bin/bootstrap_remote: bin/parthenon-install
+    build-packages:
+      - python3-dev
+    python-requirements:
+      - requirements-installer.txt
     override-build: |
+      # Create a minimal requirements file for the installer
+      echo "rich>=13.0" > ${CRAFT_PART_SRC}/requirements-installer.txt
+      echo "questionary>=2.0" >> ${CRAFT_PART_SRC}/requirements-installer.txt
       craftctl default
       # Create the entry point script
-      mkdir -p $CRAFT_PART_INSTALL/bin
-      cat > $CRAFT_PART_INSTALL/bin/parthenon-install << 'SCRIPT'
+      mkdir -p ${CRAFT_PART_INSTALL}/bin
+      cat > ${CRAFT_PART_INSTALL}/bin/parthenon-install << 'EOF'
       #!/usr/bin/env python3
+      import sys, os
+      sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'lib', 'python3', 'dist-packages'))
       from installer.bootstrap_remote import main
       main()
-      SCRIPT
-      chmod +x $CRAFT_PART_INSTALL/bin/parthenon-install
+      EOF
+      chmod +x ${CRAFT_PART_INSTALL}/bin/parthenon-install
     stage:
       - bin/parthenon-install
       - lib/
