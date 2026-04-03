@@ -337,7 +337,7 @@ export function LoginPage() {
                 e.currentTarget.style.borderBottomColor = "rgba(255, 255, 255, 0.08)";
               }}
             >
-              Experimental Installer &rarr;
+              Install on a New Machine &rarr;
             </a>
           </div>
 
