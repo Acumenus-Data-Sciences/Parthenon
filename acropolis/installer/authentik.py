@@ -1,14 +1,14 @@
 # installer/authentik.py
-"""Authentik SSO bootstrap — forward-auth only via Traefik embedded outpost.
+"""Authentik SSO bootstrap — forward-auth + native SSO (OIDC/SAML).
 
-All Acropolis services use a single authentication model:
+All Acropolis services use a dual-app authentication model:
 
-    Internet → Apache (TLS) → Traefik → Authentik Forward Auth → Backend
+    1. Forward Auth: Internet → Apache (TLS) → Traefik → Authentik → Backend
+    2. Native SSO: Service-native OIDC or SAML via Authentik as IdP
 
-Each service gets exactly ONE proxy provider (forward_single mode) and ONE
-application. The embedded outpost handles all authentication via Traefik's
-`authentik@docker` middleware. No native OAuth2/OIDC — services use their
-own internal auth after the SSO gate.
+Each service gets a proxy provider (forward_single mode) for Traefik middleware
+AND (optionally) a native SSO provider (OAuth2/OIDC or SAML) with its own
+application. n8n is forward-auth only — no native SSO.
 
 Idempotent — safe to re-run on an existing Authentik instance.
 """
@@ -72,6 +72,98 @@ SERVICE_DEFS: list[ServiceDef] = [
         name="wazuh",
         display_name="Wazuh SIEM",
         external_host="https://wazuh.{domain}",
+    ),
+]
+
+
+@dataclass(frozen=True)
+class NativeSsoDef:
+    """Native SSO provider definition (OIDC or SAML)."""
+
+    service_name: str  # Must match ServiceDef.name
+    sso_type: str  # "oidc" or "saml"
+    app_slug: str  # e.g. "grafana-oidc", "wazuh-saml"
+    display_name: str  # e.g. "Grafana OIDC"
+    redirect_uris: list[str]  # Templates with {domain} placeholder
+    # SAML-only fields
+    saml_audience: str = ""  # SP entity ID
+    saml_acs_url: str = ""  # Assertion Consumer Service URL template
+    # Env var names for credentials
+    env_client_id: str = ""
+    env_client_secret: str = ""
+
+
+NATIVE_SSO_DEFS: list[NativeSsoDef] = [
+    NativeSsoDef(
+        service_name="grafana",
+        sso_type="oidc",
+        app_slug="grafana-oidc",
+        display_name="Grafana OIDC",
+        redirect_uris=[
+            "https://grafana.{domain}/login/generic_oauth",
+            "http://grafana.{domain}/login/generic_oauth",
+        ],
+        env_client_id="GRAFANA_OAUTH_CLIENT_ID",
+        env_client_secret="GRAFANA_OAUTH_CLIENT_SECRET",
+    ),
+    NativeSsoDef(
+        service_name="superset",
+        sso_type="oidc",
+        app_slug="superset-oidc",
+        display_name="Superset OIDC",
+        redirect_uris=[
+            "https://superset.{domain}/oauth-authorized/authentik",
+            "http://superset.{domain}/oauth-authorized/authentik",
+        ],
+        env_client_id="SUPERSET_OAUTH_CLIENT_ID",
+        env_client_secret="SUPERSET_OAUTH_CLIENT_SECRET",
+    ),
+    NativeSsoDef(
+        service_name="pgadmin",
+        sso_type="oidc",
+        app_slug="pgadmin-oidc",
+        display_name="pgAdmin OIDC",
+        redirect_uris=[
+            "https://pgadmin.{domain}/oauth2/authorize",
+            "http://pgadmin.{domain}/oauth2/authorize",
+        ],
+        env_client_id="PGADMIN_OAUTH_CLIENT_ID",
+        env_client_secret="PGADMIN_OAUTH_CLIENT_SECRET",
+    ),
+    NativeSsoDef(
+        service_name="datahub",
+        sso_type="oidc",
+        app_slug="datahub-oidc",
+        display_name="DataHub OIDC",
+        redirect_uris=[
+            "https://datahub.{domain}/callback/oidc",
+            "http://datahub.{domain}/callback/oidc",
+        ],
+        env_client_id="DATAHUB_OAUTH_CLIENT_ID",
+        env_client_secret="DATAHUB_OAUTH_CLIENT_SECRET",
+    ),
+    NativeSsoDef(
+        service_name="portainer",
+        sso_type="oidc",
+        app_slug="portainer-oidc",
+        display_name="Portainer OIDC",
+        redirect_uris=[
+            "https://portainer.{domain}",
+            "http://portainer.{domain}",
+        ],
+        env_client_id="PORTAINER_OAUTH_CLIENT_ID",
+        env_client_secret="PORTAINER_OAUTH_CLIENT_SECRET",
+    ),
+    NativeSsoDef(
+        service_name="wazuh",
+        sso_type="saml",
+        app_slug="wazuh-saml",
+        display_name="Wazuh SAML",
+        redirect_uris=[],  # SAML uses ACS URL, not redirect
+        saml_audience="wazuh-saml",
+        saml_acs_url="https://wazuh.{domain}/_opendistro/_security/saml/acs",
+        env_client_id="WAZUH_SAML_ENTITY_ID",
+        env_client_secret="WAZUH_SAML_EXCHANGE_KEY",
     ),
 ]
 
@@ -257,91 +349,20 @@ def _find_proxy_provider(
     return None
 
 
-def _cleanup_oauth2_providers(api: AuthentikAPI, console: Console) -> None:
-    """Remove any orphaned OAuth2 providers and their applications.
-
-    Forward auth is the only authentication model. OAuth2 providers are
-    artifacts from earlier bootstrap versions and must be removed to prevent
-    confusion and duplicate authentication flows.
-    """
-    # Collect service names for matching
-    service_names = {svc.name for svc in SERVICE_DEFS}
-
-    # Find OAuth2 providers that correspond to our managed services
-    oauth2_providers = api.list_oauth2_providers()
-    # Exclude providers that are actually proxy-provider internal OAuth2 entries
-    # (proxy providers appear in the oauth2 list too — filter by component type)
-    standalone_oauth2 = [
-        p for p in oauth2_providers
-        if not any(
-            p["name"].endswith("Forward Auth")
-            or p["name"].endswith("Forward Auth Provider")
-            or p["name"].endswith("Provider")
-            for _ in [None]  # Force evaluation
-        )
-        or "OAuth" in p["name"]
-    ]
-
-    if not standalone_oauth2:
-        return
-
-    # Find applications linked to standalone OAuth2 providers
-    apps = api.list_applications()
-    oauth2_pks = {p["pk"] for p in standalone_oauth2}
-
-    apps_to_delete = [
-        a for a in apps
-        if a.get("provider") in oauth2_pks
-        and a["slug"] in service_names  # Only delete apps with bare service slugs
-    ]
-
-    if apps_to_delete or standalone_oauth2:
-        console.print("  Cleaning up legacy OAuth2 providers...", end=" ")
-        deleted = 0
-
-        # Delete applications first (they reference providers)
-        for app in apps_to_delete:
-            try:
-                api.delete(f"/api/v3/core/applications/{app['slug']}/")
-                deleted += 1
-            except (HTTPError, URLError):
-                pass
-
-        # Delete standalone OAuth2 providers
-        for p in standalone_oauth2:
-            # Skip if this is actually a proxy provider's internal OAuth2 entry
-            if any(
-                p["name"] == f"{svc.display_name} Forward Auth"
-                or p["name"] == f"{svc.display_name} Provider"
-                for svc in SERVICE_DEFS
-            ):
-                continue
-            try:
-                api.delete(f"/api/v3/providers/oauth2/{p['pk']}/")
-                deleted += 1
-            except (HTTPError, URLError):
-                pass
-
-        if deleted:
-            console.print(f"[green]removed {deleted} legacy entries[/]")
-        else:
-            console.print("[dim]none to remove[/]")
-
-
 def bootstrap_authentik(
     domain: str,
     console: Console,
 ) -> bool:
-    """Bootstrap Authentik SSO — forward-auth proxy providers only.
+    """Bootstrap Authentik SSO — forward-auth proxy providers + native SSO (OIDC/SAML).
 
     For each service, creates:
     - ONE proxy provider (forward_single mode) for Traefik middleware
-    - ONE application linked to that provider
+    - ONE application linked to that proxy provider
+    - (Optionally) ONE native SSO provider (OAuth2/OIDC or SAML) + application
 
     Configures the embedded outpost with all proxy providers.
-
-    No OAuth2/OIDC providers are created. Services that need internal auth
-    (Wazuh, n8n, Grafana, etc.) use their own login after the SSO gate.
+    Creates OIDC providers for Grafana, Superset, pgAdmin, DataHub, Portainer.
+    Creates a SAML provider for Wazuh with signed assertions.
 
     Idempotent and safe on existing installations.
 
@@ -362,9 +383,6 @@ def bootstrap_authentik(
     api = AuthentikAPI("http://localhost:9000", token)
     if not _wait_for_api(api, console):
         return False
-
-    # ── Cleanup legacy OAuth2 providers from earlier bootstrap versions ──
-    _cleanup_oauth2_providers(api, console)
 
     # ── Lookup prerequisite flows ──────────────────────────────────────
     console.print("  Looking up authorization flows...", end=" ")

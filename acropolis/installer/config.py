@@ -46,6 +46,18 @@ class InstallConfig:
     authentik_secret: str = ""
     authentik_db_password: str = ""
     wazuh_api_password: str = ""
+    # Native SSO credentials (generated during Authentik bootstrap)
+    grafana_oauth_client_id: str = ""
+    grafana_oauth_client_secret: str = ""
+    superset_oauth_client_id: str = ""
+    superset_oauth_client_secret: str = ""
+    pgadmin_oauth_client_id: str = ""
+    pgadmin_oauth_client_secret: str = ""
+    datahub_oauth_client_id: str = ""
+    datahub_oauth_client_secret: str = ""
+    portainer_oauth_client_id: str = ""
+    portainer_oauth_client_secret: str = ""
+    wazuh_saml_exchange_key: str = ""
     # Parthenon admin (collected for fresh_install topology)
     parthenon_admin_email: str = ""
     parthenon_admin_name: str = ""
@@ -246,8 +258,9 @@ def write_env_file(
             f"AUTHENTIK_BOOTSTRAP_PASSWORD={bootstrap_password}",
             f"AUTHENTIK_BOOTSTRAP_TOKEN={bootstrap_token}",
             "",
-            "# Authentik SSO — Forward Auth Only (via Traefik middleware)",
-            "# Services use their own internal login after the Traefik SSO gate.",
+            "# Authentik SSO — Forward Auth + Native SSO",
+            "# OAuth credentials are populated by authentik.py bootstrap",
+            "# Do not edit manually — re-run installer to regenerate",
             "",
             "WAZUH_INDEXER_PASSWORD=SecretPassword",
             "WAZUH_DASHBOARD_PASSWORD=kibanaserver",
@@ -595,6 +608,14 @@ def write_credentials_file(
             f"Authentik: akadmin / (set on first login)",
             "Wazuh Dashboard: admin / SecretPassword",
             f"Wazuh API: wazuh-wui / {config.wazuh_api_password}",
+            "",
+            "SSO (auto-configured by installer):",
+            "  Grafana OIDC: client_id in .env (GRAFANA_OAUTH_CLIENT_ID)",
+            "  Superset OIDC: client_id in .env (SUPERSET_OAUTH_CLIENT_ID)",
+            "  pgAdmin OIDC: client_id in .env (PGADMIN_OAUTH_CLIENT_ID)",
+            "  DataHub OIDC: client_id in .env (DATAHUB_OAUTH_CLIENT_ID)",
+            "  Portainer OIDC: client_id in .env (PORTAINER_OAUTH_CLIENT_ID) — paste into Portainer UI",
+            "  Wazuh SAML: exchange key in .env (WAZUH_SAML_EXCHANGE_KEY)",
         ])
 
     cred_path = REPO_ROOT / ".install-credentials"
