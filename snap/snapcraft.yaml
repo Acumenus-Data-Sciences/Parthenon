@@ -24,9 +24,10 @@ parts:
     override-build: |
       mkdir -p ${CRAFT_PART_INSTALL}/bin
       mkdir -p ${CRAFT_PART_INSTALL}/lib/parthenon
-      cp -r ${CRAFT_PART_SRC}/installer ${CRAFT_PART_INSTALL}/lib/parthenon/
+      ls -la ${CRAFT_PART_SRC}/
+      cp -r ${CRAFT_PART_SRC}/installer/ ${CRAFT_PART_INSTALL}/lib/parthenon/installer/
       cp ${CRAFT_PART_SRC}/install.py ${CRAFT_PART_INSTALL}/lib/parthenon/
-      python3 -m pip install --target=${CRAFT_PART_INSTALL}/lib/parthenon/deps rich questionary
+      pip install --target=${CRAFT_PART_INSTALL}/lib/parthenon/deps rich questionary 2>/dev/null || python3 -m pip install --target=${CRAFT_PART_INSTALL}/lib/parthenon/deps rich questionary
       printf '#!/usr/bin/env python3\nimport sys, os\nbase = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "lib", "parthenon")\nsys.path.insert(0, os.path.join(base, "deps"))\nsys.path.insert(0, base)\nfrom installer.bootstrap_remote import main\nmain()\n' > ${CRAFT_PART_INSTALL}/bin/parthenon-install
       chmod +x ${CRAFT_PART_INSTALL}/bin/parthenon-install
     stage:
