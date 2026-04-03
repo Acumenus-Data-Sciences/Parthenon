@@ -1,0 +1,113 @@
+name: Build Installer Binaries
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to attach assets to (e.g. v1.0.4)"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  pyinstaller:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            suffix: linux
+            ext: ""
+          - os: macos-13
+            suffix: macos
+            ext: ""
+          - os: windows-2022
+            suffix: win
+            ext: ".exe"
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install PyInstaller
+        run: pip install pyinstaller
+
+      - name: Build binary
+        working-directory: installer
+        run: pyinstaller acropolis-install.spec
+
+      - name: Rename binary
+        working-directory: installer/dist
+        run: mv acropolis-install${{ matrix.ext }} acropolis-install-${{ matrix.suffix }}${{ matrix.ext }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: acropolis-install-${{ matrix.suffix }}
+          path: installer/dist/acropolis-install-${{ matrix.suffix }}${{ matrix.ext }}
+
+  cosmo:
+    runs-on: ubuntu-22.04
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Cosmopolitan Python
+        run: |
+          curl -sSfL -o python3 https://cosmo.zip/pub/cosmos/bin/python3
+          chmod +x python3
+
+      - name: Validate stdlib compatibility
+        run: ./python3 installer/test_cosmo_compat.py
+
+      # TODO: actual APE packaging step — placeholder for now
+
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: cosmo-compat-report
+          path: installer/test_cosmo_compat.py
+
+  release:
+    needs: [pyinstaller, cosmo]
+    if: always() && needs.pyinstaller.result == 'success'
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Collect release assets
+        run: |
+          mkdir -p release-assets
+          cp artifacts/acropolis-install-linux/acropolis-install-linux release-assets/
+          cp artifacts/acropolis-install-macos/acropolis-install-macos release-assets/
+          cp artifacts/acropolis-install-win/acropolis-install-win.exe release-assets/
+          cp installer/install.sh release-assets/
+
+      - name: Generate checksums
+        working-directory: release-assets
+        run: sha256sum * > checksums.sha256
+
+      - name: Determine tag
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "tag=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload to GitHub Release
+        if: steps.tag.outputs.tag != ''
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          files: release-assets/*
