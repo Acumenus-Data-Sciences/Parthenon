@@ -1,0 +1,202 @@
+{
+  "name": "MediCosts - Daily Transparency Blog Post",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * *"
+            }
+          ]
+        }
+      },
+      "id": "trigger",
+      "name": "Daily 9AM ET",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        180,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT json_build_object( 'table_exists', EXISTS(SELECT 1 FROM information_schema.tables WHERE table_schema='clearnetwork' AND table_name='mrf_research'), 'coverage', (SELECT row_to_json(c) FROM (SELECT count(*) AS total_entries, count(DISTINCT insurer_name) AS unique_insurers, count(DISTINCT state) AS states, count(*) FILTER (WHERE accessibility='automatable') AS automatable, count(*) FILTER (WHERE accessibility='browser_required') AS browser_required, count(*) FILTER (WHERE accessibility='dead') AS dead, count(*) FILTER (WHERE accessibility='auth_required') AS auth_blocked, round(avg(transparency_score) FILTER (WHERE transparency_score IS NOT NULL)) AS avg_transparency, round(avg(digital_debt_score) FILTER (WHERE digital_debt_score IS NOT NULL)) AS avg_debt, count(*) FILTER (WHERE crawl_tested AND crawl_result='success') AS successfully_crawled FROM clearnetwork.mrf_research) c), 'worst', COALESCE((SELECT json_agg(w ORDER BY w.digital_debt_score DESC) FROM (SELECT DISTINCT ON (insurer_name) insurer_name, state, digital_debt_score, accessibility, substring(notes for 80) AS notes FROM clearnetwork.mrf_research WHERE digital_debt_score IS NOT NULL AND digital_debt_score > 0 ORDER BY insurer_name, digital_debt_score DESC) w), '[]'::json), 'best', COALESCE((SELECT json_agg(b ORDER BY b.transparency_score DESC) FROM (SELECT DISTINCT ON (insurer_name) insurer_name, state, transparency_score, index_type, accessibility FROM clearnetwork.mrf_research WHERE transparency_score IS NOT NULL AND transparency_score > 0 ORDER BY insurer_name, transparency_score DESC) b), '[]'::json), 'failures', COALESCE((SELECT json_agg(f) FROM (SELECT cf.url, cf.error_message, i.legal_name AS insurer_name FROM clearnetwork.crawl_failures cf JOIN clearnetwork.crawl_jobs cj ON cf.crawl_job_id=cj.id JOIN clearnetwork.insurers i ON cj.insurer_id=i.id WHERE cf.last_attempt > NOW()-INTERVAL '24 hours' ORDER BY cf.last_attempt DESC LIMIT 10) f), '[]'::json), 'dark_states', COALESCE((SELECT json_agg(ds.state) FROM (SELECT state FROM clearnetwork.mrf_research GROUP BY state HAVING count(*) FILTER (WHERE accessibility='automatable')=0) ds), '[]'::json) ) AS data"
+      },
+      "id": "fetch-all",
+      "name": "Fetch All Data",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        440,
+        300
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "medicosts-pg",
+          "name": "MediCosts PostgreSQL"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json;\n\n// If the DB query failed entirely\nif (raw.error) {\n  return [{ json: { skip: true, message: `DB error: ${raw.error.message || raw.error}` } }];\n}\n\n// Parse the JSON blob from Postgres\nlet d;\ntry {\n  d = typeof raw.data === 'string' ? JSON.parse(raw.data) : raw.data;\n} catch (e) {\n  return [{ json: { skip: true, message: `Parse error: ${e.message}` } }];\n}\n\nif (!d.table_exists) {\n  return [{ json: { skip: true, message: 'clearnetwork.mrf_research not found \u2014 skipping' } }];\n}\n\nconst c = d.coverage || {};\nif (parseInt(c.total_entries) === 0) {\n  return [{ json: { skip: true, message: 'No data in mrf_research' } }];\n}\n\nconst worst = (d.worst || []).slice(0, 15);\nconst best = (d.best || []).slice(0, 15);\nconst failures = d.failures || [];\nconst darkStates = d.dark_states || [];\n\nconst now = new Date();\nconst dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'America/New_York' });\nconst dateSlug = now.toISOString().split('T')[0];\nconst pctAuto = Math.floor((parseInt(c.automatable) * 100) / Math.max(parseInt(c.total_entries), 1));\n\nconst prompt = `You are ClearNetwork, an automated healthcare transparency reporter. Generate a blog post in markdown for ${dateStr}.\n\nDATA:\n- Total insurer-state entries: ${c.total_entries}\n- Unique insurers: ${c.unique_insurers}\n- States covered: ${c.states}\n- Automatable (compliant): ${c.automatable} (${pctAuto}%)\n- Browser-required: ${c.browser_required}\n- Dead links: ${c.dead}\n- Auth-blocked: ${c.auth_blocked}\n- Avg transparency score: ${c.avg_transparency}/100\n- Avg digital debt score: ${c.avg_debt}/100\n- Successfully crawled: ${c.successfully_crawled}\n\nWORST OFFENDERS (by digital debt score):\n${worst.map((w, i) => `${i+1}. ${w.insurer_name} (${w.state}) - Debt: ${w.digital_debt_score}/100 - ${w.accessibility} - ${w.notes || ''}`).join('\\n')}\n\nBEST PERFORMERS (by transparency score):\n${best.map((b, i) => `${i+1}. ${b.insurer_name} (${b.state}) - Score: ${b.transparency_score}/100 - ${b.index_type || 'unknown'}`).join('\\n')}\n\nDARK STATES (zero automatable): ${darkStates.length > 0 ? darkStates.join(', ') : 'None'}\n\nRECENT CRAWL FAILURES:\n${failures.map(f => `- ${f.insurer_name}: ${(f.error_message || 'Unknown').substring(0, 100)}`).join('\\n') || 'None'}\n\nGenerate a complete markdown blog post with:\n1. Dynamic title reflecting today's findings\n2. Summary blockquote\n3. \"The Numbers\" table\n4. \"Digital Debt Hall of Shame\" (top 15)\n5. Spotlight on #1 worst offender\n6. \"Transparency Leaders\" (top 10)\n7. \"Dark States\" if any\n8. \"Crawl Struggles\" if failures exist\n9. \"Why This Matters\"\n10. Auto-generation footer by ClearNetwork\n\nTone: investigative journalism, data-driven, holding insurers accountable.`;\n\nreturn [{ json: { skip: false, prompt, coverage: c, dateStr, dateSlug, pctAuto } }];"
+      },
+      "id": "build-prompt",
+      "name": "Build Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        700,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 4096, messages: [{ role: 'user', content: $json.prompt }] }) }}",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "id": "claude-api",
+      "name": "Claude API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        960,
+        300
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "f3UqIgxQLbVbG1Bp",
+          "name": "Anthropic API Key"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 10000
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst prev = $('Build Prompt').first().json;\nconst c = prev.coverage;\n\nlet markdown = (response.content && response.content[0]) ? response.content[0].text : '';\n\nconst titleMatch = markdown.match(/^#\\s+(.+)$/m);\nconst title = titleMatch ? titleMatch[1] : `Transparency Report \u2014 ${prev.dateStr}`;\nconst summary = `We scanned ${c.unique_insurers} health insurers across ${c.states} states. Only ${c.automatable} (${prev.pctAuto}%) make their pricing data machine-readable.`;\n\nfunction mdToHtml(md) {\n  const lines = md.split('\\n'), html = [];\n  let inTable = false;\n  for (const line of lines) {\n    const s = line.trim();\n    if (s.startsWith('# ')) html.push(`<h1 style=\"color:#3b82f6;font-size:24px;margin-bottom:8px\">${s.slice(2)}</h1>`);\n    else if (s.startsWith('## ')) html.push(`<h2 style=\"color:#60a5fa;font-size:14px;margin-top:32px;text-transform:uppercase;letter-spacing:1px\">${s.slice(3)}</h2>`);\n    else if (s.startsWith('### ')) html.push(`<h3 style=\"color:#e4e4e7;font-size:16px;margin-top:16px\">${s.slice(4)}</h3>`);\n    else if (s.startsWith('> ')) html.push(`<blockquote style=\"border-left:3px solid #3b82f6;padding-left:16px;color:#a1a1aa;font-style:italic;margin:16px 0\">${s.slice(2)}</blockquote>`);\n    else if (s.startsWith('|')) {\n      if (!inTable) { html.push('<table style=\"width:100%;border-collapse:collapse;font-size:13px;margin:12px 0\">'); inTable = true; }\n      if (/^\\|[\\s-:]+\\|/.test(s)) continue;\n      const cells = s.split('|').slice(1,-1).map(c => c.trim());\n      html.push(`<tr>${cells.map(c => `<td style=\"padding:6px 10px;border-bottom:1px solid #2a2a2d\">${c}</td>`).join('')}</tr>`);\n    } else {\n      if (inTable) { html.push('</table>'); inTable = false; }\n      if (s.startsWith('- ')) html.push(`<li style=\"margin:4px 0;color:#e4e4e7\">${s.slice(2)}</li>`);\n      else if (s === '---') html.push('<hr style=\"border:none;border-top:1px solid #2a2a2d;margin:24px 0\">');\n      else if (s) {\n        let t = s; while (t.includes('**')) t = t.replace('**','<strong>').replace('**','</strong>');\n        html.push(`<p style=\"color:#e4e4e7;line-height:1.6;margin:8px 0\">${t}</p>`);\n      }\n    }\n  }\n  if (inTable) html.push('</table>');\n  return `<div style=\"font-family:Inter,sans-serif;background:#0c0c0e;color:#e4e4e7;padding:32px;max-width:800px;margin:0 auto\">${html.join('\\n')}</div>`;\n}\n\nreturn [{ json: { title, slug: `transparency-report-${prev.dateSlug}`, summary, markdown, contentHtml: mdToHtml(markdown), stats: JSON.stringify({total_entries:parseInt(c.total_entries),unique_insurers:parseInt(c.unique_insurers),automatable:parseInt(c.automatable),browser_required:parseInt(c.browser_required),dead:parseInt(c.dead)}) } }];"
+      },
+      "id": "format",
+      "name": "Format Post",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO clearnetwork.blog_posts (published_at, title, slug, summary, content_html, content_markdown, tags, stats) VALUES (NOW(), '{{ $json.title.replace(/'/g, \"''\") }}', '{{ $json.slug }}', '{{ $json.summary.replace(/'/g, \"''\") }}', $1, $2, ARRAY['transparency','crawl-report','digital-debt','healthcare'], '{{ $json.stats }}'::jsonb) ON CONFLICT (slug) DO UPDATE SET title=EXCLUDED.title, summary=EXCLUDED.summary, content_html=EXCLUDED.content_html, content_markdown=EXCLUDED.content_markdown, stats=EXCLUDED.stats, published_at=NOW() RETURNING id, slug",
+        "options": {
+          "queryReplacement": "={{ [$json.contentHtml, $json.markdown] }}"
+        }
+      },
+      "id": "save",
+      "name": "Save to DB",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        1480,
+        300
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "medicosts-pg",
+          "name": "MediCosts PostgreSQL"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Daily 9AM ET": {
+      "main": [
+        [
+          {
+            "node": "Fetch All Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch All Data": {
+      "main": [
+        [
+          {
+            "node": "Build Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Prompt": {
+      "main": [
+        [
+          {
+            "node": "Claude API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude API": {
+      "main": [
+        [
+          {
+            "node": "Format Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Post": {
+      "main": [
+        [
+          {
+            "node": "Save to DB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/New_York",
+    "saveManualExecutions": true
+  },
+  "id": "medicosts-daily-blog"
+}

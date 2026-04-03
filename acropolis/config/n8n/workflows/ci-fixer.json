@@ -1,0 +1,109 @@
+{
+  "id": "ci-fixer-daily",
+  "name": "Parthenon CI Fixer (Daily 5am)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 5 * * *"
+            }
+          ]
+        }
+      },
+      "id": "cron-trigger",
+      "name": "Daily 5am ET",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:9877/fix-ci",
+        "options": {
+          "timeout": 900000
+        }
+      },
+      "id": "run-fixer",
+      "name": "Run CI Fixer",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "check-result",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "fixed",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-fixed",
+      "name": "Was Fixed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "command": "sleep 30 && cd /repos/Parthenon && gh run list --branch main --workflow CI --limit 1 --json databaseId,conclusion,status --jq '.[0] | \"Run #\" + (.databaseId|tostring) + \": \" + (.status // \"unknown\") + \" (\" + (.conclusion // \"pending\") + \")\"'"
+      },
+      "id": "verify-ci",
+      "name": "Verify New CI Run",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [900, 200]
+    },
+    {
+      "parameters": {},
+      "id": "skip-note",
+      "name": "No Fix Needed",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [900, 420]
+    }
+  ],
+  "connections": {
+    "Daily 5am ET": {
+      "main": [
+        [{ "node": "Run CI Fixer", "type": "main", "index": 0 }]
+      ]
+    },
+    "Run CI Fixer": {
+      "main": [
+        [{ "node": "Was Fixed?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Was Fixed?": {
+      "main": [
+        [{ "node": "Verify New CI Run", "type": "main", "index": 0 }],
+        [{ "node": "No Fix Needed", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/New_York"
+  },
+  "tags": [
+    { "name": "ci" },
+    { "name": "automation" }
+  ]
+}

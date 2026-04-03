@@ -1,0 +1,328 @@
+{
+  "name": "Parthenon - Daily Developer Blog Post",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 22 * * *"
+            }
+          ]
+        }
+      },
+      "id": "trigger",
+      "name": "Daily 10PM ET",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        180,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://host.docker.internal:9876/git-logs?repos=Parthenon",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "get-git-logs",
+      "name": "Gather Git Logs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        420,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst repos = data.repos || {};\nconst totalCommits = data.total_commits || 0;\nconst devlogContent = data.devlog_content || '';\n\nconst now = new Date();\nconst dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'America/New_York' });\nconst dateSlug = now.toISOString().split('T')[0];\n\n// Build repo summaries\nlet repoSummaries = [];\nfor (const [repo, commits] of Object.entries(repos)) {\n  const types = {};\n  commits.forEach(c => {\n    const match = c.message.match(/^(feat|fix|refactor|chore|docs|test|perf|style|ci):/i);\n    const type = match ? match[1].toLowerCase() : 'other';\n    types[type] = (types[type] || 0) + 1;\n  });\n  repoSummaries.push({ repo, count: commits.length, types, commits: commits.slice(0, 10) });\n}\n\nconst prompt = `You are the lead developer writing the daily development blog post for the Parthenon platform (https://parthenon.acumenus.net). Parthenon is a unified OHDSI outcomes research platform for healthcare analytics.\n\nToday is ${dateStr}. Write a developer blog post summarizing today's development progress across the Acumenus platform suite.\n\nGIT ACTIVITY (${totalCommits} commits across ${repoSummaries.length} repos):\n${repoSummaries.map(r => {\n  const typeStr = Object.entries(r.types).map(([t,c]) => `${c} ${t}`).join(', ');\n  return `\\n**${r.repo}** (${r.count} commits: ${typeStr}):\\n${r.commits.map(c => `- ${c.hash} ${c.message}`).join('\\n')}`;\n}).join('\\n')}\n\nRECENT DEVLOG NOTES:\n${devlogContent.substring(0, 2000) || 'No recent devlog updates'}\n\nWrite a Docusaurus blog post in markdown with YAML frontmatter. Follow this exact format:\n\n---\nslug: dev-diary-${dateSlug}\ntitle: \"<descriptive title about today's work>\"\nauthors: [mudoshi, claude]\ntags: [<relevant tags from: development, ohdsi, analytics, frontend, backend, infrastructure, ai, database, testing, deployment, medicosts, medgnosis, aurora, mindlog, zephyrus>]\ndate: ${dateSlug}\n---\n\n<opening paragraph summarizing the day>\n\n<!-- truncate -->\n\n<rest of the post organized by theme/repo>\n\nGuidelines:\n- Focus on WHAT was built and WHY it matters, not just listing commits\n- Group related changes thematically (e.g., \"Analysis Visualization Overhaul\", \"Authentication System Updates\")\n- Include technical details that would be useful for future developers\n- Mention specific files/components when relevant\n- End with a \"What's Next\" section\n- Keep it technical but readable\n- 500-1000 words`;\n\nreturn [{\n  json: {\n    prompt,\n    dateSlug,\n    dateStr,\n    totalCommits,\n    repoCount: repoSummaries.length,\n    filename: `${dateSlug}-dev-diary.md`\n  }\n}];"
+      },
+      "id": "code-prompt",
+      "name": "Build Blog Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "has-commits",
+              "leftValue": "={{ $json.totalCommits }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ]
+        }
+      },
+      "id": "if-activity",
+      "name": "Any Activity?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        900,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $env.ANTHROPIC_API_KEY }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 4096, messages: [{ role: 'user', content: $json.prompt }] }) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "claude-api",
+      "name": "Claude API - Generate Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1140,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst promptData = $('Build Blog Prompt').first().json;\n\nlet markdown = '';\nif (response.content && response.content[0]) {\n  markdown = response.content[0].text;\n}\n\n// Clean up: ensure it starts with frontmatter\nif (!markdown.startsWith('---')) {\n  const fmIdx = markdown.indexOf('---');\n  if (fmIdx >= 0) {\n    markdown = markdown.substring(fmIdx);\n  }\n}\n\nreturn [{\n  json: {\n    markdown,\n    filename: promptData.filename,\n    dateSlug: promptData.dateSlug\n  }\n}];"
+      },
+      "id": "code-format",
+      "name": "Format Post",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1380,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:9876/write-post",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ markdown: $json.markdown, filename: $json.filename }) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "write-post",
+      "name": "Write & Commit Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1620,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:9876/deploy-docs",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "deploy-docs",
+      "name": "Rebuild Docs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1860,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "success-msg",
+              "name": "message",
+              "value": "=Dev blog post published: {{ $('Format Post').first().json.filename }}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "success",
+      "name": "Success",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2100,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "skip-msg",
+              "name": "message",
+              "value": "=No development activity detected for {{ $('Build Blog Prompt').first().json.dateSlug }} \u2014 skipping blog post",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "no-activity",
+      "name": "No Activity - Skip",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1140,
+        420
+      ]
+    }
+  ],
+  "connections": {
+    "Daily 10PM ET": {
+      "main": [
+        [
+          {
+            "node": "Gather Git Logs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gather Git Logs": {
+      "main": [
+        [
+          {
+            "node": "Build Blog Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Blog Prompt": {
+      "main": [
+        [
+          {
+            "node": "Any Activity?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Any Activity?": {
+      "main": [
+        [
+          {
+            "node": "Claude API - Generate Post",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Activity - Skip",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude API - Generate Post": {
+      "main": [
+        [
+          {
+            "node": "Format Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Post": {
+      "main": [
+        [
+          {
+            "node": "Write & Commit Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write & Commit Post": {
+      "main": [
+        [
+          {
+            "node": "Rebuild Docs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rebuild Docs": {
+      "main": [
+        [
+          {
+            "node": "Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/New_York",
+    "saveManualExecutions": true
+  },
+  "id": "2"
+}

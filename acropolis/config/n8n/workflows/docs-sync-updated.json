@@ -1,0 +1,473 @@
+{
+  "updatedAt": "2026-03-09T19:37:28.469Z",
+  "createdAt": "2026-03-09T18:49:16.760Z",
+  "id": "3",
+  "name": "Parthenon - Docs/Help Sync",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 23 * * *"
+            }
+          ]
+        }
+      },
+      "id": "trigger",
+      "name": "Daily 11PM ET",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        192,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://host.docker.internal:9878/codebase-state",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "get-state",
+      "name": "Gather Codebase State",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        432,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const state = $input.first().json;\n\n// \u2500\u2500 1. DOCUSAURUS DRIFT \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n// Features that have no corresponding doc page\nconst featureToPart = {\n  'dashboard': 'intro',\n  'auth': null, // internal, no public docs\n  'settings': null,\n  'help': null,\n  'abby-ai': null, // AI assistant, internal\n  'data-sources': 'part1-getting-started',\n  'vocabulary': 'part2-vocabulary',\n  'concept-sets': 'part2-vocabulary',\n  'cohort-definitions': 'part3-cohorts',\n  'analyses': 'part4-analyses',\n  'estimation': 'part4-analyses',\n  'prediction': 'part4-analyses',\n  'pathways': 'part4-analyses',\n  'sccs': 'part4-analyses',\n  'evidence-synthesis': 'part4-analyses',\n  'ingestion': 'part5-ingestion',\n  'data-explorer': 'part6-data-explorer',\n  'profiles': 'part7-patient-profiles',\n  'administration': 'part8-administration',\n  'genomics': 'part9-genomics',\n  'imaging': 'part10-imaging',\n  'heor': 'part11-heor',\n  'studies': 'part4-analyses',\n  'jobs': null, // utility, no dedicated docs\n  'care-gaps': null, // future feature\n  'publish': null, // internal\n  'radiogenomics': null, // future\n};\n\nconst docPages = Object.keys(state.docusaurus_pages);\nconst recentDevlogs = state.recent_devlogs || [];\n\n// Find features missing docs\nconst docsDrift = [];\nfor (const feature of state.frontend_features) {\n  const part = featureToPart[feature];\n  if (part === null || part === undefined) continue; // excluded\n  // Check if any doc page path contains the part directory\n  const hasDoc = docPages.some(p => p.startsWith(part + '/'));\n  if (!hasDoc && part !== 'intro') {\n    docsDrift.push({ feature, expectedPart: part, reason: 'no_doc_page' });\n  }\n}\n\n// Find devlogs newer than their doc pages\nconst devlogDrift = [];\nfor (const devlog of recentDevlogs) {\n  // Match devlog to doc page by keywords\n  const keywords = devlog.path.toLowerCase().replace(/[-.]/g, ' ').split(/\\s+/);\n  for (const [pagePath, pageInfo] of Object.entries(state.docusaurus_pages)) {\n    const pageKeywords = pagePath.toLowerCase().replace(/[-.]/g, ' ');\n    const overlap = keywords.filter(k => k.length > 3 && pageKeywords.includes(k));\n    if (overlap.length >= 2 && devlog.mtime > pageInfo.mtime) {\n      devlogDrift.push({\n        devlog: devlog.path,\n        doc_page: pagePath,\n        devlog_excerpt: devlog.excerpt.substring(0, 1500),\n        reason: 'devlog_newer_than_doc'\n      });\n    }\n  }\n}\n\n// \u2500\u2500 2. HELP JSON DRIFT \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nconst helpFiles = Object.keys(state.help_files);\nconst routeMapping = state.route_help_mapping;\n\nconst helpDrift = [];\n// Routes that reference help keys without a corresponding JSON file\nfor (const [route, helpKey] of Object.entries(routeMapping)) {\n  if (!helpFiles.includes(helpKey)) {\n    helpDrift.push({ route, helpKey, reason: 'missing_help_json' });\n  }\n}\n// Help files where docs_url points to non-existent page\nfor (const [key, info] of Object.entries(state.help_files)) {\n  if (info.docs_url) {\n    const docPath = info.docs_url.replace(/^\\/docs\\//, '').replace(/\\/$/, '');\n    const matchesAnyPage = docPages.some(p => {\n      const pageId = state.docusaurus_pages[p]?.id || '';\n      return p.includes(docPath) || pageId === docPath;\n    });\n    if (!matchesAnyPage && docPath && docPath !== '#') {\n      helpDrift.push({ helpKey: key, docs_url: info.docs_url, reason: 'broken_docs_link' });\n    }\n  }\n}\n// Features with routes but no help entry in route mapping\nconst routeFeatures = new Set(Object.values(routeMapping));\nfor (const feature of state.frontend_features) {\n  const helpKey = feature.replace(/-/g, '-');\n  // Check common patterns\n  const possibleKeys = [helpKey, helpKey.replace('definitions', 'builder'), helpKey.replace('concept-sets', 'concept-set-builder')];\n  const hasMapped = possibleKeys.some(k => routeFeatures.has(k));\n  const excluded = ['auth', 'settings', 'help', 'abby-ai', 'estimation', 'prediction', 'pathways', 'sccs', 'evidence-synthesis', 'radiogenomics', 'publish'];\n  if (!hasMapped && !excluded.includes(feature)) {\n    helpDrift.push({ feature, reason: 'no_route_help_mapping' });\n  }\n}\n\n// \u2500\u2500 SUMMARY \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nconst totalDrift = docsDrift.length + devlogDrift.length + helpDrift.length;\n\nreturn [{\n  json: {\n    totalDrift,\n    docsDrift,\n    devlogDrift,\n    helpDrift,\n    // Pass through for Claude context\n    frontendFeatures: state.frontend_features,\n    helpFiles: state.help_files,\n    docPages: state.docusaurus_pages,\n    routeMapping: state.route_help_mapping,\n    recentDevlogs: (state.recent_devlogs || []).slice(0, 5),\n    gitLogWeek: (state.git_log_week || []).slice(0, 30),\n    sidebarsRaw: state.sidebars?.raw || '',\n  }\n}];"
+      },
+      "id": "detect-drift",
+      "name": "Detect Drift",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "has-drift",
+              "leftValue": "={{ $json.totalDrift }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-drift",
+      "name": "Any Drift?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        912,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "no-drift-msg",
+              "name": "message",
+              "value": "=Docs sync check: no drift detected. All {{ Object.keys($json.docPages).length }} docs and {{ Object.keys($json.helpFiles).length }} help files are in sync.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "no-drift",
+      "name": "No Drift - Skip",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1152,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const d = $('Detect Drift').first().json;\nconst hasDocs = d.docsDrift.length > 0 || d.devlogDrift.length > 0;\nconst hasHelp = d.helpDrift.length > 0;\n\n// Build prompts for each branch that has drift\nconst results = [];\n\nif (hasDocs) {\n  // Build context for Docusaurus updates\n  const devlogContext = d.devlogDrift.map(dl => `DEVLOG: ${dl.devlog}\\nCORRESPONDING DOC: ${dl.doc_page}\\nDEVLOG CONTENT:\\n${dl.devlog_excerpt}`).join('\\n---\\n');\n  const missingDocs = d.docsDrift.map(dd => `Feature: ${dd.feature} \u2192 Expected in: ${dd.expectedPart}/`).join('\\n');\n  const recentCommits = d.gitLogWeek.slice(0, 20).map(c => `${c.hash} ${c.message}`).join('\\n');\n  const recentDevlogs = d.recentDevlogs.map(dl => `${dl.path}: ${dl.excerpt.substring(0, 500)}`).join('\\n---\\n');\n\n  results.push({\n    branch: 'docusaurus',\n    prompt: `You are updating the Parthenon Docusaurus user manual. Parthenon is a unified OHDSI outcomes research platform for healthcare analytics.\\n\\nCURRENT SIDEBARS.TS:\\n${d.sidebarsRaw}\\n\\nDRIFT DETECTED:\\n\\nMISSING DOCUMENTATION:\\n${missingDocs || 'None'}\\n\\nSTALE DOCUMENTATION (devlog is newer than doc page):\\n${devlogContext || 'None'}\\n\\nRECENT COMMITS (7 days):\\n${recentCommits}\\n\\nRECENT DEVLOG EXCERPTS:\\n${recentDevlogs}\\n\\nFor each piece of drift, generate the updated or new MDX content. Return your response as a JSON object with this exact structure:\\n{\\n  \"pages\": [\\n    {\"path\": \"relative/path/to/file.mdx\", \"content\": \"---\\nid: page-id\\ntitle: ...\\nsidebar_label: ...\\n---\\n\\nFull MDX content...\"}\\n  ],\\n  \"sidebars_ts\": \"full updated sidebars.ts content (only if new pages were added, otherwise null)\"\\n}\\n\\nRules:\\n- Match the existing dark clinical documentation style\\n- Use proper MDX frontmatter (id, title, sidebar_label)\\n- Include practical examples and tables where appropriate\\n- Reference OMOP CDM v5.4 concepts accurately\\n- Keep content focused on user workflows, not implementation details\\n- Only update pages that actually need changes \u2014 do not regenerate unchanged content\\n- Return ONLY valid JSON, no markdown code fences`,\n    drift: d.docsDrift.concat(d.devlogDrift),\n  });\n}\n\nif (hasHelp) {\n  const helpContext = d.helpDrift.map(h => {\n    if (h.reason === 'missing_help_json') return `MISSING: Route ${h.route} \u2192 help key \"${h.helpKey}\" has no JSON file`;\n    if (h.reason === 'broken_docs_link') return `BROKEN LINK: Help file \"${h.helpKey}\" links to ${h.docs_url} which doesn't exist`;\n    if (h.reason === 'no_route_help_mapping') return `UNMAPPED: Feature \"${h.feature}\" has no route\u2192help mapping in Sidebar.tsx`;\n    return JSON.stringify(h);\n  }).join('\\n');\n\n  const existingHelp = Object.entries(d.helpFiles).slice(0, 5).map(([k, v]) => `\"${k}\": title=\"${v.title}\", docs_url=\"${v.docs_url}\", tips=${v.tip_count}`).join('\\n');\n\n  results.push({\n    branch: 'help',\n    prompt: `You are updating the contextual help system for the Parthenon platform. Each help topic is a JSON file in backend/resources/help/.\\n\\nEXISTING HELP FILES (sample):\\n${existingHelp}\\n\\nCURRENT ROUTE MAPPING:\\n${JSON.stringify(d.routeMapping, null, 2)}\\n\\nDRIFT DETECTED:\\n${helpContext}\\n\\nAVAILABLE DOC PAGES:\\n${Object.keys(d.docPages).join('\\n')}\\n\\nFor each piece of drift, generate the fix. Return your response as a JSON object:\\n{\\n  \"help_files\": [\\n    {\"key\": \"help-key-name\", \"content\": {\"key\": \"help-key-name\", \"title\": \"Feature Title\", \"description\": \"Overview paragraph explaining the feature and its purpose in clinical research.\", \"docs_url\": \"/docs/path/to/chapter\", \"video_url\": null, \"tips\": [\"Practical tip 1\", \"Practical tip 2\", \"Practical tip 3\"]}}\\n  ],\\n  \"route_mapping_additions\": {\"new-route\": \"help-key\"}\\n}\\n\\nRules:\\n- Match the clinical/research tone of existing help files\\n- docs_url must point to an actual Docusaurus page path (use /docs/ prefix)\\n- Include 3-5 practical tips per help file\\n- video_url should be null (no videos exist yet)\\n- Return ONLY valid JSON, no markdown code fences`,\n    drift: d.helpDrift,\n  });\n}\n\nreturn results.map(r => ({ json: r }));"
+      },
+      "id": "build-prompts",
+      "name": "Build Branch Prompts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1152,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 8192, messages: [{ role: 'user', content: $json.prompt }] }) }}",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "id": "claude-api",
+      "name": "Claude API - Generate Updates",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1392,
+        320
+      ],
+      "credentials": {
+        "httpHeaderAuth": { "id": "f3UqIgxQLbVbG1Bp", "name": "Anthropic API Key" }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 10000,
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Collect all Claude responses and merge into a single write payload\nconst items = $input.all();\nconst promptItems = $('Build Branch Prompts').all();\n\nconst writePayload = {\n  docusaurus: [],\n  sidebars_ts: null,\n  help: [],\n  sidebar_tsx_mapping: null,\n};\n\nconst summary = { docusaurus: 0, help: 0, errors: [] };\n\nfor (let i = 0; i < items.length; i++) {\n  const response = items[i].json;\n  const branch = promptItems[i]?.json?.branch || 'unknown';\n\n  let parsed = null;\n  try {\n    const text = response.content?.[0]?.text || '';\n    // Try to extract JSON from the response (handle markdown fences)\n    const jsonMatch = text.match(/```json\\s*([\\s\\S]*?)```/) || text.match(/\\{[\\s\\S]*\\}/);\n    const jsonStr = jsonMatch ? (jsonMatch[1] || jsonMatch[0]) : text;\n    parsed = JSON.parse(jsonStr);\n  } catch (e) {\n    summary.errors.push(`Failed to parse ${branch} response: ${e.message}`);\n    continue;\n  }\n\n  if (branch === 'docusaurus' && parsed.pages) {\n    for (const page of parsed.pages) {\n      if (page.path && page.content) {\n        writePayload.docusaurus.push({ path: page.path, content: page.content });\n        summary.docusaurus++;\n      }\n    }\n    if (parsed.sidebars_ts) {\n      writePayload.sidebars_ts = parsed.sidebars_ts;\n    }\n  }\n\n  if (branch === 'help') {\n    if (parsed.help_files) {\n      for (const hf of parsed.help_files) {\n        if (hf.key && hf.content) {\n          writePayload.help.push({ key: hf.key, content: hf.content });\n          summary.help++;\n        }\n      }\n    }\n    if (parsed.route_mapping_additions && Object.keys(parsed.route_mapping_additions).length > 0) {\n      // Merge with existing mapping\n      const existing = promptItems.find(p => p.json.branch === 'help');\n      const currentMapping = $('Detect Drift').first().json.routeMapping || {};\n      writePayload.sidebar_tsx_mapping = { ...currentMapping, ...parsed.route_mapping_additions };\n    }\n  }\n\n}\n\nconst totalChanges = summary.docusaurus + summary.help;\n\nreturn [{\n  json: {\n    writePayload,\n    summary,\n    totalChanges,\n    hasChanges: totalChanges > 0,\n  }\n}];"
+      },
+      "id": "merge-results",
+      "name": "Merge & Build Write Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1632,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "has-changes",
+              "leftValue": "={{ $json.hasChanges }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "if-changes",
+      "name": "Files to Write?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1872,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:9878/write-sync-files",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.writePayload) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "write-files",
+      "name": "Write & Commit Files",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2112,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:9878/deploy-docs",
+        "options": {
+          "timeout": 180000
+        }
+      },
+      "id": "deploy-docs",
+      "name": "Rebuild Docs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2352,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "success-msg",
+              "name": "message",
+              "value": "=Docs sync complete: {{ $('Merge & Build Write Payload').first().json.summary.docusaurus }} doc pages, {{ $('Merge & Build Write Payload').first().json.summary.help }} help files updated. {{ $('Merge & Build Write Payload').first().json.summary.errors.length > 0 ? 'Notes: ' + $('Merge & Build Write Payload').first().json.summary.errors.join('; ') : '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "success",
+      "name": "Success",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2592,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "no-writes-msg",
+              "name": "message",
+              "value": "=Drift detected but no file changes were generated. {{ $('Merge & Build Write Payload').first().json.summary.errors.length > 0 ? 'Errors: ' + $('Merge & Build Write Payload').first().json.summary.errors.join('; ') : '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "no-writes",
+      "name": "No File Changes",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2112,
+        432
+      ]
+    }
+  ],
+  "connections": {
+    "Daily 11PM ET": {
+      "main": [
+        [
+          {
+            "node": "Gather Codebase State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gather Codebase State": {
+      "main": [
+        [
+          {
+            "node": "Detect Drift",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detect Drift": {
+      "main": [
+        [
+          {
+            "node": "Any Drift?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Any Drift?": {
+      "main": [
+        [
+          {
+            "node": "Build Branch Prompts",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Drift - Skip",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Branch Prompts": {
+      "main": [
+        [
+          {
+            "node": "Claude API - Generate Updates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude API - Generate Updates": {
+      "main": [
+        [
+          {
+            "node": "Merge & Build Write Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge & Build Write Payload": {
+      "main": [
+        [
+          {
+            "node": "Files to Write?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Files to Write?": {
+      "main": [
+        [
+          {
+            "node": "Write & Commit Files",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No File Changes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write & Commit Files": {
+      "main": [
+        [
+          {
+            "node": "Rebuild Docs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rebuild Docs": {
+      "main": [
+        [
+          {
+            "node": "Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/New_York",
+    "saveManualExecutions": true
+  },
+  "staticData": {
+    "node:Daily 11PM ET": {
+      "recurrenceRules": []
+    }
+  },
+  "meta": null,
+  "pinData": {},
+  "versionId": "07f553d3-ab3d-4e80-86f7-85edc2693c34",
+  "activeVersionId": "07f553d3-ab3d-4e80-86f7-85edc2693c34",
+  "versionCounter": 8,
+  "triggerCount": 1,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-03-09T18:49:16.762Z",
+      "createdAt": "2026-03-09T18:49:16.762Z",
+      "role": "workflow:owner",
+      "workflowId": "3",
+      "projectId": "bmJTTU9oAnKlFQTP",
+      "project": {
+        "updatedAt": "2026-03-09T18:50:13.519Z",
+        "createdAt": "2026-03-08T01:51:00.314Z",
+        "id": "bmJTTU9oAnKlFQTP",
+        "name": "Sanjay Udoshi <smudoshi@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "9bbd2c32-ee30-4e20-bc61-baa7c9d46efe"
+      }
+    }
+  ],
+  "versionMetadata": {
+    "name": "Version 07f553d3",
+    "description": ""
+  }
+}

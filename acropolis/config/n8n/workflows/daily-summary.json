@@ -1,0 +1,52 @@
+{
+  "id": "daily-summary",
+  "name": "Parthenon Daily Summary Email (9am)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * *"
+            }
+          ]
+        }
+      },
+      "id": "cron-9am",
+      "name": "Daily 9am ET",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:9879/send",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "send-summary",
+      "name": "Send Summary Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 300]
+    }
+  ],
+  "connections": {
+    "Daily 9am ET": {
+      "main": [
+        [{ "node": "Send Summary Email", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/New_York"
+  },
+  "tags": [
+    { "name": "ops" },
+    { "name": "automation" }
+  ]
+}

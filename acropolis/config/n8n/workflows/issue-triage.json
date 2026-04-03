@@ -1,0 +1,109 @@
+{
+  "id": "issue-triage-loop",
+  "name": "Parthenon Issue Triage (Every 6 Hours)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 */6 * * *"
+            }
+          ]
+        }
+      },
+      "id": "cron-trigger",
+      "name": "Every 6 Hours",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:9880/triage-issues",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "run-triage",
+      "name": "Run Triage",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "has-fixes",
+              "leftValue": "={{ $json.auto_fixes }}",
+              "rightValue": "0",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-fixes",
+      "name": "Any Auto-Fixes?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = $input.first().json.results || [];\nconst fixes = results.filter(r => r.decision === 'auto-fix');\nconst summary = fixes.map(f => `#${f.issue}: ${f.title} (${(f.confidence * 100).toFixed(0)}%)`).join('\\n');\nreturn [{ json: { message: `Auto-fix triggered for ${fixes.length} issue(s):\\n${summary}`, count: fixes.length } }];"
+      },
+      "id": "log-fixes",
+      "name": "Log Auto-Fixes",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 200]
+    },
+    {
+      "parameters": {},
+      "id": "idle-note",
+      "name": "No Action Needed",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [900, 420]
+    }
+  ],
+  "connections": {
+    "Every 10 Minutes": {
+      "main": [
+        [{ "node": "Run Triage", "type": "main", "index": 0 }]
+      ]
+    },
+    "Run Triage": {
+      "main": [
+        [{ "node": "Any Auto-Fixes?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Any Auto-Fixes?": {
+      "main": [
+        [{ "node": "Log Auto-Fixes", "type": "main", "index": 0 }],
+        [{ "node": "No Action Needed", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/New_York"
+  },
+  "tags": [
+    { "name": "automation" },
+    { "name": "self-improving" }
+  ]
+}
