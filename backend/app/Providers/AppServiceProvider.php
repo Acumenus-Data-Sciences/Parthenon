@@ -287,18 +287,6 @@ class AppServiceProvider extends ServiceProvider
             return;
         }
 
-        $blockedCommands = [
-            'test',
-            'db:wipe',
-            'migrate:fresh',
-            'migrate:refresh',
-            'migrate:reset',
-        ];
-
-        if (! in_array($command, $blockedCommands, true)) {
-            return;
-        }
-
         $connectionName = Config::get('database.default', 'pgsql');
         $databaseName = (string) Config::get("database.connections.{$connectionName}.database", '');
         $protectedDatabases = collect(explode(',', (string) env('PROTECTED_CONSOLE_DATABASES', 'parthenon')))
@@ -314,9 +302,43 @@ class AppServiceProvider extends ServiceProvider
             return;
         }
 
-        throw new \RuntimeException(
-            "Refusing to run [{$command}] against protected database [{$databaseName}] ".
-            "on connection [{$connectionName}]. Use a dedicated testing database."
-        );
+        // Always-blocked destructive commands
+        $blockedCommands = [
+            'test',
+            'db:wipe',
+            'migrate:fresh',
+            'migrate:refresh',
+            'migrate:reset',
+            'migrate:rollback',
+        ];
+
+        if (in_array($command, $blockedCommands, true)) {
+            throw new \RuntimeException(
+                "Refusing to run [{$command}] against protected database [{$databaseName}] ".
+                "on connection [{$connectionName}]. Use a dedicated testing database."
+            );
+        }
+
+        // Block bare `migrate` without --path on protected databases.
+        // On 2026-03-30, `migrate --force` re-ran ALL migrations and wiped results.cohort.
+        // Only `migrate --path=<specific_file>` is allowed on production data.
+        if ($command === 'migrate') {
+            $argv = $_SERVER['argv'] ?? [];
+            $hasPathFlag = false;
+            foreach ($argv as $arg) {
+                if (str_starts_with($arg, '--path=') || str_starts_with($arg, '--path ')) {
+                    $hasPathFlag = true;
+                    break;
+                }
+            }
+
+            if (! $hasPathFlag) {
+                throw new \RuntimeException(
+                    "Refusing to run [migrate] without --path= against protected database [{$databaseName}]. ".
+                    'Bare migrate can re-run ALL migrations and destroy data (see 2026-03-30 incident). '.
+                    'Use: php artisan migrate --path=database/migrations/SPECIFIC_FILE.php [--force]'
+                );
+            }
+        }
     }
 }

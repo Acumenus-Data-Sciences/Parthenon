@@ -295,6 +295,20 @@ return [
             'nice' => 0,
         ],
 
+        'cohort' => [
+            'connection' => 'redis',
+            'queue' => ['cohort'],
+            'balance' => 'auto',
+            'autoScalingStrategy' => 'time',
+            'maxProcesses' => 3,
+            'maxTime' => 0,
+            'maxJobs' => 0,
+            'memory' => 1024,
+            'tries' => 1,
+            'timeout' => 7200,
+            'nice' => 0,
+        ],
+
         'similarity' => [
             'connection' => 'redis',
             'queue' => ['similarity'],
@@ -344,6 +358,10 @@ return [
                 'maxProcesses' => 1,
                 'timeout' => 1800,
             ],
+            'cohort' => [
+                'maxProcesses' => 3,
+                'timeout' => 7200,
+            ],
             'similarity' => [
                 'maxProcesses' => 1,
                 'timeout' => 7200,
@@ -380,6 +398,10 @@ return [
             'gis' => [
                 'maxProcesses' => 1,
                 'timeout' => 1800,
+            ],
+            'cohort' => [
+                'maxProcesses' => 2,
+                'timeout' => 7200,
             ],
         ],
     ],

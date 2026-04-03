@@ -27,6 +27,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::connection('results')->dropIfExists('achilles_analysis');
+        // NEVER drop results.achilles_analysis — contains analysis reference data.
     }
 };

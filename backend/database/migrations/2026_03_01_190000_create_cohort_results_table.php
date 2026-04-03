@@ -33,8 +33,8 @@ return new class extends Migration
 
     public function down(): void
     {
-        $connection = config('database.connections.results') ? 'results' : null;
-
-        Schema::connection($connection)->dropIfExists('cohort');
+        // NEVER drop results.cohort — it contains generated research cohort data
+        // that takes hours to recompute. Rolling back this migration is a no-op.
+        // See: 2026-03-30 incident where migrate --force wiped all cohort members.
     }
 };

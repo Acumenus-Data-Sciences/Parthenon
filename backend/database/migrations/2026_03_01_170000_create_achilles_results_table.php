@@ -28,6 +28,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::connection('results')->dropIfExists('achilles_results');
+        // NEVER drop results.achilles_results — contains computed analytics data.
     }
 };

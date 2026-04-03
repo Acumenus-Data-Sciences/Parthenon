@@ -31,8 +31,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        $connection = config('database.connections.results') ? 'results' : null;
-
-        Schema::connection($connection)->dropIfExists('cohort_inclusion_stats');
+        // NEVER drop results.cohort_inclusion_stats — contains generated research data.
     }
 };

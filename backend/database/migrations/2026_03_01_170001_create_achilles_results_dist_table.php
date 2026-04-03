@@ -37,6 +37,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::connection('results')->dropIfExists('achilles_results_dist');
+        // NEVER drop results.achilles_results_dist — contains computed analytics data.
     }
 };
