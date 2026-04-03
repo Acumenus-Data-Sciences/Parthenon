@@ -20,6 +20,7 @@ import {
   Star,
   X,
   FileText,
+  UsersRound,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
@@ -465,6 +466,17 @@ export default function PatientProfilePage() {
               if (domain) setDomainTab(domain as DomainTab);
             }}
           />
+
+          {/* Find Similar action */}
+          <div className="flex justify-end">
+            <button
+              onClick={() => navigate(`/patient-similarity?person_id=${parsedPersonId}&source_id=${sourceId}`)}
+              className="flex items-center gap-1.5 rounded-md border border-[#9B1B30]/40 bg-[#9B1B30]/10 px-3 py-1.5 text-xs font-medium text-[#9B1B30] transition-colors hover:bg-[#9B1B30]/20"
+            >
+              <UsersRound size={13} />
+              Find Similar Patients
+            </button>
+          </div>
 
           {/* Truncation warning */}
           {truncatedDomains.length > 0 && (

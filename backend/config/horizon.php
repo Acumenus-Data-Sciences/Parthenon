@@ -294,6 +294,20 @@ return [
             'timeout' => 7200,
             'nice' => 0,
         ],
+
+        'similarity' => [
+            'connection' => 'redis',
+            'queue' => ['similarity'],
+            'balance' => 'auto',
+            'autoScalingStrategy' => 'time',
+            'maxProcesses' => 1,
+            'maxTime' => 0,
+            'maxJobs' => 0,
+            'memory' => 1024,
+            'tries' => 1,
+            'timeout' => 7200,
+            'nice' => 0,
+        ],
     ],
 
     'environments' => [
@@ -329,6 +343,10 @@ return [
             'gis' => [
                 'maxProcesses' => 1,
                 'timeout' => 1800,
+            ],
+            'similarity' => [
+                'maxProcesses' => 1,
+                'timeout' => 7200,
             ],
         ],
 
