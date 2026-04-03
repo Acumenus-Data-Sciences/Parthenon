@@ -34,9 +34,14 @@ def default_wsl_repo_path() -> str:
 
 
 def resource_path(relative_path: str) -> Path:
+    # PyInstaller
     base_path = getattr(sys, "_MEIPASS", "")
     if base_path:
         return Path(base_path) / relative_path
+    # Cosmopolitan APE — assets extracted to a temp dir
+    cosmo_root = os.environ.get("COSMO_RESOURCE_ROOT", "")
+    if cosmo_root:
+        return Path(cosmo_root) / relative_path
     return REPO_ROOT / relative_path
 
 
