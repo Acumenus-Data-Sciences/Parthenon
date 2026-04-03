@@ -60,9 +60,10 @@ class InstallState:
 
 
 class InstallerBackend:
-    def __init__(self) -> None:
+    def __init__(self, *, remote: bool = False) -> None:
         self._lock = threading.Lock()
         self.install_state = InstallState()
+        self._remote = remote
 
     @contextmanager
     def _use_repo_root(self, repo_path: str):
@@ -100,6 +101,7 @@ class InstallerBackend:
             "wsl_repo_path": launcher.default_wsl_repo_path(),
             "platform": {"windows": launcher.is_windows_host()},
             "ollama": self._detect_ollama(),
+            "remote": self._remote,
         }
 
     def validate_launch_context(self, payload: dict[str, Any]) -> dict[str, str]:
@@ -342,9 +344,11 @@ def _find_port(preferred: int = 7777) -> int:
         return port
 
 
-def main() -> None:
+def main(*, remote: bool = False, repo_path: str | None = None) -> None:
     port = _find_port()
-    backend = InstallerBackend()
+    backend = InstallerBackend(remote=remote)
+    if repo_path:
+        utils.REPO_ROOT = Path(repo_path)
 
     class BoundHandler(InstallerHandler):
         pass

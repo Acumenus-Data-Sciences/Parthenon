@@ -174,3 +174,59 @@ def acquire_repo(target: Path | None = None) -> Path:
 
     print(f"Repository extracted to {target}")
     return target
+
+
+def _ensure_pip_deps() -> None:
+    """Install rich and questionary if missing (mirrors install.py bootstrap)."""
+    required = {"rich": "rich>=13.0", "questionary": "questionary>=2.0"}
+    missing = []
+    for module, pkg in required.items():
+        try:
+            __import__(module)
+        except ImportError:
+            missing.append(pkg)
+    if missing:
+        print(f"Installing dependencies: {', '.join(missing)}")
+        cmd = [sys.executable, "-m", "pip", "install", "--quiet", *missing]
+        result = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+        if result.returncode != 0:
+            if b"externally-managed" in (result.stderr or b""):
+                subprocess.run(
+                    cmd + ["--break-system-packages"],
+                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                )
+
+
+def main(argv: list[str] | None = None) -> None:
+    """Entry point for the remote installer binary."""
+    import argparse
+    import os
+
+    parser = argparse.ArgumentParser(description="Acropolis — Parthenon Remote Installer")
+    parser.add_argument("--dir", type=Path, default=DEFAULT_TARGET,
+                        help=f"Target directory for Parthenon (default: {DEFAULT_TARGET})")
+    args = parser.parse_args(argv)
+
+    print("=" * 56)
+    print("  Acropolis — Parthenon Remote Installer")
+    print("=" * 56)
+    print()
+
+    ensure_docker()
+    print("Docker is ready.\n")
+
+    repo_path = acquire_repo(args.dir)
+    print()
+
+    os.chdir(repo_path)
+    if str(repo_path) not in sys.path:
+        sys.path.insert(0, str(repo_path))
+
+    _ensure_pip_deps()
+
+    from installer.webapp import main as webapp_main
+    webapp_main(remote=True, repo_path=str(repo_path))
+
+
+if __name__ == "__main__":
+    main()

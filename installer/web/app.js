@@ -200,7 +200,8 @@ function renderStep() {
   const stepKey = stepMeta[state.currentStep][0];
 
   if (stepKey === "launch") {
-    const windowsFields = state.bootstrap.platform.windows
+    const repoReadOnly = state.bootstrap.remote;
+    const windowsFields = !repoReadOnly && state.bootstrap.platform.windows
       ? `
           <section class="section glass-soft">
             <div class="section-kicker">WSL Configuration</div>
@@ -221,9 +222,11 @@ function renderStep() {
           <div class="section-kicker">Workspace</div>
           <h4>Parthenon Repository</h4>
           <p class="section-copy">${
-            state.bootstrap.platform.windows
-              ? "Confirm the path to the Parthenon repository. On Windows, you may also specify a WSL path below."
-              : "Confirm the local path to the Parthenon repository. The installer will write configuration files and start Docker services from this directory."
+            repoReadOnly
+              ? "The repository was downloaded automatically by the remote installer."
+              : state.bootstrap.platform.windows
+                ? "Confirm the path to the Parthenon repository. On Windows, you may also specify a WSL path below."
+                : "Confirm the local path to the Parthenon repository. The installer will write configuration files and start Docker services from this directory."
           }</p>
           <div class="grid">
             ${renderFields([{ key: "repo_path", label: "Repository path" }])}
@@ -232,6 +235,10 @@ function renderStep() {
         ${windowsFields}
       </div>
     `;
+    if (repoReadOnly) {
+      const repoInput = document.querySelector('[data-field="repo_path"]');
+      if (repoInput) repoInput.readOnly = true;
+    }
     bindValues();
     return;
   }
@@ -505,7 +512,8 @@ function renderStep() {
   // ── Beginner flow ──────────────────────────────────────────────────────────
 
   if (stepKey === "beginner_setup") {
-    const windowsFields = state.bootstrap.platform.windows
+    const repoReadOnly = state.bootstrap.remote;
+    const windowsFields = !repoReadOnly && state.bootstrap.platform.windows
       ? `
           <div class="grid two">
             ${renderFields([
@@ -532,7 +540,11 @@ function renderStep() {
         <section class="section glass-soft">
           <div class="section-kicker">Workspace</div>
           <h4>Parthenon Repository</h4>
-          <p class="section-copy">Confirm the path to the cloned Parthenon repository. This is usually auto-detected.</p>
+          <p class="section-copy">${
+            repoReadOnly
+              ? "The repository was downloaded automatically by the remote installer."
+              : "Confirm the path to the cloned Parthenon repository. This is usually auto-detected."
+          }</p>
           <div class="grid">
             ${renderFields([{ key: "repo_path", label: "Repository path" }])}
           </div>
@@ -540,6 +552,10 @@ function renderStep() {
         </section>
       </div>
     `;
+    if (repoReadOnly) {
+      const repoInput = document.querySelector('[data-field="repo_path"]');
+      if (repoInput) repoInput.readOnly = true;
+    }
     bindValues();
     return;
   }
