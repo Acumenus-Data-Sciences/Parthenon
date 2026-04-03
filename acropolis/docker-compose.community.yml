@@ -43,6 +43,8 @@ services:
       PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "True"
       PGADMIN_SERVER_JSON_FILE: /pgadmin4/servers.json
       DOMAIN: ${DOMAIN:-acumenus.net}
+      PGADMIN_OAUTH_CLIENT_ID: ${PGADMIN_OAUTH_CLIENT_ID}
+      PGADMIN_OAUTH_CLIENT_SECRET: ${PGADMIN_OAUTH_CLIENT_SECRET}
     volumes:
       - pgadmin_data:/var/lib/pgadmin
       - ./config/pgadmin/servers.json:/pgadmin4/servers.json:ro

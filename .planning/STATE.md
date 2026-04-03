@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-03-26)
 Phase: 7-10 parallel (Medications, Conditions, Measurements, Observations)
 Plan: 09-01 completed (growth measurements), phases 7-10 in parallel
 Status: Executing Phases 07-10 in parallel
-Last activity: 2026-04-02 - Completed quick task 13: Webapp installer refinement (port fallback, secure passwords, validation, CSRF)
+Last activity: 2026-04-03 - Completed quick task 14: OIDC SSO for Grafana via Authentik
 
 Progress: [█████████░] 92%
 
@@ -174,6 +174,7 @@ None yet.
 | 10 | Populate 29 remaining public domain survey instruments (605 items) | 2026-03-29 | 2932d2605 | [10-populate-remaining-public-domain-survey-](./quick/10-populate-remaining-public-domain-survey-/) |
 | 12 | Implement all critical Wazuh post-install hardening (FIM, SCA, logs, demo users, ISM) | 2026-04-02 | 69da309c9 | [12-implement-all-critical-wazuh-post-instal](./quick/12-implement-all-critical-wazuh-post-instal/) |
 | 13 | Harden webapp installer: port fallback, secure passwords, step validation, CSRF, subprocess cleanup | 2026-04-02 | bbdd1fa3e | [13-webapp-installer-refinement-port-fallbac](./quick/13-webapp-installer-refinement-port-fallbac/) |
+| 14 | OIDC SSO for Grafana via Authentik — OAuth2 provider + Generic OAuth config | 2026-04-03 | 57e098975 | [14-oidc-sso-for-grafana-via-authentik-creat](./quick/14-oidc-sso-for-grafana-via-authentik-creat/) |
 
 ## Session Continuity
 

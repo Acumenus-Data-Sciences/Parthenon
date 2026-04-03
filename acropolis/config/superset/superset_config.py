@@ -3,10 +3,11 @@
 # =============================================================================
 # Docs: https://superset.apache.org/docs/configuration/configuring-superset
 #
-# Authentication: Authentik forward auth via Traefik middleware.
-# No native OAuth2/OIDC — Superset uses its own admin login after the SSO gate.
+# Authentication: Authentik OIDC via Flask-AppBuilder OAuth2.
+# Forward-auth gate preserved as defense-in-depth via Traefik middleware.
 # =============================================================================
 import os
+from flask_appbuilder.security.manager import AUTH_OAUTH
 
 # ── Core ────────────────────────────────────────────────────────────────────
 ENABLE_PROXY_FIX = True
@@ -59,6 +60,28 @@ WTF_CSRF_ENABLED = True
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_SAMESITE = "Lax"
+
+# ── Authentik OIDC ─────────────────────────────────────────────────────────
+DOMAIN = os.environ.get("DOMAIN", "acumenus.net")
+AUTH_TYPE = AUTH_OAUTH
+AUTH_USER_REGISTRATION = True
+AUTH_USER_REGISTRATION_ROLE = "Public"
+OAUTH_PROVIDERS = [
+    {
+        "name": "authentik",
+        "icon": "fa-key",
+        "token_key": "access_token",
+        "remote_app": {
+            "client_id": os.environ.get("SUPERSET_OAUTH_CLIENT_ID"),
+            "client_secret": os.environ.get("SUPERSET_OAUTH_CLIENT_SECRET"),
+            "api_base_url": f"https://auth.{DOMAIN}/application/o/",
+            "access_token_url": f"https://auth.{DOMAIN}/application/o/token/",
+            "authorize_url": f"https://auth.{DOMAIN}/application/o/authorize/",
+            "server_metadata_url": f"https://auth.{DOMAIN}/application/o/superset-oidc/.well-known/openid-configuration",
+            "client_kwargs": {"scope": "openid profile email"},
+        },
+    }
+]
 
 # ── Display ─────────────────────────────────────────────────────────────────
 APP_NAME = "Acropolis Analytics"
