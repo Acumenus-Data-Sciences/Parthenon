@@ -19,6 +19,19 @@
         &mdash; in one guided flow.
       </p>
 
+      <p class="description" style="margin-bottom: 0.75rem;">
+        <strong style="color: var(--text-secondary);">Recommended:</strong> open Terminal and run this command:
+      </p>
+
+      <div class="curl-block">
+        <code id="install-cmd">curl -fsSL https://parthenon.acumenus.net/install.sh | sh</code>
+        <button id="copy-btn" class="copy-btn" type="button">Copy</button>
+      </div>
+
+      <div class="divider-line">
+        <span>or download manually</span>
+      </div>
+
       <div class="download-grid">
         <a id="dl-linux" class="download-btn" href="https://github.com/sudoshi/Parthenon/releases/latest">
           <span class="dl-label">Linux</span>
@@ -34,9 +47,16 @@
         </a>
       </div>
 
-      <div class="curl-block">
-        <code>curl -fsSL https://parthenon.acumenus.net/install.sh | sh</code>
-        <button id="copy-btn" class="copy-btn" type="button">Copy</button>
+      <div class="post-download" id="post-download">
+        <strong>After downloading, open Terminal and run:</strong>
+        <div class="curl-block" style="margin-top: 0.5rem;">
+          <code id="run-cmd">cd ~/Downloads && chmod +x acropolis-install.com && ./acropolis-install.com</code>
+          <button id="copy-run-btn" class="copy-btn" type="button">Copy</button>
+        </div>
+        <p class="post-note" id="post-note">
+          macOS may show a security warning. If blocked, run:
+          <code class="inline-code">xattr -d com.apple.quarantine ~/Downloads/acropolis-install.com</code>
+        </p>
       </div>
 
       <div class="requirements">

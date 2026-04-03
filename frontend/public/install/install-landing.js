@@ -49,17 +49,30 @@
     }
   }
 
-  function initCopyButton() {
-    const btn = document.getElementById("copy-btn");
+  const RUN_CMDS = {
+    linux: "cd ~/Downloads && chmod +x acropolis-install-linux && ./acropolis-install-linux",
+    macos: "cd ~/Downloads && chmod +x acropolis-install.com && ./acropolis-install.com",
+    windows: "wsl -- bash -c 'chmod +x /mnt/c/Users/$USER/Downloads/acropolis-install-win.exe && /mnt/c/Users/$USER/Downloads/acropolis-install-win.exe'",
+  };
+
+  const POST_NOTES = {
+    linux: "",
+    macos: 'macOS may show a security warning. If blocked, run: <code class="inline-code">xattr -d com.apple.quarantine ~/Downloads/acropolis-install.com</code>',
+    windows: "Open a WSL terminal first. The installer runs inside your WSL Linux environment.",
+  };
+
+  function setupCopyButton(btnId, textFn) {
+    const btn = document.getElementById(btnId);
     if (!btn) return;
     btn.addEventListener("click", async () => {
+      const text = typeof textFn === "function" ? textFn() : textFn;
       try {
-        await navigator.clipboard.writeText(CURL_CMD);
+        await navigator.clipboard.writeText(text);
         btn.textContent = "Copied!";
         setTimeout(() => { btn.textContent = "Copy"; }, 2000);
       } catch {
         const ta = document.createElement("textarea");
-        ta.value = CURL_CMD;
+        ta.value = text;
         ta.style.position = "fixed";
         ta.style.opacity = "0";
         document.body.appendChild(ta);
@@ -72,12 +85,21 @@
     });
   }
 
+  function setPostDownload(platform) {
+    const runCmd = document.getElementById("run-cmd");
+    const postNote = document.getElementById("post-note");
+    if (runCmd) runCmd.textContent = RUN_CMDS[platform] || RUN_CMDS.linux;
+    if (postNote) postNote.innerHTML = POST_NOTES[platform] || "";
+  }
+
   async function init() {
     const platform = detectPlatform();
     const tag = await fetchLatestRelease();
     setDownloadLinks(tag);
     highlightPlatform(platform);
-    initCopyButton();
+    setPostDownload(platform);
+    setupCopyButton("copy-btn", CURL_CMD);
+    setupCopyButton("copy-run-btn", () => document.getElementById("run-cmd")?.textContent || "");
   }
 
   if (document.readyState === "loading") {

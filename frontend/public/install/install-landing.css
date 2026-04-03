@@ -176,6 +176,59 @@ h1 {
 .fallback a { color: var(--accent); text-decoration: none; }
 .fallback a:hover { text-decoration: underline; }
 
+.divider-line {
+  text-align: center;
+  margin: 1rem 0;
+  position: relative;
+}
+
+.divider-line::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: 50%;
+  border-top: 1px solid var(--border-default);
+}
+
+.divider-line span {
+  position: relative;
+  background: rgba(10, 8, 6, 0.72);
+  padding: 0 0.75rem;
+  font-size: 0.75rem;
+  color: var(--text-ghost);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.post-download {
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.post-download strong {
+  font-size: 0.8rem;
+}
+
+.post-note {
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.inline-code {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+  color: var(--success);
+}
+
 .requirements {
   margin-top: 1.5rem;
   padding: 0.85rem 1rem;
