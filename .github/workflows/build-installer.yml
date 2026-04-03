@@ -134,8 +134,22 @@ jobs:
           name: acropolis-install-win
           path: installer/dist/acropolis-install-win.exe
 
+  snap:
+    name: Snap package
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: snapcore/action-build@v1
+        id: snapcraft
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: parthenon-snap
+          path: ${{ steps.snapcraft.outputs.snap }}
+
   release:
-    needs: [linux, macos, windows]
+    needs: [linux, macos, windows, snap]
     if: always() && !cancelled()
     runs-on: ubuntu-22.04
     steps:
@@ -148,7 +162,7 @@ jobs:
       - name: Collect release assets
         run: |
           mkdir -p release-assets
-          for name in acropolis-install-linux acropolis-install-macos acropolis-install-win; do
+          for name in acropolis-install-linux acropolis-install-macos acropolis-install-win parthenon-snap; do
             if [ -d "artifacts/${name}" ]; then
               cp artifacts/${name}/* release-assets/
               echo "Collected: ${name}"

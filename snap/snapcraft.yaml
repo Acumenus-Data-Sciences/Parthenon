@@ -1,0 +1,40 @@
+name: parthenon-installer
+base: core22
+version: '1.0.3'
+summary: Acropolis installer for Parthenon outcomes research platform
+description: |
+  One-command setup for Parthenon, the unified OHDSI outcomes research
+  platform on OMOP CDM v5.4. Handles Docker setup, repository cloning,
+  and guided configuration through a web-based wizard.
+
+  After installation, run: parthenon-install
+grade: stable
+confinement: classic
+
+apps:
+  parthenon-install:
+    command: bin/parthenon-install
+
+parts:
+  installer:
+    plugin: python
+    source: .
+    python-packages:
+      - rich>=13.0
+      - questionary>=2.0
+    organize:
+      bin/bootstrap_remote: bin/parthenon-install
+    override-build: |
+      craftctl default
+      # Create the entry point script
+      mkdir -p $CRAFT_PART_INSTALL/bin
+      cat > $CRAFT_PART_INSTALL/bin/parthenon-install << 'SCRIPT'
+      #!/usr/bin/env python3
+      from installer.bootstrap_remote import main
+      main()
+      SCRIPT
+      chmod +x $CRAFT_PART_INSTALL/bin/parthenon-install
+    stage:
+      - bin/parthenon-install
+      - lib/
+      - usr/
