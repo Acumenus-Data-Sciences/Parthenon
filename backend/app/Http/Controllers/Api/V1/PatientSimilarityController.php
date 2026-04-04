@@ -636,6 +636,70 @@ class PatientSimilarityController extends Controller
         }
     }
 
+    /**
+     * POST /v1/patient-similarity/expand-cohort
+     *
+     * Append similar patients to an existing cohort.
+     */
+    public function expandCohort(Request $request): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'cohort_definition_id' => ['required', 'integer', 'exists:cohort_definitions,id'],
+                'source_id' => ['required', 'integer', 'exists:sources,id'],
+                'person_ids' => ['required', 'array', 'min:1'],
+                'person_ids.*' => ['integer'],
+            ]);
+
+            $source = Source::with('daimons')->findOrFail($validated['source_id']);
+            SourceContext::forSource($source);
+
+            $cohort = CohortDefinition::findOrFail($validated['cohort_definition_id']);
+
+            // Get existing members to deduplicate
+            $existingIds = $this->results()
+                ->table('cohort')
+                ->where('cohort_definition_id', $cohort->id)
+                ->pluck('subject_id')
+                ->map(fn ($id) => (int) $id)
+                ->toArray();
+
+            $newIds = array_values(array_diff($validated['person_ids'], $existingIds));
+
+            if (empty($newIds)) {
+                return response()->json([
+                    'data' => [
+                        'cohort_definition_id' => $cohort->id,
+                        'added_count' => 0,
+                        'skipped_duplicates' => count($validated['person_ids']),
+                        'new_total' => count($existingIds),
+                    ],
+                ]);
+            }
+
+            $today = now()->toDateString();
+            $rows = array_map(fn (int $personId) => [
+                'cohort_definition_id' => $cohort->id,
+                'subject_id' => $personId,
+                'cohort_start_date' => $today,
+                'cohort_end_date' => $today,
+            ], $newIds);
+
+            $this->results()->table('cohort')->insert($rows);
+
+            return response()->json([
+                'data' => [
+                    'cohort_definition_id' => $cohort->id,
+                    'added_count' => count($newIds),
+                    'skipped_duplicates' => count($validated['person_ids']) - count($newIds),
+                    'new_total' => count($existingIds) + count($newIds),
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            return $this->errorResponse('Cohort expansion failed', $e);
+        }
+    }
+
     private function errorResponse(string $message, \Throwable $exception): JsonResponse
     {
         $response = [

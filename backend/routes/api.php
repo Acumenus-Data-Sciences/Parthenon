@@ -741,6 +741,8 @@ Route::prefix('v1')->group(function () {
                 ->middleware(['permission:patient-similarity.view', 'permission:profiles.view']);
             Route::get('/cohort-profile', [PatientSimilarityController::class, 'cohortProfile'])
                 ->middleware('permission:patient-similarity.view');
+            Route::post('/expand-cohort', [PatientSimilarityController::class, 'expandCohort'])
+                ->middleware('permission:patient-similarity.view');
         });
 
         // Negative Control Outcomes
