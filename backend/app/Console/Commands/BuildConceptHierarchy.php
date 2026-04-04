@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\Services\Vocabulary\HierarchyBuilderService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
+use RuntimeException;
 
 class BuildConceptHierarchy extends Command
 {
@@ -19,9 +19,23 @@ class BuildConceptHierarchy extends Command
     {
         $domain = $this->option('domain');
 
+        if ($domain !== null && ! in_array($domain, HierarchyBuilderService::supportedDomains(), true)) {
+            $this->error('Unsupported domain "'.$domain.'". Expected one of: '.implode(', ', HierarchyBuilderService::supportedDomains()));
+
+            return self::FAILURE;
+        }
+
+        try {
+            $service->ensureConceptTreeTableExists();
+        } catch (RuntimeException $e) {
+            $this->error($e->getMessage());
+
+            return self::FAILURE;
+        }
+
         if ($this->option('fresh')) {
             $this->info('Clearing vocab.concept_tree...');
-            DB::connection('omop')->table('concept_tree')->delete();
+            $service->clearConceptTree();
         }
 
         if ($domain) {

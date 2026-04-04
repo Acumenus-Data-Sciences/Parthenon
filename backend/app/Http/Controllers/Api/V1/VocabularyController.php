@@ -330,9 +330,10 @@ class VocabularyController extends Controller
                 WHERE ca.ancestor_concept_id = ?
                   AND ca.min_levels_of_separation = 1
                   AND c.standard_concept IN ('S', 'C')
+                  AND c.domain_id = ?
                 ORDER BY c.concept_name
                 LIMIT 50
-            ", [$id]);
+            ", [$id, $domain]);
 
         // Get siblings at each ancestor level (concepts sharing the same parent)
         $siblingsByParent = [];
@@ -356,9 +357,10 @@ class VocabularyController extends Controller
                       AND ca.min_levels_of_separation = 1
                       AND ca.descendant_concept_id != ?
                       AND c.standard_concept IN ('S', 'C')
+                      AND c.domain_id = ?
                     ORDER BY c.concept_name
                     LIMIT 50
-                ", [$parentId, $ancestor->concept_id]);
+                ", [$parentId, $ancestor->concept_id, $domain]);
             $siblingsByParent[$ancestor->concept_id] = $siblings;
         }
 
@@ -380,9 +382,10 @@ class VocabularyController extends Controller
                       AND ca.min_levels_of_separation = 1
                       AND ca.descendant_concept_id != ?
                       AND c.standard_concept IN ('S', 'C')
+                      AND c.domain_id = ?
                     ORDER BY c.concept_name
                     LIMIT 50
-                ", [$immediateParentId, $id]);
+                ", [$immediateParentId, $id, $domain]);
         } else {
             $selfSiblings = [];
         }

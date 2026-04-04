@@ -5,9 +5,38 @@ namespace App\Services\Vocabulary;
 use Illuminate\Database\Connection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use InvalidArgumentException;
+use RuntimeException;
 
 class HierarchyBuilderService
 {
+    /**
+     * @return list<string>
+     */
+    public static function supportedDomains(): array
+    {
+        return array_keys(self::DOMAIN_VIRTUAL_ROOTS);
+    }
+
+    public function ensureConceptTreeTableExists(): void
+    {
+        $exists = DB::connection('omop')->selectOne("
+            SELECT 1
+            FROM information_schema.tables
+            WHERE table_schema = 'vocab'
+              AND table_name = 'concept_tree'
+        ");
+
+        if (! $exists) {
+            throw new RuntimeException('Missing vocab.concept_tree. Create the table before running vocabulary:build-hierarchy.');
+        }
+    }
+
+    public function clearConceptTree(): void
+    {
+        DB::connection('omop')->table('concept_tree')->delete();
+    }
+
     /**
      * Domains using SNOMED CT hierarchy.
      */
@@ -85,14 +114,23 @@ class HierarchyBuilderService
     public function buildDomain(string $domain): int
     {
         if ($domain === 'Drug') {
-            return $this->buildDrugDomain();
+            $count = $this->buildDrugDomain();
+            $this->insertVirtualDomainRoots();
+
+            return $count;
         }
 
         if ($domain === 'Visit') {
-            return $this->buildVisitDomain();
+            $count = $this->buildVisitDomain();
+            $this->insertVirtualDomainRoots();
+
+            return $count;
         }
 
-        return $this->buildSnomedDomain($domain);
+        $count = $this->buildSnomedDomain($domain);
+        $this->insertVirtualDomainRoots();
+
+        return $count;
     }
 
     /**
@@ -391,6 +429,7 @@ class HierarchyBuilderService
      */
     public function populateResultsSchema(string $schema): int
     {
+        $quotedSchema = $this->quoteIdentifier($schema);
         $conn = DB::connection('omop');
 
         // Check table exists
@@ -406,7 +445,7 @@ class HierarchyBuilderService
         }
 
         // Delete existing data (using DELETE instead of TRUNCATE to avoid privilege issues)
-        $conn->statement("DELETE FROM {$schema}.concept_hierarchy");
+        $conn->statement("DELETE FROM {$quotedSchema}.concept_hierarchy");
 
         // Build concept_hierarchy from concept_tree using recursive CTE.
         // Walk up the parent chain to collect ancestors at depth 2/3/4,
@@ -462,7 +501,7 @@ class HierarchyBuilderService
                 FROM ancestry
                 GROUP BY leaf_id, leaf_name, domain_id, vocabulary_id
             )
-            INSERT INTO {$schema}.concept_hierarchy
+            INSERT INTO {$quotedSchema}.concept_hierarchy
                 (concept_id, concept_name, treemap, concept_hierarchy_type,
                  level1_concept_id, level1_concept_name,
                  level2_concept_id, level2_concept_name,
@@ -475,10 +514,19 @@ class HierarchyBuilderService
             FROM pivoted
         ");
 
-        $count = $conn->selectOne("SELECT COUNT(*) as cnt FROM {$schema}.concept_hierarchy")->cnt;
+        $count = $conn->selectOne("SELECT COUNT(*) as cnt FROM {$quotedSchema}.concept_hierarchy")->cnt;
 
         Log::info("HierarchyBuilderService: populated {$schema}.concept_hierarchy", ['rows' => $count]);
 
         return $count;
+    }
+
+    private function quoteIdentifier(string $identifier): string
+    {
+        if (! preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $identifier)) {
+            throw new InvalidArgumentException("Invalid SQL identifier: {$identifier}");
+        }
+
+        return '"'.$identifier.'"';
     }
 }

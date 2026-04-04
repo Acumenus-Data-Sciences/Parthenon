@@ -37,15 +37,15 @@ export function HierarchyBrowserPanel({
   }, [nodes]);
 
   const handleDrillDown = (node: ConceptTreeNode) => {
-    if (node.child_count > 0) {
-      setBreadcrumbs((prev) => [
-        ...prev,
-        { concept_id: node.concept_id, concept_name: node.concept_name },
-      ]);
-      setParentId(node.concept_id);
-    } else {
-      onSelectConcept(node.concept_id);
+    if (node.child_count === 0) {
+      return;
     }
+
+    setBreadcrumbs((prev) => [
+      ...prev,
+      { concept_id: node.concept_id, concept_name: node.concept_name },
+    ]);
+    setParentId(node.concept_id);
   };
 
   const handleBreadcrumbClick = (index: number) => {
@@ -106,50 +106,58 @@ export function HierarchyBrowserPanel({
         ) : (
           <div className="space-y-0.5">
             {sortedNodes.map((node) => (
-              <button
+              <div
                 key={node.concept_id}
-                type="button"
-                onClick={() => handleDrillDown(node)}
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-md hover:bg-[#1C1C20] transition-colors text-left group"
+                className="w-full flex items-center gap-2 rounded-md hover:bg-[#1C1C20] transition-colors group"
               >
-                {/* Domain color indicator */}
-                <span
-                  className="w-2 h-2 rounded-full shrink-0"
-                  style={{
-                    backgroundColor: DOMAIN_COLORS[node.domain_id] ?? "#8A857D",
-                  }}
-                />
-
-                {/* Icon */}
-                {node.child_count > 0 ? (
-                  <FolderTree size={12} className="text-[#8A857D] shrink-0" />
-                ) : (
-                  <span className="w-3 shrink-0" />
-                )}
-
-                {/* Name */}
-                <span className="text-xs text-[#F0EDE8] truncate flex-1">
-                  {node.concept_name}
-                </span>
-
-                {/* Metadata */}
-                <span className="text-[9px] text-[#5A5650] font-['IBM_Plex_Mono',monospace] shrink-0">
-                  {node.concept_id}
-                </span>
-
-                {node.child_count > 0 && (
-                  <span className="text-[9px] text-[#8A857D] shrink-0">
-                    ({node.child_count})
-                  </span>
-                )}
-
-                {node.child_count > 0 && (
-                  <ChevronRight
-                    size={10}
-                    className="text-[#5A5650] group-hover:text-[#8A857D] shrink-0"
+                <button
+                  type="button"
+                  onClick={() => onSelectConcept(node.concept_id)}
+                  className="flex min-w-0 flex-1 items-center gap-2 px-3 py-2 text-left"
+                >
+                  {/* Domain color indicator */}
+                  <span
+                    className="w-2 h-2 rounded-full shrink-0"
+                    style={{
+                      backgroundColor: DOMAIN_COLORS[node.domain_id] ?? "#8A857D",
+                    }}
                   />
+
+                  {/* Icon */}
+                  {node.child_count > 0 ? (
+                    <FolderTree size={12} className="text-[#8A857D] shrink-0" />
+                  ) : (
+                    <span className="w-3 shrink-0" />
+                  )}
+
+                  {/* Name */}
+                  <span className="text-xs text-[#F0EDE8] truncate flex-1">
+                    {node.concept_name}
+                  </span>
+
+                  {/* Metadata */}
+                  <span className="text-[9px] text-[#5A5650] font-['IBM_Plex_Mono',monospace] shrink-0">
+                    {node.concept_id}
+                  </span>
+
+                  {node.child_count > 0 && (
+                    <span className="text-[9px] text-[#8A857D] shrink-0">
+                      ({node.child_count})
+                    </span>
+                  )}
+                </button>
+
+                {node.child_count > 0 && (
+                  <button
+                    type="button"
+                    aria-label={`Browse children of ${node.concept_name}`}
+                    onClick={() => handleDrillDown(node)}
+                    className="shrink-0 px-3 py-2 text-[#5A5650] transition-colors hover:text-[#8A857D]"
+                  >
+                    <ChevronRight size={10} className="shrink-0" />
+                  </button>
                 )}
-              </button>
+              </div>
             ))}
           </div>
         )}

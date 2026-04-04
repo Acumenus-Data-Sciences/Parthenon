@@ -46,6 +46,19 @@ vi.mock("../components/SemanticSearchPanel", () => ({
   ),
 }));
 
+vi.mock("../components/HierarchyBrowserPanel", () => ({
+  HierarchyBrowserPanel: ({
+    onSelectConcept,
+  }: {
+    mode: "browse";
+    onSelectConcept: (id: number) => void;
+  }) => (
+    <div data-testid="hierarchy-browser-panel">
+      <button onClick={() => onSelectConcept(77777)}>Select hierarchy concept</button>
+    </div>
+  ),
+}));
+
 vi.mock("@/features/help", () => ({
   HelpButton: () => <button data-testid="help-button" />,
 }));
@@ -79,11 +92,12 @@ describe("VocabularyPage", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders keyword and semantic search tabs", () => {
+  it("renders keyword, semantic, and browse tabs", () => {
     renderVocabularyPage();
 
     expect(screen.getByText("Keyword Search")).toBeInTheDocument();
     expect(screen.getByText("Semantic Search")).toBeInTheDocument();
+    expect(screen.getByText("Browse Hierarchy")).toBeInTheDocument();
   });
 
   it("shows keyword search panel by default", () => {
@@ -105,6 +119,20 @@ describe("VocabularyPage", () => {
 
     expect(
       screen.getByTestId("semantic-search-panel"),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("vocabulary-search-panel"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("switches to hierarchy browser when tab is clicked", async () => {
+    const user = userEvent.setup();
+    renderVocabularyPage();
+
+    await user.click(screen.getByText("Browse Hierarchy"));
+
+    expect(
+      screen.getByTestId("hierarchy-browser-panel"),
     ).toBeInTheDocument();
     expect(
       screen.queryByTestId("vocabulary-search-panel"),
@@ -136,5 +164,15 @@ describe("VocabularyPage", () => {
     await user.click(screen.getByText("Select semantic concept"));
 
     expect(screen.getByText("Concept #99999")).toBeInTheDocument();
+  });
+
+  it("passes selected concept from hierarchy browse to detail panel", async () => {
+    const user = userEvent.setup();
+    renderVocabularyPage();
+
+    await user.click(screen.getByText("Browse Hierarchy"));
+    await user.click(screen.getByText("Select hierarchy concept"));
+
+    expect(screen.getByText("Concept #77777")).toBeInTheDocument();
   });
 });
