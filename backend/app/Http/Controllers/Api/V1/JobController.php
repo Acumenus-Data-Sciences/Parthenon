@@ -265,7 +265,14 @@ class JobController extends Controller
         }
 
         return $query->limit(50)->get()->map(function (CohortGeneration $gen) {
-            $progress = match ($gen->status) {
+            // Mark stale queued/running jobs (>1 hour old) as failed for display
+            $isStale = in_array($gen->status, [ExecutionStatus::Queued, ExecutionStatus::Running, ExecutionStatus::Pending], true)
+                && $gen->started_at
+                && $gen->started_at->diffInMinutes(now()) > 60;
+
+            $displayStatus = $isStale ? ExecutionStatus::Failed : $gen->status;
+
+            $progress = match ($displayStatus) {
                 ExecutionStatus::Pending => 0,
                 ExecutionStatus::Queued => 2,
                 ExecutionStatus::Running => 50,
@@ -283,14 +290,14 @@ class JobController extends Controller
                 'id' => $gen->id,
                 'type' => 'cohort_generation',
                 'name' => 'Cohort Generation — '.($gen->cohortDefinition?->name ?? 'Unknown'),
-                'status' => $gen->status instanceof ExecutionStatus ? $gen->status->value : (string) $gen->status,
+                'status' => $displayStatus instanceof ExecutionStatus ? $displayStatus->value : (string) $displayStatus,
                 'source_name' => $gen->source?->source_name,
                 'triggered_by' => null,
                 'progress' => $progress,
                 'started_at' => $gen->started_at?->toIso8601String(),
                 'completed_at' => $gen->completed_at?->toIso8601String(),
                 'duration' => null,
-                'error_message' => $gen->fail_message,
+                'error_message' => $isStale ? 'Job stalled — exceeded 1 hour without completing' : $gen->fail_message,
                 'log_output' => $logOutput,
                 'created_at' => $gen->created_at?->toIso8601String(),
             ];

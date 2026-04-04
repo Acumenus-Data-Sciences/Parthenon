@@ -20,6 +20,7 @@ use App\Services\PatientSimilarity\SimilarityExplainer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
  * @group Patient Similarity Engine
@@ -569,23 +570,26 @@ class PatientSimilarityController extends Controller
                 ]);
             }
 
-            $centroid = $this->centroidBuilder->buildCentroid($memberIds, $source);
-            $vectors = PatientFeatureVector::query()
-                ->forSource($source->id)
-                ->whereIn('person_id', $memberIds)
-                ->get();
+            // Use SQL-based coverage counting to avoid loading all vectors into memory
+            // For large cohorts (100K+), loading all vectors would OOM
+            $dimensionProfile = $this->buildDimensionProfileFromSql($memberIds, $source->id);
 
-            // Compute per-dimension richness (fraction of members with data)
-            $dimensionProfile = $this->buildDimensionProfile($vectors, $centroid);
+            // Derive dimensions_available from coverage > 0
+            $dimensionsAvailable = [];
+            foreach ($dimensionProfile as $key => $dim) {
+                if ($dim['coverage'] > 0) {
+                    $dimensionsAvailable[] = $key;
+                }
+            }
 
             return response()->json([
                 'data' => [
                     'cohort_definition_id' => (int) $validated['cohort_definition_id'],
                     'source_id' => $source->id,
-                    'member_count' => $vectors->count(),
+                    'member_count' => count($memberIds),
                     'generated' => true,
                     'dimensions' => $dimensionProfile,
-                    'dimensions_available' => $centroid['dimensions_available'] ?? [],
+                    'dimensions_available' => $dimensionsAvailable,
                 ],
             ]);
         } catch (\Throwable $e) {
@@ -712,6 +716,70 @@ class PatientSimilarityController extends Controller
     }
 
     /**
+     * Build a dimension profile using SQL COUNT queries instead of loading all vectors.
+     * Handles large cohorts (100K+ members) without memory issues.
+     *
+     * @param  array<int>  $memberIds
+     * @param  array<string, mixed>  $centroid
+     * @return array<string, array<string, mixed>>
+     */
+    private function buildDimensionProfileFromSql(array $memberIds, int $sourceId, ?array $centroid = null): array
+    {
+        $memberCount = count($memberIds);
+        if ($memberCount === 0) {
+            return $this->buildDimensionProfile(collect(), $centroid ?? []);
+        }
+
+        $pgArray = '{'.implode(',', $memberIds).'}';
+
+        $coverage = DB::selectOne("
+            SELECT
+                COUNT(*) AS total,
+                COUNT(*) FILTER (WHERE condition_concepts IS NOT NULL AND condition_concepts != '[]' AND condition_concepts != 'null') AS has_conditions,
+                COUNT(*) FILTER (WHERE lab_vector IS NOT NULL AND lab_vector != '{}' AND lab_vector != 'null') AS has_labs,
+                COUNT(*) FILTER (WHERE drug_concepts IS NOT NULL AND drug_concepts != '[]' AND drug_concepts != 'null') AS has_drugs,
+                COUNT(*) FILTER (WHERE procedure_concepts IS NOT NULL AND procedure_concepts != '[]' AND procedure_concepts != 'null') AS has_procedures,
+                COUNT(*) FILTER (WHERE variant_genes IS NOT NULL AND variant_genes != '[]' AND variant_genes != 'null') AS has_genomics
+            FROM patient_feature_vectors
+            WHERE source_id = ? AND person_id = ANY(?::bigint[])
+        ", [$sourceId, $pgArray]);
+
+        $total = (int) ($coverage->total ?? 0);
+
+        return [
+            'demographics' => [
+                'coverage' => 1.0,
+                'label' => 'Demographics',
+            ],
+            'conditions' => [
+                'coverage' => $total > 0 ? round((int) $coverage->has_conditions / $total, 4) : 0,
+                'unique_concepts' => count($centroid['condition_concepts'] ?? []),
+                'label' => 'Conditions',
+            ],
+            'measurements' => [
+                'coverage' => $total > 0 ? round((int) $coverage->has_labs / $total, 4) : 0,
+                'unique_measurements' => count($centroid['lab_vector'] ?? []),
+                'label' => 'Measurements',
+            ],
+            'drugs' => [
+                'coverage' => $total > 0 ? round((int) $coverage->has_drugs / $total, 4) : 0,
+                'unique_concepts' => count($centroid['drug_concepts'] ?? []),
+                'label' => 'Drugs',
+            ],
+            'procedures' => [
+                'coverage' => $total > 0 ? round((int) $coverage->has_procedures / $total, 4) : 0,
+                'unique_concepts' => count($centroid['procedure_concepts'] ?? []),
+                'label' => 'Procedures',
+            ],
+            'genomics' => [
+                'coverage' => $total > 0 ? round((int) $coverage->has_genomics / $total, 4) : 0,
+                'unique_genes' => count($centroid['variant_genes'] ?? []),
+                'label' => 'Genomics',
+            ],
+        ];
+    }
+
+    /**
      * POST /v1/patient-similarity/compare-cohorts
      *
      * Compare two cohort profiles with per-dimension divergence scores.
@@ -753,17 +821,8 @@ class PatientSimilarityController extends Controller
             $sourceCentroid = $this->centroidBuilder->buildCentroid($sourceMemberIds, $source);
             $targetCentroid = $this->centroidBuilder->buildCentroid($targetMemberIds, $source);
 
-            $sourceVectors = PatientFeatureVector::query()
-                ->forSource($source->id)
-                ->whereIn('person_id', $sourceMemberIds)
-                ->get();
-            $targetVectors = PatientFeatureVector::query()
-                ->forSource($source->id)
-                ->whereIn('person_id', $targetMemberIds)
-                ->get();
-
-            $sourceProfile = $this->buildDimensionProfile($sourceVectors, $sourceCentroid);
-            $targetProfile = $this->buildDimensionProfile($targetVectors, $targetCentroid);
+            $sourceProfile = $this->buildDimensionProfileFromSql($sourceMemberIds, $source->id, $sourceCentroid);
+            $targetProfile = $this->buildDimensionProfileFromSql($targetMemberIds, $source->id, $targetCentroid);
 
             $divergence = [];
             foreach ($sourceProfile as $dimKey => $sourceDim) {
