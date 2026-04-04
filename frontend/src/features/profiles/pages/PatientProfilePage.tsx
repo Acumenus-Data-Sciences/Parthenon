@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft,
@@ -130,6 +130,8 @@ export default function PatientProfilePage() {
   const { personId } = useParams<{ personId: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const navState = location.state as { from?: string; fromLabel?: string } | null;
 
   const parsedPersonId = personId ? Number(personId) : null;
   const sourceIdParam = searchParams.get("sourceId");
@@ -361,11 +363,11 @@ export default function PatientProfilePage() {
         <div className="flex-1 min-w-0">
           <button
             type="button"
-            onClick={() => navigate("/profiles")}
+            onClick={() => navigate(navState?.from ?? "/profiles")}
             className="inline-flex items-center gap-1 text-sm text-[#8A857D] hover:text-[#F0EDE8] transition-colors mb-3"
           >
             <ArrowLeft size={14} />
-            Patient Profiles
+            {navState?.fromLabel ?? "Patient Profiles"}
           </button>
           <h1 className="text-2xl font-bold text-[#F0EDE8]">Patient Profile</h1>
           <p className="mt-1 text-sm text-[#8A857D]">Person #{parsedPersonId}</p>

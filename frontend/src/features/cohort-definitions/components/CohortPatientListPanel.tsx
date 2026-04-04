@@ -159,7 +159,9 @@ export function CohortPatientListPanel({
   };
 
   const handleSelectPerson = (personSourceId: number, personId: number) => {
-    navigate(`/profiles?source=${personSourceId}&person=${personId}`);
+    navigate(`/profiles/${personId}?sourceId=${personSourceId}`, {
+      state: { from: `/cohort-definitions/${definitionId}`, fromLabel: "Cohort Definition" },
+    });
   };
 
   const handleExportCsv = useCallback(() => {
