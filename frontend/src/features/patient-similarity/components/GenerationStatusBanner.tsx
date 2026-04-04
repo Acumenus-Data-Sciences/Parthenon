@@ -1,4 +1,6 @@
+import { useEffect, useRef } from "react";
 import { Loader2, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { useGenerateCohort } from "@/features/cohort-definitions/hooks/useCohortDefinitions";
 import type { CohortProfileResult } from "../types/patientSimilarity";
@@ -17,6 +19,26 @@ export function GenerationStatusBanner({
   sourceId,
 }: GenerationStatusBannerProps) {
   const generateMutation = useGenerateCohort();
+  const queryClient = useQueryClient();
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Poll cohort-profile after generation is queued until it becomes generated
+  useEffect(() => {
+    if (generateMutation.isSuccess && profile && !profile.generated) {
+      pollRef.current = setInterval(() => {
+        queryClient.invalidateQueries({
+          queryKey: ["patient-similarity", "cohort-profile", cohortDefinitionId, sourceId],
+        });
+      }, 5000);
+    }
+
+    return () => {
+      if (pollRef.current) {
+        clearInterval(pollRef.current);
+        pollRef.current = null;
+      }
+    };
+  }, [generateMutation.isSuccess, profile?.generated, cohortDefinitionId, sourceId, queryClient, profile]);
 
   if (isLoading) {
     return (
@@ -29,11 +51,15 @@ export function GenerationStatusBanner({
 
   if (!profile) return null;
 
-  if (generateMutation.isPending) {
+  const isGenerating = generateMutation.isPending || (generateMutation.isSuccess && !profile.generated);
+
+  if (isGenerating) {
     return (
       <div className="flex items-center gap-2 rounded-lg bg-[#2DD4BF]/5 border border-[#2DD4BF]/20 px-3 py-2 mt-1.5">
         <Loader2 size={14} className="animate-spin text-[#2DD4BF]" />
-        <span className="text-xs text-[#2DD4BF]">Generating cohort...</span>
+        <span className="text-xs text-[#2DD4BF]">
+          {generateMutation.isPending ? "Queueing generation..." : "Generating cohort..."}
+        </span>
       </div>
     );
   }
@@ -59,11 +85,6 @@ export function GenerationStatusBanner({
         >
           Generate Now
         </button>
-        {generateMutation.isSuccess && (
-          <p className="mt-1.5 text-[10px] text-[#2DD4BF]">
-            Generation queued. This may take a moment.
-          </p>
-        )}
       </div>
     );
   }
