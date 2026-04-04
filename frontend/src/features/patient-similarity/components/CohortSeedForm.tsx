@@ -1,50 +1,116 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Search, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useSourceStore } from "@/stores/sourceStore";
 import { useCohortDefinitions } from "@/features/cohort-definitions/hooks/useCohortDefinitions";
-import { useCohortProfile } from "../hooks/usePatientSimilarity";
+import {
+  useSimilarityDimensions,
+  useCohortProfile,
+} from "../hooks/usePatientSimilarity";
 import { CohortCentroidRadar } from "./CohortCentroidRadar";
+import { GenerationStatusBanner } from "./GenerationStatusBanner";
 import type { CohortSimilaritySearchParams } from "../types/patientSimilarity";
 
 interface CohortSeedFormProps {
   onSearch: (params: CohortSimilaritySearchParams) => void;
-  sourceId: number;
   isLoading: boolean;
 }
 
-type Strategy = "centroid" | "exemplar";
+export function CohortSeedForm({ onSearch, isLoading }: CohortSeedFormProps) {
+  const { activeSourceId, defaultSourceId, sources } = useSourceStore();
+  const { data: dimensions } = useSimilarityDimensions();
 
-export function CohortSeedForm({
-  onSearch,
-  sourceId,
-  isLoading,
-}: CohortSeedFormProps) {
+  const [sourceId, setSourceId] = useState<number>(
+    activeSourceId ?? defaultSourceId ?? 0,
+  );
   const [selectedCohortId, setSelectedCohortId] = useState<number>(0);
-  const [strategy, setStrategy] = useState<Strategy>("centroid");
+  const [weights, setWeights] = useState<Record<string, number>>({});
+  const [ageMin, setAgeMin] = useState("");
+  const [ageMax, setAgeMax] = useState("");
+  const [gender, setGender] = useState("");
 
   const { data: cohortsData, isLoading: cohortsLoading } =
     useCohortDefinitions({ limit: 100 });
-
   const cohorts = cohortsData?.items ?? [];
 
-  const { data: cohortProfile } = useCohortProfile(
+  const {
+    data: cohortProfile,
+    isLoading: profileLoading,
+  } = useCohortProfile(
     selectedCohortId > 0 ? selectedCohortId : undefined,
     sourceId,
   );
 
+  useEffect(() => {
+    if (!dimensions) return;
+    const defaults: Record<string, number> = {};
+    for (const dim of dimensions) {
+      defaults[dim.key] = dim.default_weight;
+    }
+    setWeights(defaults);
+  }, [dimensions]);
+
+  useEffect(() => {
+    if (activeSourceId) {
+      setSourceId(activeSourceId);
+    }
+  }, [activeSourceId]);
+
+  useEffect(() => {
+    setSelectedCohortId(0);
+  }, [sourceId]);
+
+  const handleWeightChange = useCallback((key: string, value: number) => {
+    setWeights((prev) => ({ ...prev, [key]: value }));
+  }, []);
+
+  const isGenerated = cohortProfile?.generated === true;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (selectedCohortId <= 0 || sourceId <= 0) return;
+    if (selectedCohortId <= 0 || sourceId <= 0 || !isGenerated) return;
+
+    const filters: Record<string, unknown> = {};
+    const minAge = parseInt(ageMin, 10);
+    const maxAge = parseInt(ageMax, 10);
+    if (!isNaN(minAge)) filters.age_min = minAge;
+    if (!isNaN(maxAge)) filters.age_max = maxAge;
+    if (gender) filters.gender = gender;
 
     onSearch({
       cohort_definition_id: selectedCohortId,
       source_id: sourceId,
-      strategy,
+      weights: Object.keys(weights).length > 0 ? weights : undefined,
+      filters: Object.keys(filters).length > 0 ? filters : undefined,
     });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-5">
+      {/* Source Selector */}
+      <div>
+        <label className="block text-[10px] text-[#5A5650] uppercase tracking-wider mb-1.5">
+          Data Source
+        </label>
+        <select
+          value={sourceId}
+          onChange={(e) => setSourceId(parseInt(e.target.value, 10))}
+          className={cn(
+            "w-full rounded-lg px-3 py-2 text-sm",
+            "bg-[#0E0E11] border border-[#232328]",
+            "text-[#F0EDE8]",
+            "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+          )}
+        >
+          <option value={0}>Select source...</option>
+          {sources.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.source_name}
+            </option>
+          ))}
+        </select>
+      </div>
+
       {/* Cohort Selector */}
       <div>
         <label className="block text-[10px] text-[#5A5650] uppercase tracking-wider mb-1.5">
@@ -58,7 +124,9 @@ export function CohortSeedForm({
         ) : (
           <select
             value={selectedCohortId}
-            onChange={(e) => setSelectedCohortId(parseInt(e.target.value, 10))}
+            onChange={(e) =>
+              setSelectedCohortId(parseInt(e.target.value, 10))
+            }
             className={cn(
               "w-full rounded-lg px-3 py-2 text-sm",
               "bg-[#0E0E11] border border-[#232328]",
@@ -74,41 +142,111 @@ export function CohortSeedForm({
             ))}
           </select>
         )}
+
+        {/* Generation Status */}
+        {selectedCohortId > 0 && sourceId > 0 && (
+          <GenerationStatusBanner
+            profile={cohortProfile}
+            isLoading={profileLoading}
+            cohortDefinitionId={selectedCohortId}
+            sourceId={sourceId}
+          />
+        )}
       </div>
 
-      {/* Strategy Toggle */}
-      <div>
-        <label className="block text-[10px] text-[#5A5650] uppercase tracking-wider mb-2">
-          Search Strategy
-        </label>
-        <div className="flex rounded-lg border border-[#232328] overflow-hidden">
-          {(["centroid", "exemplar"] as const).map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => setStrategy(s)}
-              className={cn(
-                "flex-1 px-3 py-2 text-xs font-medium capitalize transition-colors",
-                strategy === s
-                  ? "bg-[#2DD4BF]/10 text-[#2DD4BF] border-r border-[#232328]"
-                  : "bg-[#0E0E11] text-[#5A5650] hover:text-[#C5C0B8] border-r border-[#232328]",
-              )}
-            >
-              {s}
-            </button>
-          ))}
+      {/* Radar Chart */}
+      {cohortProfile?.generated && (
+        <CohortCentroidRadar profile={cohortProfile} />
+      )}
+
+      {/* Dimension Weight Sliders */}
+      {dimensions && dimensions.length > 0 && (
+        <div>
+          <label className="block text-[10px] text-[#5A5650] uppercase tracking-wider mb-2">
+            Dimension Weights
+          </label>
+          <div className="space-y-3">
+            {dimensions
+              .filter((d) => d.is_active)
+              .map((dim) => (
+                <div key={dim.key}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs text-[#C5C0B8]">{dim.name}</span>
+                    <span className="text-[10px] font-medium text-[#2DD4BF] tabular-nums">
+                      {(weights[dim.key] ?? dim.default_weight).toFixed(1)}
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min={0}
+                    max={5}
+                    step={0.5}
+                    value={weights[dim.key] ?? dim.default_weight}
+                    onChange={(e) =>
+                      handleWeightChange(dim.key, parseFloat(e.target.value))
+                    }
+                    className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-[#232328] accent-[#2DD4BF]"
+                  />
+                </div>
+              ))}
+          </div>
         </div>
-        <p className="mt-1.5 text-[10px] text-[#5A5650]">
-          {strategy === "centroid"
-            ? "Average features across all cohort members as seed"
-            : "Use the most representative cohort member as seed"}
-        </p>
+      )}
+
+      {/* Filters */}
+      <div className="space-y-3">
+        <label className="block text-[10px] text-[#5A5650] uppercase tracking-wider">
+          Filters (optional)
+        </label>
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            value={ageMin}
+            onChange={(e) => setAgeMin(e.target.value)}
+            placeholder="Min age"
+            className={cn(
+              "w-1/2 rounded-lg px-3 py-1.5 text-xs",
+              "bg-[#0E0E11] border border-[#232328]",
+              "text-[#F0EDE8] placeholder:text-[#5A5650]",
+              "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+            )}
+          />
+          <span className="text-[#5A5650] text-xs">-</span>
+          <input
+            type="text"
+            value={ageMax}
+            onChange={(e) => setAgeMax(e.target.value)}
+            placeholder="Max age"
+            className={cn(
+              "w-1/2 rounded-lg px-3 py-1.5 text-xs",
+              "bg-[#0E0E11] border border-[#232328]",
+              "text-[#F0EDE8] placeholder:text-[#5A5650]",
+              "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+            )}
+          />
+        </div>
+        <select
+          value={gender}
+          onChange={(e) => setGender(e.target.value)}
+          className={cn(
+            "w-full rounded-lg px-3 py-1.5 text-xs",
+            "bg-[#0E0E11] border border-[#232328]",
+            "text-[#F0EDE8]",
+            "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+          )}
+        >
+          <option value="">Any gender</option>
+          <option value="MALE">Male</option>
+          <option value="FEMALE">Female</option>
+        </select>
       </div>
 
       {/* Submit */}
       <button
         type="submit"
-        disabled={isLoading || selectedCohortId <= 0 || sourceId <= 0}
+        disabled={
+          isLoading || selectedCohortId <= 0 || sourceId <= 0 || !isGenerated
+        }
         className={cn(
           "w-full flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors",
           "bg-[#9B1B30] text-white hover:bg-[#B22040]",
@@ -122,9 +260,6 @@ export function CohortSeedForm({
         )}
         Find Similar Patients
       </button>
-
-      {/* Centroid Radar Chart — shown when a cohort is selected */}
-      {cohortProfile && <CohortCentroidRadar profile={cohortProfile} />}
     </form>
   );
 }

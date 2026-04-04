@@ -83,9 +83,16 @@ export default function PatientSimilarityPage() {
   // Use whichever mutation has data
   const activeMutation =
     searchMode === "cohort" ? cohortSearchMutation : searchMutation;
-  const result = activeMutation.data;
+  const rawResult = activeMutation.data;
   const isLoading = activeMutation.isPending;
   const isError = activeMutation.isError;
+
+  // Normalize result: API may return [] for empty cohorts or an object with similar_patients
+  const result =
+    rawResult && !Array.isArray(rawResult) && typeof rawResult === "object"
+      ? rawResult
+      : undefined;
+  const patients = result?.similar_patients ?? [];
 
   const metadata = result?.metadata ?? {};
   const computedInMs =
@@ -137,7 +144,6 @@ export default function PatientSimilarityPage() {
             ) : (
               <CohortSeedForm
                 onSearch={handleCohortSearch}
-                sourceId={sourceId}
                 isLoading={isLoading}
               />
             )}
@@ -169,7 +175,7 @@ export default function PatientSimilarityPage() {
               <div className="flex items-center gap-1.5 text-xs text-[#C5C0B8]">
                 <Users size={14} className="text-[#2DD4BF]" />
                 <span className="font-medium">
-                  {result.similar_patients.length}
+                  {patients.length}
                 </span>
                 <span className="text-[#5A5650]">results</span>
               </div>
@@ -193,10 +199,10 @@ export default function PatientSimilarityPage() {
               <button
                 type="button"
                 onClick={() => setExportOpen(true)}
-                disabled={result.similar_patients.length === 0}
+                disabled={patients.length === 0}
                 className={cn(
                   "flex items-center gap-1.5 text-xs border rounded px-2.5 py-1 transition-colors",
-                  result.similar_patients.length > 0
+                  patients.length > 0
                     ? "text-[#2DD4BF] border-[#2DD4BF]/30 hover:bg-[#2DD4BF]/10 cursor-pointer"
                     : "text-[#5A5650] border-[#232328] cursor-not-allowed opacity-50",
                 )}
@@ -224,9 +230,9 @@ export default function PatientSimilarityPage() {
         {/* Results table */}
         {result ? (
           <SimilarPatientTable
-            patients={result.similar_patients}
+            patients={patients}
             showPersonId={showPersonId}
-            seedPersonId={result.seed.person_id}
+            seedPersonId={result?.seed?.person_id}
             sourceId={lastSearchParams?.source_id}
           />
         ) : (
@@ -251,7 +257,7 @@ export default function PatientSimilarityPage() {
         isOpen={exportOpen}
         onClose={() => setExportOpen(false)}
         cacheId={cacheId}
-        patients={result?.similar_patients ?? []}
+        patients={patients}
       />
     </div>
   );
