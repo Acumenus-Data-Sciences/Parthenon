@@ -170,7 +170,7 @@ export const CATEGORY_LABELS: Record<DqdCategory, string> = {
 };
 
 // ---------------------------------------------------------------------------
-// Concept Hierarchy (treemap)
+// Concept Hierarchy
 // ---------------------------------------------------------------------------
 
 export interface HierarchyNode {

@@ -13,10 +13,10 @@ import { fetchUnmappedCodesExport } from "../../../api/dqHistoryApi";
 import type { SourceRelease, UnmappedCode } from "../../../types/ares";
 import ParetoChart from "./ParetoChart";
 import MappingProgressTracker from "./MappingProgressTracker";
-import VocabularyTreemap from "./VocabularyTreemap";
+import VocabularyBarChart from "./VocabularyBarChart";
 import MappingSuggestionPanel from "./MappingSuggestionPanel";
 
-type ViewMode = "table" | "pareto" | "treemap";
+type ViewMode = "table" | "pareto" | "vocabulary";
 
 export default function UnmappedCodesView() {
   const [selectedSourceId, setSelectedSourceId] = useState<number | null>(null);
@@ -114,7 +114,7 @@ export default function UnmappedCodesView() {
         {/* View mode toggle */}
         {selectedSourceId && activeReleaseId && (
           <div className="ml-auto flex items-center gap-1 rounded-lg border border-[#252530] bg-[#0E0E11] p-0.5">
-            {(["table", "pareto", "treemap"] as const).map((mode) => (
+            {(["table", "pareto", "vocabulary"] as const).map((mode) => (
               <button
                 key={mode}
                 type="button"
@@ -125,7 +125,7 @@ export default function UnmappedCodesView() {
                     : "text-[#666] hover:text-white"
                 }`}
               >
-                {mode === "table" ? "Table" : mode === "pareto" ? "Pareto" : "Treemap"}
+                {mode === "table" ? "Table" : mode === "pareto" ? "Pareto" : "Vocabulary"}
               </button>
             ))}
           </div>
@@ -231,16 +231,16 @@ export default function UnmappedCodesView() {
         <p className="py-10 text-center text-[#555]">No unmapped codes found for Pareto analysis.</p>
       )}
 
-      {/* Treemap view */}
-      {viewMode === "treemap" && treemapData && treemapData.length > 0 && (
+      {/* Vocabulary view */}
+      {viewMode === "vocabulary" && treemapData && treemapData.length > 0 && (
         <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
           <h3 className="mb-3 text-sm font-medium text-white">Unmapped Codes by Vocabulary</h3>
-          <VocabularyTreemap data={treemapData} />
+          <VocabularyBarChart data={treemapData} />
         </div>
       )}
 
-      {viewMode === "treemap" && treemapData && treemapData.length === 0 && (
-        <p className="py-10 text-center text-[#555]">No vocabulary data available for treemap.</p>
+      {viewMode === "vocabulary" && treemapData && treemapData.length === 0 && (
+        <p className="py-10 text-center text-[#555]">No vocabulary data available.</p>
       )}
 
       {/* Table view */}

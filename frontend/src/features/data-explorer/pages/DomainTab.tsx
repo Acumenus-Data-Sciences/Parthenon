@@ -3,7 +3,7 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useDomainSummary, useTemporalTrends, useConceptHierarchy } from "../hooks/useAchillesData";
 import { TopConceptsBar } from "../components/charts/TopConceptsBar";
-import { HierarchyTreemap } from "../components/charts/HierarchyTreemap";
+import { HierarchyBarChart } from "../components/charts/HierarchyBarChart";
 import { TemporalTrendChart } from "../components/charts/TemporalTrendChart";
 import { ConceptDrilldownPanel } from "../components/ConceptDrilldownPanel";
 import type { Domain } from "../types/dataExplorer";
@@ -106,9 +106,9 @@ export default function DomainTab({ sourceId, initialDomain }: DomainTabProps) {
           </div>
         )}
 
-        {/* Classification hierarchy treemap */}
+        {/* Classification hierarchy */}
         {conceptHierarchy.data?.hierarchy && conceptHierarchy.data.hierarchy.length > 0 && (
-          <HierarchyTreemap
+          <HierarchyBarChart
             data={conceptHierarchy.data.hierarchy}
             hasHierarchy={conceptHierarchy.data.hasHierarchy}
             domain={activeDomain}

@@ -544,14 +544,6 @@ export interface MappingProgress {
   pending: number;
 }
 
-// ── Phase B: Vocabulary treemap ────────────────────────────────────────
-
-export interface TreemapNode {
-  name: string;
-  value: number;
-  children?: TreemapNode[];
-}
-
 // ── Phase B: Annotation timeline ───────────────────────────────────────
 
 export interface AnnotationTimelineEntry {

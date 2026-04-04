@@ -31,7 +31,7 @@ import { YearOfBirthHistogram } from "../components/charts/YearOfBirthHistogram"
 import { CumulativeObservationCurve } from "../components/charts/CumulativeObservationCurve";
 import { DualAreaChart } from "../components/charts/DualAreaChart";
 import { PeriodCountBar } from "../components/charts/PeriodCountBar";
-import { DomainTreemap } from "../components/charts/DomainTreemap";
+import { DomainBarChart } from "../components/charts/DomainBarChart";
 import { HeatmapChart } from "../components/charts/HeatmapChart";
 import { LogScaleBar } from "../components/charts/LogScaleBar";
 import type { RecordCount, DemographicDistribution } from "../types/dataExplorer";
@@ -477,9 +477,9 @@ export default function OverviewTab({
         ) : treemapData.length > 0 ? (
           <ChartCard
             title="Clinical Data Domains"
-            subtitle="Sized by total record count — click a domain to explore its concepts"
+            subtitle="Sorted by record count — click a domain to explore its concepts"
           >
-            <DomainTreemap
+            <DomainBarChart
               data={treemapData}
               onDomainClick={onNavigateToDomain}
             />
