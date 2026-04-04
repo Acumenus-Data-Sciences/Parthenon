@@ -162,13 +162,11 @@ SQL;
         $conceptCol = $builder->conceptIdColumn();
         $startDateCol = $builder->startDateColumn();
         $personIdCol = $builder->personIdColumn();
+        $occurrence = $criterionWrapper['Occurrence'] ?? null;
+        $requiresLeftJoin = $this->occurrenceBuilder->requiresLeftJoin($occurrence);
 
         // CodesetId join
         $codesetId = $domainConfig['CodesetId'] ?? null;
-        $codesetJoin = '';
-        if ($codesetId !== null) {
-            $codesetJoin = "\n    JOIN codesetId_{$codesetId} cs ON e.{$conceptCol} = cs.concept_id";
-        }
 
         // Domain-specific WHERE clauses
         $domainWhere = $builder->buildWhereClauses($domainConfig, 'e');
@@ -194,13 +192,38 @@ SQL;
         // Combine all WHERE clauses
         $allWhere = array_merge($domainWhere, $windowClauses);
         $whereStr = '';
-        if (! empty($allWhere)) {
-            $whereStr = "\n    AND ".implode("\n    AND ", $allWhere);
-        }
+        $joinSql = '';
+        $havingClause = '';
 
-        // Occurrence filter
-        $occurrence = $criterionWrapper['Occurrence'] ?? null;
-        $havingClause = $this->occurrenceBuilder->buildClause($occurrence);
+        if ($requiresLeftJoin) {
+            $joinClauses = ["qe.person_id = e.{$personIdCol}"];
+
+            if ($codesetId !== null) {
+                $joinClauses[] = "e.{$conceptCol} IN (SELECT concept_id FROM codesetId_{$codesetId})";
+            }
+
+            foreach ($allWhere as $clause) {
+                $joinClauses[] = $clause;
+            }
+
+            $joinSql = "LEFT JOIN {$cdmSchema}.{$table} e ON ".implode("\n        AND ", $joinClauses);
+            $havingClause = $this->occurrenceBuilder->buildClause(
+                $occurrence,
+                "COUNT(e.{$personIdCol})",
+            );
+        } else {
+            $codesetJoin = '';
+            if ($codesetId !== null) {
+                $codesetJoin = "\n    JOIN codesetId_{$codesetId} cs ON e.{$conceptCol} = cs.concept_id";
+            }
+
+            if (! empty($allWhere)) {
+                $whereStr = "\n    AND ".implode("\n    AND ", $allWhere);
+            }
+
+            $joinSql = "JOIN {$cdmSchema}.{$table} e ON qe.person_id = e.{$personIdCol}{$codesetJoin}";
+            $havingClause = $this->occurrenceBuilder->buildClause($occurrence);
+        }
 
         // Build the CTE
         $selectExpr = 'qe.person_id';
@@ -211,7 +234,7 @@ SQL;
 {$cteName} AS (
     SELECT {$selectExpr}
     FROM qualified_events qe
-    JOIN {$cdmSchema}.{$table} e ON qe.person_id = e.{$personIdCol}{$codesetJoin}
+    {$joinSql}
     WHERE 1=1{$whereStr}
     {$groupBy}
     {$havingClause}
@@ -223,7 +246,7 @@ SQL;
 {$cteName} AS (
     SELECT DISTINCT {$selectExpr}
     FROM qualified_events qe
-    JOIN {$cdmSchema}.{$table} e ON qe.person_id = e.{$personIdCol}{$codesetJoin}
+    {$joinSql}
     WHERE 1=1{$whereStr}
 )
 SQL;

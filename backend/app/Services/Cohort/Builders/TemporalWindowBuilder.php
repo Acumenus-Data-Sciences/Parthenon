@@ -25,6 +25,14 @@ class TemporalWindowBuilder
         // Start boundary
         if (isset($window['Start'])) {
             $start = $window['Start'];
+            if (array_key_exists('Days', $start) && $start['Days'] === null) {
+                $start = null;
+            }
+        } else {
+            $start = null;
+        }
+
+        if ($start !== null) {
             $days = (int) ($start['Days'] ?? 0);
             $coeff = (int) ($start['Coeff'] ?? 1);
             $offset = $days * $coeff;
@@ -38,6 +46,14 @@ class TemporalWindowBuilder
         // End boundary
         if (isset($window['End'])) {
             $end = $window['End'];
+            if (array_key_exists('Days', $end) && $end['Days'] === null) {
+                $end = null;
+            }
+        } else {
+            $end = null;
+        }
+
+        if ($end !== null) {
             $days = (int) ($end['Days'] ?? 0);
             $coeff = (int) ($end['Coeff'] ?? 1);
             $offset = $days * $coeff;

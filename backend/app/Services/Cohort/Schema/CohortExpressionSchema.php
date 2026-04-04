@@ -75,10 +75,24 @@ class CohortExpressionSchema
         }
 
         // Normalize AdditionalCriteria (optional)
-        if (! isset($expression['AdditionalCriteria'])) {
-            $expression['AdditionalCriteria'] = null;
+        $additionalCriteria = null;
+        if (isset($expression['AdditionalCriteria'])) {
+            $additionalCriteria = $this->normalizeGroup($expression['AdditionalCriteria']);
+        }
+
+        // Atlas-style InclusionRules are also used in persisted cohort JSON.
+        // Translate them into the compiler's AdditionalCriteria shape so
+        // saved cohorts do not silently drop rule-based filters at generation time.
+        $inclusionRulesGroup = $this->normalizeInclusionRules($expression['InclusionRules'] ?? null);
+
+        if ($additionalCriteria !== null && $inclusionRulesGroup !== null) {
+            $expression['AdditionalCriteria'] = [
+                'Type' => 'ALL',
+                'CriteriaList' => [],
+                'Groups' => [$additionalCriteria, $inclusionRulesGroup],
+            ];
         } else {
-            $expression['AdditionalCriteria'] = $this->normalizeGroup($expression['AdditionalCriteria']);
+            $expression['AdditionalCriteria'] = $additionalCriteria ?? $inclusionRulesGroup;
         }
 
         // Normalize CensoringCriteria (optional)
@@ -171,6 +185,35 @@ class CohortExpressionSchema
         }
 
         return $group;
+    }
+
+    /**
+     * Normalize Atlas-style InclusionRules into an AdditionalCriteria group.
+     *
+     * @param  array<int, mixed>|null  $inclusionRules
+     * @return array<string, mixed>|null
+     */
+    private function normalizeInclusionRules(?array $inclusionRules): ?array
+    {
+        if (empty($inclusionRules)) {
+            return null;
+        }
+
+        $groups = [];
+
+        foreach ($inclusionRules as $index => $rule) {
+            if (! is_array($rule) || ! isset($rule['expression']) || ! is_array($rule['expression'])) {
+                throw new InvalidArgumentException("InclusionRules[{$index}].expression must be an object.");
+            }
+
+            $groups[] = $this->normalizeGroup($rule['expression']);
+        }
+
+        return [
+            'Type' => 'ALL',
+            'CriteriaList' => [],
+            'Groups' => $groups,
+        ];
     }
 
     /**

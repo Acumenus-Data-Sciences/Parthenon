@@ -12,7 +12,7 @@ class OccurrenceFilterBuilder
      *                                            - Count: the threshold count
      * @return string|null The HAVING clause (without HAVING keyword), or null if no filter
      */
-    public function build(?array $occurrence): ?string
+    public function build(?array $occurrence, string $countExpression = 'COUNT(*)'): ?string
     {
         if ($occurrence === null) {
             return null;
@@ -22,25 +22,43 @@ class OccurrenceFilterBuilder
         $count = (int) ($occurrence['Count'] ?? 0);
 
         return match ($type) {
-            0 => "COUNT(*) = {$count}",
-            1 => "COUNT(*) <= {$count}",
-            2 => "COUNT(*) >= {$count}",
-            default => "COUNT(*) >= {$count}",
+            0 => "{$countExpression} = {$count}",
+            1 => "{$countExpression} <= {$count}",
+            2 => "{$countExpression} >= {$count}",
+            default => "{$countExpression} >= {$count}",
         };
     }
 
     /**
      * Build a complete HAVING clause string with the HAVING keyword.
      */
-    public function buildClause(?array $occurrence): string
+    public function buildClause(?array $occurrence, string $countExpression = 'COUNT(*)'): string
     {
-        $having = $this->build($occurrence);
+        $having = $this->build($occurrence, $countExpression);
 
         if ($having === null) {
             return '';
         }
 
         return "HAVING {$having}";
+    }
+
+    /**
+     * Determine whether the occurrence filter must preserve zero matches.
+     *
+     * "At most" criteria must include persons with no matching rows at all.
+     * "Exactly 0" has the same requirement.
+     */
+    public function requiresLeftJoin(?array $occurrence): bool
+    {
+        if ($occurrence === null) {
+            return false;
+        }
+
+        $type = (int) ($occurrence['Type'] ?? 2);
+        $count = (int) ($occurrence['Count'] ?? 0);
+
+        return $type === 1 || ($type === 0 && $count === 0);
     }
 
     /**
