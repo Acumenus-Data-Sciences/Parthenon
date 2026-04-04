@@ -23,8 +23,9 @@ export function GenerationStatusBanner({
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Poll cohort-profile after generation is queued until it becomes generated
+  const isGenerated = profile?.generated === true;
   useEffect(() => {
-    if (generateMutation.isSuccess && profile && !profile.generated) {
+    if (generateMutation.isSuccess && !isGenerated) {
       pollRef.current = setInterval(() => {
         queryClient.invalidateQueries({
           queryKey: ["patient-similarity", "cohort-profile", cohortDefinitionId, sourceId],
@@ -38,7 +39,7 @@ export function GenerationStatusBanner({
         pollRef.current = null;
       }
     };
-  }, [generateMutation.isSuccess, profile?.generated, cohortDefinitionId, sourceId, queryClient, profile]);
+  }, [generateMutation.isSuccess, isGenerated, cohortDefinitionId, sourceId, queryClient]);
 
   if (isLoading) {
     return (
