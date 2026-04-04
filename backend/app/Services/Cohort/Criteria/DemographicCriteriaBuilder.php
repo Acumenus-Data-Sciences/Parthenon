@@ -5,6 +5,23 @@ namespace App\Services\Cohort\Criteria;
 class DemographicCriteriaBuilder
 {
     /**
+     * Extract concept IDs from an array that may contain plain ints or concept objects.
+     *
+     * @param  list<int|array<string, mixed>>  $items
+     * @return list<int>
+     */
+    private function extractConceptIds(array $items): array
+    {
+        return array_map(function ($item) {
+            if (is_array($item)) {
+                return (int) ($item['CONCEPT_ID'] ?? $item['concept_id'] ?? 0);
+            }
+
+            return (int) $item;
+        }, $items);
+    }
+
+    /**
      * Build WHERE clause fragments for demographic criteria applied to the person table.
      *
      * Each demographic criterion can filter on Age, Gender, Race, or Ethnicity.
@@ -65,7 +82,7 @@ class DemographicCriteriaBuilder
 
         // Gender filter — gender_concept_id IN (...)
         if (isset($criterion['Gender']) && is_array($criterion['Gender'])) {
-            $ids = array_map('intval', $criterion['Gender']);
+            $ids = $this->extractConceptIds($criterion['Gender']);
             if (! empty($ids)) {
                 $idList = implode(', ', $ids);
                 $clauses[] = "{$personAlias}.gender_concept_id IN ({$idList})";
@@ -74,7 +91,7 @@ class DemographicCriteriaBuilder
 
         // Race filter — race_concept_id IN (...)
         if (isset($criterion['Race']) && is_array($criterion['Race'])) {
-            $ids = array_map('intval', $criterion['Race']);
+            $ids = $this->extractConceptIds($criterion['Race']);
             if (! empty($ids)) {
                 $idList = implode(', ', $ids);
                 $clauses[] = "{$personAlias}.race_concept_id IN ({$idList})";
@@ -83,7 +100,7 @@ class DemographicCriteriaBuilder
 
         // Ethnicity filter — ethnicity_concept_id IN (...)
         if (isset($criterion['Ethnicity']) && is_array($criterion['Ethnicity'])) {
-            $ids = array_map('intval', $criterion['Ethnicity']);
+            $ids = $this->extractConceptIds($criterion['Ethnicity']);
             if (! empty($ids)) {
                 $idList = implode(', ', $ids);
                 $clauses[] = "{$personAlias}.ethnicity_concept_id IN ({$idList})";

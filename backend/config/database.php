@@ -142,6 +142,22 @@ return [
             'sslmode' => 'prefer',
         ],
 
+        // Vocabulary-first — used by VocabularyModel as default when no
+        // SourceContext is active. Puts vocab before omop so that
+        // vocab.concept (7M rows) is resolved before omop.concept (CDM).
+        'vocab' => [
+            'driver' => 'pgsql',
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '5432'),
+            'database' => env('DB_DATABASE', 'parthenon'),
+            'username' => env('DB_USERNAME', 'parthenon'),
+            'password' => env('DB_PASSWORD', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'search_path' => 'vocab,omop,php',
+            'sslmode' => 'prefer',
+        ],
+
         // Achilles/DQD results. AchillesResultReaderService overrides
         // search_path per-request based on source daimon table_qualifier
         // (e.g. 'results' for Acumenus, 'eunomia_results' for Eunomia).

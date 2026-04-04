@@ -15,6 +15,6 @@ abstract class VocabularyModel extends Model
     {
         $ctx = app(SourceContext::class);
 
-        return $ctx->source !== null ? $ctx->vocabConnection() : 'omop';
+        return $ctx->source !== null ? $ctx->vocabConnection() : 'vocab';
     }
 }

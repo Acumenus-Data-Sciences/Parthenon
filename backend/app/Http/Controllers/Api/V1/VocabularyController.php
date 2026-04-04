@@ -249,7 +249,7 @@ class VocabularyController extends Controller
     public function hierarchy(int $id): JsonResponse
     {
         // Use explicit vocab.concept to avoid omop.concept shadow table
-        $connName = 'omop';
+        $connName = 'vocab';
         $conceptRow = DB::connection($connName)
             ->selectOne('SELECT concept_id, concept_name, domain_id, vocabulary_id, concept_class_id, standard_concept FROM vocab.concept WHERE concept_id = ?', [$id]);
 
@@ -482,7 +482,7 @@ class VocabularyController extends Controller
         $parentId = (int) $request->query('parent_concept_id', '0');
         $domainId = $request->query('domain_id');
 
-        $query = DB::connection('omop')
+        $query = DB::connection('vocab')
             ->table('concept_tree AS ct')
             ->select([
                 'ct.child_concept_id AS concept_id',

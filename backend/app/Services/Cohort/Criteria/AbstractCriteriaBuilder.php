@@ -50,7 +50,10 @@ abstract class AbstractCriteriaBuilder implements CriteriaBuilderInterface
     /**
      * Build a concept list WHERE clause (IN list).
      *
-     * @param  list<int>  $conceptIds
+     * Accepts plain integer IDs or concept objects with a CONCEPT_ID key
+     * (e.g. ValueAsConcept: [{"CONCEPT_ID": 4181412, "CONCEPT_NAME": "Present"}]).
+     *
+     * @param  list<int|array<string, mixed>>  $conceptIds
      * @return list<string>
      */
     protected function buildConceptListClause(array $conceptIds, string $column): array
@@ -59,9 +62,15 @@ abstract class AbstractCriteriaBuilder implements CriteriaBuilderInterface
             return [];
         }
 
-        $ids = implode(', ', array_map('intval', $conceptIds));
+        $ids = array_map(function ($item) {
+            if (is_array($item)) {
+                return (int) ($item['CONCEPT_ID'] ?? $item['concept_id'] ?? 0);
+            }
 
-        return ["{$column} IN ({$ids})"];
+            return (int) $item;
+        }, $conceptIds);
+
+        return ["{$column} IN (".implode(', ', $ids).')'];
     }
 
     /**

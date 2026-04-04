@@ -59,7 +59,7 @@ class ConditionCriteriaBuilder extends AbstractCriteriaBuilder
 
         // StopReason filter
         if (isset($criterion['StopReason']) && is_string($criterion['StopReason'])) {
-            $escaped = addslashes($criterion['StopReason']);
+            $escaped = str_replace("'", "''", $criterion['StopReason']);
             $clauses[] = "{$alias}.stop_reason = '{$escaped}'";
         }
 

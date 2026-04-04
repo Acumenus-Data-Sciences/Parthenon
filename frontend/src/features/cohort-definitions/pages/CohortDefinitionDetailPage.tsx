@@ -25,6 +25,7 @@ import { GenerationHistoryTable } from "../components/GenerationHistoryTable";
 import { AttritionChart } from "../components/AttritionChart";
 import { CohortDiagnosticsPanel } from "../components/CohortDiagnosticsPanel";
 import { CohortOverlapPanel } from "../components/CohortOverlapPanel";
+import { CohortPatientListPanel } from "../components/CohortPatientListPanel";
 import { CirceSqlPanel } from "../components/CirceSqlPanel";
 import {
   useCohortDefinition,
@@ -35,7 +36,7 @@ import {
 import { useCohortExpressionStore } from "../stores/cohortExpressionStore";
 import type { CohortExpression } from "../types/cohortExpression";
 
-type Tab = "editor" | "results" | "diagnostics" | "overlap";
+type Tab = "editor" | "results" | "diagnostics" | "overlap" | "patients";
 
 export default function CohortDefinitionDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -504,6 +505,7 @@ export default function CohortDefinitionDetailPage() {
             { key: "results", label: "SQL & Generation" },
             { key: "diagnostics", label: "Diagnostics" },
             { key: "overlap", label: "Overlap" },
+            { key: "patients", label: "Patient List" },
           ] as const
         ).map((tab) => (
           <button
@@ -551,8 +553,16 @@ export default function CohortDefinitionDetailPage() {
           <CohortGenerationPanel definitionId={cohortId} />
           <GenerationHistoryTable definitionId={cohortId} />
         </div>
+      ) : activeTab === "overlap" ? (
+        <CohortOverlapPanel
+          currentCohortId={cohortId}
+          generationSources={definition.generation_sources}
+        />
       ) : (
-        <CohortOverlapPanel currentCohortId={cohortId} />
+        <CohortPatientListPanel
+          definitionId={cohortId}
+          generationSources={definition.generation_sources}
+        />
       )}
 
       {/* Abby AI Panel */}

@@ -30,20 +30,17 @@ function formatDate(iso: string): string {
 }
 
 function LatestGenerationBadge({
-  generations,
+  generation,
 }: {
-  generations?: CohortGeneration[];
+  generation?: CohortGeneration | null;
 }) {
-  if (!generations || generations.length === 0) {
+  if (!generation) {
     return (
       <span className="text-xs text-[#5A5650]">No generations</span>
     );
   }
 
-  // Find the most recent generation
-  const latest = generations.reduce((a, b) =>
-    new Date(b.started_at ?? 0) > new Date(a.started_at ?? 0) ? b : a,
-  );
+  const latest = generation;
 
   const config = {
     pending: { icon: Clock, color: "#8A857D", label: "Pending" },
@@ -302,7 +299,7 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
                   </div>
                 </td>
                 <td className="px-4 py-3">
-                  <LatestGenerationBadge generations={def.generations} />
+                  <LatestGenerationBadge generation={def.latest_generation} />
                 </td>
                 <td className="px-4 py-3">
                   <SourceBadges sources={def.generation_sources} />

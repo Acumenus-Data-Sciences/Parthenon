@@ -1,33 +1,53 @@
-import { useState } from "react";
-import { Loader2, BarChart3 } from "lucide-react";
+import { useState, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Loader2, BarChart3, Database, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { useCohortDefinitions, useCohortOverlap } from "../hooks/useCohortDefinitions";
 import { VennDiagram } from "./VennDiagram";
+import type { GenerationSource } from "../types/cohortExpression";
 
 interface CohortOverlapPanelProps {
   /** Pre-select this cohort (current definition) */
   currentCohortId?: number | null;
-  /** Source to run overlap against */
-  sourceId?: number | null;
+  /** Generation sources for the current cohort (to suggest a default source) */
+  generationSources?: GenerationSource[];
 }
 
 export function CohortOverlapPanel({
   currentCohortId,
-  sourceId,
+  generationSources,
 }: CohortOverlapPanelProps) {
   const [selectedIds, setSelectedIds] = useState<number[]>(
     currentCohortId ? [currentCohortId] : [],
   );
-  const [activeSourceId] = useState<number | null>(
-    sourceId ?? null,
+
+  // Auto-select if only one completed generation source
+  const completedSources = useMemo(
+    () =>
+      (generationSources ?? []).filter(
+        (s) => s.person_count != null && s.person_count > 0,
+      ),
+    [generationSources],
   );
+
+  const [sourceId, setSourceId] = useState<number | null>(
+    completedSources.length === 1 ? completedSources[0].source_id : null,
+  );
+
+  // Fetch all sources for the picker when no generation_sources provided
+  const { data: allSources } = useQuery({
+    queryKey: ["sources"],
+    queryFn: fetchSources,
+    enabled: completedSources.length === 0,
+  });
 
   const { data: cohortList } = useCohortDefinitions({ limit: 100 });
   const {
     data: overlap,
     isLoading,
     error,
-  } = useCohortOverlap(selectedIds, activeSourceId);
+  } = useCohortOverlap(selectedIds, sourceId);
 
   const toggleCohort = (id: number) => {
     setSelectedIds((prev) => {
@@ -49,8 +69,49 @@ export function CohortOverlapPanel({
           Cohort Overlap Analysis
         </h3>
         <p className="text-xs text-[#8A857D]">
-          Select 2-4 cohorts to compare membership overlap
+          Select a data source and 2-4 cohorts to compare membership overlap
         </p>
+      </div>
+
+      {/* Source selector */}
+      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+        <label className="block text-xs font-medium text-[#8A857D] mb-1.5">
+          Data Source
+        </label>
+        <div className="relative max-w-xs">
+          <Database
+            size={12}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+          />
+          <select
+            value={sourceId ?? ""}
+            onChange={(e) => setSourceId(Number(e.target.value) || null)}
+            className={cn(
+              "w-full appearance-none rounded-lg border border-[#232328] bg-[#0E0E11] pl-8 pr-8 py-2 text-sm",
+              "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+            )}
+          >
+            <option value="">Select a data source...</option>
+            {completedSources.length > 0
+              ? completedSources.map((src) => (
+                  <option key={src.source_id} value={src.source_id}>
+                    {src.source_name ?? src.source_key ?? `Source #${src.source_id}`}
+                    {src.person_count != null
+                      ? ` (${src.person_count.toLocaleString()} patients)`
+                      : ""}
+                  </option>
+                ))
+              : allSources?.map((src) => (
+                  <option key={src.id} value={src.id}>
+                    {src.source_name}
+                  </option>
+                ))}
+          </select>
+          <ChevronDown
+            size={12}
+            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+          />
+        </div>
       </div>
 
       {/* Cohort selector chips */}
@@ -87,8 +148,17 @@ export function CohortOverlapPanel({
         </div>
       )}
 
-      {/* Trigger / status */}
-      {selectedIds.length < 2 && (
+      {/* Status messages */}
+      {!sourceId && (
+        <div className="rounded-lg border border-dashed border-[#323238] bg-[#151518] p-8 text-center">
+          <Database size={24} className="mx-auto text-[#323238] mb-3" />
+          <p className="text-sm text-[#8A857D]">
+            Select a data source to compute overlap
+          </p>
+        </div>
+      )}
+
+      {sourceId && selectedIds.length < 2 && (
         <div className="rounded-lg border border-dashed border-[#323238] bg-[#151518] p-8 text-center">
           <BarChart3 size={24} className="mx-auto text-[#323238] mb-3" />
           <p className="text-sm text-[#8A857D]">
@@ -97,7 +167,7 @@ export function CohortOverlapPanel({
         </div>
       )}
 
-      {isLoading && selectedIds.length >= 2 && (
+      {isLoading && selectedIds.length >= 2 && sourceId && (
         <div className="flex items-center justify-center py-12">
           <Loader2 size={24} className="animate-spin text-[#8A857D]" />
         </div>

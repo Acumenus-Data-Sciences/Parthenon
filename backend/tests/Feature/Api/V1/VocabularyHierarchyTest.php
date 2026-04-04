@@ -8,7 +8,7 @@ test('hierarchy filters child and sibling queries to the active domain', functio
     $controller = new VocabularyController(Mockery::mock(VocabularySearchService::class));
     $connection = Mockery::mock();
 
-    DB::shouldReceive('connection')->with('omop')->andReturn($connection);
+    DB::shouldReceive('connection')->with('vocab')->andReturn($connection);
 
     $connection->shouldReceive('selectOne')
         ->once()
@@ -86,7 +86,7 @@ test('hierarchy falls back to concept_ancestor when concept_tree has no lineage'
     $controller = new VocabularyController(Mockery::mock(VocabularySearchService::class));
     $connection = Mockery::mock();
 
-    DB::shouldReceive('connection')->with('omop')->andReturn($connection);
+    DB::shouldReceive('connection')->with('vocab')->andReturn($connection);
 
     $connection->shouldReceive('selectOne')
         ->once()

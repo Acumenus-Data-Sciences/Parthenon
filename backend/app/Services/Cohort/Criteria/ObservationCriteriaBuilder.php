@@ -51,7 +51,7 @@ class ObservationCriteriaBuilder extends AbstractCriteriaBuilder
 
         // ValueAsString filter
         if (isset($criterion['ValueAsString']) && is_string($criterion['ValueAsString'])) {
-            $escaped = addslashes($criterion['ValueAsString']);
+            $escaped = str_replace("'", "''", $criterion['ValueAsString']);
             $clauses[] = "{$alias}.value_as_string LIKE '%{$escaped}%'";
         }
 

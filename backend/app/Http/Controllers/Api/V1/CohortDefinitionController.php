@@ -69,15 +69,38 @@ class CohortDefinitionController extends Controller
                         ->get()
                         ->keyBy('id');
 
-                    // Preserve Solr relevance order + append latest generation
+                    // Preserve Solr relevance order + append generation metadata
                     $ordered = collect($solrIds)
                         ->map(fn (int $id) => $cohorts->get($id))
                         ->filter()
                         ->map(function (CohortDefinition $def) {
                             $latestGeneration = $def->generations()
-                                ->orderByDesc('created_at')
+                                ->where('status', 'completed')
+                                ->orderByDesc('completed_at')
                                 ->first(['id', 'status', 'person_count', 'completed_at', 'source_id']);
+
+                            if (! $latestGeneration) {
+                                $latestGeneration = $def->generations()
+                                    ->orderByDesc('created_at')
+                                    ->first(['id', 'status', 'person_count', 'completed_at', 'source_id']);
+                            }
                             $def->setAttribute('latest_generation', $latestGeneration);
+
+                            $generationSources = $def->generations()
+                                ->where('status', 'completed')
+                                ->with('source:id,source_name,source_key')
+                                ->orderByDesc('completed_at')
+                                ->get(['id', 'source_id', 'person_count', 'completed_at'])
+                                ->unique('source_id')
+                                ->map(fn (CohortGeneration $gen) => [
+                                    'source_id' => $gen->source_id,
+                                    'source_name' => $gen->source?->source_name,
+                                    'source_key' => $gen->source?->source_key,
+                                    'person_count' => $gen->person_count,
+                                    'completed_at' => $gen->completed_at,
+                                ])
+                                ->values();
+                            $def->setAttribute('generation_sources', $generationSources);
 
                             return $def;
                         })
@@ -126,24 +149,35 @@ class CohortDefinitionController extends Controller
             $cohortDefinitions = $query->paginate($perPage);
 
             $cohortDefinitions->getCollection()->transform(function (CohortDefinition $def) {
+                // Prefer the latest completed generation; fall back to latest overall
                 $latestGeneration = $def->generations()
-                    ->orderByDesc('created_at')
+                    ->where('status', 'completed')
+                    ->orderByDesc('completed_at')
                     ->first(['id', 'status', 'person_count', 'completed_at', 'source_id']);
+
+                if (! $latestGeneration) {
+                    $latestGeneration = $def->generations()
+                        ->orderByDesc('created_at')
+                        ->first(['id', 'status', 'person_count', 'completed_at', 'source_id']);
+                }
 
                 $def->setAttribute('latest_generation', $latestGeneration);
 
-                // Include all completed generation sources for source badges
+                // Latest completed generation per source (deduplicated)
                 $generationSources = $def->generations()
                     ->where('status', 'completed')
                     ->with('source:id,source_name,source_key')
+                    ->orderByDesc('completed_at')
                     ->get(['id', 'source_id', 'person_count', 'completed_at'])
+                    ->unique('source_id')
                     ->map(fn (CohortGeneration $gen) => [
                         'source_id' => $gen->source_id,
                         'source_name' => $gen->source?->source_name,
                         'source_key' => $gen->source?->source_key,
                         'person_count' => $gen->person_count,
                         'completed_at' => $gen->completed_at,
-                    ]);
+                    ])
+                    ->values();
 
                 $def->setAttribute('generation_sources', $generationSources);
 
@@ -211,6 +245,32 @@ class CohortDefinitionController extends Controller
                 'generations' => fn ($q) => $q->orderByDesc('created_at')->limit(10),
                 'generations.source:id,source_name,source_key',
             ]);
+
+            // Prefer latest completed generation; fall back to latest overall
+            $latestGeneration = $cohortDefinition->generations
+                ->where('status', 'completed')
+                ->sortByDesc('completed_at')
+                ->first();
+
+            if (! $latestGeneration) {
+                $latestGeneration = $cohortDefinition->generations->first();
+            }
+            $cohortDefinition->setAttribute('latest_generation', $latestGeneration);
+
+            // Latest completed generation per source (deduplicated)
+            $generationSources = $cohortDefinition->generations
+                ->where('status', 'completed')
+                ->sortByDesc('completed_at')
+                ->unique('source_id')
+                ->map(fn (CohortGeneration $gen) => [
+                    'source_id' => $gen->source_id,
+                    'source_name' => $gen->source?->source_name,
+                    'source_key' => $gen->source?->source_key,
+                    'person_count' => $gen->person_count,
+                    'completed_at' => $gen->completed_at,
+                ])
+                ->values();
+            $cohortDefinition->setAttribute('generation_sources', $generationSources);
 
             return response()->json([
                 'data' => $cohortDefinition,

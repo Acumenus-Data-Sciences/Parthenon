@@ -112,6 +112,7 @@ export default function VocabularyPage() {
                 <HierarchyBrowserPanel
                   mode="browse"
                   onSelectConcept={handleSelectConcept}
+                  selectedConceptId={selectedConceptId}
                 />
               ) : null}
             </div>
