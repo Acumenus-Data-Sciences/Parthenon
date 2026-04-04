@@ -582,7 +582,7 @@ class PatientSimilarityController extends Controller
                 'data' => [
                     'cohort_definition_id' => (int) $validated['cohort_definition_id'],
                     'source_id' => $source->id,
-                    'member_count' => $memberCount,
+                    'member_count' => $vectors->count(),
                     'generated' => true,
                     'dimensions' => $dimensionProfile,
                     'dimensions_available' => $centroid['dimensions_available'] ?? [],
