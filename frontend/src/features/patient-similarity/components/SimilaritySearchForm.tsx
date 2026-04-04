@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
-import { Search, Loader2 } from "lucide-react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { Search, Loader2, User, Hash, CreditCard, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSourceStore } from "@/stores/sourceStore";
+import { usePersonSearch } from "@/features/profiles/hooks/useProfiles";
 import { useSimilarityDimensions } from "../hooks/usePatientSimilarity";
 import type { SimilaritySearchParams } from "../types/patientSimilarity";
 
@@ -24,6 +25,10 @@ export function SimilaritySearchForm({
   const { data: dimensions } = useSimilarityDimensions();
 
   const [personId, setPersonId] = useState(initialPersonId?.toString() ?? "");
+  const [searchQuery, setSearchQuery] = useState(initialPersonId?.toString() ?? "");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [sourceId, setSourceId] = useState<number>(
     initialSourceId ?? activeSourceId ?? defaultSourceId ?? 0,
   );
@@ -31,6 +36,12 @@ export function SimilaritySearchForm({
   const [ageMin, setAgeMin] = useState("");
   const [ageMax, setAgeMax] = useState("");
   const [gender, setGender] = useState("");
+
+  const {
+    data: searchResults,
+    isLoading: searchLoading,
+    isFetching: searchFetching,
+  } = usePersonSearch(sourceId > 0 ? sourceId : null, searchQuery);
 
   // Initialize weights from dimensions when they load
   useEffect(() => {
@@ -48,6 +59,34 @@ export function SimilaritySearchForm({
       setSourceId(activeSourceId);
     }
   }, [activeSourceId, initialSourceId]);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  function computeAge(yearOfBirth: number): number {
+    return new Date().getFullYear() - yearOfBirth;
+  }
+
+  const handleSelectPerson = (pid: number) => {
+    setPersonId(pid.toString());
+    setSearchQuery(pid.toString());
+    setIsDropdownOpen(false);
+  };
+
+  const hasResults = searchResults && searchResults.length > 0;
+  const showDropdown =
+    isDropdownOpen &&
+    sourceId > 0 &&
+    searchQuery.trim().length >= 1 &&
+    (searchLoading || searchFetching || hasResults || (searchResults && searchResults.length === 0));
 
   const handleWeightChange = useCallback((key: string, value: number) => {
     setWeights((prev) => ({ ...prev, [key]: value }));
@@ -99,23 +138,137 @@ export function SimilaritySearchForm({
         </select>
       </div>
 
-      {/* Patient ID */}
+      {/* Patient ID — live search */}
       <div>
         <label className="block text-[10px] text-[#5A5650] uppercase tracking-wider mb-1.5">
           Seed Patient ID
         </label>
-        <input
-          type="text"
-          value={personId}
-          onChange={(e) => setPersonId(e.target.value)}
-          placeholder="e.g. 12345"
-          className={cn(
-            "w-full rounded-lg px-3 py-2 text-sm",
-            "bg-[#0E0E11] border border-[#232328]",
-            "text-[#F0EDE8] placeholder:text-[#5A5650]",
-            "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+        <div ref={dropdownRef} className="relative">
+          <div className="relative">
+            <Search
+              size={14}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+            />
+            <input
+              ref={inputRef}
+              type="text"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setPersonId(e.target.value);
+                setIsDropdownOpen(true);
+              }}
+              onFocus={() => {
+                if (searchQuery.trim().length >= 1) setIsDropdownOpen(true);
+              }}
+              placeholder={
+                sourceId > 0
+                  ? "Type person ID or MRN..."
+                  : "Select a data source first"
+              }
+              disabled={sourceId <= 0}
+              className={cn(
+                "w-full rounded-lg pl-9 pr-8 py-2 text-sm",
+                "bg-[#0E0E11] border border-[#232328]",
+                "text-[#F0EDE8] placeholder:text-[#5A5650]",
+                sourceId <= 0
+                  ? "opacity-50 cursor-not-allowed"
+                  : "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+              )}
+            />
+            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+              {(searchLoading || searchFetching) && searchQuery.trim() ? (
+                <Loader2 size={13} className="animate-spin text-[#5A5650]" />
+              ) : searchQuery ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setPersonId("");
+                    setIsDropdownOpen(false);
+                    inputRef.current?.focus();
+                  }}
+                  className="text-[#5A5650] hover:text-[#C5C0B8] transition-colors"
+                >
+                  <X size={13} />
+                </button>
+              ) : null}
+            </div>
+          </div>
+
+          {/* Search type hints */}
+          {sourceId > 0 && !searchQuery && (
+            <div className="flex items-center gap-3 mt-1 px-1">
+              <span className="inline-flex items-center gap-1 text-[10px] text-[#5A5650]">
+                <Hash size={9} /> Person ID
+              </span>
+              <span className="inline-flex items-center gap-1 text-[10px] text-[#5A5650]">
+                <CreditCard size={9} /> MRN
+              </span>
+            </div>
           )}
-        />
+
+          {/* Results dropdown */}
+          {showDropdown && (
+            <div
+              className={cn(
+                "absolute left-0 right-0 top-full mt-1 z-50",
+                "rounded-lg border border-[#323238] bg-[#0E0E11] shadow-2xl overflow-hidden",
+              )}
+            >
+              {searchLoading && !searchResults ? (
+                <div className="flex items-center justify-center py-4">
+                  <Loader2 size={16} className="animate-spin text-[#8A857D]" />
+                </div>
+              ) : !hasResults ? (
+                <div className="flex flex-col items-center py-4 px-3 text-center">
+                  <User size={16} className="text-[#323238] mb-1" />
+                  <p className="text-xs text-[#8A857D]">
+                    No patients found for &ldquo;{searchQuery}&rdquo;
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  <div className="px-3 py-1 border-b border-[#1C1C20]">
+                    <p className="text-[10px] text-[#5A5650]">
+                      {searchResults.length} result{searchResults.length !== 1 ? "s" : ""}
+                      {searchResults.length === 20 ? " (showing first 20)" : ""}
+                    </p>
+                  </div>
+                  <div className="max-h-56 overflow-y-auto divide-y divide-[#1C1C20]">
+                    {searchResults.map((person) => (
+                      <button
+                        key={person.person_id}
+                        type="button"
+                        onClick={() => handleSelectPerson(person.person_id)}
+                        className="w-full flex items-center gap-2 px-3 py-2 hover:bg-[#1C1C20] transition-colors text-left"
+                      >
+                        <div className="flex items-center justify-center w-6 h-6 rounded-full bg-[#2DD4BF]/10 shrink-0">
+                          <User size={11} className="text-[#2DD4BF]" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold text-[#2DD4BF] font-['IBM_Plex_Mono',monospace]">
+                              #{person.person_id}
+                            </span>
+                            <span className="text-[10px] text-[#8A857D]">
+                              {person.gender} · {computeAge(person.year_of_birth)} yrs
+                            </span>
+                          </div>
+                          {person.person_source_value && (
+                            <p className="text-[10px] text-[#5A5650] truncate">
+                              MRN: {person.person_source_value}
+                            </p>
+                          )}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Dimension Weight Sliders */}
