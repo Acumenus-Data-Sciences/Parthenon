@@ -125,7 +125,17 @@ class RiskScoreRecommendationService
             return $b['expected_completeness'] <=> $a['expected_completeness'];
         });
 
-        return $recommendations;
+        return [
+            'profile' => [
+                'patient_count' => $profile['patient_count'],
+                'min_age' => $profile['min_age'],
+                'max_age' => $profile['max_age'],
+                'female_pct' => $profile['female_pct'],
+                'top_conditions' => $profile['top_conditions'],
+                'measurement_coverage' => (object) [],
+            ],
+            'recommendations' => $recommendations,
+        ];
     }
 
     /**
@@ -162,13 +172,16 @@ class RiskScoreRecommendationService
             [$cohortDefinitionId]
         );
 
-        // Top 20 conditions by prevalence
+        $patientCount = (int) ($demo->patient_count ?? 0);
+
+        // Top 20 conditions by prevalence with concept names
         $topConditions = DB::connection($connection)->select(
-            "SELECT co.condition_concept_id, COUNT(DISTINCT co.person_id) AS cnt
+            "SELECT co.condition_concept_id, vc.concept_name, COUNT(DISTINCT co.person_id) AS cnt
              FROM {$cdmSchema}.condition_occurrence co
              JOIN {$resultsSchema}.cohort c ON c.subject_id = co.person_id
+             LEFT JOIN {$vocabSchema}.concept vc ON vc.concept_id = co.condition_concept_id
              WHERE c.cohort_definition_id = ?
-             GROUP BY co.condition_concept_id
+             GROUP BY co.condition_concept_id, vc.concept_name
              ORDER BY cnt DESC
              LIMIT 20",
             [$cohortDefinitionId]
@@ -185,11 +198,16 @@ class RiskScoreRecommendationService
         );
 
         return [
-            'patient_count' => (int) ($demo->patient_count ?? 0),
+            'patient_count' => $patientCount,
             'min_age' => (int) ($demo->min_age ?? 0),
             'max_age' => (int) ($demo->max_age ?? 0),
             'female_pct' => (float) ($demo->female_pct ?? 0),
             'top_condition_ids' => array_map(fn (object $r): int => (int) $r->condition_concept_id, $topConditions),
+            'top_conditions' => array_map(fn (object $r) => [
+                'concept_id' => (int) $r->condition_concept_id,
+                'name' => $r->concept_name ?? "Concept {$r->condition_concept_id}",
+                'prevalence' => $patientCount > 0 ? round((int) $r->cnt / $patientCount, 3) : 0,
+            ], $topConditions),
             'measurement_concept_ids' => array_map(fn (object $r): int => (int) $r->measurement_concept_id, $measurements),
         ];
     }
