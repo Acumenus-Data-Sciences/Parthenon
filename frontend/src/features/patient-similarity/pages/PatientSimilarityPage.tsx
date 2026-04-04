@@ -62,7 +62,7 @@ export default function PatientSimilarityPage() {
     defaultSourceId ??
     0;
 
-  const { data: computeStatus } = useComputeStatus(sourceId || undefined);
+  const { data: computeStatus } = useComputeStatus(sourceId);
 
   const handleSearch = (params: SimilaritySearchParams) => {
     const withMode = { ...params, mode };

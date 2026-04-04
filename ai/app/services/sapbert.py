@@ -65,6 +65,10 @@ class OllamaEmbeddingService:
     def is_available(self) -> bool:
         return self._check_available()
 
+    def encode_single(self, text: str) -> list[float]:
+        """Encode a single text string into a 768-dim embedding."""
+        return self.encode([text])[0]
+
     def encode(self, texts: list[str]) -> list[list[float]]:
         """Encode texts via Ollama. Raises on failure."""
         resp = httpx.post(
@@ -143,6 +147,10 @@ class SapBERTService:
         embeddings = torch.nn.functional.normalize(embeddings, p=2, dim=1)
 
         return embeddings.cpu().numpy().tolist()  # type: ignore[no-any-return]
+
+    def encode_single(self, text: str) -> list[float]:
+        """Encode a single text string into a 768-dim embedding."""
+        return self.encode([text])[0]
 
     @property
     def is_loaded(self) -> bool:
