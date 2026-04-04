@@ -530,9 +530,15 @@ class PatientSimilarityController extends Controller
 
             if (empty($memberIds)) {
                 return response()->json([
-                    'data' => null,
-                    'meta' => ['error' => 'Cohort has no members.'],
-                ], 404);
+                    'data' => [
+                        'cohort_definition_id' => (int) $validated['cohort_definition_id'],
+                        'source_id' => $source->id,
+                        'member_count' => 0,
+                        'generated' => false,
+                        'dimensions' => [],
+                        'dimensions_available' => [],
+                    ],
+                ]);
             }
 
             $centroid = $this->centroidBuilder->buildCentroid($memberIds, $source);
@@ -593,6 +599,7 @@ class PatientSimilarityController extends Controller
                     'cohort_definition_id' => (int) $validated['cohort_definition_id'],
                     'source_id' => $source->id,
                     'member_count' => $memberCount,
+                    'generated' => true,
                     'dimensions' => $dimensionProfile,
                     'dimensions_available' => $centroid['dimensions_available'] ?? [],
                 ],
