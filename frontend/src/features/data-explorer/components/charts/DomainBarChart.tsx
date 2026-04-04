@@ -1,4 +1,4 @@
-import { formatCompact, DOMAIN_COLORS, CHART } from "./chartUtils";
+import { formatCompact, DOMAIN_COLORS } from "./chartUtils";
 
 interface DomainBarChartProps {
   data: { name: string; size: number; color: string }[];
