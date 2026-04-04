@@ -9,6 +9,11 @@ import type {
   CohortExportResult,
   CohortProfileResult,
   PatientComparisonResult,
+  ExpandCohortParams,
+  ExpandCohortResult,
+  CohortComparisonParams,
+  CohortComparisonResult,
+  CrossCohortSearchParams,
 } from "../types/patientSimilarity";
 
 export async function searchSimilarPatients(
@@ -90,5 +95,39 @@ export async function comparePatients(
   const { data } = await apiClient.get("/patient-similarity/compare", {
     params: { person_a: personA, person_b: personB, source_id: sourceId },
   });
+  return data.data ?? data;
+}
+
+// ── Cohort Expansion ────────────────────────────────────────────
+
+export async function expandCohort(
+  params: ExpandCohortParams,
+): Promise<ExpandCohortResult> {
+  const { data } = await apiClient.post(
+    "/patient-similarity/expand-cohort",
+    params,
+  );
+  return data.data ?? data;
+}
+
+// ── Cohort Comparison ────────────────────────────────────────────
+
+export async function compareCohorts(
+  params: CohortComparisonParams,
+): Promise<CohortComparisonResult> {
+  const { data } = await apiClient.post(
+    "/patient-similarity/compare-cohorts",
+    params,
+  );
+  return data.data ?? data;
+}
+
+export async function crossCohortSearch(
+  params: CrossCohortSearchParams,
+): Promise<SimilaritySearchResult> {
+  const { data } = await apiClient.post(
+    "/patient-similarity/cross-cohort-search",
+    params,
+  );
   return data.data ?? data;
 }
