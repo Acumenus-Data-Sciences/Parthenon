@@ -189,4 +189,43 @@
     <group>system,service_availability,pci_dss_10.6.1,nist_800_53_SI.4,</group>
   </rule>
 
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- YARA Malware Detection                                                -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- YARA scan: rule matched a file -->
+  <rule id="100070" level="12">
+    <match>yara-scan: ALERT</match>
+    <description>YARA: Malware signature detected in file — $(match)</description>
+    <group>yara,malware,pci_dss_5.1,pci_dss_5.2,hipaa_164.312.a.1,nist_800_53_SI.3,</group>
+  </rule>
+
+  <!-- YARA scan: clean file (informational, low level) -->
+  <rule id="100071" level="3">
+    <match>yara-scan: OK</match>
+    <description>YARA: File scanned, no threats detected</description>
+    <group>yara,</group>
+  </rule>
+
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+  <!-- Loki-RS IOC Scanner                                                   -->
+  <!-- ══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- Loki alert — malware/IOC match -->
+  <rule id="100075" level="12">
+    <match>loki:|LOKI</match>
+    <match>ALERT|WARNING</match>
+    <description>Loki-RS: IOC/malware indicator detected — $(match)</description>
+    <group>loki,malware,pci_dss_5.1,pci_dss_5.2,hipaa_164.312.a.1,nist_800_53_SI.3,</group>
+  </rule>
+
+  <!-- Loki info — scan progress (informational) -->
+  <rule id="100076" level="3">
+    <match>loki:|LOKI</match>
+    <match>INFO</match>
+    <description>Loki-RS: Scan status update</description>
+    <group>loki,</group>
+  </rule>
+
 </group>

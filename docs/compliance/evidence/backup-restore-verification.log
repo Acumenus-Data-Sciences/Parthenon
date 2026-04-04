@@ -1,0 +1,26 @@
+=== Backup Restore Verification Test ===
+Date: Sat Apr  4 00:48:34 EDT 2026
+Backup file: /mnt/md0/postgres-backups/logical/app-20260403-141701.sql.gz
+Backup size: 936M
+Target database: parthenon_restore_test
+Prerequisites: pgvector extension, PG17 \restrict line stripped
+
+Results:
+  app.users:              22 (matches production: 22)  PASS
+  app.sources:             7 (matches production:  7)  PASS
+  app.cohort_definitions:100 (matches production:100)  PASS
+  app.source_daimons:     15 (matches production: 15)  PASS
+  app.roles:               6 (matches production:  6)  PASS
+  app.permissions:        71 (matches production: 71)  PASS
+  app.model_has_roles:    46 (matches production: 46)  PASS
+  Total tables restored: 173
+
+Status: PASS — All row counts match production.
+
+Notes:
+- PG17 dumps include \restrict command that must be stripped for non-superuser restore
+- pgvector extension must be pre-installed in target database
+- Restore duration: ~3.5 minutes for 980MB compressed dump
+- Recommend adding pgvector prerequisite to restore procedure documentation
+
+Next scheduled test: 2026-07-04 (quarterly)
