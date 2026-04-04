@@ -1,5 +1,5 @@
 import { useSearchParams } from "react-router-dom";
-import { Users, Clock, Target, Download } from "lucide-react";
+import { Users, Clock, Target, Download, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/authStore";
@@ -10,18 +10,26 @@ import { SimilarityModeToggle } from "../components/SimilarityModeToggle";
 import { StalenessIndicator } from "../components/StalenessIndicator";
 import { CohortSeedForm } from "../components/CohortSeedForm";
 import { CohortExportDialog } from "../components/CohortExportDialog";
+import { CohortExpandDialog } from "../components/CohortExpandDialog";
+import { CohortCompareForm } from "../components/CohortCompareForm";
+import { CohortComparisonRadar } from "../components/CohortComparisonRadar";
+import { DivergenceScores } from "../components/DivergenceScores";
 import {
   useSimilaritySearch,
   useCohortSimilaritySearch,
   useComputeStatus,
+  useCompareCohorts,
+  useCrossCohortSearch,
 } from "../hooks/usePatientSimilarity";
 import type {
   SimilaritySearchParams,
   CohortSimilaritySearchParams,
+  CohortComparisonParams,
+  CrossCohortSearchParams,
 } from "../types/patientSimilarity";
 
 type SimilarityMode = "auto" | "interpretable" | "embedding";
-type SearchMode = "single" | "cohort";
+type SearchMode = "single" | "cohort" | "compare";
 
 export default function PatientSimilarityPage() {
   const [searchParams] = useSearchParams();
@@ -51,9 +59,12 @@ export default function PatientSimilarityPage() {
   const [lastSearchParams, setLastSearchParams] =
     useState<SimilaritySearchParams | null>(null);
   const [exportOpen, setExportOpen] = useState(false);
+  const [expandOpen, setExpandOpen] = useState(false);
 
   const searchMutation = useSimilaritySearch();
   const cohortSearchMutation = useCohortSimilaritySearch();
+  const compareMutation = useCompareCohorts();
+  const crossSearchMutation = useCrossCohortSearch();
 
   const sourceId =
     lastSearchParams?.source_id ??
@@ -80,12 +91,36 @@ export default function PatientSimilarityPage() {
     cohortSearchMutation.mutate(withMode);
   };
 
+  const handleCompare = (params: CohortComparisonParams) => {
+    compareMutation.mutate(params);
+  };
+
+  const handleCrossSearch = (params: CrossCohortSearchParams) => {
+    crossSearchMutation.mutate(params);
+    setLastSearchParams({
+      person_id: 0,
+      source_id: params.source_id,
+      mode,
+    });
+  };
+
   // Use whichever mutation has data
   const activeMutation =
-    searchMode === "cohort" ? cohortSearchMutation : searchMutation;
-  const result = activeMutation.data;
+    searchMode === "compare"
+      ? crossSearchMutation
+      : searchMode === "cohort"
+        ? cohortSearchMutation
+        : searchMutation;
+  const rawResult = activeMutation.data;
   const isLoading = activeMutation.isPending;
   const isError = activeMutation.isError;
+
+  // Normalize result: API may return [] for empty cohorts or an object with similar_patients
+  const result =
+    rawResult && !Array.isArray(rawResult) && typeof rawResult === "object"
+      ? rawResult
+      : undefined;
+  const patients = result?.similar_patients ?? [];
 
   const metadata = result?.metadata ?? {};
   const computedInMs =
@@ -97,6 +132,17 @@ export default function PatientSimilarityPage() {
   const cacheId =
     typeof metadata.cache_id === "number" ? metadata.cache_id : 0;
 
+  const cohortName =
+    typeof metadata.cohort_name === "string" ? metadata.cohort_name : undefined;
+  const cohortMemberCount =
+    typeof metadata.cohort_member_count === "number"
+      ? metadata.cohort_member_count
+      : 0;
+  const cohortDefinitionId =
+    typeof metadata.cohort_definition_id === "number"
+      ? metadata.cohort_definition_id
+      : 0;
+
   return (
     <div className="flex gap-6 min-h-0">
       {/* Left Panel - Search Form */}
@@ -104,7 +150,7 @@ export default function PatientSimilarityPage() {
         <div className="sticky top-0 space-y-4">
           {/* Search Mode Toggle */}
           <div className="flex rounded-lg border border-[#232328] overflow-hidden">
-            {(["single", "cohort"] as const).map((m) => (
+            {(["single", "cohort", "compare"] as const).map((m) => (
               <button
                 key={m}
                 type="button"
@@ -116,7 +162,11 @@ export default function PatientSimilarityPage() {
                     : "bg-[#0E0E11] text-[#5A5650] hover:text-[#C5C0B8]",
                 )}
               >
-                {m === "single" ? "Single Patient" : "From Cohort"}
+                {m === "single"
+                  ? "Single Patient"
+                  : m === "cohort"
+                    ? "From Cohort"
+                    : "Compare Cohorts"}
               </button>
             ))}
           </div>
@@ -134,11 +184,18 @@ export default function PatientSimilarityPage() {
                     : undefined
                 }
               />
-            ) : (
+            ) : searchMode === "cohort" ? (
               <CohortSeedForm
                 onSearch={handleCohortSearch}
-                sourceId={sourceId}
                 isLoading={isLoading}
+              />
+            ) : (
+              <CohortCompareForm
+                onCompare={handleCompare}
+                onCrossSearch={handleCrossSearch}
+                isComparing={compareMutation.isPending}
+                isSearching={crossSearchMutation.isPending}
+                hasComparisonResult={compareMutation.data != null}
               />
             )}
           </div>
@@ -169,10 +226,17 @@ export default function PatientSimilarityPage() {
               <div className="flex items-center gap-1.5 text-xs text-[#C5C0B8]">
                 <Users size={14} className="text-[#2DD4BF]" />
                 <span className="font-medium">
-                  {result.similar_patients.length}
+                  {patients.length}
                 </span>
                 <span className="text-[#5A5650]">results</span>
               </div>
+              {cohortName && (
+                <div className="flex items-center gap-1.5 text-xs text-[#5A5650]">
+                  <span>Seed:</span>
+                  <span className="font-medium text-[#C5C0B8]">{cohortName}</span>
+                  <span>({cohortMemberCount} members)</span>
+                </div>
+              )}
               {candidatesEvaluated !== null && (
                 <div className="flex items-center gap-1.5 text-xs text-[#5A5650]">
                   <Target size={12} />
@@ -193,10 +257,10 @@ export default function PatientSimilarityPage() {
               <button
                 type="button"
                 onClick={() => setExportOpen(true)}
-                disabled={result.similar_patients.length === 0}
+                disabled={patients.length === 0}
                 className={cn(
                   "flex items-center gap-1.5 text-xs border rounded px-2.5 py-1 transition-colors",
-                  result.similar_patients.length > 0
+                  patients.length > 0
                     ? "text-[#2DD4BF] border-[#2DD4BF]/30 hover:bg-[#2DD4BF]/10 cursor-pointer"
                     : "text-[#5A5650] border-[#232328] cursor-not-allowed opacity-50",
                 )}
@@ -204,6 +268,22 @@ export default function PatientSimilarityPage() {
                 <Download size={12} />
                 Export as Cohort
               </button>
+              {searchMode === "cohort" && cohortName && (
+                <button
+                  type="button"
+                  onClick={() => setExpandOpen(true)}
+                  disabled={patients.length === 0}
+                  className={cn(
+                    "flex items-center gap-1.5 text-xs border rounded px-2.5 py-1 transition-colors",
+                    patients.length > 0
+                      ? "text-[#C9A227] border-[#C9A227]/30 hover:bg-[#C9A227]/10 cursor-pointer"
+                      : "text-[#5A5650] border-[#232328] cursor-not-allowed opacity-50",
+                  )}
+                >
+                  <UserPlus size={12} />
+                  Add to {cohortName}
+                </button>
+              )}
             </div>
           </div>
         )}
@@ -221,12 +301,28 @@ export default function PatientSimilarityPage() {
           </div>
         )}
 
+        {/* Compare Cohorts visualization */}
+        {searchMode === "compare" && compareMutation.data && (
+          <div className="space-y-4">
+            <CohortComparisonRadar
+              sourceDimensions={compareMutation.data.source_cohort.dimensions}
+              targetDimensions={compareMutation.data.target_cohort.dimensions}
+              sourceName={compareMutation.data.source_cohort.name}
+              targetName={compareMutation.data.target_cohort.name}
+            />
+            <DivergenceScores
+              divergence={compareMutation.data.divergence}
+              overallDivergence={compareMutation.data.overall_divergence}
+            />
+          </div>
+        )}
+
         {/* Results table */}
         {result ? (
           <SimilarPatientTable
-            patients={result.similar_patients}
+            patients={patients}
             showPersonId={showPersonId}
-            seedPersonId={result.seed.person_id}
+            seedPersonId={result?.seed?.person_id}
             sourceId={lastSearchParams?.source_id}
           />
         ) : (
@@ -239,7 +335,9 @@ export default function PatientSimilarityPage() {
               <p className="mt-2 text-sm text-[#8A857D] max-w-md text-center">
                 {searchMode === "single"
                   ? "Enter a seed patient ID and configure dimension weights to discover clinically similar patients across the OMOP CDM."
-                  : "Select an existing cohort to find patients similar to the cohort profile across the OMOP CDM."}
+                  : searchMode === "cohort"
+                    ? "Select an existing cohort to find patients similar to the cohort profile across the OMOP CDM."
+                    : "Select two cohorts to compare their clinical profiles and identify divergence across OMOP dimensions."}
               </p>
             </div>
           )
@@ -251,7 +349,18 @@ export default function PatientSimilarityPage() {
         isOpen={exportOpen}
         onClose={() => setExportOpen(false)}
         cacheId={cacheId}
-        patients={result?.similar_patients ?? []}
+        patients={patients}
+      />
+
+      {/* Expand Dialog */}
+      <CohortExpandDialog
+        isOpen={expandOpen}
+        onClose={() => setExpandOpen(false)}
+        cohortDefinitionId={cohortDefinitionId}
+        cohortName={cohortName ?? "Cohort"}
+        sourceId={sourceId}
+        currentMemberCount={cohortMemberCount}
+        patients={patients}
       />
     </div>
   );

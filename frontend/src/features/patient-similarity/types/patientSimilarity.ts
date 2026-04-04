@@ -89,11 +89,11 @@ export interface ComputeStatus {
 export interface CohortSimilaritySearchParams {
   cohort_definition_id: number;
   source_id: number;
-  strategy: "centroid" | "exemplar";
   mode?: string;
   weights?: Record<string, number>;
   limit?: number;
   min_score?: number;
+  filters?: Record<string, unknown>;
 }
 
 export interface CohortExportParams {
@@ -125,8 +125,59 @@ export interface CohortProfileResult {
   cohort_definition_id: number;
   source_id: number;
   member_count: number;
+  generated: boolean;
   dimensions: Record<string, CohortDimensionProfile>;
   dimensions_available: string[];
+}
+
+// ── Cohort Expansion ────────────────────────────────────────────
+
+export interface ExpandCohortParams {
+  cohort_definition_id: number;
+  source_id: number;
+  person_ids: number[];
+}
+
+export interface ExpandCohortResult {
+  cohort_definition_id: number;
+  added_count: number;
+  skipped_duplicates: number;
+  new_total: number;
+}
+
+// ── Cohort Comparison ────────────────────────────────────────────
+
+export interface CohortComparisonParams {
+  source_cohort_id: number;
+  target_cohort_id: number;
+  source_id: number;
+}
+
+export interface CohortDivergence {
+  score: number;
+  label: string;
+}
+
+export interface CohortComparisonCohort {
+  cohort_definition_id: number;
+  name: string;
+  member_count: number;
+  dimensions: Record<string, CohortDimensionProfile>;
+}
+
+export interface CohortComparisonResult {
+  source_cohort: CohortComparisonCohort;
+  target_cohort: CohortComparisonCohort;
+  divergence: Record<string, CohortDivergence>;
+  overall_divergence: number;
+}
+
+export interface CrossCohortSearchParams {
+  source_cohort_id: number;
+  target_cohort_id: number;
+  source_id: number;
+  limit?: number;
+  min_score?: number;
 }
 
 // ── Patient Comparison ────────────────────────────────────────────

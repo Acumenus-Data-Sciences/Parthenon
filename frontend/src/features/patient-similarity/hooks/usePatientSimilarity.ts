@@ -8,11 +8,17 @@ import {
   exportCohort,
   fetchCohortProfile,
   comparePatients,
+  expandCohort,
+  compareCohorts,
+  crossCohortSearch,
 } from "../api/patientSimilarityApi";
 import type {
   SimilaritySearchParams,
   CohortSimilaritySearchParams,
   CohortExportParams,
+  ExpandCohortParams,
+  CohortComparisonParams,
+  CrossCohortSearchParams,
 } from "../types/patientSimilarity";
 
 export const SIMILARITY_KEYS = {
@@ -108,5 +114,33 @@ export function useComparePatients(
     queryFn: () => comparePatients(personA, personB, sourceId),
     enabled: personA > 0 && personB > 0 && sourceId > 0,
     staleTime: 5 * 60 * 1000,
+  });
+}
+
+// ── Cohort Expansion ────────────────────────────────────────────
+
+export function useExpandCohort() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (params: ExpandCohortParams) => expandCohort(params),
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({
+        queryKey: ["patient-similarity", "cohort-profile", variables.cohort_definition_id],
+      });
+    },
+  });
+}
+
+// ── Cohort Comparison ────────────────────────────────────────────
+
+export function useCompareCohorts() {
+  return useMutation({
+    mutationFn: (params: CohortComparisonParams) => compareCohorts(params),
+  });
+}
+
+export function useCrossCohortSearch() {
+  return useMutation({
+    mutationFn: (params: CrossCohortSearchParams) => crossCohortSearch(params),
   });
 }

@@ -19,6 +19,7 @@ use App\Services\PatientSimilarity\PatientSimilarityService;
 use App\Services\PatientSimilarity\SimilarityExplainer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 /**
  * @group Patient Similarity Engine
@@ -196,12 +197,10 @@ class PatientSimilarityController extends Controller
                 'weights.*' => ['numeric', 'min:0', 'max:10'],
                 'limit' => ['sometimes', 'integer', 'min:1', 'max:100'],
                 'min_score' => ['sometimes', 'numeric', 'min:0', 'max:1'],
-                'strategy' => ['sometimes', 'string', 'in:centroid,exemplar'],
                 'filters' => ['sometimes', 'array'],
             ]);
 
             $source = Source::with('daimons')->findOrFail($validated['source_id']);
-            $strategy = $validated['strategy'] ?? 'centroid';
             $limit = $validated['limit'] ?? 20;
             $minScore = $validated['min_score'] ?? 0.0;
             $filters = $validated['filters'] ?? [];
@@ -248,11 +247,31 @@ class PatientSimilarityController extends Controller
                 filters: $filters,
             );
 
+            // Enrich results with shared features and explanations
+            $results = $this->enrichSearchResults($results, $source->id);
+
+            // Tiered access: strip person-level details if user lacks profiles.view
+            if (! $request->user()->can('profiles.view')) {
+                $results['similar_patients'] = array_map(function (array $patient): array {
+                    return [
+                        'overall_score' => $patient['overall_score'] ?? null,
+                        'dimension_scores' => $patient['dimension_scores'] ?? [],
+                        'age_bucket' => $patient['age_bucket'] ?? null,
+                        'gender_concept_id' => $patient['gender_concept_id'] ?? null,
+                        'shared_features' => $patient['shared_features'] ?? null,
+                        'similarity_summary' => $patient['similarity_summary'] ?? null,
+                    ];
+                }, $results['similar_patients'] ?? []);
+            }
+
+            // Get cohort name for frontend display
+            $cohortDef = CohortDefinition::find($validated['cohort_definition_id']);
+
             return response()->json([
                 'data' => $results,
                 'meta' => [
-                    'strategy' => $strategy,
                     'cohort_definition_id' => (int) $validated['cohort_definition_id'],
+                    'cohort_name' => $cohortDef?->name ?? 'Unknown Cohort',
                     'cohort_member_count' => count($memberRows),
                     'source_id' => $source->id,
                     'limit' => $limit,
@@ -457,36 +476,45 @@ class PatientSimilarityController extends Controller
         }
 
         $seedPersonId = $results['seed']['person_id'] ?? null;
-        if ($seedPersonId === null) {
-            return $results;
+
+        // For centroid-based searches (person_id = 0), use the seed array from results as feature data
+        $seedData = null;
+        if ($seedPersonId === 0 || $seedPersonId === null) {
+            $seedData = $results['seed'] ?? null;
         }
 
-        // Collect person IDs to load
-        $personIds = array_filter(
-            array_merge(
-                [$seedPersonId],
-                array_map(fn (array $p): int => (int) ($p['person_id'] ?? 0), $similarPatients),
-            ),
+        // Collect candidate person IDs to load
+        $candidatePersonIds = array_filter(
+            array_map(fn (array $p): int => (int) ($p['person_id'] ?? 0), $similarPatients),
         );
 
-        // Batch load feature vectors
+        // Batch load candidate feature vectors
         $vectors = PatientFeatureVector::query()
             ->forSource($sourceId)
-            ->whereIn('person_id', $personIds)
+            ->whereIn('person_id', $candidatePersonIds)
             ->get()
             ->keyBy('person_id');
 
-        $seedVector = $vectors->get($seedPersonId);
-        if ($seedVector === null) {
+        // If we have a real seed patient, load their vector
+        if ($seedData === null && $seedPersonId !== null) {
+            $seedVector = PatientFeatureVector::query()
+                ->forSource($sourceId)
+                ->where('person_id', $seedPersonId)
+                ->first();
+
+            if ($seedVector === null) {
+                return $results;
+            }
+            $seedData = $seedVector->toArray();
+        }
+
+        if ($seedData === null) {
             return $results;
         }
 
-        $seedData = $seedVector->toArray();
         $candidateVectors = [];
         foreach ($vectors as $personId => $vector) {
-            if ($personId !== $seedPersonId) {
-                $candidateVectors[$personId] = $vector->toArray();
-            }
+            $candidateVectors[$personId] = $vector->toArray();
         }
 
         $results['similar_patients'] = $this->explainer->enrichResults(
@@ -530,9 +558,15 @@ class PatientSimilarityController extends Controller
 
             if (empty($memberIds)) {
                 return response()->json([
-                    'data' => null,
-                    'meta' => ['error' => 'Cohort has no members.'],
-                ], 404);
+                    'data' => [
+                        'cohort_definition_id' => (int) $validated['cohort_definition_id'],
+                        'source_id' => $source->id,
+                        'member_count' => 0,
+                        'generated' => false,
+                        'dimensions' => [],
+                        'dimensions_available' => [],
+                    ],
+                ]);
             }
 
             $centroid = $this->centroidBuilder->buildCentroid($memberIds, $source);
@@ -541,64 +575,322 @@ class PatientSimilarityController extends Controller
                 ->whereIn('person_id', $memberIds)
                 ->get();
 
-            $memberCount = $vectors->count();
-
             // Compute per-dimension richness (fraction of members with data)
-            $dimensionProfile = [
-                'demographics' => [
-                    'coverage' => 1.0, // always available
-                    'median_age_bucket' => $centroid['age_bucket'],
-                    'dominant_gender' => $centroid['gender_concept_id'],
-                    'label' => 'Demographics',
-                ],
-                'conditions' => [
-                    'coverage' => $memberCount > 0
-                        ? round($vectors->filter(fn ($v) => ! empty($v->condition_concepts))->count() / $memberCount, 4)
-                        : 0,
-                    'unique_concepts' => count($centroid['condition_concepts'] ?? []),
-                    'label' => 'Conditions',
-                ],
-                'measurements' => [
-                    'coverage' => $memberCount > 0
-                        ? round($vectors->filter(fn ($v) => ! empty($v->lab_vector))->count() / $memberCount, 4)
-                        : 0,
-                    'unique_measurements' => count($centroid['lab_vector'] ?? []),
-                    'label' => 'Measurements',
-                ],
-                'drugs' => [
-                    'coverage' => $memberCount > 0
-                        ? round($vectors->filter(fn ($v) => ! empty($v->drug_concepts))->count() / $memberCount, 4)
-                        : 0,
-                    'unique_concepts' => count($centroid['drug_concepts'] ?? []),
-                    'label' => 'Drugs',
-                ],
-                'procedures' => [
-                    'coverage' => $memberCount > 0
-                        ? round($vectors->filter(fn ($v) => ! empty($v->procedure_concepts))->count() / $memberCount, 4)
-                        : 0,
-                    'unique_concepts' => count($centroid['procedure_concepts'] ?? []),
-                    'label' => 'Procedures',
-                ],
-                'genomics' => [
-                    'coverage' => $memberCount > 0
-                        ? round($vectors->filter(fn ($v) => ! empty($v->variant_genes))->count() / $memberCount, 4)
-                        : 0,
-                    'unique_genes' => count($centroid['variant_genes'] ?? []),
-                    'label' => 'Genomics',
-                ],
-            ];
+            $dimensionProfile = $this->buildDimensionProfile($vectors, $centroid);
 
             return response()->json([
                 'data' => [
                     'cohort_definition_id' => (int) $validated['cohort_definition_id'],
                     'source_id' => $source->id,
-                    'member_count' => $memberCount,
+                    'member_count' => $vectors->count(),
+                    'generated' => true,
                     'dimensions' => $dimensionProfile,
                     'dimensions_available' => $centroid['dimensions_available'] ?? [],
                 ],
             ]);
         } catch (\Throwable $e) {
             return $this->errorResponse('Cohort profile failed', $e);
+        }
+    }
+
+    /**
+     * POST /v1/patient-similarity/expand-cohort
+     *
+     * Append similar patients to an existing cohort.
+     */
+    public function expandCohort(Request $request): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'cohort_definition_id' => ['required', 'integer', 'exists:cohort_definitions,id'],
+                'source_id' => ['required', 'integer', 'exists:sources,id'],
+                'person_ids' => ['required', 'array', 'min:1'],
+                'person_ids.*' => ['integer'],
+            ]);
+
+            $source = Source::with('daimons')->findOrFail($validated['source_id']);
+            SourceContext::forSource($source);
+
+            $cohort = CohortDefinition::findOrFail($validated['cohort_definition_id']);
+
+            // Get existing members to deduplicate
+            $existingIds = $this->results()
+                ->table('cohort')
+                ->where('cohort_definition_id', $cohort->id)
+                ->pluck('subject_id')
+                ->map(fn ($id) => (int) $id)
+                ->toArray();
+
+            $newIds = array_values(array_diff($validated['person_ids'], $existingIds));
+
+            if (empty($newIds)) {
+                return response()->json([
+                    'data' => [
+                        'cohort_definition_id' => $cohort->id,
+                        'added_count' => 0,
+                        'skipped_duplicates' => count($validated['person_ids']),
+                        'new_total' => count($existingIds),
+                    ],
+                ]);
+            }
+
+            $today = now()->toDateString();
+            $rows = array_map(fn (int $personId) => [
+                'cohort_definition_id' => $cohort->id,
+                'subject_id' => $personId,
+                'cohort_start_date' => $today,
+                'cohort_end_date' => $today,
+            ], $newIds);
+
+            $this->results()->table('cohort')->insert($rows);
+
+            return response()->json([
+                'data' => [
+                    'cohort_definition_id' => $cohort->id,
+                    'added_count' => count($newIds),
+                    'skipped_duplicates' => count($validated['person_ids']) - count($newIds),
+                    'new_total' => count($existingIds) + count($newIds),
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            return $this->errorResponse('Cohort expansion failed', $e);
+        }
+    }
+
+    /**
+     * Build a dimension profile from feature vectors and centroid data.
+     *
+     * @param  Collection  $vectors
+     * @param  array<string, mixed>  $centroid
+     * @return array<string, array<string, mixed>>
+     */
+    private function buildDimensionProfile($vectors, array $centroid): array
+    {
+        $memberCount = $vectors->count();
+
+        return [
+            'demographics' => [
+                'coverage' => 1.0,
+                'label' => 'Demographics',
+            ],
+            'conditions' => [
+                'coverage' => $memberCount > 0
+                    ? round($vectors->filter(fn ($v) => ! empty($v->condition_concepts))->count() / $memberCount, 4)
+                    : 0,
+                'unique_concepts' => count($centroid['condition_concepts'] ?? []),
+                'label' => 'Conditions',
+            ],
+            'measurements' => [
+                'coverage' => $memberCount > 0
+                    ? round($vectors->filter(fn ($v) => ! empty($v->lab_vector))->count() / $memberCount, 4)
+                    : 0,
+                'unique_measurements' => count($centroid['lab_vector'] ?? []),
+                'label' => 'Measurements',
+            ],
+            'drugs' => [
+                'coverage' => $memberCount > 0
+                    ? round($vectors->filter(fn ($v) => ! empty($v->drug_concepts))->count() / $memberCount, 4)
+                    : 0,
+                'unique_concepts' => count($centroid['drug_concepts'] ?? []),
+                'label' => 'Drugs',
+            ],
+            'procedures' => [
+                'coverage' => $memberCount > 0
+                    ? round($vectors->filter(fn ($v) => ! empty($v->procedure_concepts))->count() / $memberCount, 4)
+                    : 0,
+                'unique_concepts' => count($centroid['procedure_concepts'] ?? []),
+                'label' => 'Procedures',
+            ],
+            'genomics' => [
+                'coverage' => $memberCount > 0
+                    ? round($vectors->filter(fn ($v) => ! empty($v->variant_genes))->count() / $memberCount, 4)
+                    : 0,
+                'unique_genes' => count($centroid['variant_genes'] ?? []),
+                'label' => 'Genomics',
+            ],
+        ];
+    }
+
+    /**
+     * POST /v1/patient-similarity/compare-cohorts
+     *
+     * Compare two cohort profiles with per-dimension divergence scores.
+     */
+    public function compareCohorts(Request $request): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'source_cohort_id' => ['required', 'integer', 'exists:cohort_definitions,id'],
+                'target_cohort_id' => ['required', 'integer', 'exists:cohort_definitions,id'],
+                'source_id' => ['required', 'integer', 'exists:sources,id'],
+            ]);
+
+            $source = Source::with('daimons')->findOrFail($validated['source_id']);
+            SourceContext::forSource($source);
+
+            $sourceMemberIds = $this->results()
+                ->table('cohort')
+                ->where('cohort_definition_id', $validated['source_cohort_id'])
+                ->pluck('subject_id')
+                ->map(fn ($id) => (int) $id)
+                ->unique()->values()->all();
+
+            $targetMemberIds = $this->results()
+                ->table('cohort')
+                ->where('cohort_definition_id', $validated['target_cohort_id'])
+                ->pluck('subject_id')
+                ->map(fn ($id) => (int) $id)
+                ->unique()->values()->all();
+
+            if (empty($sourceMemberIds) || empty($targetMemberIds)) {
+                $emptyName = empty($sourceMemberIds) ? 'source' : 'target';
+
+                return response()->json([
+                    'error' => "The {$emptyName} cohort has no members. Generate it first.",
+                ], 422);
+            }
+
+            $sourceCentroid = $this->centroidBuilder->buildCentroid($sourceMemberIds, $source);
+            $targetCentroid = $this->centroidBuilder->buildCentroid($targetMemberIds, $source);
+
+            $sourceVectors = PatientFeatureVector::query()
+                ->forSource($source->id)
+                ->whereIn('person_id', $sourceMemberIds)
+                ->get();
+            $targetVectors = PatientFeatureVector::query()
+                ->forSource($source->id)
+                ->whereIn('person_id', $targetMemberIds)
+                ->get();
+
+            $sourceProfile = $this->buildDimensionProfile($sourceVectors, $sourceCentroid);
+            $targetProfile = $this->buildDimensionProfile($targetVectors, $targetCentroid);
+
+            $divergence = [];
+            foreach ($sourceProfile as $dimKey => $sourceDim) {
+                $targetDim = $targetProfile[$dimKey] ?? null;
+                if ($targetDim === null) {
+                    $divergence[$dimKey] = ['score' => 1.0, 'label' => 'No data'];
+
+                    continue;
+                }
+
+                $sourceCov = $sourceDim['coverage'];
+                $targetCov = $targetDim['coverage'];
+                $score = abs($sourceCov - $targetCov);
+                $divergence[$dimKey] = [
+                    'score' => round($score, 4),
+                    'label' => $score < 0.3 ? 'Similar' : ($score < 0.6 ? 'Moderate' : 'Divergent'),
+                ];
+            }
+
+            $divScores = array_column($divergence, 'score');
+            $overallDivergence = count($divScores) > 0 ? round(array_sum($divScores) / count($divScores), 4) : 0;
+
+            $sourceCohortDef = CohortDefinition::find($validated['source_cohort_id']);
+            $targetCohortDef = CohortDefinition::find($validated['target_cohort_id']);
+
+            return response()->json([
+                'data' => [
+                    'source_cohort' => [
+                        'cohort_definition_id' => (int) $validated['source_cohort_id'],
+                        'name' => $sourceCohortDef?->name ?? 'Unknown',
+                        'member_count' => count($sourceMemberIds),
+                        'dimensions' => $sourceProfile,
+                    ],
+                    'target_cohort' => [
+                        'cohort_definition_id' => (int) $validated['target_cohort_id'],
+                        'name' => $targetCohortDef?->name ?? 'Unknown',
+                        'member_count' => count($targetMemberIds),
+                        'dimensions' => $targetProfile,
+                    ],
+                    'divergence' => $divergence,
+                    'overall_divergence' => $overallDivergence,
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            return $this->errorResponse('Cohort comparison failed', $e);
+        }
+    }
+
+    /**
+     * POST /v1/patient-similarity/cross-cohort-search
+     *
+     * Find patients similar to source cohort's centroid, excluding both cohorts' members.
+     */
+    public function crossCohortSearch(Request $request): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'source_cohort_id' => ['required', 'integer', 'exists:cohort_definitions,id'],
+                'target_cohort_id' => ['required', 'integer', 'exists:cohort_definitions,id'],
+                'source_id' => ['required', 'integer', 'exists:sources,id'],
+                'limit' => ['sometimes', 'integer', 'min:1', 'max:100'],
+                'min_score' => ['sometimes', 'numeric', 'min:0', 'max:1'],
+            ]);
+
+            $source = Source::with('daimons')->findOrFail($validated['source_id']);
+            SourceContext::forSource($source);
+            $limit = $validated['limit'] ?? 20;
+            $minScore = $validated['min_score'] ?? 0.0;
+
+            $sourceMemberIds = $this->results()
+                ->table('cohort')
+                ->where('cohort_definition_id', $validated['source_cohort_id'])
+                ->pluck('subject_id')
+                ->map(fn ($id) => (int) $id)
+                ->unique()->values()->all();
+
+            $targetMemberIds = $this->results()
+                ->table('cohort')
+                ->where('cohort_definition_id', $validated['target_cohort_id'])
+                ->pluck('subject_id')
+                ->map(fn ($id) => (int) $id)
+                ->unique()->values()->all();
+
+            if (empty($sourceMemberIds)) {
+                return response()->json([
+                    'error' => 'Source cohort has no members.',
+                ], 422);
+            }
+
+            $excludeIds = array_unique(array_merge($sourceMemberIds, $targetMemberIds));
+
+            $centroid = $this->centroidBuilder->buildCentroid($sourceMemberIds, $source);
+
+            $dimensions = SimilarityDimension::active()->get();
+            $weights = [];
+            foreach ($dimensions as $dimension) {
+                $weights[$dimension->key] = $dimension->default_weight;
+            }
+
+            $results = $this->service->searchFromCentroid(
+                centroidData: $centroid,
+                source: $source,
+                excludePersonIds: $excludeIds,
+                weights: $weights,
+                limit: $limit,
+                minScore: $minScore,
+                filters: [],
+            );
+
+            $results = $this->enrichSearchResults($results, $source->id);
+
+            $sourceCohortDef = CohortDefinition::find($validated['source_cohort_id']);
+
+            return response()->json([
+                'data' => $results,
+                'meta' => [
+                    'source_cohort_id' => (int) $validated['source_cohort_id'],
+                    'source_cohort_name' => $sourceCohortDef?->name ?? 'Unknown',
+                    'target_cohort_id' => (int) $validated['target_cohort_id'],
+                    'source_id' => $source->id,
+                    'excluded_count' => count($excludeIds),
+                    'limit' => $limit,
+                    'count' => count($results['similar_patients'] ?? []),
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            return $this->errorResponse('Cross-cohort search failed', $e);
         }
     }
 

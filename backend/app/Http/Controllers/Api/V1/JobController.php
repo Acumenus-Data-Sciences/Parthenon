@@ -13,6 +13,7 @@ use App\Jobs\Analysis\RunPredictionJob;
 use App\Jobs\Analysis\RunSccsJob;
 use App\Models\App\AnalysisExecution;
 use App\Models\App\Characterization;
+use App\Models\App\CohortGeneration;
 use App\Models\App\EstimationAnalysis;
 use App\Models\App\EvidenceSynthesisAnalysis;
 use App\Models\App\ExecutionLog;
@@ -71,8 +72,13 @@ class JobController extends Controller
         $allJobs = collect();
 
         // 1. Analysis executions (existing)
-        if (! $typeFilter || in_array($typeFilter, ['characterization', 'incidence_rate', 'pathway', 'estimation', 'prediction', 'sccs', 'evidence_synthesis', 'analysis', 'cohort_generation'], true)) {
+        if (! $typeFilter || in_array($typeFilter, ['characterization', 'incidence_rate', 'pathway', 'estimation', 'prediction', 'sccs', 'evidence_synthesis', 'analysis'], true)) {
             $allJobs = $allJobs->merge($this->getAnalysisJobs($userId, $statusFilter));
+        }
+
+        // 1b. Cohort generation jobs
+        if (! $typeFilter || $typeFilter === 'cohort_generation') {
+            $allJobs = $allJobs->merge($this->getCohortGenerationJobs($statusFilter));
         }
 
         // 2. Ingestion jobs
@@ -243,6 +249,52 @@ class JobController extends Controller
         }
 
         return $query->limit(100)->get()->map(fn (AnalysisExecution $e) => $this->transformAnalysisJob($e));
+    }
+
+    /**
+     * @return Collection<int, array<string, mixed>>
+     */
+    private function getCohortGenerationJobs(?string $statusFilter): Collection
+    {
+        $query = CohortGeneration::query()
+            ->with(['cohortDefinition', 'source'])
+            ->orderByDesc('created_at');
+
+        if ($statusFilter) {
+            $query->where('status', $statusFilter);
+        }
+
+        return $query->limit(50)->get()->map(function (CohortGeneration $gen) {
+            $progress = match ($gen->status) {
+                ExecutionStatus::Pending => 0,
+                ExecutionStatus::Queued => 2,
+                ExecutionStatus::Running => 50,
+                ExecutionStatus::Completed => 100,
+                ExecutionStatus::Failed, ExecutionStatus::Cancelled => 0,
+                default => 0,
+            };
+
+            $logOutput = null;
+            if ($gen->status === ExecutionStatus::Completed && $gen->person_count !== null) {
+                $logOutput = number_format($gen->person_count).' persons generated';
+            }
+
+            return [
+                'id' => $gen->id,
+                'type' => 'cohort_generation',
+                'name' => 'Cohort Generation — '.($gen->cohortDefinition?->name ?? 'Unknown'),
+                'status' => $gen->status instanceof ExecutionStatus ? $gen->status->value : (string) $gen->status,
+                'source_name' => $gen->source?->source_name,
+                'triggered_by' => null,
+                'progress' => $progress,
+                'started_at' => $gen->started_at?->toIso8601String(),
+                'completed_at' => $gen->completed_at?->toIso8601String(),
+                'duration' => null,
+                'error_message' => $gen->fail_message,
+                'log_output' => $logOutput,
+                'created_at' => $gen->created_at?->toIso8601String(),
+            ];
+        });
     }
 
     /**
