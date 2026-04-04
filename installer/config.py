@@ -299,8 +299,15 @@ def validate_config(cfg: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("edition must be 'Community Edition' or 'Enterprise Edition'")
     if normalized["experience"] == "Beginner" and normalized["edition"] != "Community Edition":
         raise ValueError("Beginner users must use the Community Edition installer path")
-    if normalized["edition"] == "Enterprise Edition" and not normalized["enterprise_key"]:
-        raise ValueError("enterprise_key is required for Enterprise Edition")
+    if normalized["edition"] == "Enterprise Edition":
+        if not normalized["enterprise_key"]:
+            raise ValueError("enterprise_key is required for Enterprise Edition")
+        from . import license as lic
+        if not lic.validate_format(normalized["enterprise_key"]):
+            raise ValueError("enterprise_key must be in ACRO-XXXX-XXXX-XXXX format")
+        valid, msg = lic.validate_against_db(normalized["enterprise_key"])
+        if not valid:
+            raise ValueError(msg)
     if normalized["experience"] != "Beginner" and not normalized["umls_api_key"]:
         raise ValueError("umls_api_key is required for vocabulary imports")
     if normalized["cdm_dialect"] not in CDM_DIALECT_CHOICES:
@@ -453,10 +460,19 @@ def collect(resume_data: dict[str, Any] | None = None, *, non_interactive: bool 
         ).ask()
         enterprise_key = ""
         if edition == "Enterprise Edition":
-            enterprise_key = questionary.password(
-                "Enterprise Key",
-                validate=lambda v: bool(v.strip()) or "Enterprise Key is required for Enterprise Edition",
-            ).ask()
+            from . import license as lic
+            while True:
+                enterprise_key = questionary.text(
+                    "Enterprise Key (ACRO-XXXX-XXXX-XXXX)",
+                    validate=lambda v: lic.validate_format(v.strip()) or "Invalid format. Expected: ACRO-XXXX-XXXX-XXXX",
+                ).ask()
+                enterprise_key = enterprise_key.strip().upper()
+                console.print("[dim]Validating license key...[/dim]")
+                valid, msg = lic.validate_against_db(enterprise_key)
+                if valid:
+                    console.print(f"[green]{msg}[/green]")
+                    break
+                console.print(f"[red]{msg}[/red]")
 
     umls_api_key = questionary.password(
         "UMLS Key",

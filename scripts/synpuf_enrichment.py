@@ -47,11 +47,11 @@ RESULTS_SCHEMA = "synpuf_results"
 VOCAB_SCHEMA = "omop"
 
 DB_DSN: dict[str, Any] = {
-    "host": os.environ.get("SYNPUF_DB_HOST", "pgsql.acumenus.net"),
+    "host": os.environ.get("SYNPUF_DB_HOST", "localhost"),
     "port": int(os.environ.get("SYNPUF_DB_PORT", "5432")),
     "dbname": os.environ.get("SYNPUF_DB_NAME", "parthenon"),
-    "user": os.environ.get("SYNPUF_DB_USER", "smudoshi"),
-    "password": os.environ.get("SYNPUF_DB_PASSWORD", "acumenus"),
+    "user": os.environ.get("SYNPUF_DB_USER", "claude_dev"),
+    "passfile": os.path.expanduser("~/.pgpass"),
 }
 
 NUM_WORKERS = min(int(os.environ.get("SYNPUF_WORKERS", "16")), os.cpu_count() or 4)
@@ -1171,7 +1171,7 @@ def _build_drug_era() -> tuple[str, int]:
                        SUM(drug_exposure_count) AS drug_exposure_count,
                        EXTRACT(EPOCH FROM
                            era_end_date - MIN(drug_sub_exposure_start_date)
-                           - SUM(days_exposed) * INTERVAL '1 day'
+                           - SUM(days_exposed)
                        )::integer / 86400 AS gap_days
                 FROM cteDrugEraEnds
                 GROUP BY person_id, ingredient_concept_id, era_end_date

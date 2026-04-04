@@ -18,8 +18,11 @@ class Settings(BaseSettings):
     # StudyAgent configuration
     study_agent_url: str = "http://study-agent:8765"
 
-    # SapBERT model (for Phase 2+ embedding generation)
+    # SapBERT model (CPU fallback for embedding generation)
     sapbert_model: str = "cambridgeltl/SapBERT-from-PubMedBERT-fulltext"
+
+    # Ollama embedding model (GPU-accelerated, preferred over SapBERT)
+    ollama_embedding_model: str = "nomic-embed-text"
 
     # Ariadne concept mapping configuration
     ariadne_vocab_schema: str = "omop"

@@ -34,7 +34,7 @@ return new class extends Migration
             $table->foreign('source_id')->references('id')->on('sources')->cascadeOnDelete();
         });
 
-        DB::statement('ALTER TABLE patient_feature_vectors ADD COLUMN embedding public.vector(512)');
+        DB::statement('ALTER TABLE patient_feature_vectors ADD COLUMN embedding public.vector(768)');
     }
 
     public function down(): void

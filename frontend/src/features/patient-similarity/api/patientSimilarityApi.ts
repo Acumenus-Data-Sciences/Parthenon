@@ -7,6 +7,7 @@ import type {
   CohortSimilaritySearchParams,
   CohortExportParams,
   CohortExportResult,
+  CohortProfileResult,
   PatientComparisonResult,
 } from "../types/patientSimilarity";
 
@@ -61,6 +62,21 @@ export async function exportCohort(
     "/patient-similarity/export-cohort",
     params,
   );
+  return data.data ?? data;
+}
+
+// ── Cohort Profile ────────────────────────────────────────────────
+
+export async function fetchCohortProfile(
+  cohortDefinitionId: number,
+  sourceId: number,
+): Promise<CohortProfileResult> {
+  const { data } = await apiClient.get("/patient-similarity/cohort-profile", {
+    params: {
+      cohort_definition_id: cohortDefinitionId,
+      source_id: sourceId,
+    },
+  });
   return data.data ?? data;
 }
 

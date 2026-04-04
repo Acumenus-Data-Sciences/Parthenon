@@ -5,14 +5,14 @@ use App\Services\Solr\VocabularySearchService;
 use Illuminate\Support\Facades\DB;
 
 test('hierarchy filters child and sibling queries to the active domain', function () {
-    $controller = new VocabularyController(\Mockery::mock(VocabularySearchService::class));
-    $connection = \Mockery::mock();
+    $controller = new VocabularyController(Mockery::mock(VocabularySearchService::class));
+    $connection = Mockery::mock();
 
     DB::shouldReceive('connection')->with('omop')->andReturn($connection);
 
     $connection->shouldReceive('selectOne')
         ->once()
-        ->with(\Mockery::pattern('/FROM vocab\.concept WHERE concept_id = \?/'), [100])
+        ->with(Mockery::pattern('/FROM vocab\.concept WHERE concept_id = \?/'), [100])
         ->andReturn((object) [
             'concept_id' => 100,
             'concept_name' => 'Type 2 diabetes mellitus',
@@ -24,7 +24,7 @@ test('hierarchy filters child and sibling queries to the active domain', functio
 
     $connection->shouldReceive('selectOne')
         ->once()
-        ->with(\Mockery::pattern('/FROM vocab\.concept_tree ct/'), [100, 'Condition'])
+        ->with(Mockery::pattern('/FROM vocab\.concept_tree ct/'), [100, 'Condition'])
         ->andReturn((object) [
             'parent_concept_id' => -1,
             'concept_id' => 10,
@@ -37,13 +37,13 @@ test('hierarchy filters child and sibling queries to the active domain', functio
 
     $connection->shouldReceive('selectOne')
         ->once()
-        ->with(\Mockery::pattern('/FROM vocab\.concept_tree ct/'), [10, 'Condition'])
+        ->with(Mockery::pattern('/FROM vocab\.concept_tree ct/'), [10, 'Condition'])
         ->andReturn(null);
 
     $connection->shouldReceive('select')
         ->once()
         ->with(
-            \Mockery::on(fn (string $sql) => str_contains($sql, 'AND c.domain_id = ?') && str_contains($sql, 'WHERE ca.ancestor_concept_id = ?')),
+            Mockery::on(fn (string $sql) => str_contains($sql, 'AND c.domain_id = ?') && str_contains($sql, 'WHERE ca.ancestor_concept_id = ?')),
             [100, 'Condition']
         )
         ->andReturn([
@@ -60,7 +60,7 @@ test('hierarchy filters child and sibling queries to the active domain', functio
     $connection->shouldReceive('select')
         ->once()
         ->with(
-            \Mockery::on(fn (string $sql) => str_contains($sql, 'AND c.domain_id = ?') && str_contains($sql, 'ca.descendant_concept_id != ?')),
+            Mockery::on(fn (string $sql) => str_contains($sql, 'AND c.domain_id = ?') && str_contains($sql, 'ca.descendant_concept_id != ?')),
             [10, 100, 'Condition']
         )
         ->andReturn([
@@ -83,14 +83,14 @@ test('hierarchy filters child and sibling queries to the active domain', functio
 });
 
 test('hierarchy falls back to concept_ancestor when concept_tree has no lineage', function () {
-    $controller = new VocabularyController(\Mockery::mock(VocabularySearchService::class));
-    $connection = \Mockery::mock();
+    $controller = new VocabularyController(Mockery::mock(VocabularySearchService::class));
+    $connection = Mockery::mock();
 
     DB::shouldReceive('connection')->with('omop')->andReturn($connection);
 
     $connection->shouldReceive('selectOne')
         ->once()
-        ->with(\Mockery::pattern('/FROM vocab\.concept WHERE concept_id = \?/'), [200])
+        ->with(Mockery::pattern('/FROM vocab\.concept WHERE concept_id = \?/'), [200])
         ->andReturn((object) [
             'concept_id' => 200,
             'concept_name' => 'Fallback concept',
@@ -102,12 +102,12 @@ test('hierarchy falls back to concept_ancestor when concept_tree has no lineage'
 
     $connection->shouldReceive('selectOne')
         ->once()
-        ->with(\Mockery::pattern('/FROM vocab\.concept_tree ct/'), [200, 'Drug'])
+        ->with(Mockery::pattern('/FROM vocab\.concept_tree ct/'), [200, 'Drug'])
         ->andReturn(null);
 
     $connection->shouldReceive('select')
         ->once()
-        ->with(\Mockery::pattern('/FROM vocab\.concept_ancestor ca/'), [200, 'Drug'])
+        ->with(Mockery::pattern('/FROM vocab\.concept_ancestor ca/'), [200, 'Drug'])
         ->andReturn([
             (object) [
                 'concept_id' => 20,
@@ -123,7 +123,7 @@ test('hierarchy falls back to concept_ancestor when concept_tree has no lineage'
     $connection->shouldReceive('select')
         ->once()
         ->with(
-            \Mockery::on(fn (string $sql) => str_contains($sql, 'AND c.domain_id = ?') && str_contains($sql, 'WHERE ca.ancestor_concept_id = ?')),
+            Mockery::on(fn (string $sql) => str_contains($sql, 'AND c.domain_id = ?') && str_contains($sql, 'WHERE ca.ancestor_concept_id = ?')),
             [200, 'Drug']
         )
         ->andReturn([]);
@@ -131,7 +131,7 @@ test('hierarchy falls back to concept_ancestor when concept_tree has no lineage'
     $connection->shouldReceive('select')
         ->once()
         ->with(
-            \Mockery::on(fn (string $sql) => str_contains($sql, 'AND c.domain_id = ?') && str_contains($sql, 'ca.descendant_concept_id != ?')),
+            Mockery::on(fn (string $sql) => str_contains($sql, 'AND c.domain_id = ?') && str_contains($sql, 'ca.descendant_concept_id != ?')),
             [20, 200, 'Drug']
         )
         ->andReturn([]);

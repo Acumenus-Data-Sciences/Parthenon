@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-from . import config, launcher, preflight, utils
+from . import config, launcher, license, preflight, utils
 
 
 STATIC_DIR = launcher.resource_path("installer/web")
@@ -154,6 +154,13 @@ class InstallerBackend:
                 section(ports, "Port Availability", "Free these ports or change the mapped ports later in the wizard."),
             ],
         }
+
+    def validate_license(self, payload: dict[str, Any]) -> dict[str, Any]:
+        key = str(payload.get("enterprise_key") or "").strip()
+        if not key:
+            return {"valid": False, "message": "License key is required"}
+        valid, message = license.validate_against_db(key)
+        return {"valid": valid, "message": message}
 
     def validate_config(self, payload: dict[str, Any]) -> dict[str, Any]:
         self.validate_launch_context(payload)
@@ -301,6 +308,9 @@ class InstallerHandler(BaseHTTPRequestHandler):
             if parsed.path == "/api/preflight":
                 context = self.backend.validate_launch_context(payload)
                 _json(self, self.backend.grouped_preflight({**payload, **context}))
+                return
+            if parsed.path == "/api/validate-license":
+                _json(self, self.backend.validate_license(payload))
                 return
             if parsed.path == "/api/validate":
                 _json(self, {"config": self.backend.validate_config(payload)})

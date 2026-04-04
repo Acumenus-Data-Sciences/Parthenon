@@ -284,7 +284,7 @@ function renderStep() {
           <div class="grid two">
             ${renderFields([
               { key: "edition", label: "Edition", type: "select", options: ["Community Edition", "Enterprise Edition"] },
-              { key: "enterprise_key", label: "Enterprise license key", secret: true },
+              { key: "enterprise_key", label: "Enterprise license key (ACRO-XXXX-XXXX-XXXX)", secret: false },
               { key: "umls_api_key", label: "UMLS API key", secret: true },
             ])}
           </div>
@@ -862,8 +862,14 @@ async function validateCurrentStep() {
       if (!state.preflight) throw new Error("Run preflight checks before continuing");
       if (state.preflight.failures > 0) throw new Error("Resolve preflight failures before continuing");
     } else if (step === "basics") {
-      if (payload.edition === "Enterprise Edition" && !String(payload.enterprise_key || "").trim()) {
-        throw new Error("Enterprise license key is required for Enterprise Edition");
+      if (payload.edition === "Enterprise Edition") {
+        const key = String(payload.enterprise_key || "").trim();
+        if (!key) throw new Error("Enterprise license key is required for Enterprise Edition");
+        if (!/^ACRO-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/i.test(key)) {
+          throw new Error("Invalid license key format. Expected: ACRO-XXXX-XXXX-XXXX");
+        }
+        const result = await api("/api/validate-license", "POST", { enterprise_key: key });
+        if (!result.valid) throw new Error(result.message || "License key validation failed");
       }
       if (!payload.app_url) throw new Error("Application URL is required");
       if (!payload.timezone) throw new Error("Timezone is required");

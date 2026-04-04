@@ -33,7 +33,7 @@ transformers:
   - type: simple_add_dataset_ownership
     config:
       owner_urns:
-        - "urn:li:corpuser:akadmin@acumenus.net"
+        - "urn:li:corpuser:akadmin"
       ownership_type: "DATAOWNER"
       replace_existing: false
 

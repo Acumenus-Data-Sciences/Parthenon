@@ -1,14 +1,19 @@
 {
   "uid": "parthenon",
   "title": "Parthenon",
-  "description": "Operational observability dashboard for the Parthenon platform — service health, resource utilization, database & queue monitoring, and error logs.",
-  "tags": ["parthenon"],
+  "description": "Operational observability dashboard for the Parthenon platform \u2014 service health, resource utilization, database & queue monitoring, and error logs.",
+  "tags": [
+    "parthenon"
+  ],
   "timezone": "browser",
   "refresh": "15s",
   "schemaVersion": 39,
-  "version": 2,
+  "version": 4,
   "editable": true,
-  "time": { "from": "now-1h", "to": "now" },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
   "timepicker": {},
   "style": "dark",
   "templating": {
@@ -17,11 +22,25 @@
         "name": "container",
         "type": "query",
         "label": "Container",
-        "datasource": { "type": "prometheus", "uid": "prometheus-parthenon" },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus-parthenon"
+        },
         "definition": "label_values(container_memory_working_set_bytes{name=~\"parthenon-.*\",job=\"cadvisor\"}, name)",
-        "query": { "qryType": 1, "query": "label_values(container_memory_working_set_bytes{name=~\"parthenon-.*\",job=\"cadvisor\"}, name)" },
+        "query": {
+          "qryType": 1,
+          "query": "label_values(container_memory_working_set_bytes{name=~\"parthenon-.*\",job=\"cadvisor\"}, name)"
+        },
         "regex": "",
-        "current": { "selected": true, "text": ["All"], "value": ["$__all"] },
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
         "includeAll": true,
         "allValue": "parthenon-.*",
         "multi": true,
@@ -35,13 +54,37 @@
         "name": "log_level",
         "type": "custom",
         "label": "Log Level",
-        "current": { "selected": true, "text": "all", "value": ".*" },
+        "current": {
+          "selected": true,
+          "text": "all",
+          "value": ".*"
+        },
         "options": [
-          { "selected": true, "text": "all", "value": ".*" },
-          { "selected": false, "text": "error", "value": "error" },
-          { "selected": false, "text": "warn", "value": "warn" },
-          { "selected": false, "text": "info", "value": "info" },
-          { "selected": false, "text": "debug", "value": "debug" }
+          {
+            "selected": true,
+            "text": "all",
+            "value": ".*"
+          },
+          {
+            "selected": false,
+            "text": "error",
+            "value": "error"
+          },
+          {
+            "selected": false,
+            "text": "warn",
+            "value": "warn"
+          },
+          {
+            "selected": false,
+            "text": "info",
+            "value": "info"
+          },
+          {
+            "selected": false,
+            "text": "debug",
+            "value": "debug"
+          }
         ],
         "query": ".*,error,warn,info,debug",
         "hide": 0,
@@ -53,36 +96,84 @@
         "name": "interval",
         "type": "interval",
         "label": "Interval",
-        "current": { "selected": true, "text": "5m", "value": "5m" },
+        "current": {
+          "selected": true,
+          "text": "5m",
+          "value": "5m"
+        },
         "options": [
-          { "selected": false, "text": "1m", "value": "1m" },
-          { "selected": true, "text": "5m", "value": "5m" },
-          { "selected": false, "text": "15m", "value": "15m" },
-          { "selected": false, "text": "30m", "value": "30m" }
+          {
+            "selected": false,
+            "text": "1m",
+            "value": "1m"
+          },
+          {
+            "selected": true,
+            "text": "5m",
+            "value": "5m"
+          },
+          {
+            "selected": false,
+            "text": "15m",
+            "value": "15m"
+          },
+          {
+            "selected": false,
+            "text": "30m",
+            "value": "30m"
+          }
         ],
         "hide": 0,
         "refresh": 2,
         "skipUrlSync": false
+      },
+      {
+        "name": "search",
+        "type": "textbox",
+        "label": "Search",
+        "current": {
+          "selected": false,
+          "text": "",
+          "value": ""
+        },
+        "options": [],
+        "hide": 0,
+        "skipUrlSync": false
       }
     ]
   },
-  "annotations": { "list": [] },
+  "annotations": {
+    "list": []
+  },
   "panels": [
     {
       "__comment": "=== ROW: Service Health ===",
       "id": 100,
       "type": "row",
-      "title": "⬡ Service Health",
-      "gridPos": { "x": 0, "y": 0, "w": 24, "h": 1 },
+      "title": "\u2b21 Service Health",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 1
+      },
       "collapsed": false
     },
     {
       "id": 1,
       "type": "stat",
       "title": "Platform Status",
-      "description": "Running container count → HEALTHY (18+), DEGRADED (15-17), CRITICAL (<15)",
-      "gridPos": { "x": 0, "y": 1, "w": 4, "h": 4 },
-      "datasource": { "type": "prometheus", "uid": "prometheus-parthenon" },
+      "description": "Running container count \u2192 HEALTHY (18+), DEGRADED (15-17), CRITICAL (<15)",
+      "gridPos": {
+        "x": 0,
+        "y": 1,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-parthenon"
+      },
       "targets": [
         {
           "refId": "A",
@@ -92,7 +183,13 @@
         }
       ],
       "options": {
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "orientation": "auto",
         "textMode": "auto",
         "colorMode": "background_solid",
@@ -102,20 +199,64 @@
       },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "unit": "short",
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "#9B1B30", "value": null },
-              { "color": "#C9A227", "value": 15 },
-              { "color": "#2DD4BF", "value": 18 }
+              {
+                "color": "#9B1B30",
+                "value": null
+              },
+              {
+                "color": "#C9A227",
+                "value": 15
+              },
+              {
+                "color": "#2DD4BF",
+                "value": 18
+              }
             ]
           },
           "mappings": [
-            { "type": "range", "options": { "from": 18, "to": 999, "result": { "text": "HEALTHY", "color": "#2DD4BF", "index": 0 } } },
-            { "type": "range", "options": { "from": 15, "to": 17, "result": { "text": "DEGRADED", "color": "#C9A227", "index": 1 } } },
-            { "type": "range", "options": { "from": 0, "to": 14, "result": { "text": "CRITICAL", "color": "#9B1B30", "index": 2 } } }
+            {
+              "type": "range",
+              "options": {
+                "from": 18,
+                "to": 999,
+                "result": {
+                  "text": "HEALTHY",
+                  "color": "#2DD4BF",
+                  "index": 0
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 15,
+                "to": 17,
+                "result": {
+                  "text": "DEGRADED",
+                  "color": "#C9A227",
+                  "index": 1
+                }
+              }
+            },
+            {
+              "type": "range",
+              "options": {
+                "from": 0,
+                "to": 14,
+                "result": {
+                  "text": "CRITICAL",
+                  "color": "#9B1B30",
+                  "index": 2
+                }
+              }
+            }
           ]
         },
         "overrides": []
@@ -126,17 +267,31 @@
       "type": "stat",
       "title": "HTTP 5xx Rate",
       "description": "Server error rate from Apache access logs (5xx responses per interval)",
-      "gridPos": { "x": 4, "y": 1, "w": 5, "h": 4 },
-      "datasource": { "type": "loki", "uid": "loki-parthenon" },
+      "gridPos": {
+        "x": 4,
+        "y": 1,
+        "w": 5,
+        "h": 4
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "loki-parthenon"
+      },
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(count_over_time({job=\"apache_access\"} |~ \"HTTP/[12]\\\\.[012]\\\" 5\\\\d{2}\" [$__interval]))",
+          "expr": "sum(count_over_time({job=\"apache\"} |~ \"HTTP/[12]\\\\.[012]\\\" 5\\\\d{2}\" [$__interval]))",
           "legendFormat": "5xx errors"
         }
       ],
       "options": {
-        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
         "orientation": "auto",
         "textMode": "auto",
         "colorMode": "background_solid",
@@ -145,15 +300,26 @@
       },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "unit": "short",
           "noValue": "0",
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "#2DD4BF", "value": null },
-              { "color": "#C9A227", "value": 5 },
-              { "color": "#9B1B30", "value": 20 }
+              {
+                "color": "#2DD4BF",
+                "value": null
+              },
+              {
+                "color": "#C9A227",
+                "value": 5
+              },
+              {
+                "color": "#9B1B30",
+                "value": 20
+              }
             ]
           }
         },
@@ -165,8 +331,16 @@
       "type": "gauge",
       "title": "PG Active Connections",
       "description": "Active PostgreSQL connections vs max (100 default)",
-      "gridPos": { "x": 9, "y": 1, "w": 5, "h": 4 },
-      "datasource": { "type": "prometheus", "uid": "prometheus-parthenon" },
+      "gridPos": {
+        "x": 9,
+        "y": 1,
+        "w": 5,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-parthenon"
+      },
       "targets": [
         {
           "refId": "A",
@@ -175,7 +349,13 @@
         }
       ],
       "options": {
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "orientation": "auto",
         "showThresholdLabels": false,
         "showThresholdMarkers": true,
@@ -184,7 +364,9 @@
       },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "unit": "short",
           "min": 0,
           "max": 100,
@@ -192,9 +374,18 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "#2DD4BF", "value": null },
-              { "color": "#C9A227", "value": 60 },
-              { "color": "#9B1B30", "value": 85 }
+              {
+                "color": "#2DD4BF",
+                "value": null
+              },
+              {
+                "color": "#C9A227",
+                "value": 60
+              },
+              {
+                "color": "#9B1B30",
+                "value": 85
+              }
             ]
           }
         },
@@ -206,8 +397,16 @@
       "type": "gauge",
       "title": "Redis Memory",
       "description": "Redis memory usage vs configured maxmemory (256MB)",
-      "gridPos": { "x": 14, "y": 1, "w": 5, "h": 4 },
-      "datasource": { "type": "prometheus", "uid": "prometheus-parthenon" },
+      "gridPos": {
+        "x": 14,
+        "y": 1,
+        "w": 5,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-parthenon"
+      },
       "targets": [
         {
           "refId": "A",
@@ -216,14 +415,22 @@
         }
       ],
       "options": {
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "orientation": "auto",
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "unit": "percent",
           "min": 0,
           "max": 100,
@@ -231,9 +438,18 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "#2DD4BF", "value": null },
-              { "color": "#C9A227", "value": 70 },
-              { "color": "#9B1B30", "value": 90 }
+              {
+                "color": "#2DD4BF",
+                "value": null
+              },
+              {
+                "color": "#C9A227",
+                "value": 70
+              },
+              {
+                "color": "#9B1B30",
+                "value": 90
+              }
             ]
           }
         },
@@ -245,8 +461,16 @@
       "type": "stat",
       "title": "Redis Queue Depth",
       "description": "Total keys in Redis (proxy for Horizon queue depth)",
-      "gridPos": { "x": 19, "y": 1, "w": 5, "h": 4 },
-      "datasource": { "type": "prometheus", "uid": "prometheus-parthenon" },
+      "gridPos": {
+        "x": 19,
+        "y": 1,
+        "w": 5,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-parthenon"
+      },
       "targets": [
         {
           "refId": "A",
@@ -255,7 +479,13 @@
         }
       ],
       "options": {
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "orientation": "auto",
         "textMode": "auto",
         "colorMode": "background_solid",
@@ -264,28 +494,43 @@
       },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "unit": "short",
           "noValue": "0",
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "#2DD4BF", "value": null },
-              { "color": "#C9A227", "value": 500 },
-              { "color": "#9B1B30", "value": 2000 }
+              {
+                "color": "#2DD4BF",
+                "value": null
+              },
+              {
+                "color": "#C9A227",
+                "value": 500
+              },
+              {
+                "color": "#9B1B30",
+                "value": 2000
+              }
             ]
           }
         },
         "overrides": []
       }
     },
-
     {
       "__comment": "=== ROW: Container Resources ===",
       "id": 200,
       "type": "row",
-      "title": "⬡ Container Resources",
-      "gridPos": { "x": 0, "y": 5, "w": 24, "h": 1 },
+      "title": "\u2b21 Container Resources",
+      "gridPos": {
+        "x": 0,
+        "y": 5,
+        "w": 24,
+        "h": 1
+      },
       "collapsed": false
     },
     {
@@ -293,8 +538,16 @@
       "type": "timeseries",
       "title": "CPU Usage by Container",
       "description": "CPU usage rate per container (cores)",
-      "gridPos": { "x": 0, "y": 6, "w": 24, "h": 8 },
-      "datasource": { "type": "prometheus", "uid": "prometheus-parthenon" },
+      "gridPos": {
+        "x": 0,
+        "y": 6,
+        "w": 24,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-parthenon"
+      },
       "targets": [
         {
           "refId": "A",
@@ -303,12 +556,25 @@
         }
       ],
       "options": {
-        "legend": { "displayMode": "table", "placement": "right", "calcs": ["mean", "max"], "showLegend": true },
-        "tooltip": { "mode": "multi", "sort": "desc" }
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "calcs": [
+            "mean",
+            "max"
+          ],
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic-by-name" },
+          "color": {
+            "mode": "palette-classic-by-name"
+          },
           "unit": "short",
           "custom": {
             "drawStyle": "line",
@@ -316,17 +582,28 @@
             "fillOpacity": 15,
             "gradientMode": "opacity",
             "spanNulls": true,
-            "stacking": { "mode": "none" },
+            "stacking": {
+              "mode": "none"
+            },
             "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisLabel": "CPU cores",
-            "scaleDistribution": { "type": "linear" },
+            "scaleDistribution": {
+              "type": "linear"
+            },
             "showPoints": "never",
-            "thresholdsStyle": { "mode": "off" }
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "thresholds": {
             "mode": "absolute",
-            "steps": [{ "color": "#2DD4BF", "value": null }]
+            "steps": [
+              {
+                "color": "#2DD4BF",
+                "value": null
+              }
+            ]
           }
         },
         "overrides": []
@@ -337,8 +614,16 @@
       "type": "timeseries",
       "title": "Memory Usage by Container",
       "description": "Working set memory per container vs limits",
-      "gridPos": { "x": 0, "y": 14, "w": 12, "h": 8 },
-      "datasource": { "type": "prometheus", "uid": "prometheus-parthenon" },
+      "gridPos": {
+        "x": 0,
+        "y": 14,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-parthenon"
+      },
       "targets": [
         {
           "refId": "A",
@@ -347,12 +632,25 @@
         }
       ],
       "options": {
-        "legend": { "displayMode": "table", "placement": "right", "calcs": ["mean", "max"], "showLegend": true },
-        "tooltip": { "mode": "multi", "sort": "desc" }
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "calcs": [
+            "mean",
+            "max"
+          ],
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic-by-name" },
+          "color": {
+            "mode": "palette-classic-by-name"
+          },
           "unit": "bytes",
           "custom": {
             "drawStyle": "line",
@@ -360,16 +658,27 @@
             "fillOpacity": 15,
             "gradientMode": "opacity",
             "spanNulls": true,
-            "stacking": { "mode": "none" },
+            "stacking": {
+              "mode": "none"
+            },
             "axisBorderShow": false,
             "axisLabel": "Memory",
-            "scaleDistribution": { "type": "linear" },
+            "scaleDistribution": {
+              "type": "linear"
+            },
             "showPoints": "never",
-            "thresholdsStyle": { "mode": "off" }
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "thresholds": {
             "mode": "absolute",
-            "steps": [{ "color": "#2DD4BF", "value": null }]
+            "steps": [
+              {
+                "color": "#2DD4BF",
+                "value": null
+              }
+            ]
           }
         },
         "overrides": []
@@ -378,29 +687,50 @@
     {
       "id": 12,
       "type": "timeseries",
-      "title": "Network I/O by Container",
-      "description": "Network receive/transmit rate per container",
-      "gridPos": { "x": 12, "y": 14, "w": 12, "h": 8 },
-      "datasource": { "type": "prometheus", "uid": "prometheus-parthenon" },
+      "title": "Network I/O (Host)",
+      "description": "Host network receive/transmit rate by interface",
+      "gridPos": {
+        "x": 12,
+        "y": 14,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-parthenon"
+      },
       "targets": [
         {
           "refId": "A",
-          "expr": "rate(container_network_receive_bytes_total{name=~\"$container\",job=\"cadvisor\"}[5m])",
-          "legendFormat": "{{name}} rx"
+          "expr": "rate(node_network_receive_bytes_total{job=\"node-exporter\",device!~\"lo|veth.*|br-.*|docker.*\"}[5m])",
+          "legendFormat": "{{device}} rx"
         },
         {
           "refId": "B",
-          "expr": "rate(container_network_transmit_bytes_total{name=~\"$container\",job=\"cadvisor\"}[5m]) * -1",
-          "legendFormat": "{{name}} tx"
+          "expr": "rate(node_network_transmit_bytes_total{job=\"node-exporter\",device!~\"lo|veth.*|br-.*|docker.*\"}[5m]) * -1",
+          "legendFormat": "{{device}} tx"
         }
       ],
       "options": {
-        "legend": { "displayMode": "table", "placement": "right", "calcs": ["mean", "max"], "showLegend": true },
-        "tooltip": { "mode": "multi", "sort": "desc" }
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "calcs": [
+            "mean",
+            "max"
+          ],
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic-by-name" },
+          "color": {
+            "mode": "palette-classic-by-name"
+          },
           "unit": "Bps",
           "custom": {
             "drawStyle": "line",
@@ -408,28 +738,43 @@
             "fillOpacity": 10,
             "gradientMode": "opacity",
             "spanNulls": true,
-            "stacking": { "mode": "none" },
+            "stacking": {
+              "mode": "none"
+            },
             "axisBorderShow": false,
             "axisLabel": "Bytes/sec",
-            "scaleDistribution": { "type": "linear" },
+            "scaleDistribution": {
+              "type": "linear"
+            },
             "showPoints": "never",
-            "thresholdsStyle": { "mode": "off" }
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "thresholds": {
             "mode": "absolute",
-            "steps": [{ "color": "#2DD4BF", "value": null }]
+            "steps": [
+              {
+                "color": "#2DD4BF",
+                "value": null
+              }
+            ]
           }
         },
         "overrides": []
       }
     },
-
     {
       "__comment": "=== ROW: Host Resources ===",
       "id": 300,
       "type": "row",
-      "title": "⬡ Host Resources",
-      "gridPos": { "x": 0, "y": 22, "w": 24, "h": 1 },
+      "title": "\u2b21 Host Resources",
+      "gridPos": {
+        "x": 0,
+        "y": 22,
+        "w": 24,
+        "h": 1
+      },
       "collapsed": false
     },
     {
@@ -437,8 +782,16 @@
       "type": "gauge",
       "title": "Host CPU",
       "description": "Overall host CPU utilization",
-      "gridPos": { "x": 0, "y": 23, "w": 6, "h": 5 },
-      "datasource": { "type": "prometheus", "uid": "prometheus-parthenon" },
+      "gridPos": {
+        "x": 0,
+        "y": 23,
+        "w": 6,
+        "h": 5
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-parthenon"
+      },
       "targets": [
         {
           "refId": "A",
@@ -447,23 +800,40 @@
         }
       ],
       "options": {
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "orientation": "auto",
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "unit": "percent",
           "min": 0,
           "max": 100,
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "#2DD4BF", "value": null },
-              { "color": "#C9A227", "value": 70 },
-              { "color": "#9B1B30", "value": 90 }
+              {
+                "color": "#2DD4BF",
+                "value": null
+              },
+              {
+                "color": "#C9A227",
+                "value": 70
+              },
+              {
+                "color": "#9B1B30",
+                "value": 90
+              }
             ]
           }
         },
@@ -475,8 +845,16 @@
       "type": "gauge",
       "title": "Host Memory",
       "description": "Host memory utilization",
-      "gridPos": { "x": 6, "y": 23, "w": 6, "h": 5 },
-      "datasource": { "type": "prometheus", "uid": "prometheus-parthenon" },
+      "gridPos": {
+        "x": 6,
+        "y": 23,
+        "w": 6,
+        "h": 5
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-parthenon"
+      },
       "targets": [
         {
           "refId": "A",
@@ -485,23 +863,40 @@
         }
       ],
       "options": {
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "orientation": "auto",
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "unit": "percent",
           "min": 0,
           "max": 100,
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "#2DD4BF", "value": null },
-              { "color": "#C9A227", "value": 75 },
-              { "color": "#9B1B30", "value": 90 }
+              {
+                "color": "#2DD4BF",
+                "value": null
+              },
+              {
+                "color": "#C9A227",
+                "value": 75
+              },
+              {
+                "color": "#9B1B30",
+                "value": 90
+              }
             ]
           }
         },
@@ -513,8 +908,16 @@
       "type": "timeseries",
       "title": "Disk I/O (Host)",
       "description": "Host-level disk read/write throughput",
-      "gridPos": { "x": 12, "y": 23, "w": 12, "h": 5 },
-      "datasource": { "type": "prometheus", "uid": "prometheus-parthenon" },
+      "gridPos": {
+        "x": 12,
+        "y": 23,
+        "w": 12,
+        "h": 5
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-parthenon"
+      },
       "targets": [
         {
           "refId": "A",
@@ -528,12 +931,21 @@
         }
       ],
       "options": {
-        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
-        "tooltip": { "mode": "multi", "sort": "desc" }
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic-by-name" },
+          "color": {
+            "mode": "palette-classic-by-name"
+          },
           "unit": "Bps",
           "custom": {
             "drawStyle": "line",
@@ -541,27 +953,40 @@
             "fillOpacity": 15,
             "gradientMode": "opacity",
             "spanNulls": true,
-            "stacking": { "mode": "none" },
+            "stacking": {
+              "mode": "none"
+            },
             "axisBorderShow": false,
             "axisLabel": "Bytes/sec",
             "showPoints": "never",
-            "thresholdsStyle": { "mode": "off" }
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "thresholds": {
             "mode": "absolute",
-            "steps": [{ "color": "#2DD4BF", "value": null }]
+            "steps": [
+              {
+                "color": "#2DD4BF",
+                "value": null
+              }
+            ]
           }
         },
         "overrides": []
       }
     },
-
     {
       "__comment": "=== ROW: PostgreSQL ===",
       "id": 400,
       "type": "row",
-      "title": "⬡ PostgreSQL",
-      "gridPos": { "x": 0, "y": 28, "w": 24, "h": 1 },
+      "title": "\u2b21 PostgreSQL",
+      "gridPos": {
+        "x": 0,
+        "y": 28,
+        "w": 24,
+        "h": 1
+      },
       "collapsed": false
     },
     {
@@ -569,8 +994,16 @@
       "type": "timeseries",
       "title": "PG Connections by State",
       "description": "PostgreSQL connections grouped by state (active, idle, idle in transaction)",
-      "gridPos": { "x": 0, "y": 29, "w": 8, "h": 7 },
-      "datasource": { "type": "prometheus", "uid": "prometheus-parthenon" },
+      "gridPos": {
+        "x": 0,
+        "y": 29,
+        "w": 8,
+        "h": 7
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-parthenon"
+      },
       "targets": [
         {
           "refId": "A",
@@ -579,33 +1012,93 @@
         }
       ],
       "options": {
-        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
-        "tooltip": { "mode": "multi", "sort": "desc" }
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic-by-name" },
+          "color": {
+            "mode": "palette-classic-by-name"
+          },
           "unit": "short",
           "custom": {
             "drawStyle": "bars",
             "lineWidth": 0,
             "fillOpacity": 80,
             "gradientMode": "none",
-            "stacking": { "mode": "normal" },
+            "stacking": {
+              "mode": "normal"
+            },
             "axisBorderShow": false,
             "axisLabel": "Connections",
             "showPoints": "never",
-            "thresholdsStyle": { "mode": "off" }
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "thresholds": {
             "mode": "absolute",
-            "steps": [{ "color": "#2DD4BF", "value": null }]
+            "steps": [
+              {
+                "color": "#2DD4BF",
+                "value": null
+              }
+            ]
           }
         },
         "overrides": [
-          { "matcher": { "id": "byName", "options": "active" }, "properties": [{ "id": "color", "value": { "fixedColor": "#2DD4BF", "mode": "fixed" } }] },
-          { "matcher": { "id": "byName", "options": "idle" }, "properties": [{ "id": "color", "value": { "fixedColor": "#3B3B5C", "mode": "fixed" } }] },
-          { "matcher": { "id": "byName", "options": "idle in transaction" }, "properties": [{ "id": "color", "value": { "fixedColor": "#C9A227", "mode": "fixed" } }] }
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "active"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#2DD4BF",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "idle"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#3B3B5C",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "idle in transaction"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#C9A227",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
         ]
       }
     },
@@ -614,27 +1107,44 @@
       "type": "timeseries",
       "title": "PG Transactions / sec",
       "description": "Commits and rollbacks per second",
-      "gridPos": { "x": 8, "y": 29, "w": 8, "h": 7 },
-      "datasource": { "type": "prometheus", "uid": "prometheus-parthenon" },
+      "gridPos": {
+        "x": 8,
+        "y": 29,
+        "w": 8,
+        "h": 7
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-parthenon"
+      },
       "targets": [
         {
           "refId": "A",
-          "expr": "rate(pg_stat_database_xact_commit_sum{job=\"postgres-exporter\"}[5m])",
+          "expr": "rate(pg_stat_database_xact_commit{job=\"postgres-exporter\"}[5m])",
           "legendFormat": "commits/s"
         },
         {
           "refId": "B",
-          "expr": "rate(pg_stat_database_xact_rollback_sum{job=\"postgres-exporter\"}[5m])",
+          "expr": "rate(pg_stat_database_xact_rollback{job=\"postgres-exporter\"}[5m])",
           "legendFormat": "rollbacks/s"
         }
       ],
       "options": {
-        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
-        "tooltip": { "mode": "multi", "sort": "desc" }
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic-by-name" },
+          "color": {
+            "mode": "palette-classic-by-name"
+          },
           "unit": "ops",
           "custom": {
             "drawStyle": "line",
@@ -642,20 +1152,57 @@
             "fillOpacity": 10,
             "gradientMode": "opacity",
             "spanNulls": true,
-            "stacking": { "mode": "none" },
+            "stacking": {
+              "mode": "none"
+            },
             "axisBorderShow": false,
             "axisLabel": "tx/sec",
             "showPoints": "never",
-            "thresholdsStyle": { "mode": "off" }
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "thresholds": {
             "mode": "absolute",
-            "steps": [{ "color": "#2DD4BF", "value": null }]
+            "steps": [
+              {
+                "color": "#2DD4BF",
+                "value": null
+              }
+            ]
           }
         },
         "overrides": [
-          { "matcher": { "id": "byName", "options": "commits/s" }, "properties": [{ "id": "color", "value": { "fixedColor": "#2DD4BF", "mode": "fixed" } }] },
-          { "matcher": { "id": "byName", "options": "rollbacks/s" }, "properties": [{ "id": "color", "value": { "fixedColor": "#9B1B30", "mode": "fixed" } }] }
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "commits/s"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#2DD4BF",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "rollbacks/s"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#9B1B30",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
         ]
       }
     },
@@ -663,23 +1210,40 @@
       "id": 32,
       "type": "timeseries",
       "title": "PG Cache Hit Ratio",
-      "description": "Buffer cache hit ratio — should stay above 99% for healthy operation",
-      "gridPos": { "x": 16, "y": 29, "w": 8, "h": 7 },
-      "datasource": { "type": "prometheus", "uid": "prometheus-parthenon" },
+      "description": "Buffer cache hit ratio \u2014 should stay above 99% for healthy operation",
+      "gridPos": {
+        "x": 16,
+        "y": 29,
+        "w": 8,
+        "h": 7
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-parthenon"
+      },
       "targets": [
         {
           "refId": "A",
-          "expr": "pg_stat_database_blks_hit_sum{job=\"postgres-exporter\"} / (pg_stat_database_blks_hit_sum{job=\"postgres-exporter\"} + pg_stat_database_blks_read_sum{job=\"postgres-exporter\"}) * 100",
+          "expr": "pg_stat_database_blks_hit{job=\"postgres-exporter\"} / (pg_stat_database_blks_hit{job=\"postgres-exporter\"} + pg_stat_database_blks_read{job=\"postgres-exporter\"}) * 100",
           "legendFormat": "cache hit %"
         }
       ],
       "options": {
-        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
-        "tooltip": { "mode": "single", "sort": "none" }
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
       },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "unit": "percent",
           "min": 90,
           "max": 100,
@@ -689,18 +1253,31 @@
             "fillOpacity": 20,
             "gradientMode": "opacity",
             "spanNulls": true,
-            "stacking": { "mode": "none" },
+            "stacking": {
+              "mode": "none"
+            },
             "axisBorderShow": false,
             "axisLabel": "Hit %",
             "showPoints": "never",
-            "thresholdsStyle": { "mode": "area" }
+            "thresholdsStyle": {
+              "mode": "area"
+            }
           },
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "#9B1B30", "value": null },
-              { "color": "#C9A227", "value": 95 },
-              { "color": "#2DD4BF", "value": 99 }
+              {
+                "color": "#9B1B30",
+                "value": null
+              },
+              {
+                "color": "#C9A227",
+                "value": 95
+              },
+              {
+                "color": "#2DD4BF",
+                "value": 99
+              }
             ]
           }
         },
@@ -712,8 +1289,16 @@
       "type": "table",
       "title": "PG Table Stats (Top 20 by Size)",
       "description": "Largest tables with row estimates, dead tuples, and last vacuum",
-      "gridPos": { "x": 0, "y": 36, "w": 24, "h": 7 },
-      "datasource": { "type": "prometheus", "uid": "prometheus-parthenon" },
+      "gridPos": {
+        "x": 0,
+        "y": 36,
+        "w": 24,
+        "h": 7
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-parthenon"
+      },
       "targets": [
         {
           "refId": "A",
@@ -725,18 +1310,34 @@
       ],
       "options": {
         "showHeader": true,
-        "sortBy": [{ "desc": true, "displayName": "Value" }]
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Value"
+          }
+        ]
       },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "unit": "bytes",
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "#2DD4BF", "value": null },
-              { "color": "#C9A227", "value": 1073741824 },
-              { "color": "#9B1B30", "value": 10737418240 }
+              {
+                "color": "#2DD4BF",
+                "value": null
+              },
+              {
+                "color": "#C9A227",
+                "value": 1073741824
+              },
+              {
+                "color": "#9B1B30",
+                "value": 10737418240
+              }
             ]
           },
           "custom": {
@@ -744,37 +1345,87 @@
           }
         },
         "overrides": [
-          { "matcher": { "id": "byName", "options": "schemaname" }, "properties": [{ "id": "displayName", "value": "Schema" }] },
-          { "matcher": { "id": "byName", "options": "relname" }, "properties": [{ "id": "displayName", "value": "Table" }] },
-          { "matcher": { "id": "byName", "options": "Value" }, "properties": [{ "id": "displayName", "value": "Size" }] }
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "schemaname"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Schema"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "relname"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Table"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Size"
+              }
+            ]
+          }
         ]
       },
       "transformations": [
         {
           "id": "organize",
           "options": {
-            "excludeByName": { "Time": true, "__name__": true, "instance": true, "job": true },
+            "excludeByName": {
+              "Time": true,
+              "__name__": true,
+              "instance": true,
+              "job": true
+            },
             "indexByName": {},
             "renameByName": {}
           }
         }
       ]
     },
-
     {
       "__comment": "=== ROW: Redis & Queues ===",
       "id": 500,
       "type": "row",
-      "title": "⬡ Redis & Queues",
-      "gridPos": { "x": 0, "y": 43, "w": 24, "h": 1 },
+      "title": "\u2b21 Redis & Queues",
+      "gridPos": {
+        "x": 0,
+        "y": 43,
+        "w": 24,
+        "h": 1
+      },
       "collapsed": false
     },
     {
       "id": 40,
       "type": "stat",
       "title": "Redis Uptime",
-      "gridPos": { "x": 0, "y": 44, "w": 4, "h": 4 },
-      "datasource": { "type": "prometheus", "uid": "prometheus-parthenon" },
+      "gridPos": {
+        "x": 0,
+        "y": 44,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-parthenon"
+      },
       "targets": [
         {
           "refId": "A",
@@ -783,7 +1434,13 @@
         }
       ],
       "options": {
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "orientation": "auto",
         "textMode": "auto",
         "colorMode": "value",
@@ -792,11 +1449,19 @@
       },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "fixed", "fixedColor": "#2DD4BF" },
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#2DD4BF"
+          },
           "unit": "s",
           "thresholds": {
             "mode": "absolute",
-            "steps": [{ "color": "#2DD4BF", "value": null }]
+            "steps": [
+              {
+                "color": "#2DD4BF",
+                "value": null
+              }
+            ]
           }
         },
         "overrides": []
@@ -806,8 +1471,16 @@
       "id": 41,
       "type": "stat",
       "title": "Redis Connected Clients",
-      "gridPos": { "x": 4, "y": 44, "w": 4, "h": 4 },
-      "datasource": { "type": "prometheus", "uid": "prometheus-parthenon" },
+      "gridPos": {
+        "x": 4,
+        "y": 44,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-parthenon"
+      },
       "targets": [
         {
           "refId": "A",
@@ -816,7 +1489,13 @@
         }
       ],
       "options": {
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "orientation": "auto",
         "textMode": "auto",
         "colorMode": "background_solid",
@@ -825,15 +1504,26 @@
       },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "unit": "short",
           "noValue": "0",
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "#2DD4BF", "value": null },
-              { "color": "#C9A227", "value": 50 },
-              { "color": "#9B1B30", "value": 100 }
+              {
+                "color": "#2DD4BF",
+                "value": null
+              },
+              {
+                "color": "#C9A227",
+                "value": 50
+              },
+              {
+                "color": "#9B1B30",
+                "value": 100
+              }
             ]
           }
         },
@@ -845,8 +1535,16 @@
       "type": "timeseries",
       "title": "Redis Operations / sec",
       "description": "Commands processed per second",
-      "gridPos": { "x": 8, "y": 44, "w": 8, "h": 7 },
-      "datasource": { "type": "prometheus", "uid": "prometheus-parthenon" },
+      "gridPos": {
+        "x": 8,
+        "y": 44,
+        "w": 8,
+        "h": 7
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-parthenon"
+      },
       "targets": [
         {
           "refId": "A",
@@ -855,12 +1553,22 @@
         }
       ],
       "options": {
-        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
-        "tooltip": { "mode": "single", "sort": "none" }
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
       },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "fixed", "fixedColor": "#C9A227" },
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#C9A227"
+          },
           "unit": "ops",
           "custom": {
             "drawStyle": "line",
@@ -868,15 +1576,24 @@
             "fillOpacity": 15,
             "gradientMode": "opacity",
             "spanNulls": true,
-            "stacking": { "mode": "none" },
+            "stacking": {
+              "mode": "none"
+            },
             "axisBorderShow": false,
             "axisLabel": "ops/sec",
             "showPoints": "never",
-            "thresholdsStyle": { "mode": "off" }
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "thresholds": {
             "mode": "absolute",
-            "steps": [{ "color": "#C9A227", "value": null }]
+            "steps": [
+              {
+                "color": "#C9A227",
+                "value": null
+              }
+            ]
           }
         },
         "overrides": []
@@ -887,8 +1604,16 @@
       "type": "timeseries",
       "title": "Redis Memory Over Time",
       "description": "Memory used vs peak vs max configured",
-      "gridPos": { "x": 16, "y": 44, "w": 8, "h": 7 },
-      "datasource": { "type": "prometheus", "uid": "prometheus-parthenon" },
+      "gridPos": {
+        "x": 16,
+        "y": 44,
+        "w": 8,
+        "h": 7
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-parthenon"
+      },
       "targets": [
         {
           "refId": "A",
@@ -902,12 +1627,21 @@
         }
       ],
       "options": {
-        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
-        "tooltip": { "mode": "multi", "sort": "desc" }
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic-by-name" },
+          "color": {
+            "mode": "palette-classic-by-name"
+          },
           "unit": "bytes",
           "custom": {
             "drawStyle": "line",
@@ -915,20 +1649,67 @@
             "fillOpacity": 10,
             "gradientMode": "opacity",
             "spanNulls": true,
-            "stacking": { "mode": "none" },
+            "stacking": {
+              "mode": "none"
+            },
             "axisBorderShow": false,
             "axisLabel": "Memory",
             "showPoints": "never",
-            "thresholdsStyle": { "mode": "off" }
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "thresholds": {
             "mode": "absolute",
-            "steps": [{ "color": "#2DD4BF", "value": null }]
+            "steps": [
+              {
+                "color": "#2DD4BF",
+                "value": null
+              }
+            ]
           }
         },
         "overrides": [
-          { "matcher": { "id": "byName", "options": "used" }, "properties": [{ "id": "color", "value": { "fixedColor": "#2DD4BF", "mode": "fixed" } }] },
-          { "matcher": { "id": "byName", "options": "max" }, "properties": [{ "id": "color", "value": { "fixedColor": "#9B1B30", "mode": "fixed" } }, { "id": "custom.lineStyle", "value": { "fill": "dash", "dash": [10, 10] } }] }
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "used"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#2DD4BF",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "max"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#9B1B30",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "fill": "dash",
+                  "dash": [
+                    10,
+                    10
+                  ]
+                }
+              }
+            ]
+          }
         ]
       }
     },
@@ -936,9 +1717,17 @@
       "id": 44,
       "type": "stat",
       "title": "Redis Evictions",
-      "description": "Keys evicted due to maxmemory — non-zero means cache pressure",
-      "gridPos": { "x": 0, "y": 48, "w": 4, "h": 3 },
-      "datasource": { "type": "prometheus", "uid": "prometheus-parthenon" },
+      "description": "Keys evicted due to maxmemory \u2014 non-zero means cache pressure",
+      "gridPos": {
+        "x": 0,
+        "y": 48,
+        "w": 4,
+        "h": 3
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-parthenon"
+      },
       "targets": [
         {
           "refId": "A",
@@ -947,7 +1736,13 @@
         }
       ],
       "options": {
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "orientation": "auto",
         "textMode": "auto",
         "colorMode": "background_solid",
@@ -956,15 +1751,26 @@
       },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "unit": "short",
           "noValue": "0",
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "#2DD4BF", "value": null },
-              { "color": "#C9A227", "value": 1 },
-              { "color": "#9B1B30", "value": 100 }
+              {
+                "color": "#2DD4BF",
+                "value": null
+              },
+              {
+                "color": "#C9A227",
+                "value": 1
+              },
+              {
+                "color": "#9B1B30",
+                "value": 100
+              }
             ]
           }
         },
@@ -975,9 +1781,17 @@
       "id": 45,
       "type": "stat",
       "title": "Redis Hit Rate",
-      "description": "Keyspace hit ratio — higher is better",
-      "gridPos": { "x": 4, "y": 48, "w": 4, "h": 3 },
-      "datasource": { "type": "prometheus", "uid": "prometheus-parthenon" },
+      "description": "Keyspace hit ratio \u2014 higher is better",
+      "gridPos": {
+        "x": 4,
+        "y": 48,
+        "w": 4,
+        "h": 3
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-parthenon"
+      },
       "targets": [
         {
           "refId": "A",
@@ -986,7 +1800,13 @@
         }
       ],
       "options": {
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "orientation": "auto",
         "textMode": "auto",
         "colorMode": "background_solid",
@@ -995,29 +1815,44 @@
       },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "unit": "percent",
           "decimals": 1,
           "noValue": "N/A",
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "#9B1B30", "value": null },
-              { "color": "#C9A227", "value": 80 },
-              { "color": "#2DD4BF", "value": 95 }
+              {
+                "color": "#9B1B30",
+                "value": null
+              },
+              {
+                "color": "#C9A227",
+                "value": 80
+              },
+              {
+                "color": "#2DD4BF",
+                "value": 95
+              }
             ]
           }
         },
         "overrides": []
       }
     },
-
     {
       "__comment": "=== ROW: Application Logs ===",
       "id": 600,
       "type": "row",
-      "title": "⬡ Application Logs",
-      "gridPos": { "x": 0, "y": 51, "w": 24, "h": 1 },
+      "title": "\u2b21 Application Logs",
+      "gridPos": {
+        "x": 0,
+        "y": 51,
+        "w": 24,
+        "h": 1
+      },
       "collapsed": false
     },
     {
@@ -1025,8 +1860,16 @@
       "type": "barchart",
       "title": "Error Volume by Service",
       "description": "Error and warning log entries per service over time",
-      "gridPos": { "x": 0, "y": 52, "w": 12, "h": 6 },
-      "datasource": { "type": "loki", "uid": "loki-parthenon" },
+      "gridPos": {
+        "x": 0,
+        "y": 52,
+        "w": 12,
+        "h": 6
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "loki-parthenon"
+      },
       "targets": [
         {
           "refId": "A",
@@ -1037,19 +1880,33 @@
       "options": {
         "xField": "Time",
         "stacking": "normal",
-        "legend": { "displayMode": "list", "placement": "right", "showLegend": true },
-        "tooltip": { "mode": "multi", "sort": "desc" },
+        "legend": {
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
         "barWidth": 0.9,
         "groupWidth": 0.7,
         "orientation": "auto"
       },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic-by-name" },
+          "color": {
+            "mode": "palette-classic-by-name"
+          },
           "unit": "short",
           "thresholds": {
             "mode": "absolute",
-            "steps": [{ "color": "#9B1B30", "value": null }]
+            "steps": [
+              {
+                "color": "#9B1B30",
+                "value": null
+              }
+            ]
           }
         },
         "overrides": []
@@ -1060,8 +1917,16 @@
       "type": "timeseries",
       "title": "Log Volume by Level",
       "description": "Log entries per level over time across all containers",
-      "gridPos": { "x": 12, "y": 52, "w": 12, "h": 6 },
-      "datasource": { "type": "loki", "uid": "loki-parthenon" },
+      "gridPos": {
+        "x": 12,
+        "y": 52,
+        "w": 12,
+        "h": 6
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "loki-parthenon"
+      },
       "targets": [
         {
           "refId": "errors",
@@ -1075,32 +1940,78 @@
         }
       ],
       "options": {
-        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
-        "tooltip": { "mode": "multi", "sort": "desc" }
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic-by-name" },
+          "color": {
+            "mode": "palette-classic-by-name"
+          },
           "unit": "short",
           "custom": {
             "drawStyle": "bars",
             "lineWidth": 0,
             "fillOpacity": 80,
             "gradientMode": "none",
-            "stacking": { "mode": "normal" },
+            "stacking": {
+              "mode": "normal"
+            },
             "axisBorderShow": false,
             "axisLabel": "Log entries",
             "showPoints": "never",
-            "thresholdsStyle": { "mode": "off" }
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "thresholds": {
             "mode": "absolute",
-            "steps": [{ "color": "#2DD4BF", "value": null }]
+            "steps": [
+              {
+                "color": "#2DD4BF",
+                "value": null
+              }
+            ]
           }
         },
         "overrides": [
-          { "matcher": { "id": "byName", "options": "errors" }, "properties": [{ "id": "color", "value": { "fixedColor": "#9B1B30", "mode": "fixed" } }] },
-          { "matcher": { "id": "byName", "options": "warnings" }, "properties": [{ "id": "color", "value": { "fixedColor": "#C9A227", "mode": "fixed" } }] }
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "errors"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#9B1B30",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "warnings"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#C9A227",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
         ]
       }
     },
@@ -1109,8 +2020,16 @@
       "type": "logs",
       "title": "PHP / Laravel Errors",
       "description": "Filtered error logs from the PHP container",
-      "gridPos": { "x": 0, "y": 58, "w": 12, "h": 8 },
-      "datasource": { "type": "loki", "uid": "loki-parthenon" },
+      "gridPos": {
+        "x": 0,
+        "y": 58,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "loki-parthenon"
+      },
       "targets": [
         {
           "refId": "A",
@@ -1134,8 +2053,16 @@
       "type": "logs",
       "title": "PostgreSQL Logs",
       "description": "PostgreSQL query logs from host PG17",
-      "gridPos": { "x": 12, "y": 58, "w": 12, "h": 8 },
-      "datasource": { "type": "loki", "uid": "loki-parthenon" },
+      "gridPos": {
+        "x": 12,
+        "y": 58,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "loki-parthenon"
+      },
       "targets": [
         {
           "refId": "A",
@@ -1159,12 +2086,20 @@
       "type": "logs",
       "title": "Apache Access Logs",
       "description": "Apache HTTP access logs with status code and method",
-      "gridPos": { "x": 0, "y": 66, "w": 12, "h": 7 },
-      "datasource": { "type": "loki", "uid": "loki-parthenon" },
+      "gridPos": {
+        "x": 0,
+        "y": 66,
+        "w": 12,
+        "h": 7
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "loki-parthenon"
+      },
       "targets": [
         {
           "refId": "A",
-          "expr": "{job=\"apache_access\"} |~ \"$search\"",
+          "expr": "{job=\"apache\"} |~ \"$search\"",
           "maxLines": 200
         }
       ],
@@ -1184,8 +2119,16 @@
       "type": "logs",
       "title": "AI Service Logs",
       "description": "FastAPI / Python AI service logs",
-      "gridPos": { "x": 12, "y": 66, "w": 12, "h": 7 },
-      "datasource": { "type": "loki", "uid": "loki-parthenon" },
+      "gridPos": {
+        "x": 12,
+        "y": 66,
+        "w": 12,
+        "h": 7
+      },
+      "datasource": {
+        "type": "loki",
+        "uid": "loki-parthenon"
+      },
       "targets": [
         {
           "refId": "A",

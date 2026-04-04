@@ -76,6 +76,9 @@ export interface ComputeStatus {
   source_id: number;
   source_name?: string;
   total_vectors: number;
+  total_embeddings: number;
+  embeddings_ready: boolean;
+  recommended_mode: "interpretable" | "embedding";
   latest_computed_at: string | null;
   staleness_warning: boolean;
   staleness_threshold_days?: number;
@@ -104,6 +107,26 @@ export interface CohortExportResult {
   cohort_definition_id: number;
   patient_count: number;
   cohort_name: string;
+}
+
+// ── Cohort Profile (Radar Chart) ────────────────────────────────────
+
+export interface CohortDimensionProfile {
+  coverage: number;
+  label: string;
+  unique_concepts?: number;
+  unique_measurements?: number;
+  unique_genes?: number;
+  median_age_bucket?: number;
+  dominant_gender?: number;
+}
+
+export interface CohortProfileResult {
+  cohort_definition_id: number;
+  source_id: number;
+  member_count: number;
+  dimensions: Record<string, CohortDimensionProfile>;
+  dimensions_available: string[];
 }
 
 // ── Patient Comparison ────────────────────────────────────────────

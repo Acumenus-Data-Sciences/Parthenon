@@ -1,12 +1,16 @@
-"""SapBERT embedding service.
+"""Concept embedding service.
 
-Generates 768-dimensional embeddings for medical concept names using the
-cambridgeltl/SapBERT-from-PubMedBERT-fulltext model.
+Primary: Ollama embedding model (GPU-accelerated via nomic-embed-text).
+Fallback: SapBERT on CPU (cambridgeltl/SapBERT-from-PubMedBERT-fulltext).
+
+Both produce 768-dimensional embeddings with L2 normalization.
 """
 
 import logging
-from functools import lru_cache
+import os
 from typing import Any
+
+import httpx
 
 from app.config import settings
 
@@ -23,8 +27,62 @@ except ImportError:
     AutoTokenizer = None  # type: ignore[assignment,misc]
 
 
+class OllamaEmbeddingService:
+    """GPU-accelerated embedding via Ollama's /api/embed endpoint."""
+
+    def __init__(self) -> None:
+        self._base_url = settings.ollama_base_url
+        self._model = settings.ollama_embedding_model
+        self._available: bool | None = None
+
+    def _check_available(self) -> bool:
+        """Probe Ollama to confirm the embedding model is loaded."""
+        if self._available is not None:
+            return self._available
+        try:
+            resp = httpx.post(
+                f"{self._base_url}/api/embed",
+                json={"model": self._model, "input": "probe"},
+                timeout=10.0,
+            )
+            self._available = resp.status_code == 200
+            if self._available:
+                dim = len(resp.json()["embeddings"][0])
+                logger.info(
+                    "Ollama embedding available: model=%s dim=%d",
+                    self._model, dim,
+                )
+            else:
+                logger.warning(
+                    "Ollama embedding probe returned %d", resp.status_code,
+                )
+        except Exception as exc:
+            logger.warning("Ollama embedding unavailable: %s", exc)
+            self._available = False
+        return self._available
+
+    @property
+    def is_available(self) -> bool:
+        return self._check_available()
+
+    def encode(self, texts: list[str]) -> list[list[float]]:
+        """Encode texts via Ollama. Raises on failure."""
+        resp = httpx.post(
+            f"{self._base_url}/api/embed",
+            json={"model": self._model, "input": texts},
+            timeout=60.0,
+        )
+        resp.raise_for_status()
+        embeddings: list[list[float]] = resp.json()["embeddings"]
+        return embeddings
+
+    @property
+    def embedding_dim(self) -> int:
+        return 768
+
+
 class SapBERTService:
-    """Lazy-loaded SapBERT model for generating concept embeddings."""
+    """CPU-based SapBERT model for generating concept embeddings."""
 
     def __init__(self) -> None:
         self._model: Any = None
@@ -32,7 +90,6 @@ class SapBERTService:
         self._device: str = "cuda" if (_HAS_TORCH and torch.cuda.is_available()) else "cpu"
 
     def _load_model(self) -> None:
-        """Load model and tokenizer on first use."""
         if self._model is not None:
             return
         if not _HAS_TORCH:
@@ -55,15 +112,12 @@ class SapBERTService:
         )
         if self._device != "cpu":
             self._model = self._model.to(self._device)
-        self._model.eval()  # type: ignore[union-attr, attr-defined]
+        self._model.eval()
 
         logger.info("SapBERT model loaded successfully")
 
     def encode(self, texts: list[str]) -> list[list[float]]:
-        """Encode a batch of texts into 768-dim embeddings.
-
-        Uses mean pooling over token embeddings with attention mask.
-        """
+        """Encode a batch of texts into 768-dim embeddings."""
         self._load_model()
         assert self._tokenizer is not None
         assert self._model is not None
@@ -79,7 +133,6 @@ class SapBERTService:
         with torch.no_grad():
             output = self._model(**tokenized)
 
-        # Mean pooling: average token embeddings weighted by attention mask
         attention_mask = tokenized["attention_mask"]
         token_embeddings = output.last_hidden_state
         mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
@@ -87,36 +140,47 @@ class SapBERTService:
         sum_mask = torch.clamp(mask_expanded.sum(dim=1), min=1e-9)
         embeddings = sum_embeddings / sum_mask
 
-        # Normalize to unit vectors for cosine similarity
         embeddings = torch.nn.functional.normalize(embeddings, p=2, dim=1)
 
         return embeddings.cpu().numpy().tolist()  # type: ignore[no-any-return]
 
-    def encode_single(self, text: str) -> list[float]:
-        """Encode a single text into a 768-dim embedding."""
-        return self.encode([text])[0]
-
     @property
     def is_loaded(self) -> bool:
-        """Check if the model is currently loaded."""
         return self._model is not None
 
     @property
     def embedding_dim(self) -> int:
-        """Return the embedding dimension."""
         return 768
 
 
+# ---------------------------------------------------------------------------
+# Singleton accessor — Ollama first, SapBERT fallback
+# ---------------------------------------------------------------------------
+
+_ollama_service: OllamaEmbeddingService | None = None
 _sapbert_service: SapBERTService | None = None
 _sapbert_pid: int = 0
 
 
-def get_sapbert_service() -> SapBERTService:
-    """Get or create the SapBERT service, reinitializing after fork."""
-    global _sapbert_service, _sapbert_pid
-    import os
+def get_sapbert_service() -> OllamaEmbeddingService | SapBERTService:
+    """Return the best available embedding service.
+
+    Prefers Ollama (GPU) over SapBERT (CPU). The returned object has
+    the same .encode(texts) interface.
+    """
+    global _ollama_service, _sapbert_service, _sapbert_pid
+
+    # Try Ollama first
+    if _ollama_service is None:
+        _ollama_service = OllamaEmbeddingService()
+
+    if _ollama_service.is_available:
+        return _ollama_service
+
+    # Fall back to SapBERT
     pid = os.getpid()
     if _sapbert_service is None or _sapbert_pid != pid:
+        logger.info("Falling back to SapBERT (CPU) — Ollama unavailable")
         _sapbert_service = SapBERTService()
         _sapbert_pid = pid
     return _sapbert_service

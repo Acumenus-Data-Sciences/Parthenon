@@ -95,6 +95,7 @@ e2e/screenshots/
 # Installer artifacts
 .install-credentials
 .install-state.json
+.enterprise-keys
 installer/__pycache__/
 installer/**/__pycache__/
 

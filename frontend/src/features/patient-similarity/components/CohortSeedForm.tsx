@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Search, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCohortDefinitions } from "@/features/cohort-definitions/hooks/useCohortDefinitions";
+import { useCohortProfile } from "../hooks/usePatientSimilarity";
+import { CohortCentroidRadar } from "./CohortCentroidRadar";
 import type { CohortSimilaritySearchParams } from "../types/patientSimilarity";
 
 interface CohortSeedFormProps {
@@ -24,6 +26,11 @@ export function CohortSeedForm({
     useCohortDefinitions({ limit: 100 });
 
   const cohorts = cohortsData?.items ?? [];
+
+  const { data: cohortProfile } = useCohortProfile(
+    selectedCohortId > 0 ? selectedCohortId : undefined,
+    sourceId,
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,6 +122,9 @@ export function CohortSeedForm({
         )}
         Find Similar Patients
       </button>
+
+      {/* Centroid Radar Chart — shown when a cohort is selected */}
+      {cohortProfile && <CohortCentroidRadar profile={cohortProfile} />}
     </form>
   );
 }

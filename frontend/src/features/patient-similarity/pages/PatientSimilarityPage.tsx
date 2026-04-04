@@ -13,13 +13,14 @@ import { CohortExportDialog } from "../components/CohortExportDialog";
 import {
   useSimilaritySearch,
   useCohortSimilaritySearch,
+  useComputeStatus,
 } from "../hooks/usePatientSimilarity";
 import type {
   SimilaritySearchParams,
   CohortSimilaritySearchParams,
 } from "../types/patientSimilarity";
 
-type SimilarityMode = "interpretable" | "embedding";
+type SimilarityMode = "auto" | "interpretable" | "embedding";
 type SearchMode = "single" | "cohort";
 
 export default function PatientSimilarityPage() {
@@ -45,7 +46,7 @@ export default function PatientSimilarityPage() {
     }
   });
 
-  const [mode, setMode] = useState<SimilarityMode>("interpretable");
+  const [mode, setMode] = useState<SimilarityMode>("auto");
   const [searchMode, setSearchMode] = useState<SearchMode>("single");
   const [lastSearchParams, setLastSearchParams] =
     useState<SimilaritySearchParams | null>(null);
@@ -60,6 +61,8 @@ export default function PatientSimilarityPage() {
     activeSourceId ??
     defaultSourceId ??
     0;
+
+  const { data: computeStatus } = useComputeStatus(sourceId || undefined);
 
   const handleSearch = (params: SimilaritySearchParams) => {
     const withMode = { ...params, mode };
@@ -148,7 +151,11 @@ export default function PatientSimilarityPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <h1 className="page-title">Patient Similarity</h1>
-            <SimilarityModeToggle mode={mode} onChange={setMode} />
+            <SimilarityModeToggle
+              mode={mode}
+              onChange={setMode}
+              recommendedMode={computeStatus?.recommended_mode}
+            />
           </div>
           <div className="flex items-center gap-3">
             {sourceId > 0 && <StalenessIndicator sourceId={sourceId} />}

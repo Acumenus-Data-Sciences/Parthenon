@@ -2,14 +2,24 @@
 """Phase 3: Edition selection — Community or Enterprise."""
 from __future__ import annotations
 
-import re
+import sys
 from dataclasses import dataclass
+from pathlib import Path
 
 import questionary
 from rich.console import Console
 from rich.table import Table
 
 from acropolis.installer.preflight import run_edition_port_check, has_failures
+
+# Add Parthenon project root to sys.path so we can import the shared license module
+_PARTHENON_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(_PARTHENON_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PARTHENON_ROOT))
+
+from installer.license import validate_format as _validate_license_format  # noqa: E402
+from installer.license import validate_against_db as _validate_license_db  # noqa: E402
+from installer.license import LICENSE_PATTERN  # noqa: E402
 
 
 @dataclass
@@ -37,8 +47,6 @@ TIER_SERVICES: dict[str, list[str]] = {
     ],
 }
 
-LICENSE_PATTERN = re.compile(r"^ACRO-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$")
-
 
 def _display_tier_table(console: Console) -> None:
     """Display edition comparison table."""
@@ -51,11 +59,6 @@ def _display_tier_table(console: Console) -> None:
     table.add_row("Enterprise", "+ n8n, Superset, DataHub, Authentik, Wazuh", "Key required")
 
     console.print(table)
-
-
-def _validate_license(key: str) -> bool:
-    """Validate license key format."""
-    return bool(LICENSE_PATTERN.match(key.strip().upper()))
 
 
 def collect_edition(console: Console) -> EditionConfig:
@@ -78,10 +81,16 @@ def collect_edition(console: Console) -> EditionConfig:
             license_key = questionary.text(
                 "Enter license key (ACRO-XXXX-XXXX-XXXX):",
             ).ask()
-            if _validate_license(license_key):
-                license_key = license_key.strip().upper()
+            if not _validate_license_format(license_key):
+                console.print("[red]Invalid license key format. Expected: ACRO-XXXX-XXXX-XXXX[/]")
+                continue
+            license_key = license_key.strip().upper()
+            console.print("[dim]Validating license key...[/]")
+            valid, msg = _validate_license_db(license_key)
+            if valid:
+                console.print(f"[green]{msg}[/]")
                 break
-            console.print("[red]Invalid license key format. Expected: ACRO-XXXX-XXXX-XXXX[/]")
+            console.print(f"[red]{msg}[/]")
 
     # Supplemental port check
     port_result = run_edition_port_check(tier)

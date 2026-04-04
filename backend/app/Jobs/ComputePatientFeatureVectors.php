@@ -23,7 +23,7 @@ class ComputePatientFeatureVectors implements ShouldQueue
 
     public int $timeout = 7200;
 
-    public int $tries = 1;
+    public int $tries = 3;
 
     public function __construct(
         public Source $source,
@@ -134,13 +134,16 @@ class ComputePatientFeatureVectors implements ShouldQueue
             'total_embeddings' => $embeddingsGenerated,
         ]);
 
-        // Step 5: create IVFFlat index if enough patients
+        // Step 5: rebuild IVFFlat index — lists = sqrt(total_rows) for optimal recall
         if ($totalPatients >= 100) {
             try {
+                $totalRows = PatientFeatureVector::whereNotNull('embedding')->count();
+                $lists = max(100, (int) ceil(sqrt($totalRows)));
+                DB::statement('DROP INDEX IF EXISTS idx_pfv_embedding');
                 DB::statement(
-                    'CREATE INDEX IF NOT EXISTS idx_pfv_embedding ON patient_feature_vectors USING ivfflat (embedding public.vector_cosine_ops) WITH (lists = 100)'
+                    "CREATE INDEX idx_pfv_embedding ON patient_feature_vectors USING ivfflat (embedding public.vector_cosine_ops) WITH (lists = {$lists})"
                 );
-                Log::info('ComputePatientFeatureVectors: IVFFlat index created', ['source_id' => $sourceId]);
+                Log::info('ComputePatientFeatureVectors: IVFFlat index created', ['source_id' => $sourceId, 'lists' => $lists, 'total_rows' => $totalRows]);
             } catch (\Throwable $e) {
                 Log::warning('ComputePatientFeatureVectors: IVFFlat index creation failed', [
                     'source_id' => $sourceId,

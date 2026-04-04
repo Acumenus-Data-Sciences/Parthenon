@@ -6,6 +6,7 @@ import {
   triggerCompute,
   searchFromCohort,
   exportCohort,
+  fetchCohortProfile,
   comparePatients,
 } from "../api/patientSimilarityApi";
 import type {
@@ -78,6 +79,20 @@ export function useCohortSimilaritySearch() {
 export function useExportCohort() {
   return useMutation({
     mutationFn: (params: CohortExportParams) => exportCohort(params),
+  });
+}
+
+// ── Cohort Profile ────────────────────────────────────────────────
+
+export function useCohortProfile(
+  cohortDefinitionId: number | undefined,
+  sourceId: number,
+) {
+  return useQuery({
+    queryKey: ["patient-similarity", "cohort-profile", cohortDefinitionId, sourceId] as const,
+    queryFn: () => fetchCohortProfile(cohortDefinitionId!, sourceId),
+    enabled: !!cohortDefinitionId && cohortDefinitionId > 0 && sourceId > 0,
+    staleTime: 5 * 60 * 1000,
   });
 }
 

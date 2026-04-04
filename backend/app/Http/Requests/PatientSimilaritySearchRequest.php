@@ -17,7 +17,7 @@ class PatientSimilaritySearchRequest extends FormRequest
         return [
             'person_id' => ['required', 'integer'],
             'source_id' => ['required', 'integer', 'exists:sources,id'],
-            'mode' => ['sometimes', 'string', 'in:interpretable,embedding'],
+            'mode' => ['sometimes', 'string', 'in:interpretable,embedding,auto'],
             'weights' => ['sometimes', 'array'],
             'weights.*' => ['numeric', 'min:0', 'max:10'],
             'limit' => ['sometimes', 'integer', 'min:1', 'max:100'],

@@ -89,8 +89,18 @@ final class PatientSimilarityService
             ];
         }
 
+        // Auto-select embedding mode for large sources when mode is 'auto' or 'embedding'
+        $effectiveMode = $mode;
+        if ($mode === 'auto') {
+            $embeddingCount = PatientFeatureVector::query()
+                ->forSource($source->id)
+                ->whereNotNull('embedding')
+                ->count();
+            $effectiveMode = $embeddingCount > self::IN_MEMORY_THRESHOLD ? 'embedding' : 'interpretable';
+        }
+
         // Route to search strategy
-        $results = match ($mode) {
+        $results = match ($effectiveMode) {
             'embedding' => $this->searchEmbedding($seed, $source, $weights, $limit, $minScore, $filters),
             default => $this->searchInterpretable($seed, $source, $weights, $limit, $minScore, $filters),
         };
@@ -365,7 +375,7 @@ final class PatientSimilarityService
 
         $candidateLimit = min(200, max($limit * 4, 100));
 
-        $query = 'SELECT person_id, 1 - (embedding <=> ?::public.vector) AS cosine_similarity
+        $query = 'SELECT person_id, 1 - (embedding OPERATOR(public.<=>) ?::public.vector) AS cosine_similarity
                   FROM patient_feature_vectors
                   WHERE source_id = ? AND person_id != ? AND embedding IS NOT NULL';
         $params = [$embeddingStr, $source->id, $seed->person_id];
@@ -380,7 +390,7 @@ final class PatientSimilarityService
             $params[] = intdiv((int) $filters['age_range'][1], 5);
         }
 
-        $query .= ' ORDER BY embedding <=> ?::public.vector LIMIT ?';
+        $query .= ' ORDER BY embedding OPERATOR(public.<=>) ?::public.vector LIMIT ?';
         $params[] = $embeddingStr;
         $params[] = $candidateLimit;
 
@@ -572,6 +582,11 @@ final class PatientSimilarityService
             ->forSource($source->id)
             ->count();
 
+        $embeddingCount = PatientFeatureVector::query()
+            ->forSource($source->id)
+            ->whereNotNull('embedding')
+            ->count();
+
         $latest = PatientFeatureVector::query()
             ->forSource($source->id)
             ->max('computed_at');
@@ -579,10 +594,16 @@ final class PatientSimilarityService
         $latestAt = $latest !== null ? Carbon::parse($latest) : null;
         $stalenessWarning = $latestAt !== null && $latestAt->diffInDays(now()) > self::STALENESS_THRESHOLD_DAYS;
 
+        $embeddingsReady = $embeddingCount > 0 && $embeddingCount === $count;
+        $recommendedMode = ($embeddingsReady && $count > self::IN_MEMORY_THRESHOLD) ? 'embedding' : 'interpretable';
+
         return [
             'source_id' => $source->id,
             'source_name' => $source->source_name,
             'total_vectors' => $count,
+            'total_embeddings' => $embeddingCount,
+            'embeddings_ready' => $embeddingsReady,
+            'recommended_mode' => $recommendedMode,
             'latest_computed_at' => $latestAt?->toIso8601String(),
             'staleness_warning' => $stalenessWarning,
             'staleness_threshold_days' => self::STALENESS_THRESHOLD_DAYS,

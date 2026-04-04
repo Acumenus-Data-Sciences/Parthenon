@@ -36,7 +36,10 @@ from rich.table import Table
 # ---------------------------------------------------------------------------
 
 SYNPUF_DATA_DIR = Path(
-    "/media/smudoshi/DATA/Old Backup Data/ETL-CMS/data/output"
+    os.environ.get(
+        "SYNPUF_DATA_DIR",
+        "/mnt/md0/ETL-CMS/data/output",
+    )
 )
 
 SCHEMA = "synpuf"
@@ -44,11 +47,11 @@ RESULTS_SCHEMA = "synpuf_results"
 
 # Connection parameters — reads from env or falls back to .env defaults.
 DB_DSN: dict[str, Any] = {
-    "host": os.environ.get("SYNPUF_DB_HOST", "pgsql.acumenus.net"),
+    "host": os.environ.get("SYNPUF_DB_HOST", "localhost"),
     "port": int(os.environ.get("SYNPUF_DB_PORT", "5432")),
     "dbname": os.environ.get("SYNPUF_DB_NAME", "parthenon"),
-    "user": os.environ.get("SYNPUF_DB_USER", "smudoshi"),
-    "password": os.environ.get("SYNPUF_DB_PASSWORD", "acumenus"),
+    "user": os.environ.get("SYNPUF_DB_USER", "claude_dev"),
+    "passfile": os.path.expanduser("~/.pgpass"),
 }
 
 NUM_SHARDS = 20
@@ -797,7 +800,7 @@ def load(
     try:
         with _connect() as conn:
             with conn.cursor() as cur:
-                cur.execute("SELECT COUNT(*) FROM omop.concept")
+                cur.execute("SELECT COUNT(*) FROM vocab.concept")
                 vocab_count = cur.fetchone()[0]
                 if vocab_count < 100_000:
                     console.print(

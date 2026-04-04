@@ -65,10 +65,18 @@ final class EmbeddingClient
                 ]);
 
             if ($response->successful()) {
-                /** @var array<int, float[]> $embeddings */
-                $embeddings = $response->json('embeddings', []);
+                /** @var array<int, array{person_id: int, embedding: float[], dimension: int}> $raw */
+                $raw = $response->json('embeddings', []);
 
-                return $embeddings;
+                // Re-key by person_id so the caller can look up embeddings by patient
+                $result = [];
+                foreach ($raw as $entry) {
+                    if (isset($entry['person_id'], $entry['embedding'])) {
+                        $result[(int) $entry['person_id']] = $entry['embedding'];
+                    }
+                }
+
+                return $result;
             }
 
             Log::warning('EmbeddingClient::embedBatch: non-200 response', [
