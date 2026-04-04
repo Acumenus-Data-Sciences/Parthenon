@@ -1,5 +1,5 @@
 interface DimensionScoreBarProps {
-  score: number | null;
+  score: number | null | undefined;
   label: string;
 }
 
@@ -10,7 +10,7 @@ function getScoreColor(score: number): string {
 }
 
 export function DimensionScoreBar({ score, label }: DimensionScoreBarProps) {
-  if (score === null) {
+  if (score == null || !Number.isFinite(score)) {
     return (
       <div className="flex items-center gap-1.5" title={`${label}: N/A`}>
         <div
@@ -23,7 +23,7 @@ export function DimensionScoreBar({ score, label }: DimensionScoreBarProps) {
   }
 
   const color = getScoreColor(score);
-  const barWidth = Math.round(score * 50);
+  const barWidth = Math.max(0, Math.min(50, Math.round(score * 50)));
 
   return (
     <div

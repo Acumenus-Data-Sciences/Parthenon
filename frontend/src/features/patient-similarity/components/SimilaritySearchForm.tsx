@@ -9,6 +9,8 @@ import type { SimilaritySearchParams } from "../types/patientSimilarity";
 interface SimilaritySearchFormProps {
   onSearch: (params: SimilaritySearchParams) => void;
   isLoading: boolean;
+  sourceId: number;
+  onSourceChange: (sourceId: number) => void;
   initialPersonId?: number;
   initialSourceId?: number;
   initialWeights?: Record<string, number>;
@@ -17,11 +19,12 @@ interface SimilaritySearchFormProps {
 export function SimilaritySearchForm({
   onSearch,
   isLoading,
+  sourceId,
+  onSourceChange,
   initialPersonId,
-  initialSourceId,
   initialWeights,
 }: SimilaritySearchFormProps) {
-  const { activeSourceId, defaultSourceId, sources } = useSourceStore();
+  const { sources } = useSourceStore();
   const { data: dimensions } = useSimilarityDimensions();
 
   const [personId, setPersonId] = useState(initialPersonId?.toString() ?? "");
@@ -29,9 +32,6 @@ export function SimilaritySearchForm({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [sourceId, setSourceId] = useState<number>(
-    initialSourceId ?? activeSourceId ?? defaultSourceId ?? 0,
-  );
   const [weights, setWeights] = useState<Record<string, number>>({});
   const [ageMin, setAgeMin] = useState("");
   const [ageMax, setAgeMax] = useState("");
@@ -52,13 +52,6 @@ export function SimilaritySearchForm({
     }
     setWeights(defaults);
   }, [dimensions, initialWeights]);
-
-  // Sync source when activeSourceId changes
-  useEffect(() => {
-    if (activeSourceId && !initialSourceId) {
-      setSourceId(activeSourceId);
-    }
-  }, [activeSourceId, initialSourceId]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -121,7 +114,7 @@ export function SimilaritySearchForm({
         </label>
         <select
           value={sourceId}
-          onChange={(e) => setSourceId(parseInt(e.target.value, 10))}
+          onChange={(e) => onSourceChange(parseInt(e.target.value, 10))}
           className={cn(
             "w-full rounded-lg px-3 py-2 text-sm",
             "bg-[#0E0E11] border border-[#232328]",

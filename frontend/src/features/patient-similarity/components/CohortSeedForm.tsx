@@ -14,15 +14,18 @@ import type { CohortSimilaritySearchParams } from "../types/patientSimilarity";
 interface CohortSeedFormProps {
   onSearch: (params: CohortSimilaritySearchParams) => void;
   isLoading: boolean;
+  sourceId: number;
+  onSourceChange: (sourceId: number) => void;
 }
 
-export function CohortSeedForm({ onSearch, isLoading }: CohortSeedFormProps) {
-  const { activeSourceId, defaultSourceId, sources } = useSourceStore();
+export function CohortSeedForm({
+  onSearch,
+  isLoading,
+  sourceId,
+  onSourceChange,
+}: CohortSeedFormProps) {
+  const { sources } = useSourceStore();
   const { data: dimensions } = useSimilarityDimensions();
-
-  const [sourceId, setSourceId] = useState<number>(
-    activeSourceId ?? defaultSourceId ?? 0,
-  );
   const [selectedCohortId, setSelectedCohortId] = useState<number>(0);
   const [weights, setWeights] = useState<Record<string, number>>({});
   const [ageMin, setAgeMin] = useState("");
@@ -49,12 +52,6 @@ export function CohortSeedForm({ onSearch, isLoading }: CohortSeedFormProps) {
     }
     setWeights(defaults);
   }, [dimensions]);
-
-  useEffect(() => {
-    if (activeSourceId) {
-      setSourceId(activeSourceId);
-    }
-  }, [activeSourceId]);
 
   useEffect(() => {
     setSelectedCohortId(0);
@@ -94,7 +91,7 @@ export function CohortSeedForm({ onSearch, isLoading }: CohortSeedFormProps) {
         </label>
         <select
           value={sourceId}
-          onChange={(e) => setSourceId(parseInt(e.target.value, 10))}
+          onChange={(e) => onSourceChange(parseInt(e.target.value, 10))}
           className={cn(
             "w-full rounded-lg px-3 py-2 text-sm",
             "bg-[#0E0E11] border border-[#232328]",

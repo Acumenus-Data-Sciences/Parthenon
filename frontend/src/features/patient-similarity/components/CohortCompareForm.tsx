@@ -13,6 +13,8 @@ interface CohortCompareFormProps {
   isComparing: boolean;
   isSearching: boolean;
   hasComparisonResult: boolean;
+  sourceId: number;
+  onSourceChange: (sourceId: number) => void;
 }
 
 export function CohortCompareForm({
@@ -21,14 +23,13 @@ export function CohortCompareForm({
   isComparing,
   isSearching,
   hasComparisonResult,
+  sourceId,
+  onSourceChange,
 }: CohortCompareFormProps) {
-  const { activeSourceId, defaultSourceId, sources } = useSourceStore();
-
-  const [sourceId, setSourceId] = useState<number>(
-    activeSourceId ?? defaultSourceId ?? 0,
-  );
+  const { sources } = useSourceStore();
   const [sourceCohortId, setSourceCohortId] = useState<number>(0);
   const [targetCohortId, setTargetCohortId] = useState<number>(0);
+  const [comparedSelectionKey, setComparedSelectionKey] = useState<string | null>(null);
 
   const { data: cohortsData, isLoading: cohortsLoading } =
     useCohortDefinitions({ limit: 100 });
@@ -46,20 +47,30 @@ export function CohortCompareForm({
     );
 
   useEffect(() => {
-    if (activeSourceId) setSourceId(activeSourceId);
-  }, [activeSourceId]);
-
-  useEffect(() => {
     setSourceCohortId(0);
     setTargetCohortId(0);
+    setComparedSelectionKey(null);
   }, [sourceId]);
+
+  const currentSelectionKey =
+    sourceId > 0 && sourceCohortId > 0 && targetCohortId > 0
+      ? `${sourceId}:${sourceCohortId}:${targetCohortId}`
+      : null;
+
+  useEffect(() => {
+    if (comparedSelectionKey !== null && comparedSelectionKey !== currentSelectionKey) {
+      setComparedSelectionKey(null);
+    }
+  }, [comparedSelectionKey, currentSelectionKey]);
 
   const bothGenerated =
     sourceProfile?.generated === true && targetProfile?.generated === true;
 
   const handleCompare = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!bothGenerated || sourceId <= 0) return;
+    if (!bothGenerated || sourceId <= 0 || currentSelectionKey === null) return;
+
+    setComparedSelectionKey(currentSelectionKey);
 
     onCompare({
       source_cohort_id: sourceCohortId,
@@ -87,7 +98,7 @@ export function CohortCompareForm({
         </label>
         <select
           value={sourceId}
-          onChange={(e) => setSourceId(parseInt(e.target.value, 10))}
+          onChange={(e) => onSourceChange(parseInt(e.target.value, 10))}
           className={cn(
             "w-full rounded-lg px-3 py-2 text-sm",
             "bg-[#0E0E11] border border-[#232328]",
@@ -207,7 +218,9 @@ export function CohortCompareForm({
       </button>
 
       {/* Cross-Cohort Search Button */}
-      {hasComparisonResult && (
+      {hasComparisonResult &&
+        currentSelectionKey !== null &&
+        comparedSelectionKey === currentSelectionKey && (
         <button
           type="button"
           onClick={handleCrossSearch}

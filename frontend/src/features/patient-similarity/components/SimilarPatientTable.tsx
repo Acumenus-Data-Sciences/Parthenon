@@ -12,6 +12,10 @@ interface SimilarPatientTableProps {
   sourceId?: number;
 }
 
+function normalizeScore(score: number | null | undefined): number | null {
+  return typeof score === "number" && Number.isFinite(score) ? score : null;
+}
+
 function formatGender(genderConceptId: number | undefined): string {
   if (genderConceptId === 8507) return "M";
   if (genderConceptId === 8532) return "F";
@@ -35,11 +39,15 @@ function getOverallScoreColor(score: number): string {
 }
 
 function SharedFeaturePills({ category, icon, label }: {
-  category: SharedFeatureCategory;
+  category?: SharedFeatureCategory | null;
   icon: React.ReactNode;
   label: string;
 }) {
-  if (category.shared_count === 0) return null;
+  const sharedCount = category?.shared_count ?? 0;
+  const seedCount = category?.seed_count ?? 0;
+  const topShared = Array.isArray(category?.top_shared) ? category.top_shared : [];
+
+  if (sharedCount === 0) return null;
 
   return (
     <div className="space-y-1.5">
@@ -47,11 +55,11 @@ function SharedFeaturePills({ category, icon, label }: {
         {icon}
         {label}
         <span className="text-[#8A857D] font-normal normal-case">
-          ({category.shared_count} of {category.seed_count} shared)
+          ({sharedCount} of {seedCount} shared)
         </span>
       </div>
       <div className="flex flex-wrap gap-1.5">
-        {category.top_shared.map((concept) => (
+        {topShared.map((concept) => (
           <span
             key={concept.concept_id}
             className="inline-flex items-center rounded-md bg-[#1C1C20] border border-[#2A2A30] px-2 py-0.5 text-xs text-[#C5C0B8]"
@@ -60,9 +68,9 @@ function SharedFeaturePills({ category, icon, label }: {
             {concept.name}
           </span>
         ))}
-        {category.shared_count > category.top_shared.length && (
+        {sharedCount > topShared.length && (
           <span className="inline-flex items-center text-[10px] text-[#5A5650] px-1">
-            +{category.shared_count - category.top_shared.length} more
+            +{sharedCount - topShared.length} more
           </span>
         )}
       </div>
@@ -139,13 +147,15 @@ export function SimilarPatientTable({
           </thead>
           <tbody>
             {patients.map((patient, index) => {
-              const scoreColor = getOverallScoreColor(patient.overall_score);
+              const overallScore = normalizeScore(patient.overall_score);
+              const scoreColor = getOverallScoreColor(overallScore ?? 0);
               const isExpanded = expandedRows.has(index);
               const hasDetails = patient.shared_features != null || patient.similarity_summary != null;
               const compareUrl =
                 seedPersonId && sourceId && patient.person_id
                   ? `/patient-similarity/compare?person_a=${seedPersonId}&person_b=${patient.person_id}&source_id=${sourceId}`
                   : null;
+              const dimensionScores = patient.dimension_scores ?? {};
 
               const rowKey = patient.person_id ?? index;
               return (
@@ -173,7 +183,7 @@ export function SimilarPatientTable({
                         className="font-['IBM_Plex_Mono',monospace] text-sm font-semibold tabular-nums"
                         style={{ color: scoreColor }}
                       >
-                        {patient.overall_score.toFixed(3)}
+                        {overallScore !== null ? overallScore.toFixed(3) : "N/A"}
                       </span>
                     </td>
                     <td className="px-3 py-2.5">
@@ -188,37 +198,37 @@ export function SimilarPatientTable({
                     </td>
                     <td className="px-3 py-2.5">
                       <DimensionScoreBar
-                        score={patient.dimension_scores.demographics}
+                        score={normalizeScore(dimensionScores.demographics)}
                         label="Demographics"
                       />
                     </td>
                     <td className="px-3 py-2.5">
                       <DimensionScoreBar
-                        score={patient.dimension_scores.conditions}
+                        score={normalizeScore(dimensionScores.conditions)}
                         label="Conditions"
                       />
                     </td>
                     <td className="px-3 py-2.5">
                       <DimensionScoreBar
-                        score={patient.dimension_scores.measurements}
+                        score={normalizeScore(dimensionScores.measurements)}
                         label="Labs"
                       />
                     </td>
                     <td className="px-3 py-2.5">
                       <DimensionScoreBar
-                        score={patient.dimension_scores.drugs}
+                        score={normalizeScore(dimensionScores.drugs)}
                         label="Drugs"
                       />
                     </td>
                     <td className="px-3 py-2.5">
                       <DimensionScoreBar
-                        score={patient.dimension_scores.procedures}
+                        score={normalizeScore(dimensionScores.procedures)}
                         label="Procedures"
                       />
                     </td>
                     <td className="px-3 py-2.5">
                       <DimensionScoreBar
-                        score={patient.dimension_scores.genomics}
+                        score={normalizeScore(dimensionScores.genomics)}
                         label="Genomics"
                       />
                     </td>

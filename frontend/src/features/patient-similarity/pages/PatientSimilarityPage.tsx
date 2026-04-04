@@ -1,6 +1,6 @@
 import { useSearchParams } from "react-router-dom";
 import { Users, Clock, Target, Download, UserPlus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/authStore";
 import { useSourceStore } from "@/stores/sourceStore";
@@ -34,7 +34,7 @@ type SearchMode = "single" | "cohort" | "compare";
 export default function PatientSimilarityPage() {
   const [searchParams] = useSearchParams();
   const { hasPermission } = useAuthStore();
-  const { activeSourceId, defaultSourceId } = useSourceStore();
+  const { activeSourceId, defaultSourceId, setActiveSource } = useSourceStore();
   const showPersonId = hasPermission("profiles.view");
 
   const initialPersonId = searchParams.get("person_id")
@@ -56,6 +56,9 @@ export default function PatientSimilarityPage() {
 
   const [mode, setMode] = useState<SimilarityMode>("auto");
   const [searchMode, setSearchMode] = useState<SearchMode>("single");
+  const [selectedSourceId, setSelectedSourceId] = useState(
+    initialSourceId ?? activeSourceId ?? defaultSourceId ?? 0,
+  );
   const [lastSearchParams, setLastSearchParams] =
     useState<SimilaritySearchParams | null>(null);
   const [exportOpen, setExportOpen] = useState(false);
@@ -66,23 +69,47 @@ export default function PatientSimilarityPage() {
   const compareMutation = useCompareCohorts();
   const crossSearchMutation = useCrossCohortSearch();
 
-  const sourceId =
-    lastSearchParams?.source_id ??
-    initialSourceId ??
-    activeSourceId ??
-    defaultSourceId ??
-    0;
+  useEffect(() => {
+    const nextSourceId =
+      initialSourceId ?? activeSourceId ?? defaultSourceId ?? 0;
+
+    if (nextSourceId > 0 && selectedSourceId !== nextSourceId) {
+      setSelectedSourceId(nextSourceId);
+    }
+
+    if (nextSourceId > 0 && activeSourceId !== nextSourceId) {
+      setActiveSource(nextSourceId);
+    }
+  }, [
+    activeSourceId,
+    defaultSourceId,
+    initialSourceId,
+    selectedSourceId,
+    setActiveSource,
+  ]);
+
+  const handleSourceChange = (nextSourceId: number) => {
+    setSelectedSourceId(nextSourceId);
+
+    if (nextSourceId > 0 && nextSourceId !== activeSourceId) {
+      setActiveSource(nextSourceId);
+    }
+  };
+
+  const sourceId = selectedSourceId;
 
   const { data: computeStatus } = useComputeStatus(sourceId);
 
   const handleSearch = (params: SimilaritySearchParams) => {
     const withMode = { ...params, mode };
+    handleSourceChange(params.source_id);
     setLastSearchParams(withMode);
     searchMutation.mutate(withMode);
   };
 
   const handleCohortSearch = (params: CohortSimilaritySearchParams) => {
     const withMode = { ...params, mode };
+    handleSourceChange(params.source_id);
     setLastSearchParams({
       person_id: 0, // placeholder for cohort-based search
       source_id: params.source_id,
@@ -92,10 +119,12 @@ export default function PatientSimilarityPage() {
   };
 
   const handleCompare = (params: CohortComparisonParams) => {
+    handleSourceChange(params.source_id);
     compareMutation.mutate(params);
   };
 
   const handleCrossSearch = (params: CrossCohortSearchParams) => {
+    handleSourceChange(params.source_id);
     crossSearchMutation.mutate(params);
     setLastSearchParams({
       person_id: 0,
@@ -142,6 +171,8 @@ export default function PatientSimilarityPage() {
     typeof metadata.cohort_definition_id === "number"
       ? metadata.cohort_definition_id
       : 0;
+  const hasCompareInsights = searchMode === "compare" && compareMutation.data != null;
+  const shouldShowEmptyState = !result && !isLoading && !hasCompareInsights;
 
   return (
     <div className="flex gap-6 min-h-0">
@@ -176,8 +207,9 @@ export default function PatientSimilarityPage() {
               <SimilaritySearchForm
                 onSearch={handleSearch}
                 isLoading={isLoading}
+                sourceId={sourceId}
+                onSourceChange={handleSourceChange}
                 initialPersonId={initialPersonId}
-                initialSourceId={initialSourceId}
                 initialWeights={
                   Object.keys(initialWeights).length > 0
                     ? initialWeights
@@ -188,6 +220,8 @@ export default function PatientSimilarityPage() {
               <CohortSeedForm
                 onSearch={handleCohortSearch}
                 isLoading={isLoading}
+                sourceId={sourceId}
+                onSourceChange={handleSourceChange}
               />
             ) : (
               <CohortCompareForm
@@ -196,6 +230,8 @@ export default function PatientSimilarityPage() {
                 isComparing={compareMutation.isPending}
                 isSearching={crossSearchMutation.isPending}
                 hasComparisonResult={compareMutation.data != null}
+                sourceId={sourceId}
+                onSourceChange={handleSourceChange}
               />
             )}
           </div>
@@ -325,8 +361,20 @@ export default function PatientSimilarityPage() {
             seedPersonId={result?.seed?.person_id}
             sourceId={lastSearchParams?.source_id}
           />
+        ) : hasCompareInsights ? (
+          <div className="rounded-lg border border-dashed border-[#323238] bg-[#151518] px-6 py-10">
+            <h3 className="text-base font-semibold text-[#F0EDE8]">
+              Cohort Profiles Compared
+            </h3>
+            <p className="mt-2 text-sm text-[#8A857D] max-w-2xl">
+              Review the radar chart and divergence scores above, then use
+              <span className="text-[#C5C0B8]"> Find Matching Patients</span> to
+              search for patients outside both cohorts who resemble the source
+              cohort profile.
+            </p>
+          </div>
         ) : (
-          !isLoading && (
+          shouldShowEmptyState && (
             <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-24">
               <Users size={36} className="text-[#323238] mb-4" />
               <h3 className="text-lg font-semibold text-[#F0EDE8]">
