@@ -25,28 +25,77 @@ export default async function globalSetup(_config: FullConfig) {
   const xsrfCookie = cookies.find((c) => c.name === "XSRF-TOKEN");
   const xsrfToken = xsrfCookie ? decodeURIComponent(xsrfCookie.value) : "";
 
-  // Login via API to get Bearer token
-  const loginResp = await context.request.post(`${BASE}/api/v1/auth/login`, {
-    headers: {
-      "Content-Type": "application/json",
-      "X-XSRF-TOKEN": xsrfToken,
-      "Accept": "application/json",
-    },
-    data: { email: EMAIL, password: PASSWORD },
-  });
-
-  const loginBody = await loginResp.json();
-  const token: string = loginBody.token ?? "";
-  if (!token) {
-    console.error("  ✗ API login failed:", JSON.stringify(loginBody));
-    throw new Error(`API login returned no token (status ${loginResp.status()})`);
+  async function fetchUserForToken(token: string) {
+    const resp = await context.request.get(`${BASE}/api/v1/auth/user`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+    });
+    if (!resp.ok()) return null;
+    return await resp.json();
   }
-  fs.writeFileSync(TOKEN_FILE, JSON.stringify({ token }), "utf8");
 
-  // Browser login for storage state (SPA form submit)
-  await page.fill('input[type="email"], input[name="email"]', EMAIL);
-  await page.fill('input[type="password"], input[name="password"]', PASSWORD);
-  await page.click('button[type="submit"]');
+  let token = "";
+  let user: unknown = null;
+
+  // Reuse a previously saved token when possible to avoid hitting login throttles.
+  if (fs.existsSync(TOKEN_FILE)) {
+    try {
+      const savedToken = JSON.parse(fs.readFileSync(TOKEN_FILE, "utf8")).token ?? "";
+      if (savedToken) {
+        const savedUser = await fetchUserForToken(savedToken);
+        if (savedUser) {
+          token = savedToken;
+          user = savedUser;
+          console.log(`  ✓ Reusing saved token for ${EMAIL}`);
+        }
+      }
+    } catch {
+      // fall through to fresh login
+    }
+  }
+
+  if (!token) {
+    // Login via API to get Bearer token
+    const loginResp = await context.request.post(`${BASE}/api/v1/auth/login`, {
+      headers: {
+        "Content-Type": "application/json",
+        "X-XSRF-TOKEN": xsrfToken,
+        "Accept": "application/json",
+      },
+      data: { email: EMAIL, password: PASSWORD },
+    });
+
+    const loginBody = await loginResp.json();
+    token = loginBody.token ?? "";
+    user = loginBody.user ?? null;
+    if (!token) {
+      console.error("  ✗ API login failed:", JSON.stringify(loginBody));
+      throw new Error(`API login returned no token (status ${loginResp.status()})`);
+    }
+    fs.writeFileSync(TOKEN_FILE, JSON.stringify({ token }), "utf8");
+  }
+
+  // Seed the persisted auth store directly; the SPA authenticates from localStorage.
+  await page.evaluate(
+    ({ seededToken, seededUser }) => {
+      localStorage.setItem(
+        "parthenon-auth",
+        JSON.stringify({
+          state: {
+            token: seededToken,
+            user: seededUser,
+            isAuthenticated: true,
+          },
+          version: 0,
+        }),
+      );
+    },
+    { seededToken: token, seededUser: user },
+  );
+
+  await page.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
   await page.waitForURL((url) => !url.pathname.includes("/login"), {
     timeout: 20_000,
   });

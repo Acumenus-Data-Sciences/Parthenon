@@ -258,31 +258,61 @@ jobs:
             Parthenon-Installer-1.0.3.pkg
 
   sign-windows:
-    name: Sign Windows exe
+    name: Sign Windows exe (SignPath)
     needs: [windows]
-    runs-on: windows-2022
+    runs-on: ubuntu-22.04
     continue-on-error: true
-    if: ${{ vars.WINDOWS_SIGNING_ENABLED == 'true' }}
+    if: ${{ vars.SIGNPATH_SIGNING_ENABLED == 'true' }}
     steps:
       - uses: actions/download-artifact@v4
         with:
           name: acropolis-install-win
           path: artifacts
 
-      - name: Import certificate
-        env:
-          WINDOWS_CERTIFICATE_BASE64: ${{ secrets.WINDOWS_CERTIFICATE_BASE64 }}
-          WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
-        run: |
-          $certBytes = [Convert]::FromBase64String($env:WINDOWS_CERTIFICATE_BASE64)
-          [IO.File]::WriteAllBytes("cert.pfx", $certBytes)
-          Import-PfxCertificate -FilePath cert.pfx -CertStoreLocation Cert:\CurrentUser\My -Password (ConvertTo-SecureString -String $env:WINDOWS_CERTIFICATE_PASSWORD -AsPlainText -Force)
-          Remove-Item cert.pfx
+      - name: Submit to SignPath
+        uses: signpath/github-action-submit-signing-request@v1
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: parthenon-installer
+          signing-policy-slug: release-signing
+          artifact-configuration-slug: exe-artifact
+          input-artifact-path: artifacts/acropolis-install-win.exe
+          output-artifact-path: artifacts/acropolis-install-win-signed.exe
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 600
 
-      - name: Sign exe
-        run: |
-          $cert = Get-ChildItem Cert:\CurrentUser\My -CodeSigningCert | Select-Object -First 1
-          Set-AuthenticodeSignature -FilePath artifacts/acropolis-install-win.exe -Certificate $cert -TimestampServer "http://timestamp.digicert.com"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: acropolis-install-win-signed
+          path: artifacts/acropolis-install-win-signed.exe
+
+  sign-windows-esigner:
+    name: Sign Windows exe (SSL.com eSigner)
+    needs: [windows, sign-windows]
+    runs-on: windows-2022
+    continue-on-error: true
+    if: >-
+      always()
+      && needs.windows.result == 'success'
+      && needs.sign-windows.result != 'success'
+      && vars.ESIGNER_SIGNING_ENABLED == 'true'
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: acropolis-install-win
+          path: artifacts
+
+      - name: Sign with SSL.com eSigner
+        uses: sslcom/esigner-codesign@v1
+        with:
+          command: sign
+          username: ${{ secrets.ESIGNER_USERNAME }}
+          password: ${{ secrets.ESIGNER_PASSWORD }}
+          credential_id: ${{ secrets.ESIGNER_CREDENTIAL_ID }}
+          totp_secret: ${{ secrets.ESIGNER_TOTP_SECRET }}
+          file_path: artifacts/acropolis-install-win.exe
+          environment: production
 
       - uses: actions/upload-artifact@v4
         with:
@@ -290,7 +320,7 @@ jobs:
           path: artifacts/acropolis-install-win.exe
 
   release:
-    needs: [linux, macos, windows, snap, deb, sign-macos, sign-windows]
+    needs: [linux, macos, windows, snap, deb, sign-macos, sign-windows, sign-windows-esigner]
     if: always() && !cancelled()
     runs-on: ubuntu-22.04
     steps:
@@ -351,3 +381,70 @@ jobs:
         with:
           tag_name: ${{ steps.tag.outputs.tag }}
           files: release-assets/*
+
+  winget:
+    name: Submit to Winget
+    needs: [release]
+    runs-on: windows-2022
+    if: >-
+      always()
+      && needs.release.result == 'success'
+      && vars.WINGET_SUBMISSION_ENABLED == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Determine tag and version
+        id: version
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            TAG="${{ github.event.release.tag_name }}"
+          else
+            TAG="${{ inputs.tag }}"
+          fi
+          # Strip leading 'v' for Winget version (v1.0.3 -> 1.0.3)
+          VERSION="${TAG#v}"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Download Windows exe from release
+        shell: bash
+        run: |
+          gh release download "${{ steps.version.outputs.tag }}" \
+            --pattern "acropolis-install-win.exe" \
+            --dir artifacts || \
+          gh release download "${{ steps.version.outputs.tag }}" \
+            --pattern "acropolis-install-win-signed.exe" \
+            --dir artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compute SHA256
+        id: hash
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem artifacts/*.exe | Select-Object -First 1
+          $hash = (Get-FileHash -Algorithm SHA256 $exe.FullName).Hash
+          echo "sha256=$hash" >> $env:GITHUB_OUTPUT
+          echo "filename=$($exe.Name)" >> $env:GITHUB_OUTPUT
+
+      - name: Install wingetcreate
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri "https://aka.ms/wingetcreate/latest" -OutFile wingetcreate.exe
+
+      - name: Submit Winget manifest
+        shell: pwsh
+        env:
+          WINGET_GITHUB_TOKEN: ${{ secrets.WINGET_GITHUB_TOKEN }}
+        run: |
+          $tag = "${{ steps.version.outputs.tag }}"
+          $version = "${{ steps.version.outputs.version }}"
+          $filename = "${{ steps.hash.outputs.filename }}"
+          $url = "https://github.com/${{ github.repository }}/releases/download/${tag}/${filename}"
+
+          .\wingetcreate.exe update Acumenus.ParthenonInstaller `
+            --version $version `
+            --urls $url `
+            --submit `
+            --token $env:WINGET_GITHUB_TOKEN

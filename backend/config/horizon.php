@@ -225,39 +225,23 @@ return [
             'nice' => 0,
         ],
 
-        'achilles' => [
+        'analytics' => [
             'connection' => 'redis',
-            'queue' => ['achilles'],
-            'balance' => 'auto',
-            'autoScalingStrategy' => 'time',
-            'maxProcesses' => 2,
+            'queue' => ['similarity', 'analysis'],
+            'balance' => 'false',
+            'maxProcesses' => 1,
             'maxTime' => 0,
             'maxJobs' => 0,
             'memory' => 1024,
             'tries' => 1,
-            'timeout' => 3600,
-            'nice' => 0,
-        ],
-
-        'analysis' => [
-            'connection' => 'redis',
-            'queue' => ['analysis'],
-            'balance' => 'auto',
-            'autoScalingStrategy' => 'time',
-            'maxProcesses' => 3,
-            'maxTime' => 0,
-            'maxJobs' => 0,
-            'memory' => 512,
-            'tries' => 1,
-            'timeout' => 3600,
+            'timeout' => 7200,
             'nice' => 0,
         ],
 
         'r-analysis' => [
             'connection' => 'redis',
             'queue' => ['r-analysis'],
-            'balance' => 'auto',
-            'autoScalingStrategy' => 'time',
+            'balance' => 'false',
             'maxProcesses' => 1, // R plumber is single-threaded — concurrent requests crash it
             'maxTime' => 0,
             'maxJobs' => 0,
@@ -267,26 +251,11 @@ return [
             'nice' => 0,
         ],
 
-        'gis' => [
+        'heavy' => [
             'connection' => 'redis',
-            'queue' => ['gis'],
-            'balance' => 'auto',
-            'autoScalingStrategy' => 'time',
+            'queue' => ['genomics', 'achilles', 'gis'],
+            'balance' => 'false',
             'maxProcesses' => 1,
-            'maxTime' => 0,
-            'maxJobs' => 0,
-            'memory' => 512,
-            'tries' => 1,
-            'timeout' => 1800,
-            'nice' => 0,
-        ],
-
-        'genomics' => [
-            'connection' => 'redis',
-            'queue' => ['genomics'],
-            'balance' => 'auto',
-            'autoScalingStrategy' => 'time',
-            'maxProcesses' => 2,
             'maxTime' => 0,
             'maxJobs' => 0,
             'memory' => 1024,
@@ -309,99 +278,50 @@ return [
             'nice' => 0,
         ],
 
-        'similarity' => [
-            'connection' => 'redis',
-            'queue' => ['similarity'],
-            'balance' => 'auto',
-            'autoScalingStrategy' => 'time',
-            'maxProcesses' => 1,
-            'maxTime' => 0,
-            'maxJobs' => 0,
-            'memory' => 1024,
-            'tries' => 1,
-            'timeout' => 7200,
-            'nice' => 0,
-        ],
     ],
 
     'environments' => [
         'production' => [
             'supervisor-1' => [
-                'maxProcesses' => 10,
+                'maxProcesses' => 3,
                 'balanceMaxShift' => 1,
-                'balanceCooldown' => 3,
+                'balanceCooldown' => 5,
             ],
             'ingestion' => [
-                'maxProcesses' => 5,
+                'maxProcesses' => 2,
             ],
-            'achilles' => [
-                'maxProcesses' => 3,
-            ],
-            'analysis' => [
-                'connection' => 'redis',
-                'queue' => ['analysis'],
-                'balance' => 'auto',
-                'maxProcesses' => 3,
-                'timeout' => 3600,
-                'memory' => 512,
+            'analytics' => [
+                'maxProcesses' => 2,
             ],
             'r-analysis' => [
-                'connection' => 'redis',
-                'queue' => ['r-analysis'],
-                'balance' => 'auto',
-                'maxProcesses' => 2,
-                'timeout' => 14400,
-                'memory' => 512,
-                'tries' => 1,
-            ],
-            'gis' => [
                 'maxProcesses' => 1,
-                'timeout' => 1800,
+            ],
+            'heavy' => [
+                'maxProcesses' => 1,
             ],
             'cohort' => [
-                'maxProcesses' => 3,
-                'timeout' => 7200,
-            ],
-            'similarity' => [
-                'maxProcesses' => 1,
-                'timeout' => 7200,
+                'maxProcesses' => 2,
             ],
         ],
 
         'local' => [
             'supervisor-1' => [
-                'maxProcesses' => 3,
+                'maxProcesses' => 2,
             ],
             'ingestion' => [
-                'maxProcesses' => 2,
-            ],
-            'achilles' => [
                 'maxProcesses' => 1,
             ],
-            'analysis' => [
-                'connection' => 'redis',
-                'queue' => ['analysis'],
-                'balance' => 'auto',
-                'maxProcesses' => 3,
-                'timeout' => 3600,
-                'memory' => 512,
+            'analytics' => [
+                'maxProcesses' => 1,
             ],
             'r-analysis' => [
-                'connection' => 'redis',
-                'queue' => ['r-analysis'],
-                'balance' => 'auto',
-                'maxProcesses' => 2,
-                'timeout' => 14400,
-                'memory' => 512,
-                'tries' => 1,
-            ],
-            'gis' => [
                 'maxProcesses' => 1,
-                'timeout' => 1800,
+            ],
+            'heavy' => [
+                'maxProcesses' => 1,
             ],
             'cohort' => [
-                'maxProcesses' => 2,
-                'timeout' => 7200,
+                'maxProcesses' => 1,
             ],
         ],
     ],

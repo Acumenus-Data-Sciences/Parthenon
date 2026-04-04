@@ -1,0 +1,65 @@
+groups:
+  - name: horizon
+    rules:
+      - alert: HorizonContainerMissing
+        expr: absent_over_time(container_last_seen{name="parthenon-horizon",job="cadvisor"}[2m])
+        for: 2m
+        labels:
+          severity: critical
+          service: horizon
+        annotations:
+          summary: Horizon container is missing from cAdvisor
+          description: parthenon-horizon has not been observed by cAdvisor for at least 2 minutes.
+
+      - alert: HorizonContainerRestartLoop
+        expr: count(count_over_time(container_last_seen{name="parthenon-horizon",job="cadvisor"}[15m]) > 0) > 3
+        for: 1m
+        labels:
+          severity: critical
+          service: horizon
+        annotations:
+          summary: Horizon has restarted repeatedly
+          description: More than three parthenon-horizon container instances were seen in the last 15 minutes.
+
+      - alert: HorizonMemoryPressure
+        expr: max(container_memory_working_set_bytes{name="parthenon-horizon",job="cadvisor"}) / max(container_spec_memory_limit_bytes{name="parthenon-horizon",job="cadvisor"}) > 0.85
+        for: 10m
+        labels:
+          severity: warning
+          service: horizon
+        annotations:
+          summary: Horizon memory usage is high
+          description: parthenon-horizon has used more than 85% of its container memory limit for 10 minutes.
+
+      - alert: CohortQueueBacklog
+        expr: max(redis_key_size{job="redis-exporter",db="db0",key="queues:cohort"}) > 0
+        for: 10m
+        labels:
+          severity: warning
+          service: horizon
+          queue: cohort
+        annotations:
+          summary: Cohort queue backlog is not draining
+          description: The cohort Redis queue has remained non-empty for at least 10 minutes.
+
+      - alert: SimilarityQueueBacklog
+        expr: max(redis_key_size{job="redis-exporter",db="db0",key="queues:similarity"}) > 0
+        for: 15m
+        labels:
+          severity: warning
+          service: horizon
+          queue: similarity
+        annotations:
+          summary: Similarity queue backlog is not draining
+          description: The similarity Redis queue has remained non-empty for at least 15 minutes.
+
+      - alert: DefaultQueueBacklog
+        expr: max(redis_key_size{job="redis-exporter",db="db0",key="queues:default"}) > 25
+        for: 10m
+        labels:
+          severity: warning
+          service: horizon
+          queue: default
+        annotations:
+          summary: Default queue backlog is elevated
+          description: The default Redis queue has been above 25 pending jobs for at least 10 minutes.

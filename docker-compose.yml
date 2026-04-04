@@ -592,7 +592,8 @@ services:
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 2G
+    mem_limit: 2g
     networks:
       - parthenon
     restart: unless-stopped
@@ -768,6 +769,7 @@ services:
       - '--web.enable-lifecycle'
     volumes:
       - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
       - prometheus_data:/prometheus
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -781,6 +783,37 @@ services:
       resources:
         limits:
           memory: 1G
+    networks:
+      - parthenon
+    restart: unless-stopped
+
+  alertmanager:
+    container_name: parthenon-alertmanager
+    image: prom/alertmanager:v0.28.0
+    entrypoint:
+      - /bin/sh
+    command:
+      - /etc/alertmanager/start.sh
+    volumes:
+      - ./monitoring/alertmanager/start.sh:/etc/alertmanager/start.sh:ro
+      - alertmanager_data:/alertmanager
+    environment:
+      MATTERMOST_WEBHOOK_URL: ${MATTERMOST_WEBHOOK_URL:-}
+      MATTERMOST_CHANNEL: ${MATTERMOST_CHANNEL:-}
+      MATTERMOST_USERNAME: ${MATTERMOST_USERNAME:-Parthenon Alerts}
+      MATTERMOST_ICON_EMOJI: ${MATTERMOST_ICON_EMOJI:-:rotating_light:}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:9093/-/healthy || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 128M
     networks:
       - parthenon
     restart: unless-stopped
@@ -814,6 +847,8 @@ services:
   redis-exporter:
     container_name: parthenon-redis-exporter
     image: oliver006/redis_exporter:v1.66.0-alpine
+    command:
+      - --check-single-keys=queues:cohort,queues:similarity,queues:default
     environment:
       REDIS_ADDR: "redis://redis:6379"
       REDIS_PASSWORD: ${REDIS_PASSWORD:-parthenon_redis_secret}
@@ -1056,6 +1091,7 @@ volumes:
   hecate-data:
   ohif-dist:
   prometheus_data:
+  alertmanager_data:
   loki_data:
   alloy_data:
   jupyter-shared:
