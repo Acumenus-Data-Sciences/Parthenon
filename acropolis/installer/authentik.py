@@ -149,7 +149,9 @@ NATIVE_SSO_DEFS: list[NativeSsoDef] = [
         display_name="Portainer OIDC",
         redirect_uris=[
             "https://portainer.{domain}",
+            "https://portainer.{domain}/",
             "http://portainer.{domain}",
+            "http://portainer.{domain}/",
         ],
         env_client_id="PORTAINER_OAUTH_CLIENT_ID",
         env_client_secret="PORTAINER_OAUTH_CLIENT_SECRET",
@@ -452,6 +454,7 @@ def _bootstrap_oidc_provider(
     auth_flow_pk: str,
     inval_flow_pk: str,
     oidc_prereqs: dict,
+    existing_oauth2: dict[str, dict],
     console: Console,
 ) -> dict | None:
     """Create or update an OAuth2 provider for an OIDC service.
@@ -465,19 +468,19 @@ def _bootstrap_oidc_provider(
         uri.replace("{domain}", domain) for uri in sso_def.redirect_uris
     )
 
-    # Check if provider already exists
-    existing = api.list_oauth2_providers()
-    provider = None
-    for p in existing:
-        if p.get("name") == sso_def.display_name:
-            provider = p
-            break
+    # Check if provider already exists (use pre-fetched list if available)
+    provider = existing_oauth2.get(sso_def.display_name)
 
     env_vars = _read_env_file()
     client_id = env_vars.get(sso_def.env_client_id, "")
     client_secret = env_vars.get(sso_def.env_client_secret, "")
 
     if provider:
+        # Recover credentials from Authentik if missing from .env (partial first-run)
+        if not client_id:
+            client_id = provider.get("client_id", "")
+        if not client_secret:
+            client_secret = provider.get("client_secret", "")
         # Update redirect URIs in case domain changed
         try:
             api.patch(
@@ -566,7 +569,10 @@ def _bootstrap_saml_provider(
             "invalidation_flow": inval_flow_pk,
             "acs_url": acs_url,
             "audience": sso_def.saml_audience,
+            "issuer": f"https://auth.{domain}",
             "sp_binding": "post",
+            "sign_assertion": True,
+            "sign_response": True,
             "assertion_valid_not_before": "minutes=-5",
             "assertion_valid_not_on_or_after": "minutes=5",
             "session_valid_not_on_or_after": "hours=8",
@@ -604,13 +610,13 @@ def _create_native_sso_application(
     sso_def: NativeSsoDef,
     provider_pk: int,
     domain: str,
+    existing_apps: dict[str, dict],
     console: Console,
 ) -> bool:
     """Create the native SSO application (e.g. grafana-oidc, wazuh-saml).
 
     Idempotent -- updates provider link if app already exists.
     """
-    existing_apps = {a["slug"]: a for a in api.list_applications()}
 
     if sso_def.app_slug in existing_apps:
         app = existing_apps[sso_def.app_slug]
@@ -724,29 +730,25 @@ def _apply_wazuh_security_config(console: Console) -> bool:
     console.print("  Applying Wazuh security config...", end=" ")
     try:
         result = exec_in_container(
-            "acropolis-wazuh.indexer-1",
+            "acropolis-wazuh-indexer",
             [
+                "bash", "-c",
+                "export JAVA_HOME=/usr/share/wazuh-indexer/jdk && "
                 "/usr/share/wazuh-indexer/plugins/opensearch-security"
-                "/tools/securityadmin.sh",
-                "-cd",
-                "/usr/share/wazuh-indexer/opensearch-security/",
-                "-nhnv",
-                "-cacert",
-                "/usr/share/wazuh-indexer/config/certs/root-ca.pem",
-                "-cert",
-                "/usr/share/wazuh-indexer/config/certs/admin.pem",
-                "-key",
-                "/usr/share/wazuh-indexer/config/certs/admin-key.pem",
-                "-h",
-                "localhost",
+                "/tools/securityadmin.sh "
+                "-cd /usr/share/wazuh-indexer/config/opensearch-security/ "
+                "-nhnv -icl "
+                "-cacert /usr/share/wazuh-indexer/config/certs/root-ca.pem "
+                "-cert /usr/share/wazuh-indexer/config/certs/admin.pem "
+                "-key /usr/share/wazuh-indexer/config/certs/admin-key.pem "
+                "-h wazuh.indexer",
             ],
         )
         if result.returncode == 0:
             console.print("[green]OK[/]")
             return True
-        else:
-            console.print(f"[yellow]exit code {result.returncode}[/]")
-            return False
+        console.print(f"[yellow]exit code {result.returncode}[/]")
+        return False
     except Exception as e:
         console.print(f"[yellow]skipped ({e})[/]")
         return False
@@ -922,9 +924,11 @@ def bootstrap_authentik(
     # ── Native SSO (OIDC + SAML) ─────────────────────────────────────
     console.print("\n[bold cyan]Native SSO Providers[/]\n")
 
-    # Lookup prerequisites once
+    # Lookup prerequisites and existing providers once (avoid N+1)
     oidc_prereqs = _lookup_oidc_prerequisites(api, console)
     saml_prereqs = _lookup_saml_prerequisites(api, console)
+    existing_oauth2 = {p["name"]: p for p in api.list_oauth2_providers()}
+    existing_native_apps = {a["slug"]: a for a in api.list_applications()}
 
     native_sso_count = 0
     for sso_def in NATIVE_SSO_DEFS:
@@ -936,6 +940,7 @@ def bootstrap_authentik(
                 auth_flow_pk,
                 inval_flow_pk,
                 oidc_prereqs,
+                existing_oauth2,
                 console,
             )
         elif sso_def.sso_type == "saml":
@@ -957,6 +962,7 @@ def bootstrap_authentik(
                 sso_def,
                 provider["pk"],
                 domain,
+                existing_native_apps,
                 console,
             )
             native_sso_count += 1
@@ -966,7 +972,7 @@ def bootstrap_authentik(
     if wazuh_saml_defs:
         _download_wazuh_idp_metadata(api, domain, console)
         # Only apply security config if Wazuh indexer is running
-        wazuh_health = container_health("acropolis-wazuh.indexer-1")
+        wazuh_health = container_health("acropolis-wazuh-indexer")
         if wazuh_health == "healthy":
             _apply_wazuh_security_config(console)
         else:
