@@ -196,12 +196,10 @@ class PatientSimilarityController extends Controller
                 'weights.*' => ['numeric', 'min:0', 'max:10'],
                 'limit' => ['sometimes', 'integer', 'min:1', 'max:100'],
                 'min_score' => ['sometimes', 'numeric', 'min:0', 'max:1'],
-                'strategy' => ['sometimes', 'string', 'in:centroid,exemplar'],
                 'filters' => ['sometimes', 'array'],
             ]);
 
             $source = Source::with('daimons')->findOrFail($validated['source_id']);
-            $strategy = $validated['strategy'] ?? 'centroid';
             $limit = $validated['limit'] ?? 20;
             $minScore = $validated['min_score'] ?? 0.0;
             $filters = $validated['filters'] ?? [];
@@ -248,11 +246,31 @@ class PatientSimilarityController extends Controller
                 filters: $filters,
             );
 
+            // Enrich results with shared features and explanations
+            $results = $this->enrichSearchResults($results, $source->id);
+
+            // Tiered access: strip person-level details if user lacks profiles.view
+            if (! $request->user()->can('profiles.view')) {
+                $results['similar_patients'] = array_map(function (array $patient): array {
+                    return [
+                        'overall_score' => $patient['overall_score'] ?? null,
+                        'dimension_scores' => $patient['dimension_scores'] ?? [],
+                        'age_bucket' => $patient['age_bucket'] ?? null,
+                        'gender_concept_id' => $patient['gender_concept_id'] ?? null,
+                        'shared_features' => $patient['shared_features'] ?? null,
+                        'similarity_summary' => $patient['similarity_summary'] ?? null,
+                    ];
+                }, $results['similar_patients'] ?? []);
+            }
+
+            // Get cohort name for frontend display
+            $cohortDef = CohortDefinition::find($validated['cohort_definition_id']);
+
             return response()->json([
                 'data' => $results,
                 'meta' => [
-                    'strategy' => $strategy,
                     'cohort_definition_id' => (int) $validated['cohort_definition_id'],
+                    'cohort_name' => $cohortDef?->name ?? 'Unknown Cohort',
                     'cohort_member_count' => count($memberRows),
                     'source_id' => $source->id,
                     'limit' => $limit,
@@ -457,36 +475,45 @@ class PatientSimilarityController extends Controller
         }
 
         $seedPersonId = $results['seed']['person_id'] ?? null;
-        if ($seedPersonId === null) {
-            return $results;
+
+        // For centroid-based searches (person_id = 0), use the seed array from results as feature data
+        $seedData = null;
+        if ($seedPersonId === 0 || $seedPersonId === null) {
+            $seedData = $results['seed'] ?? null;
         }
 
-        // Collect person IDs to load
-        $personIds = array_filter(
-            array_merge(
-                [$seedPersonId],
-                array_map(fn (array $p): int => (int) ($p['person_id'] ?? 0), $similarPatients),
-            ),
+        // Collect candidate person IDs to load
+        $candidatePersonIds = array_filter(
+            array_map(fn (array $p): int => (int) ($p['person_id'] ?? 0), $similarPatients),
         );
 
-        // Batch load feature vectors
+        // Batch load candidate feature vectors
         $vectors = PatientFeatureVector::query()
             ->forSource($sourceId)
-            ->whereIn('person_id', $personIds)
+            ->whereIn('person_id', $candidatePersonIds)
             ->get()
             ->keyBy('person_id');
 
-        $seedVector = $vectors->get($seedPersonId);
-        if ($seedVector === null) {
+        // If we have a real seed patient, load their vector
+        if ($seedData === null && $seedPersonId !== null) {
+            $seedVector = PatientFeatureVector::query()
+                ->forSource($sourceId)
+                ->where('person_id', $seedPersonId)
+                ->first();
+
+            if ($seedVector === null) {
+                return $results;
+            }
+            $seedData = $seedVector->toArray();
+        }
+
+        if ($seedData === null) {
             return $results;
         }
 
-        $seedData = $seedVector->toArray();
         $candidateVectors = [];
         foreach ($vectors as $personId => $vector) {
-            if ($personId !== $seedPersonId) {
-                $candidateVectors[$personId] = $vector->toArray();
-            }
+            $candidateVectors[$personId] = $vector->toArray();
         }
 
         $results['similar_patients'] = $this->explainer->enrichResults(
