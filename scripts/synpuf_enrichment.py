@@ -44,7 +44,7 @@ from rich.table import Table
 
 SCHEMA = "synpuf"
 RESULTS_SCHEMA = "synpuf_results"
-VOCAB_SCHEMA = "omop"
+VOCAB_SCHEMA = "vocab"
 
 DB_DSN: dict[str, Any] = {
     "host": os.environ.get("SYNPUF_DB_HOST", "localhost"),
@@ -54,7 +54,7 @@ DB_DSN: dict[str, Any] = {
     "passfile": os.path.expanduser("~/.pgpass"),
 }
 
-NUM_WORKERS = min(int(os.environ.get("SYNPUF_WORKERS", "16")), os.cpu_count() or 4)
+NUM_WORKERS = min(int(os.environ.get("SYNPUF_WORKERS", "8")), os.cpu_count() or 4)
 
 STAGE_NAMES: dict[int, str] = {
     1: "CDM Source Metadata",
@@ -939,31 +939,38 @@ def stage_6_concept_remap(conn, dry_run: bool = False) -> StageResult:
 # Stage 7: Build Drug & Condition Eras
 # ---------------------------------------------------------------------------
 
-def _check_and_truncate_era_table(conn, table_name: str, force: bool) -> str | None:
-    """Check era table state. Returns 'skip' if should skip, None if ready to build."""
+def _check_era_table(conn, table_name: str, force: bool) -> str | None:
+    """Check era table state. Returns 'skip' if should skip, None if ready to build.
+
+    Does NOT truncate — truncation happens atomically during the swap step.
+    """
     existing = query_scalar(conn, f"SELECT count(*) FROM {SCHEMA}.{table_name}")
     if existing and existing > 0 and not force:
         console.print(f"    {table_name} has {existing:,} rows. Use --force to rebuild.")
         return "skip"
     if existing and existing > 0:
-        conn.rollback()  # Close implicit transaction before switching autocommit
-        conn.set_session(autocommit=True)
-        try:
-            with conn.cursor() as cur:
-                cur.execute(f"TRUNCATE {SCHEMA}.{table_name}")
-        finally:
-            conn.set_session(autocommit=False)
-        console.print(f"    Truncated existing {table_name}")
+        console.print(f"    {table_name} has {existing:,} rows (will be replaced atomically)")
     return None
 
 
-def _build_condition_era() -> tuple[str, int]:
-    """Worker: build condition_era using OHDSI Chris Knoll algorithm."""
+def _get_person_id_modulo_ranges(num_chunks: int) -> list[int]:
+    """Return modulo bucket IDs [0, 1, ..., num_chunks-1] for hash sharding.
+
+    Uses person_id % N to assign chunks — no pre-scan of the source table,
+    and naturally balanced since SynPUF person_ids are dense integers.
+    """
+    return list(range(num_chunks))
+
+
+def _build_condition_era_chunk(bucket: int, num_buckets: int, staging_table: str, work_mem_mb: int) -> int:
+    """Build condition_era for person_id % num_buckets == bucket into staging table."""
     worker_conn = make_worker_connection()
     try:
         with worker_conn.cursor() as cur:
+            cur.execute(f"SET work_mem = '{work_mem_mb}MB'")
+            cur.execute("SET max_parallel_workers_per_gather = 0")
             cur.execute(f"""
-                INSERT INTO {SCHEMA}.condition_era (
+                INSERT INTO {staging_table} (
                     person_id, condition_concept_id,
                     condition_era_start_date, condition_era_end_date,
                     condition_occurrence_count
@@ -976,6 +983,7 @@ def _build_condition_era() -> tuple[str, int]:
                                AS condition_end_date
                     FROM {SCHEMA}.condition_occurrence co
                     WHERE co.condition_concept_id != 0
+                      AND co.person_id % {num_buckets} = {bucket}
                 ),
                 cteEndDates AS (
                     SELECT person_id, condition_concept_id,
@@ -1026,7 +1034,7 @@ def _build_condition_era() -> tuple[str, int]:
             """)
             rows = cur.rowcount
         worker_conn.commit()
-        return ("condition_era", rows)
+        return rows
     except Exception:
         worker_conn.rollback()
         raise
@@ -1034,13 +1042,15 @@ def _build_condition_era() -> tuple[str, int]:
         worker_conn.close()
 
 
-def _build_drug_era() -> tuple[str, int]:
-    """Worker: build drug_era using OHDSI non-stockpile algorithm."""
+def _build_drug_era_chunk(bucket: int, num_buckets: int, staging_table: str, work_mem_mb: int) -> int:
+    """Build drug_era for person_id % num_buckets == bucket into staging table."""
     worker_conn = make_worker_connection()
     try:
         with worker_conn.cursor() as cur:
+            cur.execute(f"SET work_mem = '{work_mem_mb}MB'")
+            cur.execute("SET max_parallel_workers_per_gather = 0")
             cur.execute(f"""
-                INSERT INTO {SCHEMA}.drug_era (
+                INSERT INTO {staging_table} (
                     person_id, drug_concept_id,
                     drug_era_start_date, drug_era_end_date,
                     drug_exposure_count, gap_days
@@ -1063,6 +1073,7 @@ def _build_drug_era() -> tuple[str, int]:
                     WHERE c.vocabulary_id = 'RxNorm'
                       AND c.concept_class_id = 'Ingredient'
                       AND d.drug_concept_id != 0
+                      AND d.person_id % {num_buckets} = {bucket}
                 ),
                 cteSubExposureEndDates AS (
                     SELECT person_id, ingredient_concept_id, event_date AS end_date
@@ -1178,7 +1189,7 @@ def _build_drug_era() -> tuple[str, int]:
             """)
             rows = cur.rowcount
         worker_conn.commit()
-        return ("drug_era", rows)
+        return rows
     except Exception:
         worker_conn.rollback()
         raise
@@ -1186,14 +1197,196 @@ def _build_drug_era() -> tuple[str, int]:
         worker_conn.close()
 
 
-ERA_BUILDERS = {
-    "condition_era": _build_condition_era,
-    "drug_era": _build_drug_era,
+_ERA_CHUNK_BUILDER: dict[str, Any] = {
+    "condition_era": _build_condition_era_chunk,
+    "drug_era": _build_drug_era_chunk,
 }
+
+# Staging table DDL (unlogged for speed — data is ephemeral)
+_STAGING_DDL: dict[str, str] = {
+    "condition_era": f"""
+        CREATE UNLOGGED TABLE IF NOT EXISTS {{staging}} (
+            person_id               BIGINT NOT NULL,
+            condition_concept_id    INTEGER NOT NULL,
+            condition_era_start_date DATE NOT NULL,
+            condition_era_end_date  DATE NOT NULL,
+            condition_occurrence_count INTEGER
+        )
+    """,
+    "drug_era": f"""
+        CREATE UNLOGGED TABLE IF NOT EXISTS {{staging}} (
+            person_id               BIGINT NOT NULL,
+            drug_concept_id         INTEGER NOT NULL,
+            drug_era_start_date     DATE NOT NULL,
+            drug_era_end_date       DATE NOT NULL,
+            drug_exposure_count     INTEGER,
+            gap_days                INTEGER
+        )
+    """,
+}
+
+_FINAL_INSERT_COLUMNS: dict[str, str] = {
+    "condition_era": """
+        person_id,
+        condition_concept_id,
+        condition_era_start_date,
+        condition_era_end_date,
+        condition_occurrence_count
+    """,
+    "drug_era": """
+        person_id,
+        drug_concept_id,
+        drug_era_start_date,
+        drug_era_end_date,
+        drug_exposure_count,
+        gap_days
+    """,
+}
+
+# Memory budget: cap total work_mem across all workers to ~8GB.
+# work_mem is per-sort-node, NOT per-query — a drug_era query has ~6 sort/window
+# ops, so actual peak = work_mem × 6 × num_workers. 8GB / 8 workers = 1GB each,
+# × 6 nodes = ~6GB peak per worker, × 8 = ~48GB theoretical max — but PG reclaims
+# between nodes so real peak is ~24GB. With shared_buffers (16GB) + OS + Docker,
+# this fits within 128GB.
+_TOTAL_WORK_MEM_MB = int(os.environ.get("SYNPUF_TOTAL_WORK_MEM_MB", "8192"))
+
+
+def _build_era_parallel(
+    table_name: str,
+    num_workers: int,
+    progress: Progress,
+) -> tuple[str, int]:
+    """Build an era table using N parallel workers with staging-then-swap.
+
+    Pattern:
+      1. CREATE UNLOGGED staging table (no WAL overhead)
+      2. N workers INSERT into staging via person_id % N hash sharding
+      3. If ALL succeed: TRUNCATE final + INSERT INTO final SELECT FROM staging
+      4. If ANY fail: DROP staging, raise — final table untouched
+    """
+    chunk_builder = _ERA_CHUNK_BUILDER[table_name]
+    staging = f"{SCHEMA}._staging_{table_name}"
+    work_mem_per_worker = max(64, _TOTAL_WORK_MEM_MB // num_workers)
+
+    # Create staging table (use a dedicated connection to avoid autocommit toggling)
+    setup_conn = make_worker_connection()
+    setup_conn.set_session(autocommit=True)
+    try:
+        with setup_conn.cursor() as cur:
+            cur.execute(f"DROP TABLE IF EXISTS {staging}")
+            cur.execute(_STAGING_DDL[table_name].format(staging=staging))
+    finally:
+        setup_conn.close()
+
+    buckets = _get_person_id_modulo_ranges(num_workers)
+    task = progress.add_task(
+        f"  {table_name} [0/{len(buckets)} chunks]", total=len(buckets)
+    )
+    total_rows = 0
+    completed = 0
+    failed = False
+    first_error: Exception | None = None
+
+    try:
+        with ThreadPoolExecutor(max_workers=num_workers) as executor:
+            futures = {
+                executor.submit(chunk_builder, b, num_workers, staging, work_mem_per_worker): b
+                for b in buckets
+            }
+            for future in as_completed(futures):
+                try:
+                    rows = future.result()
+                    total_rows += rows
+                    completed += 1
+                    progress.update(
+                        task,
+                        advance=1,
+                        description=(
+                            f"  {table_name} [{completed}/{len(buckets)} chunks, "
+                            f"{total_rows:,} rows]"
+                        ),
+                    )
+                except Exception as e:
+                    failed = True
+                    if first_error is None:
+                        first_error = e
+                    console.print(f"    [red]chunk failed: {e}[/red]")
+
+        if failed:
+            # All-or-nothing: drop staging, leave final table untouched
+            try:
+                cleanup_conn = make_worker_connection()
+                cleanup_conn.set_session(autocommit=True)
+                with cleanup_conn.cursor() as cur:
+                    cur.execute(f"DROP TABLE IF EXISTS {staging}")
+                cleanup_conn.close()
+            except Exception:
+                pass
+            raise first_error  # type: ignore[misc]
+
+        # Atomic swap: TRUNCATE + INSERT + DROP in one explicit transaction.
+        # If any step fails, the entire transaction rolls back and the
+        # final table retains its previous contents.
+        console.print(f"    Swapping staging → {table_name} (single transaction)...")
+        swap_conn = make_worker_connection()
+        try:
+            with swap_conn.cursor() as cur:
+                cur.execute(f"TRUNCATE {SCHEMA}.{table_name}")
+                cur.execute(
+                    f"""
+                    INSERT INTO {SCHEMA}.{table_name} (
+                        {_FINAL_INSERT_COLUMNS[table_name]}
+                    )
+                    SELECT * FROM {staging}
+                    """
+                )
+                swap_rows = cur.rowcount
+                cur.execute(f"DROP TABLE {staging}")
+            swap_conn.commit()
+        except Exception:
+            swap_conn.rollback()
+            # Staging table may still exist — clean it up outside the failed txn
+            try:
+                cleanup_conn = make_worker_connection()
+                cleanup_conn.set_session(autocommit=True)
+                with cleanup_conn.cursor() as cur:
+                    cur.execute(f"DROP TABLE IF EXISTS {staging}")
+                cleanup_conn.close()
+            except Exception:
+                pass
+            raise
+        finally:
+            swap_conn.close()
+
+        console.print(f"    Swap complete: {swap_rows:,} rows")
+        return (table_name, swap_rows)
+
+    except Exception:
+        # Cleanup staging on any unexpected error
+        try:
+            cleanup_conn = make_worker_connection()
+            cleanup_conn.set_session(autocommit=True)
+            with cleanup_conn.cursor() as cur:
+                cur.execute(f"DROP TABLE IF EXISTS {staging}")
+            cleanup_conn.close()
+        except Exception:
+            pass
+        raise
 
 
 def stage_7_era_build(conn, dry_run: bool = False, force: bool = False) -> StageResult:
-    """Build drug_era and condition_era in parallel using OHDSI reference algorithm."""
+    """Build drug_era and condition_era using chunked parallel workers.
+
+    Uses staging-then-swap pattern for atomicity: all chunks write to an
+    UNLOGGED staging table, then a single INSERT INTO ... SELECT swaps
+    the data into the final table. If any chunk fails, the final table
+    is untouched.
+
+    Splits work by person_id % N (hash sharding) — no pre-scan needed.
+    Memory budget is capped at SYNPUF_TOTAL_WORK_MEM_MB (default 24GB)
+    divided evenly across workers.
+    """
     result = StageResult(stage_num=7, name=STAGE_NAMES[7])
     start = time.time()
 
@@ -1206,15 +1399,20 @@ def stage_7_era_build(conn, dry_run: bool = False, force: bool = False) -> Stage
     skipped_tables = []
     errored_tables = []
 
-    # Check and truncate on main connection (serial — needs autocommit toggle)
+    # Check era tables on a short-lived connection to avoid holding locks
+    # that block the parallel workers' TRUNCATE during the swap phase.
     tables_to_build = []
-    for table_name in ["condition_era", "drug_era"]:
-        console.print(f"\n  Checking {table_name}...")
-        skip = _check_and_truncate_era_table(conn, table_name, force)
-        if skip:
-            skipped_tables.append(table_name)
-        else:
-            tables_to_build.append(table_name)
+    check_conn = make_worker_connection()
+    try:
+        for table_name in ["condition_era", "drug_era"]:
+            console.print(f"\n  Checking {table_name}...")
+            skip = _check_era_table(check_conn, table_name, force)
+            if skip:
+                skipped_tables.append(table_name)
+            else:
+                tables_to_build.append(table_name)
+    finally:
+        check_conn.close()  # Close immediately — no lingering locks
 
     if not tables_to_build:
         result.status = "skipped"
@@ -1222,32 +1420,37 @@ def stage_7_era_build(conn, dry_run: bool = False, force: bool = False) -> Stage
         result.elapsed_seconds = time.time() - start
         return result
 
-    # Build eras in parallel (each worker gets its own connection)
-    console.print(f"\n  Building {len(tables_to_build)} era table(s) in parallel...")
+    num_workers = NUM_WORKERS  # default 16, capped to cpu_count
+    work_mem_per = max(64, _TOTAL_WORK_MEM_MB // num_workers)
+    console.print(
+        f"\n  Building {len(tables_to_build)} era table(s) "
+        f"with [bold]{num_workers}[/bold] parallel workers "
+        f"([bold]{work_mem_per}MB[/bold] work_mem each)..."
+    )
 
-    with make_spinner_progress() as progress:
-        task = progress.add_task(
-            f"Building {', '.join(tables_to_build)}...", total=None
-        )
-
-        with ThreadPoolExecutor(max_workers=len(tables_to_build)) as executor:
-            futures = {
-                executor.submit(ERA_BUILDERS[tbl]): tbl
-                for tbl in tables_to_build
-            }
-            for future in as_completed(futures):
-                tbl = futures[future]
-                try:
-                    name, rows = future.result()
-                    total_inserted += rows
-                    console.print(f"    {name}: [green]{rows:,}[/green] rows")
-                except Exception as e:
-                    errored_tables.append(tbl)
-                    console.print(f"    [red]{tbl} ERROR: {e}[/red]")
-                    if result.error_message:
-                        result.error_message += f"; {tbl}: {e}"
-                    else:
-                        result.error_message = f"{tbl}: {e}"
+    # Build each era table sequentially (each uses N parallel workers internally)
+    # Sequential to avoid WAL contention between two heavy write streams
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[bold blue]{task.description}"),
+        BarColumn(),
+        MofNCompleteColumn(),
+        TextColumn("•"),
+        TimeElapsedColumn(),
+        console=console,
+    ) as progress:
+        for table_name in tables_to_build:
+            try:
+                name, rows = _build_era_parallel(table_name, num_workers, progress)
+                total_inserted += rows
+                console.print(f"    {name}: [green]{rows:,}[/green] rows")
+            except Exception as e:
+                errored_tables.append(table_name)
+                console.print(f"    [red]{table_name} ERROR: {e}[/red]")
+                if result.error_message:
+                    result.error_message += f"; {table_name}: {e}"
+                else:
+                    result.error_message = f"{table_name}: {e}"
 
     # Final status
     if errored_tables and not total_inserted:
