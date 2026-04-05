@@ -1043,39 +1043,55 @@ def _build_condition_era_chunk(bucket: int, num_buckets: int, staging_table: str
 
 
 def _build_drug_era_chunk(bucket: int, num_buckets: int, staging_table: str, work_mem_mb: int) -> int:
-    """Build drug_era for person_id % num_buckets == bucket into staging table."""
+    """Build drug_era for person_id % num_buckets == bucket into staging table.
+
+    Two-phase approach to avoid re-scanning concept_ancestor (78M rows) in
+    every CTE:
+      Phase 1: Materialize the concept_ancestor join into an indexed temp table
+      Phase 2: Run the era-building window functions against the temp table
+    """
     worker_conn = make_worker_connection()
+    pre_drug_tmp = f"pg_temp._pre_drug_b{bucket}"
     try:
         with worker_conn.cursor() as cur:
             cur.execute(f"SET work_mem = '{work_mem_mb}MB'")
             cur.execute("SET max_parallel_workers_per_gather = 0")
+
+            # Phase 1: Materialize the expensive concept_ancestor join
+            cur.execute(f"""
+                CREATE TEMP TABLE _pre_drug_b{bucket} AS
+                SELECT d.drug_exposure_id, d.person_id,
+                       c.concept_id AS ingredient_concept_id,
+                       d.drug_exposure_start_date,
+                       COALESCE(
+                           NULLIF(d.drug_exposure_end_date, NULL),
+                           NULLIF(d.drug_exposure_start_date
+                               + (INTERVAL '1 day' * COALESCE(d.days_supply, 0)),
+                               d.drug_exposure_start_date),
+                           d.drug_exposure_start_date + INTERVAL '1 day'
+                       ) AS drug_exposure_end_date
+                FROM {SCHEMA}.drug_exposure d
+                JOIN {VOCAB_SCHEMA}.concept_ancestor ca
+                    ON ca.descendant_concept_id = d.drug_concept_id
+                JOIN {VOCAB_SCHEMA}.concept c ON ca.ancestor_concept_id = c.concept_id
+                WHERE c.vocabulary_id = 'RxNorm'
+                  AND c.concept_class_id = 'Ingredient'
+                  AND d.drug_concept_id != 0
+                  AND d.person_id % {num_buckets} = {bucket}
+            """)
+            cur.execute(f"""
+                CREATE INDEX ON _pre_drug_b{bucket} (person_id, ingredient_concept_id)
+            """)
+            cur.execute("ANALYZE _pre_drug_b{0}".format(bucket))
+
+            # Phase 2: Era-building window functions against materialized data
             cur.execute(f"""
                 INSERT INTO {staging_table} (
                     person_id, drug_concept_id,
                     drug_era_start_date, drug_era_end_date,
                     drug_exposure_count, gap_days
                 )
-                WITH ctePreDrugTarget AS (
-                    SELECT d.drug_exposure_id, d.person_id,
-                           c.concept_id AS ingredient_concept_id,
-                           d.drug_exposure_start_date, d.days_supply,
-                           COALESCE(
-                               NULLIF(d.drug_exposure_end_date, NULL),
-                               NULLIF(d.drug_exposure_start_date
-                                   + (INTERVAL '1 day' * COALESCE(d.days_supply, 0)),
-                                   d.drug_exposure_start_date),
-                               d.drug_exposure_start_date + INTERVAL '1 day'
-                           ) AS drug_exposure_end_date
-                    FROM {SCHEMA}.drug_exposure d
-                    JOIN {VOCAB_SCHEMA}.concept_ancestor ca
-                        ON ca.descendant_concept_id = d.drug_concept_id
-                    JOIN {VOCAB_SCHEMA}.concept c ON ca.ancestor_concept_id = c.concept_id
-                    WHERE c.vocabulary_id = 'RxNorm'
-                      AND c.concept_class_id = 'Ingredient'
-                      AND d.drug_concept_id != 0
-                      AND d.person_id % {num_buckets} = {bucket}
-                ),
-                cteSubExposureEndDates AS (
+                WITH cteSubExposureEndDates AS (
                     SELECT person_id, ingredient_concept_id, event_date AS end_date
                     FROM (
                         SELECT person_id, ingredient_concept_id, event_date, event_type,
@@ -1094,11 +1110,11 @@ def _build_drug_era_chunk(bucket: int, num_buckets: int, staging_table: str, wor
                                        PARTITION BY person_id, ingredient_concept_id
                                        ORDER BY drug_exposure_start_date
                                    ) AS start_ordinal
-                            FROM ctePreDrugTarget
+                            FROM _pre_drug_b{bucket}
                             UNION ALL
                             SELECT person_id, ingredient_concept_id,
                                    drug_exposure_end_date, 1 AS event_type, NULL
-                            FROM ctePreDrugTarget
+                            FROM _pre_drug_b{bucket}
                         ) RAWDATA
                     ) e
                     WHERE (2 * e.start_ordinal) - e.overall_ord = 0
@@ -1107,7 +1123,7 @@ def _build_drug_era_chunk(bucket: int, num_buckets: int, staging_table: str, wor
                     SELECT dt.person_id, dt.ingredient_concept_id,
                            dt.drug_exposure_start_date,
                            MIN(e.end_date) AS drug_sub_exposure_end_date
-                    FROM ctePreDrugTarget dt
+                    FROM _pre_drug_b{bucket} dt
                     JOIN cteSubExposureEndDates e ON dt.person_id = e.person_id
                         AND dt.ingredient_concept_id = e.ingredient_concept_id
                         AND e.end_date >= dt.drug_exposure_start_date
@@ -1188,6 +1204,10 @@ def _build_drug_era_chunk(bucket: int, num_buckets: int, staging_table: str, wor
                 GROUP BY person_id, ingredient_concept_id, era_end_date
             """)
             rows = cur.rowcount
+
+            # Clean up temp table
+            cur.execute(f"DROP TABLE IF EXISTS _pre_drug_b{bucket}")
+
         worker_conn.commit()
         return rows
     except Exception:
