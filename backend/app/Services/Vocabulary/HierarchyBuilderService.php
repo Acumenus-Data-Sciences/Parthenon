@@ -194,16 +194,20 @@ class HierarchyBuilderService
             ON CONFLICT (parent_concept_id, child_concept_id, domain_id) DO NOTHING
         ");
 
-        // For each domain, find root concepts and insert under virtual domain root.
-        // A concept is a root for domain X if it has children in domain X's tree
-        // (appears as parent_concept_id) but no incoming edge tagged domain X.
-        // Cross-domain parents naturally become intermediate nodes — they're reachable
-        // via their children, even though they're from a different OMOP domain.
+        // For each domain, propagate cross-domain parent chains and find roots.
+        //
+        // Problem: Edge (CardiovascularFinding[Obs] → HeartDisease[Cond]) is tagged
+        // domain=Condition. But (ClinicalFinding[Cond] → CardiovascularFinding[Obs])
+        // is tagged domain=Observation. So CardiovascularFinding becomes an orphan
+        // root in the Condition tree — 688 such orphans for Condition alone.
+        //
+        // Fix: Iteratively walk UP from cross-domain roots, adding their parent edges
+        // tagged with the target domain, until we reach true SNOMED roots.
         foreach (self::SNOMED_DOMAINS as $domain) {
             $virtualRootId = self::DOMAIN_VIRTUAL_ROOTS[$domain];
 
-            // Find concepts that appear only as parents (not children) in this domain's
-            // edges. These are the true top-level organizing concepts for this domain.
+            // Phase 1: Insert initial virtual roots (concepts that parent domain edges
+            // but have no incoming domain edge)
             $conn->statement("
                 INSERT INTO vocab.concept_tree (parent_concept_id, child_concept_id, domain_id, child_depth, vocabulary_id, concept_class_id, child_name)
                 SELECT DISTINCT
@@ -229,6 +233,13 @@ class HierarchyBuilderService
                   )
                 ON CONFLICT (parent_concept_id, child_concept_id, domain_id) DO NOTHING
             ", [$domain, $domain, $domain]);
+
+            // Phase 2: Propagate cross-domain parent chains upward.
+            // For cross-domain roots (under virtual root, from a different OMOP domain),
+            // find their SNOMED parents and add those edges tagged with this domain.
+            // Then remove the cross-domain concept from the virtual root (it now has a
+            // real parent). Repeat until no more cross-domain roots remain.
+            $this->propagateCrossDomainParents($conn, $domain, $virtualRootId);
 
             $this->computeDepths($conn, $domain);
 
@@ -401,6 +412,123 @@ class HierarchyBuilderService
         Log::info('HierarchyBuilderService: built Drug', ['edges' => $count]);
 
         return $count;
+    }
+
+    /**
+     * Propagate cross-domain parent chains for a target domain.
+     *
+     * Cross-domain roots are concepts under the virtual root that belong to a different
+     * OMOP domain (e.g., "Cardiovascular finding" from Observation appearing as a root
+     * in the Condition tree). For each, we find their SNOMED parents via concept_ancestor
+     * and add those parent→child edges tagged with the target domain. Then we move the
+     * cross-domain concept from the virtual root to its real parent. Repeat iteratively
+     * until all cross-domain concepts have been absorbed into the tree.
+     */
+    private function propagateCrossDomainParents(Connection $conn, string $domain, int $virtualRootId): void
+    {
+        $maxIterations = 20;
+
+        for ($i = 0; $i < $maxIterations; $i++) {
+            // Find cross-domain roots: concepts under virtual root whose actual
+            // domain differs from the target domain
+            $crossDomainRoots = $conn->select('
+                SELECT ct.child_concept_id
+                FROM vocab.concept_tree ct
+                JOIN vocab.concept c ON c.concept_id = ct.child_concept_id
+                WHERE ct.parent_concept_id = ?
+                  AND ct.domain_id = ?
+                  AND c.domain_id != ?
+            ', [$virtualRootId, $domain, $domain]);
+
+            if (empty($crossDomainRoots)) {
+                break;
+            }
+
+            // For each cross-domain root, add its SNOMED parent edge tagged with
+            // the target domain. The parent might itself be cross-domain — that's
+            // fine, it'll be handled in the next iteration.
+            $inserted = $conn->affectingStatement("
+                INSERT INTO vocab.concept_tree (parent_concept_id, child_concept_id, domain_id, child_depth, vocabulary_id, concept_class_id, child_name)
+                SELECT DISTINCT
+                    ca.ancestor_concept_id,
+                    ct_root.child_concept_id,
+                    ?,
+                    -1,
+                    c_child.vocabulary_id,
+                    c_child.concept_class_id,
+                    c_child.concept_name
+                FROM vocab.concept_tree ct_root
+                JOIN vocab.concept c_child ON c_child.concept_id = ct_root.child_concept_id
+                JOIN vocab.concept_ancestor ca ON ca.descendant_concept_id = ct_root.child_concept_id
+                    AND ca.min_levels_of_separation = 1
+                JOIN vocab.concept c_parent ON c_parent.concept_id = ca.ancestor_concept_id
+                    AND c_parent.vocabulary_id = 'SNOMED'
+                    AND c_parent.standard_concept = 'S'
+                WHERE ct_root.parent_concept_id = ?
+                  AND ct_root.domain_id = ?
+                  AND c_child.domain_id != ?
+                ON CONFLICT (parent_concept_id, child_concept_id, domain_id) DO NOTHING
+            ", [$domain, $virtualRootId, $domain, $domain]);
+
+            // Remove cross-domain concepts from virtual root if they now have
+            // a real parent edge in this domain
+            $conn->statement('
+                DELETE FROM vocab.concept_tree
+                WHERE parent_concept_id = ?
+                  AND domain_id = ?
+                  AND child_concept_id IN (
+                    SELECT ct.child_concept_id
+                    FROM vocab.concept_tree ct
+                    JOIN vocab.concept c ON c.concept_id = ct.child_concept_id
+                    WHERE ct.parent_concept_id = ?
+                      AND ct.domain_id = ?
+                      AND c.domain_id != ?
+                      AND EXISTS (
+                        SELECT 1 FROM vocab.concept_tree ct2
+                        WHERE ct2.child_concept_id = ct.child_concept_id
+                          AND ct2.domain_id = ?
+                          AND ct2.parent_concept_id != ?
+                      )
+                  )
+            ', [$virtualRootId, $domain, $virtualRootId, $domain, $domain, $domain, $virtualRootId]);
+
+            // Add new virtual root entries for parents that were just inserted
+            // but don't yet appear as children in this domain's tree
+            $conn->statement("
+                INSERT INTO vocab.concept_tree (parent_concept_id, child_concept_id, domain_id, child_depth, vocabulary_id, concept_class_id, child_name)
+                SELECT DISTINCT
+                    {$virtualRootId},
+                    c.concept_id,
+                    ?,
+                    1,
+                    c.vocabulary_id,
+                    c.concept_class_id,
+                    c.concept_name
+                FROM vocab.concept c
+                WHERE c.vocabulary_id = 'SNOMED'
+                  AND c.standard_concept = 'S'
+                  AND EXISTS (
+                    SELECT 1 FROM vocab.concept_tree ct
+                    WHERE ct.parent_concept_id = c.concept_id
+                      AND ct.domain_id = ?
+                  )
+                  AND NOT EXISTS (
+                    SELECT 1 FROM vocab.concept_tree ct2
+                    WHERE ct2.child_concept_id = c.concept_id
+                      AND ct2.domain_id = ?
+                  )
+                ON CONFLICT (parent_concept_id, child_concept_id, domain_id) DO NOTHING
+            ", [$domain, $domain, $domain]);
+
+            if ($inserted === 0) {
+                break;
+            }
+
+            Log::debug("HierarchyBuilderService: propagation iteration {$i} for {$domain}", [
+                'cross_domain_roots' => count($crossDomainRoots),
+                'edges_inserted' => $inserted,
+            ]);
+        }
     }
 
     /**

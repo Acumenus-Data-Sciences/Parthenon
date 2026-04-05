@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-03-26)
 Phase: 7-10 parallel (Medications, Conditions, Measurements, Observations)
 Plan: 09-01 completed (growth measurements), phases 7-10 in parallel
 Status: Executing Phases 07-10 in parallel
-Last activity: 2026-04-03 - Completed quick task 15: Native SSO bootstrap for Acropolis installer
+Last activity: 2026-04-05 - Fixed cross-domain SNOMED hierarchy propagation (Condition: 839→2 roots, Measurement: 620→5 roots)
 
 Progress: [█████████░] 92%
 
