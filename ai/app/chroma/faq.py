@@ -40,7 +40,7 @@ def _scan_recent_conversations(days: int = 7) -> list[dict]:
         recent_pairs.append({
             "question": question,
             "answer": answer,
-            "user_id": int(meta.get("user_id", 0) or 0),
+            "user_id": int(str(meta.get("user_id", 0) or 0)),
         })
 
     return recent_pairs

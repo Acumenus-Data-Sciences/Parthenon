@@ -4,16 +4,27 @@ import userEvent from "@testing-library/user-event";
 import { renderWithProviders } from "@/test/test-utils";
 import { HierarchyBrowserPanel } from "../components/HierarchyBrowserPanel";
 import { useConceptTree } from "../hooks/useConceptTree";
+import { useClinicalGroupings } from "../hooks/useClinicalGroupings";
 
 vi.mock("../hooks/useConceptTree", () => ({
   useConceptTree: vi.fn(),
 }));
+
+vi.mock("../hooks/useClinicalGroupings", () => ({
+  useClinicalGroupings: vi.fn(),
+}));
+
+const mockedUseClinicalGroupings = vi.mocked(useClinicalGroupings);
 
 const mockedUseConceptTree = vi.mocked(useConceptTree);
 
 describe("HierarchyBrowserPanel", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockedUseClinicalGroupings.mockReturnValue({
+      data: [],
+      isLoading: false,
+    } as unknown as ReturnType<typeof useClinicalGroupings>);
   });
 
   it("drills into domain roots when clicked at root level", async () => {
