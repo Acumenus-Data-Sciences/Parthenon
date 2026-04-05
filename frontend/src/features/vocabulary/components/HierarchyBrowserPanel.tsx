@@ -166,7 +166,9 @@ export function HierarchyBrowserPanel({
     setParentId(anchor.concept_id);
     setGroupingAnchors(null);
     setFilterText("");
-  }, []);
+    // Also select the anchor concept so the detail panel loads
+    onSelectConcept(anchor.concept_id);
+  }, [onSelectConcept]);
 
   const handleInfoClick = useCallback((e: React.MouseEvent, node: ConceptTreeNode) => {
     e.stopPropagation();
