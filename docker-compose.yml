@@ -169,9 +169,9 @@ services:
       - GIS_DATABASE_URL=postgresql://abby_analyst:${ABBY_PG_PASSWORD}@host.docker.internal:5432/parthenon
       - REDIS_URL=redis://redis:6379/2
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
-      - OLLAMA_MODEL=${OLLAMA_MODEL:-MedAIBase/MedGemma1.5:4b}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-ii-medical:8b-q8}
       - ABBY_OLLAMA_BASE_URL=${ABBY_OLLAMA_BASE_URL:-http://host.docker.internal:11434}
-      - ABBY_OLLAMA_MODEL=${ABBY_OLLAMA_MODEL:-MedAIBase/MedGemma1.5:4b}
+      - ABBY_OLLAMA_MODEL=${ABBY_OLLAMA_MODEL:-ii-medical:8b-q8}
       - ABBY_OLLAMA_KEEP_ALIVE=${ABBY_OLLAMA_KEEP_ALIVE:-3600}
       - HELP_DIR=/var/www/html/resources/help
       - DOCS_DIR=/app/docs
@@ -708,13 +708,22 @@ services:
     working_dir: /docs
     environment:
       - DOCKER_BUILD=1
+      - HOME=/home/node
       - NODE_OPTIONS=--max-old-space-size=5120
+      - npm_config_cache=/tmp/npm-cache
     volumes:
       - ./docs/site:/docs
-      - ./docs/blog:/blog:ro
+      - docs_site_node_modules:/docs/node_modules
+      - ./docs/blog:/docs/blog:ro
       - ./docs/site/build:/dist
       - ./backend/public/docs/openapi.yaml:/docs/openapi.yaml:ro
-    command: sh -c "npm ci --legacy-peer-deps && DOCKER_BUILD=1 npm run build:docker"
+      - docs_site_npm_cache:/tmp/npm-cache
+    command: >
+      sh -c "
+        mkdir -p /tmp/npm-cache /dist &&
+        chown -R node:node /docs/node_modules /tmp/npm-cache /dist &&
+        su node -s /bin/sh -c 'npm ci --legacy-peer-deps --prefer-offline && DOCKER_BUILD=1 npm run build:docker'
+      "
     deploy:
       resources:
         limits:
@@ -1099,6 +1108,8 @@ volumes:
   alloy_data:
   jupyter-shared:
   jupyterhub-data:
+  docs_site_node_modules:
+  docs_site_npm_cache:
 
 networks:
   parthenon:

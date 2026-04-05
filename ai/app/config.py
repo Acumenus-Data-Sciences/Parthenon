@@ -8,9 +8,9 @@ class Settings(BaseSettings):
     redis_url: str = "redis://redis:6379/2"
     model_cache_dir: str = "/app/models"
 
-    # Ollama configuration (for MedGemma and other LLMs)
+    # Ollama configuration (for medical LLMs)
     ollama_base_url: str = "http://host.docker.internal:11434"
-    ollama_model: str = "MedAIBase/MedGemma1.5:4b"
+    ollama_model: str = "ii-medical:8b-q8"
     ollama_timeout: int = 120
     ollama_num_predict: int = 256
     abby_ollama_base_url: str = ""
