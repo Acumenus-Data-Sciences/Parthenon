@@ -334,7 +334,7 @@ export function HierarchyBrowserPanel({
                   </div>
                   <div className="flex items-center justify-between w-full">
                     <span className="text-[10px] text-[#5A5650]">
-                      {node.child_count.toLocaleString()} categories
+                      {(node.descendant_count ?? node.child_count).toLocaleString()} concepts
                     </span>
                     <ChevronRight size={12} className="text-[#5A5650] group-hover:text-[#8A857D] transition-colors" />
                   </div>

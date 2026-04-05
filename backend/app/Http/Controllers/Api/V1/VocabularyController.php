@@ -496,6 +496,10 @@ class VocabularyController extends Controller
             ->selectRaw('(SELECT COUNT(*) FROM vocab.concept_tree ct2 WHERE ct2.parent_concept_id = ct.child_concept_id AND ct2.domain_id = ct.domain_id) AS child_count')
             ->where('ct.parent_concept_id', $parentId);
 
+        if ($parentId === 0) {
+            $query->selectRaw('(SELECT COUNT(DISTINCT ct3.child_concept_id) FROM vocab.concept_tree ct3 WHERE ct3.domain_id = ct.domain_id AND ct3.parent_concept_id != 0) AS descendant_count');
+        }
+
         if ($domainId) {
             $query->where('ct.domain_id', $domainId);
         }

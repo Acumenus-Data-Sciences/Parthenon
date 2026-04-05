@@ -134,6 +134,7 @@ export interface ConceptTreeNode {
   concept_class_id: string;
   child_count: number;
   depth: number;
+  descendant_count?: number;
 }
 
 export interface AnchorDetail {
