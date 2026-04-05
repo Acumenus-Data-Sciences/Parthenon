@@ -3,13 +3,10 @@ import {
   Ban,
   XCircle,
   Loader2,
-  Clock,
-  CheckCircle,
   AlertTriangle,
-  type LucideIcon,
 } from "lucide-react";
 import { Badge, Progress, CodeBlock, Drawer } from "@/components/ui";
-import type { Job, JobDetail, JobType, TimelineEntry } from "../api/jobsApi";
+import type { JobDetail, JobType, TimelineEntry } from "../api/jobsApi";
 import { useJobDetail } from "../hooks/useJobs";
 
 // ─── Helpers ────────────────────────────────────────────────────────────
