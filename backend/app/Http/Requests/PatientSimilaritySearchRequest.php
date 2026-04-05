@@ -25,7 +25,10 @@ class PatientSimilaritySearchRequest extends FormRequest
             'filters' => ['sometimes', 'array'],
             'filters.age_range' => ['sometimes', 'array', 'size:2'],
             'filters.age_range.*' => ['integer', 'min:0', 'max:150'],
+            'filters.age_min' => ['sometimes', 'integer', 'min:0', 'max:150'],
+            'filters.age_max' => ['sometimes', 'integer', 'min:0', 'max:150'],
             'filters.gender_concept_id' => ['sometimes', 'integer'],
+            'filters.gender' => ['sometimes', 'string', 'in:MALE,FEMALE'],
         ];
     }
 }

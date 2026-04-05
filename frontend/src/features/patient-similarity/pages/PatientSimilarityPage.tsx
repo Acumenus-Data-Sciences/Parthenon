@@ -11,6 +11,8 @@ import { StalenessIndicator } from "../components/StalenessIndicator";
 import { CohortSeedForm } from "../components/CohortSeedForm";
 import { CohortExportDialog } from "../components/CohortExportDialog";
 import { CohortExpandDialog } from "../components/CohortExpandDialog";
+import { ResultCohortDiagnosticsPanel } from "../components/ResultCohortDiagnosticsPanel";
+import { SearchDiagnosticsPanel } from "../components/SearchDiagnosticsPanel";
 import { CohortCompareForm } from "../components/CohortCompareForm";
 import { CohortComparisonRadar } from "../components/CohortComparisonRadar";
 import { DivergenceScores } from "../components/DivergenceScores";
@@ -152,27 +154,21 @@ export default function PatientSimilarityPage() {
   const patients = result?.similar_patients ?? [];
 
   const metadata = result?.metadata ?? {};
-  const computedInMs =
-    typeof metadata.computed_in_ms === "number" ? metadata.computed_in_ms : null;
+  const computedInMs = typeof metadata.computed_in_ms === "number" ? metadata.computed_in_ms : null;
   const candidatesEvaluated =
     typeof metadata.candidates_evaluated === "number"
       ? metadata.candidates_evaluated
-      : null;
-  const cacheId =
-    typeof metadata.cache_id === "number" ? metadata.cache_id : 0;
+      : typeof metadata.total_candidates === "number"
+        ? metadata.total_candidates
+        : null;
+  const cacheId = typeof metadata.cache_id === "number" ? metadata.cache_id : 0;
 
-  const cohortName =
-    typeof metadata.cohort_name === "string" ? metadata.cohort_name : undefined;
-  const cohortMemberCount =
-    typeof metadata.cohort_member_count === "number"
-      ? metadata.cohort_member_count
-      : 0;
-  const cohortDefinitionId =
-    typeof metadata.cohort_definition_id === "number"
-      ? metadata.cohort_definition_id
-      : 0;
+  const cohortName = typeof metadata.cohort_name === "string" ? metadata.cohort_name : undefined;
+  const cohortMemberCount = typeof metadata.cohort_member_count === "number" ? metadata.cohort_member_count : 0;
+  const cohortDefinitionId = typeof metadata.cohort_definition_id === "number" ? metadata.cohort_definition_id : 0;
   const hasCompareInsights = searchMode === "compare" && compareMutation.data != null;
   const shouldShowEmptyState = !result && !isLoading && !hasCompareInsights;
+  const canExport = patients.length > 0 && cacheId > 0;
 
   return (
     <div className="flex gap-6 min-h-0">
@@ -293,10 +289,10 @@ export default function PatientSimilarityPage() {
               <button
                 type="button"
                 onClick={() => setExportOpen(true)}
-                disabled={patients.length === 0}
+                disabled={!canExport}
                 className={cn(
                   "flex items-center gap-1.5 text-xs border rounded px-2.5 py-1 transition-colors",
-                  patients.length > 0
+                  canExport
                     ? "text-[#2DD4BF] border-[#2DD4BF]/30 hover:bg-[#2DD4BF]/10 cursor-pointer"
                     : "text-[#5A5650] border-[#232328] cursor-not-allowed opacity-50",
                 )}
@@ -350,6 +346,19 @@ export default function PatientSimilarityPage() {
               divergence={compareMutation.data.divergence}
               overallDivergence={compareMutation.data.overall_divergence}
             />
+          </div>
+        )}
+
+        {result && (
+          <div className="space-y-3">
+            <SearchDiagnosticsPanel
+              metadata={metadata}
+              seed={result.seed}
+              computeStatus={computeStatus}
+            />
+            {metadata.diagnostics && (
+              <ResultCohortDiagnosticsPanel diagnostics={metadata.diagnostics} />
+            )}
           </div>
         )}
 

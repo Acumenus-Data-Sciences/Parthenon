@@ -64,6 +64,14 @@ vi.mock("../../components/DivergenceScores", () => ({
   DivergenceScores: () => <div>divergence-scores</div>,
 }));
 
+vi.mock("../../components/SearchDiagnosticsPanel", () => ({
+  SearchDiagnosticsPanel: () => <div>search-diagnostics</div>,
+}));
+
+vi.mock("../../components/ResultCohortDiagnosticsPanel", () => ({
+  ResultCohortDiagnosticsPanel: () => <div>result-cohort-diagnostics</div>,
+}));
+
 vi.mock("../../components/SimilarPatientTable", () => ({
   SimilarPatientTable: () => <div>similar-patient-table</div>,
 }));

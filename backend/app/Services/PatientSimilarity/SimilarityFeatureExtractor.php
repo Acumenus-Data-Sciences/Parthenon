@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 
 class SimilarityFeatureExtractor
 {
+    private const int RECENT_WINDOW_DAYS = 365;
+
     public function __construct(
         private readonly ConceptResolutionService $conceptResolver,
     ) {}
@@ -29,9 +31,12 @@ class SimilarityFeatureExtractor
 
         $patients = $this->extractDemographics($connection, $cdmSchema, $personIdList);
         $this->extractConditions($patients, $connection, $cdmSchema, $vocabSchema, $personIdList);
+        $this->extractRecentConditions($patients, $connection, $cdmSchema, $vocabSchema, $personIdList);
         $this->extractMeasurements($patients, $connection, $cdmSchema, $source->id, $personIdList);
         $this->extractDrugs($patients, $connection, $cdmSchema, $vocabSchema, $personIdList);
+        $this->extractRecentDrugs($patients, $connection, $cdmSchema, $vocabSchema, $personIdList);
         $this->extractProcedures($patients, $connection, $cdmSchema, $personIdList);
+        $this->extractRecentProcedures($patients, $connection, $cdmSchema, $personIdList);
         $this->extractGenomics($patients, $personIds, $source->id);
 
         // Set dimensions_available for each patient
@@ -52,7 +57,12 @@ class SimilarityFeatureExtractor
             if (! empty($p['variant_genes'])) {
                 $dims[] = 'genomics';
             }
+
+            $p['condition_count'] = count($p['condition_concepts']);
+            $p['lab_count'] = count($p['lab_vector']);
+            $p['variant_count'] = count($p['variant_genes']);
             $p['dimensions_available'] = $dims;
+            $p['version'] = 2;
         }
         unset($p);
 
@@ -63,12 +73,21 @@ class SimilarityFeatureExtractor
     {
         $rows = DB::connection($connection)->select(
             "SELECT p.person_id,
-                    EXTRACT(YEAR FROM CURRENT_DATE)::int - p.year_of_birth AS age,
+                    EXTRACT(YEAR FROM COALESCE(MAX(op.observation_period_end_date), CURRENT_DATE))::int - p.year_of_birth AS age,
                     p.gender_concept_id,
                     p.race_concept_id,
-                    p.ethnicity_concept_id
+                    p.ethnicity_concept_id,
+                    COALESCE(MAX(op.observation_period_end_date), CURRENT_DATE)::date AS anchor_date
              FROM {$cdmSchema}.person p
-             WHERE p.person_id = ANY(?::bigint[])",
+             LEFT JOIN {$cdmSchema}.observation_period op
+               ON op.person_id = p.person_id
+             WHERE p.person_id = ANY(?::bigint[])
+             GROUP BY
+                p.person_id,
+                p.year_of_birth,
+                p.gender_concept_id,
+                p.race_concept_id,
+                p.ethnicity_concept_id",
             [$personIdList]
         );
 
@@ -81,10 +100,14 @@ class SimilarityFeatureExtractor
                 'age_bucket' => intdiv($age, 5),
                 'gender_concept_id' => (int) $row->gender_concept_id,
                 'race_concept_id' => (int) $row->race_concept_id,
+                'anchor_date' => $row->anchor_date,
                 'condition_concepts' => [],
+                'recent_condition_concepts' => [],
                 'lab_vector' => [],
                 'drug_concepts' => [],
+                'recent_drug_concepts' => [],
                 'procedure_concepts' => [],
+                'recent_procedure_concepts' => [],
                 'variant_genes' => [],
             ];
         }
@@ -120,6 +143,42 @@ class SimilarityFeatureExtractor
             $p['condition_concepts'] = array_values(array_unique($p['condition_concepts']));
         }
         unset($p);
+    }
+
+    private function extractRecentConditions(array &$patients, string $connection, string $cdmSchema, string $vocabSchema, string $personIdList): void
+    {
+        if (empty($patients)) {
+            return;
+        }
+
+        $anchorSubquery = $this->anchorDateSubquery($cdmSchema);
+
+        $rows = DB::connection($connection)->select(
+            "SELECT DISTINCT co.person_id, ca.ancestor_concept_id
+             FROM {$cdmSchema}.condition_occurrence co
+             JOIN {$vocabSchema}.concept_ancestor ca
+               ON ca.descendant_concept_id = co.condition_concept_id
+              AND ca.min_levels_of_separation BETWEEN 0 AND 3
+             JOIN ({$anchorSubquery}) anchor
+               ON anchor.person_id = co.person_id
+             WHERE co.person_id = ANY(?::bigint[])
+               AND co.condition_concept_id > 0
+               AND co.condition_start_date IS NOT NULL
+               AND co.condition_start_date BETWEEN anchor.anchor_date - INTERVAL '".self::RECENT_WINDOW_DAYS." days' AND anchor.anchor_date",
+            [$personIdList, $personIdList]
+        );
+
+        foreach ($rows as $row) {
+            $pid = (int) $row->person_id;
+            if (isset($patients[$pid])) {
+                $patients[$pid]['recent_condition_concepts'][] = (int) $row->ancestor_concept_id;
+            }
+        }
+
+        foreach ($patients as &$patient) {
+            $patient['recent_condition_concepts'] = array_values(array_unique($patient['recent_condition_concepts']));
+        }
+        unset($patient);
     }
 
     private function extractMeasurements(array &$patients, string $connection, string $cdmSchema, int $sourceId, string $personIdList): void
@@ -196,6 +255,44 @@ class SimilarityFeatureExtractor
         unset($p);
     }
 
+    private function extractRecentDrugs(array &$patients, string $connection, string $cdmSchema, string $vocabSchema, string $personIdList): void
+    {
+        if (empty($patients)) {
+            return;
+        }
+
+        $anchorSubquery = $this->anchorDateSubquery($cdmSchema);
+
+        $rows = DB::connection($connection)->select(
+            "SELECT DISTINCT de.person_id, ca.ancestor_concept_id
+             FROM {$cdmSchema}.drug_exposure de
+             JOIN {$vocabSchema}.concept_ancestor ca
+               ON ca.descendant_concept_id = de.drug_concept_id
+             JOIN {$vocabSchema}.concept c
+               ON c.concept_id = ca.ancestor_concept_id
+              AND c.concept_class_id = 'Ingredient'
+             JOIN ({$anchorSubquery}) anchor
+               ON anchor.person_id = de.person_id
+             WHERE de.person_id = ANY(?::bigint[])
+               AND de.drug_concept_id > 0
+               AND de.drug_exposure_start_date IS NOT NULL
+               AND de.drug_exposure_start_date BETWEEN anchor.anchor_date - INTERVAL '".self::RECENT_WINDOW_DAYS." days' AND anchor.anchor_date",
+            [$personIdList, $personIdList]
+        );
+
+        foreach ($rows as $row) {
+            $pid = (int) $row->person_id;
+            if (isset($patients[$pid])) {
+                $patients[$pid]['recent_drug_concepts'][] = (int) $row->ancestor_concept_id;
+            }
+        }
+
+        foreach ($patients as &$patient) {
+            $patient['recent_drug_concepts'] = array_values(array_unique($patient['recent_drug_concepts']));
+        }
+        unset($patient);
+    }
+
     private function extractProcedures(array &$patients, string $connection, string $cdmSchema, string $personIdList): void
     {
         if (empty($patients)) {
@@ -223,6 +320,39 @@ class SimilarityFeatureExtractor
         unset($p);
     }
 
+    private function extractRecentProcedures(array &$patients, string $connection, string $cdmSchema, string $personIdList): void
+    {
+        if (empty($patients)) {
+            return;
+        }
+
+        $anchorSubquery = $this->anchorDateSubquery($cdmSchema);
+
+        $rows = DB::connection($connection)->select(
+            "SELECT DISTINCT po.person_id, po.procedure_concept_id
+             FROM {$cdmSchema}.procedure_occurrence po
+             JOIN ({$anchorSubquery}) anchor
+               ON anchor.person_id = po.person_id
+             WHERE po.person_id = ANY(?::bigint[])
+               AND po.procedure_concept_id > 0
+               AND po.procedure_date IS NOT NULL
+               AND po.procedure_date BETWEEN anchor.anchor_date - INTERVAL '".self::RECENT_WINDOW_DAYS." days' AND anchor.anchor_date",
+            [$personIdList, $personIdList]
+        );
+
+        foreach ($rows as $row) {
+            $pid = (int) $row->person_id;
+            if (isset($patients[$pid])) {
+                $patients[$pid]['recent_procedure_concepts'][] = (int) $row->procedure_concept_id;
+            }
+        }
+
+        foreach ($patients as &$patient) {
+            $patient['recent_procedure_concepts'] = array_values(array_unique($patient['recent_procedure_concepts']));
+        }
+        unset($patient);
+    }
+
     private function extractGenomics(array &$patients, array $personIds, int $sourceId): void
     {
         $rows = DB::connection('pgsql')->select(
@@ -243,6 +373,17 @@ class SimilarityFeatureExtractor
                 ];
             }
         }
+    }
+
+    private function anchorDateSubquery(string $cdmSchema): string
+    {
+        return "SELECT p.person_id,
+                       COALESCE(MAX(op.observation_period_end_date), CURRENT_DATE)::date AS anchor_date
+                FROM {$cdmSchema}.person p
+                LEFT JOIN {$cdmSchema}.observation_period op
+                  ON op.person_id = p.person_id
+                WHERE p.person_id = ANY(?::bigint[])
+                GROUP BY p.person_id";
     }
 
     /**

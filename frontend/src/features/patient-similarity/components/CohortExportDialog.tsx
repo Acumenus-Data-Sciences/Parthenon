@@ -32,7 +32,7 @@ export function CohortExportDialog({
       {
         cache_id: cacheId,
         cohort_name: name.trim(),
-        description: description.trim() || undefined,
+        cohort_description: description.trim() || undefined,
         min_score: minScore,
       },
       {

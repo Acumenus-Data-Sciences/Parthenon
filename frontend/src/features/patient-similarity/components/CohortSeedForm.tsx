@@ -10,6 +10,7 @@ import {
 import { CohortCentroidRadar } from "./CohortCentroidRadar";
 import { GenerationStatusBanner } from "./GenerationStatusBanner";
 import type { CohortSimilaritySearchParams } from "../types/patientSimilarity";
+import { buildSimilarityFilters } from "../utils/similarityFilters";
 
 interface CohortSeedFormProps {
   onSearch: (params: CohortSimilaritySearchParams) => void;
@@ -66,19 +67,13 @@ export function CohortSeedForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedCohortId <= 0 || sourceId <= 0 || !isGenerated) return;
-
-    const filters: Record<string, unknown> = {};
-    const minAge = parseInt(ageMin, 10);
-    const maxAge = parseInt(ageMax, 10);
-    if (!isNaN(minAge)) filters.age_min = minAge;
-    if (!isNaN(maxAge)) filters.age_max = maxAge;
-    if (gender) filters.gender = gender;
+    const filters = buildSimilarityFilters(ageMin, ageMax, gender);
 
     onSearch({
       cohort_definition_id: selectedCohortId,
       source_id: sourceId,
       weights: Object.keys(weights).length > 0 ? weights : undefined,
-      filters: Object.keys(filters).length > 0 ? filters : undefined,
+      filters,
     });
   };
 

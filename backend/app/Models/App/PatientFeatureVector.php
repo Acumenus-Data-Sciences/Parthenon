@@ -18,12 +18,16 @@ class PatientFeatureVector extends Model
         'age_bucket',
         'gender_concept_id',
         'race_concept_id',
+        'anchor_date',
         'condition_concepts',
+        'recent_condition_concepts',
         'condition_count',
         'lab_vector',
         'lab_count',
         'drug_concepts',
+        'recent_drug_concepts',
         'procedure_concepts',
+        'recent_procedure_concepts',
         'variant_genes',
         'variant_count',
         'dimensions_available',
@@ -38,11 +42,15 @@ class PatientFeatureVector extends Model
     {
         return [
             'condition_concepts' => 'array',
+            'recent_condition_concepts' => 'array',
             'lab_vector' => 'array',
             'drug_concepts' => 'array',
+            'recent_drug_concepts' => 'array',
             'procedure_concepts' => 'array',
+            'recent_procedure_concepts' => 'array',
             'variant_genes' => 'array',
             'dimensions_available' => 'array',
+            'anchor_date' => 'date',
             'computed_at' => 'datetime',
         ];
     }

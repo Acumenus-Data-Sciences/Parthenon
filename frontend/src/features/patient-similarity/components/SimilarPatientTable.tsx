@@ -38,6 +38,19 @@ function getOverallScoreColor(score: number): string {
   return "#8A857D";
 }
 
+function formatAnchorDate(value: string | null | undefined): string {
+  if (!value) return "\u2014";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+
+  return date.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
 function SharedFeaturePills({ category, icon, label }: {
   category?: SharedFeatureCategory | null;
   icon: React.ReactNode;
@@ -46,6 +59,10 @@ function SharedFeaturePills({ category, icon, label }: {
   const sharedCount = category?.shared_count ?? 0;
   const seedCount = category?.seed_count ?? 0;
   const topShared = Array.isArray(category?.top_shared) ? category.top_shared : [];
+  const recentSharedCount = category?.recent_shared_count ?? 0;
+  const recentTopShared = Array.isArray(category?.recent_top_shared)
+    ? category.recent_top_shared
+    : [];
 
   if (sharedCount === 0) return null;
 
@@ -55,9 +72,37 @@ function SharedFeaturePills({ category, icon, label }: {
         {icon}
         {label}
         <span className="text-[#8A857D] font-normal normal-case">
-          ({sharedCount} of {seedCount} shared)
+          ({sharedCount} of {seedCount} lifetime shared)
         </span>
+        {recentSharedCount > 0 && (
+          <span className="rounded-full border border-[#2DD4BF]/30 bg-[#2DD4BF]/10 px-1.5 py-0.5 text-[9px] text-[#2DD4BF] normal-case tracking-normal">
+            {recentSharedCount} recent
+          </span>
+        )}
       </div>
+      {recentSharedCount > 0 && recentTopShared.length > 0 && (
+        <div className="space-y-1">
+          <div className="text-[10px] text-[#5A5650] uppercase tracking-wider">
+            Recent overlap
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {recentTopShared.map((concept) => (
+              <span
+                key={`recent-${concept.concept_id}`}
+                className="inline-flex items-center rounded-md bg-[#13211E] border border-[#2DD4BF]/20 px-2 py-0.5 text-xs text-[#A7F3D0]"
+                title={`Concept ID: ${concept.concept_id}`}
+              >
+                {concept.name}
+              </span>
+            ))}
+            {recentSharedCount > recentTopShared.length && (
+              <span className="inline-flex items-center text-[10px] text-[#5A5650] px-1">
+                +{recentSharedCount - recentTopShared.length} more recent
+              </span>
+            )}
+          </div>
+        </div>
+      )}
       <div className="flex flex-wrap gap-1.5">
         {topShared.map((concept) => (
           <span
@@ -257,6 +302,41 @@ export function SimilarPatientTable({
                               {patient.similarity_summary}
                             </p>
                           )}
+
+                          <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+                            <div className="rounded-md border border-[#232328] bg-[#151518] px-3 py-2">
+                              <div className="text-[10px] uppercase tracking-wider text-[#5A5650]">
+                                Anchor Date
+                              </div>
+                              <div className="mt-1 text-xs text-[#C5C0B8]">
+                                {formatAnchorDate(patient.anchor_date)}
+                              </div>
+                            </div>
+                            <div className="rounded-md border border-[#232328] bg-[#151518] px-3 py-2">
+                              <div className="text-[10px] uppercase tracking-wider text-[#5A5650]">
+                                Conditions
+                              </div>
+                              <div className="mt-1 text-xs text-[#C5C0B8]">
+                                {patient.condition_count ?? "\u2014"}
+                              </div>
+                            </div>
+                            <div className="rounded-md border border-[#232328] bg-[#151518] px-3 py-2">
+                              <div className="text-[10px] uppercase tracking-wider text-[#5A5650]">
+                                Labs
+                              </div>
+                              <div className="mt-1 text-xs text-[#C5C0B8]">
+                                {patient.lab_count ?? "\u2014"}
+                              </div>
+                            </div>
+                            <div className="rounded-md border border-[#232328] bg-[#151518] px-3 py-2">
+                              <div className="text-[10px] uppercase tracking-wider text-[#5A5650]">
+                                Vector Version
+                              </div>
+                              <div className="mt-1 text-xs text-[#C5C0B8]">
+                                {patient.feature_vector_version ?? "\u2014"}
+                              </div>
+                            </div>
+                          </div>
 
                           {/* Shared feature pills */}
                           {patient.shared_features && (

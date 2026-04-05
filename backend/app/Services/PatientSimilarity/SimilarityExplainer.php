@@ -38,10 +38,21 @@ final class SimilarityExplainer
         // Collect all concept IDs we need to resolve in one batch
         $allConceptIds = [];
         $seedConditions = $seedData['condition_concepts'] ?? [];
+        $seedRecentConditions = $seedData['recent_condition_concepts'] ?? [];
         $seedDrugs = $seedData['drug_concepts'] ?? [];
+        $seedRecentDrugs = $seedData['recent_drug_concepts'] ?? [];
         $seedProcedures = $seedData['procedure_concepts'] ?? [];
+        $seedRecentProcedures = $seedData['recent_procedure_concepts'] ?? [];
 
-        $allConceptIds = array_merge($allConceptIds, $seedConditions, $seedDrugs, $seedProcedures);
+        $allConceptIds = array_merge(
+            $allConceptIds,
+            $seedConditions,
+            $seedRecentConditions,
+            $seedDrugs,
+            $seedRecentDrugs,
+            $seedProcedures,
+            $seedRecentProcedures,
+        );
 
         foreach ($scoredPatients as $patient) {
             $personId = $patient['person_id'] ?? null;
@@ -50,8 +61,11 @@ final class SimilarityExplainer
                 $allConceptIds = array_merge(
                     $allConceptIds,
                     $vec['condition_concepts'] ?? [],
+                    $vec['recent_condition_concepts'] ?? [],
                     $vec['drug_concepts'] ?? [],
+                    $vec['recent_drug_concepts'] ?? [],
                     $vec['procedure_concepts'] ?? [],
+                    $vec['recent_procedure_concepts'] ?? [],
                 );
             }
         }
@@ -123,13 +137,25 @@ final class SimilarityExplainer
             $seedData['condition_concepts'] ?? [],
             $candidateData['condition_concepts'] ?? [],
         ));
+        $recentSharedConditions = array_values(array_intersect(
+            $seedData['recent_condition_concepts'] ?? [],
+            $candidateData['recent_condition_concepts'] ?? [],
+        ));
         $sharedDrugs = array_values(array_intersect(
             $seedData['drug_concepts'] ?? [],
             $candidateData['drug_concepts'] ?? [],
         ));
+        $recentSharedDrugs = array_values(array_intersect(
+            $seedData['recent_drug_concepts'] ?? [],
+            $candidateData['recent_drug_concepts'] ?? [],
+        ));
         $sharedProcedures = array_values(array_intersect(
             $seedData['procedure_concepts'] ?? [],
             $candidateData['procedure_concepts'] ?? [],
+        ));
+        $recentSharedProcedures = array_values(array_intersect(
+            $seedData['recent_procedure_concepts'] ?? [],
+            $candidateData['recent_procedure_concepts'] ?? [],
         ));
 
         return [
@@ -137,8 +163,15 @@ final class SimilarityExplainer
                 'shared_count' => count($sharedConditions),
                 'seed_count' => count($seedData['condition_concepts'] ?? []),
                 'candidate_count' => count($candidateData['condition_concepts'] ?? []),
+                'recent_shared_count' => count($recentSharedConditions),
+                'recent_seed_count' => count($seedData['recent_condition_concepts'] ?? []),
+                'recent_candidate_count' => count($candidateData['recent_condition_concepts'] ?? []),
                 'top_shared' => $this->resolveList(
                     array_slice($sharedConditions, 0, self::MAX_SHARED_ITEMS),
+                    $names,
+                ),
+                'recent_top_shared' => $this->resolveList(
+                    array_slice($recentSharedConditions, 0, self::MAX_SHARED_ITEMS),
                     $names,
                 ),
             ],
@@ -146,8 +179,15 @@ final class SimilarityExplainer
                 'shared_count' => count($sharedDrugs),
                 'seed_count' => count($seedData['drug_concepts'] ?? []),
                 'candidate_count' => count($candidateData['drug_concepts'] ?? []),
+                'recent_shared_count' => count($recentSharedDrugs),
+                'recent_seed_count' => count($seedData['recent_drug_concepts'] ?? []),
+                'recent_candidate_count' => count($candidateData['recent_drug_concepts'] ?? []),
                 'top_shared' => $this->resolveList(
                     array_slice($sharedDrugs, 0, self::MAX_SHARED_ITEMS),
+                    $names,
+                ),
+                'recent_top_shared' => $this->resolveList(
+                    array_slice($recentSharedDrugs, 0, self::MAX_SHARED_ITEMS),
                     $names,
                 ),
             ],
@@ -155,8 +195,15 @@ final class SimilarityExplainer
                 'shared_count' => count($sharedProcedures),
                 'seed_count' => count($seedData['procedure_concepts'] ?? []),
                 'candidate_count' => count($candidateData['procedure_concepts'] ?? []),
+                'recent_shared_count' => count($recentSharedProcedures),
+                'recent_seed_count' => count($seedData['recent_procedure_concepts'] ?? []),
+                'recent_candidate_count' => count($candidateData['recent_procedure_concepts'] ?? []),
                 'top_shared' => $this->resolveList(
                     array_slice($sharedProcedures, 0, self::MAX_SHARED_ITEMS),
+                    $names,
+                ),
+                'recent_top_shared' => $this->resolveList(
+                    array_slice($recentSharedProcedures, 0, self::MAX_SHARED_ITEMS),
                     $names,
                 ),
             ],
@@ -198,32 +245,20 @@ final class SimilarityExplainer
         $condScore = $scores['conditions'] ?? null;
         $condShared = $shared['conditions'] ?? [];
         if ($condScore !== null && ($condShared['shared_count'] ?? 0) > 0) {
-            $topNames = array_column($condShared['top_shared'] ?? [], 'name');
-            $count = $condShared['shared_count'];
-            $preview = implode(', ', array_slice($topNames, 0, 3));
-            $suffix = $count > 3 ? ' and '.($count - 3).' more' : '';
-            $parts[] = "Shares {$count} conditions ({$preview}{$suffix})";
+            $parts[] = $this->buildSharedNarrative('conditions', $condShared, 'past year');
         }
 
         // Drugs
         $drugScore = $scores['drugs'] ?? null;
         $drugShared = $shared['drugs'] ?? [];
         if ($drugScore !== null && ($drugShared['shared_count'] ?? 0) > 0) {
-            $topNames = array_column($drugShared['top_shared'] ?? [], 'name');
-            $count = $drugShared['shared_count'];
-            $preview = implode(', ', array_slice($topNames, 0, 3));
-            $suffix = $count > 3 ? ' and '.($count - 3).' more' : '';
-            $parts[] = "Shares {$count} medications ({$preview}{$suffix})";
+            $parts[] = $this->buildSharedNarrative('medications', $drugShared, 'past year');
         }
 
         // Procedures
         $procShared = $shared['procedures'] ?? [];
         if (($procShared['shared_count'] ?? 0) > 0) {
-            $topNames = array_column($procShared['top_shared'] ?? [], 'name');
-            $count = $procShared['shared_count'];
-            $preview = implode(', ', array_slice($topNames, 0, 3));
-            $suffix = $count > 3 ? ' and '.($count - 3).' more' : '';
-            $parts[] = "Shares {$count} procedures ({$preview}{$suffix})";
+            $parts[] = $this->buildSharedNarrative('procedures', $procShared, 'past year');
         }
 
         // Measurements
@@ -253,5 +288,28 @@ final class SimilarityExplainer
             'concept_id' => $id,
             'name' => $names[$id] ?? "Concept {$id}",
         ], $conceptIds);
+    }
+
+    /**
+     * @param  array<string, mixed>  $shared
+     */
+    private function buildSharedNarrative(string $label, array $shared, string $recentWindowLabel): string
+    {
+        $recentCount = (int) ($shared['recent_shared_count'] ?? 0);
+        $recentNames = array_column($shared['recent_top_shared'] ?? [], 'name');
+
+        if ($recentCount > 0 && $recentNames !== []) {
+            $preview = implode(', ', array_slice($recentNames, 0, 3));
+            $suffix = $recentCount > 3 ? ' and '.($recentCount - 3).' more' : '';
+
+            return "Shares {$recentCount} recent {$label} in the {$recentWindowLabel} ({$preview}{$suffix})";
+        }
+
+        $count = (int) ($shared['shared_count'] ?? 0);
+        $topNames = array_column($shared['top_shared'] ?? [], 'name');
+        $preview = implode(', ', array_slice($topNames, 0, 3));
+        $suffix = $count > 3 ? ' and '.($count - 3).' more' : '';
+
+        return "Shares {$count} {$label} ({$preview}{$suffix})";
     }
 }

@@ -24,6 +24,14 @@ final class PatientSimilarityService
 
     private const int STALENESS_THRESHOLD_DAYS = 7;
 
+    private const int RECENT_WINDOW_DAYS = 365;
+
+    /** @var array<string, int> */
+    private const array GENDER_CONCEPT_MAP = [
+        'MALE' => 8507,
+        'FEMALE' => 8532,
+    ];
+
     /** @var array<string, DimensionScorerInterface> */
     private array $scorers;
 
@@ -55,7 +63,9 @@ final class PatientSimilarityService
         float $minScore,
         array $filters = [],
     ): array {
+        $filters = $this->normalizeFilters($filters);
         $weightsHash = PatientSimilarityCache::hashWeights($weights);
+        $queryHash = PatientSimilarityCache::hashQuery($filters, $limit, $minScore);
 
         // Check cache first
         $cached = PatientSimilarityCache::query()
@@ -63,11 +73,18 @@ final class PatientSimilarityService
             ->where('seed_person_id', $personId)
             ->where('mode', $mode)
             ->where('weights_hash', $weightsHash)
+            ->where('query_hash', $queryHash)
             ->valid()
             ->first();
 
         if ($cached !== null) {
-            return $cached->results;
+            $results = $cached->results;
+            $results['metadata'] = array_merge($results['metadata'] ?? [], [
+                'cache_id' => $cached->id,
+                'query_hash' => $queryHash,
+            ]);
+
+            return $results;
         }
 
         // Load seed patient's feature vector
@@ -84,6 +101,10 @@ final class PatientSimilarityService
                 'metadata' => [
                     'error' => 'Seed patient has no feature vector. Run feature extraction first.',
                     'total_candidates' => 0,
+                    'filters_applied' => $filters,
+                    'limit' => $limit,
+                    'min_score' => $minScore,
+                    'query_hash' => $queryHash,
                     'computed_at' => now()->toIso8601String(),
                 ],
             ];
@@ -92,11 +113,17 @@ final class PatientSimilarityService
         // Auto-select embedding mode for large sources when mode is 'auto' or 'embedding'
         $effectiveMode = $mode;
         if ($mode === 'auto') {
+            $vectorCount = PatientFeatureVector::query()
+                ->forSource($source->id)
+                ->count();
             $embeddingCount = PatientFeatureVector::query()
                 ->forSource($source->id)
                 ->whereNotNull('embedding')
                 ->count();
-            $effectiveMode = $embeddingCount > self::IN_MEMORY_THRESHOLD ? 'embedding' : 'interpretable';
+            $embeddingsReady = $vectorCount > 0 && $embeddingCount === $vectorCount;
+            $effectiveMode = ($embeddingsReady && $vectorCount > self::IN_MEMORY_THRESHOLD)
+                ? 'embedding'
+                : 'interpretable';
         }
 
         // Route to search strategy
@@ -106,12 +133,13 @@ final class PatientSimilarityService
         };
 
         // Cache results
-        PatientSimilarityCache::query()->updateOrCreate(
+        $cache = PatientSimilarityCache::query()->updateOrCreate(
             [
                 'source_id' => $source->id,
                 'seed_person_id' => $personId,
                 'mode' => $mode,
                 'weights_hash' => $weightsHash,
+                'query_hash' => $queryHash,
             ],
             [
                 'results' => $results,
@@ -119,6 +147,11 @@ final class PatientSimilarityService
                 'expires_at' => now()->addMinutes(self::CACHE_TTL_MINUTES),
             ],
         );
+
+        $results['metadata'] = array_merge($results['metadata'] ?? [], [
+            'cache_id' => $cache->id,
+            'query_hash' => $queryHash,
+        ]);
 
         return $results;
     }
@@ -156,25 +189,22 @@ final class PatientSimilarityService
     ): array {
         $seedData = $seed->toArray();
 
-        // Check source size to decide strategy
-        $totalCandidates = PatientFeatureVector::query()
+        $query = PatientFeatureVector::query()
             ->forSource($source->id)
             ->where('person_id', '!=', $seed->person_id)
-            ->count();
+            ->orderBy('person_id');
+
+        $this->applyFilters($query, $filters);
+
+        // Check filtered candidate count to decide strategy
+        $totalCandidates = (clone $query)->count();
 
         if ($totalCandidates > self::IN_MEMORY_THRESHOLD) {
             return $this->searchInterpretableSql($seed, $source, $weights, $limit, $minScore, $filters, $totalCandidates);
         }
 
-        // Small source: load all candidates into PHP
-        $query = PatientFeatureVector::query()
-            ->forSource($source->id)
-            ->where('person_id', '!=', $seed->person_id);
-
-        $this->applyFilters($query, $filters);
-
+        // Small source: load all filtered candidates into PHP
         $candidates = $query->get();
-        $totalCandidates = $candidates->count();
 
         // Score each candidate
         $scored = [];
@@ -182,13 +212,7 @@ final class PatientSimilarityService
             $result = $this->scorePatientPair($seedData, $candidate->toArray(), $weights);
 
             if ($result['overall_score'] >= $minScore) {
-                $scored[] = [
-                    'person_id' => $candidate->person_id,
-                    'overall_score' => $result['overall_score'],
-                    'dimension_scores' => $result['dimension_scores'],
-                    'age_bucket' => $candidate->age_bucket,
-                    'gender_concept_id' => $candidate->gender_concept_id,
-                ];
+                $scored[] = $this->buildScoredPatient($candidate, $result);
             }
         }
 
@@ -197,19 +221,20 @@ final class PatientSimilarityService
         $scored = array_slice($scored, 0, $limit);
 
         return [
-            'seed' => [
-                'person_id' => $seed->person_id,
-                'age_bucket' => $seed->age_bucket,
-                'gender_concept_id' => $seed->gender_concept_id,
-                'dimensions_available' => $seed->dimensions_available,
-            ],
+            'seed' => $this->buildSeedSummary($seed),
             'mode' => 'interpretable',
             'similar_patients' => $scored,
             'metadata' => [
                 'total_candidates' => $totalCandidates,
                 'above_threshold' => count($scored),
+                'returned_count' => count($scored),
                 'weights' => $weights,
+                'filters_applied' => $filters,
+                'limit' => $limit,
                 'min_score' => $minScore,
+                'temporal_window_days' => self::RECENT_WINDOW_DAYS,
+                'feature_vector_version' => $seed->version,
+                'seed_anchor_date' => $seed->anchor_date?->toDateString(),
                 'computed_at' => now()->toIso8601String(),
             ],
         ];
@@ -242,47 +267,34 @@ final class PatientSimilarityService
         $seedData = $seed->toArray();
         $candidateLimit = min($limit * self::SQL_CANDIDATE_MULTIPLIER, 500);
 
-        // Demographics-first SQL pre-filter: narrow 932K rows to a manageable
-        // set using indexed columns (gender, age_bucket), then score in PHP.
-        // JSONB Jaccard in SQL is too expensive as a correlated subquery at this scale.
-        $sql = <<<'SQL'
-            SELECT *
-            FROM patient_feature_vectors
-            WHERE source_id = ?
-              AND person_id != ?
-              AND gender_concept_id = ?
-              AND age_bucket BETWEEN ? AND ?
-            ORDER BY
-                CASE WHEN race_concept_id = ? THEN 0 ELSE 1 END,
-                ABS(age_bucket - ?)
-            LIMIT ?
-            SQL;
+        $candidateQuery = PatientFeatureVector::query()
+            ->forSource($source->id)
+            ->where('person_id', '!=', $seed->person_id);
 
-        $ageBucketRange = 3; // +/- 15 years
-        $params = [
-            $source->id,
-            $seed->person_id,
-            $seed->gender_concept_id,
-            max(0, $seed->age_bucket - $ageBucketRange),
-            $seed->age_bucket + $ageBucketRange,
-            $seed->race_concept_id ?? 0,
-            $seed->age_bucket,
-            $candidateLimit,
-        ];
+        $this->applyFilters($candidateQuery, $filters);
 
-        $rows = DB::select($sql, $params);
+        if (($weights['demographics'] ?? 0.0) > 0.0 && $seed->age_bucket !== null) {
+            $candidateQuery->orderByRaw('ABS(age_bucket - ?)', [$seed->age_bucket]);
+        }
 
-        // Hydrate only the top candidates for full scoring.
-        // Strip SQL-computed score columns before hydrating to avoid cast conflicts.
-        $candidates = collect($rows)->map(function (object $row): PatientFeatureVector {
-            $attrs = (array) $row;
-            unset($attrs['demo_score'], $attrs['cond_score'], $attrs['drug_score']);
+        if (($weights['demographics'] ?? 0.0) > 0.0 && $seed->gender_concept_id !== null) {
+            $candidateQuery->orderByRaw(
+                'CASE WHEN gender_concept_id = ? THEN 0 ELSE 1 END',
+                [$seed->gender_concept_id]
+            );
+        }
 
-            $model = new PatientFeatureVector;
-            $model->setRawAttributes($attrs, true);
+        if (($weights['demographics'] ?? 0.0) > 0.0 && $seed->race_concept_id !== null) {
+            $candidateQuery->orderByRaw(
+                'CASE WHEN race_concept_id = ? THEN 0 ELSE 1 END',
+                [$seed->race_concept_id]
+            );
+        }
 
-            return $model;
-        });
+        $candidates = $candidateQuery
+            ->orderBy('person_id')
+            ->limit($candidateLimit)
+            ->get();
 
         // Full scoring with all dimension scorers
         $scored = [];
@@ -290,13 +302,7 @@ final class PatientSimilarityService
             $result = $this->scorePatientPair($seedData, $candidate->toArray(), $weights);
 
             if ($result['overall_score'] >= $minScore) {
-                $scored[] = [
-                    'person_id' => $candidate->person_id,
-                    'overall_score' => $result['overall_score'],
-                    'dimension_scores' => $result['dimension_scores'],
-                    'age_bucket' => $candidate->age_bucket,
-                    'gender_concept_id' => $candidate->gender_concept_id,
-                ];
+                $scored[] = $this->buildScoredPatient($candidate, $result);
             }
         }
 
@@ -304,21 +310,22 @@ final class PatientSimilarityService
         $scored = array_slice($scored, 0, $limit);
 
         return [
-            'seed' => [
-                'person_id' => $seed->person_id,
-                'age_bucket' => $seed->age_bucket,
-                'gender_concept_id' => $seed->gender_concept_id,
-                'dimensions_available' => $seed->dimensions_available,
-            ],
+            'seed' => $this->buildSeedSummary($seed),
             'mode' => 'interpretable',
             'similar_patients' => $scored,
             'metadata' => [
                 'total_candidates' => $totalCandidates,
                 'sql_prescored' => true,
-                'candidates_loaded' => count($rows),
+                'candidates_loaded' => $candidates->count(),
                 'above_threshold' => count($scored),
+                'returned_count' => count($scored),
                 'weights' => $weights,
+                'filters_applied' => $filters,
+                'limit' => $limit,
                 'min_score' => $minScore,
+                'temporal_window_days' => self::RECENT_WINDOW_DAYS,
+                'feature_vector_version' => $seed->version,
+                'seed_anchor_date' => $seed->anchor_date?->toDateString(),
                 'computed_at' => now()->toIso8601String(),
             ],
         ];
@@ -332,14 +339,16 @@ final class PatientSimilarityService
      */
     private function applyFilters(Builder $query, array $filters): void
     {
+        $filters = $this->normalizeFilters($filters);
+
         if (! empty($filters['gender_concept_id'])) {
             $query->where('gender_concept_id', (int) $filters['gender_concept_id']);
         }
 
         if (! empty($filters['age_range'])) {
             $range = $filters['age_range'];
-            $minAge = (int) ($range['min'] ?? 0);
-            $maxAge = (int) ($range['max'] ?? 120);
+            $minAge = (int) ($range[0] ?? 0);
+            $maxAge = (int) ($range[1] ?? 120);
             $minBucket = intdiv($minAge, 5);
             $maxBucket = intdiv($maxAge, 5);
             $query->whereBetween('age_bucket', [$minBucket, $maxBucket]);
@@ -367,6 +376,7 @@ final class PatientSimilarityService
         array $filters = [],
     ): array {
         $seedData = $seed->toArray();
+        $filters = $this->normalizeFilters($filters);
         $embeddingStr = $seed->getRawOriginal('embedding');
 
         if (! $embeddingStr) {
@@ -406,7 +416,7 @@ final class PatientSimilarityService
         foreach ($candidates as $candidate) {
             $result = $this->scorePatientPair($seedData, $candidate->toArray(), $weights);
             if ($result['overall_score'] >= $minScore) {
-                $scored[] = array_merge($result, ['person_id' => $candidate->person_id]);
+                $scored[] = $this->buildScoredPatient($candidate, $result);
             }
         }
 
@@ -414,19 +424,21 @@ final class PatientSimilarityService
         $scored = array_slice($scored, 0, $limit);
 
         return [
-            'seed' => [
-                'person_id' => $seed->person_id,
-                'age_bucket' => $seed->age_bucket,
-                'gender_concept_id' => $seed->gender_concept_id,
-                'condition_count' => $seed->condition_count,
-                'lab_count' => $seed->lab_count,
-                'dimensions_available' => $seed->dimensions_available,
-            ],
+            'seed' => $this->buildSeedSummary($seed),
             'mode' => 'embedding',
             'similar_patients' => $scored,
             'metadata' => [
                 'candidates_evaluated' => count($candidateRows),
+                'returned_count' => count($scored),
                 'dimensions_used' => array_keys($weights),
+                'filters_applied' => $filters,
+                'limit' => $limit,
+                'min_score' => $minScore,
+                'weights' => $weights,
+                'temporal_window_days' => self::RECENT_WINDOW_DAYS,
+                'feature_vector_version' => $seed->version,
+                'seed_anchor_date' => $seed->anchor_date?->toDateString(),
+                'computed_at' => now()->toIso8601String(),
             ],
         ];
     }
@@ -452,6 +464,7 @@ final class PatientSimilarityService
         float $minScore,
         array $filters = [],
     ): array {
+        $filters = $this->normalizeFilters($filters);
         $query = PatientFeatureVector::query()
             ->forSource($source->id);
 
@@ -478,7 +491,16 @@ final class PatientSimilarityService
                     $centroidAgeBucket + 2,
                 ]);
             }
-            $query->limit(min($limit * self::SQL_CANDIDATE_MULTIPLIER, 500));
+            $query
+                ->orderByRaw('ABS(age_bucket - ?)', [$centroidAgeBucket ?? 0])
+                ->orderByRaw(
+                    'CASE WHEN gender_concept_id = ? THEN 0 ELSE 1 END',
+                    [$centroidGender ?? 0]
+                )
+                ->orderBy('person_id')
+                ->limit(min($limit * self::SQL_CANDIDATE_MULTIPLIER, 500));
+        } else {
+            $query->orderBy('person_id');
         }
 
         $candidates = $query->get();
@@ -489,13 +511,7 @@ final class PatientSimilarityService
             $result = $this->scorePatientPair($centroidData, $candidate->toArray(), $weights);
 
             if ($result['overall_score'] >= $minScore) {
-                $scored[] = [
-                    'person_id' => $candidate->person_id,
-                    'overall_score' => $result['overall_score'],
-                    'dimension_scores' => $result['dimension_scores'],
-                    'age_bucket' => $candidate->age_bucket,
-                    'gender_concept_id' => $candidate->gender_concept_id,
-                ];
+                $scored[] = $this->buildScoredPatient($candidate, $result);
             }
         }
 
@@ -508,17 +524,60 @@ final class PatientSimilarityService
                 'type' => 'centroid',
                 'member_count' => count($excludePersonIds),
                 'dimensions_available' => $centroidData['dimensions_available'] ?? [],
+                'feature_vector_version' => $centroidData['version'] ?? null,
             ],
             'mode' => 'interpretable',
             'similar_patients' => $scored,
             'metadata' => [
                 'total_candidates' => $totalCandidates,
                 'above_threshold' => count($scored),
+                'returned_count' => count($scored),
                 'weights' => $weights,
+                'filters_applied' => $filters,
+                'limit' => $limit,
                 'min_score' => $minScore,
                 'excluded_members' => count($excludePersonIds),
+                'temporal_window_days' => self::RECENT_WINDOW_DAYS,
+                'feature_vector_version' => $centroidData['version'] ?? null,
                 'computed_at' => now()->toIso8601String(),
             ],
+        ];
+    }
+
+    /**
+     * @param  array{overall_score: float, dimension_scores: array<string, float|null>}  $result
+     * @return array<string, mixed>
+     */
+    private function buildScoredPatient(PatientFeatureVector $candidate, array $result): array
+    {
+        return [
+            'person_id' => $candidate->person_id,
+            'overall_score' => $result['overall_score'],
+            'dimension_scores' => $result['dimension_scores'],
+            'age_bucket' => $candidate->age_bucket,
+            'gender_concept_id' => $candidate->gender_concept_id,
+            'anchor_date' => $candidate->anchor_date?->toDateString(),
+            'condition_count' => $candidate->condition_count,
+            'lab_count' => $candidate->lab_count,
+            'dimensions_available' => $candidate->dimensions_available,
+            'feature_vector_version' => $candidate->version,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildSeedSummary(PatientFeatureVector $seed): array
+    {
+        return [
+            'person_id' => $seed->person_id,
+            'age_bucket' => $seed->age_bucket,
+            'gender_concept_id' => $seed->gender_concept_id,
+            'anchor_date' => $seed->anchor_date?->toDateString(),
+            'condition_count' => $seed->condition_count,
+            'lab_count' => $seed->lab_count,
+            'dimensions_available' => $seed->dimensions_available,
+            'feature_vector_version' => $seed->version,
         ];
     }
 
@@ -608,5 +667,65 @@ final class PatientSimilarityService
             'staleness_warning' => $stalenessWarning,
             'staleness_threshold_days' => self::STALENESS_THRESHOLD_DAYS,
         ];
+    }
+
+    /**
+     * Normalize supported filter shapes to a canonical format.
+     *
+     * Canonical shape:
+     * - age_range: [minAge, maxAge]
+     * - gender_concept_id: OMOP concept id
+     *
+     * Backward compatibility:
+     * - age_min / age_max
+     * - age_range as {min, max}
+     * - gender as MALE/FEMALE
+     *
+     * @param  array<string, mixed>  $filters
+     * @return array<string, mixed>
+     */
+    private function normalizeFilters(array $filters): array
+    {
+        $normalized = [];
+
+        $genderConceptId = $filters['gender_concept_id'] ?? null;
+        if ($genderConceptId === null && isset($filters['gender']) && is_string($filters['gender'])) {
+            $genderConceptId = self::GENDER_CONCEPT_MAP[strtoupper($filters['gender'])] ?? null;
+        }
+        if (is_numeric($genderConceptId)) {
+            $normalized['gender_concept_id'] = (int) $genderConceptId;
+        }
+
+        $ageRange = $filters['age_range'] ?? null;
+        $minAge = null;
+        $maxAge = null;
+
+        if (is_array($ageRange)) {
+            if (array_is_list($ageRange)) {
+                $minAge = $ageRange[0] ?? null;
+                $maxAge = $ageRange[1] ?? null;
+            } else {
+                $minAge = $ageRange['min'] ?? null;
+                $maxAge = $ageRange['max'] ?? null;
+            }
+        }
+
+        if ($minAge === null && isset($filters['age_min'])) {
+            $minAge = $filters['age_min'];
+        }
+        if ($maxAge === null && isset($filters['age_max'])) {
+            $maxAge = $filters['age_max'];
+        }
+
+        if ($minAge !== null || $maxAge !== null) {
+            $normalizedMin = max(0, (int) ($minAge ?? 0));
+            $normalizedMax = min(150, (int) ($maxAge ?? 150));
+            $normalized['age_range'] = [
+                min($normalizedMin, $normalizedMax),
+                max($normalizedMin, $normalizedMax),
+            ];
+        }
+
+        return $normalized;
     }
 }

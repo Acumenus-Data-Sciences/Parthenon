@@ -16,6 +16,7 @@ use App\Models\App\SimilarityDimension;
 use App\Models\App\Source;
 use App\Services\PatientSimilarity\CohortCentroidBuilder;
 use App\Services\PatientSimilarity\PatientSimilarityService;
+use App\Services\PatientSimilarity\SearchResultDiagnosticsService;
 use App\Services\PatientSimilarity\SimilarityExplainer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -32,6 +33,7 @@ class PatientSimilarityController extends Controller
     public function __construct(
         private readonly PatientSimilarityService $service,
         private readonly CohortCentroidBuilder $centroidBuilder,
+        private readonly SearchResultDiagnosticsService $diagnosticsService,
         private readonly SimilarityExplainer $explainer,
     ) {}
 
@@ -76,6 +78,16 @@ class PatientSimilarityController extends Controller
 
             // Enrich results with shared features and similarity explanations
             $results = $this->enrichSearchResults($results, $source->id);
+            $results = $this->appendDiagnostics($results, $source->id);
+
+            $results = $this->mergeMetadata($results, [
+                'mode' => $results['mode'] ?? $mode,
+                'seed_person_id' => (int) $validated['person_id'],
+                'source_id' => $source->id,
+                'limit' => $limit,
+                'min_score' => $minScore,
+                'count' => count($results['similar_patients'] ?? []),
+            ]);
 
             // Tiered access: strip person-level details if user lacks profiles.view
             if (! $request->user()->can('profiles.view')) {
@@ -94,7 +106,7 @@ class PatientSimilarityController extends Controller
             return response()->json([
                 'data' => $results,
                 'meta' => [
-                    'mode' => $mode,
+                    'mode' => $results['mode'] ?? $mode,
                     'seed_person_id' => (int) $validated['person_id'],
                     'source_id' => $source->id,
                     'limit' => $limit,
@@ -199,6 +211,12 @@ class PatientSimilarityController extends Controller
                 'limit' => ['sometimes', 'integer', 'min:1', 'max:100'],
                 'min_score' => ['sometimes', 'numeric', 'min:0', 'max:1'],
                 'filters' => ['sometimes', 'array'],
+                'filters.age_range' => ['sometimes', 'array', 'size:2'],
+                'filters.age_range.*' => ['integer', 'min:0', 'max:150'],
+                'filters.age_min' => ['sometimes', 'integer', 'min:0', 'max:150'],
+                'filters.age_max' => ['sometimes', 'integer', 'min:0', 'max:150'],
+                'filters.gender_concept_id' => ['sometimes', 'integer'],
+                'filters.gender' => ['sometimes', 'string', 'in:MALE,FEMALE'],
             ]);
 
             $source = Source::with('daimons')->findOrFail($validated['source_id']);
@@ -250,6 +268,17 @@ class PatientSimilarityController extends Controller
 
             // Enrich results with shared features and explanations
             $results = $this->enrichSearchResults($results, $source->id);
+            $results = $this->appendDiagnostics($results, $source->id, $memberRows);
+
+            $results = $this->mergeMetadata($results, [
+                'cohort_definition_id' => (int) $validated['cohort_definition_id'],
+                'cohort_name' => CohortDefinition::find($validated['cohort_definition_id'])?->name ?? 'Unknown Cohort',
+                'cohort_member_count' => count($memberRows),
+                'source_id' => $source->id,
+                'limit' => $limit,
+                'min_score' => $minScore,
+                'count' => count($results['similar_patients'] ?? []),
+            ]);
 
             // Tiered access: strip person-level details if user lacks profiles.view
             if (! $request->user()->can('profiles.view')) {
@@ -265,14 +294,11 @@ class PatientSimilarityController extends Controller
                 }, $results['similar_patients'] ?? []);
             }
 
-            // Get cohort name for frontend display
-            $cohortDef = CohortDefinition::find($validated['cohort_definition_id']);
-
             return response()->json([
                 'data' => $results,
                 'meta' => [
                     'cohort_definition_id' => (int) $validated['cohort_definition_id'],
-                    'cohort_name' => $cohortDef?->name ?? 'Unknown Cohort',
+                    'cohort_name' => $results['metadata']['cohort_name'] ?? 'Unknown Cohort',
                     'cohort_member_count' => count($memberRows),
                     'source_id' => $source->id,
                     'limit' => $limit,
@@ -325,6 +351,12 @@ class PatientSimilarityController extends Controller
                     'seed_person_id' => $cache->seed_person_id,
                     'source_id' => $cache->source_id,
                     'min_score' => $minScore,
+                    'query_hash' => $results['metadata']['query_hash'] ?? null,
+                    'weights' => $results['metadata']['weights'] ?? null,
+                    'filters_applied' => $results['metadata']['filters_applied'] ?? null,
+                    'temporal_window_days' => $results['metadata']['temporal_window_days'] ?? null,
+                    'feature_vector_version' => $results['metadata']['feature_vector_version'] ?? null,
+                    'diagnostics' => $results['metadata']['diagnostics'] ?? null,
                 ],
                 'author_id' => $request->user()->id,
                 'is_public' => false,
@@ -523,6 +555,90 @@ class PatientSimilarityController extends Controller
             $similarPatients,
             $candidateVectors,
         );
+
+        return $results;
+    }
+
+    /**
+     * Append researcher-facing diagnostics for the returned result cohort.
+     *
+     * @param  array<string, mixed>  $results
+     * @param  array<int>|null  $referencePersonIds
+     * @return array<string, mixed>
+     */
+    private function appendDiagnostics(array $results, int $sourceId, ?array $referencePersonIds = null): array
+    {
+        $similarPatients = $results['similar_patients'] ?? [];
+
+        if ($similarPatients === []) {
+            $results['metadata'] = array_merge($results['metadata'] ?? [], [
+                'diagnostics' => [
+                    'result_profile' => [
+                        'result_count' => 0,
+                        'dimension_coverage' => [],
+                    ],
+                    'balance' => [
+                        'applicable' => false,
+                        'reference' => $referencePersonIds !== null ? 'seed_cohort' : 'single_patient',
+                        'verdict' => 'insufficient_data',
+                        'covariates' => [],
+                    ],
+                    'warnings' => ['No similar patients were returned.'],
+                ],
+            ]);
+
+            return $results;
+        }
+
+        $seedPersonId = $results['seed']['person_id'] ?? null;
+        $seedData = null;
+        if ($seedPersonId === 0 || $seedPersonId === null) {
+            $seedData = $results['seed'] ?? null;
+        }
+
+        $candidatePersonIds = array_values(array_filter(
+            array_map(fn (array $patient): int => (int) ($patient['person_id'] ?? 0), $similarPatients),
+        ));
+
+        $resultVectors = PatientFeatureVector::query()
+            ->forSource($sourceId)
+            ->whereIn('person_id', $candidatePersonIds)
+            ->get();
+
+        if ($seedData === null && $seedPersonId !== null) {
+            $seedVector = PatientFeatureVector::query()
+                ->forSource($sourceId)
+                ->where('person_id', $seedPersonId)
+                ->first();
+
+            if ($seedVector !== null) {
+                $seedData = $seedVector->toArray();
+            }
+        }
+
+        if ($seedData === null) {
+            return $results;
+        }
+
+        $referenceVectors = null;
+        if ($referencePersonIds !== null && $referencePersonIds !== []) {
+            $referenceVectors = PatientFeatureVector::query()
+                ->forSource($sourceId)
+                ->whereIn('person_id', $referencePersonIds)
+                ->get()
+                ->map(fn (PatientFeatureVector $vector): array => $vector->toArray())
+                ->all();
+        }
+
+        $diagnostics = $this->diagnosticsService->build(
+            $seedData,
+            $resultVectors->map(fn (PatientFeatureVector $vector): array => $vector->toArray())->all(),
+            $referenceVectors,
+        );
+
+        $results['metadata'] = array_merge($results['metadata'] ?? [], [
+            'diagnostics' => $diagnostics,
+        ]);
 
         return $results;
     }
@@ -933,14 +1049,23 @@ class PatientSimilarityController extends Controller
             );
 
             $results = $this->enrichSearchResults($results, $source->id);
+            $results = $this->appendDiagnostics($results, $source->id, $sourceMemberIds);
 
-            $sourceCohortDef = CohortDefinition::find($validated['source_cohort_id']);
+            $results = $this->mergeMetadata($results, [
+                'source_cohort_id' => (int) $validated['source_cohort_id'],
+                'source_cohort_name' => CohortDefinition::find($validated['source_cohort_id'])?->name ?? 'Unknown',
+                'target_cohort_id' => (int) $validated['target_cohort_id'],
+                'source_id' => $source->id,
+                'excluded_count' => count($excludeIds),
+                'limit' => $limit,
+                'count' => count($results['similar_patients'] ?? []),
+            ]);
 
             return response()->json([
                 'data' => $results,
                 'meta' => [
                     'source_cohort_id' => (int) $validated['source_cohort_id'],
-                    'source_cohort_name' => $sourceCohortDef?->name ?? 'Unknown',
+                    'source_cohort_name' => $results['metadata']['source_cohort_name'] ?? 'Unknown',
                     'target_cohort_id' => (int) $validated['target_cohort_id'],
                     'source_id' => $source->id,
                     'excluded_count' => count($excludeIds),
@@ -965,5 +1090,19 @@ class PatientSimilarityController extends Controller
         }
 
         return response()->json($response, 500);
+    }
+
+    /**
+     * Merge controller-level metadata into the canonical data.metadata payload.
+     *
+     * @param  array<string, mixed>  $results
+     * @param  array<string, mixed>  $metadata
+     * @return array<string, mixed>
+     */
+    private function mergeMetadata(array $results, array $metadata): array
+    {
+        $results['metadata'] = array_merge($results['metadata'] ?? [], $metadata);
+
+        return $results;
     }
 }

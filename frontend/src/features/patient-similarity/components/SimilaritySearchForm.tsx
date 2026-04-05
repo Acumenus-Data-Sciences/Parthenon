@@ -5,6 +5,7 @@ import { useSourceStore } from "@/stores/sourceStore";
 import { usePersonSearch } from "@/features/profiles/hooks/useProfiles";
 import { useSimilarityDimensions } from "../hooks/usePatientSimilarity";
 import type { SimilaritySearchParams } from "../types/patientSimilarity";
+import { buildSimilarityFilters } from "../utils/similarityFilters";
 
 interface SimilaritySearchFormProps {
   onSearch: (params: SimilaritySearchParams) => void;
@@ -89,19 +90,13 @@ export function SimilaritySearchForm({
     e.preventDefault();
     const pid = parseInt(personId, 10);
     if (isNaN(pid) || sourceId <= 0) return;
-
-    const filters: Record<string, unknown> = {};
-    const minAge = parseInt(ageMin, 10);
-    const maxAge = parseInt(ageMax, 10);
-    if (!isNaN(minAge)) filters.age_min = minAge;
-    if (!isNaN(maxAge)) filters.age_max = maxAge;
-    if (gender) filters.gender = gender;
+    const filters = buildSimilarityFilters(ageMin, ageMax, gender);
 
     onSearch({
       person_id: pid,
       source_id: sourceId,
       weights: Object.keys(weights).length > 0 ? weights : undefined,
-      filters: Object.keys(filters).length > 0 ? filters : undefined,
+      filters,
     });
   };
 

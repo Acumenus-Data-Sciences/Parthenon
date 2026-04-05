@@ -27,6 +27,10 @@ export interface SharedFeatureCategory {
   seed_count: number;
   candidate_count: number;
   top_shared: ResolvedConcept[];
+  recent_shared_count?: number;
+  recent_seed_count?: number;
+  recent_candidate_count?: number;
+  recent_top_shared?: ResolvedConcept[];
 }
 
 export interface SharedFeatures {
@@ -41,6 +45,11 @@ export interface SimilarPatient {
   dimension_scores: DimensionScores;
   age_bucket?: number;
   gender_concept_id?: number;
+  anchor_date?: string | null;
+  condition_count?: number;
+  lab_count?: number;
+  dimensions_available?: string[];
+  feature_vector_version?: number | null;
   shared_features?: SharedFeatures;
   similarity_summary?: string;
 }
@@ -49,9 +58,86 @@ export interface SeedPatient {
   person_id: number;
   age_bucket: number | null;
   gender_concept_id: number | null;
+  anchor_date?: string | null;
   dimensions_available: string[];
   condition_count?: number;
   lab_count?: number;
+  feature_vector_version?: number | null;
+}
+
+export interface SimilaritySearchMetadata {
+  cache_id?: number;
+  query_hash?: string;
+  computed_at?: string;
+  computed_in_ms?: number;
+  candidates_evaluated?: number;
+  candidates_loaded?: number;
+  total_candidates?: number;
+  above_threshold?: number;
+  returned_count?: number;
+  sql_prescored?: boolean;
+  weights?: Record<string, number>;
+  filters_applied?: SimilarityFilters;
+  limit?: number;
+  min_score?: number;
+  temporal_window_days?: number;
+  feature_vector_version?: number | null;
+  seed_anchor_date?: string | null;
+  excluded_members?: number;
+  diagnostics?: SearchResultDiagnostics;
+  cohort_name?: string;
+  cohort_member_count?: number;
+  cohort_definition_id?: number;
+  mode?: string;
+  source_id?: number;
+  count?: number;
+  error?: string;
+  [key: string]: unknown;
+}
+
+export interface DiagnosticDistributionRow {
+  concept_id: number;
+  label: string;
+  count: number;
+  proportion: number;
+}
+
+export interface DiagnosticBalanceRow {
+  covariate_name: string;
+  reference_proportion: number | null;
+  result_proportion: number | null;
+  smd: number | null;
+}
+
+export interface SearchResultDiagnostics {
+  result_profile: {
+    result_count: number;
+    dimension_coverage: Record<string, number>;
+    age_summary?: {
+      median_bucket?: number;
+      p25_bucket?: number;
+      p75_bucket?: number;
+      median_age?: number;
+    };
+    gender_distribution?: DiagnosticDistributionRow[];
+    race_distribution?: DiagnosticDistributionRow[];
+    anchor_date?: {
+      coverage: number;
+      min?: string | null;
+      max?: string | null;
+    };
+  };
+  balance: {
+    applicable: boolean;
+    reference: string;
+    verdict: string;
+    mean_abs_smd?: number | null;
+    balanced_covariates?: number;
+    imbalanced_covariates?: number;
+    high_imbalance_covariates?: number;
+    covariates: DiagnosticBalanceRow[];
+  };
+  warnings: string[];
 }
 
 export interface SimilaritySearchResult {
@@ -59,7 +145,12 @@ export interface SimilaritySearchResult {
   mode: string;
   similar_patients: SimilarPatient[];
   cohort_outcomes?: Record<string, unknown>;
-  metadata: Record<string, unknown>;
+  metadata: SimilaritySearchMetadata;
+}
+
+export interface SimilarityFilters {
+  age_range?: [number, number];
+  gender_concept_id?: number;
 }
 
 export interface SimilaritySearchParams {
@@ -69,7 +160,7 @@ export interface SimilaritySearchParams {
   weights?: Record<string, number>;
   limit?: number;
   min_score?: number;
-  filters?: Record<string, unknown>;
+  filters?: SimilarityFilters;
 }
 
 export interface ComputeStatus {
@@ -93,13 +184,13 @@ export interface CohortSimilaritySearchParams {
   weights?: Record<string, number>;
   limit?: number;
   min_score?: number;
-  filters?: Record<string, unknown>;
+  filters?: SimilarityFilters;
 }
 
 export interface CohortExportParams {
   cache_id: number;
   cohort_name: string;
-  description?: string;
+  cohort_description?: string;
   min_score?: number;
 }
 

@@ -19,40 +19,15 @@ final class ConditionScorer implements DimensionScorerInterface
      */
     public function score(array $patientA, array $patientB): float
     {
-        /** @var array<int> $setA */
-        $setA = $patientA['condition_concepts'] ?? [];
-        /** @var array<int> $setB */
-        $setB = $patientB['condition_concepts'] ?? [];
+        /** @var array<int> $lifetimeA */
+        $lifetimeA = $patientA['condition_concepts'] ?? [];
+        /** @var array<int> $lifetimeB */
+        $lifetimeB = $patientB['condition_concepts'] ?? [];
+        /** @var array<int> $recentA */
+        $recentA = $patientA['recent_condition_concepts'] ?? [];
+        /** @var array<int> $recentB */
+        $recentB = $patientB['recent_condition_concepts'] ?? [];
 
-        if ($setA === [] && $setB === []) {
-            return -1.0;
-        }
-
-        if ($setA === [] || $setB === []) {
-            return 0.0;
-        }
-
-        return $this->jaccard($setA, $setB);
-    }
-
-    /**
-     * Efficient Jaccard similarity using array_flip + array_intersect_key.
-     *
-     * @param  array<int>  $a
-     * @param  array<int>  $b
-     */
-    private function jaccard(array $a, array $b): float
-    {
-        $flipA = array_flip($a);
-        $flipB = array_flip($b);
-
-        $intersection = count(array_intersect_key($flipA, $flipB));
-        $union = count($flipA + $flipB);
-
-        if ($union === 0) {
-            return 0.0;
-        }
-
-        return $intersection / $union;
+        return ConceptSetSimilarity::blendedJaccard($lifetimeA, $lifetimeB, $recentA, $recentB);
     }
 }

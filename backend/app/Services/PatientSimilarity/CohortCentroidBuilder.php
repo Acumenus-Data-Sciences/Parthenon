@@ -66,6 +66,12 @@ final class CohortCentroidBuilder
             ->unique()
             ->values()
             ->all();
+        $recentConditionConcepts = $vectors->pluck('recent_condition_concepts')
+            ->filter()
+            ->flatten()
+            ->unique()
+            ->values()
+            ->all();
 
         // Drugs: union of all member drug_concepts
         $drugConcepts = $vectors->pluck('drug_concepts')
@@ -74,9 +80,21 @@ final class CohortCentroidBuilder
             ->unique()
             ->values()
             ->all();
+        $recentDrugConcepts = $vectors->pluck('recent_drug_concepts')
+            ->filter()
+            ->flatten()
+            ->unique()
+            ->values()
+            ->all();
 
         // Procedures: union of all member procedure_concepts
         $procedureConcepts = $vectors->pluck('procedure_concepts')
+            ->filter()
+            ->flatten()
+            ->unique()
+            ->values()
+            ->all();
+        $recentProcedureConcepts = $vectors->pluck('recent_procedure_concepts')
             ->filter()
             ->flatten()
             ->unique()
@@ -93,6 +111,7 @@ final class CohortCentroidBuilder
             ->unique()
             ->values()
             ->all();
+        $featureVectorVersion = $vectors->max('version');
 
         // Determine which dimensions are available
         $dimensionsAvailable = [];
@@ -122,14 +141,18 @@ final class CohortCentroidBuilder
             'gender_concept_id' => $genderMode,
             'race_concept_id' => $raceMode,
             'condition_concepts' => $conditionConcepts,
+            'recent_condition_concepts' => $recentConditionConcepts,
             'condition_count' => count($conditionConcepts),
             'drug_concepts' => $drugConcepts,
+            'recent_drug_concepts' => $recentDrugConcepts,
             'procedure_concepts' => $procedureConcepts,
+            'recent_procedure_concepts' => $recentProcedureConcepts,
             'lab_vector' => $labVector,
             'lab_count' => count($labVector),
             'variant_genes' => $variantGenes,
             'variant_count' => count($variantGenes),
             'dimensions_available' => $dimensionsAvailable,
+            'version' => is_numeric($featureVectorVersion) ? (int) $featureVectorVersion : null,
         ];
     }
 
