@@ -538,6 +538,7 @@ Route::prefix('v1')->group(function () {
         // Enhanced Vocabulary
         Route::get('/vocabulary/compare', [VocabularyController::class, 'compare']);
         Route::get('/vocabulary/groupings', [VocabularyController::class, 'groupings']);
+        Route::get('/vocabulary/groupings/prevalence', [VocabularyController::class, 'groupingPrevalence']);
         Route::get('/vocabulary/tree', [VocabularyController::class, 'tree']);
         Route::get('/vocabulary/concepts/{id}/descendants', [VocabularyController::class, 'descendants']);
         Route::get('/vocabulary/concepts/{id}/hierarchy', [VocabularyController::class, 'hierarchy']);

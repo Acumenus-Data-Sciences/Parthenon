@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Enums\DaimonType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\VocabularySearchRequest;
 use App\Models\App\ClinicalGrouping;
+use App\Models\App\Source;
 use App\Models\Vocabulary\Concept;
 use App\Models\Vocabulary\ConceptAncestor;
 use App\Models\Vocabulary\ConceptRelationship;
@@ -14,6 +16,7 @@ use App\Services\AiService;
 use App\Services\Solr\VocabularySearchService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -564,6 +567,161 @@ class VocabularyController extends Controller
         });
 
         return response()->json(['data' => $data]);
+    }
+
+    /**
+     * GET /v1/vocabulary/groupings/prevalence
+     *
+     * Return person_count and record_count per clinical grouping, aggregated
+     * across all CDM sources or filtered to a single source.
+     */
+    public function groupingPrevalence(Request $request): JsonResponse
+    {
+        $domainId = $request->query('domain_id');
+        $sourceId = $request->query('source_id');
+
+        if (! $domainId) {
+            return response()->json(['error' => 'domain_id is required'], 422);
+        }
+
+        $sourceKey = $sourceId ?? 'all';
+        $cacheKey = "grouping_prevalence:{$domainId}:{$sourceKey}";
+
+        $data = Cache::remember($cacheKey, now()->addHours(24), function () use ($domainId, $sourceId) {
+            $groupings = ClinicalGrouping::query()
+                ->whereNull('parent_grouping_id')
+                ->where('domain_id', $domainId)
+                ->get();
+
+            $domainKey = strtolower($domainId);
+            $personAnalysisId = match ($domainKey) {
+                'condition' => 400,
+                'procedure' => 600,
+                'drug' => 700,
+                'measurement' => 1800,
+                'observation' => 800,
+                default => null,
+            };
+            $recordAnalysisId = match ($domainKey) {
+                'condition' => 401,
+                'procedure' => 601,
+                'drug' => 701,
+                'measurement' => 1801,
+                'observation' => 801,
+                default => null,
+            };
+
+            if ($personAnalysisId === null) {
+                return [];
+            }
+
+            // Discover results schemas from sources + daimons
+            $sourcesQuery = Source::with('daimons');
+            if ($sourceId) {
+                $sourcesQuery->where('id', $sourceId);
+            }
+            $sources = $sourcesQuery->get();
+
+            $resultsSchemas = [];
+            foreach ($sources as $source) {
+                $schema = $source->getTableQualifier(DaimonType::Results);
+                if ($schema) {
+                    $resultsSchemas[] = $schema;
+                }
+            }
+
+            if (empty($resultsSchemas)) {
+                return [];
+            }
+
+            // Collect all anchor concept IDs
+            $allAnchorIds = $groupings->flatMap(fn ($g) => $g->anchor_concept_ids)->unique()->values()->all();
+
+            if (empty($allAnchorIds)) {
+                return [];
+            }
+
+            // Get all descendant concept IDs for all anchors
+            $anchorPlaceholders = implode(',', array_fill(0, count($allAnchorIds), '?'));
+            $descendantRows = DB::connection('vocab')->select("
+                SELECT ca.ancestor_concept_id, ca.descendant_concept_id
+                FROM vocab.concept_ancestor ca
+                WHERE ca.ancestor_concept_id IN ({$anchorPlaceholders})
+            ", $allAnchorIds);
+
+            $descendantMap = [];
+            foreach ($descendantRows as $row) {
+                $descendantMap[$row->ancestor_concept_id][] = $row->descendant_concept_id;
+            }
+
+            // Build per-grouping descendant sets
+            $groupingDescendants = [];
+            foreach ($groupings as $grouping) {
+                $allDescendants = [];
+                foreach ($grouping->anchor_concept_ids as $anchorId) {
+                    $allDescendants = array_merge($allDescendants, $descendantMap[$anchorId] ?? [$anchorId]);
+                }
+                $groupingDescendants[$grouping->id] = array_unique($allDescendants);
+            }
+
+            // Query Achilles results across all results schemas
+            $personCounts = [];
+            $recordCounts = [];
+
+            foreach ($resultsSchemas as $schema) {
+                $personRows = DB::connection('pgsql')->select("
+                    SELECT CAST(ar.stratum_1 AS INTEGER) AS concept_id, ar.count_value
+                    FROM {$schema}.achilles_results ar
+                    WHERE ar.analysis_id = ?
+                      AND ar.stratum_1 IS NOT NULL
+                      AND ar.stratum_1 != ''
+                ", [$personAnalysisId]);
+
+                foreach ($personRows as $row) {
+                    $cid = (int) $row->concept_id;
+                    $personCounts[$cid] = ($personCounts[$cid] ?? 0) + (int) $row->count_value;
+                }
+
+                $recordRows = DB::connection('pgsql')->select("
+                    SELECT CAST(ar.stratum_1 AS INTEGER) AS concept_id, ar.count_value
+                    FROM {$schema}.achilles_results ar
+                    WHERE ar.analysis_id = ?
+                      AND ar.stratum_1 IS NOT NULL
+                      AND ar.stratum_1 != ''
+                ", [$recordAnalysisId]);
+
+                foreach ($recordRows as $row) {
+                    $cid = (int) $row->concept_id;
+                    $recordCounts[$cid] = ($recordCounts[$cid] ?? 0) + (int) $row->count_value;
+                }
+            }
+
+            // Aggregate per grouping
+            $result = [];
+            foreach ($groupings as $grouping) {
+                $descendants = $groupingDescendants[$grouping->id] ?? [];
+                $personTotal = 0;
+                $recordTotal = 0;
+
+                foreach ($descendants as $cid) {
+                    $personTotal += $personCounts[$cid] ?? 0;
+                    $recordTotal += $recordCounts[$cid] ?? 0;
+                }
+
+                $result[] = [
+                    'grouping_id' => $grouping->id,
+                    'person_count' => $personTotal,
+                    'record_count' => $recordTotal,
+                ];
+            }
+
+            return $result;
+        });
+
+        return response()->json([
+            'data' => $data,
+            'source' => $sourceId ? (int) $sourceId : 'all',
+        ]);
     }
 
     /**
