@@ -118,7 +118,7 @@ class ClinicalGroupingSeeder extends Seeder
             ['name' => 'Infectious Disease', 'description' => 'Infections caused by bacteria, viruses, fungi, and parasites', 'domain_id' => 'Condition', 'icon' => 'bug', 'color' => '#84CC16',
                 'anchors' => [['name' => 'Infectious disease', 'id' => 432545]]],
             ['name' => 'Neoplasm', 'description' => 'Benign and malignant tumors', 'domain_id' => 'Condition', 'icon' => 'target', 'color' => '#7C3AED',
-                'anchors' => [['name' => 'Malignant neoplastic disease', 'id' => 443392], ['name' => 'Benign neoplasm', 'id' => 4091513]]],
+                'anchors' => [['name' => 'Malignant neoplastic disease', 'id' => 443392], ['name' => 'Benign neoplastic disease', 'id' => 435506]]],
             ['name' => 'Mental & Behavioral', 'description' => 'Psychiatric and behavioral health conditions', 'domain_id' => 'Condition', 'icon' => 'brain', 'color' => '#6366F1',
                 'anchors' => [['name' => 'Mental disorder', 'id' => 441542]]],
             ['name' => 'Eye & Vision', 'description' => 'Eye and visual system disorders', 'domain_id' => 'Condition', 'icon' => 'eye', 'color' => '#14B8A6',

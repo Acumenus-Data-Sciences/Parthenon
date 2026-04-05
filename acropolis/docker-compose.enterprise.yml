@@ -27,12 +27,15 @@ services:
       - WEBHOOK_URL=https://n8n.${DOMAIN:-acumenus.net}/
       - N8N_PROXY_HOPS=1
       - N8N_RESTRICT_ENVIRONMENT_VARIABLES_ACCESS=false
+      - N8N_PUBLIC_API_DISABLED=false
       # Database connection for workflows
       - PGHOST=${DB_HOST:-pgsql.acumenus.net}
       - PGPORT=${DB_PORT:-5432}
       - PGUSER=${DB_USER:-}
       - PGPASSWORD=${DB_PASSWORD:-}
       - PGDATABASE=${DB_NAME:-}
+      # Anthropic API key for Claude-powered workflows
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
     volumes:
       - n8n_data:/home/node/.n8n
       - ./config/n8n/workflows:/home/node/workflows
