@@ -18,11 +18,15 @@ import {
   MapPin,
   Dna,
   AlertTriangle,
+  HeartPulse,
+  Database,
+  Layers,
   type LucideIcon,
 } from "lucide-react";
-import { FilterChip, Badge, StatusDot, Progress, EmptyState, Drawer, CodeBlock } from "@/components/ui";
-import { useJobs, useJob, useRetryJob, useCancelJob } from "../hooks/useJobs";
+import { FilterChip, Badge, Progress, EmptyState } from "@/components/ui";
+import { useJobs, useRetryJob, useCancelJob } from "../hooks/useJobs";
 import type { JobStatus, JobType, JobScope } from "../api/jobsApi";
+import { JobDetailDrawer } from "../components/JobDetailDrawer";
 import { cn } from "@/lib/utils";
 import { HelpButton } from "@/features/help";
 
@@ -49,9 +53,13 @@ const typeIcons: Partial<Record<JobType, LucideIcon>> = {
   ingestion: Upload,
   vocabulary_load: BookOpen,
   fhir_export: Globe,
+  fhir_sync: Globe,
   gis_import: MapPin,
+  gis_boundary: Layers,
   genomic_parse: Dna,
   heel: AlertTriangle,
+  care_gap: HeartPulse,
+  poseidon: Database,
   analysis: Wand2,
 };
 
@@ -106,24 +114,37 @@ function formatRelativeTime(dateStr: string): string {
 
 const typeFilters: Array<{ label: string; value: JobType | "all" }> = [
   { label: "All Types", value: "all" },
+  // ─── Research & Analysis ───
   { label: "Characterization", value: "characterization" },
   { label: "Incidence Rate", value: "incidence_rate" },
   { label: "Estimation", value: "estimation" },
   { label: "Prediction", value: "prediction" },
   { label: "Pathway", value: "pathway" },
-  { label: "Genomic Parse", value: "genomic_parse" },
-  { label: "Ingestion", value: "ingestion" },
-  { label: "FHIR Export", value: "fhir_export" },
-  { label: "GIS Import", value: "gis_import" },
-  { label: "Vocabulary", value: "vocabulary_load" },
+  { label: "SCCS", value: "sccs" },
+  { label: "Evidence Synthesis", value: "evidence_synthesis" },
+  { label: "Cohort Generation", value: "cohort_generation" },
+  { label: "Care Gaps", value: "care_gap" },
+  // ─── Data Quality ──���
+  { label: "Achilles", value: "achilles" },
   { label: "Data Quality", value: "dqd" },
   { label: "Heel Checks", value: "heel" },
+  // ─── Data Pipeline ───
+  { label: "Ingestion", value: "ingestion" },
+  { label: "Vocabulary", value: "vocabulary_load" },
+  { label: "Genomic Parse", value: "genomic_parse" },
+  { label: "Poseidon ETL", value: "poseidon" },
+  // ─── Integrations ───
+  { label: "FHIR Export", value: "fhir_export" },
+  { label: "FHIR Sync", value: "fhir_sync" },
+  // ─── GIS ───
+  { label: "GIS Import", value: "gis_import" },
+  { label: "GIS Boundaries", value: "gis_boundary" },
 ];
 
 export default function JobsPage() {
   const [statusFilter, setStatusFilter] = useState<JobStatus | "all" | "archived">("all");
   const [typeFilter, setTypeFilter] = useState<JobType | "all">("all");
-  const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
+  const [selectedJob, setSelectedJob] = useState<{ id: number; type: JobType } | null>(null);
 
   // Map the combined status/scope filter to API params
   const isArchived = statusFilter === "archived";
@@ -135,7 +156,6 @@ export default function JobsPage() {
     ...(statusParam ? { status: statusParam } : {}),
     ...(typeFilter !== "all" ? { type: typeFilter } : {}),
   });
-  const { data: selectedJob } = useJob(selectedJobId);
   const retryMutation = useRetryJob();
   const cancelMutation = useCancelJob();
 
@@ -223,7 +243,7 @@ export default function JobsPage() {
                   <tr
                     key={job.id}
                     className="clickable"
-                    onClick={() => setSelectedJobId(job.id)}
+                    onClick={() => setSelectedJob({ id: job.id, type: job.type })}
                   >
                     <td style={{ color: "var(--text-primary)", fontWeight: 500 }}>
                       {job.name}
@@ -310,89 +330,13 @@ export default function JobsPage() {
       </div>
 
       {/* Job detail drawer */}
-      <Drawer
-        open={selectedJobId != null}
-        onClose={() => setSelectedJobId(null)}
-        title={selectedJob?.name ?? "Job Details"}
-        size="lg"
-      >
-        {selectedJob && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
-            {/* Status */}
-            <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-              <StatusDot status={selectedJob.status as "running" | "success" | "fail"} />
-              <Badge
-                variant={
-                  selectedJob.status === "completed" ? "success" :
-                  selectedJob.status === "failed" ? "critical" :
-                  selectedJob.status === "running" ? "info" :
-                  "default"
-                }
-              >
-                {selectedJob.status}
-              </Badge>
-              {selectedJob.status === "running" && (
-                <Progress value={selectedJob.progress} variant="info" className="flex-1" />
-              )}
-            </div>
-
-            {/* Metadata grid */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-3)" }}>
-              <div>
-                <div className="text-label">Type</div>
-                <div style={{ color: "var(--text-secondary)", fontSize: "var(--text-sm)" }}>{formatJobType(selectedJob.type)}</div>
-              </div>
-              <div>
-                <div className="text-label">Source</div>
-                <div style={{ color: "var(--text-secondary)", fontSize: "var(--text-sm)" }}>{selectedJob.source_name ?? "—"}</div>
-              </div>
-              <div>
-                <div className="text-label">Triggered By</div>
-                <div style={{ color: "var(--text-secondary)", fontSize: "var(--text-sm)" }}>{selectedJob.triggered_by ?? "—"}</div>
-              </div>
-              <div>
-                <div className="text-label">Duration</div>
-                <div className="text-mono" style={{ color: "var(--text-secondary)" }}>
-                  {formatDuration(selectedJob.started_at, selectedJob.completed_at)}
-                </div>
-              </div>
-            </div>
-
-            {/* Error message */}
-            {selectedJob.error_message && (
-              <div className="alert-card alert-critical">
-                <XCircle size={16} className="alert-icon" />
-                <div className="alert-content">
-                  <div className="alert-title">Error</div>
-                  <div className="alert-message">{selectedJob.error_message}</div>
-                </div>
-              </div>
-            )}
-
-            {/* Log output */}
-            {selectedJob.log_output && (
-              <div>
-                <div className="text-label" style={{ marginBottom: "var(--space-2)" }}>Log Output</div>
-                <CodeBlock code={selectedJob.log_output} language="log" />
-              </div>
-            )}
-
-            {/* Actions */}
-            <div style={{ display: "flex", gap: "var(--space-3)", paddingTop: "var(--space-3)", borderTop: "1px solid var(--border-default)" }}>
-              {selectedJob.status === "failed" && (
-                <button className="btn btn-primary btn-sm" onClick={() => handleRetry(selectedJob.id)}>
-                  <RefreshCw size={14} /> Retry
-                </button>
-              )}
-              {(selectedJob.status === "running" || selectedJob.status === "queued") && (
-                <button className="btn btn-danger btn-sm" onClick={() => handleCancel(selectedJob.id)}>
-                  <Ban size={14} /> Cancel
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-      </Drawer>
+      <JobDetailDrawer
+        jobId={selectedJob?.id ?? null}
+        jobType={selectedJob?.type ?? null}
+        onClose={() => setSelectedJob(null)}
+        onRetry={handleRetry}
+        onCancel={handleCancel}
+      />
     </div>
   );
 }

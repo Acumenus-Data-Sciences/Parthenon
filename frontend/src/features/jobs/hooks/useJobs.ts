@@ -15,14 +15,14 @@ export function useJobs(params?: { status?: JobStatus; type?: JobType; scope?: J
   });
 }
 
-export function useJob(id: number | null) {
+export function useJobDetail(id: number | null, type: JobType | null) {
   return useQuery({
-    queryKey: ["jobs", id],
-    queryFn: () => fetchJob(id!),
-    enabled: id != null,
+    queryKey: ["jobs", "detail", id, type],
+    queryFn: () => fetchJob(id!, type!),
+    enabled: id != null && type != null,
     refetchInterval: (query) => {
       const status = query.state.data?.status;
-      return status === "running" || status === "queued" || status === "pending" ? 1_000 : false;
+      return status === "running" || status === "queued" || status === "pending" ? 2_000 : false;
     },
   });
 }

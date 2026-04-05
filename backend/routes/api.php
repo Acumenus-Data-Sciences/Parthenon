@@ -166,7 +166,7 @@ Route::prefix('v1')->group(function () {
 
         // Jobs
         Route::get('/jobs', [JobController::class, 'index']);
-        Route::get('/jobs/{job}', [JobController::class, 'show']);
+        Route::get('/jobs/{jobId}', [JobController::class, 'show'])->whereNumber('jobId');
         Route::post('/jobs/{job}/retry', [JobController::class, 'retry']);
         Route::post('/jobs/{job}/cancel', [JobController::class, 'cancel']);
 

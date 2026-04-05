@@ -15,9 +15,13 @@ export type JobType =
   | "ingestion"
   | "vocabulary_load"
   | "fhir_export"
+  | "fhir_sync"
   | "gis_import"
+  | "gis_boundary"
   | "genomic_parse"
   | "heel"
+  | "care_gap"
+  | "poseidon"
   | "analysis";
 
 export interface Job {
@@ -34,6 +38,17 @@ export interface Job {
   error_message: string | null;
   log_output: string | null;
   created_at: string;
+}
+
+export interface TimelineEntry {
+  timestamp: string;
+  level: string;
+  message: string;
+}
+
+export interface JobDetail extends Job {
+  details: Record<string, unknown>;
+  timeline: TimelineEntry[];
 }
 
 export interface JobsResponse {
@@ -59,11 +74,11 @@ export async function fetchJobs(params?: {
   return data;
 }
 
-export async function fetchJob(id: number): Promise<Job> {
+export async function fetchJob(id: number, type: JobType): Promise<JobDetail> {
   if (id == null) {
     throw new Error("Job id is required");
   }
-  const { data } = await apiClient.get<Job>(`/jobs/${id}`);
+  const { data } = await apiClient.get<JobDetail>(`/jobs/${id}`, { params: { type } });
   return data;
 }
 
