@@ -1,11 +1,45 @@
 /// <reference types="vitest/config" />
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
+import { chmodSync, readdirSync, statSync } from "fs";
+
+/**
+ * Normalize dist/ permissions after build so Apache can serve files.
+ * Host umask 0007 (from USERGROUPS_ENAB + UMASK 027 in login.defs)
+ * creates files as 660 — www-data gets no access → 403.
+ */
+function fixDistPermissions(): Plugin {
+  return {
+    name: "fix-dist-permissions",
+    apply: "build",
+    writeBundle() {
+      const distDir = path.resolve(__dirname, "dist");
+      try {
+        fixPerms(distDir);
+      } catch {
+        // Non-fatal: Windows or permission-restricted environments
+      }
+    },
+  };
+}
+
+function fixPerms(dir: string): void {
+  chmodSync(dir, 0o755);
+  for (const entry of readdirSync(dir)) {
+    const full = path.join(dir, entry);
+    const stat = statSync(full);
+    if (stat.isDirectory()) {
+      fixPerms(full);
+    } else {
+      chmodSync(full, 0o644);
+    }
+  }
+}
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), fixDistPermissions()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
