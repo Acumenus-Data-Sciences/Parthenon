@@ -47,7 +47,7 @@ export function HierarchyBrowserPanel({
   const [showGroupings, setShowGroupings] = useState(true);
   const [activeDomain, setActiveDomain] = useState<string | null>(null);
 
-  const { data: nodes, isLoading } = useConceptTree(parentId);
+  const { data: nodes, isLoading } = useConceptTree(parentId, activeDomain ?? undefined);
   const { data: groupings, isLoading: groupingsLoading } = useClinicalGroupings(activeDomain);
 
   const isRootLevel = parentId === 0;
