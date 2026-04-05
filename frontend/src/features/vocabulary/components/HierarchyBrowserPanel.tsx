@@ -1,9 +1,11 @@
 import { useState, useMemo, useCallback } from "react";
-import { ChevronRight, FolderTree, Loader2, Search, Info, X, LayoutGrid, List } from "lucide-react";
+import { ChevronDown, ChevronRight, FolderTree, Loader2, Search, Info, X, LayoutGrid, List } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useConceptTree } from "../hooks/useConceptTree";
 import { useClinicalGroupings } from "../hooks/useClinicalGroupings";
-import type { ConceptTreeNode, ClinicalGrouping, AnchorDetail } from "../types/vocabulary";
+import { useGroupingPrevalence } from "../hooks/useGroupingPrevalence";
+import { useSources } from "@/features/data-sources/hooks/useSources";
+import type { ConceptTreeNode, ClinicalGrouping, AnchorDetail, GroupingPrevalence } from "../types/vocabulary";
 
 interface HierarchyBrowserPanelProps {
   mode: "browse";
@@ -48,9 +50,22 @@ export function HierarchyBrowserPanel({
   const [activeDomain, setActiveDomain] = useState<string | null>(null);
   // When viewing a multi-anchor grouping, show its anchor concepts as a sub-level
   const [groupingAnchors, setGroupingAnchors] = useState<{ groupingName: string; anchors: AnchorDetail[] } | null>(null);
+  const [selectedSourceId, setSelectedSourceId] = useState<number | null>(null);
 
   const { data: nodes, isLoading } = useConceptTree(parentId, activeDomain ?? undefined);
   const { data: groupings, isLoading: groupingsLoading } = useClinicalGroupings(activeDomain);
+  const { data: prevalenceData, isLoading: prevalenceLoading } = useGroupingPrevalence(activeDomain, selectedSourceId);
+  const { data: sources } = useSources();
+
+  const prevalenceMap = useMemo(() => {
+    const map = new Map<number, GroupingPrevalence>();
+    if (prevalenceData) {
+      for (const p of prevalenceData) {
+        map.set(p.grouping_id, p);
+      }
+    }
+    return map;
+  }, [prevalenceData]);
 
   const isRootLevel = parentId === 0;
 
@@ -101,6 +116,7 @@ export function HierarchyBrowserPanel({
       setActiveDomain(null);
       setShowGroupings(true);
       setGroupingAnchors(null);
+      setSelectedSourceId(null);
     } else {
       const entry = breadcrumbs[index];
       setBreadcrumbs((prev) => prev.slice(0, index + 1));
@@ -215,11 +231,28 @@ export function HierarchyBrowserPanel({
       {/* Groupings toggle — shown at domain level for SNOMED domains */}
       {isDomainLevel && SNOMED_DOMAINS.has(activeDomain ?? "") && (
         <div className="flex items-center justify-between px-4 py-2 border-b border-[#232328] bg-[#0E0E11]/80 shrink-0">
-          <span className="text-[10px] text-[#5A5650]">
-            {shouldShowGroupings
-              ? `${groupings?.length ?? 0} clinical groupings`
-              : `${sortedAndFilteredNodes.length} concepts`}
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] text-[#5A5650]">
+              {shouldShowGroupings
+                ? `${groupings?.length ?? 0} clinical groupings`
+                : `${sortedAndFilteredNodes.length} concepts`}
+            </span>
+            {shouldShowGroupings && sources && sources.length > 0 && (
+              <div className="relative">
+                <select
+                  value={selectedSourceId ?? ""}
+                  onChange={(e) => setSelectedSourceId(e.target.value ? Number(e.target.value) : null)}
+                  className="appearance-none rounded border border-[#232328] bg-[#1A1A1E] px-2 py-0.5 pr-5 text-[10px] text-[#8A857D] focus:border-[#C9A227]/50 focus:outline-none cursor-pointer"
+                >
+                  <option value="">All Sources</option>
+                  {sources.map((s) => (
+                    <option key={s.id} value={s.id}>{s.source_name}</option>
+                  ))}
+                </select>
+                <ChevronDown size={8} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[#5A5650] pointer-events-none" />
+              </div>
+            )}
+          </div>
           <button
             type="button"
             onClick={() => setShowGroupings((prev) => !prev)}
@@ -284,7 +317,7 @@ export function HierarchyBrowserPanel({
           </div>
         ) : shouldShowGroupings && groupings && groupings.length > 0 ? (
           /* Clinical grouping cards */
-          <GroupingsGrid groupings={groupings} onGroupingClick={handleGroupingClick} />
+          <GroupingsGrid groupings={groupings} onGroupingClick={handleGroupingClick} prevalenceMap={prevalenceMap} prevalenceLoading={prevalenceLoading} />
         ) : groupingAnchors !== null ? (
           /* Multi-anchor grouping sub-level */
           <AnchorsList
@@ -435,18 +468,29 @@ export function HierarchyBrowserPanel({
   );
 }
 
+function formatCount(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+  return n.toLocaleString();
+}
+
 /** Grid of clinical grouping cards */
 function GroupingsGrid({
   groupings,
   onGroupingClick,
+  prevalenceMap,
+  prevalenceLoading,
 }: {
   groupings: ClinicalGrouping[];
   onGroupingClick: (g: ClinicalGrouping) => void;
+  prevalenceMap?: Map<number, GroupingPrevalence>;
+  prevalenceLoading?: boolean;
 }) {
   return (
     <div className="grid grid-cols-2 gap-2 p-1">
       {groupings.map((g) => {
         const accentColor = g.color ?? DOMAIN_COLORS[g.domain_id] ?? "#8A857D";
+        const prev = prevalenceMap?.get(g.id);
         return (
           <button
             key={g.id}
@@ -480,6 +524,26 @@ function GroupingsGrid({
                     className="text-[#5A5650] group-hover:text-[#8A857D] transition-colors"
                   />
                 </div>
+                {/* Prevalence badges */}
+                {prevalenceLoading ? (
+                  <div className="flex gap-2 mt-1">
+                    <span className="h-3 w-16 rounded bg-[#232328] animate-pulse" />
+                    <span className="h-3 w-16 rounded bg-[#232328] animate-pulse" />
+                  </div>
+                ) : prev && (prev.person_count > 0 || prev.record_count > 0) ? (
+                  <div className="flex gap-2 mt-1">
+                    {prev.person_count > 0 && (
+                      <span className="text-[9px] text-[#5A5650]">
+                        {formatCount(prev.person_count)} persons
+                      </span>
+                    )}
+                    {prev.record_count > 0 && (
+                      <span className="text-[9px] text-[#5A5650]">
+                        {formatCount(prev.record_count)} records
+                      </span>
+                    )}
+                  </div>
+                ) : null}
               </div>
             </div>
           </button>

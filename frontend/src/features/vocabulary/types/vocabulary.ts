@@ -157,3 +157,9 @@ export interface ClinicalGrouping {
   color: string | null;
   parent_grouping_id: number | null;
 }
+
+export interface GroupingPrevalence {
+  grouping_id: number;
+  person_count: number;
+  record_count: number;
+}

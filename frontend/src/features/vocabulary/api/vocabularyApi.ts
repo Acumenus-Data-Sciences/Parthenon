@@ -14,6 +14,7 @@ import type {
   SuggestResult,
   ConceptTreeNode,
   ClinicalGrouping,
+  GroupingPrevalence,
 } from "../types/vocabulary";
 
 const BASE = "/vocabulary";
@@ -159,6 +160,18 @@ export async function fetchClinicalGroupings(
   const { data } = await apiClient.get(`${BASE}/groupings`, {
     params: { domain_id: domainId },
   });
+  return data.data ?? [];
+}
+
+export async function fetchGroupingPrevalence(
+  domainId: string,
+  sourceId?: number | null,
+): Promise<GroupingPrevalence[]> {
+  const params: Record<string, unknown> = { domain_id: domainId };
+  if (sourceId) {
+    params.source_id = sourceId;
+  }
+  const { data } = await apiClient.get(`${BASE}/groupings/prevalence`, { params });
   return data.data ?? [];
 }
 
