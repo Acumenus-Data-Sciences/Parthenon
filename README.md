@@ -74,6 +74,7 @@ Describe a cohort in plain English — *"patients with type 2 diabetes newly sta
 | **8 AI providers** | Ollama (default), OpenAI, Azure, Anthropic, Gemini, Mistral, Cohere, Bedrock |
 | **System health** | Real-time 30-second monitoring dashboard for all services |
 | **One-command deploy** | `./deploy.sh` handles migrations, cache warm, frontend build, and opcache flush |
+| **Safe ref promotion** | `./deploy-ref.sh <ref>` promotes a tested commit or tag on the server, then runs `deploy.sh` |
 | **Full CI suite** | PHPStan L8, Pint, Pest (195 tests), TSC strict, ESLint, Vitest, mypy, pytest |
 
 ---
@@ -108,6 +109,18 @@ python3 install.py
 ```
 
 The Rich TUI installer walks through prerequisites, environment setup, container orchestration, and initial seeding in 9 phases.
+
+### Promote A Tested Ref
+
+For server-side promotion after CI passes, deploy an exact commit, tag, or branch ref with:
+
+```bash
+./deploy-ref.sh main
+./deploy-ref.sh v1.0.4
+./deploy-ref.sh a1b2c3d -- --frontend
+```
+
+This wrapper fetches from git, refuses a dirty checkout by default, switches to the target commit in detached HEAD mode, and then runs `./deploy.sh` with any extra deploy flags you pass after `--`.
 
 The guided installer and browser launcher now also require:
 

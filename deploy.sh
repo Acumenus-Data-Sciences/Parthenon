@@ -57,6 +57,37 @@ if $DB_ONLY;       then DO_PHP=false;      DO_FRONTEND=false; DO_DOCS=false; DO_
 if $DOCS_ONLY;     then DO_PHP=false;      DO_FRONTEND=false; DO_DB=false;  DO_OPENAPI=false;  fi
 if $OPENAPI_ONLY;  then DO_PHP=false;      DO_FRONTEND=false; DO_DB=false;  DO_DOCS=false;     fi
 
+DEFAULT_APP_URL="https://parthenon.acumenus.net"
+ENV_FILE="$( cd "$(dirname "${BASH_SOURCE[0]}")" && pwd )/backend/.env"
+SMOKE_BASE_URL="${DEPLOY_SMOKE_BASE_URL:-}"
+if [ -z "$SMOKE_BASE_URL" ] && [ -f "$ENV_FILE" ]; then
+  SMOKE_BASE_URL="$(grep '^APP_URL=' "$ENV_FILE" | cut -d= -f2- | tr -d '"' | tr -d "'" | tail -1)"
+fi
+SMOKE_BASE_URL="${SMOKE_BASE_URL:-$DEFAULT_APP_URL}"
+SMOKE_BASE_URL="${SMOKE_BASE_URL%/}"
+SMOKE_TIMEOUT="${DEPLOY_SMOKE_TIMEOUT:-15}"
+DEPLOY_SKIP_SMOKE="${DEPLOY_SKIP_SMOKE:-false}"
+
+smoke_check() {
+  local label="$1"
+  local path="$2"
+  local expected_status="$3"
+  local url="${SMOKE_BASE_URL}${path}"
+  local status
+
+  if status="$(curl -L -sS -o /dev/null -w '%{http_code}' --max-time "$SMOKE_TIMEOUT" "$url" 2>/dev/null)"; then
+    :
+  else
+    status="CURL_FAILED"
+  fi
+  if [ "$status" = "$expected_status" ]; then
+    ok "Smoke: ${label} -> ${status}"
+  else
+    fail "Smoke: ${label} -> expected ${expected_status}, got ${status} (${url})"
+    ERRORS=$((ERRORS + 1))
+  fi
+}
+
 echo "==> Parthenon deploy"
 
 # ── Pull pre-built images from GHCR ───────────────────────────────────────────
@@ -200,7 +231,6 @@ if $DO_DB; then
   # Abort immediately rather than making it worse.
   echo ""
   echo "── DB: tripwire — verifying production users ──"
-  ENV_FILE="$( cd "$(dirname "${BASH_SOURCE[0]}")" && pwd )/backend/.env"
   if [ -f "$ENV_FILE" ]; then
     PG_HOST="$(  grep '^DB_HOST='     "$ENV_FILE" | cut -d= -f2- | tr -d '"' | tr -d "'")"
     PG_PORT="$(  grep '^DB_PORT='     "$ENV_FILE" | cut -d= -f2- | tr -d '"' | tr -d "'")"
@@ -265,6 +295,20 @@ if $DO_FRONTEND; then
     fi
   else
     fail "No node container and npx not available — skipping frontend build"
+    ERRORS=$((ERRORS + 1))
+  fi
+
+  echo "── Frontend: fixing dist permissions for Apache ──"
+  if [ -d frontend/dist ]; then
+    if find frontend/dist -type d -exec chmod 755 {} + && \
+       find frontend/dist -type f -exec chmod 644 {} +; then
+      ok "Frontend dist permissions normalized"
+    else
+      fail "Failed to normalize frontend dist permissions"
+      ERRORS=$((ERRORS + 1))
+    fi
+  else
+    fail "frontend/dist not found after build"
     ERRORS=$((ERRORS + 1))
   fi
 fi
@@ -361,10 +405,41 @@ else
   ok "File ownership OK"
 fi
 
+# ── Post-deploy smoke checks ─────────────────────────────────────────────────
+if [ "$DEPLOY_SKIP_SMOKE" = "true" ]; then
+  echo ""
+  echo "── Smoke checks skipped (DEPLOY_SKIP_SMOKE=true) ──"
+else
+  echo ""
+  echo "── Post-deploy smoke checks (${SMOKE_BASE_URL}) ──"
+
+  if ! command -v curl >/dev/null 2>&1; then
+    fail "curl is required for smoke checks"
+    ERRORS=$((ERRORS + 1))
+  else
+    if $DO_FRONTEND || $DO_PHP || $DO_DB || $DO_OPENAPI; then
+      smoke_check "frontend /" "/" "200"
+      smoke_check "frontend /login" "/login" "200"
+      smoke_check "frontend /jobs" "/jobs" "200"
+    fi
+
+    if $DO_PHP || $DO_DB || $DO_OPENAPI; then
+      smoke_check "api /sanctum/csrf-cookie" "/sanctum/csrf-cookie" "204"
+      smoke_check "api /api/v1/nonexistent-endpoint" "/api/v1/nonexistent-endpoint" "404"
+    fi
+
+    if $DO_DOCS; then
+      smoke_check "docs /docs/" "/docs/" "200"
+    fi
+  fi
+fi
+
 # ── Summary ──────────────────────────────────────────────────────────────────
 echo ""
 if [ $ERRORS -eq 0 ]; then
   echo -e "==> ${GREEN}Deploy complete.${NC}"
+  exit 0
 else
-  echo -e "==> ${YELLOW}Deploy finished with ${ERRORS} warning(s).${NC}"
+  echo -e "==> ${RED}Deploy failed with ${ERRORS} error(s).${NC}"
+  exit 1
 fi
