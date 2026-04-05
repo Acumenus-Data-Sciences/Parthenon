@@ -1,8 +1,9 @@
-import { useState, useMemo } from "react";
-import { ChevronRight, FolderTree, Loader2, Search, Info, X } from "lucide-react";
+import { useState, useMemo, useCallback } from "react";
+import { ChevronRight, FolderTree, Loader2, Search, Info, X, LayoutGrid, List } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useConceptTree } from "../hooks/useConceptTree";
-import type { ConceptTreeNode } from "../types/vocabulary";
+import { useClinicalGroupings } from "../hooks/useClinicalGroupings";
+import type { ConceptTreeNode, ClinicalGrouping } from "../types/vocabulary";
 
 interface HierarchyBrowserPanelProps {
   mode: "browse";
@@ -33,6 +34,9 @@ const DOMAIN_ICONS: Record<string, string> = {
   Visit: "Vx",
 };
 
+/** Domains that use SNOMED hierarchy and benefit from clinical groupings */
+const SNOMED_DOMAINS = new Set(["Condition", "Procedure", "Measurement", "Observation"]);
+
 export function HierarchyBrowserPanel({
   onSelectConcept,
   selectedConceptId,
@@ -40,10 +44,21 @@ export function HierarchyBrowserPanel({
   const [parentId, setParentId] = useState(0);
   const [breadcrumbs, setBreadcrumbs] = useState<BreadcrumbEntry[]>([]);
   const [filterText, setFilterText] = useState("");
+  const [showGroupings, setShowGroupings] = useState(true);
+  const [activeDomain, setActiveDomain] = useState<string | null>(null);
 
   const { data: nodes, isLoading } = useConceptTree(parentId);
+  const { data: groupings, isLoading: groupingsLoading } = useClinicalGroupings(activeDomain);
 
   const isRootLevel = parentId === 0;
+
+  // Determine if we should show groupings view:
+  // - We're at depth 1 (just drilled into a domain virtual root)
+  // - The domain is a SNOMED domain
+  // - showGroupings toggle is on
+  // - We have groupings data
+  const isDomainLevel = breadcrumbs.length === 1 && activeDomain !== null;
+  const shouldShowGroupings = isDomainLevel && showGroupings && SNOMED_DOMAINS.has(activeDomain ?? "");
 
   const sortedAndFilteredNodes = useMemo(() => {
     if (!nodes) return [];
@@ -61,28 +76,42 @@ export function HierarchyBrowserPanel({
     return filtered.sort((a, b) => a.concept_name.localeCompare(b.concept_name));
   }, [nodes, filterText]);
 
-  const handleDrillDown = (node: ConceptTreeNode) => {
+  const handleDrillDown = useCallback((node: ConceptTreeNode) => {
     setBreadcrumbs((prev) => [
       ...prev,
       { concept_id: node.concept_id, concept_name: node.concept_name },
     ]);
     setParentId(node.concept_id);
     setFilterText("");
-  };
 
-  const handleBreadcrumbClick = (index: number) => {
+    // Track which domain we're in
+    if (node.concept_id < 0) {
+      // Virtual domain root — set active domain
+      setActiveDomain(node.domain_id);
+      setShowGroupings(true);
+    }
+  }, []);
+
+  const handleBreadcrumbClick = useCallback((index: number) => {
     if (index === -1) {
       setBreadcrumbs([]);
       setParentId(0);
+      setActiveDomain(null);
+      setShowGroupings(true);
     } else {
       const entry = breadcrumbs[index];
       setBreadcrumbs((prev) => prev.slice(0, index + 1));
       setParentId(entry.concept_id);
+
+      // If navigating back to domain root (index 0), restore groupings
+      if (index === 0 && entry.concept_id < 0) {
+        setShowGroupings(true);
+      }
     }
     setFilterText("");
-  };
+  }, [breadcrumbs]);
 
-  const handleRowClick = (node: ConceptTreeNode) => {
+  const handleRowClick = useCallback((node: ConceptTreeNode) => {
     // Virtual roots (negative IDs) always drill down — they don't exist in vocab.concept
     if (node.concept_id < 0) {
       handleDrillDown(node);
@@ -97,15 +126,29 @@ export function HierarchyBrowserPanel({
 
     // Leaf nodes: select for detail
     onSelectConcept(node.concept_id);
-  };
+  }, [handleDrillDown, onSelectConcept]);
 
-  const handleInfoClick = (e: React.MouseEvent, node: ConceptTreeNode) => {
+  const handleGroupingClick = useCallback((grouping: ClinicalGrouping) => {
+    if (grouping.anchor_concept_ids.length === 0) return;
+
+    // Drill into the first anchor concept
+    const anchorId = grouping.anchor_concept_ids[0];
+    setBreadcrumbs((prev) => [
+      ...prev,
+      { concept_id: anchorId, concept_name: grouping.name },
+    ]);
+    setParentId(anchorId);
+    setShowGroupings(false);
+    setFilterText("");
+  }, []);
+
+  const handleInfoClick = useCallback((e: React.MouseEvent, node: ConceptTreeNode) => {
     e.stopPropagation();
     // Only open detail for real concepts
     if (node.concept_id > 0) {
       onSelectConcept(node.concept_id);
     }
-  };
+  }, [onSelectConcept]);
 
   return (
     <div className="flex h-full flex-col">
@@ -141,8 +184,36 @@ export function HierarchyBrowserPanel({
         ))}
       </div>
 
+      {/* Groupings toggle — shown at domain level for SNOMED domains */}
+      {isDomainLevel && SNOMED_DOMAINS.has(activeDomain ?? "") && (
+        <div className="flex items-center justify-between px-4 py-2 border-b border-[#232328] bg-[#0E0E11]/80 shrink-0">
+          <span className="text-[10px] text-[#5A5650]">
+            {shouldShowGroupings
+              ? `${groupings?.length ?? 0} clinical groupings`
+              : `${sortedAndFilteredNodes.length} concepts`}
+          </span>
+          <button
+            type="button"
+            onClick={() => setShowGroupings((prev) => !prev)}
+            className="flex items-center gap-1 text-[10px] text-[#C9A227] hover:text-[#E5C84B] transition-colors"
+          >
+            {shouldShowGroupings ? (
+              <>
+                <List size={10} />
+                Show all concepts
+              </>
+            ) : (
+              <>
+                <LayoutGrid size={10} />
+                Show groupings
+              </>
+            )}
+          </button>
+        </div>
+      )}
+
       {/* Inline filter — shown when there are enough items to warrant filtering */}
-      {!isLoading && (nodes?.length ?? 0) > 8 && (
+      {!isLoading && !shouldShowGroupings && (nodes?.length ?? 0) > 8 && (
         <div className="px-3 py-2 border-b border-[#232328] bg-[#0E0E11] shrink-0">
           <div className="relative">
             <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#5A5650]" />
@@ -166,8 +237,8 @@ export function HierarchyBrowserPanel({
         </div>
       )}
 
-      {/* Item count badge */}
-      {!isLoading && sortedAndFilteredNodes.length > 0 && (
+      {/* Item count badge — hidden when showing groupings */}
+      {!isLoading && !shouldShowGroupings && sortedAndFilteredNodes.length > 0 && (
         <div className="px-4 py-1.5 border-b border-[#232328] bg-[#0E0E11]/50 shrink-0">
           <span className="text-[10px] text-[#5A5650]">
             {filterText
@@ -179,10 +250,13 @@ export function HierarchyBrowserPanel({
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-2">
-        {isLoading ? (
+        {isLoading || (shouldShowGroupings && groupingsLoading) ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 size={18} className="animate-spin text-[#8A857D]" />
           </div>
+        ) : shouldShowGroupings && groupings && groupings.length > 0 ? (
+          /* Clinical grouping cards */
+          <GroupingsGrid groupings={groupings} onGroupingClick={handleGroupingClick} />
         ) : sortedAndFilteredNodes.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 gap-2">
             <p className="text-xs text-[#5A5650]">
@@ -321,6 +395,58 @@ export function HierarchyBrowserPanel({
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+/** Grid of clinical grouping cards */
+function GroupingsGrid({
+  groupings,
+  onGroupingClick,
+}: {
+  groupings: ClinicalGrouping[];
+  onGroupingClick: (g: ClinicalGrouping) => void;
+}) {
+  return (
+    <div className="grid grid-cols-2 gap-2 p-1">
+      {groupings.map((g) => {
+        const accentColor = g.color ?? DOMAIN_COLORS[g.domain_id] ?? "#8A857D";
+        return (
+          <button
+            key={g.id}
+            type="button"
+            onClick={() => onGroupingClick(g)}
+            className="flex flex-col items-start rounded-lg border border-[#232328] bg-[#1A1A1E] text-left transition-all hover:bg-[#232328] hover:border-[#323238] group overflow-hidden"
+          >
+            <div className="flex w-full">
+              {/* Left accent bar */}
+              <div
+                className="w-[3px] shrink-0 rounded-l-lg"
+                style={{ backgroundColor: accentColor }}
+              />
+              <div className="flex flex-col gap-1 p-3 min-w-0 flex-1">
+                <span className="text-xs font-medium text-[#F0EDE8] truncate">
+                  {g.name}
+                </span>
+                {g.description && (
+                  <span className="text-[10px] text-[#8A857D] line-clamp-2 leading-tight">
+                    {g.description}
+                  </span>
+                )}
+                <div className="flex items-center justify-between mt-1">
+                  <span className="text-[9px] text-[#5A5650]">
+                    {g.anchor_concept_ids.length} anchor{g.anchor_concept_ids.length !== 1 ? "s" : ""}
+                  </span>
+                  <ChevronRight
+                    size={10}
+                    className="text-[#5A5650] group-hover:text-[#8A857D] transition-colors"
+                  />
+                </div>
+              </div>
+            </div>
+          </button>
+        );
+      })}
     </div>
   );
 }

@@ -13,6 +13,7 @@ import type {
   MapsFromResult,
   SuggestResult,
   ConceptTreeNode,
+  ClinicalGrouping,
 } from "../types/vocabulary";
 
 const BASE = "/vocabulary";
@@ -150,6 +151,15 @@ export async function getConceptMapsFrom(
     params: { limit, offset },
   });
   return data;
+}
+
+export async function fetchClinicalGroupings(
+  domainId: string,
+): Promise<ClinicalGrouping[]> {
+  const { data } = await apiClient.get(`${BASE}/groupings`, {
+    params: { domain_id: domainId },
+  });
+  return data.data ?? [];
 }
 
 export async function fetchConceptTreeChildren(

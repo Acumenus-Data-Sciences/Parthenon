@@ -135,3 +135,15 @@ export interface ConceptTreeNode {
   child_count: number;
   depth: number;
 }
+
+export interface ClinicalGrouping {
+  id: number;
+  name: string;
+  description: string | null;
+  domain_id: string;
+  anchor_concept_ids: number[];
+  sort_order: number;
+  icon: string | null;
+  color: string | null;
+  parent_grouping_id: number | null;
+}
