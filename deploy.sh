@@ -18,6 +18,9 @@
 set -uo pipefail
 # NOTE: not using set -e — we handle errors explicitly per section
 
+export HOST_UID="${HOST_UID:-$(id -u)}"
+export HOST_GID="${HOST_GID:-$(id -g)}"
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -329,9 +332,12 @@ if $DO_DOCS; then
   if [ -f docs/site/package.json ]; then
     mkdir -p docs/site/build
     if docker compose --profile docs run --rm docs-build 2>&1 | sed 's/^/   /'; then
+      # Nginx in Docker runs as UID 101 — build output must be world-readable
+      chmod -R o+rX docs/site/build/
       ok "Docs built → docs/site/build"
     else
-      warn "Docs build failed (non-critical)"
+      fail "Docs build failed"
+      ERRORS=$((ERRORS + 1))
     fi
   else
     warn "docs/site/package.json not found — skipping docs build"
@@ -377,10 +383,12 @@ if ! $DO_DOCS && [ -f docs/site/package.json ]; then
     echo ""
     echo "── Docs: build dir empty — rebuilding Docusaurus site ──"
     mkdir -p docs/site/build
-    if (cd docs/site && npx docusaurus build) 2>&1 | sed 's/^/   /'; then
+    if docker compose --profile docs run --rm docs-build 2>&1 | sed 's/^/   /'; then
+      chmod -R o+rX docs/site/build/
       ok "Docs rebuilt → docs/site/build"
     else
-      warn "Docs rebuild failed (non-critical)"
+      fail "Docs rebuild failed"
+      ERRORS=$((ERRORS + 1))
     fi
   fi
 fi
