@@ -24,6 +24,11 @@ export type JobType =
   | "poseidon"
   | "analysis";
 
+export interface JobActions {
+  retry: boolean;
+  cancel: boolean;
+}
+
 export interface Job {
   id: number;
   type: JobType;
@@ -38,6 +43,7 @@ export interface Job {
   error_message: string | null;
   log_output: string | null;
   created_at: string;
+  actions: JobActions;
 }
 
 export interface TimelineEntry {
@@ -82,11 +88,11 @@ export async function fetchJob(id: number, type: JobType): Promise<JobDetail> {
   return data;
 }
 
-export async function retryJob(id: number): Promise<Job> {
-  const { data } = await apiClient.post<Job>(`/jobs/${id}/retry`);
+export async function retryJob(id: number, type: JobType): Promise<Job> {
+  const { data } = await apiClient.post<Job>(`/jobs/${id}/retry`, undefined, { params: { type } });
   return data;
 }
 
-export async function cancelJob(id: number): Promise<void> {
-  await apiClient.post(`/jobs/${id}/cancel`);
+export async function cancelJob(id: number, type: JobType): Promise<void> {
+  await apiClient.post(`/jobs/${id}/cancel`, undefined, { params: { type } });
 }

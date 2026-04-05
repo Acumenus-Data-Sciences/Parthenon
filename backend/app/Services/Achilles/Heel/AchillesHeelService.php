@@ -5,6 +5,7 @@ namespace App\Services\Achilles\Heel;
 use App\Enums\DaimonType;
 use App\Models\App\Source;
 use App\Models\Results\AchillesHeelResult;
+use App\Models\Results\AchillesHeelRun;
 use App\Services\SqlRenderer\SqlRendererService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -25,6 +26,21 @@ class AchillesHeelService
     public function run(Source $source, ?string $runId = null): array
     {
         $runId ??= (string) Str::uuid();
+        $totalRules = count($this->registry->all());
+
+        AchillesHeelRun::updateOrCreate(
+            ['run_id' => $runId],
+            [
+                'source_id' => $source->id,
+                'status' => 'running',
+                'total_rules' => $totalRules,
+                'completed_rules' => 0,
+                'failed_rules' => 0,
+                'started_at' => now(),
+                'completed_at' => null,
+                'error_message' => null,
+            ],
+        );
 
         $completed = 0;
         $failed = 0;
@@ -74,6 +90,14 @@ class AchillesHeelService
                 Log::warning("Achilles Heel rule {$rule->ruleId()} failed: {$e->getMessage()}");
             }
         }
+
+        AchillesHeelRun::where('run_id', $runId)->update([
+            'status' => $failed > 0 ? 'failed' : 'completed',
+            'completed_rules' => $completed,
+            'failed_rules' => $failed,
+            'completed_at' => now(),
+            'error_message' => $failed > 0 ? "{$failed} of {$totalRules} rules failed" : null,
+        ]);
 
         return compact('completed', 'failed', 'results');
     }

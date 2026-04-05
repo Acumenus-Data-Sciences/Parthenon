@@ -476,8 +476,8 @@ interface JobDetailDrawerProps {
   jobId: number | null;
   jobType: JobType | null;
   onClose: () => void;
-  onRetry: (id: number) => void;
-  onCancel: (id: number) => void;
+  onRetry: (job: { id: number; type: JobType }) => void;
+  onCancel: (job: { id: number; type: JobType }) => void;
 }
 
 export function JobDetailDrawer({ jobId, jobType, onClose, onRetry, onCancel }: JobDetailDrawerProps) {
@@ -558,13 +558,13 @@ export function JobDetailDrawer({ jobId, jobType, onClose, onRetry, onCancel }: 
 
           {/* Actions */}
           <div style={{ display: "flex", gap: "var(--space-3)", paddingTop: "var(--space-3)", borderTop: "1px solid var(--border-default)" }}>
-            {job.status === "failed" && (
-              <button className="btn btn-primary btn-sm" onClick={() => onRetry(job.id)}>
+            {job.actions.retry && (
+              <button className="btn btn-primary btn-sm" onClick={() => onRetry({ id: job.id, type: job.type })}>
                 <RefreshCw size={14} /> Retry
               </button>
             )}
-            {(job.status === "running" || job.status === "queued") && (
-              <button className="btn btn-danger btn-sm" onClick={() => onCancel(job.id)}>
+            {job.actions.cancel && (
+              <button className="btn btn-danger btn-sm" onClick={() => onCancel({ id: job.id, type: job.type })}>
                 <Ban size={14} /> Cancel
               </button>
             )}

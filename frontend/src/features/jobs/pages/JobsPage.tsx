@@ -21,6 +21,8 @@ import {
   HeartPulse,
   Database,
   Layers,
+  ChevronLeft,
+  ChevronRight,
   type LucideIcon,
 } from "lucide-react";
 import { FilterChip, Badge, Progress, EmptyState } from "@/components/ui";
@@ -144,6 +146,7 @@ const typeFilters: Array<{ label: string; value: JobType | "all" }> = [
 export default function JobsPage() {
   const [statusFilter, setStatusFilter] = useState<JobStatus | "all" | "archived">("all");
   const [typeFilter, setTypeFilter] = useState<JobType | "all">("all");
+  const [page, setPage] = useState(1);
   const [selectedJob, setSelectedJob] = useState<{ id: number; type: JobType } | null>(null);
 
   // Map the combined status/scope filter to API params
@@ -153,6 +156,7 @@ export default function JobsPage() {
 
   const { data, isLoading } = useJobs({
     scope,
+    page,
     ...(statusParam ? { status: statusParam } : {}),
     ...(typeFilter !== "all" ? { type: typeFilter } : {}),
   });
@@ -160,14 +164,19 @@ export default function JobsPage() {
   const cancelMutation = useCancelJob();
 
   const jobs = data?.data ?? [];
+  const meta = data?.meta;
+
+  useEffect(() => {
+    setPage(1);
+  }, [statusFilter, typeFilter]);
 
   const handleRetry = useCallback(
-    (id: number) => retryMutation.mutate(id),
+    (job: { id: number; type: JobType }) => retryMutation.mutate(job),
     [retryMutation],
   );
 
   const handleCancel = useCallback(
-    (id: number) => cancelMutation.mutate(id),
+    (job: { id: number; type: JobType }) => cancelMutation.mutate(job),
     [cancelMutation],
   );
 
@@ -238,7 +247,7 @@ export default function JobsPage() {
             <tbody>
               {jobs.map((job) => {
                 const TypeIcon = typeIcons[job.type] ?? Wand2;
-                const StatusIcon = statusIcons[job.status];
+                const StatusIcon = statusIcons[job.status] ?? Clock;
                 return (
                   <tr
                     key={job.id}
@@ -299,20 +308,20 @@ export default function JobsPage() {
                     </td>
                     <td>
                       <div style={{ display: "flex", gap: "var(--space-1)" }} onClick={(e) => e.stopPropagation()}>
-                        {job.status === "failed" && (
+                        {job.actions.retry && (
                           <button
                             className="btn btn-ghost btn-sm btn-icon"
-                            onClick={() => handleRetry(job.id)}
+                            onClick={() => handleRetry({ id: job.id, type: job.type })}
                             title="Retry"
                             aria-label="Retry job"
                           >
                             <RefreshCw size={14} />
                           </button>
                         )}
-                        {(job.status === "running" || job.status === "queued") && (
+                        {job.actions.cancel && (
                           <button
                             className="btn btn-ghost btn-sm btn-icon"
-                            onClick={() => handleCancel(job.id)}
+                            onClick={() => handleCancel({ id: job.id, type: job.type })}
                             title="Cancel"
                             aria-label="Cancel job"
                           >
@@ -328,6 +337,30 @@ export default function JobsPage() {
           </table>
         )}
       </div>
+
+      {!!meta && meta.last_page > 1 && (
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "var(--space-3)" }}>
+          <div style={{ color: "var(--text-muted)", fontSize: "var(--text-sm)" }}>
+            Page {meta.current_page} of {meta.last_page} · {meta.total} jobs
+          </div>
+          <div style={{ display: "flex", gap: "var(--space-2)" }}>
+            <button
+              className="btn btn-secondary btn-sm"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={meta.current_page <= 1}
+            >
+              <ChevronLeft size={14} /> Previous
+            </button>
+            <button
+              className="btn btn-secondary btn-sm"
+              onClick={() => setPage((p) => Math.min(meta.last_page, p + 1))}
+              disabled={meta.current_page >= meta.last_page}
+            >
+              Next <ChevronRight size={14} />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Job detail drawer */}
       <JobDetailDrawer

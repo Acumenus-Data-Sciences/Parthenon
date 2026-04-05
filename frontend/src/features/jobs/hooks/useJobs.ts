@@ -30,7 +30,7 @@ export function useJobDetail(id: number | null, type: JobType | null) {
 export function useRetryJob() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: retryJob,
+    mutationFn: ({ id, type }: { id: number; type: JobType }) => retryJob(id, type),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["jobs"] }),
   });
 }
@@ -38,7 +38,7 @@ export function useRetryJob() {
 export function useCancelJob() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: cancelJob,
+    mutationFn: ({ id, type }: { id: number; type: JobType }) => cancelJob(id, type),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["jobs"] }),
   });
 }

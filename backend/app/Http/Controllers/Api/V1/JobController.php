@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\ExecutionStatus;
+use App\Enums\IngestionStep;
 use App\Http\Controllers\Controller;
 use App\Jobs\Analysis\RunCharacterizationJob;
 use App\Jobs\Analysis\RunEstimationJob;
@@ -11,6 +12,7 @@ use App\Jobs\Analysis\RunIncidenceRateJob;
 use App\Jobs\Analysis\RunPathwayJob;
 use App\Jobs\Analysis\RunPredictionJob;
 use App\Jobs\Analysis\RunSccsJob;
+use App\Jobs\Ingestion\ProfileSourceJob;
 use App\Models\App\AnalysisExecution;
 use App\Models\App\CareGapEvaluation;
 use App\Models\App\Characterization;
@@ -31,8 +33,8 @@ use App\Models\App\PredictionAnalysis;
 use App\Models\App\SccsAnalysis;
 use App\Models\App\Source;
 use App\Models\App\VocabularyImport;
+use App\Models\Results\AchillesHeelRun;
 use App\Models\Results\AchillesRun;
-use App\Services\Achilles\Heel\AchillesHeelRuleRegistry;
 use App\Services\Dqd\DqdCheckRegistry;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\QueryException;
@@ -73,86 +75,84 @@ class JobController extends Controller
         $typeFilter = $request->string('type')->toString() ?: null;
         $scope = $request->string('scope')->toString() ?: 'recent';
         $userId = $request->user()->id;
-        $perPage = $request->integer('per_page', 50);
+        $perPage = min(max($request->integer('per_page', 50), 1), 100);
 
         $allJobs = collect();
 
         // 1. Analysis executions (existing)
         if (! $typeFilter || in_array($typeFilter, ['characterization', 'incidence_rate', 'pathway', 'estimation', 'prediction', 'sccs', 'evidence_synthesis', 'analysis'], true)) {
-            $allJobs = $allJobs->merge($this->getAnalysisJobs($userId, $statusFilter, $typeFilter));
+            $allJobs = $allJobs->merge($this->safeCollectJobs(fn () => $this->getAnalysisJobs($userId, null, $typeFilter)));
         }
 
         // 1b. Cohort generation jobs
         if (! $typeFilter || $typeFilter === 'cohort_generation') {
-            $allJobs = $allJobs->merge($this->getCohortGenerationJobs($statusFilter));
+            $allJobs = $allJobs->merge($this->safeCollectJobs(fn () => $this->getCohortGenerationJobs(null)));
         }
 
         // 2. Ingestion jobs
         if (! $typeFilter || $typeFilter === 'ingestion') {
-            $allJobs = $allJobs->merge($this->getIngestionJobs($userId, $statusFilter));
+            $allJobs = $allJobs->merge($this->safeCollectJobs(fn () => $this->getIngestionJobs($userId, null)));
         }
 
         // 3. FHIR export jobs
         if (! $typeFilter || $typeFilter === 'fhir_export') {
-            $allJobs = $allJobs->merge($this->getFhirExportJobs($userId, $statusFilter));
+            $allJobs = $allJobs->merge($this->safeCollectJobs(fn () => $this->getFhirExportJobs($userId, null)));
         }
 
         // 4. GIS import jobs (table may not exist in test environments)
         if (! $typeFilter || $typeFilter === 'gis_import') {
-            try {
-                $allJobs = $allJobs->merge($this->getGisImportJobs($userId, $statusFilter));
-            } catch (QueryException) {
-                // gis_imports table may not exist in test environments
-            }
+            $allJobs = $allJobs->merge($this->safeCollectJobs(fn () => $this->getGisImportJobs($userId, null)));
         }
 
         // 5. Genomic upload/parse jobs
         if (! $typeFilter || $typeFilter === 'genomic_parse') {
-            $allJobs = $allJobs->merge($this->getGenomicParseJobs($userId, $statusFilter));
+            $allJobs = $allJobs->merge($this->safeCollectJobs(fn () => $this->getGenomicParseJobs($userId, null)));
         }
 
         // 6. Vocabulary import jobs
         if (! $typeFilter || $typeFilter === 'vocabulary_load') {
-            $allJobs = $allJobs->merge($this->getVocabularyImportJobs($userId, $statusFilter));
+            $allJobs = $allJobs->merge($this->safeCollectJobs(fn () => $this->getVocabularyImportJobs($userId, null)));
         }
 
         // 7. DQD runs (system-level, not user-scoped)
         if (! $typeFilter || $typeFilter === 'dqd') {
-            $allJobs = $allJobs->merge($this->getDqdJobs($statusFilter));
+            $allJobs = $allJobs->merge($this->safeCollectJobs(fn () => $this->getDqdJobs(null)));
         }
 
         // 8. Heel runs (system-level, not user-scoped)
         if (! $typeFilter || $typeFilter === 'heel') {
-            $allJobs = $allJobs->merge($this->getHeelJobs($statusFilter));
+            $allJobs = $allJobs->merge($this->safeCollectJobs(fn () => $this->getHeelJobs(null)));
         }
 
         // 9. Achilles measurement runs (system-level, not user-scoped)
         if (! $typeFilter || $typeFilter === 'achilles') {
-            $allJobs = $allJobs->merge($this->getAchillesJobs($statusFilter));
+            $allJobs = $allJobs->merge($this->safeCollectJobs(fn () => $this->getAchillesJobs(null)));
         }
 
         // 10. FHIR Sync runs (system-level)
         if (! $typeFilter || $typeFilter === 'fhir_sync') {
-            $allJobs = $allJobs->merge($this->getFhirSyncJobs($statusFilter));
+            $allJobs = $allJobs->merge($this->safeCollectJobs(fn () => $this->getFhirSyncJobs(null)));
         }
 
         // 11. Care Gap evaluations (user-scoped)
         if (! $typeFilter || $typeFilter === 'care_gap') {
-            $allJobs = $allJobs->merge($this->getCareGapJobs($userId, $statusFilter));
+            $allJobs = $allJobs->merge($this->safeCollectJobs(fn () => $this->getCareGapJobs($userId, null)));
         }
 
         // 12. GIS Boundary loads (user-scoped, table may not exist in test environments)
         if (! $typeFilter || $typeFilter === 'gis_boundary') {
-            try {
-                $allJobs = $allJobs->merge($this->getGisBoundaryJobs($userId, $statusFilter));
-            } catch (QueryException) {
-                // gis_datasets table may not exist in test environments
-            }
+            $allJobs = $allJobs->merge($this->safeCollectJobs(fn () => $this->getGisBoundaryJobs($userId, null)));
         }
 
         // 13. Poseidon ETL runs (system-level)
         if (! $typeFilter || $typeFilter === 'poseidon') {
-            $allJobs = $allJobs->merge($this->getPoseidonJobs($statusFilter));
+            $allJobs = $allJobs->merge($this->safeCollectJobs(fn () => $this->getPoseidonJobs(null)));
+        }
+
+        $allJobs = $allJobs->map(fn (array $job) => $this->normalizeJobPayload($job));
+
+        if ($statusFilter) {
+            $allJobs = $allJobs->filter(fn (array $job) => $job['status'] === $statusFilter);
         }
 
         // Apply scope filter: recent (last 24h + non-completed) vs archived (completed >24h ago)
@@ -183,7 +183,7 @@ class JobController extends Controller
         // Manual pagination
         $page = $request->integer('page', 1);
         $total = $sorted->count();
-        $paged = $sorted->slice(($page - 1) * $perPage, $perPage)->values();
+        $paged = $sorted->forPage($page, $perPage)->values();
 
         return response()->json([
             'data' => $paged,
@@ -224,69 +224,36 @@ class JobController extends Controller
             abort(404, 'Job not found');
         }
 
-        return response()->json($detail);
+        return response()->json($this->normalizeJobPayload($detail));
     }
 
-    public function retry(Request $request, AnalysisExecution $job): JsonResponse
+    public function retry(Request $request, int $jobId): JsonResponse
     {
-        $job->load(['analysis', 'source']);
-        $this->assertOwnership($job, $request->user()->id);
+        $type = $request->string('type')->toString();
+        $userId = $request->user()->id;
 
-        if (! in_array($job->status, [ExecutionStatus::Failed, ExecutionStatus::Cancelled], true)) {
-            return response()->json([
-                'message' => 'Only failed or cancelled jobs can be retried.',
-            ], 422);
-        }
-
-        $analysis = $job->analysis;
-        if (! $analysis) {
-            return response()->json([
-                'message' => 'Analysis definition could not be loaded for retry.',
-            ], 422);
-        }
-
-        $newExecution = AnalysisExecution::create([
-            'analysis_type' => $job->analysis_type,
-            'analysis_id' => $job->analysis_id,
-            'source_id' => $job->source_id,
-            'status' => ExecutionStatus::Queued,
-            'started_at' => now(),
-        ]);
-
-        match ($job->analysis_type) {
-            Characterization::class => RunCharacterizationJob::dispatch($analysis, $job->source, $newExecution),
-            IncidenceRateAnalysis::class => RunIncidenceRateJob::dispatch($analysis, $job->source, $newExecution),
-            PathwayAnalysis::class => RunPathwayJob::dispatch($analysis, $job->source, $newExecution),
-            EstimationAnalysis::class => RunEstimationJob::dispatch($analysis, $job->source, $newExecution),
-            PredictionAnalysis::class => RunPredictionJob::dispatch($analysis, $job->source, $newExecution),
-            SccsAnalysis::class => RunSccsJob::dispatch($analysis, $job->source, $newExecution),
-            EvidenceSynthesisAnalysis::class => RunEvidenceSynthesisJob::dispatch($analysis, $newExecution),
-            default => throw new \RuntimeException('Retry not supported for this job type.'),
+        return match ($type) {
+            'characterization', 'incidence_rate', 'pathway', 'estimation',
+            'prediction', 'sccs', 'evidence_synthesis', 'analysis' => $this->retryAnalysisJob($jobId, $userId),
+            'ingestion' => $this->retryIngestionJob($jobId, $userId),
+            default => response()->json([
+                'message' => 'Retry is not supported for this job type.',
+            ], 422),
         };
-
-        $newExecution->load(['analysis', 'source']);
-
-        return response()->json($this->transformAnalysisJob($newExecution));
     }
 
-    public function cancel(Request $request, AnalysisExecution $job): JsonResponse
+    public function cancel(Request $request, int $jobId): JsonResponse
     {
-        $job->load(['analysis', 'source']);
-        $this->assertOwnership($job, $request->user()->id);
+        $type = $request->string('type')->toString();
+        $userId = $request->user()->id;
 
-        if (! in_array($job->status, [ExecutionStatus::Pending, ExecutionStatus::Queued, ExecutionStatus::Running], true)) {
-            return response()->json([
-                'message' => 'Only pending, queued, or running jobs can be cancelled.',
-            ], 422);
-        }
-
-        $job->update([
-            'status' => ExecutionStatus::Cancelled,
-            'completed_at' => now(),
-            'fail_message' => $job->fail_message ?: 'Cancelled by user.',
-        ]);
-
-        return response()->json($this->transformAnalysisJob($job->fresh(['analysis', 'source'])));
+        return match ($type) {
+            'characterization', 'incidence_rate', 'pathway', 'estimation',
+            'prediction', 'sccs', 'evidence_synthesis', 'analysis' => $this->cancelAnalysisJob($jobId, $userId),
+            default => response()->json([
+                'message' => 'Cancel is not supported for this job type.',
+            ], 422),
+        };
     }
 
     // ─── Job detail builders ────────────────────────────────────────────
@@ -525,7 +492,7 @@ class JobController extends Controller
             'status' => $this->normalizeGisBoundaryStatus($job->status),
             'source_name' => null,
             'triggered_by' => $job->user?->name,
-            'progress' => $job->progress_percentage ?? 0,
+            'progress' => $job->progress_percentage ?? (in_array($this->normalizeGisBoundaryStatus($job->status), ['completed', 'failed'], true) ? 100 : 0),
             'started_at' => $job->started_at?->toIso8601String(),
             'completed_at' => $job->completed_at?->toIso8601String(),
             'duration' => null,
@@ -627,7 +594,6 @@ class JobController extends Controller
             ->selectRaw('run_id, source_id, COUNT(*) as total_checks, SUM(CASE WHEN passed = true THEN 1 ELSE 0 END)::int as passed_count, SUM(CASE WHEN passed = false THEN 1 ELSE 0 END)::int as failed_count, MIN(created_at) as started_at, MAX(created_at) as completed_at, SUM(execution_time_ms) as total_ms')
             ->groupBy('run_id', 'source_id')
             ->orderByDesc('started_at')
-            ->limit(50)
             ->get();
 
         $run = $runs->first(fn ($r) => crc32($r->run_id) === $id);
@@ -691,24 +657,14 @@ class JobController extends Controller
      */
     private function showHeelJob(int $id): ?array
     {
-        $totalRules = app(AchillesHeelRuleRegistry::class)->count();
-
-        $runs = DB::table('app.achilles_heel_results')
-            ->whereNotNull('run_id')
-            ->selectRaw('run_id, source_id, COUNT(*) as total_results, COUNT(DISTINCT rule_id) as rules_triggered, MIN(created_at) as started_at, MAX(created_at) as completed_at')
-            ->groupBy('run_id', 'source_id')
-            ->orderByDesc('started_at')
-            ->limit(20)
-            ->get();
-
-        $run = $runs->first(fn ($r) => crc32($r->run_id) === $id);
+        $run = AchillesHeelRun::with('source')->find($id);
         if (! $run) {
             return null;
         }
 
-        $source = Source::find($run->source_id);
-        $lastResultAge = $run->completed_at ? abs(now()->diffInSeconds(Carbon::parse($run->completed_at))) : PHP_INT_MAX;
-        $isRunning = $lastResultAge < 120;
+        $status = $run->status ?? 'pending';
+        $totalRules = max((int) $run->total_rules, 1);
+        $isRunning = $status === 'running';
 
         // Get violations grouped by severity
         $violations = DB::table('app.achilles_heel_results')
@@ -719,23 +675,23 @@ class JobController extends Controller
             ->get();
 
         return [
-            'id' => $id,
+            'id' => $run->id,
             'type' => 'heel',
-            'name' => 'Heel Checks — '.($source?->source_name ?? 'Unknown source'),
-            'status' => $isRunning ? 'running' : 'completed',
-            'source_name' => $source?->source_name,
+            'name' => 'Heel Checks — '.($run->source?->source_name ?? 'Unknown source'),
+            'status' => $status,
+            'source_name' => $run->source?->source_name,
             'triggered_by' => null,
-            'progress' => $isRunning ? 50 : 100,
-            'started_at' => $run->started_at,
-            'completed_at' => $isRunning ? null : $run->completed_at,
+            'progress' => $isRunning ? min((int) round((($run->completed_rules + $run->failed_rules) / $totalRules) * 100), 99) : 100,
+            'started_at' => $run->started_at?->toIso8601String(),
+            'completed_at' => $run->completed_at?->toIso8601String(),
             'duration' => null,
-            'error_message' => null,
-            'log_output' => "{$totalRules} rules checked, {$run->total_results} issues found",
-            'created_at' => $run->started_at,
+            'error_message' => $run->error_message,
+            'log_output' => "{$run->completed_rules}/{$totalRules} rules completed, {$violations->count()} issues found",
+            'created_at' => $run->created_at?->toIso8601String(),
             'details' => [
-                'total_rules' => $totalRules,
-                'rules_triggered' => (int) $run->rules_triggered,
-                'total_violations' => (int) $run->total_results,
+                'total_rules' => $run->total_rules,
+                'rules_triggered' => (int) $violations->pluck('rule_id')->unique()->count(),
+                'total_violations' => (int) $violations->count(),
                 'violations' => $violations->map(fn ($v) => [
                     'rule_id' => $v->rule_id,
                     'rule_name' => $v->rule_name,
@@ -870,7 +826,7 @@ class JobController extends Controller
             'status' => $job->status ?? 'pending',
             'source_name' => $job->source?->source_name,
             'triggered_by' => $job->creator?->name,
-            'progress' => $job->isRunning() ? 50 : ($job->status === 'completed' ? 100 : 0),
+            'progress' => $job->isRunning() ? 50 : (in_array($job->status, ['success', 'completed', 'failed', 'cancelled'], true) ? 100 : 0),
             'started_at' => $job->started_at?->toIso8601String(),
             'completed_at' => $job->completed_at?->toIso8601String(),
             'duration' => null,
@@ -918,7 +874,7 @@ class JobController extends Controller
             $query->where('status', $statusFilter);
         }
 
-        return $query->limit(100)->get()->map(fn (AnalysisExecution $e) => $this->transformAnalysisJob($e));
+        return $query->get()->map(fn (AnalysisExecution $e) => $this->transformAnalysisJob($e));
     }
 
     /**
@@ -965,7 +921,7 @@ class JobController extends Controller
             }
         }
 
-        return $query->limit(50)->get()->map(function (CohortGeneration $gen) {
+        return $query->get()->map(function (CohortGeneration $gen) {
             // Mark stale queued/running jobs (>1 hour old) as failed for display
             $isStale = in_array($gen->status, [ExecutionStatus::Queued, ExecutionStatus::Running, ExecutionStatus::Pending], true)
                 && $gen->started_at
@@ -1024,7 +980,7 @@ class JobController extends Controller
             $query->where('status', $statusFilter);
         }
 
-        return $query->limit(50)->get()->map(function (IngestionJob $job) {
+        return $query->get()->map(function (IngestionJob $job) {
             return [
                 'id' => $job->id,
                 'type' => 'ingestion',
@@ -1060,7 +1016,7 @@ class JobController extends Controller
             $query->whereIn('status', $dbStatuses);
         }
 
-        return $query->limit(50)->get()->map(function (FhirExportJob $job) {
+        return $query->get()->map(function (FhirExportJob $job) {
             $types = is_array($job->resource_types) ? implode(', ', $job->resource_types) : '';
             $normalized = $this->normalizeFhirExportStatus((string) $job->status);
 
@@ -1095,7 +1051,7 @@ class JobController extends Controller
             $query->whereIn('status', $this->mapGisStatusToFilter($statusFilter));
         }
 
-        return $query->limit(50)->get()->map(function (GisImport $job) {
+        return $query->get()->map(function (GisImport $job) {
             return [
                 'id' => $job->id,
                 'type' => 'gis_import',
@@ -1128,7 +1084,7 @@ class JobController extends Controller
             $query->whereIn('status', $this->mapGenomicStatusToFilter($statusFilter));
         }
 
-        return $query->limit(50)->get()->map(function (GenomicUpload $upload) {
+        return $query->get()->map(function (GenomicUpload $upload) {
             $sizeMb = $upload->file_size_bytes ? round($upload->file_size_bytes / 1024 / 1024, 1) : null;
             $variants = $upload->total_variants ?? 0;
             $detail = $sizeMb ? "{$sizeMb} MB" : '';
@@ -1168,7 +1124,7 @@ class JobController extends Controller
             $query->where('status', $statusFilter);
         }
 
-        return $query->limit(50)->get()->map(function (VocabularyImport $job) {
+        return $query->get()->map(function (VocabularyImport $job) {
             return [
                 'id' => $job->id,
                 'type' => 'vocabulary_load',
@@ -1192,34 +1148,55 @@ class JobController extends Controller
      */
     private function getDqdJobs(?string $statusFilter): Collection
     {
-        $totalExpected = app(DqdCheckRegistry::class)->count();
+        $registry = app(DqdCheckRegistry::class);
+        $totalAllChecks = $registry->count();
 
         $runs = DB::table('app.dqd_results')
-            ->selectRaw('run_id, source_id, COUNT(*) as total_checks, SUM(CASE WHEN passed = true THEN 1 ELSE 0 END)::int as passed_count, MIN(created_at) as started_at, MAX(created_at) as completed_at, SUM(execution_time_ms) as total_ms')
+            ->selectRaw("run_id, source_id, COUNT(*) as total_checks, SUM(CASE WHEN passed = true THEN 1 ELSE 0 END)::int as passed_count, MIN(created_at) as started_at, MAX(created_at) as completed_at, SUM(execution_time_ms) as total_ms, array_to_string(array_agg(DISTINCT category), ',') as categories")
             ->groupBy('run_id', 'source_id')
             ->orderByDesc('started_at')
-            ->limit(50)
             ->get();
+
+        // Pre-compute expected checks per category for accurate completion detection
+        $categoryCountCache = [];
 
         $sourceIds = $runs->pluck('source_id')->unique()->filter();
         $sources = Source::whereIn('id', $sourceIds)->get()->keyBy('id');
 
-        return $runs->map(function ($run) use ($totalExpected, $sources) {
+        return $runs->map(function ($run) use ($totalAllChecks, $sources, $registry, &$categoryCountCache) {
             $source = $sources->get($run->source_id);
             $completed = (int) $run->total_checks;
             $passed = (int) $run->passed_count;
             $failed = $completed - $passed;
 
-            // A run is "running" only if checks are still being inserted recently.
-            // If the last check was >5 minutes ago and we haven't hit totalExpected,
-            // the run stalled/crashed — mark it completed (partial).
+            // Determine if the run is still active (checks being inserted recently)
             $lastCheckAge = $run->completed_at
                 ? abs(now()->diffInSeconds(Carbon::parse($run->completed_at)))
                 : PHP_INT_MAX;
-            $isRunning = $completed < $totalExpected && $lastCheckAge < 300;
-            $pct = $totalExpected > 0 ? round(($completed / $totalExpected) * 100) : 100;
+            $stillActive = $lastCheckAge < 300;
 
-            $status = $isRunning ? 'running' : ($completed >= $totalExpected ? 'completed' : 'completed');
+            // Determine expected checks: for completed runs, use actual categories
+            // to detect category-specific runs; for active runs, assume full run
+            $runCategories = array_filter(explode(',', $run->categories ?? ''));
+            $numDistinctCategories = count($runCategories);
+
+            if (! $stillActive && $numDistinctCategories > 0 && $numDistinctCategories < 3) {
+                // Completed category-specific run — sum expected for those categories
+                $expectedForRun = 0;
+                foreach ($runCategories as $cat) {
+                    if (! isset($categoryCountCache[$cat])) {
+                        $categoryCountCache[$cat] = count($registry->byCategory($cat));
+                    }
+                    $expectedForRun += $categoryCountCache[$cat];
+                }
+            } else {
+                $expectedForRun = $totalAllChecks;
+            }
+
+            $isRunning = $completed < $expectedForRun && $stillActive;
+            $pct = $expectedForRun > 0 ? round(($completed / $expectedForRun) * 100) : 100;
+
+            $status = $isRunning ? 'running' : 'completed';
 
             return [
                 'id' => crc32($run->run_id),
@@ -1234,7 +1211,7 @@ class JobController extends Controller
                 'duration' => null,
                 'error_message' => $failed > 0 ? "{$failed} of {$completed} checks failed" : null,
                 'log_output' => $isRunning
-                    ? "{$completed}/{$totalExpected} checks ({$pct}%)"
+                    ? "{$completed}/{$expectedForRun} checks ({$pct}%)"
                     : "{$completed} checks: {$passed} passed, {$failed} failed",
                 'created_at' => $run->started_at,
             ];
@@ -1248,52 +1225,35 @@ class JobController extends Controller
      */
     private function getHeelJobs(?string $statusFilter): Collection
     {
-        $totalRules = app(AchillesHeelRuleRegistry::class)->count();
+        return AchillesHeelRun::query()
+            ->with('source')
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(function (AchillesHeelRun $run) {
+                $totalRules = max((int) $run->total_rules, 1);
+                $isRunning = $run->status === 'running';
+                $progress = $isRunning
+                    ? min((int) round((($run->completed_rules + $run->failed_rules) / $totalRules) * 100), 99)
+                    : 100;
 
-        $runs = DB::table('app.achilles_heel_results')
-            ->whereNotNull('run_id')
-            ->selectRaw('run_id, source_id, COUNT(*) as total_results, COUNT(DISTINCT rule_id) as rules_completed, MIN(created_at) as started_at, MAX(created_at) as completed_at')
-            ->groupBy('run_id', 'source_id')
-            ->orderByDesc('started_at')
-            ->limit(20)
-            ->get();
-
-        $sourceIds = $runs->pluck('source_id')->unique()->filter();
-        $sources = Source::whereIn('id', $sourceIds)->get()->keyBy('id');
-
-        return $runs->map(function ($run) use ($totalRules, $sources) {
-            $source = $sources->get($run->source_id);
-            $totalResults = (int) $run->total_results;
-            $rulesWithViolations = (int) $run->rules_completed;
-
-            // Heel only stores violation rows — a clean run with 0 violations has 0 rows.
-            // We cannot determine "running" from row count since most rules produce 0 rows.
-            // Instead, use time-based staleness: if the last insert was >2 minutes ago, it's done.
-            $lastResultAge = $run->completed_at
-                ? abs(now()->diffInSeconds(Carbon::parse($run->completed_at)))
-                : PHP_INT_MAX;
-            $isRunning = $lastResultAge < 120;
-
-            return [
-                'id' => crc32($run->run_id),
-                'type' => 'heel',
-                'name' => 'Heel Checks — '.($source?->source_name ?? 'Unknown source'),
-                'status' => $isRunning ? 'running' : 'completed',
-                'source_name' => $source?->source_name,
-                'triggered_by' => null,
-                'progress' => $isRunning ? 50 : 100,
-                'started_at' => $run->started_at,
-                'completed_at' => $isRunning ? null : $run->completed_at,
-                'duration' => null,
-                'error_message' => null,
-                'log_output' => $isRunning
-                    ? "Running {$totalRules} heel rules..."
-                    : "{$totalRules} rules checked, {$totalResults} issues found",
-                'created_at' => $run->started_at,
-            ];
-        })->when($statusFilter, function (Collection $jobs, string $filter) {
-            return $jobs->filter(fn (array $job) => $job['status'] === $filter);
-        });
+                return [
+                    'id' => $run->id,
+                    'type' => 'heel',
+                    'name' => 'Heel Checks — '.($run->source?->source_name ?? 'Unknown source'),
+                    'status' => $run->status,
+                    'source_name' => $run->source?->source_name,
+                    'triggered_by' => null,
+                    'progress' => $progress,
+                    'started_at' => $run->started_at?->toIso8601String(),
+                    'completed_at' => $run->completed_at?->toIso8601String(),
+                    'duration' => null,
+                    'error_message' => $run->error_message,
+                    'log_output' => $isRunning
+                        ? "Running {$totalRules} heel rules..."
+                        : "{$run->completed_rules}/{$totalRules} rules completed",
+                    'created_at' => $run->created_at?->toIso8601String(),
+                ];
+            });
     }
 
     /**
@@ -1308,7 +1268,7 @@ class JobController extends Controller
             $query->where('status', $statusFilter);
         }
 
-        $achillesRuns = $query->limit(50)->get();
+        $achillesRuns = $query->get();
         $sourceIds = $achillesRuns->pluck('source_id')->unique()->filter();
         $sources = Source::whereIn('id', $sourceIds)->get()->keyBy('id');
 
@@ -1355,7 +1315,7 @@ class JobController extends Controller
             $query->where('status', $this->normalizeFhirSyncStatusReverse($statusFilter));
         }
 
-        return $query->limit(50)->get()->map(function (FhirSyncRun $run) {
+        return $query->get()->map(function (FhirSyncRun $run) {
             $types = is_array($run->resource_types) ? implode(', ', $run->resource_types) : '';
             $isRunning = in_array($run->status, ['exporting', 'downloading', 'processing'], true);
             $records = ($run->records_written ?? 0) + ($run->records_failed ?? 0);
@@ -1394,7 +1354,7 @@ class JobController extends Controller
             $query->where('status', $statusFilter);
         }
 
-        return $query->limit(50)->get()->map(function (CareGapEvaluation $eval) {
+        return $query->get()->map(function (CareGapEvaluation $eval) {
             $bundleName = $eval->bundle?->name ?? 'Unknown bundle';
             $isDone = in_array($eval->status, ['completed', 'failed'], true);
 
@@ -1431,17 +1391,18 @@ class JobController extends Controller
             $query->where('status', $statusFilter);
         }
 
-        return $query->limit(50)->get()->map(function (GisDataset $ds) {
-            $isRunning = in_array($ds->status, ['loading', 'running', 'importing'], true);
+        return $query->get()->map(function (GisDataset $ds) {
+            $normalizedStatus = $this->normalizeGisBoundaryStatus($ds->status);
+            $isRunning = $normalizedStatus === 'running';
 
             return [
                 'id' => $ds->id,
                 'type' => 'gis_boundary',
                 'name' => 'GIS Boundaries — '.($ds->name ?? 'Unknown dataset'),
-                'status' => $this->normalizeGisBoundaryStatus($ds->status),
+                'status' => $normalizedStatus,
                 'source_name' => null,
                 'triggered_by' => $ds->user?->name,
-                'progress' => $ds->progress_percentage ?? ($isRunning ? 50 : ($ds->status === 'completed' ? 100 : 0)),
+                'progress' => $ds->progress_percentage ?? ($isRunning ? 50 : (in_array($normalizedStatus, ['completed', 'failed'], true) ? 100 : 0)),
                 'started_at' => $ds->started_at?->toIso8601String(),
                 'completed_at' => $ds->completed_at?->toIso8601String(),
                 'duration' => null,
@@ -1467,7 +1428,7 @@ class JobController extends Controller
             $query->where('status', $statusFilter);
         }
 
-        return $query->limit(50)->get()->map(function (PoseidonRun $run) {
+        return $query->get()->map(function (PoseidonRun $run) {
             $isRunning = $run->isRunning();
             /** @var array<string, mixed> $stats */
             $stats = is_array($run->stats) ? $run->stats : [];
@@ -1486,7 +1447,7 @@ class JobController extends Controller
                 'status' => $run->status ?? 'pending',
                 'source_name' => $run->source?->source_name,
                 'triggered_by' => $run->creator?->name,
-                'progress' => $isRunning ? 50 : ($run->status === 'completed' ? 100 : 0),
+                'progress' => $isRunning ? 50 : (in_array($run->status, ['success', 'completed', 'failed', 'cancelled'], true) ? 100 : 0),
                 'started_at' => $run->started_at?->toIso8601String(),
                 'completed_at' => $run->completed_at?->toIso8601String(),
                 'duration' => null,
@@ -1503,6 +1464,142 @@ class JobController extends Controller
     {
         $authorId = $job->analysis?->author_id;
         abort_unless($authorId === $userId, 404);
+    }
+
+    /**
+     * @param  callable(): Collection<int, array<string, mixed>>  $collector
+     * @return Collection<int, array<string, mixed>>
+     */
+    private function safeCollectJobs(callable $collector): Collection
+    {
+        try {
+            return DB::transaction(fn () => $collector());
+        } catch (QueryException) {
+            return collect();
+        }
+    }
+
+    private function assertIngestionOwnership(IngestionJob $job, int $userId): void
+    {
+        abort_unless($job->created_by === $userId, 404);
+    }
+
+    public function retryAnalysisJob(int $jobId, int $userId): JsonResponse
+    {
+        $job = AnalysisExecution::with(['analysis', 'source'])->findOrFail($jobId);
+        $this->assertOwnership($job, $userId);
+
+        if (! in_array($job->status, [ExecutionStatus::Failed, ExecutionStatus::Cancelled], true)) {
+            return response()->json([
+                'message' => 'Only failed or cancelled jobs can be retried.',
+            ], 422);
+        }
+
+        $analysis = $job->analysis;
+        if (! $analysis) {
+            return response()->json([
+                'message' => 'Analysis definition could not be loaded for retry.',
+            ], 422);
+        }
+
+        $newExecution = AnalysisExecution::create([
+            'analysis_type' => $job->analysis_type,
+            'analysis_id' => $job->analysis_id,
+            'source_id' => $job->source_id,
+            'status' => ExecutionStatus::Queued,
+            'started_at' => now(),
+        ]);
+
+        match ($job->analysis_type) {
+            Characterization::class => RunCharacterizationJob::dispatch($analysis, $job->source, $newExecution),
+            IncidenceRateAnalysis::class => RunIncidenceRateJob::dispatch($analysis, $job->source, $newExecution),
+            PathwayAnalysis::class => RunPathwayJob::dispatch($analysis, $job->source, $newExecution),
+            EstimationAnalysis::class => RunEstimationJob::dispatch($analysis, $job->source, $newExecution),
+            PredictionAnalysis::class => RunPredictionJob::dispatch($analysis, $job->source, $newExecution),
+            SccsAnalysis::class => RunSccsJob::dispatch($analysis, $job->source, $newExecution),
+            EvidenceSynthesisAnalysis::class => RunEvidenceSynthesisJob::dispatch($analysis, $newExecution),
+            default => throw new \RuntimeException('Retry not supported for this analysis type.'),
+        };
+
+        $newExecution->load(['analysis', 'source']);
+
+        return response()->json($this->normalizeJobPayload($this->transformAnalysisJob($newExecution)));
+    }
+
+    public function cancelAnalysisJob(int $jobId, int $userId): JsonResponse
+    {
+        $job = AnalysisExecution::with(['analysis', 'source'])->findOrFail($jobId);
+        $this->assertOwnership($job, $userId);
+
+        if (! in_array($job->status, [ExecutionStatus::Pending, ExecutionStatus::Queued, ExecutionStatus::Running], true)) {
+            return response()->json([
+                'message' => 'Only pending, queued, or running jobs can be cancelled.',
+            ], 422);
+        }
+
+        $job->update([
+            'status' => ExecutionStatus::Cancelled,
+            'completed_at' => now(),
+            'fail_message' => $job->fail_message ?: 'Cancelled by user.',
+        ]);
+
+        return response()->json($this->normalizeJobPayload($this->transformAnalysisJob($job->fresh(['analysis', 'source']))));
+    }
+
+    public function retryIngestionJob(int $jobId, int $userId): JsonResponse
+    {
+        $job = IngestionJob::with(['source', 'creator'])->findOrFail($jobId);
+        $this->assertIngestionOwnership($job, $userId);
+
+        if (! in_array($job->status, [ExecutionStatus::Failed, ExecutionStatus::Cancelled], true)) {
+            return response()->json([
+                'message' => 'Only failed or cancelled ingestion jobs can be retried.',
+            ], 422);
+        }
+
+        $job->update([
+            'status' => ExecutionStatus::Pending,
+            'error_message' => null,
+            'completed_at' => null,
+            'progress_percentage' => 0,
+        ]);
+
+        $step = $job->current_step ?? IngestionStep::Profiling;
+        if ($step === IngestionStep::Profiling) {
+            ProfileSourceJob::dispatch($job);
+        }
+
+        return response()->json($this->normalizeJobPayload([
+            'id' => $job->id,
+            'type' => 'ingestion',
+            'name' => 'Data Ingestion — '.($job->source?->source_name ?? 'Unknown source'),
+            'status' => $job->status->value,
+            'source_name' => $job->source?->source_name,
+            'triggered_by' => $job->creator?->name,
+            'progress' => $job->progress_percentage ?? 0,
+            'started_at' => $job->started_at?->toIso8601String(),
+            'completed_at' => $job->completed_at?->toIso8601String(),
+            'duration' => null,
+            'error_message' => $job->error_message,
+            'log_output' => null,
+            'created_at' => $job->created_at?->toIso8601String(),
+        ]));
+    }
+
+    /**
+     * @param  array<string, mixed>  $job
+     * @return array<string, mixed>
+     */
+    private function normalizeJobPayload(array $job): array
+    {
+        $type = (string) ($job['type'] ?? 'analysis');
+        $job['status'] = $this->normalizeJobStatus($type, isset($job['status']) ? (string) $job['status'] : null);
+        $job['actions'] = [
+            'retry' => $this->canRetryJob($type, (string) $job['status']),
+            'cancel' => $this->canCancelJob($type, (string) $job['status']),
+        ];
+
+        return $job;
     }
 
     /**
@@ -1641,6 +1738,46 @@ class JobController extends Controller
     }
 
     // ─── Status normalization helpers ────────────────────────────────────
+
+    private function normalizeJobStatus(string $type, ?string $status): string
+    {
+        return match ($type) {
+            'gis_import' => $this->normalizeGisStatus((string) $status),
+            'genomic_parse' => $this->normalizeGenomicStatus($status),
+            'fhir_export' => $this->normalizeFhirExportStatus((string) $status),
+            'fhir_sync' => $this->normalizeFhirSyncStatus($status),
+            'gis_boundary' => $this->normalizeGisBoundaryStatus($status),
+            'poseidon' => $this->normalizePoseidonStatus($status),
+            default => $status ?? 'pending',
+        };
+    }
+
+    private function normalizePoseidonStatus(?string $status): string
+    {
+        return match ($status) {
+            'success' => 'completed',
+            null => 'pending',
+            default => $status,
+        };
+    }
+
+    private function canRetryJob(string $type, string $status): bool
+    {
+        return match ($type) {
+            'characterization', 'incidence_rate', 'pathway', 'estimation',
+            'prediction', 'sccs', 'evidence_synthesis', 'analysis', 'ingestion' => in_array($status, ['failed', 'cancelled'], true),
+            default => false,
+        };
+    }
+
+    private function canCancelJob(string $type, string $status): bool
+    {
+        return match ($type) {
+            'characterization', 'incidence_rate', 'pathway', 'estimation',
+            'prediction', 'sccs', 'evidence_synthesis', 'analysis' => in_array($status, ['pending', 'queued', 'running'], true),
+            default => false,
+        };
+    }
 
     private function normalizeGisStatus(string $status): string
     {

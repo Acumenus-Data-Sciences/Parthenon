@@ -167,8 +167,8 @@ Route::prefix('v1')->group(function () {
         // Jobs
         Route::get('/jobs', [JobController::class, 'index']);
         Route::get('/jobs/{jobId}', [JobController::class, 'show'])->whereNumber('jobId');
-        Route::post('/jobs/{job}/retry', [JobController::class, 'retry']);
-        Route::post('/jobs/{job}/cancel', [JobController::class, 'cancel']);
+        Route::post('/jobs/{jobId}/retry', [JobController::class, 'retry'])->whereNumber('jobId');
+        Route::post('/jobs/{jobId}/cancel', [JobController::class, 'cancel'])->whereNumber('jobId');
 
         // Global search (across Solr cores: vocabulary, cohorts, studies)
         Route::get('/search', [GlobalSearchController::class, 'search']);
