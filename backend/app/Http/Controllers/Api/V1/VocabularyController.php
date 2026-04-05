@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\VocabularySearchRequest;
+use App\Models\App\ClinicalGrouping;
 use App\Models\Vocabulary\Concept;
 use App\Models\Vocabulary\ConceptAncestor;
 use App\Models\Vocabulary\ConceptRelationship;
@@ -505,6 +506,27 @@ class VocabularyController extends Controller
             'data' => $results,
             'parent_concept_id' => $parentId,
         ]);
+    }
+
+    /**
+     * GET /v1/vocabulary/groupings
+     *
+     * List curated clinical groupings for a domain. These provide user-friendly
+     * entry points into the SNOMED hierarchy instead of showing hundreds of raw roots.
+     */
+    public function groupings(Request $request): JsonResponse
+    {
+        $domainId = $request->query('domain_id');
+
+        $query = ClinicalGrouping::query()
+            ->whereNull('parent_grouping_id')
+            ->orderBy('sort_order');
+
+        if ($domainId) {
+            $query->where('domain_id', $domainId);
+        }
+
+        return response()->json(['data' => $query->get()]);
     }
 
     /**
