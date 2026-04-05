@@ -1,15 +1,15 @@
-"""FAQ promotion — clusters frequent questions and promotes to shared FAQ collection.
+"""FAQ promotion — clusters frequent Abby questions into the shared FAQ collection.
 
-Nightly batch job scans recent conversations, finds semantically similar questions,
-and promotes clusters that meet the threshold (>= 5 occurrences, >= 3 distinct users).
+Nightly batch jobs scan recent Abby conversation memory, find semantically
+similar questions, and promote clusters that meet the threshold
+(>= 5 occurrences, >= 3 distinct users).
 """
 import logging
 import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-from app.chroma.collections import get_faq_collection
-from app.chroma.client import get_chroma_client
+from app.chroma.collections import get_conversation_memory_collection, get_faq_collection
 
 logger = logging.getLogger(__name__)
 
@@ -19,35 +19,29 @@ SIMILARITY_THRESHOLD = 0.85
 
 
 def _scan_recent_conversations(days: int = 7) -> list[dict]:
-    """Scan all user conversation collections for recent Q&A pairs."""
-    client = get_chroma_client()
-    all_collections = client.list_collections()
+    """Scan shared Abby conversation memory for recent Q&A pairs."""
+    collection = get_conversation_memory_collection()
     recent_pairs: list[dict] = []
     cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+    entries = collection.get(include=["documents", "metadatas"])
+    docs_list = entries.get("documents") or []
+    meta_list = entries.get("metadatas") or []
 
-    for coll in all_collections:
-        if not coll.name.startswith("conversations_user_"):
-            continue
-        try:
-            user_id = int(coll.name.split("_")[-1])
-        except ValueError:
+    for doc, meta in zip(docs_list, meta_list):
+        meta = meta or {}
+        ts = str(meta.get("timestamp", ""))
+        if ts < cutoff:
             continue
 
-        entries = coll.get(include=["documents", "metadatas"])
-        docs_list = entries.get("documents") or []
-        meta_list = entries.get("metadatas") or []
-        for doc, meta in zip(docs_list, meta_list):
-            ts = str(meta.get("timestamp", ""))
-            if ts >= cutoff:
-                doc_str = doc if doc is not None else ""
-                lines = doc_str.split("\n", 1)
-                question = lines[0].removeprefix("Q: ") if lines else doc_str
-                answer = lines[1].removeprefix("A: ") if len(lines) > 1 else ""
-                recent_pairs.append({
-                    "question": question,
-                    "answer": answer,
-                    "user_id": user_id,
-                })
+        doc_str = doc if doc is not None else ""
+        lines = doc_str.split("\n", 1)
+        question = lines[0].removeprefix("Q: ") if lines else doc_str
+        answer = lines[1].removeprefix("A: ") if len(lines) > 1 else ""
+        recent_pairs.append({
+            "question": question,
+            "answer": answer,
+            "user_id": int(meta.get("user_id", 0) or 0),
+        })
 
     return recent_pairs
 

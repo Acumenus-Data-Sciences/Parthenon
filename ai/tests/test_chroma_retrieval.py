@@ -77,3 +77,46 @@ def test_build_rag_context_returns_empty_on_no_results():
             user_id=None,
         )
         assert context == ""
+
+
+def test_query_user_conversations_filters_by_user_id():
+    """Conversation retrieval uses shared memory with a user_id filter."""
+    with patch("app.chroma.retrieval.get_conversation_memory_collection") as mock_coll_fn:
+        mock_coll = MagicMock()
+        mock_coll_fn.return_value = mock_coll
+        mock_coll.query.return_value = {
+            "documents": [["Q: What is OMOP?\nA: Common data model."]],
+            "distances": [[0.1]],
+            "metadatas": [[{"page_context": "general"}]],
+        }
+
+        from app.chroma.retrieval import query_user_conversations
+
+        results = query_user_conversations(user_id=42, query="OMOP", top_k=3)
+
+        assert len(results) == 1
+        mock_coll.query.assert_called_once_with(
+            query_texts=["OMOP"],
+            n_results=3,
+            where={"user_id": 42},
+        )
+
+
+def test_query_ohdsi_papers_does_not_probe_count_before_query():
+    """OHDSI paper retrieval avoids an extra count round-trip on every request."""
+    with patch("app.chroma.collections.get_ohdsi_papers_collection") as mock_coll_fn:
+        mock_coll = MagicMock()
+        mock_coll_fn.return_value = mock_coll
+        mock_coll.query.return_value = {
+            "documents": [["Paper summary"]],
+            "distances": [[0.1]],
+            "metadatas": [[{"title": "Example Paper"}]],
+        }
+
+        from app.chroma.retrieval import query_ohdsi_papers
+
+        results = query_ohdsi_papers("diabetes", top_k=2)
+
+        assert len(results) == 1
+        mock_coll.count.assert_not_called()
+        mock_coll.query.assert_called_once_with(query_texts=["diabetes"], n_results=2)

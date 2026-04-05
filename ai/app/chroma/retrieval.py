@@ -10,9 +10,9 @@ from concurrent.futures import ThreadPoolExecutor
 from chromadb.api.types import QueryResult
 
 from app.chroma.collections import (
+    get_conversation_memory_collection,
     get_docs_collection,
     get_faq_collection,
-    get_user_conversation_collection,
 )
 
 logger = logging.getLogger(__name__)
@@ -119,8 +119,12 @@ def query_user_conversations(
 ) -> list[dict[str, object]]:
     """Query a user's conversation history collection."""
     try:
-        collection = get_user_conversation_collection(user_id)
-        results = collection.query(query_texts=[query], n_results=top_k)
+        collection = get_conversation_memory_collection()
+        results = collection.query(
+            query_texts=[query],
+            n_results=top_k,
+            where={"user_id": user_id},
+        )
         return _extract_query_results(results, threshold, "conv")
     except Exception as e:
         logger.warning("Conversation query failed for user %s: %s", user_id, e)
@@ -167,8 +171,6 @@ def query_ohdsi_papers(
     try:
         from app.chroma.collections import get_ohdsi_papers_collection
         collection = get_ohdsi_papers_collection()
-        if collection.count() == 0:
-            return []
         results = collection.query(query_texts=[query], n_results=top_k)
         return _extract_query_results(results, threshold, "ohdsi")
     except Exception as e:

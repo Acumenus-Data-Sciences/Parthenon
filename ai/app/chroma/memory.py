@@ -1,8 +1,8 @@
 """Conversation memory — stores and prunes per-user Q&A pairs in ChromaDB.
 
-All conversation turns (Abby chat) and Commons discussion messages are
-automatically written to BOTH the per-user collection and the unified
-'conversations' collection for cross-user retrieval and FAQ promotion.
+Abby chat memory is stored in a shared Chroma collection filtered by ``user_id``.
+Commons discussion messages are stored separately in a unified public
+``conversations`` collection.
 """
 import logging
 import uuid
@@ -12,7 +12,10 @@ from typing import Any
 import chromadb
 
 from app.chroma.client import get_chroma_client
-from app.chroma.collections import get_user_conversation_collection
+from app.chroma.collections import (
+    CONVERSATION_MEMORY_COLLECTION,
+    get_conversation_memory_collection,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +40,7 @@ def store_conversation_turn(
     answer: str,
     page_context: str,
 ) -> None:
-    """Embed a Q&A pair into both the per-user and unified collections."""
+    """Embed a Q&A pair into Abby's shared conversation-memory collection."""
     doc_id = f"conv_{user_id}_{uuid.uuid4().hex[:12]}"
     document = f"Q: {question}\nA: {answer}"
     now = datetime.now(timezone.utc).isoformat()
@@ -50,18 +53,9 @@ def store_conversation_turn(
         "source": "abby_chat",
     }
 
-    # Write to per-user collection
-    user_collection = get_user_conversation_collection(user_id)
-    user_collection.add(
+    conversation_memory = get_conversation_memory_collection()
+    conversation_memory.upsert(
         ids=[doc_id],
-        documents=[document],
-        metadatas=[metadata],
-    )
-
-    # Write to unified collection (continuous aggregation)
-    unified = _get_unified_collection()
-    unified.upsert(
-        ids=[f"agg_{doc_id}"],
         documents=[document],
         metadatas=[metadata],
     )
@@ -123,10 +117,13 @@ def delete_commons_message(message_id: int) -> None:
 
 def prune_old_conversations(user_id: int, ttl_days: int = 90) -> int:
     """Remove conversation entries older than ttl_days. Returns count removed."""
-    collection = get_user_conversation_collection(user_id)
+    collection = get_conversation_memory_collection()
     cutoff = (datetime.now(timezone.utc) - timedelta(days=ttl_days)).isoformat()
 
-    all_entries = collection.get(include=["metadatas"])
+    all_entries = collection.get(
+        where={"user_id": user_id},
+        include=["metadatas"],
+    )
     old_ids: list[str] = []
     metadatas = all_entries.get("metadatas")
     if metadatas is None:
@@ -144,15 +141,15 @@ def prune_old_conversations(user_id: int, ttl_days: int = 90) -> int:
 
 
 def aggregate_conversations() -> dict[str, int]:
-    """Backfill: merge all per-user conversation collections into the unified collection.
+    """Backfill legacy per-user collections into shared conversation memory.
 
-    This is a one-time catch-up for conversations created before continuous
-    write-through was added. New conversations are automatically dual-written.
+    New Abby conversations are stored directly in the shared collection.
+    This keeps the old migration endpoint useful for legacy data only.
 
     Returns stats: {"users": N, "total": N, "upserted": N}
     """
     client = get_chroma_client()
-    target = _get_unified_collection()
+    target = get_conversation_memory_collection()
 
     stats: dict[str, int] = {"users": 0, "total": 0, "upserted": 0}
 
@@ -176,8 +173,8 @@ def aggregate_conversations() -> dict[str, int]:
 
         stats["total"] += len(ids)
 
-        # Prefix IDs to avoid collisions
-        agg_ids = [f"agg_{eid}" for eid in ids]
+        # Preserve IDs when migrating into the shared collection.
+        agg_ids = list(ids)
         agg_metas: list[dict[str, Any]] = []
         for meta in metas:
             m = dict(meta) if meta else {}

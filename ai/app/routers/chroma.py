@@ -62,7 +62,7 @@ async def seed_faq() -> dict:
 
 @router.post("/aggregate-conversations")
 async def aggregate_convos() -> dict:
-    """Backfill: merge all per-user conversation collections into unified collection."""
+    """Backfill legacy per-user Abby memory into the shared conversation collection."""
     return aggregate_conversations()
 
 

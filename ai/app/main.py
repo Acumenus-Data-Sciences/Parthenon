@@ -83,11 +83,18 @@ for module_name, kwargs in OPTIONAL_ROUTERS:
 
 
 async def _startup_ingest_docs() -> None:
-    """Auto-ingest documentation on service startup."""
+    """Optionally ingest documentation on service startup."""
     import asyncio
 
-    if os.getenv("PYTEST_CURRENT_TEST") or os.getenv("PARTHENON_SKIP_STARTUP_INGEST") == "1":
-        _logger.info("Skipping startup doc ingestion in test/minimal mode")
+    if os.getenv("PYTEST_CURRENT_TEST"):
+        return
+
+    if os.getenv("PARTHENON_SKIP_STARTUP_INGEST") == "1":
+        _logger.info("Skipping startup doc ingestion because PARTHENON_SKIP_STARTUP_INGEST=1")
+        return
+
+    if not settings.startup_ingest_docs:
+        _logger.info("Skipping startup doc ingestion because startup_ingest_docs is disabled")
         return
 
     try:
@@ -132,8 +139,7 @@ async def _startup_warm_embedders() -> None:
 
 
 async def _startup_warm_ollama() -> None:
-    """Pre-load MedGemma into Ollama at startup with keep_alive=3600 so the
-    model stays warm for 1 hour without pegging the GPU indefinitely."""
+    """Pre-load Abby's MedGemma route so the dedicated Ollama stays resident."""
     import asyncio
     import httpx
     from app.config import settings
@@ -145,15 +151,19 @@ async def _startup_warm_ollama() -> None:
         try:
             async with httpx.AsyncClient(timeout=300) as client:
                 resp = await client.post(
-                    f"{settings.ollama_base_url}/api/generate",
+                    f"{settings.abby_llm_base_url}/api/generate",
                     json={
-                        "model": settings.ollama_model,
+                        "model": settings.abby_llm_model,
                         "prompt": "",
-                        "keep_alive": 3600,
+                        "keep_alive": settings.abby_ollama_keep_alive,
                     },
                 )
                 if resp.status_code == 200:
-                    _logger.info("Ollama model %s warmed up and pinned in VRAM", settings.ollama_model)
+                    _logger.info(
+                        "Abby Ollama model %s warmed up via %s",
+                        settings.abby_llm_model,
+                        settings.abby_llm_base_url,
+                    )
                 else:
                     _logger.warning("Ollama warmup returned %d", resp.status_code)
         except Exception as e:

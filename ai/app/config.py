@@ -1,7 +1,9 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
     database_url: str = ""
     redis_url: str = "redis://redis:6379/2"
     model_cache_dir: str = "/app/models"
@@ -10,10 +12,15 @@ class Settings(BaseSettings):
     ollama_base_url: str = "http://host.docker.internal:11434"
     ollama_model: str = "MedAIBase/MedGemma1.5:4b"
     ollama_timeout: int = 120
+    ollama_num_predict: int = 256
+    abby_ollama_base_url: str = ""
+    abby_ollama_model: str = ""
+    abby_ollama_keep_alive: int = 3600
 
     # ChromaDB configuration
     chroma_host: str = "chromadb"
     chroma_port: int = 8000
+    startup_ingest_docs: bool = False
 
     # StudyAgent configuration
     study_agent_url: str = "http://study-agent:8765"
@@ -74,8 +81,13 @@ class Settings(BaseSettings):
     institutional_staleness_days: int = 180
     institutional_max_suggestions: int = 3
 
-    class Config:
-        env_file = ".env"
+    @property
+    def abby_llm_base_url(self) -> str:
+        return self.abby_ollama_base_url or self.ollama_base_url
+
+    @property
+    def abby_llm_model(self) -> str:
+        return self.abby_ollama_model or self.ollama_model
 
 
 settings = Settings()
