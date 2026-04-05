@@ -523,6 +523,11 @@ class TestStripThinkingTokens:
         assert "Clean answer." in result
         assert "line1" not in result
 
+    def test_strips_plain_thought_prefix(self) -> None:
+        raw = "thought\nActual answer about OMOP CDM."
+        result = _strip_thinking_tokens(raw)
+        assert result == "Actual answer about OMOP CDM."
+
 
 # ===========================================================================
 # Section 5: Router registration (import safety)

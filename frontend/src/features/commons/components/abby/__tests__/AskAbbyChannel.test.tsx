@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createElement } from 'react';
@@ -57,6 +57,33 @@ describe('AskAbbyChannel', () => {
       expect(screen.getByText('Hello Abby')).toBeInTheDocument()
     );
     expect(abbyService.fetchAbbyConversation).toHaveBeenCalledWith(7);
+  });
+
+  it('restores conversation when persisted conversationId hydrates after initial render', async () => {
+    vi.mocked(abbyService.fetchAbbyConversation).mockResolvedValue({
+      id: 11,
+      title: 'OMOP basics',
+      page_context: 'commons_ask_abby',
+      messages: [
+        { id: 1, role: 'user', content: 'What is OMOP CDM?', created_at: new Date().toISOString(), metadata: {} } satisfies AbbyConversationMessage,
+        { id: 2, role: 'assistant', content: 'OMOP CDM is a common data model.', created_at: new Date().toISOString(), metadata: {} } satisfies AbbyConversationMessage,
+      ],
+    });
+
+    render(<AskAbbyChannel />, { wrapper: makeWrapper() });
+
+    await waitFor(() =>
+      expect(screen.getByText(/I'm Abby/)).toBeInTheDocument()
+    );
+
+    act(() => {
+      useAbbyStore.setState({ conversationId: 11 });
+    });
+
+    await waitFor(() =>
+      expect(screen.getByText('What is OMOP CDM?')).toBeInTheDocument()
+    );
+    expect(abbyService.fetchAbbyConversation).toHaveBeenCalledWith(11);
   });
 
   it('clears store and shows welcome when conversation fetch returns 404', async () => {

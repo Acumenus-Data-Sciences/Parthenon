@@ -10,9 +10,12 @@ caching to detect forks and reinitialize fresh models per-worker.
 import logging
 import os
 import threading
+from pathlib import Path
 
 import numpy as np
 from chromadb.api.types import EmbeddingFunction, Documents, Embeddings
+
+from app.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -21,10 +24,47 @@ logger = logging.getLogger(__name__)
 _embedder_lock = threading.Lock()
 
 
+def _resolve_writable_cache_dir() -> Path:
+    candidates = [
+        Path(settings.model_cache_dir),
+        Path("/tmp/parthenon-models"),
+    ]
+    for candidate in candidates:
+        try:
+            candidate.mkdir(parents=True, exist_ok=True)
+            probe = candidate / ".write_probe"
+            probe.write_text("ok", encoding="utf-8")
+            probe.unlink(missing_ok=True)
+            return candidate
+        except Exception as exc:
+            logger.warning("Model cache dir '%s' is not writable: %s", candidate, exc)
+    raise RuntimeError("No writable model cache directory is available")
+
+
+def _configure_model_cache_env() -> None:
+    cache_dir = _resolve_writable_cache_dir()
+    sentence_cache = cache_dir / "sentence-transformers"
+    huggingface_cache = cache_dir / "huggingface"
+    transformers_cache = huggingface_cache / "transformers"
+
+    sentence_cache.mkdir(parents=True, exist_ok=True)
+    transformers_cache.mkdir(parents=True, exist_ok=True)
+
+    home_dir = os.environ.get("HOME", "")
+    if not home_dir or home_dir == "/nonexistent":
+        os.environ["HOME"] = str(cache_dir)
+    os.environ["XDG_CACHE_HOME"] = str(cache_dir)
+    os.environ["HF_HOME"] = str(huggingface_cache)
+    os.environ["HF_HUB_CACHE"] = str(huggingface_cache / "hub")
+    os.environ["TRANSFORMERS_CACHE"] = str(transformers_cache)
+    os.environ["SENTENCE_TRANSFORMERS_HOME"] = str(sentence_cache)
+
+
 class GeneralEmbedder(EmbeddingFunction[Documents]):
     """Sentence-transformers embedding for general text (384 dimensions)."""
 
     def __init__(self, model_name: str = "all-MiniLM-L6-v2") -> None:
+        _configure_model_cache_env()
         from sentence_transformers import SentenceTransformer
 
         self._model = SentenceTransformer(model_name, device="cpu")

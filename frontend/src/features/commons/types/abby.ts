@@ -39,6 +39,7 @@ export interface AbbyQueryRequest {
   channel_id: string;
   channel_name: string;
   user_name: string;
+  title?: string;
   parent_message_id?: string;
   object_type?: string;
   object_id?: string;

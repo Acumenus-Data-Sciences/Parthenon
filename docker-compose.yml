@@ -170,6 +170,9 @@ services:
       - REDIS_URL=redis://redis:6379/2
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
       - OLLAMA_MODEL=${OLLAMA_MODEL:-MedAIBase/MedGemma1.5:4b}
+      - ABBY_OLLAMA_BASE_URL=${ABBY_OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      - ABBY_OLLAMA_MODEL=${ABBY_OLLAMA_MODEL:-MedAIBase/MedGemma1.5:4b}
+      - ABBY_OLLAMA_KEEP_ALIVE=${ABBY_OLLAMA_KEEP_ALIVE:-3600}
       - HELP_DIR=/var/www/html/resources/help
       - DOCS_DIR=/app/docs
       - CHROMA_HOST=chromadb

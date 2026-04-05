@@ -12,6 +12,8 @@ which resolves concepts via SapBERT and assembles the final CohortExpression.
 import json
 import logging
 import os
+import re
+import time
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, AsyncGenerator, cast
 
@@ -74,6 +76,11 @@ _phi_sanitizer = PHISanitizer(use_ner=True)
 _cloud_safety = CloudSafetyFilter()
 _claude_client: ClaudeClient | None = None
 _cost_tracker: CostTracker | None = None
+_shared_engine: Any | None = None
+_shared_redis: Any | None = None
+_dq_profile_service: Any | None = None
+_knowledge_surfacer: Any | None = None
+_ollama_http_client: httpx.AsyncClient | None = None
 
 
 def _get_claude_client() -> ClaudeClient | None:
@@ -98,6 +105,89 @@ def _get_cost_tracker() -> CostTracker:
             alert_thresholds=settings.cloud_budget_alert_thresholds,
         )
     return _cost_tracker
+
+
+def _get_shared_engine() -> Any:
+    global _shared_engine
+    if _shared_engine is None:
+        from sqlalchemy import create_engine
+        _shared_engine = create_engine(settings.database_url, pool_pre_ping=True)
+    return _shared_engine
+
+
+def _get_shared_redis() -> Any:
+    global _shared_redis
+    if _shared_redis is None:
+        try:
+            import redis as redis_lib
+            _shared_redis = redis_lib.from_url(settings.redis_url)
+        except Exception:
+            _shared_redis = False
+    return None if _shared_redis is False else _shared_redis
+
+
+def _get_data_profile_service() -> Any:
+    global _dq_profile_service
+    if _dq_profile_service is None:
+        from app.knowledge.data_profile import DataProfileService
+        _dq_profile_service = DataProfileService(
+            engine=_get_shared_engine(),
+            redis_client=_get_shared_redis(),
+            cdm_schema=settings.knowledge_cdm_schema,
+        )
+    return _dq_profile_service
+
+
+def _get_knowledge_surfacer() -> Any:
+    global _knowledge_surfacer
+    if _knowledge_surfacer is None:
+        from app.institutional.knowledge_capture import KnowledgeCapture
+        from app.institutional.knowledge_surfacing import KnowledgeSurfacer
+
+        try:
+            from app.chroma.embeddings import get_general_embedder
+            embedder = get_general_embedder()
+        except Exception:
+            logger.debug("Institutional knowledge embedder unavailable; skipping surfacing")
+            _knowledge_surfacer = False
+            return None
+
+        _knowledge_surfacer = KnowledgeSurfacer(
+            knowledge_capture=KnowledgeCapture(engine=_get_shared_engine(), embedder=embedder)
+        )
+    return None if _knowledge_surfacer is False else _knowledge_surfacer
+
+
+def _get_ollama_http_client() -> httpx.AsyncClient:
+    global _ollama_http_client
+    if _ollama_http_client is None:
+        _ollama_http_client = httpx.AsyncClient(
+            timeout=httpx.Timeout(settings.ollama_timeout),
+            limits=httpx.Limits(max_connections=100, max_keepalive_connections=20),
+            trust_env=False,
+        )
+    return _ollama_http_client
+
+
+def _ns_to_ms(value: Any) -> float | None:
+    if not isinstance(value, (int, float)):
+        return None
+    return round(float(value) / 1_000_000, 1)
+
+
+def _log_latency(event: str, **fields: Any) -> None:
+    parts = [event]
+    for key, value in fields.items():
+        if value is None:
+            continue
+        if isinstance(value, float):
+            parts.append(f"{key}={value:.1f}")
+        else:
+            parts.append(f"{key}={value}")
+    message = " ".join(parts)
+    logger.info(message)
+    if logger.name != "uvicorn.error":
+        logging.getLogger("uvicorn.error").info(message)
 
 
 def _get_session(conversation_id: int | None) -> dict:
@@ -311,6 +401,14 @@ CAPABILITY_PREAMBLE = (
     "custom SQL queries for them.\n\n"
 )
 
+COMPACT_CAPABILITY_PREAMBLE = (
+    "You are Abby for the Parthenon OMOP CDM platform. "
+    "You can use live platform data, documentation, and institutional memory when they are provided. "
+    "The clinical data schemas are read-only and `temp_abby` is your scratch workspace for multi-step analysis. "
+    "When live context includes counts or entities, answer with those concrete values. "
+    "If the supplied context is insufficient for a database question, suggest Data Interrogation for custom SQL.\n\n"
+)
+
 PAGE_SYSTEM_PROMPTS: dict[str, str] = {
     "cohort_builder": (
         "You are Abby, a clinical informatics assistant. "
@@ -521,8 +619,10 @@ def _get_help_context(page_context: str) -> str:
 
 async def call_ollama(system_prompt: str, user_message: str,
                       history: list[ChatMessage] | None = None,
-                      temperature: float = 0.1) -> str:
+                      temperature: float = 0.1,
+                      num_predict: int | None = None) -> str:
     """Call Ollama with the configured MedGemma model."""
+    started = time.perf_counter()
     messages = [{"role": "system", "content": system_prompt}]
 
     if history:
@@ -535,24 +635,52 @@ async def call_ollama(system_prompt: str, user_message: str,
     # model swapping (e.g. evicting a large model like gemma3:27b takes >90s).
     # Subsequent retries use a shorter timeout since the model should be warm.
     max_retries = 2
+    client = _get_ollama_http_client()
 
     for attempt in range(max_retries + 1):
         attempt_timeout = 180 if attempt == 0 else 60
+        attempt_started = time.perf_counter()
         try:
-            async with httpx.AsyncClient(timeout=attempt_timeout) as client:
-                resp = await client.post(
-                    f"{settings.ollama_base_url}/api/chat",
-                    json={
-                        "model": settings.ollama_model,
-                        "messages": messages,
-                        "stream": False,
-                        "keep_alive": 3600,  # keep warm for 1 hour; -1 pegs GPU forever
-                        "options": {"temperature": temperature},
+            resp = await client.post(
+                f"{settings.abby_llm_base_url}/api/chat",
+                json={
+                    "model": settings.abby_llm_model,
+                    "messages": messages,
+                    "stream": False,
+                    "think": False,
+                    "keep_alive": settings.abby_ollama_keep_alive,
+                    "options": {
+                        "temperature": temperature,
+                        "num_predict": num_predict if num_predict is not None else settings.ollama_num_predict,
                     },
-                )
-                resp.raise_for_status()
-                data = resp.json()
-                return data["message"]["content"]  # type: ignore[no-any-return]
+                },
+                timeout=attempt_timeout,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            total_ms = (time.perf_counter() - started) * 1000
+            attempt_ms = (time.perf_counter() - attempt_started) * 1000
+            _log_latency(
+                "abby_ollama_call",
+                model=settings.abby_llm_model,
+                base_url=settings.abby_llm_base_url,
+                attempts=attempt + 1,
+                total_ms=total_ms,
+                attempt_ms=attempt_ms,
+                prompt_chars=len(system_prompt),
+                prompt_tokens_est=_estimate_tokens(system_prompt),
+                message_chars=len(user_message),
+                num_predict=num_predict if num_predict is not None else settings.ollama_num_predict,
+                history_turns=len(history[-10:]) if history else 0,
+                response_chars=len(data.get("message", {}).get("content", "")),
+                load_ms=_ns_to_ms(data.get("load_duration")),
+                prompt_eval_ms=_ns_to_ms(data.get("prompt_eval_duration")),
+                eval_ms=_ns_to_ms(data.get("eval_duration")),
+                ollama_total_ms=_ns_to_ms(data.get("total_duration")),
+                prompt_eval_count=data.get("prompt_eval_count"),
+                eval_count=data.get("eval_count"),
+            )
+            return data["message"]["content"]  # type: ignore[no-any-return]
         except httpx.TimeoutException:
             if attempt < max_retries:
                 logger.warning("Ollama attempt %d/%d timed out, retrying...", attempt + 1, max_retries + 1)
@@ -582,6 +710,7 @@ async def parse_cohort(request: CohortParseRequest) -> CohortParseResponse:
         system_prompt=SYSTEM_PROMPT_COHORT_PARSER,
         user_message=request.prompt,
         temperature=0.05,   # near-deterministic for structured output
+        num_predict=max(settings.ollama_num_predict, 320),
     )
 
     # Strip any accidental markdown fences
@@ -645,7 +774,88 @@ async def parse_cohort(request: CohortParseRequest) -> CohortParseResponse:
     )
 
 
-def _build_chat_system_prompt(request: ChatRequest) -> str:
+_DATA_QUALITY_PATTERN = re.compile(
+    r"\b(data\s*quality|dqd|quality\s*check|coverage|sparse|gap|temporal|conformance|completeness|plausibility)\b",
+    re.I,
+)
+_INSTITUTIONAL_PATTERN = re.compile(
+    r"\b(previous|past|recent|review|decision|worked|learned|institutional|history|memory|similar)\b",
+    re.I,
+)
+
+
+def _estimate_tokens(text: str) -> int:
+    return max(1, len(text) // 4)
+
+
+def _build_response_format_rules(compact: bool) -> str:
+    if compact:
+        return (
+            "\n\nRESPONSE FORMAT:"
+            "\n- Keep replies concise."
+            "\n- Use markdown when helpful."
+            '\n- End with: SUGGESTIONS: ["...", "..."]'
+        )
+
+    return (
+        "\n\nRESPONSE FORMAT:"
+        "\n- Keep replies concise (under 300 words)."
+        "\n- Use markdown formatting for headers, lists, and code blocks."
+        "\n- End your reply with 1–3 next-step action prompts the user could send you"
+        " to make progress toward their goal within Parthenon."
+        " These are things the USER would TYPE TO YOU — short imperative commands or"
+        " specific questions directed at you, NOT questions you are asking the user."
+        " Good examples: \"Build the cohort definition for this study\","
+        " \"Show me available heart failure concept sets\","
+        " \"Analyze 30-day readmission rates for this cohort\"."
+        " Bad examples: \"Would you like to explore cohort design?\","
+        " \"Are you interested in specific medications?\" (those are you asking the user)."
+        '\n- Format as a JSON array on the last line: SUGGESTIONS: ["...", "...", "..."]'
+    )
+
+
+def _get_local_num_predict(page_context: str) -> int:
+    default = settings.ollama_num_predict
+    compact_context_cap = {
+        "general": 160,
+        "dashboard": 160,
+        "commons_ask_abby": 192,
+        "data_quality": 192,
+        "data_explorer": 192,
+        "vocabulary": 192,
+        "cohort_list": 192,
+        "concept_set_list": 192,
+        "administration": 192,
+    }.get(page_context)
+    if compact_context_cap is None:
+        return default
+    return min(default, compact_context_cap)
+
+
+def _should_include_data_quality_context(request: ChatRequest) -> bool:
+    if request.page_context in {"data_quality", "data_explorer", "administration"}:
+        return True
+    return bool(_DATA_QUALITY_PATTERN.search(request.message))
+
+
+def _should_include_institutional_context(request: ChatRequest) -> bool:
+    if request.page_context in {"commons_ask_abby", "studies", "analyses"}:
+        return True
+    return bool(_INSTITUTIONAL_PATTERN.search(request.message))
+
+
+def _build_context_block(model_profile: str, pieces: list[ContextPiece]) -> tuple[str, bool]:
+    if not pieces:
+        return "", False
+
+    assembler = ContextAssembler.for_model("claude" if model_profile == "claude" else "medgemma")
+    selected = assembler.assemble([piece for piece in pieces if piece.content.strip()])
+    if not selected:
+        return "", False
+    return assembler.format_prompt(selected), True
+
+
+def _build_chat_system_prompt(request: ChatRequest, model_profile: str = "medgemma") -> str:
     """Build the system prompt for a chat request.
 
     Four context enrichment steps (each only injected when relevant):
@@ -654,18 +864,38 @@ def _build_chat_system_prompt(request: ChatRequest) -> str:
       3. Live database — real-time query of Parthenon's concept sets, cohorts, analyses
       4. Page data — entity-specific data passed from the frontend
     """
+    started = time.perf_counter()
+    help_ms = 0.0
+    rag_ms = 0.0
+    live_ms = 0.0
+    dq_ms = 0.0
+    institutional_ms = 0.0
+
     page_prompt = PAGE_SYSTEM_PROMPTS.get(
         request.page_context, PAGE_SYSTEM_PROMPTS["general"]
     )
-    system_prompt = CAPABILITY_PREAMBLE + page_prompt
+    compact = model_profile != "claude"
+    system_prompt = (COMPACT_CAPABILITY_PREAMBLE if compact else CAPABILITY_PREAMBLE) + page_prompt
+    context_pieces: list[ContextPiece] = []
 
     # ── Step 1: Help knowledge (static, page-specific) ──────────────────────
+    help_started = time.perf_counter()
     help_context = _get_help_context(request.page_context)
+    help_ms = (time.perf_counter() - help_started) * 1000
     if help_context:
-        system_prompt += help_context
+        context_pieces.append(
+            ContextPiece(
+                tier=ContextTier.PAGE,
+                content=help_context,
+                relevance=0.55,
+                tokens=_estimate_tokens(help_context),
+                source="help",
+            )
+        )
 
     # ── Step 2: RAG retrieval (ChromaDB semantic search) ─────────────────────
     rag_context = ""
+    rag_started = time.perf_counter()
     try:
         rag_context = build_rag_context(
             query=request.message,
@@ -673,26 +903,56 @@ def _build_chat_system_prompt(request: ChatRequest) -> str:
             user_id=request.user_id,
         )
         if rag_context:
-            system_prompt += rag_context
+            context_pieces.append(
+                ContextPiece(
+                    tier=ContextTier.SEMANTIC,
+                    content=rag_context,
+                    relevance=0.9,
+                    tokens=_estimate_tokens(rag_context),
+                    source="rag",
+                )
+            )
     except Exception as e:
         logger.warning("RAG context retrieval failed: %s", e)
+    finally:
+        rag_ms = (time.perf_counter() - rag_started) * 1000
 
     # ── Step 3: Live database context (only when query needs it) ─────────────
     live_context = ""
+    live_started = time.perf_counter()
     try:
         from app.chroma.live_context import query_live_context
         live_context = query_live_context(request.message, request.page_context)
         if live_context:
-            system_prompt += live_context
+            context_pieces.append(
+                ContextPiece(
+                    tier=ContextTier.LIVE,
+                    content=live_context,
+                    relevance=0.95,
+                    tokens=_estimate_tokens(live_context),
+                    source="live_context",
+                )
+            )
     except Exception as e:
         logger.warning("Live database context failed: %s", e)
+    finally:
+        live_ms = (time.perf_counter() - live_started) * 1000
 
     # ── Step 4: Page data (entity-specific frontend context) ─────────────────
     if request.user_profile and request.user_profile.name:
         role_str = ", ".join(request.user_profile.roles) if request.user_profile.roles else "researcher"
-        system_prompt += (
+        user_context = (
             f"\n\nYou are assisting {request.user_profile.name}, "
             f"who has roles: {role_str}."
+        )
+        context_pieces.append(
+            ContextPiece(
+                tier=ContextTier.WORKING,
+                content=user_context,
+                relevance=0.45,
+                tokens=_estimate_tokens(user_context),
+                source="user_profile",
+            )
         )
 
     # User research profile context (from memory learning)
@@ -701,7 +961,16 @@ def _build_chat_system_prompt(request: ChatRequest) -> str:
         profile = MemoryUserProfile.from_dict(rp.model_dump())
         profile_context = profile.get_context_string()
         if profile_context:
-            system_prompt += f"\n\nUSER RESEARCH PROFILE: {profile_context}"
+            profile_text = f"USER RESEARCH PROFILE: {profile_context}"
+            context_pieces.append(
+                ContextPiece(
+                    tier=ContextTier.WORKING,
+                    content=profile_text,
+                    relevance=0.5,
+                    tokens=_estimate_tokens(profile_text),
+                    source="learned_profile",
+                )
+            )
 
     if request.page_data:
         context_lines = []
@@ -711,68 +980,86 @@ def _build_chat_system_prompt(request: ChatRequest) -> str:
             elif isinstance(val, list) and len(val) <= 5:
                 context_lines.append(f"  {key}: {', '.join(str(v) for v in val)}")
         if context_lines:
-            system_prompt += "\n\nCURRENT PAGE CONTEXT:\n" + "\n".join(context_lines)
+            page_context_block = "CURRENT PAGE CONTEXT:\n" + "\n".join(context_lines)
+            context_pieces.append(
+                ContextPiece(
+                    tier=ContextTier.PAGE,
+                    content=page_context_block,
+                    relevance=0.8,
+                    tokens=_estimate_tokens(page_context_block),
+                    source="page_data",
+                )
+            )
 
     # ── Step 5: Data quality warnings (safety-critical, always when relevant) ──
-    try:
-        from app.knowledge.data_profile import DataProfileService
-        from sqlalchemy import create_engine
-        import redis as redis_lib
-
-        _dq_engine = create_engine(settings.database_url)
+    if _should_include_data_quality_context(request):
+        dq_started = time.perf_counter()
         try:
-            _dq_redis = redis_lib.from_url(settings.redis_url)
-        except Exception:
-            _dq_redis = None
+            profile_service = _get_data_profile_service()
+            person_count = profile_service.get_person_count()
+            domain_density = profile_service.get_domain_density()
+            temporal_coverage = profile_service.get_temporal_coverage()
+            warnings = profile_service.detect_data_gaps(
+                person_count=person_count,
+                domain_density=domain_density,
+                temporal_coverage=temporal_coverage,
+            )
 
-        profile_service = DataProfileService(
-            engine=_dq_engine,
-            redis_client=_dq_redis,
-            cdm_schema=settings.knowledge_cdm_schema,
-        )
+            relevant_warnings = []
+            msg_lower = request.message.lower()
+            for w in warnings:
+                if w.severity == "critical":
+                    relevant_warnings.append(w)
+                elif w.domain.lower() in msg_lower or w.domain == "all":
+                    relevant_warnings.append(w)
 
-        # Gather metrics then detect gaps (API requires explicit arguments)
-        person_count = profile_service.get_person_count()
-        domain_density = profile_service.get_domain_density()
-        temporal_coverage = profile_service.get_temporal_coverage()
-        warnings = profile_service.detect_data_gaps(
-            person_count=person_count,
-            domain_density=domain_density,
-            temporal_coverage=temporal_coverage,
-        )
-
-        # Filter to warnings relevant to the current query
-        relevant_warnings = []
-        msg_lower = request.message.lower()
-        for w in warnings:
-            if w.severity == "critical":
-                relevant_warnings.append(w)
-            elif w.domain.lower() in msg_lower or w.domain == "all":
-                relevant_warnings.append(w)
-
-        if relevant_warnings:
-            warning_text = profile_service.format_warnings(relevant_warnings)
-            system_prompt += f"\n\n{warning_text}"
-    except Exception as e:
-        logger.warning("Data quality warning injection failed: %s", e)
+            if relevant_warnings:
+                warning_text = profile_service.format_warnings(relevant_warnings)
+                context_pieces.append(
+                    ContextPiece(
+                        tier=ContextTier.LIVE,
+                        content=warning_text,
+                        relevance=1.0,
+                        tokens=_estimate_tokens(warning_text),
+                        source="data_quality",
+                        is_safety_critical=True,
+                    )
+                )
+        except Exception as e:
+            logger.warning("Data quality warning injection failed: %s", e)
+        finally:
+            dq_ms = (time.perf_counter() - dq_started) * 1000
 
     # ── Step 6: Institutional knowledge surfacing ─────────────────────────
-    try:
-        from app.institutional.knowledge_capture import KnowledgeCapture
-        from app.institutional.knowledge_surfacing import KnowledgeSurfacer
-        from sqlalchemy import create_engine
-        engine = create_engine(settings.database_url)
-        kc = KnowledgeCapture(engine=engine)
-        surfacer = KnowledgeSurfacer(knowledge_capture=kc)
-        suggestions = surfacer.suggest(request.message)
-        if suggestions:
-            system_prompt += "\n\n" + surfacer.format_for_prompt(suggestions)
-    except Exception as e:
-        logger.warning("Knowledge surfacing failed: %s", e)
+    if _should_include_institutional_context(request):
+        institutional_started = time.perf_counter()
+        try:
+            surfacer = _get_knowledge_surfacer()
+            if surfacer is not None:
+                suggestions = surfacer.suggest(request.message)
+                if suggestions:
+                    institutional_text = surfacer.format_for_prompt(suggestions)
+                    context_pieces.append(
+                        ContextPiece(
+                            tier=ContextTier.INSTITUTIONAL,
+                            content=institutional_text,
+                            relevance=0.6,
+                            tokens=_estimate_tokens(institutional_text),
+                            source="institutional",
+                        )
+                    )
+        except Exception as e:
+            logger.warning("Knowledge surfacing failed: %s", e)
+        finally:
+            institutional_ms = (time.perf_counter() - institutional_started) * 1000
+
+    context_block, _ = _build_context_block(model_profile, context_pieces)
+    if context_block:
+        system_prompt += "\n\n" + context_block
 
     # ── Grounding rules ──────────────────────────────────────────────────────
-    has_context = bool(rag_context or live_context)
-    if has_context:
+    has_grounding_context = bool(rag_context or live_context)
+    if has_grounding_context:
         system_prompt += (
             "\n\nGROUNDING RULES:"
             "\n- Base your answer PRIMARILY on the KNOWLEDGE BASE and LIVE PLATFORM DATA provided above."
@@ -788,20 +1075,24 @@ def _build_chat_system_prompt(request: ChatRequest) -> str:
             "Do NOT fabricate specific paper titles, researcher names, concept sets, or study details."
         )
 
-    system_prompt += (
-        "\n\nRESPONSE FORMAT:"
-        "\n- Keep replies concise (under 300 words)."
-        "\n- Use markdown formatting for headers, lists, and code blocks."
-        "\n- End your reply with 1–3 next-step action prompts the user could send you"
-        " to make progress toward their goal within Parthenon."
-        " These are things the USER would TYPE TO YOU — short imperative commands or"
-        " specific questions directed at you, NOT questions you are asking the user."
-        " Good examples: \"Build the cohort definition for this study\","
-        " \"Show me available heart failure concept sets\","
-        " \"Analyze 30-day readmission rates for this cohort\"."
-        " Bad examples: \"Would you like to explore cohort design?\","
-        " \"Are you interested in specific medications?\" (those are you asking the user)."
-        '\n- Format as a JSON array on the last line: SUGGESTIONS: ["...", "...", "..."]'
+    system_prompt += _build_response_format_rules(compact=compact)
+
+    _log_latency(
+        "abby_prompt_build",
+        model_profile=model_profile,
+        page_context=request.page_context,
+        total_ms=(time.perf_counter() - started) * 1000,
+        help_ms=help_ms,
+        rag_ms=rag_ms,
+        live_ms=live_ms,
+        dq_ms=dq_ms,
+        institutional_ms=institutional_ms,
+        prompt_chars=len(system_prompt),
+        prompt_tokens_est=_estimate_tokens(system_prompt),
+        context_pieces=len(context_pieces),
+        history_turns=len(request.history[-10:]) if request.history else 0,
+        rag_chars=len(rag_context),
+        live_chars=len(live_context),
     )
 
     return system_prompt
@@ -818,6 +1109,8 @@ def _strip_thinking_tokens(text: str) -> str:
     text = re.sub(r"<unused94>.*?<unused95>", "", text, flags=re.DOTALL)
     # Remove orphaned thinking markers
     text = re.sub(r"<unused\d+>", "", text)
+    # Some Ollama/Gemma responses leak a plain leading "thought" line.
+    text = re.sub(r"^\s*thought\s*\n+", "", text, flags=re.IGNORECASE)
     return text.strip()
 
 
@@ -864,9 +1157,8 @@ def _extract_suggestions(raw: str) -> tuple[str, list[str]]:
 def _fetch_user_profile(user_id: int) -> dict | None:
     """Fetch user's research profile from PostgreSQL."""
     try:
-        from sqlalchemy import create_engine, text
-        engine = create_engine(settings.database_url)
-        with engine.connect() as conn:
+        from sqlalchemy import text
+        with _get_shared_engine().connect() as conn:
             row = conn.execute(
                 text("""
                     SELECT research_interests, expertise_domains,
@@ -891,9 +1183,8 @@ def _save_user_profile(user_id: int, profile_data: dict) -> None:
     """Upsert user's research profile to PostgreSQL."""
     try:
         import json as json_mod
-        from sqlalchemy import create_engine, text
-        engine = create_engine(settings.database_url)
-        with engine.connect() as conn:
+        from sqlalchemy import text
+        with _get_shared_engine().connect() as conn:
             conn.execute(
                 text("""
                     INSERT INTO app.abby_user_profiles (user_id, research_interests,
@@ -929,8 +1220,7 @@ async def chat(request: ChatRequest) -> ChatResponse:
     Phase 2: Routes to Claude (cloud) or MedGemma (local) based on message
     complexity, budget status, and PHI safety checks.
     """
-    system_prompt = _build_chat_system_prompt(request)
-
+    request_started = time.perf_counter()
     # Working memory: track intent and update turn counter
     session = _get_session(request.conversation_id)
     session["turn"] += 1
@@ -949,14 +1239,17 @@ async def chat(request: ChatRequest) -> ChatResponse:
     cost_tracker = _get_cost_tracker()
     budget_exhausted = cost_tracker.is_budget_exhausted()
     routing = _router.route(request.message, budget_exhausted=budget_exhausted)
+    if routing.model == "claude" and _get_claude_client() is None:
+        logger.debug("Claude routed but no client available, falling back to local before prompt build")
+        routing = RoutingDecision(model="local", stage=0, reason="claude_unavailable", confidence=1.0)
+    local_num_predict = _get_local_num_predict(request.page_context)
+    system_prompt = _build_chat_system_prompt(
+        request,
+        model_profile="claude" if routing.model == "claude" else "medgemma",
+    )
 
     reply = ""
     suggestions: list[str] = []
-
-    if routing.model == "claude" and _get_claude_client() is None:
-        # Claude requested but no API key configured — fall back to local silently
-        logger.debug("Claude routed but no client available, falling back to local")
-        routing = RoutingDecision(model="local", stage=0, reason="claude_unavailable", confidence=1.0)
 
     if routing.model == "claude" and _get_claude_client() is not None:
         # Cloud path: PHI sanitization + cloud safety filter
@@ -974,6 +1267,7 @@ async def chat(request: ChatRequest) -> ChatResponse:
                 "Redactions: %d", phi_result.redaction_count,
             )
             routing = RoutingDecision(model="local", stage=0, reason="phi_blocked", confidence=1.0)
+            system_prompt = _build_chat_system_prompt(request, model_profile="medgemma")
         else:
             # Safe to send to Claude
             claude_client = _get_claude_client()
@@ -1002,6 +1296,7 @@ async def chat(request: ChatRequest) -> ChatResponse:
             except Exception:
                 logger.exception("Claude API call failed, falling back to local")
                 routing = RoutingDecision(model="local", stage=0, reason="claude_error", confidence=1.0)
+                system_prompt = _build_chat_system_prompt(request, model_profile="medgemma")
 
     if routing.model == "local":
         # Local path: MedGemma via Ollama (existing behavior)
@@ -1010,6 +1305,7 @@ async def chat(request: ChatRequest) -> ChatResponse:
             user_message=request.message,
             history=request.history,
             temperature=0.15,
+            num_predict=local_num_predict,
         )
         reply, suggestions = _extract_suggestions(raw)
 
@@ -1043,9 +1339,7 @@ async def chat(request: ChatRequest) -> ChatResponse:
     # Check for FAQ promotion (non-blocking)
     try:
         from app.institutional.faq_promoter import FAQPromoter
-        from sqlalchemy import create_engine
-        engine = create_engine(settings.database_url)
-        faq = FAQPromoter(engine=engine)
+        faq = FAQPromoter(engine=_get_shared_engine())
         faq.check_and_promote(question=request.message, answer=reply)
     except Exception:
         logger.debug("FAQ promotion check failed (non-blocking)")
@@ -1060,6 +1354,17 @@ async def chat(request: ChatRequest) -> ChatResponse:
             "*Note: This response was generated locally due to usage limits. "
             "For a more thorough analysis, try again later.*\n\n" + reply
         )
+
+    _log_latency(
+        "abby_chat_request",
+        model=routing.model,
+        route_reason=routing.reason,
+        page_context=request.page_context,
+        total_ms=(time.perf_counter() - request_started) * 1000,
+        reply_chars=len(reply),
+        suggestions=len(suggestions),
+        history_turns=len(request.history[-10:]) if request.history else 0,
+    )
 
     return ChatResponse(
         reply=reply,
@@ -1095,8 +1400,10 @@ async def execute_plan_endpoint(request: ExecutePlanRequest) -> dict:
 
 async def _stream_ollama(system_prompt: str, user_message: str,
                          history: list[ChatMessage] | None = None,
-                         temperature: float = 0.3) -> AsyncGenerator[str, None]:
+                         temperature: float = 0.3,
+                         num_predict: int | None = None) -> AsyncGenerator[str, None]:
     """Stream tokens from Ollama as SSE events."""
+    started = time.perf_counter()
     messages = [{"role": "system", "content": system_prompt}]
     if history:
         for msg in history[-10:]:
@@ -1104,38 +1411,69 @@ async def _stream_ollama(system_prompt: str, user_message: str,
     messages.append({"role": "user", "content": user_message})
 
     try:
-        async with httpx.AsyncClient(timeout=settings.ollama_timeout) as client:
-            async with client.stream(
-                "POST",
-                f"{settings.ollama_base_url}/api/chat",
-                json={
-                    "model": settings.ollama_model,
-                    "messages": messages,
-                    "stream": True,
-                    "options": {"temperature": temperature},
+        client = _get_ollama_http_client()
+        async with client.stream(
+            "POST",
+            f"{settings.abby_llm_base_url}/api/chat",
+            json={
+                "model": settings.abby_llm_model,
+                "messages": messages,
+                "stream": True,
+                "think": False,
+                "keep_alive": settings.abby_ollama_keep_alive,
+                "options": {
+                    "temperature": temperature,
+                    "num_predict": num_predict if num_predict is not None else settings.ollama_num_predict,
                 },
-            ) as resp:
-                resp.raise_for_status()
-                full_content = ""
-                async for line in resp.aiter_lines():
-                    if not line.strip():
-                        continue
-                    try:
-                        data = json.loads(line)
-                        if data.get("done"):
-                            break
-                        token = data.get("message", {}).get("content", "")
-                        if token:
-                            full_content += token
-                            yield f"data: {json.dumps({'token': token})}\n\n"
-                    except json.JSONDecodeError:
-                        continue
+            },
+            timeout=settings.ollama_timeout,
+        ) as resp:
+            resp.raise_for_status()
+            full_content = ""
+            first_token_ms: float | None = None
+            final_data: dict[str, Any] | None = None
+            async for line in resp.aiter_lines():
+                if not line.strip():
+                    continue
+                try:
+                    data = json.loads(line)
+                    if data.get("done"):
+                        final_data = data
+                        break
+                    token = data.get("message", {}).get("content", "")
+                    if token:
+                        full_content += token
+                        if first_token_ms is None:
+                            first_token_ms = (time.perf_counter() - started) * 1000
+                        yield f"data: {json.dumps({'token': token})}\n\n"
+                except json.JSONDecodeError:
+                    continue
 
-                # Extract suggestions from complete response
-                _, suggestions = _extract_suggestions(full_content)
-                if suggestions:
-                    yield f"data: {json.dumps({'suggestions': suggestions})}\n\n"
-                yield "data: [DONE]\n\n"
+            # Extract suggestions from complete response
+            _, suggestions = _extract_suggestions(full_content)
+            if suggestions:
+                yield f"data: {json.dumps({'suggestions': suggestions})}\n\n"
+            yield "data: [DONE]\n\n"
+
+            _log_latency(
+                "abby_ollama_stream",
+                model=settings.abby_llm_model,
+                base_url=settings.abby_llm_base_url,
+                total_ms=(time.perf_counter() - started) * 1000,
+                first_token_ms=first_token_ms,
+                prompt_chars=len(system_prompt),
+                prompt_tokens_est=_estimate_tokens(system_prompt),
+                message_chars=len(user_message),
+                num_predict=num_predict if num_predict is not None else settings.ollama_num_predict,
+                history_turns=len(history[-10:]) if history else 0,
+                response_chars=len(full_content),
+                load_ms=_ns_to_ms(final_data.get("load_duration")) if final_data else None,
+                prompt_eval_ms=_ns_to_ms(final_data.get("prompt_eval_duration")) if final_data else None,
+                eval_ms=_ns_to_ms(final_data.get("eval_duration")) if final_data else None,
+                ollama_total_ms=_ns_to_ms(final_data.get("total_duration")) if final_data else None,
+                prompt_eval_count=final_data.get("prompt_eval_count") if final_data else None,
+                eval_count=final_data.get("eval_count") if final_data else None,
+            )
     except httpx.TimeoutException:
         yield f"data: {json.dumps({'error': 'LLM service timed out.'})}\n\n"
         yield "data: [DONE]\n\n"
@@ -1151,7 +1489,18 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
     SSE streaming version of the chat endpoint. Returns token-by-token
     responses as Server-Sent Events for real-time display in the UI.
     """
-    system_prompt = _build_chat_system_prompt(request)
+    started = time.perf_counter()
+    system_prompt = _build_chat_system_prompt(request, model_profile="medgemma")
+    local_num_predict = _get_local_num_predict(request.page_context)
+    _log_latency(
+        "abby_chat_stream_ready",
+        page_context=request.page_context,
+        total_ms=(time.perf_counter() - started) * 1000,
+        prompt_chars=len(system_prompt),
+        prompt_tokens_est=_estimate_tokens(system_prompt),
+        num_predict=local_num_predict,
+        history_turns=len(request.history[-10:]) if request.history else 0,
+    )
 
     return StreamingResponse(
         _stream_ollama(
@@ -1159,6 +1508,7 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
             user_message=request.message,
             history=request.history,
             temperature=0.3,
+            num_predict=local_num_predict,
         ),
         media_type="text/event-stream",
         headers={

@@ -84,6 +84,7 @@ class AbbyAiController extends Controller
     {
         $validated = $request->validate([
             'message' => 'required|string|min:1|max:4000',
+            'title' => 'sometimes|nullable|string|max:500',
             'page_context' => 'sometimes|string|max:64',
             'page_data' => 'sometimes|array',
             'history' => 'sometimes|array',
@@ -122,7 +123,7 @@ class AbbyAiController extends Controller
                 } else {
                     $conversation = AbbyConversation::create([
                         'user_id' => $user->id,
-                        'title' => mb_substr($validated['message'], 0, 500),
+                        'title' => $validated['title'] ?? mb_substr($validated['message'], 0, 500),
                         'page_context' => $validated['page_context'] ?? 'general',
                     ]);
                 }
@@ -167,6 +168,7 @@ class AbbyAiController extends Controller
     {
         $validated = $request->validate([
             'message' => 'required|string|min:1|max:4000',
+            'title' => 'sometimes|nullable|string|max:500',
             'page_context' => 'sometimes|string|max:64',
             'page_data' => 'sometimes|array',
             'history' => 'sometimes|array',
@@ -198,7 +200,7 @@ class AbbyAiController extends Controller
                 } else {
                     $conversation = AbbyConversation::create([
                         'user_id' => $user->id,
-                        'title' => mb_substr($validated['message'], 0, 500),
+                        'title' => $validated['title'] ?? mb_substr($validated['message'], 0, 500),
                         'page_context' => $validated['page_context'] ?? 'general',
                     ]);
                 }

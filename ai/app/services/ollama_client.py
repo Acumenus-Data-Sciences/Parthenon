@@ -21,20 +21,22 @@ Respond in this exact JSON format:
 """
 
 
-async def check_ollama_health() -> str:
-    """Check if Ollama is reachable and the model is available."""
-    parsed = urlparse(settings.ollama_base_url)
+async def check_ollama_health(base_url: str | None = None, model: str | None = None) -> str:
+    """Check if an Ollama endpoint is reachable and a model is available."""
+    resolved_base_url = base_url or settings.ollama_base_url
+    resolved_model = model or settings.ollama_model
+    parsed = urlparse(resolved_base_url)
     if parsed.hostname == "host.docker.internal" and not os.path.exists("/.dockerenv"):
         return "unavailable"
 
     try:
         timeout = httpx.Timeout(0.5, connect=0.5)
         async with httpx.AsyncClient(timeout=timeout, trust_env=False) as client:
-            response = await client.get(f"{settings.ollama_base_url}/api/tags")
+            response = await client.get(f"{resolved_base_url}/api/tags")
             if response.status_code == 200:
                 tags = response.json()
                 models = [m.get("name", "") for m in tags.get("models", [])]
-                if any(settings.ollama_model in m for m in models):
+                if any(resolved_model in m for m in models):
                     return "ok"
                 return f"model_not_found (available: {', '.join(models[:5])})"
             return "error"

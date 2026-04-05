@@ -4,23 +4,27 @@ import type {
   AbbyQueryResponse,
   AbbyFeedbackRequest,
   RagPipelineState,
-  RagStage,
 } from "../types/abby";
-import { queryAbby, submitFeedback } from "../services/abbyService";
+import { queryAbbyStream, submitFeedback } from "../services/abbyService";
 
 // ─── useAbbyQuery ───────────────────────────────────────────────
 
 interface UseAbbyQueryReturn {
   response: AbbyQueryResponse | null;
+  streamingContent: string;
   pipelineState: RagPipelineState;
   isLoading: boolean;
   error: Error | null;
-  sendQuery: (request: AbbyQueryRequest) => Promise<void>;
+  sendQuery: (
+    request: AbbyQueryRequest,
+    options?: { onConversationId?: (conversationId: number) => void }
+  ) => Promise<void>;
   reset: () => void;
 }
 
 export function useAbbyQuery(): UseAbbyQueryReturn {
   const [response, setResponse] = useState<AbbyQueryResponse | null>(null);
+  const [streamingContent, setStreamingContent] = useState("");
   const [pipelineState, setPipelineState] = useState<RagPipelineState>({
     stage: "complete",
   });
@@ -28,45 +32,33 @@ export function useAbbyQuery(): UseAbbyQueryReturn {
   const [error, setError] = useState<Error | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  const sendQuery = useCallback(async (request: AbbyQueryRequest) => {
+  const sendQuery = useCallback(async (
+    request: AbbyQueryRequest,
+    options?: { onConversationId?: (conversationId: number) => void },
+  ) => {
     abortRef.current?.abort();
     abortRef.current = new AbortController();
 
     setIsLoading(true);
     setError(null);
     setResponse(null);
-
-    // Simulate pipeline stages with timing
-    // In production, these would come via WebSocket events from the FastAPI service
-    const stages: {
-      stage: RagStage;
-      delay: number;
-      extras?: Partial<RagPipelineState>;
-    }[] = [
-      { stage: "analyzing", delay: 0 },
-      { stage: "retrieving", delay: 400, extras: { collections_count: 4 } },
-      { stage: "reading", delay: 1200 },
-      { stage: "composing", delay: 2000 },
-    ];
-
-    for (const { stage, delay, extras } of stages) {
-      await new Promise((r) => setTimeout(r, delay));
-      if (abortRef.current?.signal.aborted) return;
-      setPipelineState({ stage, ...extras });
-    }
+    setStreamingContent("");
+    setPipelineState({ stage: "analyzing" });
 
     try {
-      const result = await queryAbby(request);
+      setPipelineState({ stage: "retrieving", collections_count: request.history?.length ? 1 : 0 });
+
+      const result = await queryAbbyStream(request, {
+        signal: abortRef.current.signal,
+        onConversationId: options?.onConversationId,
+        onToken: (token) => {
+          setPipelineState({ stage: "composing" });
+          setStreamingContent((prev) => prev + token);
+        },
+      });
       if (abortRef.current?.signal.aborted) return;
 
-      setPipelineState({
-        stage: "reading",
-        sources_found: result.sources.length,
-        collections_count: result.collections_searched.length,
-      });
-
-      await new Promise((r) => setTimeout(r, 300));
-
+      setStreamingContent("");
       setResponse(result);
       setPipelineState({ stage: "complete" });
     } catch (err) {
@@ -86,6 +78,7 @@ export function useAbbyQuery(): UseAbbyQueryReturn {
   const reset = useCallback(() => {
     abortRef.current?.abort();
     setResponse(null);
+    setStreamingContent("");
     setPipelineState({ stage: "complete" });
     setIsLoading(false);
     setError(null);
@@ -95,7 +88,7 @@ export function useAbbyQuery(): UseAbbyQueryReturn {
     return () => abortRef.current?.abort();
   }, []);
 
-  return { response, pipelineState, isLoading, error, sendQuery, reset };
+  return { response, streamingContent, pipelineState, isLoading, error, sendQuery, reset };
 }
 
 // ─── useAbbyFeedback ────────────────────────────────────────────

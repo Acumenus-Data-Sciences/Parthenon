@@ -44,6 +44,34 @@ class FAQPromoter:
             from app.config import settings
             threshold = settings.institutional_faq_threshold
         self._threshold = threshold
+        self._availability_checked = False
+        self._is_available = False
+
+    def _check_availability(self) -> bool:
+        if self._availability_checked:
+            return self._is_available
+
+        self._availability_checked = True
+        try:
+            with self._engine.connect() as conn:
+                required = {
+                    "messages": conn.execute(
+                        text("SELECT to_regclass('app.abby_messages')")
+                    ).scalar(),
+                    "knowledge": conn.execute(
+                        text("SELECT to_regclass('app.abby_knowledge_artifacts')")
+                    ).scalar(),
+                }
+            self._is_available = all(required.values())
+            if not self._is_available:
+                logger.debug(
+                    "FAQ promoter disabled; missing tables: %s",
+                    [key for key, value in required.items() if not value],
+                )
+        except Exception:
+            logger.exception("FAQ promoter availability check failed")
+            self._is_available = False
+        return self._is_available
 
     def check_and_promote(self, question: str, answer: str) -> bool:
         """Check if *question* has been asked enough times to warrant FAQ promotion.
@@ -65,6 +93,9 @@ class FAQPromoter:
         bool
             ``True`` if the question was promoted to an FAQ, ``False`` otherwise.
         """
+        if not self._check_availability():
+            return False
+
         # Strip to a keyword for the ILIKE pattern (first 100 chars)
         pattern = f"%{question[:100]}%"
 
@@ -131,6 +162,9 @@ class FAQPromoter:
             ``app.abby_knowledge_artifacts`` where ``type = 'faq'`` and
             ``status = 'active'``.
         """
+        if not self._check_availability():
+            return []
+
         try:
             with self._engine.connect() as conn:
                 rows = conn.execute(

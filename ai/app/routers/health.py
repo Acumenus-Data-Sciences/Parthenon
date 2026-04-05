@@ -10,14 +10,18 @@ router = APIRouter()
 
 @router.get("/health")
 async def health_check() -> dict[str, Any]:
-    ollama_status = await check_ollama_health()
+    ollama_status = await check_ollama_health(
+        base_url=settings.abby_llm_base_url,
+        model=settings.abby_llm_model,
+    )
     return {
         "status": "ok",
         "service": "parthenon-ai",
         "version": "0.1.0",
         "llm": {
             "provider": "ollama",
-            "model": settings.ollama_model,
+            "model": settings.abby_llm_model,
+            "base_url": settings.abby_llm_base_url,
             "status": ollama_status,
         },
     }

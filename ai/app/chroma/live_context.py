@@ -14,8 +14,10 @@ Eight contextual tools that give Abby real-time awareness of the platform:
 Each tool is only invoked when the user's message signals relevant intent,
 keeping Abby's context window clean for other queries.
 """
+from concurrent.futures import Future, ThreadPoolExecutor
 import logging
 import re
+from time import perf_counter
 from typing import Any
 
 from sqlalchemy import create_engine, text
@@ -24,8 +26,10 @@ from sqlalchemy.engine import Engine
 from app.config import settings
 
 logger = logging.getLogger(__name__)
+request_logger = logging.getLogger("uvicorn.error")
 
 _engine: Engine | None = None
+_live_context_pool = ThreadPoolExecutor(max_workers=4, thread_name_prefix="abby-live")
 
 
 def _get_engine() -> Engine:
@@ -146,54 +150,83 @@ def query_live_context(message: str, page_context: str) -> str:
 
     sections: list[str] = []
     engine = _get_engine()
+    submitted_tools: list[tuple[str, str, Future[tuple[str, float]]]] = []
 
     try:
         if "concept_sets" in intents:
-            r = _tool_search_concept_sets(engine, search_terms)
-            if r:
-                sections.append(r)
+            submitted_tools.append((
+                "concept_sets",
+                "",
+                _live_context_pool.submit(_run_live_tool, _tool_search_concept_sets, engine, search_terms),
+            ))
 
         if "cohort_definitions" in intents or "cohort_counts" in intents:
-            r = _tool_list_cohort_definitions(engine, search_terms)
-            if r:
-                sections.append(r)
+            submitted_tools.append((
+                "cohort_definitions",
+                "",
+                _live_context_pool.submit(_run_live_tool, _tool_list_cohort_definitions, engine, search_terms),
+            ))
 
         if "vocabulary" in intents:
-            r = _tool_query_vocabulary(engine, keywords)
-            if r:
-                sections.append(r)
+            submitted_tools.append((
+                "vocabulary",
+                "",
+                _live_context_pool.submit(_run_live_tool, _tool_query_vocabulary, engine, keywords),
+            ))
 
         if "achilles" in intents:
-            r = _tool_get_achilles_stats(engine, keywords)
-            if r:
-                sections.append(r)
+            submitted_tools.append((
+                "achilles",
+                "",
+                _live_context_pool.submit(_run_live_tool, _tool_get_achilles_stats, engine, keywords),
+            ))
 
         if "dqd" in intents:
-            r = _tool_get_dqd_summary(engine)
-            if r:
-                sections.append(r)
+            submitted_tools.append((
+                "dqd",
+                "",
+                _live_context_pool.submit(_run_live_tool, _tool_get_dqd_summary, engine),
+            ))
 
         if "cdm_summary" in intents:
-            r = _tool_get_cdm_summary(engine)
-            if r:
-                sections.append(r)
+            submitted_tools.append((
+                "cdm_summary",
+                "",
+                _live_context_pool.submit(_run_live_tool, _tool_get_cdm_summary, engine),
+            ))
 
         if "analyses" in intents:
-            r = _tool_get_analyses(engine, search_terms)
-            if r:
-                sections.append(r)
+            submitted_tools.append((
+                "analyses",
+                "",
+                _live_context_pool.submit(_run_live_tool, _tool_get_analyses, engine, search_terms),
+            ))
 
         # Knowledge graph queries
         if any(intent in intents for intent in ("graph_ancestors", "graph_descendants", "graph_related", "graph_siblings")):
-            r = _tool_graph_query(message)
-            if r:
-                sections.append("\n\nCONCEPT HIERARCHY:\n" + r)
+            submitted_tools.append((
+                "graph_query",
+                "\n\nCONCEPT HIERARCHY:\n",
+                _live_context_pool.submit(_run_live_tool, _tool_graph_query, message),
+            ))
 
         # CDM data profile
         if "data_profile" in intents:
-            r = _tool_data_profile(message)
-            if r:
-                sections.append("\n\nCDM DATA PROFILE:\n" + r)
+            submitted_tools.append((
+                "data_profile",
+                "\n\nCDM DATA PROFILE:\n",
+                _live_context_pool.submit(_run_live_tool, _tool_data_profile, message),
+            ))
+
+        tool_timings: list[str] = []
+        for tool_name, prefix, future in submitted_tools:
+            try:
+                result, elapsed_ms = future.result(timeout=12)
+                tool_timings.append(f"{tool_name}={elapsed_ms:.1f}ms")
+                if result:
+                    sections.append(prefix + result)
+            except Exception as e:
+                logger.warning("Live context tool '%s' failed: %s", tool_name, e)
 
     except Exception as e:
         logger.warning("Live database context failed: %s", e)
@@ -205,11 +238,28 @@ def query_live_context(message: str, page_context: str) -> str:
             "No matching data found in the Parthenon instance for this query."
         )
 
-    logger.info("Live context: %d sections for intents %s", len(sections), intents)
+    _log_live_context_info(
+        "Live context: %d sections for intents %s (%s)",
+        len(sections),
+        intents,
+        ", ".join(tool_timings) if tool_timings else "no tool timings",
+    )
     return (
         "\n\nLIVE PLATFORM DATA (queried just now from the Parthenon database):\n\n"
         + "\n\n".join(sections)
     )
+
+
+def _run_live_tool(tool_fn: Any, *args: Any) -> tuple[str, float]:
+    start = perf_counter()
+    result = tool_fn(*args)
+    return result, (perf_counter() - start) * 1000
+
+
+def _log_live_context_info(message: str, *args: Any) -> None:
+    logger.info(message, *args)
+    if request_logger is not logger:
+        request_logger.info(message, *args)
 
 
 # ── Tool 1: Search Concept Sets ──────────────────────────────────────────────

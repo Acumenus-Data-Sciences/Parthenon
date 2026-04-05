@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useLayoutEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { AbbyProfilePanel } from '../../../abby-ai/components/AbbyProfilePanel';
 import AbbyPlanCard from '../../../abby-ai/components/AbbyPlanCard';
 import ReactMarkdown from "react-markdown";
@@ -219,9 +220,11 @@ export default function AskAbbyChannel() {
   const [showProfile, setShowProfile] = useState(false);
   const [activePlan, setActivePlan] = useState<ActionPlan | null>(null);
   const [isDataLoading, setIsDataLoading] = useState(false);
-  const { response, pipelineState, isLoading, error, sendQuery } = useAbbyQuery();
+  const { response, streamingContent, pipelineState, isLoading, error, sendQuery } = useAbbyQuery();
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const activeConversationIdRef = useRef<number | null>(null);
+  const queryClient = useQueryClient();
 
   const user = useAuthStore((s) => s.user);
   const userName = user?.name ?? "Researcher";
@@ -240,18 +243,30 @@ export default function AskAbbyChannel() {
   // On mount: if store has a conversationId, restore that conversation from the API.
   // Runs once — deliberately ignores userName in deps to avoid re-fetching on user load.
   useEffect(() => {
-    if (!conversationId) return;
+    if (!conversationId) {
+      activeConversationIdRef.current = null;
+      return;
+    }
+    if (
+      activeConversationIdRef.current === conversationId &&
+      conversation.length > 0
+    ) {
+      return;
+    }
+
     let cancelled = false;
 
     fetchAbbyConversation(conversationId)
       .then((conv) => {
         if (cancelled) return;
+        activeConversationIdRef.current = conv.id;
         setConversation(
           conv.messages.map((m) => mapConversationMessage(m, userName))
         );
       })
       .catch(() => {
         if (!cancelled) {
+          activeConversationIdRef.current = null;
           setConversationId(null);
           setConversation([]);
         }
@@ -260,7 +275,7 @@ export default function AskAbbyChannel() {
     return () => {
       cancelled = true;
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [conversationId, conversation.length, setConversationId, userName]);
 
   // Auto-scroll on new messages and typing state changes.
   useLayoutEffect(() => {
@@ -279,7 +294,9 @@ export default function AskAbbyChannel() {
   useEffect(() => {
     if (response) {
       if (typeof response.conversation_id === "number") {
+        activeConversationIdRef.current = response.conversation_id;
         setConversationId(response.conversation_id);
+        void queryClient.invalidateQueries({ queryKey: ["abby", "conversations"] });
       }
 
       setConversation((prev) => [
@@ -293,7 +310,7 @@ export default function AskAbbyChannel() {
         },
       ]);
     }
-  }, [response, setConversationId]);
+  }, [queryClient, response, setConversationId]);
 
   const handleSend = useCallback(
     async (text?: string) => {
@@ -359,6 +376,8 @@ export default function AskAbbyChannel() {
       }
 
       // Regular Abby query
+      const currentConversationId = conversationId ?? activeConversationIdRef.current;
+      const autoTitle = currentConversationId ? undefined : query.slice(0, 50);
       const history = conversation.map((entry) => ({
         role: (entry.role === "abby" ? "assistant" : "user") as
           | "user"
@@ -372,11 +391,18 @@ export default function AskAbbyChannel() {
         channel_name: "ask-abby",
         user_name: userName,
         page_context: "commons_ask_abby",
-        conversation_id: conversationId ?? undefined,
+        title: autoTitle,
+        conversation_id: currentConversationId ?? undefined,
         history,
+      }, {
+        onConversationId: (id) => {
+          activeConversationIdRef.current = id;
+          setConversationId(id);
+          void queryClient.invalidateQueries({ queryKey: ["abby", "conversations"] });
+        },
       });
     },
-    [conversationId, inputValue, isLoading, isDataLoading, userName, sendQuery, conversation]
+    [conversationId, inputValue, isLoading, isDataLoading, userName, sendQuery, conversation, setConversationId, queryClient]
   );
 
   const handleFeedback = useCallback(
@@ -417,6 +443,7 @@ export default function AskAbbyChannel() {
     async (id: number) => {
       try {
         const conv = await fetchAbbyConversation(id);
+        activeConversationIdRef.current = conv.id;
         setConversation(conv.messages.map((m) => mapConversationMessage(m, userName)));
         setConversationId(id);
         setHistoryOpen(false);
@@ -428,6 +455,7 @@ export default function AskAbbyChannel() {
   );
 
   const handleNewChat = useCallback(() => {
+    activeConversationIdRef.current = null;
     setConversationId(null);
     setConversation([]);
     setHistoryOpen(false);
@@ -549,11 +577,38 @@ export default function AskAbbyChannel() {
             )
           )}
 
-          {isLoading && (
+          {isLoading && !streamingContent && (
             <div className="flex gap-2">
               <AbbyAvatar size="sm" />
               <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-sm bg-muted">
                 <AbbyTypingIndicator pipelineState={pipelineState} />
+              </div>
+            </div>
+          )}
+
+          {isLoading && streamingContent && (
+            <div className="flex gap-2.5">
+              <AbbyAvatar size="md" />
+              <div className="max-w-[85%] min-w-0">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <span className="text-[13px] font-medium text-foreground">Abby</span>
+                  <span className="text-[9px] px-1.5 py-px rounded bg-emerald-500/15 text-emerald-400 font-medium">
+                    AI assistant
+                  </span>
+                  <span className="text-[10px] text-muted-foreground">
+                    MedGemma 1.5 · 4B
+                  </span>
+                  <span className="text-[10px] text-muted-foreground ml-auto">
+                    typing...
+                  </span>
+                </div>
+                <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-sm bg-muted">
+                  <div className="prose prose-sm prose-invert max-w-none text-[13px] text-foreground leading-relaxed [&_p]:my-1 [&_ul]:my-2 [&_ol]:my-2 [&_li]:my-0.5 [&_pre]:bg-[#13131a] [&_pre]:border [&_pre]:border-white/[0.06] [&_pre]:rounded-md [&_pre]:p-3 [&_code]:text-teal-400">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {streamingContent}
+                    </ReactMarkdown>
+                  </div>
+                </div>
               </div>
             </div>
           )}
