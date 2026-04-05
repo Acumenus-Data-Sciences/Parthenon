@@ -176,9 +176,10 @@ None yet.
 | 13 | Harden webapp installer: port fallback, secure passwords, step validation, CSRF, subprocess cleanup | 2026-04-02 | bbdd1fa3e | [13-webapp-installer-refinement-port-fallbac](./quick/13-webapp-installer-refinement-port-fallbac/) |
 | 14 | OIDC SSO for Grafana via Authentik — OAuth2 provider + Generic OAuth config | 2026-04-03 | 57e098975 | [14-oidc-sso-for-grafana-via-authentik-creat](./quick/14-oidc-sso-for-grafana-via-authentik-creat/) |
 | 15 | Native SSO bootstrap for Acropolis installer (OIDC + SAML for all services) | 2026-04-03 | 052467c97 | [15-update-acropolis-installer-authentik-py-](./quick/15-update-acropolis-installer-authentik-py-/) |
+| 16 | Rebuild cross-domain SNOMED hierarchy + clinical groupings navigation | 2026-04-05 | 4b0f8af45 | [16-rebuild-concept-hierarchy-cross-domain-s](./quick/16-rebuild-concept-hierarchy-cross-domain-s/) |
 
 ## Session Continuity
 
-Last session: 2026-04-03T23:51:11Z
-Stopped at: Completed quick-15 (native SSO bootstrap for Acropolis installer)
+Last session: 2026-04-05T04:42:00Z
+Stopped at: Completed quick-16 (cross-domain SNOMED hierarchy + clinical groupings)
 Resume file: None
