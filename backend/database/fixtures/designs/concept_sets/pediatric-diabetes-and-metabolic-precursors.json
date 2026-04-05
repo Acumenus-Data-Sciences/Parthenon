@@ -1,0 +1,372 @@
+{
+    "name": "Pediatric Diabetes and Metabolic Precursors",
+    "description": "Comprehensive concept set for pediatric diabetes mellitus including Type 1, Type 2, MODY, neonatal diabetes, cystic fibrosis-related diabetes, and all diabetic complications. Also includes metabolic precursors: prediabetes, impaired glucose tolerance, impaired fasting glycemia, hyperglycemia, insulin resistance, and metabolic syndrome. Excludes gestational diabetes mellitus. Designed for use in pediatric (age 2-17) cohort definitions per ADA Standards of Medical Care in Diabetes.",
+    "expression": {
+        "items": [
+            {
+                "concept": {
+                    "CONCEPT_ID": 201820,
+                    "CONCEPT_NAME": "Diabetes mellitus",
+                    "DOMAIN_ID": "Condition",
+                    "VOCABULARY_ID": "SNOMED",
+                    "CONCEPT_CLASS_ID": "Disorder",
+                    "STANDARD_CONCEPT": "S",
+                    "CONCEPT_CODE": "73211009"
+                },
+                "isExcluded": false,
+                "includeDescendants": true,
+                "includeMapped": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 442793,
+                    "CONCEPT_NAME": "Complication due to diabetes mellitus",
+                    "DOMAIN_ID": "Condition",
+                    "VOCABULARY_ID": "SNOMED",
+                    "CONCEPT_CLASS_ID": "Disorder",
+                    "STANDARD_CONCEPT": "S",
+                    "CONCEPT_CODE": "74627003"
+                },
+                "isExcluded": false,
+                "includeDescendants": true,
+                "includeMapped": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4024659,
+                    "CONCEPT_NAME": "Gestational diabetes mellitus",
+                    "DOMAIN_ID": "Condition",
+                    "VOCABULARY_ID": "SNOMED",
+                    "CONCEPT_CLASS_ID": "Disorder",
+                    "STANDARD_CONCEPT": "S",
+                    "CONCEPT_CODE": "11687002"
+                },
+                "isExcluded": true,
+                "includeDescendants": true,
+                "includeMapped": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4058243,
+                    "CONCEPT_NAME": "Diabetes mellitus during pregnancy, childbirth and the puerperium",
+                    "DOMAIN_ID": "Condition",
+                    "VOCABULARY_ID": "SNOMED",
+                    "CONCEPT_CLASS_ID": "Disorder",
+                    "STANDARD_CONCEPT": "S",
+                    "CONCEPT_CODE": "199223000"
+                },
+                "isExcluded": true,
+                "includeDescendants": true,
+                "includeMapped": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 194700,
+                    "CONCEPT_NAME": "Diabetes mellitus in mother complicating pregnancy, childbirth AND/OR puerperium",
+                    "DOMAIN_ID": "Condition",
+                    "VOCABULARY_ID": "SNOMED",
+                    "CONCEPT_CLASS_ID": "Disorder",
+                    "STANDARD_CONCEPT": "S",
+                    "CONCEPT_CODE": "76751001"
+                },
+                "isExcluded": true,
+                "includeDescendants": true,
+                "includeMapped": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 37018196,
+                    "CONCEPT_NAME": "Prediabetes",
+                    "DOMAIN_ID": "Condition",
+                    "VOCABULARY_ID": "SNOMED",
+                    "CONCEPT_CLASS_ID": "Clinical Finding",
+                    "STANDARD_CONCEPT": "S",
+                    "CONCEPT_CODE": "714628002"
+                },
+                "isExcluded": false,
+                "includeDescendants": true,
+                "includeMapped": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4311629,
+                    "CONCEPT_NAME": "Impaired glucose tolerance",
+                    "DOMAIN_ID": "Condition",
+                    "VOCABULARY_ID": "SNOMED",
+                    "CONCEPT_CLASS_ID": "Disorder",
+                    "STANDARD_CONCEPT": "S",
+                    "CONCEPT_CODE": "9414007"
+                },
+                "isExcluded": false,
+                "includeDescendants": true,
+                "includeMapped": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4030067,
+                    "CONCEPT_NAME": "Impaired glucose tolerance in pregnancy",
+                    "DOMAIN_ID": "Condition",
+                    "VOCABULARY_ID": "SNOMED",
+                    "CONCEPT_CLASS_ID": "Disorder",
+                    "STANDARD_CONCEPT": "S",
+                    "CONCEPT_CODE": "237628005"
+                },
+                "isExcluded": true,
+                "includeDescendants": true,
+                "includeMapped": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4308509,
+                    "CONCEPT_NAME": "Impaired fasting glycemia",
+                    "DOMAIN_ID": "Condition",
+                    "VOCABULARY_ID": "SNOMED",
+                    "CONCEPT_CLASS_ID": "Disorder",
+                    "STANDARD_CONCEPT": "S",
+                    "CONCEPT_CODE": "390951007"
+                },
+                "isExcluded": false,
+                "includeDescendants": true,
+                "includeMapped": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4214376,
+                    "CONCEPT_NAME": "Hyperglycemia",
+                    "DOMAIN_ID": "Condition",
+                    "VOCABULARY_ID": "SNOMED",
+                    "CONCEPT_CLASS_ID": "Disorder",
+                    "STANDARD_CONCEPT": "S",
+                    "CONCEPT_CODE": "80394007"
+                },
+                "isExcluded": false,
+                "includeDescendants": true,
+                "includeMapped": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 35622016,
+                    "CONCEPT_NAME": "Insulin resistance",
+                    "DOMAIN_ID": "Condition",
+                    "VOCABULARY_ID": "SNOMED",
+                    "CONCEPT_CLASS_ID": "Disorder",
+                    "STANDARD_CONCEPT": "S",
+                    "CONCEPT_CODE": "763325000"
+                },
+                "isExcluded": false,
+                "includeDescendants": true,
+                "includeMapped": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 436940,
+                    "CONCEPT_NAME": "Metabolic syndrome X",
+                    "DOMAIN_ID": "Condition",
+                    "VOCABULARY_ID": "SNOMED",
+                    "CONCEPT_CLASS_ID": "Disorder",
+                    "STANDARD_CONCEPT": "S",
+                    "CONCEPT_CODE": "237602007"
+                },
+                "isExcluded": false,
+                "includeDescendants": true,
+                "includeMapped": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 443727,
+                    "CONCEPT_NAME": "Diabetic ketoacidosis",
+                    "DOMAIN_ID": "Condition",
+                    "VOCABULARY_ID": "SNOMED",
+                    "CONCEPT_CLASS_ID": "Disorder",
+                    "STANDARD_CONCEPT": "S",
+                    "CONCEPT_CODE": "420422005"
+                },
+                "isExcluded": false,
+                "includeDescendants": true,
+                "includeMapped": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4016046,
+                    "CONCEPT_NAME": "Chronic hyperglycemia",
+                    "DOMAIN_ID": "Condition",
+                    "VOCABULARY_ID": "SNOMED",
+                    "CONCEPT_CLASS_ID": "Disorder",
+                    "STANDARD_CONCEPT": "S",
+                    "CONCEPT_CODE": "170765005"
+                },
+                "isExcluded": false,
+                "includeDescendants": true,
+                "includeMapped": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 44808373,
+                    "CONCEPT_NAME": "Impaired glucose regulation",
+                    "DOMAIN_ID": "Condition",
+                    "VOCABULARY_ID": "SNOMED",
+                    "CONCEPT_CLASS_ID": "Disorder",
+                    "STANDARD_CONCEPT": "S",
+                    "CONCEPT_CODE": "849171000000106"
+                },
+                "isExcluded": false,
+                "includeDescendants": true,
+                "includeMapped": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4219466,
+                    "CONCEPT_NAME": "Pregestational diabetes mellitus AND/OR impaired glucose tolerance, modified White class A",
+                    "DOMAIN_ID": "Condition",
+                    "VOCABULARY_ID": "SNOMED",
+                    "CONCEPT_CLASS_ID": "Disorder",
+                    "STANDARD_CONCEPT": "S",
+                    "CONCEPT_CODE": "82141001"
+                },
+                "isExcluded": true,
+                "includeDescendants": true,
+                "includeMapped": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4146514,
+                    "CONCEPT_NAME": "Pregestational diabetes mellitus AND/OR impaired glucose tolerance, modified White class B",
+                    "DOMAIN_ID": "Condition",
+                    "VOCABULARY_ID": "SNOMED",
+                    "CONCEPT_CLASS_ID": "Disorder",
+                    "STANDARD_CONCEPT": "S",
+                    "CONCEPT_CODE": "34818008"
+                },
+                "isExcluded": true,
+                "includeDescendants": true,
+                "includeMapped": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4242853,
+                    "CONCEPT_NAME": "Pregestational diabetes mellitus AND/OR impaired glucose tolerance, modified White class C",
+                    "DOMAIN_ID": "Condition",
+                    "VOCABULARY_ID": "SNOMED",
+                    "CONCEPT_CLASS_ID": "Disorder",
+                    "STANDARD_CONCEPT": "S",
+                    "CONCEPT_CODE": "38063000"
+                },
+                "isExcluded": true,
+                "includeDescendants": true,
+                "includeMapped": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4144221,
+                    "CONCEPT_NAME": "Pregestational diabetes mellitus AND/OR impaired glucose tolerance, modified White class D",
+                    "DOMAIN_ID": "Condition",
+                    "VOCABULARY_ID": "SNOMED",
+                    "CONCEPT_CLASS_ID": "Disorder",
+                    "STANDARD_CONCEPT": "S",
+                    "CONCEPT_CODE": "33669002"
+                },
+                "isExcluded": true,
+                "includeDescendants": true,
+                "includeMapped": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4182243,
+                    "CONCEPT_NAME": "Pregestational diabetes mellitus AND/OR impaired glucose tolerance, modified White class F",
+                    "DOMAIN_ID": "Condition",
+                    "VOCABULARY_ID": "SNOMED",
+                    "CONCEPT_CLASS_ID": "Disorder",
+                    "STANDARD_CONCEPT": "S",
+                    "CONCEPT_CODE": "4307007"
+                },
+                "isExcluded": true,
+                "includeDescendants": true,
+                "includeMapped": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4220981,
+                    "CONCEPT_NAME": "Pregestational diabetes mellitus AND/OR impaired glucose tolerance, modified White class FR",
+                    "DOMAIN_ID": "Condition",
+                    "VOCABULARY_ID": "SNOMED",
+                    "CONCEPT_CLASS_ID": "Disorder",
+                    "STANDARD_CONCEPT": "S",
+                    "CONCEPT_CODE": "82701004"
+                },
+                "isExcluded": true,
+                "includeDescendants": true,
+                "includeMapped": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4305491,
+                    "CONCEPT_NAME": "Pregestational diabetes mellitus AND/OR impaired glucose tolerance, modified White class R",
+                    "DOMAIN_ID": "Condition",
+                    "VOCABULARY_ID": "SNOMED",
+                    "CONCEPT_CLASS_ID": "Disorder",
+                    "STANDARD_CONCEPT": "S",
+                    "CONCEPT_CODE": "82260000"
+                },
+                "isExcluded": true,
+                "includeDescendants": true,
+                "includeMapped": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 37169731,
+                    "CONCEPT_NAME": "Prediabetes in mother during pregnancy",
+                    "DOMAIN_ID": "Condition",
+                    "VOCABULARY_ID": "SNOMED",
+                    "CONCEPT_CLASS_ID": "Disorder",
+                    "STANDARD_CONCEPT": "S",
+                    "CONCEPT_CODE": "16896421000119107"
+                },
+                "isExcluded": true,
+                "includeDescendants": true,
+                "includeMapped": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 42538560,
+                    "CONCEPT_NAME": "Syndrome of infant of mother with gestational diabetes",
+                    "DOMAIN_ID": "Condition",
+                    "VOCABULARY_ID": "SNOMED",
+                    "CONCEPT_CLASS_ID": "Disorder",
+                    "STANDARD_CONCEPT": "S",
+                    "CONCEPT_CODE": "762291006"
+                },
+                "isExcluded": true,
+                "includeDescendants": true,
+                "includeMapped": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 45766963,
+                    "CONCEPT_NAME": "Fetal hypertrophic cardiomyopathy due to maternal diabetes mellitus",
+                    "DOMAIN_ID": "Condition",
+                    "VOCABULARY_ID": "SNOMED",
+                    "CONCEPT_CLASS_ID": "Disorder",
+                    "STANDARD_CONCEPT": "S",
+                    "CONCEPT_CODE": "704241002"
+                },
+                "isExcluded": true,
+                "includeDescendants": true,
+                "includeMapped": false
+            },
+            {
+                "concept": {
+                    "CONCEPT_ID": 4034966,
+                    "CONCEPT_NAME": "Hyperglycemic disorder in pregnancy",
+                    "DOMAIN_ID": "Condition",
+                    "VOCABULARY_ID": "SNOMED",
+                    "CONCEPT_CLASS_ID": "Disorder",
+                    "STANDARD_CONCEPT": "S",
+                    "CONCEPT_CODE": "237625008"
+                },
+                "isExcluded": true,
+                "includeDescendants": true,
+                "includeMapped": false
+            }
+        ]
+    }
+}
