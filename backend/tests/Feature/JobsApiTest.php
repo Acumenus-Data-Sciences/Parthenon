@@ -63,7 +63,7 @@ it('shows a single job with log output', function () {
         'context' => ['detail' => 'boom'],
     ]);
 
-    $response = $this->actingAs($user)->getJson("/api/v1/jobs/{$execution->id}");
+    $response = $this->actingAs($user)->getJson("/api/v1/jobs/{$execution->id}?type=characterization");
 
     $response->assertOk()
         ->assertJsonPath('name', 'Drug Characterization')

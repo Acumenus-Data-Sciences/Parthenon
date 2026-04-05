@@ -128,12 +128,12 @@ function AnalysisDetails({ details }: { details: Record<string, unknown> }) {
         { label: "Analysis", value: details.analysis_name as string },
         { label: "Created By", value: details.created_by as string },
       ]} />
-      {details.analysis_description && (
+      {!!details.analysis_description && (
         <div style={{ marginTop: "var(--space-2)", fontSize: "var(--text-sm)", color: "var(--text-secondary)" }}>
-          {details.analysis_description as string}
+          {String(details.analysis_description)}
         </div>
       )}
-      {details.parameters && (
+      {!!details.parameters && (
         <div style={{ marginTop: "var(--space-3)" }}>
           <div className="text-label" style={{ marginBottom: "var(--space-1)" }}>Parameters</div>
           <CodeBlock code={JSON.stringify(details.parameters, null, 2)} language="json" />
@@ -152,12 +152,12 @@ function CohortDetails({ details }: { details: Record<string, unknown> }) {
         { label: "Source", value: details.source_name as string },
         { label: "Source Key", value: details.source_key as string, mono: true },
       ]} />
-      {details.cohort_description && (
+      {!!details.cohort_description && (
         <div style={{ marginTop: "var(--space-2)", fontSize: "var(--text-sm)", color: "var(--text-secondary)" }}>
-          {details.cohort_description as string}
+          {String(details.cohort_description)}
         </div>
       )}
-      {details.is_stale && (
+      {!!details.is_stale && (
         <div style={{ marginTop: "var(--space-2)", display: "flex", alignItems: "center", gap: "var(--space-1)", color: "var(--warning)" }}>
           <AlertTriangle size={14} />
           <span style={{ fontSize: "var(--text-sm)" }}>This job stalled and was marked as failed after exceeding the 1-hour timeout.</span>
@@ -359,7 +359,7 @@ function CareGapDetails({ details }: { details: Record<string, unknown> }) {
         { label: "Person Count", value: formatNumber(details.person_count as number), mono: true },
         { label: "Cohort", value: details.cohort_definition as string },
       ]} />
-      {details.compliance_summary && (
+      {!!details.compliance_summary && (
         <div style={{ marginTop: "var(--space-3)" }}>
           <div className="text-label" style={{ marginBottom: "var(--space-1)" }}>Compliance Summary</div>
           <CodeBlock code={JSON.stringify(details.compliance_summary, null, 2)} language="json" />
@@ -386,7 +386,7 @@ function GisDetails({ details, type }: { details: Record<string, unknown>; type:
         { label: "Geometry", value: details.geometry_type as string },
         { label: "Features", value: formatNumber(details.feature_count as number), mono: true },
       ]} />
-      {isBoundary && details.levels_requested && (
+      {isBoundary && !!details.levels_requested && (
         <div style={{ marginTop: "var(--space-2)", display: "flex", gap: "var(--space-1)", flexWrap: "wrap" }}>
           {(details.levels_requested as string[]).map((l) => <Badge key={l} variant="default">{l}</Badge>)}
         </div>
