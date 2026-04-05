@@ -59,7 +59,21 @@ class ClinicalGroupingSeeder extends Seeder
         $resolved = [];
 
         foreach ($anchors as $anchor) {
-            // Try exact name match first, then pattern match
+            // Primary: use the hardcoded ID (verified against vocab at development time)
+            if ($anchor['id'] > 0) {
+                $exists = DB::connection('omop')->selectOne(
+                    'SELECT concept_id FROM vocab.concept WHERE concept_id = ?',
+                    [$anchor['id']]
+                );
+
+                if ($exists) {
+                    $resolved[] = $anchor['id'];
+
+                    continue;
+                }
+            }
+
+            // Fallback: exact case-insensitive name match
             $concept = DB::connection('omop')->selectOne("
                 SELECT concept_id FROM vocab.concept
                 WHERE concept_name ILIKE ?
@@ -72,18 +86,8 @@ class ClinicalGroupingSeeder extends Seeder
 
             if ($concept) {
                 $resolved[] = $concept->concept_id;
-            } elseif ($anchor['id'] > 0) {
-                // Fall back to hardcoded ID, validate it exists
-                $exists = DB::connection('omop')->selectOne(
-                    'SELECT concept_id FROM vocab.concept WHERE concept_id = ?',
-                    [$anchor['id']]
-                );
-
-                if ($exists) {
-                    $resolved[] = $anchor['id'];
-                } else {
-                    Log::warning("ClinicalGroupingSeeder: concept not found — name='{$anchor['name']}', id={$anchor['id']}");
-                }
+            } else {
+                Log::warning("ClinicalGroupingSeeder: concept not found — name='{$anchor['name']}', id={$anchor['id']}");
             }
         }
 
@@ -110,7 +114,7 @@ class ClinicalGroupingSeeder extends Seeder
             ['name' => 'Musculoskeletal', 'description' => 'Bone, joint, and muscle disorders', 'domain_id' => 'Condition', 'icon' => 'bone', 'color' => '#D97706',
                 'anchors' => [['name' => 'Disorder of musculoskeletal system', 'id' => 134442]]],
             ['name' => 'Genitourinary', 'description' => 'Kidney, bladder, and reproductive disorders', 'domain_id' => 'Condition', 'icon' => 'droplet', 'color' => '#0EA5E9',
-                'anchors' => [['name' => 'Disorder of genitourinary system', 'id' => 195862]]],
+                'anchors' => [['name' => 'Disorder of the genitourinary system', 'id' => 4171379]]],
             ['name' => 'Dermatological', 'description' => 'Skin and subcutaneous tissue disorders', 'domain_id' => 'Condition', 'icon' => 'shield', 'color' => '#EC4899',
                 'anchors' => [['name' => 'Disorder of skin', 'id' => 133834]]],
             ['name' => 'Hematologic', 'description' => 'Blood and blood-forming organ disorders', 'domain_id' => 'Condition', 'icon' => 'droplets', 'color' => '#DC2626',
@@ -132,7 +136,7 @@ class ClinicalGroupingSeeder extends Seeder
             ['name' => 'Congenital', 'description' => 'Birth defects and congenital anomalies', 'domain_id' => 'Condition', 'icon' => 'dna', 'color' => '#A855F7',
                 'anchors' => [['name' => 'Congenital disease', 'id' => 4043731]]],
             ['name' => 'Immune System', 'description' => 'Immune-mediated and autoimmune conditions', 'domain_id' => 'Condition', 'icon' => 'shield-check', 'color' => '#22D3EE',
-                'anchors' => [['name' => 'Immune system disorder', 'id' => 432571]]],
+                'anchors' => [['name' => 'Disorder of immune function', 'id' => 440371]]],
             ['name' => 'Nutritional', 'description' => 'Nutritional deficiencies and excesses', 'domain_id' => 'Condition', 'icon' => 'apple', 'color' => '#4ADE80',
                 'anchors' => [['name' => 'Nutritional disorder', 'id' => 436096]]],
             ['name' => 'Pain Syndromes', 'description' => 'Chronic and acute pain conditions', 'domain_id' => 'Condition', 'icon' => 'zap', 'color' => '#FBBF24',
@@ -140,7 +144,7 @@ class ClinicalGroupingSeeder extends Seeder
 
             // ── Measurement groupings ──
             ['name' => 'Vital Signs', 'description' => 'Blood pressure, heart rate, temperature, respiration', 'domain_id' => 'Measurement', 'icon' => 'activity', 'color' => '#EF4444',
-                'anchors' => [['name' => 'Vital signs observable', 'id' => 4239408]]],
+                'anchors' => [['name' => 'Blood pressure', 'id' => 4326744], ['name' => 'Body temperature', 'id' => 4302666], ['name' => 'Heart rate', 'id' => 4239408], ['name' => 'Respiratory rate', 'id' => 4313591]]],
             ['name' => 'Blood Chemistry', 'description' => 'Metabolic panels, electrolytes, enzymes', 'domain_id' => 'Measurement', 'icon' => 'flask', 'color' => '#3B82F6',
                 'anchors' => [['name' => 'Laboratory test', 'id' => 4019381]]],
             ['name' => 'Hematology', 'description' => 'Complete blood count, coagulation studies', 'domain_id' => 'Measurement', 'icon' => 'droplets', 'color' => '#DC2626',
@@ -158,13 +162,13 @@ class ClinicalGroupingSeeder extends Seeder
 
             // ── Observation groupings ──
             ['name' => 'Social History', 'description' => 'Tobacco, alcohol, substance use, occupation', 'domain_id' => 'Observation', 'icon' => 'users', 'color' => '#6366F1',
-                'anchors' => [['name' => 'Social history finding', 'id' => 4214956]]],
+                'anchors' => [['name' => 'Social context finding', 'id' => 4028922]]],
             ['name' => 'Family History', 'description' => 'Hereditary conditions and family medical history', 'domain_id' => 'Observation', 'icon' => 'git-branch', 'color' => '#A855F7',
                 'anchors' => [['name' => 'Family history finding', 'id' => 4167217]]],
             ['name' => 'Personal History', 'description' => 'Past medical history and health events', 'domain_id' => 'Observation', 'icon' => 'file-text', 'color' => '#14B8A6',
-                'anchors' => [['name' => 'History finding', 'id' => 4215685]]],
+                'anchors' => [['name' => 'Clinical history/examination observable', 'id' => 4181664]]],
             ['name' => 'Functional Status', 'description' => 'Activities of daily living, mobility, cognition', 'domain_id' => 'Observation', 'icon' => 'trending-up', 'color' => '#F97316',
-                'anchors' => [['name' => 'Functional observable', 'id' => 4022069]]],
+                'anchors' => [['name' => 'Functional finding', 'id' => 4041284]]],
             ['name' => 'Health Behaviors', 'description' => 'Diet, exercise, sleep, adherence', 'domain_id' => 'Observation', 'icon' => 'heart', 'color' => '#10B981',
                 'anchors' => [['name' => 'Health-related behavior finding', 'id' => 4058286]]],
             ['name' => 'Administrative', 'description' => 'Insurance status, consent, enrollment', 'domain_id' => 'Observation', 'icon' => 'clipboard', 'color' => '#64748B',
@@ -173,14 +177,14 @@ class ClinicalGroupingSeeder extends Seeder
             // ── Procedure groupings ──
             ['name' => 'Surgical', 'description' => 'Operative and surgical interventions', 'domain_id' => 'Procedure', 'icon' => 'scissors', 'color' => '#EF4444',
                 'anchors' => [['name' => 'Surgical procedure', 'id' => 4301351]]],
-            ['name' => 'Diagnostic', 'description' => 'Diagnostic imaging and procedures', 'domain_id' => 'Procedure', 'icon' => 'search', 'color' => '#3B82F6',
-                'anchors' => [['name' => 'Diagnostic procedure', 'id' => 4180793]]],
+            ['name' => 'Evaluation', 'description' => 'Diagnostic imaging and evaluation procedures', 'domain_id' => 'Procedure', 'icon' => 'search', 'color' => '#3B82F6',
+                'anchors' => [['name' => 'Evaluation procedure', 'id' => 4297090]]],
             ['name' => 'Therapeutic', 'description' => 'Non-surgical treatments and therapies', 'domain_id' => 'Procedure', 'icon' => 'pill', 'color' => '#10B981',
                 'anchors' => [['name' => 'Therapeutic procedure', 'id' => 4272240]]],
             ['name' => 'Rehabilitation', 'description' => 'Physical therapy, occupational therapy, speech', 'domain_id' => 'Procedure', 'icon' => 'refresh-cw', 'color' => '#F59E0B',
                 'anchors' => [['name' => 'Rehabilitation therapy', 'id' => 4058694]]],
             ['name' => 'Preventive', 'description' => 'Vaccinations, screenings, prophylaxis', 'domain_id' => 'Procedure', 'icon' => 'shield', 'color' => '#22D3EE',
-                'anchors' => [['name' => 'Prophylactic procedure', 'id' => 4207539]]],
+                'anchors' => [['name' => 'Preventive procedure', 'id' => 4061660]]],
         ];
     }
 }
