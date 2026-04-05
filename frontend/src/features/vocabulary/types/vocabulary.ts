@@ -136,12 +136,21 @@ export interface ConceptTreeNode {
   depth: number;
 }
 
+export interface AnchorDetail {
+  concept_id: number;
+  concept_name: string;
+  domain_id: string;
+  vocabulary_id: string;
+  concept_class_id: string;
+}
+
 export interface ClinicalGrouping {
   id: number;
   name: string;
   description: string | null;
   domain_id: string;
   anchor_concept_ids: number[];
+  anchors: AnchorDetail[];
   sort_order: number;
   icon: string | null;
   color: string | null;

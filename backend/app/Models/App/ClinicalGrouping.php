@@ -29,9 +29,32 @@ class ClinicalGrouping extends Model
     protected function casts(): array
     {
         return [
-            'anchor_concept_ids' => 'array',
             'sort_order' => 'integer',
         ];
+    }
+
+    /**
+     * Parse PostgreSQL integer array literal (e.g., "{134057,31821}") to PHP array.
+     *
+     * @return list<int>
+     */
+    public function getAnchorConceptIdsAttribute(mixed $value): array
+    {
+        if ($value === null) {
+            return [];
+        }
+
+        if (is_array($value)) {
+            return array_map('intval', $value);
+        }
+
+        // PostgreSQL array format: {1,2,3}
+        $trimmed = trim((string) $value, '{}');
+        if ($trimmed === '') {
+            return [];
+        }
+
+        return array_map('intval', explode(',', $trimmed));
     }
 
     /**

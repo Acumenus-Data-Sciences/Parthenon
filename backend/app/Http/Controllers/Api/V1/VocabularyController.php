@@ -526,7 +526,40 @@ class VocabularyController extends Controller
             $query->where('domain_id', $domainId);
         }
 
-        return response()->json(['data' => $query->get()]);
+        $groupings = $query->get();
+
+        // Resolve anchor concept names and child counts for each grouping
+        $allAnchorIds = $groupings->flatMap(fn ($g) => $g->anchor_concept_ids ?? [])->unique()->values()->all();
+
+        if (! empty($allAnchorIds)) {
+            $placeholders = implode(',', array_fill(0, count($allAnchorIds), '?'));
+            $anchorDetails = collect(DB::connection('vocab')->select("
+                SELECT c.concept_id, c.concept_name, c.domain_id, c.vocabulary_id, c.concept_class_id
+                FROM vocab.concept c
+                WHERE c.concept_id IN ({$placeholders})
+            ", $allAnchorIds))->keyBy('concept_id');
+        } else {
+            $anchorDetails = collect();
+        }
+
+        $data = $groupings->map(function ($g) use ($anchorDetails) {
+            $arr = $g->toArray();
+            $arr['anchors'] = collect($g->anchor_concept_ids ?? [])->map(function ($id) use ($anchorDetails) {
+                $detail = $anchorDetails->get($id);
+
+                return $detail ? [
+                    'concept_id' => $detail->concept_id,
+                    'concept_name' => $detail->concept_name,
+                    'domain_id' => $detail->domain_id,
+                    'vocabulary_id' => $detail->vocabulary_id,
+                    'concept_class_id' => $detail->concept_class_id,
+                ] : null;
+            })->filter()->values()->all();
+
+            return $arr;
+        });
+
+        return response()->json(['data' => $data]);
     }
 
     /**

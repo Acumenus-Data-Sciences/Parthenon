@@ -3,7 +3,7 @@ import { ChevronRight, FolderTree, Loader2, Search, Info, X, LayoutGrid, List } 
 import { cn } from "@/lib/utils";
 import { useConceptTree } from "../hooks/useConceptTree";
 import { useClinicalGroupings } from "../hooks/useClinicalGroupings";
-import type { ConceptTreeNode, ClinicalGrouping } from "../types/vocabulary";
+import type { ConceptTreeNode, ClinicalGrouping, AnchorDetail } from "../types/vocabulary";
 
 interface HierarchyBrowserPanelProps {
   mode: "browse";
@@ -46,6 +46,8 @@ export function HierarchyBrowserPanel({
   const [filterText, setFilterText] = useState("");
   const [showGroupings, setShowGroupings] = useState(true);
   const [activeDomain, setActiveDomain] = useState<string | null>(null);
+  // When viewing a multi-anchor grouping, show its anchor concepts as a sub-level
+  const [groupingAnchors, setGroupingAnchors] = useState<{ groupingName: string; anchors: AnchorDetail[] } | null>(null);
 
   const { data: nodes, isLoading } = useConceptTree(parentId, activeDomain ?? undefined);
   const { data: groupings, isLoading: groupingsLoading } = useClinicalGroupings(activeDomain);
@@ -98,10 +100,12 @@ export function HierarchyBrowserPanel({
       setParentId(0);
       setActiveDomain(null);
       setShowGroupings(true);
+      setGroupingAnchors(null);
     } else {
       const entry = breadcrumbs[index];
       setBreadcrumbs((prev) => prev.slice(0, index + 1));
       setParentId(entry.concept_id);
+      setGroupingAnchors(null);
 
       // If navigating back to domain root (index 0), restore groupings
       if (index === 0 && entry.concept_id < 0) {
@@ -131,14 +135,36 @@ export function HierarchyBrowserPanel({
   const handleGroupingClick = useCallback((grouping: ClinicalGrouping) => {
     if (grouping.anchor_concept_ids.length === 0) return;
 
-    // Drill into the first anchor concept
-    const anchorId = grouping.anchor_concept_ids[0];
+    if (grouping.anchors.length > 1) {
+      // Multi-anchor: show anchor concepts as a navigable sub-level
+      setBreadcrumbs((prev) => [
+        ...prev,
+        { concept_id: -100 - grouping.id, concept_name: grouping.name },
+      ]);
+      setGroupingAnchors({ groupingName: grouping.name, anchors: grouping.anchors });
+      setShowGroupings(false);
+      setFilterText("");
+    } else {
+      // Single anchor: drill directly into its children
+      const anchorId = grouping.anchor_concept_ids[0];
+      setBreadcrumbs((prev) => [
+        ...prev,
+        { concept_id: anchorId, concept_name: grouping.name },
+      ]);
+      setParentId(anchorId);
+      setShowGroupings(false);
+      setGroupingAnchors(null);
+      setFilterText("");
+    }
+  }, []);
+
+  const handleAnchorClick = useCallback((anchor: AnchorDetail) => {
     setBreadcrumbs((prev) => [
       ...prev,
-      { concept_id: anchorId, concept_name: grouping.name },
+      { concept_id: anchor.concept_id, concept_name: anchor.concept_name },
     ]);
-    setParentId(anchorId);
-    setShowGroupings(false);
+    setParentId(anchor.concept_id);
+    setGroupingAnchors(null);
     setFilterText("");
   }, []);
 
@@ -213,7 +239,7 @@ export function HierarchyBrowserPanel({
       )}
 
       {/* Inline filter — shown when there are enough items to warrant filtering */}
-      {!isLoading && !shouldShowGroupings && (nodes?.length ?? 0) > 8 && (
+      {!isLoading && !shouldShowGroupings && groupingAnchors === null && (nodes?.length ?? 0) > 8 && (
         <div className="px-3 py-2 border-b border-[#232328] bg-[#0E0E11] shrink-0">
           <div className="relative">
             <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#5A5650]" />
@@ -237,8 +263,8 @@ export function HierarchyBrowserPanel({
         </div>
       )}
 
-      {/* Item count badge — hidden when showing groupings */}
-      {!isLoading && !shouldShowGroupings && sortedAndFilteredNodes.length > 0 && (
+      {/* Item count badge — hidden when showing groupings or anchors */}
+      {!isLoading && !shouldShowGroupings && groupingAnchors === null && sortedAndFilteredNodes.length > 0 && (
         <div className="px-4 py-1.5 border-b border-[#232328] bg-[#0E0E11]/50 shrink-0">
           <span className="text-[10px] text-[#5A5650]">
             {filterText
@@ -257,6 +283,14 @@ export function HierarchyBrowserPanel({
         ) : shouldShowGroupings && groupings && groupings.length > 0 ? (
           /* Clinical grouping cards */
           <GroupingsGrid groupings={groupings} onGroupingClick={handleGroupingClick} />
+        ) : groupingAnchors !== null ? (
+          /* Multi-anchor grouping sub-level */
+          <AnchorsList
+            groupingName={groupingAnchors.groupingName}
+            anchors={groupingAnchors.anchors}
+            domainId={activeDomain ?? ""}
+            onAnchorClick={handleAnchorClick}
+          />
         ) : sortedAndFilteredNodes.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 gap-2">
             <p className="text-xs text-[#5A5650]">
@@ -435,7 +469,9 @@ function GroupingsGrid({
                 )}
                 <div className="flex items-center justify-between mt-1">
                   <span className="text-[9px] text-[#5A5650]">
-                    {g.anchor_concept_ids.length} anchor{g.anchor_concept_ids.length !== 1 ? "s" : ""}
+                    {g.anchors.length > 1
+                      ? `${g.anchors.length} subcategories`
+                      : g.anchors[0]?.concept_name ?? "1 anchor"}
                   </span>
                   <ChevronRight
                     size={10}
@@ -447,6 +483,58 @@ function GroupingsGrid({
           </button>
         );
       })}
+    </div>
+  );
+}
+
+/** Anchor concept sub-level for multi-anchor groupings */
+function AnchorsList({
+  groupingName,
+  anchors,
+  domainId,
+  onAnchorClick,
+}: {
+  groupingName: string;
+  anchors: AnchorDetail[];
+  domainId: string;
+  onAnchorClick: (anchor: AnchorDetail) => void;
+}) {
+  const color = DOMAIN_COLORS[domainId] ?? "#8A857D";
+
+  return (
+    <div className="space-y-1 p-1">
+      <p className="px-2 py-1 text-[10px] text-[#5A5650]">
+        {groupingName} covers {anchors.length} subcategories
+      </p>
+      {anchors.map((anchor) => (
+        <button
+          key={anchor.concept_id}
+          type="button"
+          onClick={() => onAnchorClick(anchor)}
+          className="w-full flex items-center gap-2 rounded-lg border border-[#232328] bg-[#1A1A1E] px-4 py-3 text-left transition-all hover:bg-[#232328] hover:border-[#323238] group"
+        >
+          <span
+            className="w-2 h-2 rounded-full shrink-0"
+            style={{ backgroundColor: color }}
+          />
+          <FolderTree size={12} className="text-[#8A857D] shrink-0" />
+          <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+            <span className="text-xs font-medium text-[#F0EDE8] truncate">
+              {anchor.concept_name}
+            </span>
+            <span className="text-[9px] text-[#5A5650]">
+              {anchor.vocabulary_id} {anchor.concept_class_id}
+            </span>
+          </div>
+          <span className="text-[9px] text-[#5A5650] font-['IBM_Plex_Mono',monospace] shrink-0">
+            {anchor.concept_id}
+          </span>
+          <ChevronRight
+            size={10}
+            className="shrink-0 text-[#5A5650] group-hover:text-[#8A857D] transition-colors"
+          />
+        </button>
+      ))}
     </div>
   );
 }
