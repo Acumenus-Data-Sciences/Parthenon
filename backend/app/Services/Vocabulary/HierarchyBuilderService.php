@@ -62,8 +62,11 @@ class HierarchyBuilderService
     {
         $stats = [];
 
-        foreach (self::SNOMED_DOMAINS as $domain) {
-            $stats[$domain] = $this->buildSnomedDomain($domain);
+        // Build unified SNOMED tree for all 4 SNOMED domains at once
+        // (cross-domain edges require building them together)
+        $snomedStats = $this->buildUnifiedSnomedTree();
+        foreach ($snomedStats as $domain => $count) {
+            $stats[$domain] = $count;
         }
 
         $stats['Drug'] = $this->buildDrugDomain();
@@ -110,6 +113,9 @@ class HierarchyBuilderService
 
     /**
      * Build concept_tree for a single domain.
+     *
+     * SNOMED domains always rebuild all 4 together because they share
+     * cross-domain edges. Drug and Visit build independently.
      */
     public function buildDomain(string $domain): int
     {
@@ -127,33 +133,52 @@ class HierarchyBuilderService
             return $count;
         }
 
-        $count = $this->buildSnomedDomain($domain);
-        $this->insertVirtualDomainRoots();
+        if (in_array($domain, self::SNOMED_DOMAINS, true)) {
+            Log::info("HierarchyBuilderService: rebuilding all SNOMED domains (requested: {$domain})");
+            $stats = $this->buildUnifiedSnomedTree();
+            $this->insertVirtualDomainRoots();
 
-        return $count;
+            return $stats[$domain] ?? 0;
+        }
+
+        throw new InvalidArgumentException("Unsupported domain: {$domain}");
     }
 
     /**
-     * Build SNOMED-based hierarchy for a given domain.
-     * Finds all direct parent-child edges where both concepts are standard SNOMED in the domain.
-     * Then discovers root concepts (those with no parent) and inserts synthetic root entries.
+     * Build a unified SNOMED tree for all 4 SNOMED domains at once.
+     *
+     * The key fix: SNOMED's hierarchy crosses OMOP domain boundaries. For example,
+     * "Cardiovascular finding" lives in the Observation domain but parents many
+     * Condition concepts. The old approach filtered BOTH parent and child by the
+     * same domain_id, producing hundreds of orphan roots in Condition, Measurement,
+     * and Observation. This method removes the parent domain_id filter so cross-domain
+     * edges are preserved, and tags each edge with the CHILD's domain_id.
+     *
+     * @return array<string, int> Per-domain edge counts
      */
-    private function buildSnomedDomain(string $domain): int
+    private function buildUnifiedSnomedTree(): array
     {
         $conn = DB::connection('omop');
+        $stats = [];
 
-        // Delete existing rows for this domain
-        $conn->table('concept_tree')->where('domain_id', $domain)->delete();
+        // Delete existing rows for all SNOMED domains
+        $conn->table('concept_tree')
+            ->whereIn('domain_id', self::SNOMED_DOMAINS)
+            ->delete();
 
-        // Insert direct parent-child edges from concept_ancestor
-        // Both parent and child must be standard SNOMED concepts in this domain
+        // Insert ALL direct parent-child edges from concept_ancestor where both
+        // parent and child are standard SNOMED concepts. The critical fix vs the old
+        // buildSnomedDomain(): NO domain_id filter on the parent. SNOMED's hierarchy
+        // crosses OMOP domain boundaries (e.g., "Cardiovascular finding" in Observation
+        // parents "Heart disease" in Condition). Each edge is tagged with the CHILD's
+        // domain_id so domain-filtered tree queries work correctly.
         $conn->statement("
             INSERT INTO vocab.concept_tree (parent_concept_id, child_concept_id, domain_id, child_depth, vocabulary_id, concept_class_id, child_name)
             SELECT
                 ca.ancestor_concept_id,
                 ca.descendant_concept_id,
-                ?,
-                -1,  -- depth computed later
+                child.domain_id,
+                -1,
                 child.vocabulary_id,
                 child.concept_class_id,
                 child.concept_name
@@ -163,51 +188,65 @@ class HierarchyBuilderService
             WHERE ca.min_levels_of_separation = 1
               AND parent.vocabulary_id = 'SNOMED'
               AND parent.standard_concept = 'S'
-              AND parent.domain_id = ?
               AND child.vocabulary_id = 'SNOMED'
               AND child.standard_concept = 'S'
-              AND child.domain_id = ?
-        ", [$domain, $domain, $domain]);
+              AND child.domain_id IN ('Condition', 'Procedure', 'Measurement', 'Observation')
+            ON CONFLICT (parent_concept_id, child_concept_id, domain_id) DO NOTHING
+        ");
 
-        // Find root concepts: standard SNOMED concepts in this domain with no same-domain SNOMED parent
-        $roots = $conn->select("
-            SELECT c.concept_id, c.concept_name, c.vocabulary_id, c.concept_class_id
-            FROM vocab.concept c
-            WHERE c.vocabulary_id = 'SNOMED'
-              AND c.standard_concept = 'S'
-              AND c.domain_id = ?
-              AND NOT EXISTS (
-                SELECT 1 FROM vocab.concept_tree ct
-                WHERE ct.child_concept_id = c.concept_id
-                  AND ct.domain_id = ?
-              )
-        ", [$domain, $domain]);
+        // For each domain, find root concepts and insert under virtual domain root.
+        // A concept is a root for domain X if it has children in domain X's tree
+        // (appears as parent_concept_id) but no incoming edge tagged domain X.
+        // Cross-domain parents naturally become intermediate nodes — they're reachable
+        // via their children, even though they're from a different OMOP domain.
+        foreach (self::SNOMED_DOMAINS as $domain) {
+            $virtualRootId = self::DOMAIN_VIRTUAL_ROOTS[$domain];
 
-        // Insert orphan roots under the virtual domain root
-        $virtualRootId = self::DOMAIN_VIRTUAL_ROOTS[$domain];
-        foreach ($roots as $root) {
-            $conn->table('concept_tree')->insert([
-                'parent_concept_id' => $virtualRootId,
-                'child_concept_id' => $root->concept_id,
-                'domain_id' => $domain,
-                'child_depth' => 1,
-                'vocabulary_id' => $root->vocabulary_id,
-                'concept_class_id' => $root->concept_class_id,
-                'child_name' => $root->concept_name,
+            // Find concepts that appear only as parents (not children) in this domain's
+            // edges. These are the true top-level organizing concepts for this domain.
+            $conn->statement("
+                INSERT INTO vocab.concept_tree (parent_concept_id, child_concept_id, domain_id, child_depth, vocabulary_id, concept_class_id, child_name)
+                SELECT DISTINCT
+                    {$virtualRootId},
+                    c.concept_id,
+                    ?,
+                    1,
+                    c.vocabulary_id,
+                    c.concept_class_id,
+                    c.concept_name
+                FROM vocab.concept c
+                WHERE c.vocabulary_id = 'SNOMED'
+                  AND c.standard_concept = 'S'
+                  AND EXISTS (
+                    SELECT 1 FROM vocab.concept_tree ct
+                    WHERE ct.parent_concept_id = c.concept_id
+                      AND ct.domain_id = ?
+                  )
+                  AND NOT EXISTS (
+                    SELECT 1 FROM vocab.concept_tree ct2
+                    WHERE ct2.child_concept_id = c.concept_id
+                      AND ct2.domain_id = ?
+                  )
+                ON CONFLICT (parent_concept_id, child_concept_id, domain_id) DO NOTHING
+            ", [$domain, $domain, $domain]);
+
+            $this->computeDepths($conn, $domain);
+
+            $count = $conn->table('concept_tree')->where('domain_id', $domain)->count();
+            $rootCount = $conn->table('concept_tree')
+                ->where('parent_concept_id', $virtualRootId)
+                ->where('domain_id', $domain)
+                ->count();
+
+            $stats[$domain] = $count;
+
+            Log::info("HierarchyBuilderService: built {$domain} (unified SNOMED)", [
+                'edges' => $count,
+                'roots' => $rootCount,
             ]);
         }
 
-        // Compute depths via iterative update from roots
-        $this->computeDepths($conn, $domain);
-
-        $count = $conn->table('concept_tree')->where('domain_id', $domain)->count();
-
-        Log::info("HierarchyBuilderService: built {$domain}", [
-            'edges' => $count,
-            'roots' => count($roots),
-        ]);
-
-        return $count;
+        return $stats;
     }
 
     /**
@@ -240,7 +279,7 @@ class HierarchyBuilderService
               AND parent.domain_id = 'Visit'
               AND child.standard_concept = 'S'
               AND child.domain_id = 'Visit'
-            ON CONFLICT (parent_concept_id, child_concept_id) DO NOTHING
+            ON CONFLICT (parent_concept_id, child_concept_id, domain_id) DO NOTHING
         ");
 
         // Find root concepts
@@ -333,7 +372,7 @@ class HierarchyBuilderService
               AND child.vocabulary_id = 'RxNorm'
               AND child.concept_class_id = 'Ingredient'
               AND child.standard_concept = 'S'
-            ON CONFLICT (parent_concept_id, child_concept_id) DO NOTHING
+            ON CONFLICT (parent_concept_id, child_concept_id, domain_id) DO NOTHING
         ");
 
         // Insert ATC 1st-level classes under virtual Drug root
@@ -351,7 +390,7 @@ class HierarchyBuilderService
             FROM vocab.concept c
             WHERE c.vocabulary_id = 'ATC'
               AND c.concept_class_id = 'ATC 1st'
-            ON CONFLICT (parent_concept_id, child_concept_id) DO NOTHING
+            ON CONFLICT (parent_concept_id, child_concept_id, domain_id) DO NOTHING
         ");
 
         // Compute depths
