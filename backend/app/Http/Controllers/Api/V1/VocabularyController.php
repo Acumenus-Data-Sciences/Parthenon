@@ -524,10 +524,15 @@ class VocabularyController extends Controller
     public function groupings(Request $request): JsonResponse
     {
         $domainId = $request->query('domain_id');
+        $includeChildren = filter_var($request->query('include_children', 'false'), FILTER_VALIDATE_BOOLEAN);
 
         $query = ClinicalGrouping::query()
             ->whereNull('parent_grouping_id')
             ->orderBy('sort_order');
+
+        if ($includeChildren) {
+            $query->with(['children' => fn ($q) => $q->orderBy('sort_order')]);
+        }
 
         if ($domainId) {
             $query->where('domain_id', $domainId);
@@ -535,8 +540,15 @@ class VocabularyController extends Controller
 
         $groupings = $query->get();
 
-        // Resolve anchor concept names and child counts for each grouping
-        $allAnchorIds = $groupings->flatMap(fn ($g) => $g->anchor_concept_ids ?? [])->unique()->values()->all();
+        // Resolve anchor concept names for all groupings (parent + children)
+        $allAnchorIds = $groupings->flatMap(fn ($g) => $g->anchor_concept_ids ?? [])->unique();
+
+        if ($includeChildren) {
+            $childAnchorIds = $groupings->flatMap(fn ($g) => $g->children->flatMap(fn ($c) => $c->anchor_concept_ids ?? []))->unique();
+            $allAnchorIds = $allAnchorIds->merge($childAnchorIds)->unique();
+        }
+
+        $allAnchorIds = $allAnchorIds->values()->all();
 
         if (! empty($allAnchorIds)) {
             $placeholders = implode(',', array_fill(0, count($allAnchorIds), '?'));
@@ -549,7 +561,7 @@ class VocabularyController extends Controller
             $anchorDetails = collect();
         }
 
-        $data = $groupings->map(function ($g) use ($anchorDetails) {
+        $enrichGrouping = function ($g) use ($anchorDetails) {
             $arr = $g->toArray();
             $arr['anchors'] = collect($g->anchor_concept_ids ?? [])->map(function ($id) use ($anchorDetails) {
                 $detail = $anchorDetails->get($id);
@@ -562,6 +574,16 @@ class VocabularyController extends Controller
                     'concept_class_id' => $detail->concept_class_id,
                 ] : null;
             })->filter()->values()->all();
+
+            return $arr;
+        };
+
+        $data = $groupings->map(function ($g) use ($enrichGrouping, $includeChildren) {
+            $arr = $enrichGrouping($g);
+
+            if ($includeChildren && $g->relationLoaded('children')) {
+                $arr['children'] = $g->children->map($enrichGrouping)->values()->all();
+            }
 
             return $arr;
         });
