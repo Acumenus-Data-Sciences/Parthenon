@@ -6,6 +6,7 @@ import type {
   AbbyFeedbackRequest,
   AbbyConversationSummary,
   AbbyConversationMessage,
+  AbbySource,
 } from "../types/abby";
 import type { AbbyProfileResponse, AbbyProfileUpdateRequest } from '../../abby-ai/types/memory';
 import type { ExecutePlanResponse } from '../../abby-ai/types/agency';
@@ -13,8 +14,126 @@ import type { ExecutePlanResponse } from '../../abby-ai/types/agency';
 interface AbbyStreamHandlers {
   onToken?: (token: string) => void;
   onSuggestions?: (suggestions: string[]) => void;
+  onSources?: (sources: AbbySource[]) => void;
   onConversationId?: (conversationId: number) => void;
   signal?: AbortSignal;
+}
+
+function asTrimmedString(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const trimmed = value.trim();
+  return trimmed ? trimmed : undefined;
+}
+
+function asFiniteNumber(value: unknown): number | undefined {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string" && value.trim()) {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return undefined;
+}
+
+function normalizeSourceMetadata(value: unknown): AbbySource["metadata"] | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return undefined;
+  }
+
+  const entries = Object.entries(value as Record<string, unknown>)
+    .map(([key, entryValue]) => [key, asTrimmedString(entryValue)] as const)
+    .filter(([, entryValue]) => entryValue !== undefined);
+
+  return entries.length > 0 ? Object.fromEntries(entries) : undefined;
+}
+
+function normalizeAbbySource(source: unknown): AbbySource | null {
+  if (!source || typeof source !== "object" || Array.isArray(source)) {
+    return null;
+  }
+
+  const raw = source as Record<string, unknown>;
+  const metadata = normalizeSourceMetadata(raw.metadata);
+  const collection = asTrimmedString(raw.collection) ?? "unknown";
+  const label = asTrimmedString(raw.label)
+    ?? (metadata?.channel_name ? `#${metadata.channel_name}` : undefined);
+  const title = asTrimmedString(raw.title) ?? asTrimmedString(raw.document_id);
+  const normalized: AbbySource = { collection };
+
+  if (label) normalized.label = label;
+  if (title) normalized.title = title;
+
+  const sourceFile = asTrimmedString(raw.source_file);
+  if (sourceFile) normalized.source_file = sourceFile;
+
+  const section = asTrimmedString(raw.section);
+  if (section) normalized.section = section;
+
+  const url = asTrimmedString(raw.url);
+  if (url) normalized.url = url;
+
+  const score = asFiniteNumber(raw.score) ?? asFiniteNumber(raw.relevance_score);
+  if (score !== undefined) normalized.score = score;
+
+  const documentId = asTrimmedString(raw.document_id);
+  if (documentId) normalized.document_id = documentId;
+
+  const snippet = asTrimmedString(raw.snippet);
+  if (snippet) normalized.snippet = snippet;
+
+  const relevanceScore = asFiniteNumber(raw.relevance_score);
+  if (relevanceScore !== undefined) normalized.relevance_score = relevanceScore;
+
+  if (metadata) normalized.metadata = metadata;
+
+  return normalized;
+}
+
+export function normalizeAbbySources(rawSources: unknown): AbbySource[] {
+  if (!Array.isArray(rawSources)) return [];
+
+  const seen = new Set<string>();
+  const normalized: AbbySource[] = [];
+
+  for (const rawSource of rawSources) {
+    const source = normalizeAbbySource(rawSource);
+    if (!source) continue;
+
+    const dedupeKey = [
+      source.collection,
+      source.title ?? "",
+      source.source_file ?? "",
+      source.url ?? "",
+      source.document_id ?? "",
+    ].join("|");
+    if (seen.has(dedupeKey)) continue;
+    seen.add(dedupeKey);
+    normalized.push(source);
+  }
+
+  return normalized;
+}
+
+function normalizeSuggestions(rawSuggestions: unknown): string[] {
+  if (!Array.isArray(rawSuggestions)) return [];
+  return rawSuggestions
+    .map((value) => asTrimmedString(value))
+    .filter((value): value is string => Boolean(value));
+}
+
+export function normalizeConversationResponse(
+  message: AbbyConversationMessage,
+): AbbyQueryResponse | null {
+  if (message.role !== "assistant") return null;
+
+  return {
+    content: message.content,
+    suggestions: normalizeSuggestions(message.metadata?.suggestions),
+    sources: normalizeAbbySources(message.metadata?.sources),
+    object_references: [],
+    collections_searched: [],
+    retrieval_time_ms: 0,
+    generation_time_ms: 0,
+  };
 }
 
 export async function queryAbby(
@@ -25,6 +144,7 @@ export async function queryAbby(
     reply?: string;
     message?: string;
     suggestions?: string[];
+    sources?: unknown[];
     conversation_id?: number | null;
   }>(
     "/abby/chat",
@@ -50,8 +170,8 @@ export async function queryAbby(
 
   return {
     content: data.reply ?? data.message ?? "",
-    suggestions: data.suggestions ?? [],
-    sources: [],
+    suggestions: normalizeSuggestions(data.suggestions),
+    sources: normalizeAbbySources(data.sources),
     object_references: [],
     collections_searched: [],
     retrieval_time_ms: 0,
@@ -105,6 +225,7 @@ export async function queryAbbyStream(
   let buffer = "";
   let content = "";
   let suggestions: string[] = [];
+  let sources: AbbySource[] = [];
   let conversationId: number | undefined;
 
   if (reader) {
@@ -124,6 +245,7 @@ export async function queryAbbyStream(
         const parsed = JSON.parse(payload) as {
           token?: string;
           suggestions?: string[];
+          sources?: unknown[];
           conversation_id?: number;
           error?: string;
         };
@@ -140,8 +262,12 @@ export async function queryAbbyStream(
           handlers.onToken?.(parsed.token);
         }
         if (parsed.suggestions) {
-          suggestions = parsed.suggestions;
-          handlers.onSuggestions?.(parsed.suggestions);
+          suggestions = normalizeSuggestions(parsed.suggestions);
+          handlers.onSuggestions?.(suggestions);
+        }
+        if (parsed.sources) {
+          sources = normalizeAbbySources(parsed.sources);
+          handlers.onSources?.(sources);
         }
       }
     }
@@ -150,7 +276,7 @@ export async function queryAbbyStream(
   return {
     content,
     suggestions,
-    sources: [],
+    sources,
     object_references: [],
     collections_searched: [],
     retrieval_time_ms: 0,

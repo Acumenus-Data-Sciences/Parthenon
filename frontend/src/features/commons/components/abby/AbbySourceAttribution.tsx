@@ -2,6 +2,12 @@ import { useState } from "react";
 import type { AbbySourceAttributionProps, AbbySource } from "../../types/abby";
 
 const COLLECTION_LABELS: Record<string, string> = {
+  docs: "Parthenon Documentation",
+  conv: "Previous Conversation",
+  faq: "FAQ",
+  clinical: "Clinical Reference",
+  ohdsi: "OHDSI Research Literature",
+  textbook: "Medical Textbook Reference",
   commons_messages: "Discussion",
   review_decisions: "Review decision",
   wiki_articles: "Wiki",
@@ -13,32 +19,45 @@ const COLLECTION_LABELS: Record<string, string> = {
   object_discussions: "Discussion",
 };
 
+function clampScore(score?: number): number | null {
+  if (typeof score !== "number" || !Number.isFinite(score)) return null;
+  return Math.max(8, Math.min(100, Math.round(score * 100)));
+}
+
 function getSourceLabel(source: AbbySource): string {
-  const channel = source.metadata.channel_name;
-  if (channel) return `#${channel}`;
-  return COLLECTION_LABELS[source.collection] ?? source.collection;
+  return source.label?.trim()
+    || source.metadata?.channel_name
+    || COLLECTION_LABELS[source.collection]
+    || source.collection;
 }
 
-function getSourceAttribution(source: AbbySource): string {
-  const parts: string[] = [];
-  if (source.metadata.user_name) {
-    parts.push(source.metadata.user_name);
-  }
-  if (source.metadata.created_at) {
-    const date = new Date(source.metadata.created_at);
-    parts.push(
-      date.toLocaleDateString("en-US", { month: "short", day: "numeric" })
-    );
-  }
-  return parts.join(" · ");
+function getSourceTitle(source: AbbySource): string {
+  return source.title?.trim()
+    || source.document_id?.trim()
+    || source.metadata?.channel_name
+    || getSourceLabel(source);
 }
 
-function RelevanceBar({ score }: { score: number }) {
-  const pct = Math.round(score * 100);
+function getSourcePath(source: AbbySource): string | null {
+  if (source.source_file?.trim()) return source.source_file.trim();
+  if (source.url?.trim()) return source.url.trim();
+  return null;
+}
+
+function getSourceSubline(source: AbbySource): string {
+  return [source.section, getSourcePath(source)]
+    .filter((value): value is string => Boolean(value && value.trim()))
+    .join(" · ");
+}
+
+function SourceScore({ score }: { score?: number }) {
+  const pct = clampScore(score);
+  if (pct === null) return null;
+
   return (
     <span className="inline-flex items-center gap-1.5 text-[10px] text-muted-foreground">
-      Relevance
-      <span className="inline-block w-10 h-[3px] bg-muted rounded-full overflow-hidden align-middle">
+      <span>Match {pct}%</span>
+      <span className="inline-block h-[3px] w-10 overflow-hidden rounded-full bg-muted">
         <span
           className="block h-full rounded-full bg-emerald-500 transition-all duration-300"
           style={{ width: `${pct}%` }}
@@ -57,35 +76,66 @@ function SourceCard({
   rank: number;
   onClick?: () => void;
 }) {
-  const attribution = getSourceAttribution(source);
+  const label = getSourceLabel(source);
+  const title = getSourceTitle(source);
+  const subline = getSourceSubline(source);
+  const path = getSourcePath(source);
+  const hasExternalLink = Boolean(source.url?.trim());
+
   return (
     <div
-      className="flex gap-2.5 p-2.5 bg-muted/50 rounded-md cursor-pointer hover:bg-muted transition-colors duration-150"
+      className="rounded-md border border-border/60 bg-muted/40 p-2.5 transition-colors duration-150 hover:bg-muted"
       onClick={onClick}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => e.key === "Enter" && onClick?.()}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={(e) => {
+        if (onClick && e.key === "Enter") {
+          onClick();
+        }
+      }}
     >
-      <span className="w-[18px] h-[18px] rounded-full shrink-0 bg-muted flex items-center justify-center text-[9px] font-medium text-muted-foreground">
-        {rank}
-      </span>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-          <span className="font-medium text-primary">
-            {getSourceLabel(source)}
-          </span>
-          {attribution && (
-            <>
-              <span className="opacity-50">·</span>
-              <span>{attribution}</span>
-            </>
+      <div className="flex gap-2.5">
+        <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-muted text-[9px] font-medium text-muted-foreground">
+          {rank}
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] text-muted-foreground">
+            <span className="font-medium text-emerald-400">{label}</span>
+            <SourceScore score={source.score ?? source.relevance_score} />
+            {hasExternalLink && source.url && (
+              <a
+                href={source.url}
+                target="_blank"
+                rel="noreferrer"
+                className="text-emerald-400 underline-offset-2 hover:underline"
+                onClick={(event) => event.stopPropagation()}
+              >
+                Open reference
+              </a>
+            )}
+          </div>
+
+          <p className="mt-1 truncate text-[12px] font-medium text-foreground">
+            {title}
+          </p>
+
+          {subline && (
+            <p className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-muted-foreground">
+              {subline}
+            </p>
           )}
-        </div>
-        <p className="mt-0.5 text-[11px] text-muted-foreground leading-snug italic line-clamp-2">
-          {source.snippet}
-        </p>
-        <div className="mt-1">
-          <RelevanceBar score={source.relevance_score} />
+
+          {!subline && path && (
+            <p className="mt-0.5 truncate font-mono text-[10px] text-muted-foreground">
+              {path}
+            </p>
+          )}
+
+          {source.snippet && (
+            <p className="mt-1 line-clamp-2 text-[11px] italic leading-snug text-muted-foreground">
+              {source.snippet}
+            </p>
+          )}
         </div>
       </div>
     </div>
@@ -102,29 +152,35 @@ export default function AbbySourceAttribution({
   if (!sources.length) return null;
 
   return (
-    <div className="mt-2.5 pt-2.5 border-t border-border">
+    <div className="mt-2.5 border-t border-border pt-2.5">
       <button
-        className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors duration-150 cursor-pointer select-none"
+        className="flex cursor-pointer select-none items-center gap-1.5 text-[11px] text-muted-foreground transition-colors duration-150 hover:text-foreground"
         onClick={() => setExpanded(!expanded)}
         aria-expanded={expanded}
       >
         <span
-          className="transition-transform duration-200 inline-block"
+          className="inline-block transition-transform duration-200"
           style={{ transform: expanded ? "rotate(90deg)" : "rotate(0deg)" }}
         >
           ▸
         </span>
-        {sources.length} {sources.length === 1 ? "source" : "sources"} from
-        institutional memory
+        {sources.length} {sources.length === 1 ? "source" : "sources"}
       </button>
 
       {expanded && (
         <div className="mt-2 flex flex-col gap-1.5">
-          {sources.map((source, i) => (
+          {sources.map((source, index) => (
             <SourceCard
-              key={source.document_id}
+              key={[
+                source.collection,
+                source.title ?? "",
+                source.source_file ?? "",
+                source.url ?? "",
+                source.document_id ?? "",
+                index,
+              ].join("|")}
               source={source}
-              rank={i + 1}
+              rank={index + 1}
               onClick={() => onSourceClick?.(source)}
             />
           ))}

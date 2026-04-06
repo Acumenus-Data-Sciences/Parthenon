@@ -1874,6 +1874,17 @@ async def _stream_ollama(system_prompt: str, user_message: str,
         yield "data: [DONE]\n\n"
 
 
+async def _stream_chat_response(response: ChatResponse) -> AsyncGenerator[str, None]:
+    """Emit a completed chat response over SSE for grounded/static answers."""
+    if response.reply:
+        yield f"data: {json.dumps({'token': response.reply})}\n\n"
+    if response.suggestions:
+        yield f"data: {json.dumps({'suggestions': response.suggestions})}\n\n"
+    if response.sources:
+        yield f"data: {json.dumps({'sources': response.sources})}\n\n"
+    yield "data: [DONE]\n\n"
+
+
 @router.post("/chat/stream")
 async def chat_stream(request: ChatRequest) -> StreamingResponse:
     """
@@ -1881,6 +1892,37 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
     responses as Server-Sent Events for real-time display in the UI.
     """
     started = time.perf_counter()
+    grounded_definition_reply, grounded_sources = _try_grounded_definition_answer(request)
+    if grounded_definition_reply:
+        _log_latency(
+            "abby_chat_stream_grounded",
+            page_context=request.page_context,
+            total_ms=(time.perf_counter() - started) * 1000,
+            reply_chars=len(grounded_definition_reply),
+            sources=len(grounded_sources),
+        )
+        return StreamingResponse(
+            _stream_chat_response(
+                ChatResponse(
+                    reply=grounded_definition_reply,
+                    suggestions=[],
+                    routing={
+                        "model": "local",
+                        "reason": "grounded_definition",
+                        "stage": 0,
+                    },
+                    confidence="medium",
+                    sources=grounded_sources,
+                )
+            ),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "X-Accel-Buffering": "no",
+            },
+        )
+
     system_prompt = _build_chat_system_prompt(request, model_profile="medgemma")
     local_num_predict = _get_local_num_predict(request.page_context)
     _log_latency(

@@ -11,6 +11,7 @@ import AbbyFeedback from "./AbbyFeedback";
 import { useAbbyQuery } from "../../hooks/useAbby";
 import {
   fetchAbbyConversation,
+  normalizeConversationResponse,
   submitFeedback,
   executePlan,
 } from "../../services/abbyService";
@@ -684,5 +685,8 @@ function mapConversationMessage(
     content: message.content,
     timestamp: message.created_at,
     userName: message.role === "user" ? userName : undefined,
+    response: message.role === "assistant"
+      ? normalizeConversationResponse(message) ?? undefined
+      : undefined,
   };
 }

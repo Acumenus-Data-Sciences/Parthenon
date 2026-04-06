@@ -363,6 +363,57 @@ class TestChatEndpointResponseContract:
         ]
         mock_store.assert_not_called()
 
+    def test_stream_grounded_definition_emits_sources_event(self) -> None:
+        with patch(
+            "app.routers.abby._try_grounded_definition_answer",
+            return_value=(
+                "ClinVar is the NCBI public archive of submitted interpretations of human genetic variants.",
+                [
+                    {
+                        "collection": "docs",
+                        "label": "Parthenon Documentation",
+                        "title": "ClinVar",
+                        "source_file": "docs/abby-seed/reference/clinvar.md",
+                        "section": "Definition",
+                        "score": 0.93,
+                    }
+                ],
+            ),
+        ):
+            with client.stream(
+                "POST",
+                "/abby/chat/stream",
+                json={
+                    "message": "What is ClinVar?",
+                    "page_context": "genomics",
+                },
+            ) as resp:
+                lines = [
+                    line.decode() if isinstance(line, bytes) else line
+                    for line in resp.iter_lines()
+                    if line
+                ]
+
+        assert resp.status_code == 200
+        payloads = [
+            json.loads(line.removeprefix("data: "))
+            for line in lines
+            if line.startswith("data: ") and line != "data: [DONE]"
+        ]
+        assert {"token": "ClinVar is the NCBI public archive of submitted interpretations of human genetic variants."} in payloads
+        assert {
+            "sources": [
+                {
+                    "collection": "docs",
+                    "label": "Parthenon Documentation",
+                    "title": "ClinVar",
+                    "source_file": "docs/abby-seed/reference/clinvar.md",
+                    "section": "Definition",
+                    "score": 0.93,
+                }
+            ]
+        } in payloads
+
     def test_anonymous_user_no_user_id(self) -> None:
         """No user_id — no profile fetch, no profile save, still returns reply."""
         resp = _post_chat({

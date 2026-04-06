@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class AbbyConversation extends Model
 {
-    protected $table = 'abby_conversations';
+    protected $table = 'app.abby_conversations';
 
     /** @var list<string> */
     protected $fillable = [

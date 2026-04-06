@@ -9,7 +9,7 @@ class AbbyMessage extends Model
 {
     public const UPDATED_AT = null;
 
-    protected $table = 'abby_messages';
+    protected $table = 'app.abby_messages';
 
     /** @var list<string> */
     protected $fillable = [

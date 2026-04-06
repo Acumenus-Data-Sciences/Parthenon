@@ -62,10 +62,16 @@ export interface AbbyQueryResponse {
 
 export interface AbbySource {
   collection: string;
-  document_id: string;
-  snippet: string;
-  relevance_score: number;
-  metadata: AbbySourceMetadata;
+  label?: string;
+  title?: string;
+  source_file?: string;
+  section?: string;
+  url?: string;
+  score?: number;
+  document_id?: string;
+  snippet?: string;
+  relevance_score?: number;
+  metadata?: AbbySourceMetadata;
 }
 
 export interface AbbySourceMetadata {
@@ -218,8 +224,15 @@ export interface AbbyConversationMessage {
   id: number;
   role: "user" | "assistant";
   content: string;
-  metadata: Record<string, unknown> | null;
+  metadata: AbbyConversationMessageMetadata | null;
   created_at: string;
+}
+
+export interface AbbyConversationMessageMetadata {
+  suggestions?: string[];
+  sources?: AbbySource[];
+  object_references?: ObjectReference[];
+  [key: string]: unknown;
 }
 
 export interface AbbyAvatarProps {

@@ -93,7 +93,7 @@ class AbbyAiController extends Controller
             'user_profile' => 'sometimes|array',
             'user_profile.name' => 'sometimes|string|max:255',
             'user_profile.roles' => 'sometimes|array',
-            'conversation_id' => 'sometimes|nullable|integer|exists:abby_conversations,id',
+            'conversation_id' => 'sometimes|nullable|integer|exists:app.abby_conversations,id',
         ]);
 
         $user = $request->user();
@@ -137,10 +137,10 @@ class AbbyAiController extends Controller
                     ]);
 
                     $assistantContent = $result['reply'] ?? $result['message'] ?? '';
-                    $assistantMetadata = null;
-                    if (isset($result['suggestions'])) {
-                        $assistantMetadata = ['suggestions' => $result['suggestions']];
-                    }
+                    $assistantMetadata = array_filter([
+                        'suggestions' => $result['suggestions'] ?? null,
+                        'sources' => $result['sources'] ?? null,
+                    ], static fn ($value) => $value !== null && $value !== []);
 
                     AbbyMessage::create([
                         'conversation_id' => $conversation->id,
@@ -177,7 +177,7 @@ class AbbyAiController extends Controller
             'user_profile' => 'sometimes|array',
             'user_profile.name' => 'sometimes|string|max:255',
             'user_profile.roles' => 'sometimes|array',
-            'conversation_id' => 'sometimes|nullable|integer|exists:abby_conversations,id',
+            'conversation_id' => 'sometimes|nullable|integer|exists:app.abby_conversations,id',
         ]);
 
         $aiBaseUrl = config('services.ai.base_url', 'http://python-ai:8000');
@@ -230,6 +230,7 @@ class AbbyAiController extends Controller
             }
 
             $fullResponse = '';
+            $assistantMetadata = [];
             $pageData = $validated['page_data'] ?? [];
             curl_setopt_array($ch, [
                 CURLOPT_POST => true,
@@ -246,7 +247,7 @@ class AbbyAiController extends Controller
                     'Content-Type: application/json',
                     'Accept: text/event-stream',
                 ],
-                CURLOPT_WRITEFUNCTION => function ($ch, $data) use (&$fullResponse, $resolvedConversation) {
+                CURLOPT_WRITEFUNCTION => function ($ch, $data) use (&$fullResponse, &$assistantMetadata, $resolvedConversation) {
                     // Accumulate streamed content for persistence
                     if ($resolvedConversation) {
                         foreach (explode("\n", $data) as $line) {
@@ -255,6 +256,12 @@ class AbbyAiController extends Controller
                                 $decoded = json_decode(substr($line, 6), true);
                                 if (isset($decoded['token'])) {
                                     $fullResponse .= $decoded['token'];
+                                }
+                                if (isset($decoded['suggestions']) && is_array($decoded['suggestions'])) {
+                                    $assistantMetadata['suggestions'] = $decoded['suggestions'];
+                                }
+                                if (isset($decoded['sources']) && is_array($decoded['sources'])) {
+                                    $assistantMetadata['sources'] = $decoded['sources'];
                                 }
                             }
                         }
@@ -297,6 +304,7 @@ class AbbyAiController extends Controller
                         'conversation_id' => $resolvedConversation->id,
                         'role' => 'assistant',
                         'content' => $fullResponse,
+                        'metadata' => $assistantMetadata ?: null,
                     ]);
                 } catch (\Throwable) {
                     // Persistence failure should not break the stream
