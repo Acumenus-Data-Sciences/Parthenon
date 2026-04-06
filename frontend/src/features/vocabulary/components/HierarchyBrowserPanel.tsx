@@ -543,9 +543,11 @@ function GroupingsGrid({
                 )}
                 <div className="flex items-center justify-between mt-1">
                   <span className="text-[9px] text-[#5A5650]">
-                    {g.anchors.length > 1
-                      ? `${g.anchors.length} subcategories`
-                      : g.anchors[0]?.concept_name ?? "1 anchor"}
+                    {g.children && g.children.length > 0
+                      ? `${g.children.length} sub-categories`
+                      : g.anchors.length > 1
+                        ? `${g.anchors.length} subcategories`
+                        : g.anchors[0]?.concept_name ?? "1 anchor"}
                   </span>
                   <ChevronRight
                     size={10}
