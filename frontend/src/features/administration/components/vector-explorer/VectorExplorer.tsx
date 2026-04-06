@@ -11,6 +11,7 @@ import ColorLegend from "./ColorLegend";
 import PointInspector from "./PointInspector";
 import MetadataColorPicker from "./MetadataColorPicker";
 import QualitySummary from "./QualitySummary";
+import { getCollectionTheme } from "./constants";
 
 interface VectorExplorerProps {
   collectionName: string | null;
@@ -20,6 +21,7 @@ interface VectorExplorerProps {
 export default function VectorExplorer({ collectionName, overview }: VectorExplorerProps) {
   const explorer = useVectorExplorer(collectionName);
   const { projectionData, activeMode, isExpanded, isLoading, isFallback, error } = explorer;
+  const collectionTheme = useMemo(() => getCollectionTheme(collectionName), [collectionName]);
 
   const outlierIds = useMemo(
     () => new Set(projectionData?.quality.outlier_ids ?? []),
@@ -42,7 +44,7 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
     return (
       <Panel>
         <div className="flex flex-col items-center gap-3 py-12 text-center">
-          <Loader2 className="h-6 w-6 animate-spin text-[#C9A227]" />
+          <Loader2 className="h-6 w-6 animate-spin" style={{ color: collectionTheme.accent }} />
           <div>
             <p className="text-sm font-medium text-[#C5C0B8]">Computing projection</p>
             <p className="mt-1 text-xs text-[#5A5650]">
@@ -74,6 +76,7 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
       points={points}
       clusters={clusters}
       activeMode={isFallback ? "clusters" : activeMode}
+      collectionTheme={collectionTheme}
       colorField={explorer.colorField}
       hoveredPoint={explorer.hoveredPoint}
       selectedPoints={explorer.selectedPoints}
@@ -96,19 +99,29 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
             <div className="flex items-center gap-4">
               <h2 className="text-sm font-semibold text-[#F0EDE8]">Vector Explorer</h2>
               {overview && (
-                <span className="rounded bg-[#2DD4BF]/10 px-2 py-0.5 text-xs text-[#2DD4BF]">
+                <span
+                  className="rounded px-2 py-0.5 text-xs"
+                  style={{ background: collectionTheme.bg, color: collectionTheme.text }}
+                >
                   {overview.name} ({(stats?.sampled ?? 0).toLocaleString()})
                 </span>
               )}
               <ModeSelector
                 activeMode={activeMode}
                 onChange={explorer.setMode}
+                accentColor={collectionTheme.text}
+                accentBg={collectionTheme.bg}
                 disabled={isFallback}
                 disabledTooltip="Requires AI service connection"
               />
             </div>
             <div className="flex items-center gap-3">
-              <SampleSlider value={explorer.sampleSize} onChange={explorer.setSampleSize} />
+              <SampleSlider
+                value={explorer.sampleSize}
+                onChange={explorer.setSampleSize}
+                accentColor={collectionTheme.text}
+                accentBg={collectionTheme.bg}
+              />
               <MetadataColorPicker
                 metadataKeys={overview?.metadataKeys ?? []}
                 value={explorer.colorField}
@@ -140,7 +153,7 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
 
           {isLoading && (
             <div className="flex items-center gap-2 border-t border-[#232328] bg-[#0E0E11] px-4 py-1">
-              <Loader2 className="h-3 w-3 animate-spin text-[#C9A227]" />
+              <Loader2 className="h-3 w-3 animate-spin" style={{ color: collectionTheme.accent }} />
               <span className="text-xs text-[#5A5650]">Recomputing projection...</span>
             </div>
           )}
@@ -158,6 +171,7 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
             mode={activeMode}
             clusters={clusters}
             quality={quality}
+            collectionTheme={collectionTheme}
             clusterVisibility={explorer.clusterVisibility}
             onToggleCluster={explorer.toggleCluster}
             totalSampled={stats?.sampled ?? 0}
@@ -170,6 +184,7 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
             <PointInspector
               points={points}
               selectedIds={explorer.selectedPoints}
+              accentColor={collectionTheme.text}
               outlierIds={outlierIds}
               duplicateIds={duplicateIds}
               orphanIds={orphanIds}
@@ -231,18 +246,20 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
               {stats.source === "solr" ? " · cached" : ` · ${(stats.projection_time_ms / 1000).toFixed(1)}s`}
             </span>
           )}
-          {isLoading && <Loader2 className="h-3 w-3 animate-spin text-[#C9A227]" />}
+          {isLoading && <Loader2 className="h-3 w-3 animate-spin" style={{ color: collectionTheme.accent }} />}
           <button
             onClick={explorer.refresh}
             disabled={isLoading}
             title="Re-compute projection"
-            className="rounded p-1 text-[#5A5650] hover:bg-[#232328] hover:text-[#C9A227] disabled:opacity-40"
+            className="rounded p-1 hover:bg-[#232328] disabled:opacity-40"
+            style={{ color: collectionTheme.text }}
           >
             <RefreshCw className="h-3 w-3" />
           </button>
           <button
             onClick={() => explorer.setExpanded(true)}
-            className="flex items-center gap-1 rounded bg-[#232328] px-2 py-1 text-xs text-[#C9A227] hover:bg-[#232328]/80"
+            className="flex items-center gap-1 rounded px-2 py-1 text-xs hover:opacity-85"
+            style={{ background: collectionTheme.bg, color: collectionTheme.text }}
           >
             <Maximize2 className="h-3 w-3" />
             Expand
@@ -255,7 +272,7 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
           {error}
         </div>
       )}
-      <div className="h-[500px] rounded-lg border border-[#232328]">
+      <div className="h-[500px] rounded-lg border" style={{ borderColor: collectionTheme.border }}>
         {sceneContent}
       </div>
     </Panel>

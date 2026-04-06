@@ -10,6 +10,77 @@ export const CLUSTER_PALETTE = [
   "#a3e635", "#e2e8f0", "#fda4af", "#93c5fd", "#d8b4fe",
 ] as const;
 
+export interface CollectionTheme {
+  accent: string;
+  bg: string;
+  border: string;
+  text: string;
+  palette: readonly string[];
+}
+
+function buildPalette(primary: string, secondary: string[]): readonly string[] {
+  const filtered = secondary.filter((color) => color !== primary);
+  return [primary, ...filtered] as const;
+}
+
+export const COLLECTION_THEMES: Record<string, CollectionTheme> = {
+  docs: {
+    accent: "#2DD4BF",
+    bg: "rgba(45, 212, 191, 0.10)",
+    border: "rgba(45, 212, 191, 0.25)",
+    text: "#2DD4BF",
+    palette: buildPalette("#2DD4BF", [...CLUSTER_PALETTE]),
+  },
+  ohdsi_papers: {
+    accent: "#C9A227",
+    bg: "rgba(201, 162, 39, 0.12)",
+    border: "rgba(201, 162, 39, 0.28)",
+    text: "#C9A227",
+    palette: buildPalette("#C9A227", [...CLUSTER_PALETTE]),
+  },
+  medical_textbooks: {
+    accent: "#60A5FA",
+    bg: "rgba(96, 165, 250, 0.12)",
+    border: "rgba(96, 165, 250, 0.28)",
+    text: "#60A5FA",
+    palette: buildPalette("#60A5FA", [...CLUSTER_PALETTE]),
+  },
+  clinical_reference: {
+    accent: "#9B1B30",
+    bg: "rgba(155, 27, 48, 0.12)",
+    border: "rgba(155, 27, 48, 0.28)",
+    text: "#E85A6B",
+    palette: buildPalette("#9B1B30", [...CLUSTER_PALETTE]),
+  },
+  faq_shared: {
+    accent: "#A78BFA",
+    bg: "rgba(167, 139, 250, 0.12)",
+    border: "rgba(167, 139, 250, 0.28)",
+    text: "#A78BFA",
+    palette: buildPalette("#A78BFA", [...CLUSTER_PALETTE]),
+  },
+  conversation_memory: {
+    accent: "#FB923C",
+    bg: "rgba(251, 146, 60, 0.12)",
+    border: "rgba(251, 146, 60, 0.28)",
+    text: "#FB923C",
+    palette: buildPalette("#FB923C", [...CLUSTER_PALETTE]),
+  },
+};
+
+export function getCollectionTheme(collectionName: string | null | undefined): CollectionTheme {
+  if (collectionName && COLLECTION_THEMES[collectionName]) {
+    return COLLECTION_THEMES[collectionName];
+  }
+  return {
+    accent: "#2DD4BF",
+    bg: "rgba(45, 212, 191, 0.10)",
+    border: "rgba(45, 212, 191, 0.25)",
+    text: "#2DD4BF",
+    palette: CLUSTER_PALETTE,
+  };
+}
+
 /** Quality mode colors. */
 export const QUALITY_COLORS = {
   normal: "#4ade80",

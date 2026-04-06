@@ -34,6 +34,7 @@ import {
   type Json,
 } from "../api/chromaStudioApi";
 import VectorExplorer from "./vector-explorer/VectorExplorer";
+import { getCollectionTheme } from "./vector-explorer/constants";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -181,6 +182,7 @@ export default function ChromaStudioPanel() {
   }
 
   const hasCollections = collections.length > 0;
+  const selectedTheme = useMemo(() => getCollectionTheme(selectedCollection), [selectedCollection]);
 
   return (
     <div className="space-y-4">
@@ -193,7 +195,7 @@ export default function ChromaStudioPanel() {
       <Panel>
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
-            <Database className="h-5 w-5 text-[#2DD4BF]" />
+            <Database className="h-5 w-5" style={{ color: selectedTheme.accent }} />
             <div>
               <p className="font-semibold text-[#F0EDE8]">Chroma Collection Studio</p>
               <p className="mt-0.5 text-sm text-[#8A857D]">
@@ -277,7 +279,14 @@ export default function ChromaStudioPanel() {
 
       {/* Feedback messages */}
       {actionResult && (
-        <div className="flex items-center gap-2 rounded border border-[#2DD4BF]/20 bg-[#2DD4BF]/5 px-3 py-2 text-sm text-[#2DD4BF]">
+        <div
+          className="flex items-center gap-2 rounded px-3 py-2 text-sm"
+          style={{
+            border: `1px solid ${selectedTheme.border}`,
+            background: selectedTheme.bg,
+            color: selectedTheme.text,
+          }}
+        >
           <RefreshCw size={14} />
           {actionResult}
         </div>
@@ -318,9 +327,10 @@ export default function ChromaStudioPanel() {
                   onClick={() => setActiveTab(tab.key)}
                   className={`flex items-center gap-1.5 rounded px-3 py-1.5 text-sm font-medium transition ${
                     activeTab === tab.key
-                      ? "bg-[#C9A227]/15 text-[#C9A227]"
+                      ? ""
                       : "text-[#5A5650] hover:text-[#8A857D]"
                   }`}
+                  style={activeTab === tab.key ? { background: selectedTheme.bg, color: selectedTheme.text } : undefined}
                 >
                   <tab.icon size={14} />
                   {tab.label}

@@ -3,6 +3,7 @@ import type { ProjectedPoint3D } from "../../api/chromaStudioApi";
 interface PointInspectorProps {
   points: ProjectedPoint3D[];
   selectedIds: Set<string>;
+  accentColor?: string;
   outlierIds?: Set<string>;
   duplicateIds?: Set<string>;
   orphanIds?: Set<string>;
@@ -11,6 +12,7 @@ interface PointInspectorProps {
 export default function PointInspector({
   points,
   selectedIds,
+  accentColor = "#2DD4BF",
   outlierIds,
   duplicateIds,
   orphanIds,
@@ -33,7 +35,9 @@ export default function PointInspector({
 
         return (
           <div key={point.id} className="rounded border border-[#232328] bg-[#0E0E11] p-3">
-            <div className="font-['IBM_Plex_Mono',monospace] text-xs text-[#2DD4BF]">{point.id}</div>
+            <div className="font-['IBM_Plex_Mono',monospace] text-xs" style={{ color: accentColor }}>
+              {point.id}
+            </div>
             {flags.length > 0 && (
               <div className="mt-1 flex gap-1">
                 {flags.map((f) => (

@@ -65,7 +65,7 @@ function WelcomeCard({
             Hi! I'm Abby, your research companion.
           </h3>
           <p className="text-[11px] text-emerald-400/80 mt-0.5">
-            AI assistant · MedGemma 1.5 · Institutional memory
+            AI assistant · Institutional memory
           </p>
         </div>
       </div>
@@ -134,14 +134,11 @@ function AbbyBubble({
     <div className="flex gap-2.5">
       <AbbyAvatar size="md" />
       <div className="max-w-[85%] min-w-0">
-        {/* Header: Name + AI badge + model + timestamp */}
+        {/* Header: Name + AI badge + timestamp */}
         <div className="flex items-center gap-1.5 mb-1">
           <span className="text-[13px] font-medium text-foreground">Abby</span>
           <span className="text-[9px] px-1.5 py-px rounded bg-emerald-500/15 text-emerald-400 font-medium">
             AI assistant
-          </span>
-          <span className="text-[10px] text-muted-foreground">
-            MedGemma 1.5 · 4B
           </span>
           <span className="text-[10px] text-muted-foreground ml-auto">
             {formatTime(entry.timestamp)}
@@ -512,7 +509,7 @@ export default function AskAbbyChannel() {
           <div className="flex-1 min-w-0">
             <h2 className="text-sm font-medium text-foreground">Ask Abby</h2>
             <p className="text-[11px] text-muted-foreground">
-              AI research companion · MedGemma · Institutional memory
+              AI research companion · Institutional memory
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -594,9 +591,6 @@ export default function AskAbbyChannel() {
                   <span className="text-[13px] font-medium text-foreground">Abby</span>
                   <span className="text-[9px] px-1.5 py-px rounded bg-emerald-500/15 text-emerald-400 font-medium">
                     AI assistant
-                  </span>
-                  <span className="text-[10px] text-muted-foreground">
-                    MedGemma 1.5 · 4B
                   </span>
                   <span className="text-[10px] text-muted-foreground ml-auto">
                     typing...

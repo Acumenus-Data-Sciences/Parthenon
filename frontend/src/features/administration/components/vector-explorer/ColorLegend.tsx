@@ -1,10 +1,11 @@
 import type { ClusterInfo, QualityReport } from "../../api/chromaStudioApi";
-import { CLUSTER_PALETTE, QUALITY_COLORS, type ExplorerMode } from "./constants";
+import { QUALITY_COLORS, type CollectionTheme, type ExplorerMode } from "./constants";
 
 interface ColorLegendProps {
   mode: ExplorerMode;
   clusters: ClusterInfo[];
   quality: QualityReport | null;
+  collectionTheme: CollectionTheme;
   clusterVisibility: Map<number, boolean>;
   onToggleCluster: (id: number) => void;
   totalSampled: number;
@@ -14,6 +15,7 @@ export default function ColorLegend({
   mode,
   clusters,
   quality,
+  collectionTheme,
   clusterVisibility,
   onToggleCluster,
   totalSampled,
@@ -35,7 +37,7 @@ export default function ColorLegend({
               <div className="flex items-center gap-1.5">
                 <span
                   className="h-2.5 w-2.5 rounded-full"
-                  style={{ background: CLUSTER_PALETTE[c.id % CLUSTER_PALETTE.length] }}
+                  style={{ background: collectionTheme.palette[c.id % collectionTheme.palette.length] }}
                 />
                 <span className="truncate text-[#C5C0B8]">{c.label}</span>
               </div>
@@ -75,9 +77,12 @@ export default function ColorLegend({
       <div className="space-y-1">
         <h4 className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">Similarity</h4>
         <div className="flex items-center gap-2 px-1.5 py-1">
-          <div className="h-2 w-full rounded-full" style={{
-            background: "linear-gradient(to right, #9B1B30, #C9A227, #2DD4BF)",
-          }} />
+          <div
+            className="h-2 w-full rounded-full"
+            style={{
+              background: `linear-gradient(to right, #9B1B30, #C9A227, ${collectionTheme.accent})`,
+            }}
+          />
         </div>
         <div className="flex justify-between px-1.5 text-xs text-[#5A5650]">
           <span>0.0</span>

@@ -8,14 +8,15 @@ import {
   POINT_RADIUS,
   POINT_SEGMENTS,
   HOVER_SCALE,
-  CLUSTER_PALETTE,
   QUALITY_COLORS,
+  type CollectionTheme,
   type ExplorerMode,
 } from "./constants";
 
 interface ThreeSceneProps {
   points: ProjectedPoint3D[];
   clusters: ClusterInfo[];
+  collectionTheme: CollectionTheme;
   activeMode: ExplorerMode;
   colorField: string | null;
   hoveredPoint: string | null;
@@ -36,6 +37,7 @@ const tempColor = new THREE.Color();
 function PointCloud({
   points,
   clusters,
+  collectionTheme,
   activeMode,
   colorField,
   hoveredPoint,
@@ -83,7 +85,7 @@ function PointCloud({
 
       if (activeMode === "clusters") {
         const visible = clusterVisibility.get(p.cluster_id) ?? true;
-        color = CLUSTER_PALETTE[p.cluster_id % CLUSTER_PALETTE.length];
+        color = collectionTheme.palette[p.cluster_id % collectionTheme.palette.length];
         if (!visible) color = "#1a1a1f";
       } else if (activeMode === "qa") {
         if (outlierIds.has(p.id) && qaLayers.outliers) {
@@ -104,7 +106,7 @@ function PointCloud({
         for (let c = 0; c < val.length; c++) {
           hash = val.charCodeAt(c) + ((hash << 5) - hash);
         }
-        color = CLUSTER_PALETTE[Math.abs(hash) % CLUSTER_PALETTE.length];
+        color = collectionTheme.palette[Math.abs(hash) % collectionTheme.palette.length];
       }
 
       tempColor.set(color);
@@ -185,8 +187,13 @@ export default function ThreeScene(props: ThreeSceneProps) {
             zIndexRange={[100, 0]}
             style={{ pointerEvents: "none" }}
           >
-            <div className="pointer-events-none whitespace-nowrap rounded border border-[#232328] bg-[#151518]/95 px-2 py-1 text-xs shadow-xl backdrop-blur">
-              <div className="font-['IBM_Plex_Mono',monospace] text-[#2DD4BF]">{point.id}</div>
+            <div
+              className="pointer-events-none whitespace-nowrap rounded bg-[#151518]/95 px-2 py-1 text-xs shadow-xl backdrop-blur"
+              style={{ border: `1px solid ${props.collectionTheme.border}` }}
+            >
+              <div className="font-['IBM_Plex_Mono',monospace]" style={{ color: props.collectionTheme.accent }}>
+                {point.id}
+              </div>
               {Object.entries(point.metadata).slice(0, 3).map(([k, v]) => (
                 <div key={k} className="text-[#8A857D]">
                   {k}: <span className="text-[#C5C0B8]">{String(v)}</span>
