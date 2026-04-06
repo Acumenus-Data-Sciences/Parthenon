@@ -144,21 +144,25 @@ def query_llm(prompt: str, num_predict: int = 8192) -> str:
 
 
 def build_prompt(grouping_name: str, children: list[dict[str, Any]]) -> str:
-    """Build the LLM prompt for grouping children into HLGT-level sub-categories."""
+    """Build the LLM prompt for grouping children into HLGT-level sub-categories.
+
+    Uses concept NAMES instead of IDs to avoid hallucination — the LLM is good
+    at clinical grouping but unreliable at remembering numeric identifiers.
+    """
     child_list = "\n".join(
-        f"  - {c['concept_name']} (concept_id: {c['concept_id']}, class: {c['concept_class_id']})"
+        f"  - {c['concept_name']}"
         for c in children
     )
 
-    return f"""You are a clinical informatics specialist. Given the following SNOMED CT concepts that are immediate children of the "{grouping_name}" clinical grouping, organize them into clinically meaningful sub-categories analogous to MedDRA High Level Group Terms (HLGTs).
+    return f"""You are a clinical informatics specialist. Given the following SNOMED CT concept names that are immediate children of the "{grouping_name}" clinical grouping, organize them into clinically meaningful sub-categories analogous to MedDRA High Level Group Terms (HLGTs).
 
 Each sub-category should:
 1. Have a clear, concise clinical name (2-5 words)
 2. Have a one-sentence description
-3. Contain the concept_ids of its member concepts
+3. List the EXACT concept names from the input that belong to it
 4. Be clinically meaningful to a researcher browsing conditions
 
-SNOMED concepts under "{grouping_name}":
+SNOMED concept names under "{grouping_name}":
 {child_list}
 
 Return ONLY a JSON array of sub-categories. No markdown, no explanation. Example format:
@@ -166,13 +170,14 @@ Return ONLY a JSON array of sub-categories. No markdown, no explanation. Example
   {{
     "name": "Coronary artery disorders",
     "description": "Ischemic heart disease, coronary atherosclerosis, and acute coronary syndromes",
-    "anchor_concept_ids": [312327, 4185932]
+    "concept_names": ["Coronary arteriosclerosis", "Acute coronary syndrome", "Angina pectoris"]
   }}
 ]
 
 Important rules:
-- Every concept_id in the input MUST appear in exactly one sub-category
-- Do NOT invent concept_ids that are not in the input list
+- Every concept name in the input MUST appear in exactly one sub-category
+- Do NOT invent concept names that are not in the input list
+- Copy concept names EXACTLY as they appear in the input — do not paraphrase or abbreviate
 - Aim for 5-20 sub-categories (depending on how many concepts there are)
 - Group by clinical similarity, not alphabetically
 - If a concept doesn't fit any group, create an "Other {grouping_name} disorders" catch-all
@@ -302,16 +307,37 @@ def process_grouping(
 
     print(f"  LLM returned {len(sub_groupings)} sub-groupings")
 
-    # Validate concept IDs
+    # Build name -> concept_id lookup from input children (case-insensitive)
+    name_to_id: dict[str, int] = {}
+    for c in children:
+        name_to_id[c["concept_name"].lower()] = c["concept_id"]
+
+    # Resolve concept names to IDs — no hallucinated IDs possible
     all_returned_ids: set[int] = set()
     for sg in sub_groupings:
-        ids = sg.get("anchor_concept_ids", [])
-        valid_ids = verify_concept_ids(conn, ids)
-        invalid = set(ids) - set(valid_ids)
-        if invalid:
-            print(f"  WARNING: Removing invalid concept_ids from '{sg['name']}': {invalid}")
-        sg["anchor_concept_ids"] = valid_ids
-        all_returned_ids.update(valid_ids)
+        # Support both old format (anchor_concept_ids) and new format (concept_names)
+        concept_names = sg.pop("concept_names", [])
+        old_ids = sg.pop("anchor_concept_ids", [])
+
+        resolved_ids: list[int] = []
+        unmatched_names: list[str] = []
+
+        for cname in concept_names:
+            cid = name_to_id.get(cname.lower())
+            if cid is not None:
+                resolved_ids.append(cid)
+            else:
+                unmatched_names.append(cname)
+
+        # Fallback: if LLM returned anchor_concept_ids instead of concept_names, validate them
+        if not resolved_ids and old_ids:
+            resolved_ids = verify_concept_ids(conn, old_ids)
+
+        if unmatched_names:
+            print(f"  WARNING: {len(unmatched_names)} unmatched names in '{sg['name']}': {unmatched_names[:3]}...")
+
+        sg["anchor_concept_ids"] = resolved_ids
+        all_returned_ids.update(resolved_ids)
 
     # Check for missing children
     input_ids = {c["concept_id"] for c in children}

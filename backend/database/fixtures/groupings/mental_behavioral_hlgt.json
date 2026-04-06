@@ -1,5 +1,195 @@
 {
   "parent_grouping": "Mental & Behavioral",
   "domain_id": "Condition",
-  "sub_groupings": []
+  "sub_groupings": [
+    {
+      "name": "Anxiety and Mood Disorders",
+      "description": "Disorders characterized by disturbances in mood and anxiety",
+      "anchor_concept_ids": [
+        442077,
+        444100
+      ],
+      "icon": "folder",
+      "color": "#EF4444"
+    },
+    {
+      "name": "Delusional Disorders",
+      "description": "Conditions marked by persistent false beliefs (delusions) without loss of reality contact",
+      "anchor_concept_ids": [
+        4240222,
+        4220970,
+        4284249,
+        432590,
+        4077191,
+        4276054,
+        4084899,
+        4092106,
+        4200540,
+        4307359,
+        37312000,
+        4300085,
+        4115023,
+        44782726,
+        4084540,
+        4084546,
+        4136669,
+        4200402,
+        4092105,
+        4021338,
+        4078435,
+        4222583
+      ],
+      "icon": "folder",
+      "color": "#F59E0B"
+    },
+    {
+      "name": "Developmental and Childhood Disorders",
+      "description": "Disorders emerging in early development or childhood",
+      "anchor_concept_ids": [
+        4335175,
+        433758,
+        4100101,
+        4043545,
+        439706,
+        381839
+      ],
+      "icon": "folder",
+      "color": "#10B981"
+    },
+    {
+      "name": "Dementia and Cognitive Disorders",
+      "description": "Conditions involving progressive cognitive decline and dementia symptoms",
+      "anchor_concept_ids": [
+        35608576,
+        44782726,
+        443790
+      ],
+      "icon": "folder",
+      "color": "#3B82F6"
+    },
+    {
+      "name": "Dissociative and Identity Disorders",
+      "description": "Disorders involving disruptions in consciousness and identity",
+      "anchor_concept_ids": [
+        434889,
+        4281692
+      ],
+      "icon": "folder",
+      "color": "#8B5CF6"
+    },
+    {
+      "name": "Impulse Control and Psychotic Disorders",
+      "description": "Conditions marked by impaired impulse control or psychosis",
+      "anchor_concept_ids": [
+        433752,
+        440374,
+        436073,
+        1448778
+      ],
+      "icon": "folder",
+      "color": "#EC4899"
+    },
+    {
+      "name": "Neurocognitive and Organic Mental Disorders",
+      "description": "Disorders caused by brain dysfunction or injury",
+      "anchor_concept_ids": [
+        374009,
+        441544,
+        606402
+      ],
+      "icon": "folder",
+      "color": "#14B8A6"
+    },
+    {
+      "name": "Sleep and Psychophysiological Disorders",
+      "description": "Conditions involving sleep disturbances or psychosomatic symptoms",
+      "anchor_concept_ids": [
+        37109944,
+        37395584,
+        436669,
+        439013
+      ],
+      "icon": "folder",
+      "color": "#F97316"
+    },
+    {
+      "name": "Psychosocial and Acculturation Disorders",
+      "description": "Conditions related to psychosocial stressors or cultural adaptation",
+      "anchor_concept_ids": [
+        4022639,
+        37017978,
+        37018029,
+        37018373,
+        4192665,
+        4107655,
+        37165997,
+        45765704,
+        4060424
+      ],
+      "icon": "folder",
+      "color": "#6366F1"
+    },
+    {
+      "name": "Psychotic Disorders with Special Features",
+      "description": "Conditions with unique psychotic manifestations or associations",
+      "anchor_concept_ids": [
+        42538753,
+        37162667,
+        4172966,
+        4049264,
+        4203503
+      ],
+      "icon": "folder",
+      "color": "#84CC16"
+    },
+    {
+      "name": "Diagnostic Classification Systems",
+      "description": "Frameworks for mental health diagnosis and assessment",
+      "anchor_concept_ids": [
+        4232939,
+        4208979,
+        4231127,
+        4145928,
+        4023777,
+        4021767,
+        4269314,
+        4272867,
+        4309063,
+        4262172
+      ],
+      "icon": "folder",
+      "color": "#0EA5E9"
+    },
+    {
+      "name": "Delusional Disorders with Specific Content",
+      "description": "Delusional conditions with distinct thematic content",
+      "anchor_concept_ids": [
+        4307359,
+        37312000,
+        4300085,
+        4115023,
+        4084899,
+        4092106,
+        4200540,
+        4092103
+      ],
+      "icon": "folder",
+      "color": "#D946EF"
+    },
+    {
+      "name": "Other Mental & Behavioral Disorders",
+      "description": "Miscellaneous or less commonly categorized mental health conditions",
+      "anchor_concept_ids": [
+        4292673,
+        4081256,
+        440984,
+        444243,
+        4078435,
+        4145579,
+        37018375
+      ],
+      "icon": "folder",
+      "color": "#22D3EE"
+    }
+  ]
 }

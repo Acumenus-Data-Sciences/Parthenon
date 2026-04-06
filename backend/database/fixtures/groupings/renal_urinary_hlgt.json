@@ -1,5 +1,231 @@
 {
   "parent_grouping": "Renal & Urinary",
   "domain_id": "Condition",
-  "sub_groupings": []
+  "sub_groupings": [
+    {
+      "name": "Urinary Tract Infections and Related Conditions",
+      "description": "Infections and inflammatory conditions affecting the urinary system",
+      "anchor_concept_ids": [
+        37204132,
+        81902,
+        4269717,
+        4167328
+      ],
+      "icon": "folder",
+      "color": "#EF4444"
+    },
+    {
+      "name": "Urinary System Neoplasms and Growths",
+      "description": "Tumors and abnormal tissue growths in urinary system structures",
+      "anchor_concept_ids": [
+        79768,
+        4172841,
+        4168697
+      ],
+      "icon": "folder",
+      "color": "#F59E0B"
+    },
+    {
+      "name": "Renal and Ureteral Disorders",
+      "description": "Structural and functional abnormalities of kidneys and ureters",
+      "anchor_concept_ids": [
+        40483287,
+        4178955,
+        4177097,
+        4319447,
+        197331
+      ],
+      "icon": "folder",
+      "color": "#10B981"
+    },
+    {
+      "name": "Urinary Function and Control Disorders",
+      "description": "Conditions affecting normal urinary control and voiding processes",
+      "anchor_concept_ids": [
+        197672,
+        4090475,
+        4182142,
+        4113700,
+        37311137,
+        4012370,
+        4011499,
+        4113703,
+        4115722,
+        4182138,
+        197330
+      ],
+      "icon": "folder",
+      "color": "#3B82F6"
+    },
+    {
+      "name": "Urinary Output and Volume Abnormalities",
+      "description": "Conditions characterized by abnormal urine production or volume",
+      "anchor_concept_ids": [
+        3662211,
+        3662212,
+        79936,
+        4209584,
+        4276419,
+        4147583
+      ],
+      "icon": "folder",
+      "color": "#8B5CF6"
+    },
+    {
+      "name": "Urinary Composition and Substance Findings",
+      "description": "Abnormal findings in urine composition and substances",
+      "anchor_concept_ids": [
+        4009585,
+        437038,
+        4172840,
+        4172842,
+        37312144,
+        4334103,
+        37167096,
+        1077673,
+        1077674,
+        1077675,
+        1077672,
+        4269714,
+        4055814,
+        4274409,
+        4021613,
+        37203928,
+        4101362
+      ],
+      "icon": "folder",
+      "color": "#EC4899"
+    },
+    {
+      "name": "Congenital and Developmental Urinary Disorders",
+      "description": "Structural birth defects and developmental abnormalities of urinary system",
+      "anchor_concept_ids": [
+        4108905,
+        4178282,
+        4178955
+      ],
+      "icon": "folder",
+      "color": "#14B8A6"
+    },
+    {
+      "name": "Trauma and Injury-Related Urinary Conditions",
+      "description": "Urinary system conditions resulting from physical trauma or injury",
+      "anchor_concept_ids": [
+        438658,
+        4316364,
+        37116613,
+        37155837
+      ],
+      "icon": "folder",
+      "color": "#F97316"
+    },
+    {
+      "name": "Urinary System Complications from Procedures",
+      "description": "Adverse conditions resulting from medical procedures affecting urinary system",
+      "anchor_concept_ids": [
+        4177097,
+        3662211,
+        3662212,
+        764098,
+        4221468,
+        4309165
+      ],
+      "icon": "folder",
+      "color": "#6366F1"
+    },
+    {
+      "name": "Urinary System Miscellaneous Findings",
+      "description": "Non-specific and miscellaneous urinary system findings",
+      "anchor_concept_ids": [
+        4199398,
+        4041871,
+        4055276,
+        4042233,
+        4151045,
+        4267235,
+        4104156,
+        4113703,
+        4082792,
+        4082793,
+        4139846,
+        4177096,
+        79864,
+        4113648,
+        438476,
+        4024002,
+        45757776,
+        45757776,
+        4172839,
+        4095271,
+        4160181,
+        4182140,
+        4178955,
+        4215809,
+        4091805,
+        443350,
+        4217670,
+        37312144,
+        4276419,
+        4177097,
+        1077673,
+        1077674,
+        1077675,
+        1077672,
+        4269714,
+        4055814,
+        4274409,
+        4021613,
+        37203928,
+        4101362,
+        4113703,
+        4115722,
+        4182142,
+        4113700,
+        4182138,
+        197330,
+        4012370,
+        4011499,
+        37311137,
+        4177096,
+        79864,
+        4113648,
+        438476,
+        4024002,
+        45757776,
+        4172839,
+        4095271,
+        4160181,
+        4182140,
+        4178955,
+        4215809,
+        4091805,
+        443350,
+        4217670,
+        37312144,
+        4276419,
+        4177097,
+        1077673,
+        1077674,
+        1077675,
+        1077672,
+        4269714,
+        4055814,
+        4274409,
+        4021613,
+        37203928,
+        4101362,
+        4113703,
+        4115722,
+        4182142,
+        4113700,
+        4182138,
+        197330,
+        4012370,
+        4011499,
+        37311137
+      ],
+      "icon": "folder",
+      "color": "#84CC16"
+    }
+  ]
 }
