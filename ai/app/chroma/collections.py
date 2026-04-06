@@ -107,6 +107,16 @@ def get_ohdsi_papers_collection() -> Collection:
     )
 
 
+def get_wiki_collection() -> Collection:
+    """Wiki page chunks collection (384-dim, general embedder, cosine)."""
+    return _get_cached_collection(
+        "wiki_pages",
+        name="wiki_pages",
+        embedding_function=get_general_embedder(),  # type: ignore[arg-type]
+        metadata={"hnsw:space": "cosine"},
+    )
+
+
 def get_medical_textbooks_collection() -> Collection:
     """Foundational medical textbooks collection using SapBERT (768-dim).
 

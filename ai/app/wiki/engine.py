@@ -3,10 +3,25 @@
 from __future__ import annotations
 
 import json
+import re
 from datetime import UTC, datetime
 from pathlib import Path
 
 import httpx
+
+_THINK_RE = re.compile(r"<think>.*?</think>", re.DOTALL)
+# Qwen3 often omits the opening <think> tag but includes the closing one
+_THINK_CLOSE_RE = re.compile(r"^.*?</think>\s*", re.DOTALL)
+
+
+def _strip_think_blocks(text: str) -> str:
+    """Remove reasoning blocks from model output (handles both tagged and untagged patterns)."""
+    # First try standard <think>...</think> blocks
+    cleaned = _THINK_RE.sub("", text)
+    # Then handle Qwen3 pattern: reasoning text followed by bare </think>
+    if "</think>" in cleaned:
+        cleaned = _THINK_CLOSE_RE.sub("", cleaned)
+    return cleaned.strip()
 
 from app.config import settings
 from app.wiki.adapters.base import build_frontmatter, extract_wikilinks, parse_markdown_page, slugify
@@ -87,6 +102,17 @@ class WikiEngine:
 
         page_path = workspace_dir / entry.path
         metadata, body = parse_markdown_page(page_path)
+        # Resolve stored filename for source download
+        source_slug = entry.source_slug or None
+        source_type = entry.source_type or None
+        stored_filename: str | None = None
+        if source_slug:
+            sources_dir = workspace_dir / "sources"
+            for candidate_path in sources_dir.iterdir() if sources_dir.exists() else []:
+                if candidate_path.stem == source_slug:
+                    stored_filename = candidate_path.name
+                    break
+
         return WikiPageDetail(
             workspace=workspace_dir.name,
             title=str(metadata.get("title", entry.title)),
@@ -98,6 +124,9 @@ class WikiEngine:
             updated_at=str(metadata.get("updated_at", entry.updated_at)),
             body=body,
             source_title=str(metadata.get("source_title")) if metadata.get("source_title") else None,
+            source_slug=source_slug,
+            source_type=source_type,
+            stored_filename=stored_filename,
         )
 
     def list_activity(self, workspace: str | None = None, limit: int = 50) -> list[WikiActivityItem]:
@@ -131,7 +160,13 @@ class WikiEngine:
         source_path = workspace_dir / "sources" / source.stored_filename
         source_path.write_bytes(content_bytes if content_bytes is not None else source.content.encode("utf-8"))
 
-        pages = await self._generate_pages(workspace_dir.name, source.title, source.content)
+        # Commit source file immediately so it persists even if LLM fails
+        wiki_commit(self.root_dir, f"wiki: store source {source.slug}")
+
+        try:
+            pages = await self._generate_pages(workspace_dir.name, source.title, source.content)
+        except Exception:
+            pages = self._fallback_pages(source.title, source.content)
         created_pages: list[WikiPageSummary] = []
 
         source_summary = self._write_page(
@@ -142,6 +177,8 @@ class WikiEngine:
             keywords=["source", source.source_type],
             links=[slugify(page["title"]) for page in pages],
             source_title=source.title,
+            source_slug=source.slug,
+            source_type=source.source_type,
         )
         created_pages.append(source_summary)
 
@@ -155,6 +192,8 @@ class WikiEngine:
                     keywords=page.get("keywords", []),
                     links=page.get("links", []),
                     source_title=source.title,
+                    source_slug=source.slug,
+                    source_type=source.source_type,
                 )
             )
 
@@ -183,8 +222,43 @@ class WikiEngine:
 
     async def query(self, workspace: str | None, question: str) -> WikiQueryResponse:
         workspace_dir = self._workspace_dir(workspace)
-        matches = search_index(workspace_dir, question)[:5]
-        details = [self.get_page(workspace_dir.name, entry.slug) for entry in matches]
+
+        # Semantic search via ChromaDB with keyword fallback
+        details: list[WikiPageDetail] = []
+        try:
+            from app.chroma.collections import get_wiki_collection
+
+            collection = get_wiki_collection()
+            results = collection.query(
+                query_texts=[question],
+                n_results=10,
+                where={"workspace": workspace_dir.name},
+            )
+            if results and results["ids"] and results["ids"][0]:
+                # Deduplicate by slug (multiple chunks from same page)
+                seen_slugs: list[str] = []
+                for meta in results["metadatas"][0]:
+                    slug = str(meta.get("slug", ""))
+                    if slug and slug not in seen_slugs:
+                        seen_slugs.append(slug)
+                    if len(seen_slugs) >= 5:
+                        break
+                for slug in seen_slugs:
+                    try:
+                        details.append(self.get_page(workspace_dir.name, slug))
+                    except FileNotFoundError:
+                        continue
+        except Exception:
+            import logging
+            logging.getLogger(__name__).warning(
+                "ChromaDB query failed, falling back to keyword search", exc_info=True
+            )
+
+        # Fallback to keyword-based search if ChromaDB returned nothing
+        if not details:
+            matches = search_index(workspace_dir, question)[:5]
+            details = [self.get_page(workspace_dir.name, entry.slug) for entry in matches]
+
         if not details:
             answer = "No relevant wiki pages matched this question yet."
             citations: list[WikiPageSummary] = []
@@ -317,7 +391,76 @@ class WikiEngine:
             )
             response.raise_for_status()
             data = response.json()
-            return str(data.get("message", {}).get("content", "")).strip()
+            raw = str(data.get("message", {}).get("content", "")).strip()
+            # Strip reasoning model think blocks that leak through despite think=False
+            return _strip_think_blocks(raw)
+
+    @staticmethod
+    def _chunk_text(text: str, chunk_size: int = 500, overlap: int = 50) -> list[str]:
+        """Split text into overlapping chunks."""
+        if not text.strip():
+            return []
+        chunks: list[str] = []
+        start = 0
+        while start < len(text):
+            end = start + chunk_size
+            chunk = text[start:end].strip()
+            if chunk:
+                chunks.append(chunk)
+            start = end - overlap
+        return chunks
+
+    def _upsert_page_to_chroma(
+        self,
+        *,
+        workspace: str,
+        slug: str,
+        title: str,
+        page_type: str,
+        body: str,
+        keywords: list[str],
+        source_slug: str,
+        source_type: str,
+    ) -> None:
+        """Chunk and upsert a wiki page into ChromaDB for semantic search."""
+        from app.chroma.collections import get_wiki_collection
+        from app.chroma.ingestion import _upsert_resilient
+
+        collection = get_wiki_collection()
+
+        # Split body into chunks
+        chunks = self._chunk_text(body, chunk_size=500, overlap=50)
+        if not chunks:
+            return
+
+        ids: list[str] = []
+        documents: list[str] = []
+        metadatas: list[dict[str, str | int | float | bool]] = []
+
+        for i, chunk in enumerate(chunks):
+            chunk_id = f"{workspace}:{slug}:chunk-{i}"
+            ids.append(chunk_id)
+            documents.append(f"{title}\n\n{chunk}")
+            metadatas.append({
+                "workspace": workspace,
+                "slug": slug,
+                "title": title,
+                "page_type": page_type,
+                "keywords": ", ".join(keywords),
+                "source_slug": source_slug or "",
+                "source_type": source_type or "",
+                "chunk_index": i,
+            })
+
+        # Delete old chunks for this page (slug may have different chunk count now)
+        try:
+            existing = collection.get(where={"slug": slug})
+            if existing and existing["ids"]:
+                collection.delete(ids=existing["ids"])
+        except Exception:
+            pass  # Collection may be empty or where filter unsupported
+
+        _upsert_resilient(collection, ids, documents, metadatas, chunk_size=50)
 
     def _write_page(
         self,
@@ -329,6 +472,8 @@ class WikiEngine:
         keywords: list[str],
         links: list[str],
         source_title: str | None,
+        source_slug: str = "",
+        source_type: str = "",
     ) -> WikiPageSummary:
         slug = slugify(title)
         relative_dir = WORKSPACE_PAGE_DIRS[page_type]
@@ -356,8 +501,29 @@ class WikiEngine:
             keywords=keywords,
             links=normalized_links,
             updated_at=updated_at,
+            source_slug=source_slug,
+            source_type=source_type,
         )
         upsert_index_entry(workspace_dir, entry)
+
+        # Upsert into ChromaDB for semantic search (non-blocking on failure)
+        try:
+            self._upsert_page_to_chroma(
+                workspace=workspace_dir.name,
+                slug=slug,
+                title=title,
+                page_type=page_type,
+                body=body,
+                keywords=keywords,
+                source_slug=source_slug,
+                source_type=source_type,
+            )
+        except Exception:
+            import logging
+            logging.getLogger(__name__).warning(
+                "ChromaDB upsert failed for wiki page %s", slug, exc_info=True
+            )
+
         return self._entry_to_summary(workspace_dir.name, entry)
 
     def _workspace_dir(self, workspace: str | None) -> Path:
@@ -408,6 +574,8 @@ class WikiEngine:
             keywords=entry.keywords,
             links=entry.links,
             updated_at=entry.updated_at,
+            source_slug=entry.source_slug or None,
+            source_type=entry.source_type or None,
         )
 
     def _detail_to_summary(self, detail: WikiPageDetail) -> WikiPageSummary:
