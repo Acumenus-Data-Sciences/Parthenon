@@ -1,20 +1,20 @@
 import { create } from "zustand";
 import type { WikiLintResponse, WikiQueryResponse } from "@/features/commons/types/wiki";
 
+type SidebarTab = "ingest" | "ask" | "activity";
+
 interface WikiState {
   workspace: string;
   selectedPageSlug: string | null;
   searchQuery: string;
-  queryPanelOpen: boolean;
-  ingestPanelOpen: boolean;
+  sidebarTab: SidebarTab;
   lastQueryResponse: WikiQueryResponse | null;
   lastLintResponse: WikiLintResponse | null;
   draftWorkspaceName: string;
   setWorkspace: (workspace: string) => void;
   setSelectedPageSlug: (slug: string | null) => void;
   setSearchQuery: (query: string) => void;
-  setQueryPanelOpen: (open: boolean) => void;
-  setIngestPanelOpen: (open: boolean) => void;
+  setSidebarTab: (tab: SidebarTab) => void;
   setLastQueryResponse: (response: WikiQueryResponse | null) => void;
   setLastLintResponse: (response: WikiLintResponse | null) => void;
   setDraftWorkspaceName: (value: string) => void;
@@ -24,8 +24,7 @@ export const useWikiStore = create<WikiState>()((set) => ({
   workspace: "platform",
   selectedPageSlug: null,
   searchQuery: "",
-  queryPanelOpen: true,
-  ingestPanelOpen: true,
+  sidebarTab: "ingest",
   lastQueryResponse: null,
   lastLintResponse: null,
   draftWorkspaceName: "",
@@ -38,8 +37,7 @@ export const useWikiStore = create<WikiState>()((set) => ({
     }),
   setSelectedPageSlug: (slug) => set({ selectedPageSlug: slug }),
   setSearchQuery: (query) => set({ searchQuery: query }),
-  setQueryPanelOpen: (open) => set({ queryPanelOpen: open }),
-  setIngestPanelOpen: (open) => set({ ingestPanelOpen: open }),
+  setSidebarTab: (tab) => set({ sidebarTab: tab }),
   setLastQueryResponse: (response) => set({ lastQueryResponse: response }),
   setLastLintResponse: (response) => set({ lastLintResponse: response }),
   setDraftWorkspaceName: (value) => set({ draftWorkspaceName: value }),

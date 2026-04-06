@@ -1336,6 +1336,43 @@ def _strip_thinking_tokens(text: str) -> str:
     text = re.sub(r"</?think>", "", text, flags=re.IGNORECASE)
     # Some Ollama/Gemma responses leak a plain leading "thought" line.
     text = re.sub(r"^\s*thought\s*\n+", "", text, flags=re.IGNORECASE)
+
+    # Qwen-family models can occasionally leak plain-text meta reasoning even
+    # with thinking disabled. When we see multi-paragraph "let me think"
+    # scaffolding, keep only the trailing user-facing answer paragraphs.
+    paragraphs = [p.strip() for p in re.split(r"\n\s*\n", text) if p.strip()]
+    meta_markers = (
+        "the user is asking",
+        "the user wants",
+        "the user's role",
+        "they want",
+        "let me check",
+        "let me phrase",
+        "looking at",
+        "i should summarize",
+        "i'll stick with",
+        "need to make sure",
+        "keep it to one sentence",
+        "check if that's covered",
+        "the answer should",
+        "the most concise way",
+        "double-checking",
+        "therefore",
+        "the correct term",
+        "that's one sentence",
+    )
+    if len(paragraphs) > 1 and any(marker in "\n\n".join(paragraphs[:-1]).lower() for marker in meta_markers):
+        kept: list[str] = []
+        for paragraph in reversed(paragraphs):
+            lowered = paragraph.lower()
+            if not kept:
+                kept.append(paragraph)
+                continue
+            if any(marker in lowered for marker in meta_markers):
+                break
+            kept.append(paragraph)
+        text = "\n\n".join(reversed(kept))
+
     return text.strip()
 
 

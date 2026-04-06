@@ -109,6 +109,14 @@ class WikiController extends Controller
 
     private function proxyJson(Response $response): JsonResponse
     {
-        return response()->json($response->json(), $response->status());
+        $body = $response->json();
+        $status = $response->status();
+
+        // Surface upstream errors instead of returning empty {}
+        if ($body === null && $status >= 400) {
+            $body = ['detail' => 'AI service returned '.$status.': '.$response->body()];
+        }
+
+        return response()->json($body ?? (object) [], $status);
     }
 }

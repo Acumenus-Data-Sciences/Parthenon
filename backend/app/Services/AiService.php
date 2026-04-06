@@ -280,20 +280,26 @@ class AiService
         ?string $title,
         ?string $rawContent,
     ): Response {
-        $request = Http::timeout(300);
+        // FastAPI ingest endpoint uses Form() params — always send multipart
+        $request = Http::timeout(300)->asMultipart();
+        $multipart = [
+            ['name' => 'workspace', 'contents' => $workspace],
+        ];
+        if ($title !== null && $title !== '') {
+            $multipart[] = ['name' => 'title', 'contents' => $title];
+        }
+        if ($rawContent !== null && $rawContent !== '') {
+            $multipart[] = ['name' => 'raw_content', 'contents' => $rawContent];
+        }
         if ($file !== null) {
-            $request = $request->attach(
-                'file',
-                file_get_contents($file->getRealPath()),
-                $file->getClientOriginalName()
-            );
+            $multipart[] = [
+                'name' => 'file',
+                'contents' => file_get_contents($file->getRealPath()),
+                'filename' => $file->getClientOriginalName(),
+            ];
         }
 
-        return $request->post("{$this->baseUrl}/wiki/ingest", array_filter([
-            'workspace' => $workspace,
-            'title' => $title,
-            'raw_content' => $rawContent,
-        ], static fn ($value) => $value !== null && $value !== ''));
+        return $request->post("{$this->baseUrl}/wiki/ingest", $multipart);
     }
 
     /**

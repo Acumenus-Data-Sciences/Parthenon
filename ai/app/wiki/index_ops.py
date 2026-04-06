@@ -93,21 +93,34 @@ def remove_index_entry(workspace_dir: str | Path, slug: str) -> list[IndexEntry]
     return entries
 
 
+_STOP_WORDS = frozenset(
+    "a an and are as at be by for from has have how in is it of on or "
+    "that the this to was what when where which who will with".split()
+)
+
+
 def search_index(workspace_dir: str | Path, query: str) -> list[IndexEntry]:
     normalized = query.strip().lower()
     if not normalized:
         return read_index(workspace_dir)
 
+    tokens = [
+        token for token in normalized.split()
+        if token not in _STOP_WORDS and len(token) > 1
+    ]
+    if not tokens:
+        return read_index(workspace_dir)
+
     results: list[tuple[int, IndexEntry]] = []
     for entry in read_index(workspace_dir):
-        haystacks = [
+        haystack = " ".join([
             entry.title.lower(),
             entry.slug.lower(),
             entry.page_type.lower(),
             " ".join(keyword.lower() for keyword in entry.keywords),
             " ".join(link.lower() for link in entry.links),
-        ]
-        score = sum(normalized in haystack for haystack in haystacks)
+        ])
+        score = sum(1 for token in tokens if token in haystack)
         if score:
             results.append((score, entry))
     results.sort(key=lambda item: (-item[0], item[1].title.lower()))

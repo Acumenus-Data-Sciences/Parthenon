@@ -677,6 +677,27 @@ class TestStripThinkingTokens:
         result = _strip_thinking_tokens(raw)
         assert result == ""
 
+    def test_strips_plaintext_qwen_reasoning_preamble(self) -> None:
+        raw = (
+            "Okay, the user is asking what I can help with in Parthenon, and they want it in one sentence.\n"
+            "Let me check the knowledge base provided.\n\n"
+            "Looking at the Parthenon Documentation snippets, I should summarize the key points.\n\n"
+            "I help with OMOP CDM, cohort design, data quality, and clinical analytics on the Parthenon platform."
+        )
+        result = _strip_thinking_tokens(raw)
+        assert result == "I help with OMOP CDM, cohort design, data quality, and clinical analytics on the Parthenon platform."
+
+    def test_strips_alternate_plaintext_qwen_reasoning_preamble(self) -> None:
+        raw = (
+            "Also, the user's role as Abby is to assist with OMOP, cohort design, data quality, etc.\n\n"
+            "The most concise way is to say: \"I assist with OMOP CDM data analysis, cohort design, and clinical analytics on Parthenon's Unified Outcomes Research Platform.\"\n\n"
+            "Double-checking the knowledge base confirms that term.\n\n"
+            "Therefore, the one-sentence answer should be: \"I assist with OMOP CDM data analysis, cohort design, and clinical analytics on Parthenon's Unified Outcomes Research Platform.\"\n\n"
+            "I assist with OMOP CDM data analysis, cohort design, and clinical analytics on Parthenon's Unified Outcomes Research Platform."
+        )
+        result = _strip_thinking_tokens(raw)
+        assert result == "I assist with OMOP CDM data analysis, cohort design, and clinical analytics on Parthenon's Unified Outcomes Research Platform."
+
 
 class TestLocalReplyQualityGuards:
     def test_detects_truncated_visible_reply(self) -> None:

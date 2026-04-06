@@ -32,13 +32,15 @@ Source text:
 
 
 def build_query_prompt(question: str, page_context: str) -> str:
-    return f"""Answer the question using only the provided wiki context.
+    return f"""Answer the question using only the wiki context below.
 
-If the context is incomplete, say so directly.
-Use concise markdown.
+Rules:
+- Output ONLY the final answer in concise markdown. No reasoning, no chain of thought, no preamble.
+- If the context is incomplete, say so in one sentence.
+- Do not repeat the question.
+- Do not explain your reasoning process.
 
-Question:
-{question}
+Question: {question}
 
 Wiki context:
 {page_context[:12000]}

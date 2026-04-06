@@ -258,11 +258,22 @@ if $DO_DB; then
 
   echo ""
   echo "── DB: running migrations ──"
-  if docker compose exec php php artisan migrate --force; then
-    ok "Migrations applied"
+  # Show pending migrations so the operator knows what will run
+  echo "   Pending migrations:"
+  docker compose exec php php artisan migrate:status 2>/dev/null | grep -E '^\s*No\b' | sed 's/^/     /'
+  # --force is required in production (APP_ENV=production) to bypass the
+  # interactive confirmation prompt, but we guard against destructive
+  # migrations by requiring an explicit --db flag and the tripwire above.
+  # To run migrations: ./deploy.sh --db  (never automatic in full deploy)
+  if $DB_ONLY; then
+    if docker compose exec php php artisan migrate --force; then
+      ok "Migrations applied"
+    else
+      fail "Migration failed"
+      ERRORS=$((ERRORS + 1))
+    fi
   else
-    fail "Migration failed"
-    ERRORS=$((ERRORS + 1))
+    warn "Migrations skipped — use ./deploy.sh --db to run explicitly"
   fi
 
   # SEEDERS INTENTIONALLY REMOVED FROM DEPLOY — 2026-03-15

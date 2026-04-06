@@ -185,7 +185,7 @@ services:
       - OLLAMA_MODEL=${OLLAMA_MODEL:-ii-medical:8b-q8}
       - OLLAMA_EMBED_BASE_URL=${OLLAMA_EMBED_BASE_URL:-http://host.docker.internal:11434}
       - ABBY_OLLAMA_BASE_URL=${ABBY_OLLAMA_BASE_URL:-http://host.docker.internal:11435}
-      - ABBY_OLLAMA_MODEL=${ABBY_OLLAMA_MODEL:-ii-medical:8b-q8}
+      - ABBY_OLLAMA_MODEL=${ABBY_OLLAMA_MODEL:-qwen3:30b}
       - ABBY_OLLAMA_KEEP_ALIVE=${ABBY_OLLAMA_KEEP_ALIVE:-3600}
       - HELP_DIR=/var/www/html/resources/help
       - DOCS_DIR=/app/docs

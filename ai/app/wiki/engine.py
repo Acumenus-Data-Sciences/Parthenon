@@ -302,7 +302,7 @@ class WikiEngine:
                     "messages": [
                         {
                             "role": "system",
-                            "content": "Return JSON only." if expect_json else "Answer with concise markdown only.",
+                            "content": "Return valid JSON only. No explanation." if expect_json else "Output the final answer only. No reasoning, no chain of thought. Use concise markdown.",
                         },
                         {"role": "user", "content": prompt},
                     ],

@@ -2,10 +2,21 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeSanitize from "rehype-sanitize";
 
+function slugify(text: string): string {
+  return text
+    .trim()
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/[\s_]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
 function normalizeWikiLinks(markdown: string): string {
-  return markdown.replace(/\[\[([^\]]+)\]\]/g, (_match, slug) => {
-    const normalizedSlug = String(slug).trim();
-    return `[${normalizedSlug}](/__wiki__/${normalizedSlug})`;
+  return markdown.replace(/\[\[([^\]]+)\]\]/g, (_match, label) => {
+    const display = String(label).trim();
+    const slug = slugify(display);
+    return `[${display}](/__wiki__/${slug})`;
   });
 }
 
