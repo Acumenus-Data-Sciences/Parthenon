@@ -288,20 +288,25 @@ class AchillesEngineService
 
             $conn = $this->results();
 
-            // Set session-level timeout (30 min) to prevent single queries from blocking the run.
-            // NOTE: SET LOCAL only works inside a transaction; SET applies to the session.
-            $conn->statement('SET statement_timeout = 1800000');
+            // Wrap in a transaction so a failed INSERT doesn't leave deleted results.
+            // SET LOCAL applies the timeout only within this transaction.
+            $conn->beginTransaction();
 
             try {
+                $conn->statement('SET LOCAL statement_timeout = 1800000');
+
                 foreach ($statements as $statement) {
                     $statement = trim($statement);
                     if ($statement !== '') {
                         $conn->statement($statement);
                     }
                 }
-            } finally {
-                // Reset to default (no timeout) so other queries aren't affected
-                $conn->statement('SET statement_timeout = 0');
+
+                $conn->commit();
+            } catch (\Throwable $txnError) {
+                $conn->rollBack();
+
+                throw $txnError;
             }
 
             $elapsed = round(microtime(true) - $startTime, 3);
