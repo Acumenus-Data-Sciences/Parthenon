@@ -8,6 +8,9 @@ Both produce 768-dimensional embeddings with L2 normalization.
 
 import logging
 import os
+import threading
+import time
+from pathlib import Path
 from typing import Any
 
 import httpx
@@ -31,7 +34,7 @@ class OllamaEmbeddingService:
     """GPU-accelerated embedding via Ollama's /api/embed endpoint."""
 
     def __init__(self) -> None:
-        self._base_url = settings.ollama_base_url
+        self._base_url = settings.ollama_embedding_base_url
         self._model = settings.ollama_embedding_model
         self._available: bool | None = None
 
@@ -40,11 +43,37 @@ class OllamaEmbeddingService:
         if self._available is not None:
             return self._available
         try:
-            resp = httpx.post(
-                f"{self._base_url}/api/embed",
-                json={"model": self._model, "input": "probe"},
-                timeout=10.0,
-            )
+            tags = httpx.get(f"{self._base_url}/api/tags", timeout=5.0)
+            tags.raise_for_status()
+            available_models = [model.get("name", "") for model in tags.json().get("models", [])]
+            if not any(self._model == model or model.startswith(f"{self._model}:") for model in available_models):
+                logger.warning(
+                    "Ollama embedding model %s not present at %s (available: %s)",
+                    self._model,
+                    self._base_url,
+                    ", ".join(available_models[:5]),
+                )
+                self._available = False
+                return False
+
+            resp = None
+            last_error: Exception | None = None
+            for attempt in range(3):
+                try:
+                    resp = httpx.post(
+                        f"{self._base_url}/api/embed",
+                        json={"model": self._model, "input": "probe"},
+                        timeout=max(30.0, float(settings.ollama_embedding_timeout)),
+                    )
+                    break
+                except Exception as exc:
+                    last_error = exc
+                    if attempt == 2:
+                        raise
+                    time.sleep(1.0)
+
+            if resp is None:
+                raise RuntimeError(f"Ollama embedding probe failed: {last_error}")
             self._available = resp.status_code == 200
             if self._available:
                 dim = len(resp.json()["embeddings"][0])
@@ -74,7 +103,7 @@ class OllamaEmbeddingService:
         resp = httpx.post(
             f"{self._base_url}/api/embed",
             json={"model": self._model, "input": texts},
-            timeout=60.0,
+            timeout=max(60.0, float(settings.ollama_embedding_timeout)),
         )
         resp.raise_for_status()
         embeddings: list[list[float]] = resp.json()["embeddings"]
@@ -92,33 +121,52 @@ class SapBERTService:
         self._model: Any = None
         self._tokenizer: Any = None
         self._device: str = "cuda" if (_HAS_TORCH and torch.cuda.is_available()) else "cpu"
+        self._load_lock = threading.Lock()
+
+    def _ensure_local_model_cache(self) -> None:
+        cache_root = Path(settings.model_cache_dir)
+        model_dir = cache_root / f"models--{settings.sapbert_model.replace('/', '--')}"
+        snapshots_dir = model_dir / "snapshots"
+        if snapshots_dir.exists() and any(snapshots_dir.iterdir()):
+            return
+        raise RuntimeError(
+            f"Missing cached SapBERT model '{settings.sapbert_model}' under {cache_root}. "
+            "Populate /models before starting python-ai."
+        )
 
     def _load_model(self) -> None:
         if self._model is not None:
             return
         if not _HAS_TORCH:
             raise RuntimeError("torch/transformers not installed — SapBERT unavailable")
+        self._ensure_local_model_cache()
 
-        logger.info(
-            "Loading SapBERT model: %s (device: %s)",
-            settings.sapbert_model,
-            self._device,
-        )
+        with self._load_lock:
+            if self._model is not None:
+                return
 
-        self._tokenizer = AutoTokenizer.from_pretrained(
-            settings.sapbert_model,
-            cache_dir=settings.model_cache_dir,
-        )
-        self._model = AutoModel.from_pretrained(
-            settings.sapbert_model,
-            cache_dir=settings.model_cache_dir,
-            low_cpu_mem_usage=False,
-        )
-        if self._device != "cpu":
-            self._model = self._model.to(self._device)
-        self._model.eval()
+            logger.info(
+                "Loading SapBERT model: %s (device: %s)",
+                settings.sapbert_model,
+                self._device,
+            )
 
-        logger.info("SapBERT model loaded successfully")
+            self._tokenizer = AutoTokenizer.from_pretrained(
+                settings.sapbert_model,
+                cache_dir=settings.model_cache_dir,
+                local_files_only=True,
+            )
+            self._model = AutoModel.from_pretrained(
+                settings.sapbert_model,
+                cache_dir=settings.model_cache_dir,
+                low_cpu_mem_usage=False,
+                local_files_only=True,
+            )
+            if self._device != "cpu":
+                self._model = self._model.to(self._device)
+            self._model.eval()
+
+            logger.info("SapBERT model loaded successfully")
 
     def encode(self, texts: list[str]) -> list[list[float]]:
         """Encode a batch of texts into 768-dim embeddings."""

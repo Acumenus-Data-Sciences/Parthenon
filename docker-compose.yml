@@ -151,6 +151,11 @@ services:
     build:
       context: .
       dockerfile: docker/python/Dockerfile
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    command:
+      - sh
+      - -lc
+      - uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1 --timeout-keep-alive 5
     ports:
       - "${AI_PORT:-8002}:8000"
     volumes:
@@ -164,13 +169,21 @@ services:
       - ./OHDSI-scraper/ohdsi_forums:/app/ohdsi_forums:ro
       - ./OHDSI-scraper/medical_textbooks_extracted:/app/medical_textbooks:ro
       - ./backend/storage/app:/var/www/html/storage/app:ro
+      - /tmp/parthenon-ai-models:/models
     environment:
       - DATABASE_URL=postgresql://abby_analyst:${ABBY_PG_PASSWORD}@host.docker.internal:5432/parthenon
       - GIS_DATABASE_URL=postgresql://abby_analyst:${ABBY_PG_PASSWORD}@host.docker.internal:5432/parthenon
       - REDIS_URL=redis://redis:6379/2
-      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      - HOME=/tmp
+      - USER=smudoshi
+      - LOGNAME=smudoshi
+      - MODEL_CACHE_DIR=/models
+      - HF_HOME=/models/huggingface
+      - HF_TOKEN=${HF_TOKEN:-}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11435}
       - OLLAMA_MODEL=${OLLAMA_MODEL:-ii-medical:8b-q8}
-      - ABBY_OLLAMA_BASE_URL=${ABBY_OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      - OLLAMA_EMBED_BASE_URL=${OLLAMA_EMBED_BASE_URL:-http://host.docker.internal:11434}
+      - ABBY_OLLAMA_BASE_URL=${ABBY_OLLAMA_BASE_URL:-http://host.docker.internal:11435}
       - ABBY_OLLAMA_MODEL=${ABBY_OLLAMA_MODEL:-ii-medical:8b-q8}
       - ABBY_OLLAMA_KEEP_ALIVE=${ABBY_OLLAMA_KEEP_ALIVE:-3600}
       - HELP_DIR=/var/www/html/resources/help

@@ -24,6 +24,10 @@ logger = logging.getLogger(__name__)
 _embedder_lock = threading.Lock()
 
 
+def _sanitize_hf_cache_component(value: str) -> str:
+    return value.replace("/", "--")
+
+
 def _resolve_writable_cache_dir() -> Path:
     candidates = [
         Path(settings.model_cache_dir),
@@ -60,11 +64,24 @@ def _configure_model_cache_env() -> None:
     os.environ["SENTENCE_TRANSFORMERS_HOME"] = str(sentence_cache)
 
 
+def _ensure_sentence_transformer_cached(model_name: str) -> None:
+    cache_root = Path(os.environ.get("SENTENCE_TRANSFORMERS_HOME", settings.model_cache_dir))
+    model_dir = cache_root / f"models--{_sanitize_hf_cache_component('sentence-transformers/' + model_name)}"
+    snapshots_dir = model_dir / "snapshots"
+    if snapshots_dir.exists() and any(snapshots_dir.iterdir()):
+        return
+    raise RuntimeError(
+        f"Missing cached sentence-transformers model '{model_name}' under {cache_root}. "
+        "Populate /models before starting python-ai."
+    )
+
+
 class GeneralEmbedder(EmbeddingFunction[Documents]):
     """Sentence-transformers embedding for general text (384 dimensions)."""
 
     def __init__(self, model_name: str = "all-MiniLM-L6-v2") -> None:
         _configure_model_cache_env()
+        _ensure_sentence_transformer_cached(model_name)
         from sentence_transformers import SentenceTransformer
 
         self._model = SentenceTransformer(model_name, device="cpu")

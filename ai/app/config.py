@@ -6,14 +6,16 @@ class Settings(BaseSettings):
 
     database_url: str = ""
     redis_url: str = "redis://redis:6379/2"
-    model_cache_dir: str = "/app/models"
+    model_cache_dir: str = "/tmp/parthenon-models"
 
     # Ollama configuration (for medical LLMs)
     ollama_base_url: str = "http://host.docker.internal:11434"
     ollama_model: str = "ii-medical:8b-q8"
     ollama_timeout: int = 120
     ollama_num_predict: int = 256
-    abby_ollama_base_url: str = ""
+    ollama_embedding_base_url: str = "http://host.docker.internal:11434"
+    ollama_embedding_timeout: int = 60
+    abby_ollama_base_url: str = "http://host.docker.internal:11435"
     abby_ollama_model: str = ""
     abby_ollama_keep_alive: int = 3600
 
@@ -29,7 +31,7 @@ class Settings(BaseSettings):
     sapbert_model: str = "cambridgeltl/SapBERT-from-PubMedBERT-fulltext"
 
     # Ollama embedding model (GPU-accelerated, preferred over SapBERT)
-    ollama_embedding_model: str = "nomic-embed-text"
+    ollama_embedding_model: str = "nomic-embed-text:latest"
 
     # Ariadne concept mapping configuration
     ariadne_vocab_schema: str = "omop"
