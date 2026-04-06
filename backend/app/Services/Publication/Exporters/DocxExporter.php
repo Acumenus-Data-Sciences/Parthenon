@@ -72,13 +72,14 @@ class DocxExporter
             ]);
 
             $tableNum = 0;
+            $tempImages = [];
             foreach ($sections as $section) {
                 $type = (string) ($section['type'] ?? '');
 
                 if ($type === 'diagram') {
-                    $this->addDiagram($contentSection, $section);
+                    $this->addDiagram($contentSection, $section, $tempImages);
                 } else {
-                    $this->addTextSection($contentSection, $section, $tableNum);
+                    $this->addTextSection($contentSection, $section, $tableNum, $tempImages);
                 }
             }
         }
@@ -88,7 +89,7 @@ class DocxExporter
         $filename = trim((string) $slug, '-').'.docx';
 
         return new StreamedResponse(
-            function () use ($phpWord): void {
+            function () use ($phpWord, $tempImages): void {
                 $tempFile = tempnam(sys_get_temp_dir(), 'pub_docx_');
                 if ($tempFile === false) {
                     throw new \RuntimeException('Failed to create temporary file.');
@@ -99,6 +100,11 @@ class DocxExporter
                     $writer->save($tempFile);
                     readfile($tempFile);
                 } finally {
+                    foreach ($tempImages as $tempImage) {
+                        if (is_string($tempImage) && file_exists($tempImage)) {
+                            unlink($tempImage);
+                        }
+                    }
                     if (file_exists($tempFile)) {
                         unlink($tempFile);
                     }
@@ -119,7 +125,7 @@ class DocxExporter
      * @param  Section  $wordSection
      * @param  array<string, mixed>  $data
      */
-    private function addTextSection($wordSection, array $data, int &$tableNum): void
+    private function addTextSection($wordSection, array $data, int &$tableNum, array &$tempImages): void
     {
         $content = (string) ($data['content'] ?? '');
 
@@ -165,6 +171,11 @@ class DocxExporter
                     }
                 }
             }
+        }
+
+        if ((string) ($data['svg'] ?? '') !== '' && (string) ($data['diagram_type'] ?? '') !== '') {
+            $wordSection->addTextBreak(1);
+            $this->addDiagram($wordSection, $data, $tempImages);
         }
     }
 
@@ -254,16 +265,40 @@ class DocxExporter
      * @param  Section  $wordSection
      * @param  array<string, mixed>  $data
      */
-    private function addDiagram($wordSection, array $data): void
+    private function addDiagram($wordSection, array $data, array &$tempImages): void
     {
         $svg = (string) ($data['svg'] ?? '');
+        $pngDataUrl = (string) ($data['png_data_url'] ?? '');
         $caption = (string) ($data['caption'] ?? '');
         $diagramType = (string) ($data['diagram_type'] ?? 'figure');
 
-        if ($svg !== '' && extension_loaded('imagick')) {
+        if ($pngDataUrl !== '') {
             try {
-                $tempPng = tempnam(sys_get_temp_dir(), 'pub_png_');
-                if ($tempPng !== false) {
+                $tempRoot = tempnam(sys_get_temp_dir(), 'pub_png_');
+                if ($tempRoot !== false) {
+                    @unlink($tempRoot);
+                    $tempPng = $tempRoot.'.png';
+                    $pngBytes = preg_replace('/^data:image\/png;base64,/', '', $pngDataUrl);
+                    if ($pngBytes === null) {
+                        throw new \RuntimeException('Failed to decode PNG data URL.');
+                    }
+                    file_put_contents($tempPng, base64_decode($pngBytes, true));
+
+                    $wordSection->addImage($tempPng, [
+                        'width' => 450,
+                        'alignment' => Jc::CENTER,
+                    ]);
+                    $tempImages[] = $tempPng;
+                }
+            } catch (\Throwable) {
+                // Skip image on failure but keep caption
+            }
+        } elseif ($svg !== '' && extension_loaded('imagick')) {
+            try {
+                $tempRoot = tempnam(sys_get_temp_dir(), 'pub_png_');
+                if ($tempRoot !== false) {
+                    @unlink($tempRoot);
+                    $tempPng = $tempRoot.'.png';
                     $imagick = new \Imagick;
                     $imagick->setResolution(300, 300);
                     $imagick->readImageBlob($svg);
@@ -276,8 +311,7 @@ class DocxExporter
                         'width' => 450,
                         'alignment' => Jc::CENTER,
                     ]);
-
-                    unlink($tempPng);
+                    $tempImages[] = $tempPng;
                 }
             } catch (\Throwable) {
                 // Skip image on failure but keep caption

@@ -42,7 +42,11 @@ class EstimationController extends Controller
             $analyses->getCollection()->transform(function (EstimationAnalysis $analysis) {
                 $latestExecution = $analysis->executions()
                     ->orderByDesc('created_at')
-                    ->first(['id', 'status', 'source_id', 'started_at', 'completed_at']);
+                    ->first(['id', 'status', 'source_id', 'started_at', 'completed_at', 'result_json']);
+
+                if ($latestExecution && is_array($latestExecution->result_json)) {
+                    $latestExecution->result_json = EstimationResultNormalizer::normalize($latestExecution->result_json);
+                }
 
                 $analysis->setAttribute('latest_execution', $latestExecution);
 

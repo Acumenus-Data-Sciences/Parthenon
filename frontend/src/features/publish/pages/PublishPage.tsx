@@ -119,21 +119,21 @@ function persistingReducer(state: WizardState, action: Action): WizardState {
 
 // ── Research-question section config ────────────────────────────────────────
 
-const SECTION_CONFIG: Record<string, { title: string; diagramType: DiagramType | null }> = {
+export const SECTION_CONFIG: Record<string, { title: string; diagramType: DiagramType | null }> = {
   // Plural forms (from "All Analyses" tab)
-  characterizations: { title: "Population Characteristics", diagramType: "attrition" },
+  characterizations: { title: "Population Characteristics", diagramType: null },
   incidence_rates: { title: "Incidence Rates", diagramType: null },
   estimations: { title: "Comparative Effectiveness", diagramType: "forest_plot" },
   pathways: { title: "Treatment Patterns", diagramType: null },
   sccs: { title: "Safety Analysis", diagramType: null },
-  predictions: { title: "Predictive Modeling", diagramType: "kaplan_meier" },
+  predictions: { title: "Predictive Modeling", diagramType: null },
   evidence_synthesis: { title: "Evidence Synthesis", diagramType: "forest_plot" },
   // Singular forms (from "From Studies" tab)
-  characterization: { title: "Population Characteristics", diagramType: "attrition" },
+  characterization: { title: "Population Characteristics", diagramType: null },
   incidence_rate: { title: "Incidence Rates", diagramType: null },
   estimation: { title: "Comparative Effectiveness", diagramType: "forest_plot" },
   pathway: { title: "Treatment Patterns", diagramType: null },
-  prediction: { title: "Predictive Modeling", diagramType: "kaplan_meier" },
+  prediction: { title: "Predictive Modeling", diagramType: null },
 };
 
 function sectionDefToReportSection(def: TemplateSectionDef): ReportSection {
@@ -281,6 +281,26 @@ function buildManuscriptSections(
   }
 
   return sections;
+}
+
+function serializeSectionSvg(sectionId: string): string | undefined {
+  if (typeof document === "undefined") return undefined;
+  const el = document.getElementById(`diagram-${sectionId}`);
+  if (!el) return undefined;
+  const svg = el.querySelector("[data-diagram-canvas] svg");
+  if (!svg) return undefined;
+  const clone = svg.cloneNode(true) as SVGSVGElement;
+  clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  clone.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+  return new XMLSerializer().serializeToString(clone);
+}
+
+function captureDiagramSvgMarkup(sections: ReportSection[]): ReportSection[] {
+  return sections.map((section) =>
+    section.diagramType
+      ? { ...section, svgMarkup: section.svgMarkup ?? serializeSectionSvg(section.id) }
+      : section,
+  );
 }
 
 // ── Component ───────────────────────────────────────────────────────────────
@@ -540,7 +560,13 @@ export default function PublishPage() {
             title={state.title}
             authors={state.authors}
             onBack={() => goToStep(2)}
-            onNext={() => goToStep(4)}
+            onNext={() => {
+              dispatch({
+                type: "SET_SECTIONS",
+                sections: captureDiagramSvgMarkup(state.sections),
+              });
+              goToStep(4);
+            }}
           />
         )}
 

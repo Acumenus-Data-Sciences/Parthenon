@@ -315,15 +315,22 @@ function buildEvidenceSynthesisTable(executions: SelectedExecution[]): TableData
     const r = exec.resultJson;
     if (!r) continue;
 
+    const pooled = (r.pooled as Record<string, unknown>) ?? {};
+    const pooledEstimate = (pooled.hr as number) ?? (r.pooled_estimate as number);
+    const ciLower = (pooled.ci_lower as number) ?? (r.ci_lower as number);
+    const ciUpper = (pooled.ci_upper as number) ?? (r.ci_upper as number);
+    const iSquared = (r.i_squared as number)
+      ?? ((r.heterogeneity as Record<string, unknown> | undefined)?.i_squared as number);
+
     rows.push({
       Analysis: exec.analysisName,
-      "Pooled Estimate": typeof r.pooled_estimate === "number"
-        ? Math.round(r.pooled_estimate * 100) / 100 : "—",
-      "95% CI": typeof r.ci_lower === "number" && typeof r.ci_upper === "number"
-        ? `${(r.ci_lower as number).toFixed(2)}–${(r.ci_upper as number).toFixed(2)}`
+      "Pooled Estimate": typeof pooledEstimate === "number"
+        ? Math.round(pooledEstimate * 100) / 100 : "—",
+      "95% CI": typeof ciLower === "number" && typeof ciUpper === "number"
+        ? `${ciLower.toFixed(2)}–${ciUpper.toFixed(2)}`
         : "—",
-      "I²": typeof r.i_squared === "number"
-        ? `${Math.round(r.i_squared * 10) / 10}%` : "—",
+      "I²": typeof iSquared === "number"
+        ? `${Math.round(iSquared * 10) / 10}%` : "—",
     });
   }
 

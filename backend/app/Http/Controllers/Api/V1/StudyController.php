@@ -3,12 +3,19 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\App\AnalysisExecution;
 use App\Models\App\Source;
 use App\Models\App\Study;
 use App\Models\App\StudyAnalysis;
 use App\Services\Analysis\StudyService;
 use App\Services\Analysis\StudyStatusStateMachine;
 use App\Services\Solr\CohortSearchService;
+use App\Support\CharacterizationResultNormalizer;
+use App\Support\EstimationResultNormalizer;
+use App\Support\EvidenceSynthesisResultNormalizer;
+use App\Support\IncidenceRateResultNormalizer;
+use App\Support\PredictionResultNormalizer;
+use App\Support\SccsResultNormalizer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -136,6 +143,7 @@ class StudyController extends Controller
                             $latestExecution = $sa->analysis->executions
                                 ->sortByDesc('created_at')
                                 ->first();
+                            $this->normalizeLatestExecution($latestExecution, $sa->analysis_type);
                             $sa->analysis->setAttribute('latest_execution', $latestExecution);
                             $sa->analysis->unsetRelation('executions');
                         }
@@ -483,5 +491,22 @@ class StudyController extends Controller
         }
 
         return response()->json($response, 500);
+    }
+
+    private function normalizeLatestExecution(?AnalysisExecution $execution, string $analysisType): void
+    {
+        if (! $execution || ! is_array($execution->result_json)) {
+            return;
+        }
+
+        $execution->result_json = match ($analysisType) {
+            'characterization' => CharacterizationResultNormalizer::normalize($execution->result_json),
+            'estimation' => EstimationResultNormalizer::normalize($execution->result_json),
+            'prediction' => PredictionResultNormalizer::normalize($execution->result_json),
+            'incidence_rate' => IncidenceRateResultNormalizer::normalize($execution->result_json),
+            'sccs' => SccsResultNormalizer::normalize($execution->result_json),
+            'evidence_synthesis' => EvidenceSynthesisResultNormalizer::normalize($execution->result_json),
+            default => $execution->result_json,
+        };
     }
 }

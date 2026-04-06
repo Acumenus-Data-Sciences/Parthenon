@@ -7,6 +7,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router-dom";
 import PublishPage from "../../pages/PublishPage";
+import { fetchAllAnalyses } from "../../api/publishApi";
 import { StudySelector } from "../StudySelector";
 import { ReportPreview } from "../ReportPreview";
 import { ReportSectionCard } from "../ReportSection";
@@ -257,6 +258,54 @@ describe("PublishPage", () => {
   it("starts on step 1 with step indicator visible", () => {
     renderWithProviders(<PublishPage />);
     expect(screen.getByTestId("step-indicator")).toBeInTheDocument();
+  });
+
+  it("does not emit duplicate key warnings when analyses share ids across types", async () => {
+    vi.mocked(fetchAllAnalyses).mockResolvedValueOnce([
+      {
+        id: 37,
+        name: "Characterization A",
+        type: "characterizations",
+        description: null,
+        design_json: {},
+        latest_execution: {
+          id: 109,
+          status: "completed",
+          result_json: {},
+          completed_at: "2026-01-01T00:00:00Z",
+        },
+      },
+      {
+        id: 37,
+        name: "Incidence A",
+        type: "incidence_rates",
+        description: null,
+        design_json: {},
+        latest_execution: {
+          id: 127,
+          status: "completed",
+          result_json: {},
+          completed_at: "2026-01-02T00:00:00Z",
+        },
+      },
+    ]);
+
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    renderWithProviders(<PublishPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Characterization A")).toBeInTheDocument();
+      expect(screen.getByText("Incidence A")).toBeInTheDocument();
+    });
+
+    expect(
+      errorSpy.mock.calls.some(([message]) =>
+        String(message).includes("Encountered two children with the same key"),
+      ),
+    ).toBe(false);
+
+    errorSpy.mockRestore();
   });
 
   it("shows the analysis picker on step 1", () => {

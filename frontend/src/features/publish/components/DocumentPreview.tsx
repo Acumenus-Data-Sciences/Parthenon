@@ -143,7 +143,7 @@ export default function DocumentPreview({
               const figNum = figureCounter;
 
               return (
-                <div key={section.id} className="mb-8">
+                <div key={section.id} id={`diagram-${section.id}`} className="mb-8">
                   <DiagramWrapper
                     title={section.title}
                     caption={section.caption}
@@ -202,7 +202,7 @@ export default function DocumentPreview({
 
                   {/* Diagram */}
                   {hasDiagram && section.diagramType && (
-                    <div className="mt-4">
+                    <div id={`diagram-${section.id}`} className="mt-4">
                       <DiagramWrapper
                         title={section.title}
                         caption={section.caption}

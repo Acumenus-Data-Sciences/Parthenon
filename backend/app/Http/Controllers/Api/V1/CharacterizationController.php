@@ -51,7 +51,11 @@ class CharacterizationController extends Controller
             $characterizations->getCollection()->transform(function (Characterization $char) {
                 $latestExecution = $char->executions()
                     ->orderByDesc('created_at')
-                    ->first(['id', 'status', 'source_id', 'started_at', 'completed_at']);
+                    ->first(['id', 'status', 'source_id', 'started_at', 'completed_at', 'result_json']);
+
+                if ($latestExecution && is_array($latestExecution->result_json)) {
+                    $latestExecution->result_json = CharacterizationResultNormalizer::normalize($latestExecution->result_json);
+                }
 
                 $char->setAttribute('latest_execution', $latestExecution);
 

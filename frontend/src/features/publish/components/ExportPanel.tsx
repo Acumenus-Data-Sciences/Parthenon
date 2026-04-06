@@ -65,11 +65,47 @@ function formatLabel(format: ExportableFormat): string {
 function getSvgFromDom(sectionId: string): string | undefined {
   const el = document.getElementById(`diagram-${sectionId}`);
   if (!el) return undefined;
-  const svg = el.querySelector("svg");
+  const svg = el.querySelector("[data-diagram-canvas] svg");
   if (!svg) return undefined;
   const clone = svg.cloneNode(true) as SVGSVGElement;
   clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
   return new XMLSerializer().serializeToString(clone);
+}
+
+function svgMarkupToPngDataUrl(svgMarkup: string): Promise<string | undefined> {
+  return new Promise((resolve) => {
+    const blob = new Blob([svgMarkup], { type: "image/svg+xml;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const img = new window.Image();
+
+    img.onload = () => {
+      const width = img.width || 800;
+      const height = img.height || 600;
+      const scale = 2;
+      const canvas = document.createElement("canvas");
+      canvas.width = width * scale;
+      canvas.height = height * scale;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        URL.revokeObjectURL(url);
+        resolve(undefined);
+        return;
+      }
+
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL("image/png"));
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      resolve(undefined);
+    };
+
+    img.src = url;
+  });
 }
 
 export default function ExportPanel({
@@ -87,33 +123,39 @@ export default function ExportPanel({
     (s) => s.narrativeState === "draft",
   );
 
-  const handleExport = () => {
-    const exportSections: ExportRequest["sections"] = includedSections.map(
-      (section) => ({
-        type: section.type,
-        title: section.title,
-        content: typeof section.content === "string" ? section.content : (section.content ? JSON.stringify(section.content) : undefined),
-        included: section.included,
-        svg:
+  const handleExport = async () => {
+    const exportSections: ExportRequest["sections"] = await Promise.all(
+      includedSections.map(async (section) => {
+        const svgMarkup =
           section.svgMarkup ??
-          (section.type === "diagram" ? getSvgFromDom(section.id) : undefined),
-        caption: section.caption,
-        diagram_type: section.diagramType,
-        table_data: section.tableIncluded !== false && section.tableData
-          ? section.tableData
-          : undefined,
+          (section.diagramType ? getSvgFromDom(section.id) : undefined);
+
+        return {
+          type: section.type,
+          title: section.title,
+          content: typeof section.content === "string" ? section.content : (section.content ? JSON.stringify(section.content) : undefined),
+          included: section.included,
+          svg: svgMarkup,
+          png_data_url:
+            selectedFormat === "docx" && svgMarkup
+              ? await svgMarkupToPngDataUrl(svgMarkup)
+              : undefined,
+          caption: section.caption,
+          diagram_type: section.diagramType,
+          table_data: section.tableIncluded !== false && section.tableData
+            ? section.tableData
+            : undefined,
+        };
       }),
     );
 
-    const request: ExportRequest = {
+    exportMutation.mutate({
       template,
       format: selectedFormat as ExportFormat,
       title,
       authors,
       sections: exportSections,
-    };
-
-    exportMutation.mutate(request);
+    });
   };
 
   return (

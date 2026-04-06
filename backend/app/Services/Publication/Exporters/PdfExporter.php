@@ -76,6 +76,7 @@ class PdfExporter
             $content = (string) ($section['content'] ?? '');
             $svg = (string) ($section['svg'] ?? '');
             $caption = (string) ($section['caption'] ?? '');
+            $diagramType = (string) ($section['diagram_type'] ?? '');
 
             if ($type === 'diagram') {
                 if ($svg !== '') {
@@ -115,6 +116,13 @@ class PdfExporter
                                 $sectionsHtml .= '<p style="text-align: justify; margin-bottom: 12px; line-height: 1.6;">'.htmlspecialchars($paragraph, ENT_QUOTES, 'UTF-8').'</p>';
                             }
                         }
+                    }
+                }
+
+                if ($svg !== '' && $diagramType !== '') {
+                    $sectionsHtml .= '<div style="text-align: center; margin: 24px 0;">'.$svg.'</div>';
+                    if ($caption !== '') {
+                        $sectionsHtml .= '<p style="text-align: center; font-style: italic; font-size: 10pt; color: #555;">'.htmlspecialchars($caption, ENT_QUOTES, 'UTF-8').'</p>';
                     }
                 }
             }

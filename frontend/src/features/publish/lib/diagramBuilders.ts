@@ -12,6 +12,7 @@ export function buildForestPlotData(
   executions: SelectedExecution[],
 ): Record<string, unknown> | undefined {
   const points: Array<{ label: string; estimate: number; ci_lower: number; ci_upper: number }> = [];
+  let pooled: { estimate: number; ci_lower: number; ci_upper: number } | undefined;
 
   for (const exec of executions) {
     const r = exec.resultJson;
@@ -34,12 +35,42 @@ export function buildForestPlotData(
         ci_upper: typeof ciHi === "number" ? Math.round(ciHi * 100) / 100 : hr,
       });
     }
+
+    const perSite = Array.isArray(r.per_site)
+      ? (r.per_site as Array<Record<string, unknown>>)
+      : [];
+    for (const site of perSite) {
+      const hr = (site.hr as number) ?? (site.hazard_ratio as number);
+      const ciLo = (site.ci_lower as number) ?? (site.ci_95_lower as number);
+      const ciHi = (site.ci_upper as number) ?? (site.ci_95_upper as number);
+      if (typeof hr !== "number") continue;
+
+      points.push({
+        label: (site.site_name as string) ?? exec.analysisName,
+        estimate: Math.round(hr * 100) / 100,
+        ci_lower: typeof ciLo === "number" ? Math.round(ciLo * 100) / 100 : hr,
+        ci_upper: typeof ciHi === "number" ? Math.round(ciHi * 100) / 100 : hr,
+      });
+    }
+
+    const pooledCandidate = r.pooled as Record<string, unknown> | undefined;
+    const pooledHr = (pooledCandidate?.hr as number) ?? (r.pooled_estimate as number);
+    const pooledLo = (pooledCandidate?.ci_lower as number) ?? (r.ci_lower as number);
+    const pooledHi = (pooledCandidate?.ci_upper as number) ?? (r.ci_upper as number);
+    if (typeof pooledHr === "number") {
+      pooled = {
+        estimate: Math.round(pooledHr * 100) / 100,
+        ci_lower: typeof pooledLo === "number" ? Math.round(pooledLo * 100) / 100 : pooledHr,
+        ci_upper: typeof pooledHi === "number" ? Math.round(pooledHi * 100) / 100 : pooledHr,
+      };
+    }
   }
 
-  if (points.length === 0) return undefined;
+  if (points.length === 0 && !pooled) return undefined;
 
   return {
     data: points,
+    pooled,
     xLabel: "Hazard Ratio",
   };
 }

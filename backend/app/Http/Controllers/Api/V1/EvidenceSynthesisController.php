@@ -41,7 +41,11 @@ class EvidenceSynthesisController extends Controller
             $analyses->getCollection()->transform(function (EvidenceSynthesisAnalysis $analysis) {
                 $latestExecution = $analysis->executions()
                     ->orderByDesc('created_at')
-                    ->first(['id', 'status', 'started_at', 'completed_at']);
+                    ->first(['id', 'status', 'started_at', 'completed_at', 'result_json']);
+
+                if ($latestExecution && is_array($latestExecution->result_json)) {
+                    $latestExecution->result_json = EvidenceSynthesisResultNormalizer::normalize($latestExecution->result_json);
+                }
 
                 $analysis->setAttribute('latest_execution', $latestExecution);
 

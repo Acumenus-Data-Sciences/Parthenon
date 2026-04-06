@@ -41,7 +41,7 @@ class PathwayController extends Controller
             $analyses->getCollection()->transform(function (PathwayAnalysis $analysis) {
                 $latestExecution = $analysis->executions()
                     ->orderByDesc('created_at')
-                    ->first(['id', 'status', 'source_id', 'started_at', 'completed_at']);
+                    ->first(['id', 'status', 'source_id', 'started_at', 'completed_at', 'result_json']);
 
                 $analysis->setAttribute('latest_execution', $latestExecution);
 

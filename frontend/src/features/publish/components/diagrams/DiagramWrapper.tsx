@@ -126,7 +126,7 @@ export default function DiagramWrapper({
           </button>
         </div>
       </div>
-      <div ref={containerRef} className="flex justify-center p-4">
+      <div ref={containerRef} data-diagram-canvas className="flex justify-center p-4">
         {children}
       </div>
       {caption && (

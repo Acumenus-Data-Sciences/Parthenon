@@ -27,6 +27,7 @@ class PublicationExportRequest extends FormRequest
             'sections.*.content' => 'nullable|string',
             'sections.*.included' => 'required|boolean',
             'sections.*.svg' => 'nullable|string',
+            'sections.*.png_data_url' => 'nullable|string',
             'sections.*.caption' => 'nullable|string',
             'sections.*.diagram_type' => 'nullable|string|in:consort,forest_plot,kaplan_meier,attrition',
             'sections.*.title' => 'nullable|string|max:500',

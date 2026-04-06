@@ -17,10 +17,12 @@ class FiguresExporter
         $slug = preg_replace('/[^a-z0-9]+/', '-', strtolower((string) ($document['title'] ?? 'figures')));
         $filename = trim((string) $slug, '-').'-figures.zip';
 
-        $tempZip = tempnam(sys_get_temp_dir(), 'pub_zip_');
-        if ($tempZip === false) {
+        $tempRoot = tempnam(sys_get_temp_dir(), 'pub_zip_');
+        if ($tempRoot === false) {
             throw new \RuntimeException('Failed to create temporary file.');
         }
+        @unlink($tempRoot);
+        $tempZip = $tempRoot.'.zip';
 
         $zip = new ZipArchive;
         $openResult = $zip->open($tempZip, ZipArchive::CREATE | ZipArchive::OVERWRITE);
@@ -32,15 +34,18 @@ class FiguresExporter
         /** @var list<array<string, mixed>> $sections */
         $sections = $document['sections'] ?? [];
         foreach ($sections as $section) {
-            $type = (string) ($section['type'] ?? '');
             $svg = (string) ($section['svg'] ?? '');
             $diagramType = (string) ($section['diagram_type'] ?? 'figure');
 
-            if ($type === 'diagram' && $svg !== '') {
+            if ($svg !== '' && $diagramType !== '') {
                 $entryName = "figure_{$figureIndex}_{$diagramType}.svg";
                 $zip->addFromString($entryName, $svg);
                 $figureIndex++;
             }
+        }
+
+        if ($figureIndex === 1) {
+            $zip->addFromString('README.txt', 'No diagram SVGs were available for export.');
         }
 
         $zip->close();

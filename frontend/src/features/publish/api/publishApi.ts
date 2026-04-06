@@ -59,6 +59,7 @@ export interface ExportRequest {
     content?: string;
     included: boolean;
     svg?: string;
+    png_data_url?: string;
     caption?: string;
     diagram_type?: string;
     table_data?: {

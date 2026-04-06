@@ -290,7 +290,7 @@ export default function UnifiedAnalysisPicker({
                   );
                   return (
                     <button
-                      key={item.id}
+                      key={`${item.type}-${item.latest_execution?.id ?? item.id}`}
                       type="button"
                       onClick={() => handleToggle(item)}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors ${
@@ -407,7 +407,7 @@ export default function UnifiedAnalysisPicker({
                           };
                           return (
                             <button
-                              key={sa.id}
+                              key={`${study.id}-${sa.analysis_type}-${exec.id}`}
                               type="button"
                               onClick={() =>
                                 handleToggle(
