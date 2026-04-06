@@ -167,7 +167,7 @@ def _convert_distances_to_results(
         })
     return sorted(  # type: ignore[return-value]
         results,
-        key=lambda r: (float(r["score"]), -float(r["distance"])),
+        key=lambda r: (float(str(r["score"])), -float(str(r["distance"]))),
         reverse=True,
     )
 

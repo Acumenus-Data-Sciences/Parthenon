@@ -930,7 +930,7 @@ def _build_chat_sources(
     seen: set[tuple[str, str, str]] = set()
 
     for result in results:
-        score = float(result.get("score", 0) or 0)
+        score = float(str(result.get("score", 0) or 0))
         if score < min_score:
             continue
 
@@ -978,7 +978,7 @@ def _try_grounded_definition_answer(request: ChatRequest) -> tuple[str, list[dic
         return "", []
 
     docs_results = query_docs(request.message, top_k=5, threshold=0.9)
-    if docs_results and float(docs_results[0].get("score", 0) or 0) >= 0.8:
+    if docs_results and float(str(docs_results[0].get("score", 0) or 0)) >= 0.8:
         results = docs_results
     else:
         results = get_ranked_rag_results(
@@ -990,7 +990,7 @@ def _try_grounded_definition_answer(request: ChatRequest) -> tuple[str, list[dic
         return "", []
 
     top_result = results[0]
-    top_score = float(top_result.get("score", 0) or 0)
+    top_score = float(str(top_result.get("score", 0) or 0))
     if top_score < 0.55:
         return "", []
 

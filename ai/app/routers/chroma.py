@@ -10,6 +10,8 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from starlette.concurrency import run_in_threadpool
 
+from chromadb.api.models.Collection import Collection
+
 from app.chroma.client import check_health, get_chroma_client
 from app.chroma.collections import (
     get_clinical_collection,
@@ -31,7 +33,7 @@ router = APIRouter()
 DOCS_DIR = os.environ.get("DOCS_DIR", "/app/docs")
 
 
-def _get_queryable_collection(name: str):
+def _get_queryable_collection(name: str) -> Collection:
     """Resolve collections through app accessors so query-time embeddings match runtime config."""
     if name == "docs":
         return get_docs_collection()
@@ -79,7 +81,7 @@ async def promote_faq(days: int = 7) -> dict:
 @router.post("/ingest-clinical")
 async def ingest_clinical(limit: int | None = None) -> dict:
     """Trigger clinical concept ingestion from OMOP vocabulary."""
-    return await run_in_threadpool(ingest_clinical_concepts, limit)
+    return await run_in_threadpool(ingest_clinical_concepts, limit=limit)
 
 
 @router.post("/seed-faq")
