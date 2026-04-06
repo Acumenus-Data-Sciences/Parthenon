@@ -37,14 +37,118 @@ class ClinicalGroupingSeeder extends Seeder
             ];
         }
 
-        // Upsert by name + domain_id for idempotency
-        DB::table('clinical_groupings')->upsert(
-            $rows,
-            ['name', 'domain_id'],
-            ['description', 'anchor_concept_ids', 'sort_order', 'icon', 'color']
-        );
+        // Upsert by name + domain_id + COALESCE(parent_grouping_id, 0) for idempotency.
+        // Laravel's upsert() can't target expression indexes, so we use raw SQL.
+        foreach ($rows as $row) {
+            DB::statement('
+                INSERT INTO app.clinical_groupings (name, description, domain_id, anchor_concept_ids, sort_order, icon, color, parent_grouping_id)
+                VALUES (?, ?, ?, ?::integer[], ?, ?, ?, NULL)
+                ON CONFLICT (name, domain_id, COALESCE(parent_grouping_id, 0))
+                DO UPDATE SET description = EXCLUDED.description,
+                              anchor_concept_ids = EXCLUDED.anchor_concept_ids,
+                              sort_order = EXCLUDED.sort_order,
+                              icon = EXCLUDED.icon,
+                              color = EXCLUDED.color
+            ', [
+                $row['name'],
+                $row['description'],
+                $row['domain_id'],
+                $row['anchor_concept_ids'],
+                $row['sort_order'],
+                $row['icon'],
+                $row['color'],
+            ]);
+        }
 
         $this->command->info('Seeded '.count($rows).' clinical groupings');
+
+        $this->seedHlgtFixtures();
+    }
+
+    /**
+     * Load HLGT sub-grouping fixture files and insert as child groupings.
+     */
+    private function seedHlgtFixtures(): void
+    {
+        $fixturesDir = database_path('fixtures/groupings');
+
+        if (! is_dir($fixturesDir)) {
+            $this->command->info('No HLGT fixtures directory found — skipping sub-groupings');
+
+            return;
+        }
+
+        $files = glob($fixturesDir.'/*_hlgt.json');
+        $totalInserted = 0;
+
+        foreach ($files as $file) {
+            $data = json_decode(file_get_contents($file), true);
+
+            if (! $data || empty($data['sub_groupings'])) {
+                continue;
+            }
+
+            // Look up the parent grouping by name + domain_id
+            $parent = DB::table('clinical_groupings')
+                ->where('name', $data['parent_grouping'])
+                ->where('domain_id', $data['domain_id'])
+                ->whereNull('parent_grouping_id')
+                ->first();
+
+            if (! $parent) {
+                Log::warning("ClinicalGroupingSeeder: parent '{$data['parent_grouping']}' not found — skipping HLGT file ".basename($file));
+
+                continue;
+            }
+
+            $childSortOrder = 0;
+            $childRows = [];
+
+            foreach ($data['sub_groupings'] as $sg) {
+                $childSortOrder++;
+
+                // Verify anchor concept IDs exist
+                $validIds = [];
+                foreach ($sg['anchor_concept_ids'] ?? [] as $id) {
+                    $exists = DB::connection('omop')->selectOne(
+                        'SELECT concept_id FROM vocab.concept WHERE concept_id = ?',
+                        [$id]
+                    );
+                    if ($exists) {
+                        $validIds[] = $id;
+                    }
+                }
+
+                if (empty($validIds)) {
+                    Log::warning("ClinicalGroupingSeeder: skipping HLGT '{$sg['name']}' under '{$data['parent_grouping']}' — no valid anchors");
+
+                    continue;
+                }
+
+                $childRows[] = [
+                    'name' => $sg['name'],
+                    'description' => $sg['description'] ?? null,
+                    'domain_id' => $data['domain_id'],
+                    'anchor_concept_ids' => '{'.implode(',', $validIds).'}',
+                    'sort_order' => $childSortOrder,
+                    'icon' => $sg['icon'] ?? null,
+                    'color' => $sg['color'] ?? null,
+                    'parent_grouping_id' => $parent->id,
+                ];
+            }
+
+            if (! empty($childRows)) {
+                // Delete existing children for this parent before re-inserting
+                DB::table('clinical_groupings')
+                    ->where('parent_grouping_id', $parent->id)
+                    ->delete();
+
+                DB::table('clinical_groupings')->insert($childRows);
+                $totalInserted += count($childRows);
+            }
+        }
+
+        $this->command->info("Seeded {$totalInserted} HLGT sub-groupings from fixtures");
     }
 
     /**

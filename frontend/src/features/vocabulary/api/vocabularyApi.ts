@@ -156,10 +156,13 @@ export async function getConceptMapsFrom(
 
 export async function fetchClinicalGroupings(
   domainId: string,
+  includeChildren: boolean = false,
 ): Promise<ClinicalGrouping[]> {
-  const { data } = await apiClient.get(`${BASE}/groupings`, {
-    params: { domain_id: domainId },
-  });
+  const params: Record<string, unknown> = { domain_id: domainId };
+  if (includeChildren) {
+    params.include_children = true;
+  }
+  const { data } = await apiClient.get(`${BASE}/groupings`, { params });
   return data.data ?? [];
 }
 

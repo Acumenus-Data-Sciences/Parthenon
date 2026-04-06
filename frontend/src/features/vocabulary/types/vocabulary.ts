@@ -156,6 +156,7 @@ export interface ClinicalGrouping {
   icon: string | null;
   color: string | null;
   parent_grouping_id: number | null;
+  children?: ClinicalGrouping[];
 }
 
 export interface GroupingPrevalence {

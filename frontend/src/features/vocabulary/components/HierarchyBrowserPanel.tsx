@@ -51,9 +51,10 @@ export function HierarchyBrowserPanel({
   // When viewing a multi-anchor grouping, show its anchor concepts as a sub-level
   const [groupingAnchors, setGroupingAnchors] = useState<{ groupingName: string; anchors: AnchorDetail[] } | null>(null);
   const [selectedSourceId, setSelectedSourceId] = useState<number | null>(null);
+  const [activeParentGrouping, setActiveParentGrouping] = useState<ClinicalGrouping | null>(null);
 
   const { data: nodes, isLoading } = useConceptTree(parentId, activeDomain ?? undefined);
-  const { data: groupings, isLoading: groupingsLoading } = useClinicalGroupings(activeDomain);
+  const { data: groupings, isLoading: groupingsLoading } = useClinicalGroupings(activeDomain, true);
   const { data: prevalenceData, isLoading: prevalenceLoading } = useGroupingPrevalence(activeDomain, selectedSourceId);
   const { data: sources } = useSources();
 
@@ -117,11 +118,13 @@ export function HierarchyBrowserPanel({
       setShowGroupings(true);
       setGroupingAnchors(null);
       setSelectedSourceId(null);
+      setActiveParentGrouping(null);
     } else {
       const entry = breadcrumbs[index];
       setBreadcrumbs((prev) => prev.slice(0, index + 1));
       setParentId(entry.concept_id);
       setGroupingAnchors(null);
+      setActiveParentGrouping(null);
 
       // If navigating back to domain root (index 0), restore groupings
       if (index === 0 && entry.concept_id < 0) {
@@ -149,7 +152,19 @@ export function HierarchyBrowserPanel({
   }, [handleDrillDown, onSelectConcept]);
 
   const handleGroupingClick = useCallback((grouping: ClinicalGrouping) => {
-    if (grouping.anchor_concept_ids.length === 0) return;
+    if (grouping.anchor_concept_ids.length === 0 && (!grouping.children || grouping.children.length === 0)) return;
+
+    // If this grouping has HLGT children, show them as a sub-level
+    if (grouping.children && grouping.children.length > 0) {
+      setBreadcrumbs((prev) => [
+        ...prev,
+        { concept_id: -100 - grouping.id, concept_name: grouping.name },
+      ]);
+      setActiveParentGrouping(grouping);
+      setShowGroupings(false);
+      setFilterText("");
+      return;
+    }
 
     if (grouping.anchors.length > 1) {
       // Multi-anchor: show anchor concepts as a navigable sub-level
@@ -318,6 +333,19 @@ export function HierarchyBrowserPanel({
         ) : shouldShowGroupings && groupings && groupings.length > 0 ? (
           /* Clinical grouping cards */
           <GroupingsGrid groupings={groupings} onGroupingClick={handleGroupingClick} prevalenceMap={prevalenceMap} prevalenceLoading={prevalenceLoading} />
+        ) : activeParentGrouping && activeParentGrouping.children && activeParentGrouping.children.length > 0 ? (
+          /* HLGT sub-grouping cards */
+          <div className="space-y-2 p-1">
+            <p className="px-2 py-1 text-[10px] text-[#5A5650]">
+              {activeParentGrouping.name} — {activeParentGrouping.children.length} sub-categories
+            </p>
+            <GroupingsGrid
+              groupings={activeParentGrouping.children}
+              onGroupingClick={handleGroupingClick}
+              prevalenceMap={prevalenceMap}
+              prevalenceLoading={prevalenceLoading}
+            />
+          </div>
         ) : groupingAnchors !== null ? (
           /* Multi-anchor grouping sub-level */
           <AnchorsList
