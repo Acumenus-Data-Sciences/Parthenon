@@ -1,0 +1,207 @@
+{
+  "parent_grouping": "Immune System",
+  "domain_id": "Condition",
+  "sub_groupings": [
+    {
+      "name": "Allergic Disorders",
+      "description": "Conditions caused by hypersensitivity reactions to allergens",
+      "anchor_concept_ids": [
+        134438,
+        4023944,
+        4084172,
+        4122615,
+        4143474,
+        4162309,
+        4174046,
+        4196384,
+        4223616,
+        4231425,
+        4270863,
+        4292706,
+        4299434,
+        4303802,
+        4305025,
+        4328558,
+        36684107,
+        37116484,
+        37165242,
+        40589905,
+        42536532,
+        42536533,
+        42536535,
+        42536536,
+        43530872,
+        43530897
+      ],
+      "icon": "folder",
+      "color": "#EF4444"
+    },
+    {
+      "name": "Autoimmune Disorders",
+      "description": "Conditions where immune system attacks self-tissues",
+      "anchor_concept_ids": [
+        433740,
+        434621,
+        606388,
+        1076117,
+        3655292,
+        3661498,
+        4031142,
+        4031647,
+        4031649,
+        4033783,
+        4063433,
+        4064049,
+        4074815,
+        4103532,
+        4188970,
+        36676614,
+        36683564,
+        36684203,
+        36715033,
+        37151422,
+        37163124,
+        37164973,
+        37171756,
+        37209514,
+        46271778
+      ],
+      "icon": "folder",
+      "color": "#F59E0B"
+    },
+    {
+      "name": "Immune Hypersensitivity Reactions",
+      "description": "Immune-mediated overreactions causing tissue damage",
+      "anchor_concept_ids": [
+        134438,
+        4023944,
+        4084172,
+        4122615,
+        4162309,
+        4196384,
+        4223616,
+        4224934,
+        4231425,
+        4270863,
+        4292706,
+        4303802,
+        4305025,
+        36684107,
+        40589905,
+        43530897
+      ],
+      "icon": "folder",
+      "color": "#10B981"
+    },
+    {
+      "name": "Drug-Induced Immune Disorders",
+      "description": "Immune conditions triggered by medication exposure",
+      "anchor_concept_ids": [
+        141651,
+        3661406,
+        4161207,
+        4292357,
+        4298728,
+        36717263,
+        42538752
+      ],
+      "icon": "folder",
+      "color": "#3B82F6"
+    },
+    {
+      "name": "Inflammatory and Immune-Mediated Skin Disorders",
+      "description": "Skin manifestations of immune system activity",
+      "anchor_concept_ids": [
+        4031142,
+        4031647,
+        4031649,
+        4033783,
+        4063433,
+        4064049,
+        4270863,
+        4299434,
+        4317979
+      ],
+      "icon": "folder",
+      "color": "#8B5CF6"
+    },
+    {
+      "name": "Immune Reconstitution and Recovery Disorders",
+      "description": "Conditions following immune system recovery or restoration",
+      "anchor_concept_ids": [
+        4137676,
+        36715033,
+        37151422,
+        46271778
+      ],
+      "icon": "folder",
+      "color": "#EC4899"
+    },
+    {
+      "name": "Immune-Mediated Organ-Specific Disorders",
+      "description": "Organ-specific immune-mediated pathologies",
+      "anchor_concept_ids": [
+        433740,
+        1076117,
+        4031142,
+        4074815,
+        4078538,
+        4103532,
+        4292357,
+        4298728,
+        36684203
+      ],
+      "icon": "folder",
+      "color": "#14B8A6"
+    },
+    {
+      "name": "Immune-Mediated Hematologic Disorders",
+      "description": "Blood-related conditions with immune pathophysiology",
+      "anchor_concept_ids": [
+        434008,
+        4007453,
+        4188970,
+        37165245,
+        37209514
+      ],
+      "icon": "folder",
+      "color": "#F97316"
+    },
+    {
+      "name": "Immune-Mediated Neurological Disorders",
+      "description": "Neurological conditions with immune-mediated etiology",
+      "anchor_concept_ids": [
+        1076117,
+        4103532,
+        36684203
+      ],
+      "icon": "folder",
+      "color": "#6366F1"
+    },
+    {
+      "name": "Other Immune System Disorders",
+      "description": "Immune-related conditions not fitting above categories",
+      "anchor_concept_ids": [
+        433740,
+        1076117,
+        4031142,
+        4031647,
+        4031649,
+        4033783,
+        4063433,
+        4064049,
+        4074815,
+        4078538,
+        4103532,
+        4180159,
+        4292357,
+        4298728,
+        4299434,
+        4317979,
+        36684203
+      ],
+      "icon": "folder",
+      "color": "#84CC16"
+    }
+  ]
+}

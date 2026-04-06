@@ -1,0 +1,147 @@
+{
+  "parent_grouping": "Hematologic",
+  "domain_id": "Condition",
+  "sub_groupings": [
+    {
+      "name": "Anemias and Red Blood Cell Disorders",
+      "description": "Conditions affecting red blood cell production, function, or survival including inherited and acquired forms",
+      "anchor_concept_ids": [
+        315523,
+        432739,
+        439777,
+        4032352,
+        4121115,
+        4301874
+      ],
+      "icon": "folder",
+      "color": "#EF4444"
+    },
+    {
+      "name": "Neutropenia and White Blood Cell Disorders",
+      "description": "Conditions characterized by abnormal white blood cell counts or function including congenital and acquired forms",
+      "anchor_concept_ids": [
+        434008,
+        4030442,
+        4030443,
+        4030593,
+        4032353,
+        4077956
+      ],
+      "icon": "folder",
+      "color": "#F59E0B"
+    },
+    {
+      "name": "Lymphocyte and Immune Cell Disorders",
+      "description": "Conditions affecting lymphocyte production/function including immunodeficiencies and lymphoproliferative diseases",
+      "anchor_concept_ids": [
+        604666,
+        4170035,
+        4176588,
+        4226980,
+        4286058,
+        45765493
+      ],
+      "icon": "folder",
+      "color": "#10B981"
+    },
+    {
+      "name": "Platelet and Coagulation Disorders",
+      "description": "Conditions affecting platelet function or number including acquired and congenital forms",
+      "anchor_concept_ids": [
+        4099224,
+        4144956,
+        4320651,
+        4327167,
+        4332151
+      ],
+      "icon": "folder",
+      "color": "#3B82F6"
+    },
+    {
+      "name": "Bone Marrow and Hematopoietic Disorders",
+      "description": "Conditions affecting bone marrow function and blood cell production including aplastic and hypoplastic conditions",
+      "anchor_concept_ids": [
+        4028780,
+        4131124,
+        4212884,
+        4212885,
+        4222402,
+        40480576
+      ],
+      "icon": "folder",
+      "color": "#8B5CF6"
+    },
+    {
+      "name": "Hemolytic and Blood Group Disorders",
+      "description": "Conditions characterized by abnormal red blood cell destruction or blood group abnormalities",
+      "anchor_concept_ids": [
+        4133151,
+        4133980,
+        4159967,
+        4267646,
+        4302298
+      ],
+      "icon": "folder",
+      "color": "#EC4899"
+    },
+    {
+      "name": "Hematologic Malignancies and Neoplasms",
+      "description": "Neoplastic conditions affecting blood-forming tissues and blood cells",
+      "anchor_concept_ids": [
+        4212328
+      ],
+      "icon": "folder",
+      "color": "#14B8A6"
+    },
+    {
+      "name": "Hemophagocytic Syndromes and Inflammatory Disorders",
+      "description": "Conditions with excessive immune activation and hemophagocytosis including genetic and acquired forms",
+      "anchor_concept_ids": [
+        4121123
+      ],
+      "icon": "folder",
+      "color": "#F97316"
+    },
+    {
+      "name": "Congenital Hematologic Anomalies",
+      "description": "Hereditary conditions affecting blood cell structure or function",
+      "anchor_concept_ids": [
+        4099224,
+        4144956,
+        4214408,
+        4320651,
+        37016333,
+        46271435
+      ],
+      "icon": "folder",
+      "color": "#6366F1"
+    },
+    {
+      "name": "Drug-Induced Hematologic Disorders",
+      "description": "Conditions caused by medications affecting blood components or bone marrow function",
+      "anchor_concept_ids": [
+        4222402,
+        37017423
+      ],
+      "icon": "folder",
+      "color": "#84CC16"
+    },
+    {
+      "name": "Other Hematologic Disorders",
+      "description": "Miscellaneous hematologic conditions not fitting other categories",
+      "anchor_concept_ids": [
+        443723,
+        4008701,
+        4024018,
+        4055295,
+        4093335,
+        4133149,
+        4188147,
+        4199233,
+        37174494
+      ],
+      "icon": "folder",
+      "color": "#0EA5E9"
+    }
+  ]
+}

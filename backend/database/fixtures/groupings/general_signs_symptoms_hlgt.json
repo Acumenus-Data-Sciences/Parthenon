@@ -1,0 +1,233 @@
+{
+  "parent_grouping": "General Signs & Symptoms",
+  "domain_id": "Condition",
+  "sub_groupings": [
+    {
+      "name": "Hemorrhagic Disorders",
+      "description": "Conditions involving abnormal bleeding or hemorrhage",
+      "anchor_concept_ids": [
+        433778,
+        4002659,
+        4030426,
+        4034154,
+        4080382,
+        4088253,
+        4127987,
+        4194998,
+        4209571,
+        4226021,
+        4271391,
+        4318539,
+        4331608,
+        4343214,
+        4343234,
+        4343686,
+        37110572,
+        40491484,
+        42538046,
+        42538935,
+        42709890,
+        42872438,
+        43531486,
+        44783068,
+        44784367,
+        44802880,
+        44805390,
+        44805556
+      ],
+      "icon": "folder",
+      "color": "#EF4444"
+    },
+    {
+      "name": "Fever & Temperature Dysregulation",
+      "description": "Conditions involving abnormal body temperature or fever patterns",
+      "anchor_concept_ids": [
+        136030,
+        4030015,
+        4087630,
+        4221532,
+        4266976,
+        4268842,
+        4328373,
+        40493465,
+        44782778,
+        44790450,
+        44790772
+      ],
+      "icon": "folder",
+      "color": "#F59E0B"
+    },
+    {
+      "name": "Neurological & Movement Disorders",
+      "description": "Neurological conditions affecting movement or nervous system function",
+      "anchor_concept_ids": [
+        444297,
+        4082147,
+        4082148,
+        4124683,
+        4126631,
+        4154764,
+        4196007,
+        4196100,
+        4198564,
+        36717605,
+        42690299,
+        42690334,
+        42690382,
+        42690384,
+        45770430
+      ],
+      "icon": "folder",
+      "color": "#10B981"
+    },
+    {
+      "name": "Cardiovascular & Circulatory Disorders",
+      "description": "Heart and circulatory system abnormalities",
+      "anchor_concept_ids": [
+        4080382,
+        4082148,
+        4088253,
+        4103350,
+        4109678,
+        4124683,
+        4158346,
+        4182317,
+        4198564,
+        4209571
+      ],
+      "icon": "folder",
+      "color": "#3B82F6"
+    },
+    {
+      "name": "Respiratory Disorders",
+      "description": "Conditions affecting the respiratory system",
+      "anchor_concept_ids": [
+        4082148,
+        4158346,
+        4196007,
+        4196100,
+        4198564,
+        4317284,
+        45770430
+      ],
+      "icon": "folder",
+      "color": "#8B5CF6"
+    },
+    {
+      "name": "Gastrointestinal & Digestive Disorders",
+      "description": "Conditions affecting the digestive system and related structures",
+      "anchor_concept_ids": [
+        4082147,
+        4082148,
+        4084977,
+        4136894,
+        4196007,
+        4196100,
+        4198564,
+        45770430
+      ],
+      "icon": "folder",
+      "color": "#EC4899"
+    },
+    {
+      "name": "Renal & Fluid Balance Disorders",
+      "description": "Kidney-related conditions and fluid regulation issues",
+      "anchor_concept_ids": [
+        4032288,
+        4138856,
+        4181420,
+        4261202
+      ],
+      "icon": "folder",
+      "color": "#14B8A6"
+    },
+    {
+      "name": "Endocrine & Metabolic Disorders",
+      "description": "Conditions involving hormonal imbalances and metabolic processes",
+      "anchor_concept_ids": [
+        1245117,
+        1245157,
+        1245180,
+        4030015
+      ],
+      "icon": "folder",
+      "color": "#F97316"
+    },
+    {
+      "name": "Musculoskeletal Disorders",
+      "description": "Conditions affecting muscles, bones, and joints",
+      "anchor_concept_ids": [
+        4082147,
+        4082148,
+        4124522,
+        4196007,
+        4196100,
+        4198564,
+        4211094,
+        45770430
+      ],
+      "icon": "folder",
+      "color": "#6366F1"
+    },
+    {
+      "name": "Dermatological Disorders",
+      "description": "Skin and mucous membrane conditions",
+      "anchor_concept_ids": [
+        4082147,
+        4082148,
+        4126929,
+        4135412,
+        4155911,
+        4196007,
+        4196100,
+        4198564,
+        4292373,
+        4297923,
+        45770430
+      ],
+      "icon": "folder",
+      "color": "#84CC16"
+    },
+    {
+      "name": "Reproductive & Genitourinary Disorders",
+      "description": "Conditions affecting reproductive and urinary systems",
+      "anchor_concept_ids": [
+        4082147,
+        4082148,
+        4129155,
+        4196007,
+        4196100,
+        4198564,
+        45770430
+      ],
+      "icon": "folder",
+      "color": "#0EA5E9"
+    },
+    {
+      "name": "Psychological & Behavioral Disorders",
+      "description": "Mental health and behavioral conditions",
+      "anchor_concept_ids": [
+        44782778,
+        44790450,
+        44790772
+      ],
+      "icon": "folder",
+      "color": "#D946EF"
+    },
+    {
+      "name": "Other General Signs & Symptoms disorders",
+      "description": "Miscellaneous or unclassifiable clinical signs and symptoms",
+      "anchor_concept_ids": [
+        4234561,
+        4265584,
+        4302179,
+        42690299,
+        42690334,
+        42690382,
+        42690384
+      ],
+      "icon": "folder",
+      "color": "#22D3EE"
+    }
+  ]
+}

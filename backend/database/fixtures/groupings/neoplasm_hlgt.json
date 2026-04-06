@@ -1,0 +1,242 @@
+{
+  "parent_grouping": "Neoplasm",
+  "domain_id": "Condition",
+  "sub_groupings": [
+    {
+      "name": "Benign Soft Tissue Tumors",
+      "description": "Non-cancerous growths in connective tissues including fibromas, lipomas, and myxomas",
+      "anchor_concept_ids": [
+        1244830,
+        1244842,
+        1244843,
+        1244844,
+        1244850,
+        1244851,
+        1244952,
+        4112852,
+        4309855,
+        4313650,
+        4315934,
+        4316049,
+        4316503,
+        4316607,
+        4317551,
+        4317829,
+        40486580,
+        40488964,
+        40593800,
+        45766453
+      ],
+      "member_concept_ids": [
+        1244843,
+        1244842,
+        4309855,
+        4112852,
+        1244952,
+        1244844,
+        1244851,
+        1244850,
+        1244830,
+        40593800,
+        45766453,
+        40486580,
+        40488964,
+        4315934,
+        4317551,
+        4316049,
+        4317829,
+        4316607,
+        4316503,
+        4313650
+      ],
+      "icon": "folder",
+      "color": "#EF4444"
+    },
+    {
+      "name": "Malignant Solid Tumors",
+      "description": "Aggressive cancers in various tissues including sarcomas, carcinomas, and hematologic malignancies",
+      "anchor_concept_ids": [
+        4100557,
+        4154630,
+        4157331,
+        4162276,
+        40391775,
+        40482784,
+        40484128,
+        40484129,
+        40491001,
+        40493428
+      ],
+      "member_concept_ids": [
+        4162276,
+        40391775,
+        40484129,
+        4100557,
+        40484128,
+        40482784,
+        4157331,
+        40493428,
+        40491001,
+        4154630,
+        40482784,
+        4157331,
+        40493428,
+        40491001,
+        4154630,
+        40482784,
+        4157331,
+        40493428,
+        40491001,
+        4154630
+      ],
+      "icon": "folder",
+      "color": "#F59E0B"
+    },
+    {
+      "name": "Neurological Neoplasms",
+      "description": "Brain and nervous system tumors including gliomas, glioblastomas, and neuroendocrine tumors",
+      "anchor_concept_ids": [
+        4298847,
+        40484128,
+        40484129,
+        40571980
+      ],
+      "member_concept_ids": [
+        40571980,
+        40484128,
+        40484129,
+        4298847
+      ],
+      "icon": "folder",
+      "color": "#10B981"
+    },
+    {
+      "name": "Neoplastic Staging and Response",
+      "description": "Clinical staging and treatment response indicators for cancer",
+      "anchor_concept_ids": [
+        442635,
+        443907,
+        443918,
+        4096940,
+        37165277,
+        37165278,
+        37166154,
+        37172812,
+        37172814
+      ],
+      "member_concept_ids": [
+        4096940,
+        443907,
+        442635,
+        443918,
+        37172812,
+        37172814,
+        37165277,
+        37165278,
+        37166154
+      ],
+      "icon": "folder",
+      "color": "#3B82F6"
+    },
+    {
+      "name": "Uncertain Behavior Neoplasms",
+      "description": "Tumors with indeterminate biological potential and malignant potential",
+      "anchor_concept_ids": [
+        374313,
+        376660,
+        4313503,
+        4313650,
+        4314958,
+        4315934,
+        4316503,
+        4316607,
+        4317551,
+        40479707
+      ],
+      "member_concept_ids": [
+        4315934,
+        4313503,
+        4314958,
+        4317551,
+        4316503,
+        4313650,
+        4316607,
+        376660,
+        374313,
+        40479707
+      ],
+      "icon": "folder",
+      "color": "#8B5CF6"
+    },
+    {
+      "name": "Melanocytic and Pigment Disorders",
+      "description": "Skin and neural crest-related pigmented neoplasms including nevi and melanomas",
+      "anchor_concept_ids": [
+        1244923,
+        4264693,
+        4271013,
+        4300674
+      ],
+      "member_concept_ids": [
+        4271013,
+        4300674,
+        1244923,
+        4264693
+      ],
+      "icon": "folder",
+      "color": "#EC4899"
+    },
+    {
+      "name": "Hematologic Malignancies",
+      "description": "Blood cancers including leukemias, lymphomas, and related disorders",
+      "anchor_concept_ids": [
+        4079274,
+        4221907
+      ],
+      "member_concept_ids": [
+        4079274,
+        4221907
+      ],
+      "icon": "folder",
+      "color": "#14B8A6"
+    },
+    {
+      "name": "Head and Neck Neoplasms",
+      "description": "Cancers and growths affecting the head, neck region and oral cavity",
+      "anchor_concept_ids": [
+        4110714,
+        4114222
+      ],
+      "member_concept_ids": [
+        4114222,
+        4110714
+      ],
+      "icon": "folder",
+      "color": "#F97316"
+    },
+    {
+      "name": "Other Neoplasm Disorders",
+      "description": "Miscellaneous neoplastic conditions not fitting other categories",
+      "anchor_concept_ids": [
+        759913,
+        1076348,
+        1244891,
+        37111374,
+        37163178,
+        37206612,
+        42536486
+      ],
+      "member_concept_ids": [
+        37163178,
+        42536486,
+        1244891,
+        37111374,
+        37206612,
+        1076348,
+        759913
+      ],
+      "icon": "folder",
+      "color": "#6366F1"
+    }
+  ]
+}

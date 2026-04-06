@@ -1,0 +1,229 @@
+{
+  "parent_grouping": "Pain Syndromes",
+  "domain_id": "Condition",
+  "sub_groupings": [
+    {
+      "name": "Pain Characteristics and Patterns",
+      "description": "Describes the temporal, positional, and quality-related features of pain",
+      "anchor_concept_ids": [
+        433456,
+        436096,
+        442555,
+        618957,
+        4011052,
+        4038217,
+        4058523,
+        4067868,
+        4137674,
+        4139035,
+        4139512,
+        4178162,
+        4200298,
+        4217581,
+        4260916,
+        4264996,
+        4320664,
+        4323751,
+        36716851
+      ],
+      "member_concept_ids": [
+        433456,
+        4067868,
+        618957,
+        442555,
+        436096,
+        4139035,
+        4058523,
+        4011052,
+        4320664,
+        4200298,
+        4260916,
+        4038217,
+        4139512,
+        4137674,
+        4217581,
+        4323751,
+        4264996,
+        4178162,
+        36716851
+      ],
+      "icon": "folder",
+      "color": "#EF4444"
+    },
+    {
+      "name": "Pain Intensity and Severity",
+      "description": "Measures the magnitude and strength of pain experience",
+      "anchor_concept_ids": [
+        4177350,
+        4222890,
+        4296746,
+        4314929,
+        44790675
+      ],
+      "member_concept_ids": [
+        4222890,
+        4177350,
+        4296746,
+        4314929,
+        44790675
+      ],
+      "icon": "folder",
+      "color": "#F59E0B"
+    },
+    {
+      "name": "Pain Etiology and Triggers",
+      "description": "Pain caused by specific conditions or provoked by identifiable factors",
+      "anchor_concept_ids": [
+        605677,
+        3654343,
+        4002014,
+        4009395,
+        4025947,
+        4083294,
+        4083297,
+        4083780,
+        4107375,
+        4134870,
+        4150756,
+        4232459,
+        4278524,
+        37017180,
+        37164894,
+        37168576,
+        37168584,
+        44782778,
+        44784631,
+        45768450
+      ],
+      "member_concept_ids": [
+        605677,
+        37164894,
+        3654343,
+        44784631,
+        45768450,
+        4009395,
+        4025947,
+        37168584,
+        37168576,
+        4083294,
+        4083780,
+        4083297,
+        4232459,
+        4107375,
+        44782778,
+        37017180,
+        4002014,
+        4150756,
+        4134870,
+        4278524
+      ],
+      "icon": "folder",
+      "color": "#10B981"
+    },
+    {
+      "name": "Pain Management and Response",
+      "description": "Pain control behaviors and patient satisfaction with treatment",
+      "anchor_concept_ids": [
+        607082,
+        4258370
+      ],
+      "member_concept_ids": [
+        4258370,
+        607082
+      ],
+      "icon": "folder",
+      "color": "#3B82F6"
+    },
+    {
+      "name": "Pain Localization and Radiation",
+      "description": "Describes anatomical distribution and radiation patterns of pain",
+      "anchor_concept_ids": [
+        4083297,
+        4132926,
+        4142861,
+        4223584,
+        4279301,
+        4322871,
+        37164894,
+        44790620
+      ],
+      "member_concept_ids": [
+        4132926,
+        44790620,
+        4223584,
+        4142861,
+        4322871,
+        4279301
+      ],
+      "icon": "folder",
+      "color": "#8B5CF6"
+    },
+    {
+      "name": "Pain Temporal Patterns",
+      "description": "Chronological patterns and duration characteristics of pain",
+      "anchor_concept_ids": [
+        436096,
+        4139035,
+        4142576,
+        4263769,
+        4323751,
+        36716851
+      ],
+      "member_concept_ids": [
+        436096,
+        4139035,
+        4142576,
+        4263769,
+        4323751
+      ],
+      "icon": "folder",
+      "color": "#EC4899"
+    },
+    {
+      "name": "Pain Psychological and Behavioral Aspects",
+      "description": "Psychological factors and behavioral manifestations related to pain",
+      "anchor_concept_ids": [
+        4107375,
+        4232459,
+        4332998,
+        4338028,
+        44782778
+      ],
+      "member_concept_ids": [
+        4338028,
+        4332998,
+        44782778,
+        4232459,
+        4107375
+      ],
+      "icon": "folder",
+      "color": "#14B8A6"
+    },
+    {
+      "name": "Other Pain Syndromes",
+      "description": "Miscellaneous or atypical pain conditions not fitting other categories",
+      "anchor_concept_ids": [
+        1244906,
+        4011648,
+        4012121,
+        4083297,
+        4177350,
+        37311287,
+        37311330,
+        42710012,
+        44784582
+      ],
+      "member_concept_ids": [
+        4012121,
+        1244906,
+        42710012,
+        44784582,
+        37311330,
+        37311287,
+        4011648
+      ],
+      "icon": "folder",
+      "color": "#F97316"
+    }
+  ]
+}

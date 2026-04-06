@@ -1,0 +1,301 @@
+{
+  "parent_grouping": "Dermatological",
+  "domain_id": "Condition",
+  "sub_groupings": [
+    {
+      "name": "Allergic and Hypersensitivity Skin Disorders",
+      "description": "Conditions resulting from allergic reactions or hypersensitivity responses in the skin",
+      "anchor_concept_ids": [
+        4070025,
+        4162309,
+        4228879,
+        36716730,
+        37110588,
+        37161101,
+        37165146
+      ],
+      "member_concept_ids": [
+        4228879,
+        37110588,
+        4070025,
+        37165146,
+        4162309,
+        36716730,
+        37161101,
+        4093309,
+        4299156
+      ],
+      "icon": "folder",
+      "color": "#EF4444"
+    },
+    {
+      "name": "Autoimmune and Inflammatory Skin Disorders",
+      "description": "Conditions involving immune-mediated inflammation or autoimmune reactions in the skin",
+      "anchor_concept_ids": [
+        140168,
+        4112747,
+        4264925
+      ],
+      "member_concept_ids": [
+        140168,
+        4264925,
+        4112747,
+        136773,
+        4116786,
+        4083787,
+        4316085,
+        4066947,
+        4198562
+      ],
+      "icon": "folder",
+      "color": "#F59E0B"
+    },
+    {
+      "name": "Congenital and Developmental Skin Disorders",
+      "description": "Conditions present at birth or related to developmental abnormalities of the skin",
+      "anchor_concept_ids": [
+        4071198,
+        4266646,
+        4291447
+      ],
+      "member_concept_ids": [
+        4291447,
+        4071198,
+        4266646,
+        4343688,
+        4194740,
+        4162049,
+        4089404,
+        4089540
+      ],
+      "icon": "folder",
+      "color": "#10B981"
+    },
+    {
+      "name": "Dermatological Manifestations of Systemic Diseases",
+      "description": "Skin conditions secondary to systemic or internal diseases",
+      "anchor_concept_ids": [
+        4033500,
+        4081258,
+        4298724
+      ],
+      "member_concept_ids": [
+        4081258,
+        4298724,
+        4033500,
+        4298724,
+        4291442,
+        4298724,
+        4298724
+      ],
+      "icon": "folder",
+      "color": "#3B82F6"
+    },
+    {
+      "name": "Drug Reaction and Treatment-Related Skin Disorders",
+      "description": "Skin conditions caused by medications or medical treatments",
+      "anchor_concept_ids": [
+        4031001,
+        4295309,
+        4343248
+      ],
+      "member_concept_ids": [
+        4031001,
+        4295309,
+        4343248,
+        44782610,
+        44806503,
+        4299156
+      ],
+      "icon": "folder",
+      "color": "#8B5CF6"
+    },
+    {
+      "name": "Endocrine and Metabolic Skin Disorders",
+      "description": "Conditions related to hormonal or metabolic imbalances affecting the skin",
+      "anchor_concept_ids": [
+        4033500,
+        4210632
+      ],
+      "member_concept_ids": [
+        4033500,
+        4210632,
+        4298724
+      ],
+      "icon": "folder",
+      "color": "#EC4899"
+    },
+    {
+      "name": "Fungal and Infectious Skin Disorders",
+      "description": "Conditions caused by infectious agents including fungi and viruses",
+      "anchor_concept_ids": [
+        4093309,
+        4104522
+      ],
+      "member_concept_ids": [
+        4104522,
+        4093309,
+        4093309,
+        40480487,
+        4093309,
+        36716005,
+        37160847
+      ],
+      "icon": "folder",
+      "color": "#14B8A6"
+    },
+    {
+      "name": "Inflammatory and Autoimmune Mucocutaneous Disorders",
+      "description": "Conditions involving inflammation of both mucous membranes and skin",
+      "anchor_concept_ids": [
+        4028076,
+        4090894,
+        4104522
+      ],
+      "member_concept_ids": [
+        4104522,
+        4028076,
+        4090894,
+        4090894,
+        4083787
+      ],
+      "icon": "folder",
+      "color": "#F97316"
+    },
+    {
+      "name": "Infectious and Post-Infectious Skin Disorders",
+      "description": "Conditions following or resulting from infectious processes",
+      "anchor_concept_ids": [
+        4093309,
+        4298856,
+        4299156
+      ],
+      "member_concept_ids": [
+        4093309,
+        4298856,
+        4299156,
+        4299156
+      ],
+      "icon": "folder",
+      "color": "#6366F1"
+    },
+    {
+      "name": "Neoplastic and Proliferative Skin Disorders",
+      "description": "Conditions involving abnormal tissue growth or proliferation in the skin",
+      "anchor_concept_ids": [
+        4111939,
+        4112747,
+        4316085
+      ],
+      "member_concept_ids": [
+        4111939,
+        4112747,
+        4316085,
+        4316085
+      ],
+      "icon": "folder",
+      "color": "#84CC16"
+    },
+    {
+      "name": "Neurogenic and Psychogenic Skin Disorders",
+      "description": "Conditions related to nervous system dysfunction or psychological factors",
+      "anchor_concept_ids": [
+        440993,
+        4301154,
+        4329728
+      ],
+      "member_concept_ids": [
+        440993,
+        4301154,
+        4329728,
+        4343688
+      ],
+      "icon": "folder",
+      "color": "#0EA5E9"
+    },
+    {
+      "name": "Pigmentary and Color-Related Skin Disorders",
+      "description": "Conditions involving abnormal skin or mucosal pigmentation",
+      "anchor_concept_ids": [
+        4124368,
+        4191044
+      ],
+      "member_concept_ids": [
+        4191044,
+        4124368,
+        412368,
+        4199659,
+        4295002,
+        4124368,
+        4124368
+      ],
+      "icon": "folder",
+      "color": "#D946EF"
+    },
+    {
+      "name": "Post-Inflammatory and Reactive Skin Disorders",
+      "description": "Conditions following skin inflammation or injury",
+      "anchor_concept_ids": [
+        4116786,
+        4298856,
+        4299156
+      ],
+      "member_concept_ids": [
+        4116786,
+        4298856,
+        4299156,
+        4299156
+      ],
+      "icon": "folder",
+      "color": "#22D3EE"
+    },
+    {
+      "name": "Traumatic and Mechanical Skin Disorders",
+      "description": "Conditions resulting from physical trauma or mechanical forces",
+      "anchor_concept_ids": [
+        4271055,
+        4271715
+      ],
+      "member_concept_ids": [
+        4271715,
+        4271055,
+        4271055,
+        4343688
+      ],
+      "icon": "folder",
+      "color": "#A855F7"
+    },
+    {
+      "name": "Vascular and Circulatory Skin Disorders",
+      "description": "Conditions related to blood vessels and circulation in the skin",
+      "anchor_concept_ids": [
+        316501,
+        4271055
+      ],
+      "member_concept_ids": [
+        316501,
+        4271055,
+        4271055,
+        4271055
+      ],
+      "icon": "folder",
+      "color": "#FBBF24"
+    },
+    {
+      "name": "Other Dermatological Disorders",
+      "description": "Miscellaneous skin conditions not fitting other categories",
+      "anchor_concept_ids": [
+        4295002,
+        4299659
+      ],
+      "member_concept_ids": [
+        4299659,
+        4295002,
+        4295002,
+        4295002
+      ],
+      "icon": "folder",
+      "color": "#EF4444"
+    }
+  ]
+}

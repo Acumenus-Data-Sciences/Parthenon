@@ -1,0 +1,128 @@
+{
+  "parent_grouping": "Hepatobiliary",
+  "domain_id": "Condition",
+  "sub_groupings": [
+    {
+      "name": "Biliary Tract Disorders",
+      "description": "Conditions affecting the structure and function of the biliary tract including ducts, gallbladder, and related structures",
+      "anchor_concept_ids": [
+        195856,
+        197917,
+        199767,
+        200444,
+        619712,
+        3655263,
+        4043343,
+        4046018,
+        4096026,
+        4129884,
+        4151863,
+        4173179,
+        4195845,
+        4202468,
+        4243963,
+        4253211,
+        4279640,
+        4329731,
+        4340396,
+        4340397,
+        4340398,
+        4340399,
+        4340400,
+        4340956,
+        4342779,
+        4347658,
+        37160825
+      ],
+      "icon": "folder",
+      "color": "#EF4444"
+    },
+    {
+      "name": "Liver Neoplasms and Tumors",
+      "description": "Benign and malignant neoplastic conditions affecting the liver and/or biliary system",
+      "anchor_concept_ids": [
+        192292,
+        195209,
+        195856,
+        199744,
+        199767,
+        4129884
+      ],
+      "icon": "folder",
+      "color": "#F59E0B"
+    },
+    {
+      "name": "Cholestatic Liver Diseases",
+      "description": "Conditions characterized by impaired bile flow leading to jaundice and cholestasis",
+      "anchor_concept_ids": [
+        4150383,
+        4159743,
+        4185719,
+        4253211,
+        4327030,
+        4340944,
+        37399026
+      ],
+      "icon": "folder",
+      "color": "#10B981"
+    },
+    {
+      "name": "Congenital Hepatobiliary Conditions",
+      "description": "Developmental abnormalities present from birth affecting liver and biliary system",
+      "anchor_concept_ids": [
+        619712,
+        4151863,
+        4173179
+      ],
+      "icon": "folder",
+      "color": "#3B82F6"
+    },
+    {
+      "name": "Inflammatory and Infectious Disorders",
+      "description": "Conditions involving infection or inflammation of hepatobiliary structures",
+      "anchor_concept_ids": [
+        195856,
+        4279640,
+        4346036,
+        4347658,
+        37160825
+      ],
+      "icon": "folder",
+      "color": "#8B5CF6"
+    },
+    {
+      "name": "Post-Procedural Hepatobiliary Complications",
+      "description": "Complications arising from medical procedures involving hepatobiliary system",
+      "anchor_concept_ids": [
+        200444,
+        4096026,
+        4195845,
+        4340400
+      ],
+      "icon": "folder",
+      "color": "#EC4899"
+    },
+    {
+      "name": "Metabolic and Drug-Related Liver Disorders",
+      "description": "Liver conditions caused by metabolic factors or medication effects",
+      "anchor_concept_ids": [
+        4159743,
+        4327030
+      ],
+      "icon": "folder",
+      "color": "#14B8A6"
+    },
+    {
+      "name": "Other Hepatobiliary Disorders",
+      "description": "Miscellaneous hepatobiliary conditions not fitting other categories",
+      "anchor_concept_ids": [
+        192353,
+        194984,
+        1244827,
+        1246790
+      ],
+      "icon": "folder",
+      "color": "#F97316"
+    }
+  ]
+}

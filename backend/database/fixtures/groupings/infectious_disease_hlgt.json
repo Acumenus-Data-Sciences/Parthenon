@@ -1,0 +1,232 @@
+{
+  "parent_grouping": "Infectious Disease",
+  "domain_id": "Condition",
+  "sub_groupings": [
+    {
+      "name": "Bacterial and Fungal Infections",
+      "description": "Infections caused by bacteria and fungi, including resistant strains",
+      "anchor_concept_ids": [
+        432545,
+        433701,
+        37394534,
+        37394535,
+        37394536,
+        37394537,
+        37398744,
+        37398745,
+        44806682
+      ],
+      "icon": "folder",
+      "color": "#EF4444"
+    },
+    {
+      "name": "Localized and Wound-Related Infections",
+      "description": "Infections confined to specific body sites or associated with wounds, burns, or surgical procedures",
+      "anchor_concept_ids": [
+        441170,
+        4008719,
+        4025120,
+        4043896,
+        4056769,
+        4059152,
+        4153877,
+        4182992,
+        4193176,
+        40481618,
+        40482636,
+        40485376,
+        43021257,
+        44784425,
+        44806641,
+        44806642,
+        45766547,
+        45766552
+      ],
+      "icon": "folder",
+      "color": "#F59E0B"
+    },
+    {
+      "name": "Systemic and Bloodborne Infections",
+      "description": "Infections affecting multiple organ systems or present in blood",
+      "anchor_concept_ids": [
+        4331670,
+        37312594,
+        40484176,
+        44782630
+      ],
+      "icon": "folder",
+      "color": "#10B981"
+    },
+    {
+      "name": "Vector-Borne and Environmental Infections",
+      "description": "Infections transmitted by vectors or environmental exposure",
+      "anchor_concept_ids": [
+        4218955,
+        4235792,
+        4345238,
+        44790688,
+        45768771
+      ],
+      "icon": "folder",
+      "color": "#3B82F6"
+    },
+    {
+      "name": "Pregnancy and Perinatal Infections",
+      "description": "Infections affecting mother, fetus, or neonate during pregnancy or childbirth",
+      "anchor_concept_ids": [
+        433823,
+        440647,
+        602736,
+        4134592,
+        4218022,
+        4220675,
+        37161477
+      ],
+      "icon": "folder",
+      "color": "#8B5CF6"
+    },
+    {
+      "name": "Immunocompromised-Associated Infections",
+      "description": "Infections occurring in immunocompromised hosts or with opportunistic pathogens",
+      "anchor_concept_ids": [
+        4247535,
+        4285453
+      ],
+      "icon": "folder",
+      "color": "#EC4899"
+    },
+    {
+      "name": "Respiratory and Upper Tract Infections",
+      "description": "Infections primarily affecting respiratory system and mucous membranes",
+      "anchor_concept_ids": [
+        4094172,
+        4099350,
+        4133002,
+        4170143,
+        4207472
+      ],
+      "icon": "folder",
+      "color": "#14B8A6"
+    },
+    {
+      "name": "Musculoskeletal and Bone Infections",
+      "description": "Infections involving bones, joints, and connective tissues",
+      "anchor_concept_ids": [
+        761375,
+        761376,
+        764065,
+        765414,
+        4001961,
+        4001962,
+        4003301,
+        4003302,
+        4176943,
+        4193160,
+        4193990
+      ],
+      "icon": "folder",
+      "color": "#F97316"
+    },
+    {
+      "name": "Gastrointestinal and Genitourinary Infections",
+      "description": "Infections affecting digestive and urinary systems",
+      "anchor_concept_ids": [
+        4028062,
+        4028265,
+        4099350,
+        4193990
+      ],
+      "icon": "folder",
+      "color": "#6366F1"
+    },
+    {
+      "name": "Viral and Parasitic Infections",
+      "description": "Infections caused by viruses and parasites",
+      "anchor_concept_ids": [
+        432251,
+        440029,
+        608207,
+        608295,
+        4021603,
+        4280804
+      ],
+      "icon": "folder",
+      "color": "#84CC16"
+    },
+    {
+      "name": "Antimicrobial-Resistant Infections",
+      "description": "Infections with documented resistance to antimicrobial agents",
+      "anchor_concept_ids": [
+        37394534,
+        37394535,
+        37394536,
+        37394537,
+        37398744,
+        37398745,
+        44806682
+      ],
+      "icon": "folder",
+      "color": "#0EA5E9"
+    },
+    {
+      "name": "Post-Procedure and Healthcare-Associated Infections",
+      "description": "Infections acquired during medical procedures or healthcare settings",
+      "anchor_concept_ids": [
+        4113055,
+        4256893,
+        36712821,
+        40484176,
+        45766547
+      ],
+      "icon": "folder",
+      "color": "#D946EF"
+    },
+    {
+      "name": "Uncertain Origin and Miscellaneous Infections",
+      "description": "Infections with unclear source or etiology",
+      "anchor_concept_ids": [
+        4028781,
+        4063116,
+        4101583,
+        4155635,
+        4176944,
+        4178155,
+        4178816,
+        4178817,
+        4267804,
+        4270602,
+        4271450,
+        4297537,
+        4327875,
+        44790687
+      ],
+      "icon": "folder",
+      "color": "#22D3EE"
+    },
+    {
+      "name": "Other Infectious Disease Disorders",
+      "description": "Miscellaneous infectious conditions not fitting other categories",
+      "anchor_concept_ids": [
+        437784,
+        4017686,
+        4018050,
+        4021602,
+        4021603,
+        4073287,
+        4090826,
+        4102128,
+        4131056,
+        4176170,
+        4176753,
+        4178817,
+        4180166,
+        4193989,
+        4269943,
+        4270602,
+        45757243
+      ],
+      "icon": "folder",
+      "color": "#A855F7"
+    }
+  ]
+}

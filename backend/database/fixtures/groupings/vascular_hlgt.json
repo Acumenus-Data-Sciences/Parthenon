@@ -1,0 +1,287 @@
+{
+  "parent_grouping": "Vascular",
+  "domain_id": "Condition",
+  "sub_groupings": [
+    {
+      "name": "Arteriovenous and Hemangioma Disorders",
+      "description": "Conditions involving abnormal blood vessel connections or benign vascular tumors",
+      "anchor_concept_ids": [
+        197087,
+        441246,
+        1244892,
+        1244959,
+        4116203,
+        4327930,
+        36713273,
+        37162586,
+        42536735
+      ],
+      "members": [
+        4327930,
+        36713273,
+        1244892,
+        1244959,
+        4116203,
+        42536735,
+        37162586,
+        441246,
+        197087
+      ],
+      "icon": "folder",
+      "color": "#EF4444"
+    },
+    {
+      "name": "Vascular Access Complications",
+      "description": "Complications related to medical vascular access procedures",
+      "anchor_concept_ids": [
+        443210,
+        44809479,
+        44809904,
+        44809905,
+        44813892
+      ],
+      "members": [
+        44809905,
+        44809904,
+        44813892,
+        443210,
+        44809479
+      ],
+      "icon": "folder",
+      "color": "#F59E0B"
+    },
+    {
+      "name": "Aneurysm and Vascular Wall Disorders",
+      "description": "Conditions affecting blood vessel walls including aneurysms and dissections",
+      "anchor_concept_ids": [
+        4029966,
+        4079562,
+        4089897,
+        4121631,
+        4124848
+      ],
+      "members": [
+        4029966,
+        4121631,
+        4124848,
+        4089897,
+        4079562
+      ],
+      "icon": "folder",
+      "color": "#10B981"
+    },
+    {
+      "name": "Thromboembolic Disorders",
+      "description": "Conditions involving blood clots and embolic phenomena",
+      "anchor_concept_ids": [
+        4185607,
+        4208466,
+        4227086,
+        4309919,
+        4309920,
+        42710024
+      ],
+      "members": [
+        4208466,
+        4185607,
+        4227086,
+        42710024,
+        4309919,
+        4309920
+      ],
+      "icon": "folder",
+      "color": "#3B82F6"
+    },
+    {
+      "name": "Congenital and Genetic Vascular Disorders",
+      "description": "Hereditary and developmental vascular conditions",
+      "anchor_concept_ids": [
+        439415,
+        36680604,
+        37162253,
+        43021611,
+        45765479
+      ],
+      "members": [
+        439415,
+        36680604,
+        45765479,
+        43021611,
+        37162253
+      ],
+      "icon": "folder",
+      "color": "#8B5CF6"
+    },
+    {
+      "name": "Neoplastic Vascular Disorders",
+      "description": "Tumors involving blood vessels and vascular structures",
+      "anchor_concept_ids": [
+        4054532,
+        4130677,
+        4131459,
+        4314210,
+        4344254
+      ],
+      "members": [
+        4054532,
+        4131459,
+        4130677,
+        4314210,
+        4344254
+      ],
+      "icon": "folder",
+      "color": "#EC4899"
+    },
+    {
+      "name": "Diabetic Microvascular Complications",
+      "description": "Vascular complications specifically related to diabetes mellitus",
+      "anchor_concept_ids": [
+        4142579,
+        4143689
+      ],
+      "members": [
+        4143689,
+        4142579
+      ],
+      "icon": "folder",
+      "color": "#14B8A6"
+    },
+    {
+      "name": "Infectious and Inflammatory Vascular Disorders",
+      "description": "Vascular conditions caused by infection or inflammation",
+      "anchor_concept_ids": [
+        192763,
+        4137275,
+        4238669
+      ],
+      "members": [
+        4137275,
+        192763,
+        4238669
+      ],
+      "icon": "folder",
+      "color": "#F97316"
+    },
+    {
+      "name": "Traumatic and Post-injury Vascular Disorders",
+      "description": "Vascular conditions resulting from trauma or injury",
+      "anchor_concept_ids": [
+        192763,
+        761896,
+        4005614,
+        42710024
+      ],
+      "members": [
+        192763,
+        761896,
+        4005614,
+        42710024
+      ],
+      "icon": "folder",
+      "color": "#6366F1"
+    },
+    {
+      "name": "Systemic and Pulmonary Shunt Disorders",
+      "description": "Conditions involving abnormal blood flow between systemic and pulmonary circulation",
+      "anchor_concept_ids": [
+        3656060,
+        3656068,
+        40490943,
+        40490975
+      ],
+      "members": [
+        3656068,
+        3656060,
+        40490943,
+        40490975
+      ],
+      "icon": "folder",
+      "color": "#84CC16"
+    },
+    {
+      "name": "Ocular and Intracranial Vascular Disorders",
+      "description": "Vascular conditions affecting the eye and brain vasculature",
+      "anchor_concept_ids": [
+        1075251,
+        4029966,
+        4066606,
+        45757805
+      ],
+      "members": [
+        1075251,
+        4029966,
+        4066606,
+        45757805
+      ],
+      "icon": "folder",
+      "color": "#0EA5E9"
+    },
+    {
+      "name": "Peripheral and Accessory Vascular Disorders",
+      "description": "Conditions affecting peripheral blood vessels and vascular access sites",
+      "anchor_concept_ids": [
+        316501,
+        4027369,
+        4195845,
+        37160577,
+        37163233
+      ],
+      "members": [
+        4195845,
+        37160577,
+        37163233,
+        4027369,
+        316501
+      ],
+      "icon": "folder",
+      "color": "#D946EF"
+    },
+    {
+      "name": "Other Vascular Disorders",
+      "description": "Miscellaneous vascular conditions not fitting other categories",
+      "anchor_concept_ids": [
+        314409,
+        321876,
+        321887,
+        606526,
+        608282,
+        4080884,
+        4083797,
+        4089897,
+        4092155,
+        4134454,
+        4137275,
+        4178956,
+        4190192,
+        4234480,
+        4234997,
+        4238669,
+        4299440,
+        4311420,
+        37167391,
+        37167392
+      ],
+      "members": [
+        4080884,
+        4234480,
+        4234997,
+        4092155,
+        321887,
+        321876,
+        4190192,
+        608282,
+        37167392,
+        37167391,
+        4083797,
+        4178956,
+        4299440,
+        314409,
+        606526,
+        4134454,
+        4311420
+      ],
+      "icon": "folder",
+      "color": "#22D3EE"
+    }
+  ]
+}

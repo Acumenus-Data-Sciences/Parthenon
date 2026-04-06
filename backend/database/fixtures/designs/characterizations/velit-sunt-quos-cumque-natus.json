@@ -1,0 +1,17 @@
+{
+    "id": 15,
+    "name": "Velit sunt quos cumque natus.",
+    "description": "Qui possimus ut quidem et consequatur. Suscipit tempora aut minus harum expedita repellat. Maxime sapiente qui eaque deleniti veniam.",
+    "design_json": {
+        "featureTypes": [
+            "demographics",
+            "conditions",
+            "drugs"
+        ],
+        "targetCohortIds": []
+    },
+    "author_id": 27,
+    "created_at": "2026-04-05T20:59:46.000000Z",
+    "updated_at": "2026-04-05T20:59:46.000000Z",
+    "deleted_at": null
+}

@@ -1,0 +1,199 @@
+{
+  "parent_grouping": "Pregnancy & Perinatal",
+  "domain_id": "Condition",
+  "sub_groupings": [
+    {
+      "name": "Fetal and Neonatal Respiratory Disorders",
+      "description": "Conditions affecting breathing in the fetus and newborn",
+      "anchor_concept_ids": [
+        4079694,
+        4171106,
+        4181199,
+        4287783,
+        37161510
+      ],
+      "icon": "folder",
+      "color": "#EF4444"
+    },
+    {
+      "name": "Fetal and Neonatal Infections",
+      "description": "Infections occurring in the fetus or newborn during perinatal period",
+      "anchor_concept_ids": [
+        4071063,
+        4134142,
+        37161477,
+        42536690
+      ],
+      "icon": "folder",
+      "color": "#F59E0B"
+    },
+    {
+      "name": "Fetal and Neonatal Metabolic & Endocrine Disorders",
+      "description": "Disorders of metabolism and hormone regulation in perinatal period",
+      "anchor_concept_ids": [
+        4176958,
+        4210297,
+        4273848,
+        42537310,
+        42537311
+      ],
+      "icon": "folder",
+      "color": "#10B981"
+    },
+    {
+      "name": "Fetal and Neonatal Neurological Disorders",
+      "description": "Nervous system conditions in perinatal period",
+      "anchor_concept_ids": [
+        380533,
+        761834,
+        4176955,
+        37161435,
+        37161437
+      ],
+      "icon": "folder",
+      "color": "#3B82F6"
+    },
+    {
+      "name": "Fetal and Neonatal Hematologic Disorders",
+      "description": "Blood-related conditions in perinatal period",
+      "anchor_concept_ids": [
+        4083501,
+        4086479,
+        4166754,
+        4209512,
+        4306199
+      ],
+      "icon": "folder",
+      "color": "#8B5CF6"
+    },
+    {
+      "name": "Fetal and Neonatal Cardiovascular Disorders",
+      "description": "Heart and circulatory system conditions in perinatal period",
+      "anchor_concept_ids": [
+        4105262,
+        4170972,
+        4171106,
+        37161510,
+        42872438
+      ],
+      "icon": "folder",
+      "color": "#EC4899"
+    },
+    {
+      "name": "Fetal and Neonatal Gastrointestinal Disorders",
+      "description": "Digestive system conditions in perinatal period",
+      "anchor_concept_ids": [
+        199925,
+        1245922,
+        4048608,
+        4180181,
+        42872438
+      ],
+      "icon": "folder",
+      "color": "#14B8A6"
+    },
+    {
+      "name": "Fetal and Neonatal Renal & Genitourinary Disorders",
+      "description": "Kidney and urinary system conditions in perinatal period",
+      "anchor_concept_ids": [
+        4048282,
+        4176954,
+        4318835,
+        4320490
+      ],
+      "icon": "folder",
+      "color": "#F97316"
+    },
+    {
+      "name": "Fetal and Neonatal Musculoskeletal Disorders",
+      "description": "Muscle and bone conditions in perinatal period",
+      "anchor_concept_ids": [
+        4243198,
+        4298736,
+        36717649,
+        42538562,
+        42538675
+      ],
+      "icon": "folder",
+      "color": "#6366F1"
+    },
+    {
+      "name": "Fetal and Neonatal Skin Disorders",
+      "description": "Integumentary system conditions in perinatal period",
+      "anchor_concept_ids": [
+        4025181,
+        4079846,
+        4082312,
+        4243198,
+        42536569
+      ],
+      "icon": "folder",
+      "color": "#84CC16"
+    },
+    {
+      "name": "Fetal and Neonatal Hepatic Disorders",
+      "description": "Liver and biliary system conditions in perinatal period",
+      "anchor_concept_ids": [
+        435656,
+        4071079,
+        4173179,
+        4318835,
+        4320490
+      ],
+      "icon": "folder",
+      "color": "#0EA5E9"
+    },
+    {
+      "name": "Fetal and Neonatal Hematologic & Oxygenation Disorders",
+      "description": "Blood and oxygen-related conditions in perinatal period",
+      "anchor_concept_ids": [
+        4083501,
+        4086479,
+        4166754,
+        4209512,
+        4306199
+      ],
+      "icon": "folder",
+      "color": "#D946EF"
+    },
+    {
+      "name": "Fetal and Neonatal Perinatal Trauma",
+      "description": "Physical injuries during perinatal period",
+      "anchor_concept_ids": [
+        4079846,
+        4082319,
+        4176955,
+        4287783,
+        42872438
+      ],
+      "icon": "folder",
+      "color": "#22D3EE"
+    },
+    {
+      "name": "Fetal and Neonatal Growth & Development Disorders",
+      "description": "Growth and developmental conditions in perinatal period",
+      "anchor_concept_ids": [
+        72693,
+        4051007,
+        4056736,
+        4074200,
+        36675035
+      ],
+      "icon": "folder",
+      "color": "#A855F7"
+    },
+    {
+      "name": "Other Pregnancy & Perinatal Disorders",
+      "description": "Miscellaneous perinatal conditions not fitting above categories",
+      "anchor_concept_ids": [
+        4129834,
+        4135932,
+        42538158,
+        45757170,
+        45757172
+      ],
+      "icon": "folder",
+      "color": "#FBBF24"
+    }
+  ]
+}

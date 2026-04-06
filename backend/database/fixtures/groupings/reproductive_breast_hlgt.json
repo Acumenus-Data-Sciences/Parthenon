@@ -1,0 +1,212 @@
+{
+  "parent_grouping": "Reproductive & Breast",
+  "domain_id": "Condition",
+  "sub_groupings": [
+    {
+      "name": "Breast Disorders",
+      "description": "Conditions affecting breast structure, development, and function",
+      "anchor_concept_ids": [
+        73019,
+        73866,
+        81623,
+        192577,
+        438808,
+        443366,
+        1076252,
+        1246786,
+        3655352,
+        4027882,
+        4034232,
+        4034805,
+        4034806,
+        4056769,
+        4081246,
+        4120254,
+        4128492,
+        4129350,
+        4181933,
+        4201098,
+        4243641,
+        4265765,
+        4280896,
+        4284675,
+        4318853,
+        4337506,
+        36715792,
+        37160503,
+        37165648,
+        37310555,
+        42537759,
+        42537760,
+        42537762,
+        45766655
+      ],
+      "icon": "folder",
+      "color": "#EF4444"
+    },
+    {
+      "name": "Genital Organ Infections",
+      "description": "Infectious conditions affecting male and female reproductive organs",
+      "anchor_concept_ids": [
+        4193182,
+        4207302,
+        4318550,
+        4318848,
+        40483230,
+        40483613
+      ],
+      "icon": "folder",
+      "color": "#F59E0B"
+    },
+    {
+      "name": "Male Genital Disorders",
+      "description": "Conditions affecting male reproductive structures including genitalia and urinary system",
+      "anchor_concept_ids": [
+        194410,
+        194999,
+        196158,
+        196734,
+        197039,
+        197605,
+        4041256,
+        4042514,
+        4062267,
+        4132092,
+        4143116,
+        4276801,
+        4311409,
+        35607978,
+        35623011,
+        37166156
+      ],
+      "icon": "folder",
+      "color": "#10B981"
+    },
+    {
+      "name": "Reproductive Hormonal Disorders",
+      "description": "Conditions related to reproductive hormone imbalances and menopausal changes",
+      "anchor_concept_ids": [
+        1076252,
+        4201098
+      ],
+      "icon": "folder",
+      "color": "#3B82F6"
+    },
+    {
+      "name": "Pregnancy-Related Hemorrhage",
+      "description": "Bleeding conditions associated with pregnancy, childbirth, and postpartum periods",
+      "anchor_concept_ids": [
+        4170457,
+        4242238,
+        37167443,
+        42537759,
+        42537760,
+        42537761,
+        42537762,
+        42537763
+      ],
+      "icon": "folder",
+      "color": "#8B5CF6"
+    },
+    {
+      "name": "Genital Congenital Anomalies",
+      "description": "Developmental abnormalities of reproductive and urinary systems",
+      "anchor_concept_ids": [
+        73866,
+        443366,
+        4194856,
+        4243365
+      ],
+      "icon": "folder",
+      "color": "#EC4899"
+    },
+    {
+      "name": "Breast Cancer & Pre-cancer",
+      "description": "Malignant and pre-malignant breast conditions",
+      "anchor_concept_ids": [
+        192577,
+        438808,
+        3655352,
+        4280896
+      ],
+      "icon": "folder",
+      "color": "#14B8A6"
+    },
+    {
+      "name": "Lactation Disorders",
+      "description": "Conditions affecting breast milk production and nursing processes",
+      "anchor_concept_ids": [
+        80471,
+        4095788,
+        4129213,
+        37165648
+      ],
+      "icon": "folder",
+      "color": "#F97316"
+    },
+    {
+      "name": "Prostate Disorders",
+      "description": "Conditions affecting prostate gland structure and function",
+      "anchor_concept_ids": [
+        196734
+      ],
+      "icon": "folder",
+      "color": "#6366F1"
+    },
+    {
+      "name": "Infertility Disorders",
+      "description": "Conditions causing male and female reproductive system dysfunction",
+      "anchor_concept_ids": [
+        201909,
+        4143116,
+        4276801,
+        35607978,
+        35623011
+      ],
+      "icon": "folder",
+      "color": "#84CC16"
+    },
+    {
+      "name": "Genital Trauma & Foreign Bodies",
+      "description": "Injuries and foreign objects affecting reproductive and urinary systems",
+      "anchor_concept_ids": [
+        4095867,
+        4120254,
+        4133009,
+        4134932,
+        4174276,
+        4265765
+      ],
+      "icon": "folder",
+      "color": "#0EA5E9"
+    },
+    {
+      "name": "Genital Neoplasms",
+      "description": "Malignant growths in reproductive and urinary system tissues",
+      "anchor_concept_ids": [
+        4129898
+      ],
+      "icon": "folder",
+      "color": "#D946EF"
+    },
+    {
+      "name": "Other Reproductive & Breast Disorders",
+      "description": "Miscellaneous reproductive and breast conditions not fitting other categories",
+      "anchor_concept_ids": [
+        4034232,
+        4034805,
+        4034806,
+        4120254,
+        4129350,
+        4243641,
+        4265765,
+        4318853,
+        37160503,
+        37310555,
+        45766655
+      ],
+      "icon": "folder",
+      "color": "#22D3EE"
+    }
+  ]
+}

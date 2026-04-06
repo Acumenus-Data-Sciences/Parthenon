@@ -1,0 +1,144 @@
+{
+  "parent_grouping": "Ear & Hearing",
+  "domain_id": "Condition",
+  "sub_groupings": [
+    {
+      "name": "Conductive Hearing Disorders",
+      "description": "Conditions affecting sound transmission through the outer or middle ear",
+      "anchor_concept_ids": [
+        374801,
+        377888,
+        378160,
+        4048163
+      ],
+      "icon": "folder",
+      "color": "#EF4444"
+    },
+    {
+      "name": "Sensorineural Hearing Disorders",
+      "description": "Inner ear or auditory nerve dysfunction causing hearing impairment",
+      "anchor_concept_ids": [
+        377888,
+        4001317,
+        4048163,
+        4069554,
+        4096343,
+        4132093,
+        4134597,
+        35621875,
+        35622286,
+        35623820,
+        36674947,
+        36676682,
+        36713762,
+        36715041,
+        36715138,
+        37116378,
+        37116960,
+        37204318,
+        42537214
+      ],
+      "icon": "folder",
+      "color": "#F59E0B"
+    },
+    {
+      "name": "Ear Infections & Inflammatory Conditions",
+      "description": "Infectious or inflammatory processes affecting ear structures",
+      "anchor_concept_ids": [
+        4044878,
+        4183452,
+        45757697
+      ],
+      "icon": "folder",
+      "color": "#10B981"
+    },
+    {
+      "name": "Congenital Ear Anomalies",
+      "description": "Developmental abnormalities present at birth affecting ear structures",
+      "anchor_concept_ids": [
+        439378,
+        618638,
+        4166587,
+        36674947,
+        36676691,
+        36676693
+      ],
+      "icon": "folder",
+      "color": "#3B82F6"
+    },
+    {
+      "name": "Traumatic Ear Conditions",
+      "description": "Physical injuries or damage to ear structures",
+      "anchor_concept_ids": [
+        374801,
+        4107554,
+        45757259
+      ],
+      "icon": "folder",
+      "color": "#8B5CF6"
+    },
+    {
+      "name": "Neurological Ear Syndromes",
+      "description": "Neurological conditions with associated hearing manifestations",
+      "anchor_concept_ids": [
+        35621875,
+        35622286,
+        35623820,
+        36674947,
+        36676682,
+        36713762,
+        36715041,
+        36715138,
+        37116378,
+        37116960,
+        37204318
+      ],
+      "icon": "folder",
+      "color": "#EC4899"
+    },
+    {
+      "name": "Ear Structural Abnormalities",
+      "description": "Physical deformities or malformations of ear anatomy",
+      "anchor_concept_ids": [
+        4042142,
+        4082416,
+        36685152,
+        36685223,
+        45757259,
+        45757697
+      ],
+      "icon": "folder",
+      "color": "#14B8A6"
+    },
+    {
+      "name": "Ear Fluid & Pressure Disorders",
+      "description": "Conditions related to fluid dynamics or pressure changes in ear",
+      "anchor_concept_ids": [
+        4082103
+      ],
+      "icon": "folder",
+      "color": "#F97316"
+    },
+    {
+      "name": "Other Ear & Hearing Disorders",
+      "description": "Miscellaneous ear conditions not fitting above categories",
+      "anchor_concept_ids": [
+        374364,
+        378163,
+        381575,
+        4039274,
+        4102320,
+        4107706,
+        4172984,
+        4192135,
+        4293698,
+        4335747,
+        35622342,
+        36674894,
+        36676665
+      ],
+      "icon": "folder",
+      "color": "#6366F1"
+    }
+  ]
+}

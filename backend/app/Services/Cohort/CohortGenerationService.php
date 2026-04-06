@@ -64,9 +64,17 @@ class CohortGenerationService
                 dialect: $dialect,
             );
 
-            // Execute the compiled SQL on the source connection
+            // Execute the compiled SQL on the source connection with analytical tuning
             $connectionName = $source->source_connection ?? 'omop';
-            DB::connection($connectionName)->unprepared($sql);
+            $conn = DB::connection($connectionName);
+
+            // Session-level tuning for analytical cohort queries:
+            // - Higher work_mem reduces temp file spills during sorts/hashes
+            // - More parallel workers for scanning large clinical tables
+            $conn->unprepared("SET LOCAL work_mem = '1GB'");
+            $conn->unprepared('SET LOCAL max_parallel_workers_per_gather = 4');
+
+            $conn->unprepared($sql);
 
             // Count distinct persons in the generated cohort
             $count = DB::connection($connectionName)

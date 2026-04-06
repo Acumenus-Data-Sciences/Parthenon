@@ -1,0 +1,168 @@
+{
+  "parent_grouping": "Functional Impairment",
+  "domain_id": "Condition",
+  "sub_groupings": [
+    {
+      "name": "Cardiovascular Disorders",
+      "description": "Heart function and vascular conditions",
+      "anchor_concept_ids": [
+        764973,
+        764978,
+        764982,
+        4032446,
+        4085423,
+        4250627,
+        4259005,
+        4264330,
+        4268753,
+        4291803,
+        4321877
+      ],
+      "icon": "folder",
+      "color": "#EF4444"
+    },
+    {
+      "name": "Neurological Disorders",
+      "description": "Nervous system and cranial nerve conditions",
+      "anchor_concept_ids": [
+        4003783,
+        4012117,
+        4087312,
+        37311194,
+        37311195,
+        37311196,
+        37311197,
+        37311198,
+        37311199,
+        42535158,
+        42535159
+      ],
+      "icon": "folder",
+      "color": "#F59E0B"
+    },
+    {
+      "name": "Musculoskeletal and Joint Disorders",
+      "description": "Bone, joint, and muscle conditions",
+      "anchor_concept_ids": [
+        4002848,
+        4002851,
+        4005656,
+        4005657,
+        4005658,
+        4005659,
+        4005660,
+        4219826,
+        4237788,
+        4270713
+      ],
+      "icon": "folder",
+      "color": "#10B981"
+    },
+    {
+      "name": "Gastrointestinal Motility Disorders",
+      "description": "Digestive system motility and function",
+      "anchor_concept_ids": [
+        4192374,
+        4197644,
+        4224812,
+        42539091,
+        42539092,
+        42539093,
+        42539094,
+        42539095,
+        42539096,
+        42539097
+      ],
+      "icon": "folder",
+      "color": "#3B82F6"
+    },
+    {
+      "name": "Respiratory and Vascular Flow Conditions",
+      "description": "Lung and blood vessel circulation issues",
+      "anchor_concept_ids": [
+        4085423,
+        4119277,
+        4140383,
+        4268753,
+        4284240,
+        4291803,
+        4321877
+      ],
+      "icon": "folder",
+      "color": "#8B5CF6"
+    },
+    {
+      "name": "Developmental and Functional Impairments",
+      "description": "Cerebral palsy classifications and functional scales",
+      "anchor_concept_ids": [
+        37207470,
+        37207471,
+        37207472,
+        37207473,
+        37207474,
+        37310296,
+        37310297,
+        37310298,
+        37310299,
+        37310300,
+        37310301,
+        37310302,
+        37310303,
+        37310304
+      ],
+      "icon": "folder",
+      "color": "#EC4899"
+    },
+    {
+      "name": "Sensory and Communication Disorders",
+      "description": "Vision, hearing, and language impairments",
+      "anchor_concept_ids": [
+        600572,
+        4021901,
+        4023059,
+        4024706,
+        4140610,
+        4271398,
+        4278439
+      ],
+      "icon": "folder",
+      "color": "#14B8A6"
+    },
+    {
+      "name": "Metabolic and Endocrine Disorders",
+      "description": "Hormonal and metabolic system conditions",
+      "anchor_concept_ids": [
+        4006810,
+        4009870,
+        4081617,
+        4227906,
+        4232631
+      ],
+      "icon": "folder",
+      "color": "#F97316"
+    },
+    {
+      "name": "Other Functional Impairment Disorders",
+      "description": "Miscellaneous functional impairments not fitting other categories",
+      "anchor_concept_ids": [
+        4179961,
+        4182004,
+        4211836,
+        4221379,
+        4250899,
+        4260693,
+        4264026,
+        42690286,
+        42690320,
+        42690373,
+        42690397,
+        42690398,
+        42690760,
+        42690765,
+        44809996
+      ],
+      "icon": "folder",
+      "color": "#6366F1"
+    }
+  ]
+}
