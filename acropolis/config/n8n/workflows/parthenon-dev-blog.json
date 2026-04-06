@@ -1,5 +1,7 @@
 {
+  "id": "2",
   "name": "Parthenon - Daily Developer Blog Post",
+  "active": true,
   "nodes": [
     {
       "parameters": {
@@ -165,7 +167,7 @@
         "method": "POST",
         "url": "http://host.docker.internal:9876/deploy-docs",
         "options": {
-          "timeout": 120000
+          "timeout": 900000
         }
       },
       "id": "deploy-docs",

@@ -92,7 +92,7 @@ const config: Config = {
           // lastVersion: "current",
         },
         blog: {
-          path: "../blog",
+          path: process.env.DOCKER_BUILD ? "blog" : "../blog",
           routeBasePath: "blog",
           blogTitle: "Development Log",
           blogDescription:
@@ -100,7 +100,9 @@ const config: Config = {
           showReadingTime: true,
           blogSidebarTitle: "Recent Posts",
           blogSidebarCount: 10,
-          authorsMapPath: "../blog/authors.yml",
+          authorsMapPath: process.env.DOCKER_BUILD
+            ? "authors.yml"
+            : "../blog/authors.yml",
           exclude: ["README.md", "community-post.md"],
         },
         theme: {

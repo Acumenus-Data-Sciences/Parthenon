@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 # pg-wal-retention.sh — Purge archived WAL segments older than the latest base backup.
 #
-# Finds the oldest WAL needed for PITR from the most recent pg_basebackup,
-# then deletes all archived segments before that point.
+# Finds the most recent EXISTING base backup directory (not just a symlink),
+# then deletes all archived WAL segments older than that backup (with 1h safety margin).
+#
+# Falls back to age-based cleanup (default 3 days) if no base backup exists,
+# so WAL never accumulates unbounded.
 #
 # Usage:
 #   ./scripts/pg-wal-retention.sh              # dry-run (default)
@@ -15,51 +18,49 @@ set -euo pipefail
 
 ARCHIVE_DIR="${PG_WAL_ARCHIVE_DIR:-/mnt/md0/postgres-backups/wal}"
 BACKUP_BASE="${PG_BACKUP_DIR:-/mnt/md0/postgres-backups/base}"
+FALLBACK_DAYS="${PG_WAL_FALLBACK_DAYS:-3}"
 DRY_RUN=true
 
 if [ "${1:-}" = "--purge" ]; then
   DRY_RUN=false
 fi
 
-# Find the latest base backup directory
-LATEST_LINK="$BACKUP_BASE/latest"
-if [ ! -L "$LATEST_LINK" ] && [ ! -d "$LATEST_LINK" ]; then
-  echo "$(date -Iseconds) ERROR: No latest base backup found at $LATEST_LINK" >&2
-  exit 1
-fi
+# Find the most recent EXISTING base backup directory.
+# Don't trust the 'latest' symlink — it may be dangling if prune ran first.
+LATEST_BACKUP=""
+while IFS= read -r dir; do
+  if [ -d "$dir" ]; then
+    LATEST_BACKUP="$dir"
+    break
+  fi
+done < <(find "$BACKUP_BASE" -mindepth 1 -maxdepth 1 -type d -name 'base-*' \
+  -printf '%T@ %p\n' 2>/dev/null | sort -nr | awk '{print $2}')
 
-LATEST_BACKUP="$(readlink -f "$LATEST_LINK")"
-BACKUP_NAME="$(basename "$LATEST_BACKUP")"
-
-# Extract timestamp from backup directory name (base-YYYYMMDD-HHMMSS)
-BACKUP_TS="$(echo "$BACKUP_NAME" | sed -n 's/^base-\([0-9]\{8\}\)-\([0-9]\{6\}\)$/\1\2/p')"
-if [ -z "$BACKUP_TS" ]; then
-  echo "$(date -Iseconds) ERROR: Cannot parse timestamp from backup name: $BACKUP_NAME" >&2
-  exit 1
-fi
-
-# Format for display
-DISPLAY_TS="${BACKUP_TS:0:4}-${BACKUP_TS:4:2}-${BACKUP_TS:6:2} ${BACKUP_TS:8:2}:${BACKUP_TS:10:2}:${BACKUP_TS:12:2}"
-echo "$(date -Iseconds) Latest base backup: $BACKUP_NAME ($DISPLAY_TS)"
-
-# Create a reference timestamp file 1 hour before the backup started (safety margin)
 REF_FILE=$(mktemp)
 trap 'rm -f "$REF_FILE"' EXIT
-# Set reference file to 1 hour before backup start
-SAFE_DATE="${BACKUP_TS:0:4}-${BACKUP_TS:4:2}-${BACKUP_TS:6:2} ${BACKUP_TS:8:2}:${BACKUP_TS:10:2}:${BACKUP_TS:12:2} -1 hour"
-touch -d "$SAFE_DATE" "$REF_FILE"
 
-TOTAL_SEGMENTS=$(find "$ARCHIVE_DIR" -maxdepth 1 -type f -name '0000*' | wc -l)
+if [ -n "$LATEST_BACKUP" ]; then
+  BACKUP_NAME="$(basename "$LATEST_BACKUP")"
+  BACKUP_MTIME=$(stat -c '%Y' "$LATEST_BACKUP")
+  SAFE_EPOCH=$((BACKUP_MTIME - 3600))
+  touch -d "@$SAFE_EPOCH" "$REF_FILE"
+  echo "$(date -Iseconds) Using base backup: $BACKUP_NAME (cutoff: 1h before its mtime)"
+else
+  # No base backup exists — fall back to age-based cleanup so WAL can't grow forever
+  echo "$(date -Iseconds) WARNING: No base backup found in $BACKUP_BASE"
+  echo "$(date -Iseconds) Falling back to age-based cleanup: delete WAL older than ${FALLBACK_DAYS} days"
+  touch -d "${FALLBACK_DAYS} days ago" "$REF_FILE"
+fi
+
+TOTAL_SEGMENTS=$(find "$ARCHIVE_DIR" -maxdepth 1 -type f -name '0000*' 2>/dev/null | wc -l)
 
 if $DRY_RUN; then
-  # Count files older than reference
-  TO_DELETE=$(find "$ARCHIVE_DIR" -maxdepth 1 -type f -name '0000*' ! -newer "$REF_FILE" | wc -l)
-  BYTES=$(find "$ARCHIVE_DIR" -maxdepth 1 -type f -name '0000*' ! -newer "$REF_FILE" -printf '%s\n' | awk '{s+=$1}END{print s+0}')
+  TO_DELETE=$(find "$ARCHIVE_DIR" -maxdepth 1 -type f -name '0000*' ! -newer "$REF_FILE" 2>/dev/null | wc -l)
+  BYTES=$(find "$ARCHIVE_DIR" -maxdepth 1 -type f -name '0000*' ! -newer "$REF_FILE" -printf '%s\n' 2>/dev/null | awk '{s+=$1}END{print s+0}')
   GB=$((BYTES / 1073741824))
   echo "$(date -Iseconds) DRY RUN: Would delete $TO_DELETE of $TOTAL_SEGMENTS segments (~${GB}GB)"
   echo "$(date -Iseconds) Run with --purge to execute"
 else
-  # Delete and count
   TO_DELETE=$(find "$ARCHIVE_DIR" -maxdepth 1 -type f -name '0000*' ! -newer "$REF_FILE" -delete -printf '.' | wc -c)
   REMAINING=$((TOTAL_SEGMENTS - TO_DELETE))
   echo "$(date -Iseconds) Purged $TO_DELETE segments. Remaining: ~$REMAINING"

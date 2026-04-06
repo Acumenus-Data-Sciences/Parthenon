@@ -1,6 +1,7 @@
 {
   "id": "daily-summary",
   "name": "Parthenon Daily Summary Email (9am)",
+  "active": true,
   "nodes": [
     {
       "parameters": {

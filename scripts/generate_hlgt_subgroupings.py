@@ -35,7 +35,7 @@ DB_NAME = os.getenv("DB_NAME", "parthenon")
 DB_USER = os.getenv("DB_USER", "claude_dev")
 
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
-MODEL_NAME = os.getenv("MODEL_NAME", "ii-medical:8b-q8_0")
+MODEL_NAME = os.getenv("MODEL_NAME", "ii-medical:8b-q8")
 
 FIXTURES_DIR = Path(__file__).parent.parent / "backend" / "database" / "fixtures" / "groupings"
 
@@ -120,17 +120,24 @@ def verify_concept_ids(conn: psycopg2.extensions.connection, concept_ids: list[i
         return [r[0] for r in cur.fetchall()]
 
 
-def query_llm(prompt: str) -> str:
-    """Send a prompt to II-Medical-8B via Ollama and return the response."""
+def query_llm(prompt: str, num_predict: int = 8192) -> str:
+    """Send a prompt to II-Medical-8B via Ollama and return the response.
+
+    Uses raw mode with a pre-filled empty <think></think> block to suppress
+    the reasoning chain, which otherwise consumes most of the token budget.
+    """
+    # Pre-fill empty think block so the model skips reasoning and outputs JSON directly
+    raw_prompt = f"{prompt}\n<think>\n</think>\n"
     resp = requests.post(
         f"{OLLAMA_URL}/api/generate",
         json={
             "model": MODEL_NAME,
-            "prompt": prompt,
+            "prompt": raw_prompt,
             "stream": False,
-            "options": {"temperature": 0.3, "num_predict": 4096},
+            "raw": True,
+            "options": {"temperature": 0.3, "num_predict": num_predict},
         },
-        timeout=300,
+        timeout=1800,
     )
     resp.raise_for_status()
     return resp.json()["response"]
@@ -176,6 +183,14 @@ JSON array:"""
 def parse_llm_response(response: str) -> list[dict[str, Any]]:
     """Extract JSON array from LLM response, handling common formatting issues."""
     response = response.strip()
+    # Strip reasoning model <think>...</think> blocks — find last </think> and take everything after
+    last_think_close = response.rfind("</think>")
+    if last_think_close != -1:
+        response = response[last_think_close + len("</think>"):].strip()
+    elif response.startswith("<think>"):
+        # Thinking consumed entire output with no closing tag — nothing usable
+        print("  WARNING: Thinking consumed entire output (no </think> found)", file=sys.stderr)
+        return []
     response = re.sub(r"^```(?:json)?\s*", "", response)
     response = re.sub(r"\s*```$", "", response)
 
@@ -188,10 +203,36 @@ def parse_llm_response(response: str) -> list[dict[str, Any]]:
 
     match = re.search(r"\[.*\]", response, re.DOTALL)
     if match:
+        candidate = match.group()
         try:
-            return json.loads(match.group())
+            return json.loads(candidate)
         except json.JSONDecodeError:
             pass
+
+        # Try fixing common LLM JSON issues
+        # Remove trailing commas before ] or }
+        fixed = re.sub(r",\s*([}\]])", r"\1", candidate)
+        # Remove text/comments between JSON objects (e.g., "Here is group 2:")
+        fixed = re.sub(r"}\s*[A-Za-z][^{]*{", "},{", fixed)
+        try:
+            return json.loads(fixed)
+        except json.JSONDecodeError:
+            pass
+
+    # Last resort: extract individual JSON objects and wrap in array
+    objects = re.findall(r"\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}", response)
+    if objects:
+        valid_objects: list[dict[str, Any]] = []
+        for obj_str in objects:
+            try:
+                obj = json.loads(obj_str)
+                if isinstance(obj, dict) and "name" in obj:
+                    valid_objects.append(obj)
+            except json.JSONDecodeError:
+                continue
+        if valid_objects:
+            print(f"  WARNING: Extracted {len(valid_objects)} objects via fallback parser")
+            return valid_objects
 
     print("  WARNING: Could not parse LLM response as JSON", file=sys.stderr)
     return []
@@ -222,13 +263,41 @@ def process_grouping(
         return None
 
     prompt = build_prompt(name, children)
-    print(f"  Querying {MODEL_NAME}...")
 
-    raw_response = query_llm(prompt)
-    sub_groupings = parse_llm_response(raw_response)
+    # Scale token budget based on number of children
+    num_predict = min(32768, max(8192, len(children) * 128))
+
+    max_attempts = 3
+    sub_groupings: list[dict[str, Any]] = []
+    for attempt in range(1, max_attempts + 1):
+        print(f"  Querying {MODEL_NAME} (attempt {attempt}/{max_attempts}, budget: {num_predict} tokens)...")
+
+        try:
+            raw_response = query_llm(prompt, num_predict=num_predict)
+        except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as e:
+            print(f"  Attempt {attempt} timed out or connection error: {e.__class__.__name__}")
+            if attempt < max_attempts:
+                num_predict = min(32768, num_predict + 4096)
+            continue
+
+        # Debug: show raw response stats
+        has_think_close = "</think>" in raw_response
+        think_len = 0
+        if has_think_close:
+            think_len = raw_response.rfind("</think>") + len("</think>")
+        print(f"  Response: {len(raw_response)} chars, think: {think_len} chars, has </think>: {has_think_close}")
+
+        sub_groupings = parse_llm_response(raw_response)
+
+        if sub_groupings:
+            break
+
+        print(f"  Attempt {attempt} failed to produce valid JSON")
+        # Increase budget on retry in case thinking consumed all tokens
+        num_predict = min(32768, num_predict + 4096)
 
     if not sub_groupings:
-        print("  ERROR: No valid sub-groupings returned")
+        print("  ERROR: No valid sub-groupings after all attempts")
         return None
 
     print(f"  LLM returned {len(sub_groupings)} sub-groupings")
@@ -287,8 +356,15 @@ def main() -> None:
         print(f"Found {len(groupings)} parent groupings to process")
 
         results: list[dict[str, Any]] = []
+        failed: list[str] = []
         for grouping in groupings:
-            fixture = process_grouping(conn, grouping, dry_run=args.dry_run)
+            try:
+                fixture = process_grouping(conn, grouping, dry_run=args.dry_run)
+            except Exception as e:
+                print(f"  EXCEPTION processing {grouping['name']}: {e}")
+                failed.append(grouping["name"])
+                continue
+
             if fixture:
                 results.append(fixture)
 
@@ -298,9 +374,15 @@ def main() -> None:
                 with open(filepath, "w") as f:
                     json.dump(fixture, f, indent=2)
                 print(f"  Written: {filepath}")
+            else:
+                if not args.dry_run:
+                    failed.append(grouping["name"])
 
         print(f"\n{'='*60}")
         print(f"Done. Generated {len(results)} fixture files in {FIXTURES_DIR}")
+        if failed:
+            print(f"Failed groupings ({len(failed)}): {', '.join(failed)}")
+            print("Re-run with --grouping NAME to retry individual failures.")
 
     finally:
         conn.close()

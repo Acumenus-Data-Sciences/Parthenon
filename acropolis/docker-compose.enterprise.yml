@@ -37,7 +37,8 @@ services:
       # Anthropic API key for Claude-powered workflows
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
     volumes:
-      - n8n_data:/home/node/.n8n
+      # Bind mount instead of named volume — survives `docker compose down -v`
+      - ${N8N_DATA_DIR:-/home/smudoshi/acropolis-n8n-data}:/home/node/.n8n
       - ./config/n8n/workflows:/home/node/workflows
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -711,7 +712,6 @@ services:
       start_period: 90s
 
 volumes:
-  n8n_data:
   superset_db_data:
   superset_cache_data:
   superset_home:

@@ -33,7 +33,8 @@ REPOS = ["Parthenon", "MediCosts", "Aurora", "Medgnosis", "MindLog", "Zephyrus"]
 
 # Paths for codebase state gathering
 FRONTEND_FEATURES_DIR = REPO_ROOT / "frontend" / "src" / "features"
-HELP_DIR = REPO_ROOT / "backend" / "resources" / "help"
+HELP_DIR = REPO_ROOT / "frontend" / "public" / "help"
+LEGACY_HELP_DIR = REPO_ROOT / "backend" / "resources" / "help"
 DOCS_DIR = REPO_ROOT / "docs" / "site" / "docs"
 SIDEBARS_FILE = REPO_ROOT / "docs" / "site" / "sidebars.ts"
 INSTALLER_DIR = REPO_ROOT / "installer"
@@ -44,11 +45,25 @@ DEVLOG_DIR = REPO_ROOT / "docs" / "devlog"
 CONSOLE_COMMANDS_DIR = REPO_ROOT / "backend" / "app" / "Console" / "Commands"
 
 
-def run_cmd(cmd, cwd=None, timeout=120):
+def run_cmd(cmd, cwd=None, timeout=120, env=None):
     """Run a shell command and return stdout."""
-    result = subprocess.run(
-        cmd, shell=True, capture_output=True, text=True, cwd=cwd, timeout=timeout
-    )
+    try:
+        result = subprocess.run(
+            cmd,
+            shell=isinstance(cmd, str),
+            capture_output=True,
+            text=True,
+            cwd=cwd,
+            timeout=timeout,
+            env=env,
+        )
+    except subprocess.TimeoutExpired as exc:
+        stdout = (exc.stdout or "").strip()
+        stderr = (exc.stderr or "").strip()
+        if not stderr:
+            stderr = f"command timed out after {timeout} seconds"
+        return stdout, stderr, 124
+
     return result.stdout.strip(), result.stderr.strip(), result.returncode
 
 
@@ -170,19 +185,20 @@ class WebhookHandler(BaseHTTPRequestHandler):
 
     def _get_help_files(self):
         """List all help JSON files and their content summary."""
-        if not HELP_DIR.exists():
-            return {}
         result = {}
-        for f in sorted(HELP_DIR.glob("*.json")):
-            try:
-                data = json.loads(f.read_text())
-                result[f.stem] = {
-                    "title": data.get("title", ""),
-                    "docs_url": data.get("docs_url", ""),
-                    "tip_count": len(data.get("tips", [])),
-                }
-            except (json.JSONDecodeError, OSError):
-                result[f.stem] = {"error": "parse_failed"}
+        for help_dir in (LEGACY_HELP_DIR, HELP_DIR):
+            if not help_dir.exists():
+                continue
+            for f in sorted(help_dir.glob("*.json")):
+                try:
+                    data = json.loads(f.read_text())
+                    result[f.stem] = {
+                        "title": data.get("title", ""),
+                        "docs_url": data.get("docs_url", ""),
+                        "tip_count": len(data.get("tips", [])),
+                    }
+                except (json.JSONDecodeError, OSError):
+                    result[f.stem] = {"error": "parse_failed"}
         return result
 
     def _get_docusaurus_pages(self):
@@ -444,8 +460,9 @@ class WebhookHandler(BaseHTTPRequestHandler):
                 errors.append(f"invalid help key: {key}")
                 continue
             filepath = HELP_DIR / f"{key}.json"
+            filepath.parent.mkdir(parents=True, exist_ok=True)
             filepath.write_text(json.dumps(content, indent=2))
-            files_written.append(f"backend/resources/help/{key}.json")
+            files_written.append(f"frontend/public/help/{key}.json")
 
         # Write installer patches
         for item in body.get("installer", []):
@@ -524,7 +541,10 @@ class WebhookHandler(BaseHTTPRequestHandler):
             return
 
         stdout, stderr, rc = run_cmd(
-            "./deploy.sh --docs", cwd=str(REPO_ROOT)
+            ["bash", str(deploy_script), "--docs"],
+            cwd=str(REPO_ROOT),
+            timeout=900,
+            env={**os.environ, "DEPLOY_SKIP_SMOKE": "true"},
         )
 
         self._respond(

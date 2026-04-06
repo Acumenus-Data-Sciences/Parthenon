@@ -1,6 +1,7 @@
 {
   "id": "issue-triage-loop",
   "name": "Parthenon Issue Triage (Every 6 Hours)",
+  "active": true,
   "nodes": [
     {
       "parameters": {

@@ -10,7 +10,7 @@ build:
 	docker compose --profile dev build
 
 fresh:
-	docker compose down -v
+	docker compose down --remove-orphans
 	docker compose --profile dev up -d --build
 	docker compose exec php php artisan migrate:fresh --seed
 
