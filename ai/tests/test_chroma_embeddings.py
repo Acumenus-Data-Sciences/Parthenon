@@ -89,7 +89,6 @@ def test_general_embedder_fails_fast_when_local_cache_is_missing():
             raise AssertionError("Expected RuntimeError for missing local cache")
 
 
-
 def test_sapbert_service_loads_model_only_once_across_threads():
     """Concurrent first-use calls should share one SapBERT load."""
     tokenizer_calls = 0
