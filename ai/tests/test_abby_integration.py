@@ -28,9 +28,16 @@ from app.routers.abby import (
     ChatRequest,
     ChatResponse,
     ResearchProfile,
+    RoutingDecision,
     UserProfile,
     _extract_suggestions,
+    _is_reference_only_grounded_sentence,
+    _looks_truncated_visible_reply,
+    _needs_visible_reply_retry,
+    _save_user_profile,
+    _should_store_conversation_answer,
     _strip_thinking_tokens,
+    _user_exists,
 )
 
 client = TestClient(app)
@@ -274,6 +281,87 @@ class TestChatEndpointResponseContract:
         data = resp.json()
         assert "routing" in data
         assert "model" in data["routing"]
+
+    def test_truncated_local_reply_retries_and_stores_final_answer(self) -> None:
+        truncated = (
+            "ClinVar is a public archive hosted by the National Center for Biotechnology "
+            "Information that aggregates variant interpretations to enrich"
+        )
+        recovered = "ClinVar is a public archive of variant interpretations hosted by NCBI."
+        with (
+            patch("app.routers.abby.call_ollama", new_callable=AsyncMock, side_effect=[truncated, recovered]) as mock_ollama,
+            patch("app.routers.abby._build_chat_system_prompt", return_value="You are Abby."),
+            patch("app.routers.abby._try_grounded_definition_answer", return_value=("", [])),
+            patch("app.routers.abby.store_conversation_turn") as mock_store,
+            patch("app.routers.abby._save_user_profile"),
+            patch("app.routers.abby._fetch_user_profile", return_value=None),
+            patch("app.routers.abby._get_cost_tracker") as mock_tracker,
+            patch(
+                "app.routers.abby._router.route",
+                return_value=RoutingDecision(model="local", stage=0, reason="test", confidence=1.0),
+            ),
+        ):
+            mock_cost = MagicMock()
+            mock_cost.is_budget_exhausted.return_value = False
+            mock_tracker.return_value = mock_cost
+
+            resp = client.post("/abby/chat", json={
+                "message": "What is ClinVar?",
+                "page_context": "genomics",
+                "user_id": 1,
+            })
+
+        assert resp.status_code == 200
+        assert resp.json()["reply"] == recovered
+        assert mock_ollama.await_count == 2
+        assert mock_store.call_args.kwargs["answer"] == recovered
+
+    def test_grounded_definition_returns_sources_and_skips_memory_storage(self) -> None:
+        with (
+            patch(
+                "app.routers.abby._try_grounded_definition_answer",
+                return_value=(
+                    "ClinVar is the NCBI public archive of submitted interpretations of human genetic variants.",
+                    [
+                        {
+                            "collection": "docs",
+                            "label": "Parthenon Documentation",
+                            "title": "ClinVar",
+                            "source_file": "docs/abby-seed/reference/clinvar.md",
+                            "score": 0.93,
+                        }
+                    ],
+                ),
+            ),
+            patch("app.routers.abby.store_conversation_turn") as mock_store,
+            patch("app.routers.abby._build_chat_system_prompt", return_value="You are Abby."),
+            patch("app.routers.abby._save_user_profile"),
+            patch("app.routers.abby._fetch_user_profile", return_value=None),
+            patch("app.routers.abby._get_cost_tracker") as mock_tracker,
+        ):
+            mock_cost = MagicMock()
+            mock_cost.is_budget_exhausted.return_value = False
+            mock_tracker.return_value = mock_cost
+
+            resp = client.post("/abby/chat", json={
+                "message": "What is ClinVar?",
+                "page_context": "genomics",
+                "user_id": 1,
+            })
+
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["routing"]["reason"] == "grounded_definition"
+        assert data["sources"] == [
+            {
+                "collection": "docs",
+                "label": "Parthenon Documentation",
+                "title": "ClinVar",
+                "source_file": "docs/abby-seed/reference/clinvar.md",
+                "score": 0.93,
+            }
+        ]
+        mock_store.assert_not_called()
 
     def test_anonymous_user_no_user_id(self) -> None:
         """No user_id — no profile fetch, no profile save, still returns reply."""
@@ -527,6 +615,65 @@ class TestStripThinkingTokens:
         raw = "thought\nActual answer about OMOP CDM."
         result = _strip_thinking_tokens(raw)
         assert result == "Actual answer about OMOP CDM."
+
+    def test_strips_qwen_thinking_block(self) -> None:
+        raw = "<think>\ninternal reasoning\n</think>\nFinal answer."
+        result = _strip_thinking_tokens(raw)
+        assert result == "Final answer."
+
+    def test_strips_unclosed_qwen_thinking_block(self) -> None:
+        raw = "<think>\ninternal reasoning only"
+        result = _strip_thinking_tokens(raw)
+        assert result == ""
+
+
+class TestLocalReplyQualityGuards:
+    def test_detects_truncated_visible_reply(self) -> None:
+        reply = (
+            "ClinVar is a public archive hosted by the National Center for Biotechnology "
+            "Information that aggregates variant interpretations to enrich"
+        )
+        assert _looks_truncated_visible_reply(reply) is True
+        assert _needs_visible_reply_retry(reply, reply) is True
+
+    def test_does_not_flag_complete_sentence(self) -> None:
+        reply = "ClinVar is a public archive of variant interpretations hosted by NCBI."
+        assert _looks_truncated_visible_reply(reply) is False
+        assert _should_store_conversation_answer(reply) is True
+
+    def test_refuses_to_store_abstract_fragment_answers(self) -> None:
+        reply = "Results We identified 96 trials reporting results on ClinicalTrials.gov."
+        assert _should_store_conversation_answer(reply) is False
+
+    def test_hidden_reasoning_still_triggers_retry(self) -> None:
+        raw = "<think>internal reasoning only"
+        assert _needs_visible_reply_retry(raw, "") is True
+
+    def test_reference_only_grounded_sentence_is_rejected(self) -> None:
+        assert _is_reference_only_grounded_sentence(
+            "https://hgvs-nomenclature.org/recommendations/general/ Related local references: docs/devlog/phases/15-genomics.md"
+        ) is True
+
+    def test_save_user_profile_skips_missing_users(self) -> None:
+        with (
+            patch("app.routers.abby._user_exists", return_value=False),
+            patch("app.routers.abby._get_shared_engine") as mock_engine,
+        ):
+            _save_user_profile(1, {"research_interests": ["genomics"]})
+        mock_engine.assert_not_called()
+
+    def test_user_exists_queries_app_users_schema(self) -> None:
+        mock_engine = MagicMock()
+        mock_conn = mock_engine.connect.return_value.__enter__.return_value
+        mock_result = MagicMock()
+        mock_result.scalar.return_value = True
+        mock_conn.execute.return_value = mock_result
+
+        with patch("app.routers.abby._get_shared_engine", return_value=mock_engine):
+            assert _user_exists(117) is True
+
+        query_text = str(mock_conn.execute.call_args.args[0])
+        assert "FROM app.users" in query_text
 
 
 # ===========================================================================

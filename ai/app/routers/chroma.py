@@ -8,8 +8,17 @@ from collections import Counter
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+from starlette.concurrency import run_in_threadpool
 
 from app.chroma.client import check_health, get_chroma_client
+from app.chroma.collections import (
+    get_clinical_collection,
+    get_conversation_memory_collection,
+    get_docs_collection,
+    get_faq_collection,
+    get_medical_textbooks_collection,
+    get_ohdsi_papers_collection,
+)
 from app.chroma.ingestion import ingest_docs_directory, ingest_ohdsi_corpus, ingest_ohdsi_knowledge, ingest_medical_textbooks
 from app.chroma.faq import promote_frequent_questions, seed_demo_faqs
 from app.chroma.memory import aggregate_conversations, delete_commons_message, prune_old_conversations, store_commons_message
@@ -22,6 +31,25 @@ router = APIRouter()
 DOCS_DIR = os.environ.get("DOCS_DIR", "/app/docs")
 
 
+def _get_queryable_collection(name: str):
+    """Resolve collections through app accessors so query-time embeddings match runtime config."""
+    if name == "docs":
+        return get_docs_collection()
+    if name == "faq_shared":
+        return get_faq_collection()
+    if name == "conversation_memory":
+        return get_conversation_memory_collection()
+    if name == "clinical_reference":
+        return get_clinical_collection()
+    if name == "ohdsi_papers":
+        return get_ohdsi_papers_collection()
+    if name == "medical_textbooks":
+        return get_medical_textbooks_collection()
+
+    client = get_chroma_client()
+    return client.get_collection(name=name)
+
+
 @router.get("/health")
 async def chroma_health() -> dict:
     """Check ChromaDB connectivity."""
@@ -31,7 +59,7 @@ async def chroma_health() -> dict:
 @router.post("/ingest-docs")
 async def ingest_docs() -> dict:
     """Trigger documentation ingestion into ChromaDB."""
-    stats = ingest_docs_directory(DOCS_DIR)
+    stats = await run_in_threadpool(ingest_docs_directory, DOCS_DIR)
     return stats
 
 
@@ -51,7 +79,7 @@ async def promote_faq(days: int = 7) -> dict:
 @router.post("/ingest-clinical")
 async def ingest_clinical(limit: int | None = None) -> dict:
     """Trigger clinical concept ingestion from OMOP vocabulary."""
-    return ingest_clinical_concepts(limit=limit)
+    return await run_in_threadpool(ingest_clinical_concepts, limit)
 
 
 @router.post("/seed-faq")
@@ -63,7 +91,7 @@ async def seed_faq() -> dict:
 @router.post("/aggregate-conversations")
 async def aggregate_convos() -> dict:
     """Backfill legacy per-user Abby memory into the shared conversation collection."""
-    return aggregate_conversations()
+    return await run_in_threadpool(aggregate_conversations)
 
 
 class CommonsMessageInput(BaseModel):
@@ -107,7 +135,7 @@ async def ingest_ohdsi_papers(corpus_dir: str | None = None) -> dict:
     the ohdsi_papers collection for RAG retrieval on clinical pages.
     """
     target_dir = corpus_dir or OHDSI_CORPUS_DIR
-    return ingest_ohdsi_corpus(target_dir)
+    return await run_in_threadpool(ingest_ohdsi_corpus, target_dir)
 
 
 TEXTBOOKS_DIR = os.environ.get("TEXTBOOKS_DIR", "/app/medical_textbooks")
@@ -115,8 +143,8 @@ TEXTBOOKS_DIR = os.environ.get("TEXTBOOKS_DIR", "/app/medical_textbooks")
 
 @router.post("/ingest-textbooks")
 async def ingest_textbooks_endpoint() -> dict:
-    """Ingest pre-extracted medical textbook JSONL into ohdsi_papers collection."""
-    return ingest_medical_textbooks(TEXTBOOKS_DIR)
+    """Ingest pre-extracted medical textbook JSONL into medical_textbooks collection."""
+    return await run_in_threadpool(ingest_medical_textbooks, TEXTBOOKS_DIR)
 
 
 OHDSI_BOOK_DIR = os.environ.get("OHDSI_BOOK_DIR", "/app/book_of_ohdsi")
@@ -131,7 +159,8 @@ async def ingest_knowledge() -> dict:
     Ingests Book of OHDSI, HADES vignettes, and forum threads into
     the ohdsi_papers collection for comprehensive RAG retrieval.
     """
-    return ingest_ohdsi_knowledge(
+    return await run_in_threadpool(
+        ingest_ohdsi_knowledge,
         book_dir=OHDSI_BOOK_DIR,
         vignettes_dir=OHDSI_VIGNETTES_DIR,
         forums_dir=OHDSI_FORUMS_DIR,
@@ -281,9 +310,8 @@ class QueryInput(BaseModel):
 @router.post("/query")
 async def query_collection(body: QueryInput) -> dict:
     """Semantic query against a named collection."""
-    client = get_chroma_client()
     try:
-        col = client.get_collection(name=body.collectionName)
+        col = _get_queryable_collection(body.collectionName)
     except Exception:
         raise HTTPException(status_code=404, detail=f"Collection '{body.collectionName}' not found.")
 

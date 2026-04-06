@@ -84,7 +84,12 @@ class GeneralEmbedder(EmbeddingFunction[Documents]):
         _ensure_sentence_transformer_cached(model_name)
         from sentence_transformers import SentenceTransformer
 
-        self._model = SentenceTransformer(model_name, device="cpu")
+        self._model = SentenceTransformer(
+            model_name,
+            device="cpu",
+            cache_folder=os.environ.get("SENTENCE_TRANSFORMERS_HOME"),
+            local_files_only=True,
+        )
         self._pid = os.getpid()
         logger.info("Loaded general embedder: %s (pid=%d)", model_name, self._pid)
 

@@ -54,6 +54,15 @@ def store_conversation_turn(
     }
 
     conversation_memory = get_conversation_memory_collection()
+    existing = conversation_memory.get(
+        where={"user_id": user_id},
+        include=["documents"],
+    )
+    existing_documents = existing.get("documents") or []
+    if document in existing_documents:
+        logger.debug("Skipping duplicate conversation turn for user %s", user_id)
+        return
+
     conversation_memory.upsert(
         ids=[doc_id],
         documents=[document],

@@ -26,7 +26,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field, model_validator
 
 from app.chroma.memory import store_conversation_turn
-from app.chroma.retrieval import build_rag_context
+from app.chroma.retrieval import build_rag_context, get_ranked_rag_results, query_docs
 from app.config import settings
 from app.memory.context_assembler import ContextAssembler, ContextPiece, ContextTier
 from app.memory.intent_stack import IntentStack
@@ -782,6 +782,10 @@ _INSTITUTIONAL_PATTERN = re.compile(
     r"\b(previous|past|recent|review|decision|worked|learned|institutional|history|memory|similar)\b",
     re.I,
 )
+_DEFINITION_QUERY_PATTERN = re.compile(
+    r"^\s*(what\s+is|who\s+is|define|explain)\b",
+    re.I,
+)
 
 
 def _estimate_tokens(text: str) -> int:
@@ -827,9 +831,18 @@ def _get_local_num_predict(page_context: str) -> int:
         "concept_set_list": 192,
         "administration": 192,
     }.get(page_context)
-    if compact_context_cap is None:
-        return default
-    return min(default, compact_context_cap)
+    resolved = default if compact_context_cap is None else min(default, compact_context_cap)
+
+    # Qwen-family reasoning models often spend a large prefix budget inside
+    # <think> blocks before producing the visible answer. If we keep the compact
+    # Abby caps, the model can exhaust its token budget before it ever emits the
+    # final answer. Give these models a larger floor so the user actually gets
+    # a response.
+    reasoning_model_markers = ("qwen", "qwq", "deepseek-r1", "ii-medical")
+    if any(marker in settings.abby_llm_model.lower() for marker in reasoning_model_markers):
+        return max(resolved, 640)
+
+    return resolved
 
 
 def _should_include_data_quality_context(request: ChatRequest) -> bool:
@@ -842,6 +855,208 @@ def _should_include_institutional_context(request: ChatRequest) -> bool:
     if request.page_context in {"commons_ask_abby", "studies", "analyses"}:
         return True
     return bool(_INSTITUTIONAL_PATTERN.search(request.message))
+
+
+def _should_skip_live_context(request: ChatRequest, rag_context: str) -> bool:
+    """Avoid database/tool noise for definition questions already grounded in docs."""
+    return bool(rag_context) and bool(_DEFINITION_QUERY_PATTERN.search(request.message))
+
+
+def _clean_grounded_text(text: str) -> str:
+    """Flatten markdown-ish retrieved chunks into plain text sentences."""
+    text = re.sub(r"```.*?```", " ", text, flags=re.DOTALL)
+    text = re.sub(r"`([^`]*)`", r"\1", text)
+    text = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)
+    text = re.sub(r"!\[[^\]]*\]\([^)]+\)", " ", text)
+    text = re.sub(r"^#.*$", " ", text, flags=re.MULTILINE)
+    text = re.sub(r"^#+\s*", "", text, flags=re.MULTILINE)
+    text = re.sub(r"^\s*[-*]\s*", "", text, flags=re.MULTILINE)
+    text = re.sub(r"=+", " ", text)
+    text = re.sub(r"[*_]+", "", text)
+    text = re.sub(r"\s+", " ", text)
+    return text.strip()
+
+
+def _definition_query_terms(message: str) -> list[str]:
+    """Extract salient terms for simple grounded sentence selection."""
+    return [
+        token
+        for token in re.findall(r"[a-z0-9]+", message.lower())
+        if len(token) > 1 and token not in {
+            "what", "who", "is", "the", "a", "an", "define", "explain", "does",
+        }
+    ]
+
+
+def _is_reference_only_grounded_sentence(sentence: str) -> bool:
+    lowered = sentence.lower()
+    if "http://" in lowered or "https://" in lowered:
+        return True
+    if "docs/" in lowered or ".md" in lowered:
+        return True
+    return lowered.startswith(("source urls", "related local references"))
+
+
+def _result_has_viable_grounded_sentence(result: dict[str, object], terms: list[str]) -> bool:
+    """Check whether a retrieved chunk contains at least one usable definition sentence."""
+    text = _clean_grounded_text(str(result.get("text", "")))
+    if not text:
+        return False
+
+    sentences = [
+        sentence.strip()
+        for sentence in re.split(r"(?<=[.!?])\s+", text)
+        if sentence.strip()
+    ]
+    for sentence in sentences[:6]:
+        if _is_reference_only_grounded_sentence(sentence):
+            continue
+        sentence_lower = sentence.lower()
+        if "seed note exists" in sentence_lower:
+            continue
+        if any(term in sentence_lower for term in terms):
+            return True
+    return False
+
+
+def _build_chat_sources(
+    results: list[dict[str, object]],
+    *,
+    min_score: float = 0.55,
+    limit: int = 3,
+) -> list[dict[str, object]]:
+    """Convert ranked retrieval results into compact API-facing source metadata."""
+    sources: list[dict[str, object]] = []
+    seen: set[tuple[str, str, str]] = set()
+
+    for result in results:
+        score = float(result.get("score", 0) or 0)
+        if score < min_score:
+            continue
+
+        source_tag = str(result.get("source_tag", "") or "").strip()
+        source_label = str(result.get("source_label", "") or source_tag).strip()
+        title = _clean_grounded_text(str(result.get("title", "") or ""))
+        source_file = str(result.get("source_file", "") or "").strip()
+        key = (source_tag, title, source_file)
+        if key in seen:
+            continue
+        seen.add(key)
+
+        source: dict[str, object] = {
+            "collection": source_tag,
+            "label": source_label,
+            "score": round(score, 3),
+        }
+        if title:
+            source["title"] = title
+        if source_file:
+            source["source_file"] = source_file
+        section = _clean_grounded_text(str(result.get("section", "") or ""))
+        if section and section != title:
+            source["section"] = section
+        url = str(result.get("url", "") or "").strip()
+        if url:
+            source["url"] = url
+        sources.append(source)
+        if len(sources) >= limit:
+            break
+
+    return sources
+
+
+def _try_grounded_definition_answer(request: ChatRequest) -> tuple[str, list[dict[str, object]]]:
+    """Answer short definition questions directly from retrieved context."""
+    if request.page_context != "commons_ask_abby" and request.page_context not in {
+        "cohort_builder", "vocabulary", "data_explorer", "data_quality",
+        "analyses", "incidence_rates", "estimation", "prediction",
+        "genomics", "imaging", "patient_profiles", "care_gaps",
+    }:
+        return "", []
+
+    if not _DEFINITION_QUERY_PATTERN.search(request.message):
+        return "", []
+
+    docs_results = query_docs(request.message, top_k=5, threshold=0.9)
+    if docs_results and float(docs_results[0].get("score", 0) or 0) >= 0.8:
+        results = docs_results
+    else:
+        results = get_ranked_rag_results(
+            query=request.message,
+            page_context=request.page_context,
+            user_id=request.user_id,
+        )
+    if not results:
+        return "", []
+
+    top_result = results[0]
+    top_score = float(top_result.get("score", 0) or 0)
+    if top_score < 0.55:
+        return "", []
+
+    terms = _definition_query_terms(request.message)
+    candidate_results = [
+        result
+        for result in results[:5]
+        if _result_has_viable_grounded_sentence(result, terms)
+    ] or results[:5]
+    candidates: list[tuple[float, str, dict[str, object]]] = []
+    for idx, result in enumerate(candidate_results):
+        text = _clean_grounded_text(str(result.get("text", "")))
+        if not text:
+            continue
+        title_text = _clean_grounded_text(str(result.get("title", ""))).lower()
+        source_text = _clean_grounded_text(str(result.get("source_file", ""))).lower()
+        title_overlap = sum(1 for term in terms if term in title_text)
+        source_overlap = sum(1 for term in terms if term in source_text)
+        sentences = [
+            sentence.strip()
+            for sentence in re.split(r"(?<=[.!?])\s+", text)
+            if sentence.strip()
+        ]
+        for sentence in sentences[:6]:
+            sentence_lower = sentence.lower()
+            if "seed note exists" in sentence_lower:
+                continue
+            if _is_reference_only_grounded_sentence(sentence):
+                continue
+            overlap = sum(1 for term in terms if term in sentence_lower)
+            if overlap == 0:
+                continue
+            definitional_bonus = 0.75 if any(
+                phrase in sentence_lower for phrase in (" stands for ", " is ", " are ", " refers to ")
+            ) else 0.0
+            score = (
+                overlap
+                + (title_overlap * 2.0)
+                + (source_overlap * 2.0)
+                + definitional_bonus
+                + (0.5 if idx == 0 else 0.0)
+            )
+            candidates.append((score, sentence, result))
+
+    if not candidates:
+        return "", []
+
+    candidates.sort(key=lambda item: item[0], reverse=True)
+    selected: list[str] = []
+    selected_results: list[dict[str, object]] = []
+    seen: set[str] = set()
+    for _, sentence, result in candidates:
+        key = sentence.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        selected.append(sentence)
+        selected_results.append(result)
+        if len(selected) >= 1:
+            break
+
+    attribution_results = selected_results + [
+        result for result in candidate_results
+        if result not in selected_results
+    ]
+    return " ".join(selected).strip(), _build_chat_sources(attribution_results)
 
 
 def _build_context_block(model_profile: str, pieces: list[ContextPiece]) -> tuple[str, bool]:
@@ -921,18 +1136,19 @@ def _build_chat_system_prompt(request: ChatRequest, model_profile: str = "medgem
     live_context = ""
     live_started = time.perf_counter()
     try:
-        from app.chroma.live_context import query_live_context
-        live_context = query_live_context(request.message, request.page_context)
-        if live_context:
-            context_pieces.append(
-                ContextPiece(
-                    tier=ContextTier.LIVE,
-                    content=live_context,
-                    relevance=0.95,
-                    tokens=_estimate_tokens(live_context),
-                    source="live_context",
+        if not _should_skip_live_context(request, rag_context):
+            from app.chroma.live_context import query_live_context
+            live_context = query_live_context(request.message, request.page_context)
+            if live_context:
+                context_pieces.append(
+                    ContextPiece(
+                        tier=ContextTier.LIVE,
+                        content=live_context,
+                        relevance=0.95,
+                        tokens=_estimate_tokens(live_context),
+                        source="live_context",
+                    )
                 )
-            )
     except Exception as e:
         logger.warning("Live database context failed: %s", e)
     finally:
@@ -1063,8 +1279,10 @@ def _build_chat_system_prompt(request: ChatRequest, model_profile: str = "medgem
         system_prompt += (
             "\n\nGROUNDING RULES:"
             "\n- Base your answer PRIMARILY on the KNOWLEDGE BASE and LIVE PLATFORM DATA provided above."
+            "\n- If the KNOWLEDGE BASE contains a direct definition or identification for the user's question, paraphrase THAT material first and keep the answer narrow."
             "\n- When citing specific concept sets, cohort definitions, or analyses, use ONLY the data from LIVE PLATFORM DATA. These are real entities in the user's Parthenon instance."
             "\n- When citing studies, papers, or researchers, use ONLY information from the KNOWLEDGE BASE. Do NOT invent paper titles, author names, or study details."
+            "\n- Do NOT add schema names, table names, metrics, or implementation details unless they are explicitly present in the supplied context."
             "\n- If the provided context does not contain enough information, say so explicitly."
             "\n- You MAY use your general medical training knowledge for explanations, definitions, and context — but NEVER fabricate specific claims."
         )
@@ -1099,16 +1317,23 @@ def _build_chat_system_prompt(request: ChatRequest, model_profile: str = "medgem
 
 
 def _strip_thinking_tokens(text: str) -> str:
-    """Strip MedGemma's internal thinking/reasoning tokens from output.
+    """Strip internal thinking/reasoning tokens from output.
 
-    MedGemma uses <unused94>thought...content<unused95> for chain-of-thought.
-    These tokens should never reach the user.
+    Supported formats:
+    - MedGemma: <unused94>thought...content<unused95>
+    - Qwen/Ollama reasoning models: <think> ... </think>
     """
     import re
+
     # Remove <unused94>thought....<unused95> blocks (thinking tokens)
     text = re.sub(r"<unused94>.*?<unused95>", "", text, flags=re.DOTALL)
     # Remove orphaned thinking markers
     text = re.sub(r"<unused\d+>", "", text)
+    # Remove closed Qwen-style thinking blocks.
+    text = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL | re.IGNORECASE)
+    # If the response is only an unfinished <think> block, drop it entirely.
+    text = re.sub(r"^\s*<think>.*\Z", "", text, flags=re.DOTALL | re.IGNORECASE)
+    text = re.sub(r"</?think>", "", text, flags=re.IGNORECASE)
     # Some Ollama/Gemma responses leak a plain leading "thought" line.
     text = re.sub(r"^\s*thought\s*\n+", "", text, flags=re.IGNORECASE)
     return text.strip()
@@ -1154,6 +1379,89 @@ def _extract_suggestions(raw: str) -> tuple[str, list[str]]:
     return reply, suggestions[:3]
 
 
+_INCOMPLETE_REPLY_TAIL_WORDS = {
+    "a", "an", "and", "as", "at", "based", "by", "for", "from", "in", "including",
+    "into", "like", "of", "on", "or", "such", "than", "that", "the", "their", "this",
+    "to", "using", "which", "with", "without",
+}
+
+
+def _looks_truncated_visible_reply(reply: str) -> bool:
+    """Detect obviously clipped user-facing replies from the local model."""
+    cleaned = _strip_thinking_tokens(reply).strip()
+    if not cleaned:
+        return False
+    if cleaned.endswith(("...", "…")):
+        return True
+    if cleaned[-1] in '.!?"\')]}':
+        return False
+
+    if len(cleaned) >= 120:
+        return True
+
+    if len(cleaned) < 80:
+        return False
+
+    last_words = re.findall(r"[a-z0-9]+", cleaned.lower())
+    if not last_words:
+        return False
+    return last_words[-1] in _INCOMPLETE_REPLY_TAIL_WORDS
+
+
+def _needs_visible_reply_retry(raw: str, reply: str) -> bool:
+    """Detect local-model outputs that are empty or visibly clipped."""
+    if reply.strip():
+        return _looks_truncated_visible_reply(reply)
+    stripped = raw.lstrip()
+    return stripped.startswith("<think>") or "<unused94>" in stripped
+
+
+async def _retry_local_visible_reply(
+    system_prompt: str,
+    user_message: str,
+    history: list[ChatMessage] | None,
+    num_predict: int,
+) -> tuple[str, list[str]]:
+    """Retry once with stronger instructions and a much larger token budget."""
+    retry_prompt = (
+        f"{system_prompt}\n\n"
+        "Return only the final user-facing answer."
+        " Do not emit <think> tags, internal reasoning, or hidden scratch work."
+        " Start immediately with the answer."
+    )
+    retry_budget = max(num_predict * 2, 1600)
+    raw_retry = await call_ollama(
+        system_prompt=retry_prompt,
+        user_message=user_message,
+        history=history,
+        temperature=0.1,
+        num_predict=retry_budget,
+    )
+    return _extract_suggestions(raw_retry)
+
+
+def _should_store_conversation_answer(answer: str) -> bool:
+    """Avoid persisting clipped or clearly low-quality Abby answers."""
+    cleaned = _strip_thinking_tokens(answer).strip()
+    if not cleaned or _looks_truncated_visible_reply(cleaned):
+        return False
+    return not re.match(r"^(results?|methods?|background|objective|conclusions?)\b[:\s-]", cleaned, re.IGNORECASE)
+
+
+def _should_store_conversation_turn(
+    request: ChatRequest,
+    answer: str,
+    *,
+    routing_reason: str,
+) -> bool:
+    """Only retain durable, non-generic conversation turns in Abby memory."""
+    if not _should_store_conversation_answer(answer):
+        return False
+    if routing_reason == "grounded_definition":
+        return False
+    return True
+
+
 def _fetch_user_profile(user_id: int) -> dict | None:
     """Fetch user's research profile from PostgreSQL."""
     try:
@@ -1179,11 +1487,32 @@ def _fetch_user_profile(user_id: int) -> dict | None:
     return None
 
 
+def _user_exists(user_id: int) -> bool:
+    """Return True when the referenced app user exists."""
+    try:
+        from sqlalchemy import text
+
+        with _get_shared_engine().connect() as conn:
+            exists = conn.execute(
+                text("SELECT EXISTS(SELECT 1 FROM app.users WHERE id = :uid)"),
+                {"uid": user_id},
+            ).scalar()
+            return bool(exists)
+    except Exception:
+        logger.exception("Failed to validate Abby user id")
+        return False
+
+
 def _save_user_profile(user_id: int, profile_data: dict) -> None:
     """Upsert user's research profile to PostgreSQL."""
     try:
         import json as json_mod
         from sqlalchemy import text
+
+        if not _user_exists(user_id):
+            logger.info("Skipping Abby user profile save for missing user_id=%s", user_id)
+            return
+
         with _get_shared_engine().connect() as conn:
             conn.execute(
                 text("""
@@ -1250,8 +1579,14 @@ async def chat(request: ChatRequest) -> ChatResponse:
 
     reply = ""
     suggestions: list[str] = []
+    sources: list[dict[str, object]] = []
+    grounded_definition_reply, grounded_sources = _try_grounded_definition_answer(request)
+    if grounded_definition_reply:
+        reply = grounded_definition_reply
+        sources = grounded_sources
+        routing = RoutingDecision(model="local", stage=0, reason="grounded_definition", confidence=1.0)
 
-    if routing.model == "claude" and _get_claude_client() is not None:
+    if not reply and routing.model == "claude" and _get_claude_client() is not None:
         # Cloud path: PHI sanitization + cloud safety filter
         # Build history_dicts first so we can include history content in PHI scan
         history_dicts = [{"role": m.role, "content": m.content} for m in request.history]
@@ -1298,7 +1633,7 @@ async def chat(request: ChatRequest) -> ChatResponse:
                 routing = RoutingDecision(model="local", stage=0, reason="claude_error", confidence=1.0)
                 system_prompt = _build_chat_system_prompt(request, model_profile="medgemma")
 
-    if routing.model == "local":
+    if not reply and routing.model == "local":
         # Local path: MedGemma via Ollama (existing behavior)
         raw = await call_ollama(
             system_prompt=system_prompt,
@@ -1308,9 +1643,23 @@ async def chat(request: ChatRequest) -> ChatResponse:
             num_predict=local_num_predict,
         )
         reply, suggestions = _extract_suggestions(raw)
+        if _needs_visible_reply_retry(raw, reply):
+            logger.warning(
+                "Local Abby reply contained only hidden reasoning; retrying with larger token budget"
+            )
+            reply, suggestions = await _retry_local_visible_reply(
+                system_prompt=system_prompt,
+                user_message=request.message,
+                history=request.history,
+                num_predict=local_num_predict,
+            )
 
     # Store conversation in memory (fire-and-forget, don't block response)
-    if request.user_id is not None:
+    if request.user_id is not None and _should_store_conversation_turn(
+        request,
+        reply,
+        routing_reason=routing.reason,
+    ):
         try:
             store_conversation_turn(
                 user_id=request.user_id,
@@ -1320,6 +1669,8 @@ async def chat(request: ChatRequest) -> ChatResponse:
             )
         except Exception as e:
             logger.warning("Failed to store conversation memory: %s", e)
+    elif request.user_id is not None:
+        logger.info("Skipping conversation memory storage for low-quality Abby answer")
 
     # Learn from this conversation turn (non-blocking)
     if request.user_id is not None:
@@ -1375,7 +1726,7 @@ async def chat(request: ChatRequest) -> ChatResponse:
             "stage": routing.stage,
         },
         confidence=confidence,
-        sources=[],  # Will be populated when context assembler is fully integrated
+        sources=sources,
     )
 
 
@@ -1430,8 +1781,11 @@ async def _stream_ollama(system_prompt: str, user_message: str,
         ) as resp:
             resp.raise_for_status()
             full_content = ""
+            visible_content = ""
             first_token_ms: float | None = None
             final_data: dict[str, Any] | None = None
+            pending = ""
+            suppress_reasoning: bool | None = None
             async for line in resp.aiter_lines():
                 if not line.strip():
                     continue
@@ -1445,12 +1799,49 @@ async def _stream_ollama(system_prompt: str, user_message: str,
                         full_content += token
                         if first_token_ms is None:
                             first_token_ms = (time.perf_counter() - started) * 1000
-                        yield f"data: {json.dumps({'token': token})}\n\n"
+                        pending += token
+                        if suppress_reasoning is None:
+                            stripped_pending = pending.lstrip()
+                            if stripped_pending.startswith("<think>") or stripped_pending.startswith("<unused94>"):
+                                suppress_reasoning = True
+                            elif len(pending) >= 16:
+                                suppress_reasoning = False
+
+                        if suppress_reasoning is True:
+                            cleaned = _strip_thinking_tokens(pending)
+                            if cleaned:
+                                visible_content += cleaned
+                                yield f"data: {json.dumps({'token': cleaned})}\n\n"
+                                pending = ""
+                                suppress_reasoning = False
+                        elif suppress_reasoning is False:
+                            visible_content += pending
+                            yield f"data: {json.dumps({'token': pending})}\n\n"
+                            pending = ""
                 except json.JSONDecodeError:
                     continue
 
             # Extract suggestions from complete response
+            if pending and suppress_reasoning is not True:
+                visible_content += pending
+                yield f"data: {json.dumps({'token': pending})}\n\n"
+
             _, suggestions = _extract_suggestions(full_content)
+            if not visible_content.strip() and _needs_visible_reply_retry(full_content, visible_content):
+                logger.warning(
+                    "Local Abby stream contained only hidden reasoning; retrying with larger token budget"
+                )
+                retry_reply, retry_suggestions = await _retry_local_visible_reply(
+                    system_prompt=system_prompt,
+                    user_message=user_message,
+                    history=history,
+                    num_predict=num_predict if num_predict is not None else settings.ollama_num_predict,
+                )
+                if retry_reply:
+                    visible_content += retry_reply
+                    yield f"data: {json.dumps({'token': retry_reply})}\n\n"
+                if retry_suggestions:
+                    suggestions = retry_suggestions
             if suggestions:
                 yield f"data: {json.dumps({'suggestions': suggestions})}\n\n"
             yield "data: [DONE]\n\n"
@@ -1466,7 +1857,7 @@ async def _stream_ollama(system_prompt: str, user_message: str,
                 message_chars=len(user_message),
                 num_predict=num_predict if num_predict is not None else settings.ollama_num_predict,
                 history_turns=len(history[-10:]) if history else 0,
-                response_chars=len(full_content),
+                response_chars=len(visible_content or full_content),
                 load_ms=_ns_to_ms(final_data.get("load_duration")) if final_data else None,
                 prompt_eval_ms=_ns_to_ms(final_data.get("prompt_eval_duration")) if final_data else None,
                 eval_ms=_ns_to_ms(final_data.get("eval_duration")) if final_data else None,

@@ -1,5 +1,5 @@
 """Tests for ChromaDB management API endpoints."""
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from fastapi.testclient import TestClient
 
@@ -28,3 +28,27 @@ def test_ingest_docs_endpoint():
 
     assert resp.status_code == 200
     assert resp.json()["ingested"] == 5
+
+
+def test_query_endpoint_uses_configured_collection_accessor():
+    """Semantic query should use app collection accessors, not raw Chroma defaults."""
+    mock_collection = MagicMock()
+    mock_collection.count.return_value = 1
+    mock_collection.query.return_value = {
+        "ids": [["doc-1"]],
+        "documents": [["ClinVar is a public archive."]],
+        "metadatas": [[{"title": "ClinVar"}]],
+        "distances": [[0.1]],
+    }
+
+    with patch("app.routers.chroma.get_docs_collection", return_value=mock_collection):
+        client = TestClient(app)
+        resp = client.post("/chroma/query", json={
+            "collectionName": "docs",
+            "queryText": "What is ClinVar?",
+            "nResults": 3,
+        })
+
+    assert resp.status_code == 200
+    mock_collection.query.assert_called_once()
+    assert resp.json()["items"][0]["metadata"]["title"] == "ClinVar"

@@ -242,6 +242,26 @@ SQL;
 SQL;
         }
 
+        // Existence-only check: use EXISTS semi-join for early termination.
+        // This avoids producing all matching rows then deduplicating with DISTINCT.
+        if (! $requiresLeftJoin) {
+            $conceptFilter = '';
+            if ($codesetId !== null) {
+                $conceptFilter = "\n        AND e.{$conceptCol} IN (SELECT concept_id FROM codesetId_{$codesetId})";
+            }
+
+            return <<<SQL
+{$cteName} AS (
+    SELECT DISTINCT qe.person_id
+    FROM qualified_events qe
+    WHERE EXISTS (
+        SELECT 1 FROM {$cdmSchema}.{$table} e
+        WHERE e.{$personIdCol} = qe.person_id{$conceptFilter}{$whereStr}
+    )
+)
+SQL;
+        }
+
         return <<<SQL
 {$cteName} AS (
     SELECT DISTINCT {$selectExpr}

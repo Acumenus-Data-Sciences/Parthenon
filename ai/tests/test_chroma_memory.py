@@ -7,6 +7,7 @@ def test_store_conversation_turn():
     with patch("app.chroma.memory.get_conversation_memory_collection") as mock_coll_fn:
         mock_coll = MagicMock()
         mock_coll_fn.return_value = mock_coll
+        mock_coll.get.return_value = {"documents": []}
 
         from app.chroma.memory import store_conversation_turn
 
@@ -28,6 +29,7 @@ def test_store_conversation_combines_qa():
     with patch("app.chroma.memory.get_conversation_memory_collection") as mock_coll_fn:
         mock_coll = MagicMock()
         mock_coll_fn.return_value = mock_coll
+        mock_coll.get.return_value = {"documents": []}
 
         from app.chroma.memory import store_conversation_turn
 
@@ -41,6 +43,27 @@ def test_store_conversation_combines_qa():
         doc = mock_coll.upsert.call_args.kwargs["documents"][0]
         assert "What is OMOP?" in doc
         assert "OMOP is a common data model." in doc
+
+
+def test_store_conversation_skips_exact_duplicate():
+    """Exact repeated Q&A turns should not be re-embedded."""
+    with patch("app.chroma.memory.get_conversation_memory_collection") as mock_coll_fn:
+        mock_coll = MagicMock()
+        mock_coll_fn.return_value = mock_coll
+        mock_coll.get.return_value = {
+            "documents": ["Q: What is OMOP?\nA: OMOP is a common data model."],
+        }
+
+        from app.chroma.memory import store_conversation_turn
+
+        store_conversation_turn(
+            user_id=1,
+            question="What is OMOP?",
+            answer="OMOP is a common data model.",
+            page_context="general",
+        )
+
+        mock_coll.upsert.assert_not_called()
 
 
 def test_prune_old_conversations():

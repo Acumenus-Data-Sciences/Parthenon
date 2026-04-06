@@ -95,7 +95,7 @@ SQL;
 
         // Wrap in primary_events CTE with ROW_NUMBER for ordinal
         $primaryEventsCte = <<<SQL
-primary_events AS (
+primary_events AS MATERIALIZED (
     SELECT
         pe.person_id,
         pe.start_date,
@@ -117,20 +117,20 @@ SQL;
 
         $qualifiedCte = match ($limitType) {
             'First' => <<<'SQL'
-qualified_events AS (
+qualified_events AS MATERIALIZED (
     SELECT *
     FROM primary_events
     WHERE ordinal = 1
 )
 SQL,
             'All' => <<<'SQL'
-qualified_events AS (
+qualified_events AS MATERIALIZED (
     SELECT *
     FROM primary_events
 )
 SQL,
             default => <<<'SQL'
-qualified_events AS (
+qualified_events AS MATERIALIZED (
     SELECT *
     FROM primary_events
     WHERE ordinal = 1

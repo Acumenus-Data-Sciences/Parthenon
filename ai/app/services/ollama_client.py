@@ -30,7 +30,7 @@ async def check_ollama_health(base_url: str | None = None, model: str | None = N
         return "unavailable"
 
     try:
-        timeout = httpx.Timeout(0.5, connect=0.5)
+        timeout = httpx.Timeout(5.0, connect=2.0)
         async with httpx.AsyncClient(timeout=timeout, trust_env=False) as client:
             response = await client.get(f"{resolved_base_url}/api/tags")
             if response.status_code == 200:

@@ -52,7 +52,7 @@ class ConceptSetSqlBuilder
             $innerSql .= "\n    WHERE concept_id NOT IN (\n        {$excludedSql}\n    )";
         }
 
-        return "codesetId_{$id} AS (\n    {$innerSql}\n)";
+        return "codesetId_{$id} AS MATERIALIZED (\n    {$innerSql}\n)";
     }
 
     /**

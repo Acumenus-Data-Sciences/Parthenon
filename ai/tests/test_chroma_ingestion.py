@@ -1,70 +1,148 @@
-"""Tests for document ingestion pipeline."""
-import hashlib
+"""Tests for Chroma ingestion helpers."""
+
+import json
 from unittest.mock import MagicMock, patch
 
-import pytest
+
+def test_load_manifest_metadata_maps_converted_markdown_and_package_paths(tmp_path):
+    """Manifest metadata should resolve both converted .md names and package/README paths."""
+    source_dir = tmp_path / "seed"
+    source_dir.mkdir()
+    manifest = {
+        "chapters": [
+            {
+                "filename": "CommonDataModel.Rmd",
+                "title": "The Common Data Model",
+            }
+        ],
+        "files": [
+            {
+                "package": "CohortMethod",
+                "filename": "README.md",
+                "title": "CohortMethod - Overview",
+            }
+        ],
+        "topics": [
+            {
+                "topic_id": 15782,
+                "title": "Concept set save error",
+            }
+        ],
+    }
+    (source_dir / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+
+    from app.chroma.ingestion import _load_manifest_metadata
+
+    meta = _load_manifest_metadata(source_dir)
+
+    assert meta["CommonDataModel.md"]["title"] == "The Common Data Model"
+    assert meta["CohortMethod/README.md"]["title"] == "CohortMethod - Overview"
+    assert meta["topic_15782.md"]["title"] == "Concept set save error"
 
 
-def test_chunk_markdown_splits_by_headers():
-    """Markdown splitter respects heading boundaries."""
-    from app.chroma.ingestion import chunk_markdown
+def test_upsert_resilient_splits_batches_on_failure():
+    """Large upserts should retry in smaller chunks until they succeed."""
 
-    content = "# Title\n\nFirst section content.\n\n## Subtitle\n\nSecond section content."
-    chunks = chunk_markdown(content, chunk_size=512, chunk_overlap=64)
-    assert len(chunks) >= 1
-    assert all(isinstance(c, str) for c in chunks)
+    class FakeCollection:
+        def __init__(self):
+            self.calls = []
 
+        def upsert(self, *, ids, documents, metadatas):
+            self.calls.append(list(ids))
+            if len(ids) > 2:
+                raise TimeoutError("timed out in upsert")
 
-def test_chunk_markdown_respects_size_limit():
-    """Chunks stay within the specified token limit."""
-    from app.chroma.ingestion import chunk_markdown
+    from app.chroma.ingestion import _upsert_resilient
 
-    content = "# Big Doc\n\n" + ("word " * 1000)
-    chunks = chunk_markdown(content, chunk_size=256, chunk_overlap=32)
-    assert len(chunks) > 1
-    for chunk in chunks:
-        assert len(chunk) < 2000
+    collection = FakeCollection()
+    ids = ["a", "b", "c", "d"]
+    docs = ["A", "B", "C", "D"]
+    metas = [{"i": 1}, {"i": 2}, {"i": 3}, {"i": 4}]
 
+    _upsert_resilient(collection, ids, docs, metas, 4)
 
-def test_content_hash():
-    """Content hash is deterministic SHA-256."""
-    from app.chroma.ingestion import content_hash
-
-    text = "hello world"
-    expected = hashlib.sha256(text.encode()).hexdigest()
-    assert content_hash(text) == expected
+    assert collection.calls == [["a", "b", "c", "d"], ["a", "b"], ["c", "d"]]
 
 
-def test_ingest_docs_skips_unchanged(tmp_path):
-    """Ingestion skips files whose content hash hasn't changed."""
-    doc = tmp_path / "test.md"
-    doc.write_text("# Test\n\nSome content.")
+def test_ingest_medical_textbooks_uses_dedicated_collection(tmp_path):
+    """Textbooks should ingest into the medical_textbooks collection, not ohdsi_papers."""
+    textbooks_dir = tmp_path / "textbooks"
+    textbooks_dir.mkdir()
+    (textbooks_dir / "sample.jsonl").write_text(
+        json.dumps(
+            {
+                "text": "HGVS nomenclature is used to describe sequence variants." * 3,
+                "metadata": {
+                    "title": "Lewin's GENES XII",
+                    "category": "genetics",
+                    "priority": "high",
+                    "tier": 1,
+                    "chunk_index": 0,
+                    "total_chunks": 1,
+                },
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
 
-    with patch("app.chroma.ingestion.get_docs_collection") as mock_coll_fn:
-        mock_coll = MagicMock()
-        mock_coll_fn.return_value = mock_coll
+    mock_collection = MagicMock()
+    mock_collection.get.return_value = {"ids": []}
 
-        file_hash = hashlib.sha256("# Test\n\nSome content.".encode()).hexdigest()
-        mock_coll.get.return_value = {"ids": [f"test.md::0::{file_hash}"]}
+    with patch("app.chroma.ingestion.get_medical_textbooks_collection", return_value=mock_collection):
+        from app.chroma.ingestion import ingest_medical_textbooks
 
+        stats = ingest_medical_textbooks(str(textbooks_dir), batch_size=8)
+
+    assert stats["ingested"] == 1
+    mock_collection.upsert.assert_called()
+
+
+def test_ingest_docs_directory_preserves_title_and_heading_metadata(tmp_path):
+    """Docs chunks should retain file-level title and section provenance."""
+    docs_dir = tmp_path / "docs"
+    docs_dir.mkdir()
+    (docs_dir / "hgvs.md").write_text(
+        "# HGVS Variant Nomenclature\n\n"
+        "HGVS stands for Human Genome Variation Society nomenclature.\n\n"
+        "## Practical distinction\n\n"
+        "HGVS tells you how the variant is named.\n",
+        encoding="utf-8",
+    )
+
+    mock_collection = MagicMock()
+    mock_collection.get.return_value = {"ids": []}
+
+    with patch("app.chroma.ingestion.get_docs_collection", return_value=mock_collection):
         from app.chroma.ingestion import ingest_docs_directory
 
-        stats = ingest_docs_directory(str(tmp_path))
-        assert stats["skipped"] >= 1
+        stats = ingest_docs_directory(str(docs_dir))
+
+    assert stats["ingested"] == 1
+    upsert_kwargs = mock_collection.upsert.call_args.kwargs
+    assert upsert_kwargs["documents"][0].startswith("# HGVS Variant Nomenclature")
+    assert upsert_kwargs["metadatas"][0]["source_file"] == "hgvs.md"
+    assert upsert_kwargs["metadatas"][0]["title"] == "HGVS Variant Nomenclature"
+    assert upsert_kwargs["metadatas"][0]["heading_path"] == "HGVS Variant Nomenclature"
+    assert any(meta.get("section") == "Practical distinction" for meta in upsert_kwargs["metadatas"])
 
 
-def test_ingest_docs_adds_new_file(tmp_path):
-    """Ingestion adds chunks from a new file."""
-    doc = tmp_path / "new.md"
-    doc.write_text("# New Doc\n\nFresh content here.")
+def test_chunk_markdown_records_prefers_frontmatter_title_and_skips_frontmatter_content():
+    """Docusaurus frontmatter should inform provenance but not become a retrievable chunk."""
+    from app.chroma.ingestion import chunk_markdown_records
 
-    with patch("app.chroma.ingestion.get_docs_collection") as mock_coll_fn:
-        mock_coll = MagicMock()
-        mock_coll_fn.return_value = mock_coll
-        mock_coll.get.return_value = {"ids": []}
+    records = chunk_markdown_records(
+        "---\n"
+        "title: \"Abby Gets a Brain\"\n"
+        "slug: abby-brain\n"
+        "---\n\n"
+        "Lead paragraph.\n\n"
+        "<!-- truncate -->\n\n"
+        "## Details\n\n"
+        "Grounded content here.\n",
+        fallback_path="blog/abby-brain.md",
+    )
 
-        from app.chroma.ingestion import ingest_docs_directory
-
-        stats = ingest_docs_directory(str(tmp_path))
-        assert stats["ingested"] >= 1
-        mock_coll.upsert.assert_called()
+    assert records[0]["title"] == "Abby Gets a Brain"
+    assert all("slug:" not in record["text"] for record in records)
+    assert all("<!-- truncate -->" not in record["text"] for record in records)

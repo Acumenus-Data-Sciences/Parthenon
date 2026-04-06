@@ -1,15 +1,16 @@
 """SynPUF OMOP CDM v5.4 Data Enrichment Script.
 
-Fixes 7 data quality gaps in the synpuf schema so the CMS SynPUF 2.3M
-dataset passes all OHDSI Achilles and DQD checks.
+Fixes 10 data quality gaps in the synpuf schema so the CMS SynPUF 2.3M
+dataset passes all fixable OHDSI Achilles and DQD checks.
 
 Usage:
-    python scripts/synpuf_enrichment.py              # Run all stages
-    python scripts/synpuf_enrichment.py --stage 4    # Run only stage 4
-    python scripts/synpuf_enrichment.py --stage 4-7  # Run stages 4-7
-    python scripts/synpuf_enrichment.py --dry-run    # Show plan only
+    python scripts/synpuf_enrichment.py               # Run all stages
+    python scripts/synpuf_enrichment.py --stage 4     # Run only stage 4
+    python scripts/synpuf_enrichment.py --stage 4-7   # Run stages 4-7
+    python scripts/synpuf_enrichment.py --stage 8-10  # Run new DQ fix stages
+    python scripts/synpuf_enrichment.py --dry-run     # Show plan only
     python scripts/synpuf_enrichment.py --stop-on-error
-    python scripts/synpuf_enrichment.py --force      # Skip prompts
+    python scripts/synpuf_enrichment.py --force       # Skip prompts
 """
 from __future__ import annotations
 
@@ -56,6 +57,8 @@ DB_DSN: dict[str, Any] = {
 
 NUM_WORKERS = min(int(os.environ.get("SYNPUF_WORKERS", "8")), os.cpu_count() or 4)
 
+TOTAL_STAGES = 10
+
 STAGE_NAMES: dict[int, str] = {
     1: "CDM Source Metadata",
     2: "Empty CDM v5.4 Tables",
@@ -64,6 +67,9 @@ STAGE_NAMES: dict[int, str] = {
     5: "Reclassify Visit Concepts",
     6: "Remap Non-Standard Concepts",
     7: "Build Drug & Condition Eras",
+    8: "Derive Drug End Dates",
+    9: "Fix Non-Positive Drug Values",
+    10: "Link Drug Exposures to Visits",
 }
 
 console = Console()
@@ -169,7 +175,7 @@ def parse_args() -> argparse.Namespace:
 def parse_stage_range(stage_arg: str | None) -> list[int]:
     """Parse --stage argument into list of stage numbers."""
     if stage_arg is None:
-        return list(range(1, 8))
+        return list(range(1, TOTAL_STAGES + 1))
     if "-" in stage_arg:
         start, end = stage_arg.split("-", 1)
         return list(range(int(start), int(end) + 1))
@@ -209,7 +215,7 @@ def make_spinner_progress() -> Progress:
 def print_stage_header(stage_num: int, total: int, name: str):
     console.print()
     console.rule(
-        f"[bold cyan]Stage {stage_num}/7: {name}[/bold cyan]",
+        f"[bold cyan]Stage {stage_num}/{total}: {name}[/bold cyan]",
         style="cyan",
     )
 
@@ -274,14 +280,20 @@ def print_dry_run_table(stages: list[int], conn):
     dry_run_info = {
         1: ("1", "CREATE + INSERT"),
         2: ("7 tables", "CREATE TABLE"),
-        3: (str(query_scalar(conn, f"SELECT count(*) FROM {SCHEMA}.person WHERE race_concept_id = 0") or 0), "UPDATE"),
+        3: (str(query_scalar(conn, f"SELECT count(*) FROM {SCHEMA}.person WHERE race_concept_id IN (0, 8551)") or 0), "UPDATE"),
         4: (str(query_scalar(conn, f"""
             SELECT count(*) FROM {SCHEMA}.person p
             WHERE NOT EXISTS (SELECT 1 FROM {SCHEMA}.observation_period op WHERE op.person_id = p.person_id)
         """) or 0), "INSERT"),
         5: (str(query_scalar(conn, f"SELECT count(*) FROM {SCHEMA}.visit_occurrence WHERE visit_concept_id = 0") or 0), "UPDATE (batched)"),
-        6: ("~46,000,000", "UPDATE (3 tables)"),
+        6: ("~46,000,000", "UPDATE (6 tables + cleanup)"),
         7: ("~15,000,000", "INSERT (derived)"),
+        8: (str(query_scalar(conn, f"SELECT count(*) FROM {SCHEMA}.drug_exposure WHERE drug_exposure_end_date IS NULL") or 0), "UPDATE"),
+        9: (str(
+            (query_scalar(conn, f"SELECT count(*) FROM {SCHEMA}.drug_exposure WHERE quantity IS NOT NULL AND quantity <= 0") or 0)
+            + (query_scalar(conn, f"SELECT count(*) FROM {SCHEMA}.drug_exposure WHERE days_supply IS NOT NULL AND days_supply <= 0") or 0)
+        ), "UPDATE (NULL invalid)"),
+        10: (str(query_scalar(conn, f"SELECT count(*) FROM {SCHEMA}.drug_exposure WHERE visit_occurrence_id IS NULL") or 0), "UPDATE (parallel)"),
     }
 
     for s in sorted(stages):
@@ -539,14 +551,21 @@ def stage_2_empty_tables(conn, dry_run: bool = False) -> StageResult:
 # ---------------------------------------------------------------------------
 
 def stage_3_race(conn, dry_run: bool = False) -> StageResult:
-    """Fix unmapped race_concept_id = 0 -> 8551 (Unknown)."""
+    """Fix unmapped/invalid race_concept_id.
+
+    OMOP convention: concept_id = 0 means 'No matching concept'.
+    Previous versions incorrectly mapped to 8551 (Gender/UNKNOWN) which
+    caused DQD domainMatch failures. This stage fixes both race_concept_id = 0
+    (original unmapped) and race_concept_id = 8551 (prior incorrect fix).
+    """
     result = StageResult(stage_num=3, name=STAGE_NAMES[3])
     start = time.time()
 
+    # Count both original unmapped (0) and incorrectly mapped (8551 = Gender domain)
     before_count = query_scalar(
-        conn, f"SELECT count(*) FROM {SCHEMA}.person WHERE race_concept_id = 0"
+        conn, f"SELECT count(*) FROM {SCHEMA}.person WHERE race_concept_id IN (0, 8551)"
     )
-    print_before_count("persons with race_concept_id = 0", before_count)
+    print_before_count("persons with unmapped or invalid race_concept_id", before_count)
 
     if before_count == 0:
         result.status = "skipped"
@@ -564,10 +583,11 @@ def stage_3_race(conn, dry_run: bool = False) -> StageResult:
 
         try:
             with conn.cursor() as cur:
+                # Set to 0 (No matching concept) — DQD checks exclude concept_id = 0
                 cur.execute(f"""
                     UPDATE {SCHEMA}.person
-                    SET race_concept_id = 8551
-                    WHERE race_concept_id = 0
+                    SET race_concept_id = 0
+                    WHERE race_concept_id IN (0, 8551)
                 """)
                 result.rows_affected = cur.rowcount
             conn.commit()
@@ -578,7 +598,7 @@ def stage_3_race(conn, dry_run: bool = False) -> StageResult:
             result.error_message = str(e)
 
     result.elapsed_seconds = time.time() - start
-    print_after_count("persons updated to race = Unknown (8551)", result.rows_affected)
+    print_after_count("persons with race set to 0 (No matching concept)", result.rows_affected)
     return result
 
 
@@ -843,17 +863,58 @@ REMAP_TABLES = [
     ("condition_occurrence", "condition_concept_id", "Condition"),
     ("drug_exposure", "drug_concept_id", "Drug"),
     ("procedure_occurrence", "procedure_concept_id", "Procedure"),
+    ("measurement", "measurement_concept_id", "Measurement"),
+    ("observation", "observation_concept_id", "Observation"),
+    ("device_exposure", "device_concept_id", "Device"),
+]
+
+# Tables to zero-out invalid concept_ids that don't exist in vocab after remap
+CLEANUP_TABLES = [
+    ("condition_occurrence", "condition_concept_id"),
+    ("drug_exposure", "drug_concept_id"),
+    ("procedure_occurrence", "procedure_concept_id"),
+    ("measurement", "measurement_concept_id"),
+    ("observation", "observation_concept_id"),
+    ("device_exposure", "device_concept_id"),
 ]
 
 
-def _remap_worker(table_name: str, concept_col: str, domain: str) -> tuple[str, int]:
-    """Worker thread: remap non-standard concepts for one table."""
-    worker_conn = make_worker_connection()
+def _get_table_columns(conn, table_name: str) -> list[str]:
+    """Get column names for a table."""
+    with conn.cursor() as cur:
+        cur.execute(f"""
+            SELECT column_name FROM information_schema.columns
+            WHERE table_schema = '{SCHEMA}' AND table_name = '{table_name}'
+            ORDER BY ordinal_position
+        """)
+        return [row[0] for row in cur.fetchall()]
+
+
+def _remap_table_ctas(table_name: str, concept_col: str, domain: str) -> int:
+    """Remap + clean one table using single-pass CTAS + atomic swap.
+
+    Instead of UPDATE-in-place on 300M rows (random I/O, WAL, row locks),
+    we do a single sequential scan with LEFT JOIN that applies both the
+    remap AND the invalid-concept cleanup in one pass, writing directly
+    to an UNLOGGED staging table. Then atomic rename swap.
+
+    Performance: ~5-10 min for 303M rows vs 100+ min for in-place UPDATE.
+    """
+    conn = make_worker_connection()
     try:
-        with worker_conn.cursor() as cur:
-            # Build best-mapping temp table with domain tiebreaking
+        with conn.cursor() as cur:
+            cur.execute("SET work_mem = '2GB'")
+            cur.execute("SET maintenance_work_mem = '2GB'")
+
+            staging = f"_staging_{table_name}"
+
+            # Clean up leftover staging from a prior failed run
+            cur.execute(f"DROP TABLE IF EXISTS {SCHEMA}.{staging}")
+
+            # Phase 1: Build best-mapping temp table
+            console.print(f"      Building mapping table...")
             cur.execute(f"""
-                CREATE TEMP TABLE best_mapping_{table_name} AS
+                CREATE TEMP TABLE best_mapping AS
                 SELECT DISTINCT ON (cr.concept_id_1)
                     cr.concept_id_1 AS source_concept_id,
                     cr.concept_id_2 AS standard_concept_id
@@ -866,63 +927,197 @@ def _remap_worker(table_name: str, concept_col: str, domain: str) -> tuple[str, 
                     CASE WHEN c2.domain_id = %s THEN 0 ELSE 1 END,
                     cr.concept_id_2
             """, (domain,))
+            cur.execute("CREATE INDEX ON best_mapping (source_concept_id)")
+            cur.execute("ANALYZE best_mapping")
 
-            cur.execute(f"CREATE INDEX ON best_mapping_{table_name} (source_concept_id)")
+            # Get column list for the SELECT
+            columns = _get_table_columns(conn, table_name)
 
+            # Build the SELECT list: replace concept_col with the remapped+cleaned version
+            select_cols = []
+            for col in columns:
+                if col == concept_col:
+                    # Single expression: remap if mapping exists, zero if not in vocab, else keep
+                    select_cols.append(f"""
+                        CASE
+                            WHEN t.{concept_col} = 0 OR t.{concept_col} IS NULL
+                                THEN t.{concept_col}
+                            WHEN bm.standard_concept_id IS NOT NULL
+                                THEN bm.standard_concept_id
+                            WHEN vc.concept_id IS NULL
+                                THEN 0
+                            ELSE t.{concept_col}
+                        END AS {concept_col}""")
+                else:
+                    select_cols.append(f"t.{col}")
+
+            select_list = ",\n                        ".join(select_cols)
+
+            # Phase 2: Single-pass CTAS — sequential scan of source,
+            # LEFT JOIN mapping + vocab validation, write UNLOGGED staging
+            console.print(f"      Creating staging (single-pass CTAS)...")
             cur.execute(f"""
-                UPDATE {SCHEMA}.{table_name} t
-                SET {concept_col} = bm.standard_concept_id
-                FROM best_mapping_{table_name} bm
-                WHERE bm.source_concept_id = t.{concept_col}
+                CREATE UNLOGGED TABLE {SCHEMA}.{staging} AS
+                SELECT
+                    {select_list}
+                FROM {SCHEMA}.{table_name} t
+                LEFT JOIN best_mapping bm
+                    ON bm.source_concept_id = t.{concept_col}
+                LEFT JOIN {VOCAB_SCHEMA}.concept vc
+                    ON vc.concept_id = COALESCE(bm.standard_concept_id, t.{concept_col})
             """)
-            rows = cur.rowcount
-            cur.execute(f"DROP TABLE IF EXISTS best_mapping_{table_name}")
-        worker_conn.commit()
-        return (table_name, rows)
+            total_rows = cur.rowcount
+
+            cur.execute("DROP TABLE IF EXISTS best_mapping")
+
+        conn.commit()
+
+        # Phase 3: Rebuild indexes on staging
+        console.print(f"      Rebuilding indexes...")
+        with conn.cursor() as cur:
+            cur.execute("SET maintenance_work_mem = '2GB'")
+            cur.execute(f"""
+                SELECT indexname, indexdef FROM pg_indexes
+                WHERE schemaname = '{SCHEMA}' AND tablename = '{table_name}'
+            """)
+            indexes = cur.fetchall()
+
+            for idx_name, idx_def in indexes:
+                # Rewrite CREATE INDEX to target staging table with unique name
+                staging_def = idx_def.replace(
+                    f" ON {SCHEMA}.{table_name}", f" ON {SCHEMA}.{staging}"
+                )
+                # Replace index name to avoid conflicts
+                staging_def = staging_def.replace(
+                    f"INDEX {idx_name}", f"INDEX stg_{idx_name}"
+                )
+                try:
+                    cur.execute(staging_def)
+                except Exception as e:
+                    console.print(f"      [yellow]Index skip ({idx_name}): {e}[/yellow]")
+        conn.commit()
+
+        # Phase 4: Atomic swap
+        console.print(f"      Atomic swap...")
+        with conn.cursor() as cur:
+            old_table = f"_old_{table_name}"
+            cur.execute(f"DROP TABLE IF EXISTS {SCHEMA}.{old_table}")
+            cur.execute(f"ALTER TABLE {SCHEMA}.{table_name} RENAME TO {old_table}")
+            cur.execute(f"ALTER TABLE {SCHEMA}.{staging} RENAME TO {table_name}")
+            # Skip SET LOGGED — enrichment script is the recovery plan
+            # for this synthetic research dataset. Saves ~18 min per 303M-row table.
+            cur.execute(f"""
+                COMMENT ON TABLE {SCHEMA}.{table_name}
+                IS 'UNLOGGED: re-run synpuf_enrichment.py to rebuild after crash'
+            """)
+            cur.execute(f"DROP TABLE {SCHEMA}.{old_table}")
+        conn.commit()
+
+        console.print(f"      [green]{total_rows:,}[/green] rows rebuilt")
+        return total_rows
     except Exception:
-        worker_conn.rollback()
+        conn.rollback()
         try:
-            with worker_conn.cursor() as cur2:
-                cur2.execute(f"DROP TABLE IF EXISTS best_mapping_{table_name}")
+            with conn.cursor() as cur2:
+                cur2.execute(f"DROP TABLE IF EXISTS {SCHEMA}._staging_{table_name}")
+                cur2.execute("DROP TABLE IF EXISTS best_mapping")
         except Exception:
             pass
+        raise
+    finally:
+        conn.close()
+
+
+def _cleanup_invalid_bucket(
+    table_name: str, concept_col: str,
+    bucket: int, num_buckets: int,
+) -> int:
+    """Worker: zero invalid concept_ids for one person_id bucket."""
+    worker_conn = make_worker_connection()
+    try:
+        with worker_conn.cursor() as cur:
+            cur.execute(f"""
+                UPDATE {SCHEMA}.{table_name} t
+                SET {concept_col} = 0
+                WHERE t.{concept_col} != 0
+                  AND t.{concept_col} IS NOT NULL
+                  AND t.person_id % {num_buckets} = {bucket}
+                  AND NOT EXISTS (
+                      SELECT 1 FROM {VOCAB_SCHEMA}.concept c
+                      WHERE c.concept_id = t.{concept_col}
+                  )
+            """)
+            rows = cur.rowcount
+        worker_conn.commit()
+        return rows
+    except Exception:
+        worker_conn.rollback()
         raise
     finally:
         worker_conn.close()
 
 
+def _cleanup_table_parallel(
+    table_name: str, concept_col: str,
+    num_workers: int, progress, task,
+) -> int:
+    """Clean invalid concepts in one table using N parallel workers."""
+    total_rows = 0
+
+    with ThreadPoolExecutor(max_workers=num_workers) as executor:
+        futures = {
+            executor.submit(
+                _cleanup_invalid_bucket, table_name, concept_col,
+                bucket, num_workers,
+            ): bucket
+            for bucket in range(num_workers)
+        }
+        for future in as_completed(futures):
+            rows = future.result()
+            total_rows += rows
+            progress.advance(task)
+
+    return total_rows
+
+
 def stage_6_concept_remap(conn, dry_run: bool = False) -> StageResult:
-    """Map non-standard concept_ids to standard equivalents. Parallel (3 tables)."""
+    """Map non-standard concept_ids to standard equivalents + zero-out invalid.
+
+    Uses CTAS + atomic swap: single sequential scan with LEFT JOIN applies
+    both remap and cleanup in one pass per table. Writes to UNLOGGED staging
+    table (no WAL overhead), rebuilds indexes, then atomic rename swap.
+    """
     result = StageResult(stage_num=6, name=STAGE_NAMES[6])
     start = time.time()
     total_updated = 0
+    errors: list[str] = []
 
     if dry_run:
         result.status = "skipped"
         result.rows_affected = "~46,000,000"
         return result
 
-    console.print(f"  Dispatching {len(REMAP_TABLES)} tables across parallel workers...")
+    console.print(
+        f"  Remapping + cleaning {len(REMAP_TABLES)} tables "
+        f"(CTAS + atomic swap)..."
+    )
 
-    with make_progress() as progress:
-        task = progress.add_task("Remapping concepts...", total=len(REMAP_TABLES))
+    for table_name, concept_col, domain in REMAP_TABLES:
+        console.print(f"\n    [cyan]{table_name}[/cyan]...")
+        table_start = time.time()
 
-        with ThreadPoolExecutor(max_workers=len(REMAP_TABLES)) as executor:
-            futures = {
-                executor.submit(_remap_worker, table_name, concept_col, domain): table_name
-                for table_name, concept_col, domain in REMAP_TABLES
-            }
-            errors = []
-            for future in as_completed(futures):
-                table_name = futures[future]
-                try:
-                    tbl, rows = future.result()
-                    total_updated += rows
-                    console.print(f"    {tbl}: [green]{rows:,}[/green] rows remapped")
-                except Exception as e:
-                    errors.append(f"{table_name}: {e}")
-                    console.print(f"    [red]{table_name} ERROR: {e}[/red]")
-                progress.advance(task)
+        with make_spinner_progress() as progress:
+            task = progress.add_task(f"  {table_name}...", total=None)
+            try:
+                rows = _remap_table_ctas(table_name, concept_col, domain)
+                total_updated += rows
+                elapsed = time.time() - table_start
+                console.print(
+                    f"    {table_name}: [green]done[/green] in {format_elapsed(elapsed)}"
+                )
+            except Exception as e:
+                errors.append(f"{table_name}: {e}")
+                console.print(f"    [red]{table_name} ERROR: {e}[/red]")
 
     if errors:
         result.status = "error"
@@ -931,7 +1126,7 @@ def stage_6_concept_remap(conn, dry_run: bool = False) -> StageResult:
         result.status = "success"
     result.rows_affected = total_updated
     result.elapsed_seconds = time.time() - start
-    print_after_count("total records remapped to standard concepts", total_updated)
+    print_after_count("total rows rebuilt with corrected concepts", total_updated)
     return result
 
 
@@ -1492,6 +1687,300 @@ def stage_7_era_build(conn, dry_run: bool = False, force: bool = False) -> Stage
 
 
 # ---------------------------------------------------------------------------
+# Stage 8: Derive Drug End Dates
+# ---------------------------------------------------------------------------
+
+def _derive_end_dates_bucket(bucket: int, num_buckets: int) -> tuple[int, int]:
+    """Worker: derive drug_exposure_end_date for one person_id bucket."""
+    worker_conn = make_worker_connection()
+    try:
+        with worker_conn.cursor() as cur:
+            # Phase A: Use days_supply where available and positive
+            cur.execute(f"""
+                UPDATE {SCHEMA}.drug_exposure
+                SET drug_exposure_end_date =
+                    drug_exposure_start_date + GREATEST(days_supply, 1) * INTERVAL '1 day'
+                WHERE drug_exposure_end_date IS NULL
+                  AND days_supply IS NOT NULL
+                  AND days_supply > 0
+                  AND person_id % {num_buckets} = {bucket}
+            """)
+            rows_supply = cur.rowcount
+
+            # Phase B: Fallback — remaining NULLs get +1 day
+            cur.execute(f"""
+                UPDATE {SCHEMA}.drug_exposure
+                SET drug_exposure_end_date =
+                    drug_exposure_start_date + INTERVAL '1 day'
+                WHERE drug_exposure_end_date IS NULL
+                  AND person_id % {num_buckets} = {bucket}
+            """)
+            rows_fallback = cur.rowcount
+
+        worker_conn.commit()
+        return (rows_supply, rows_fallback)
+    except Exception:
+        worker_conn.rollback()
+        raise
+    finally:
+        worker_conn.close()
+
+
+def stage_8_drug_end_dates(conn, dry_run: bool = False) -> StageResult:
+    """Derive drug_exposure_end_date from start_date + days_supply.
+
+    SynPUF has 100% null drug_exposure_end_date. Per OHDSI convention:
+    - If days_supply > 0: end_date = start_date + days_supply
+    - If days_supply <= 0 or NULL: end_date = start_date + 1 (minimum 1-day exposure)
+
+    Parallelized by person_id % N for throughput.
+    """
+    result = StageResult(stage_num=8, name=STAGE_NAMES[8])
+    start = time.time()
+
+    before_count = query_scalar(
+        conn, f"SELECT count(*) FROM {SCHEMA}.drug_exposure WHERE drug_exposure_end_date IS NULL"
+    )
+    print_before_count("drug exposures with NULL end date", before_count)
+
+    if before_count == 0:
+        result.status = "skipped"
+        result.rows_affected = "already populated"
+        result.elapsed_seconds = time.time() - start
+        return result
+
+    if dry_run:
+        result.status = "skipped"
+        result.rows_affected = before_count
+        return result
+
+    num_workers = NUM_WORKERS
+    console.print(
+        f"  Deriving end dates with [bold]{num_workers}[/bold] parallel workers..."
+    )
+
+    total_supply = 0
+    total_fallback = 0
+    errors: list[str] = []
+
+    with make_progress() as progress:
+        task = progress.add_task("Deriving end dates...", total=num_workers)
+
+        with ThreadPoolExecutor(max_workers=num_workers) as executor:
+            futures = {
+                executor.submit(_derive_end_dates_bucket, bucket, num_workers): bucket
+                for bucket in range(num_workers)
+            }
+            for future in as_completed(futures):
+                bucket = futures[future]
+                try:
+                    rows_s, rows_f = future.result()
+                    total_supply += rows_s
+                    total_fallback += rows_f
+                except Exception as e:
+                    errors.append(f"bucket {bucket}: {e}")
+                    console.print(f"    [red]Worker {bucket} ERROR: {e}[/red]")
+                progress.advance(task)
+
+    console.print(
+        f"    From days_supply: [green]{total_supply:,}[/green] | "
+        f"Fallback (+1 day): [green]{total_fallback:,}[/green]"
+    )
+
+    if errors:
+        result.status = "error"
+        result.error_message = "; ".join(errors)
+    else:
+        result.status = "success"
+    result.rows_affected = total_supply + total_fallback
+    result.elapsed_seconds = time.time() - start
+    print_after_count("drug end dates derived", result.rows_affected)
+    return result
+
+
+# ---------------------------------------------------------------------------
+# Stage 9: Fix Non-Positive Drug Values
+# ---------------------------------------------------------------------------
+
+def stage_9_drug_values(conn, dry_run: bool = False) -> StageResult:
+    """NULL out non-positive quantity and days_supply in drug_exposure.
+
+    DQD plausibility checks flag records where quantity <= 0 or days_supply <= 0.
+    These are data errors — a drug exposure cannot have zero or negative quantity.
+    Setting to NULL is more correct than leaving invalid positive-claim values.
+    """
+    result = StageResult(stage_num=9, name=STAGE_NAMES[9])
+    start = time.time()
+
+    qty_count = query_scalar(
+        conn, f"SELECT count(*) FROM {SCHEMA}.drug_exposure WHERE quantity IS NOT NULL AND quantity <= 0"
+    )
+    days_count = query_scalar(
+        conn, f"SELECT count(*) FROM {SCHEMA}.drug_exposure WHERE days_supply IS NOT NULL AND days_supply <= 0"
+    )
+    total_before = (qty_count or 0) + (days_count or 0)
+    print_before_count(f"non-positive values (quantity: {qty_count or 0:,}, days_supply: {days_count or 0:,})", total_before)
+
+    if total_before == 0:
+        result.status = "skipped"
+        result.rows_affected = "already clean"
+        result.elapsed_seconds = time.time() - start
+        return result
+
+    if dry_run:
+        result.status = "skipped"
+        result.rows_affected = total_before
+        return result
+
+    with make_spinner_progress() as progress:
+        task = progress.add_task(f"Fixing {total_before:,} non-positive values...", total=None)
+
+        try:
+            total_fixed = 0
+            with conn.cursor() as cur:
+                if qty_count and qty_count > 0:
+                    cur.execute(f"""
+                        UPDATE {SCHEMA}.drug_exposure
+                        SET quantity = NULL
+                        WHERE quantity IS NOT NULL AND quantity <= 0
+                    """)
+                    total_fixed += cur.rowcount
+                    console.print(f"    quantity → NULL: [green]{cur.rowcount:,}[/green] rows")
+
+                if days_count and days_count > 0:
+                    cur.execute(f"""
+                        UPDATE {SCHEMA}.drug_exposure
+                        SET days_supply = NULL
+                        WHERE days_supply IS NOT NULL AND days_supply <= 0
+                    """)
+                    total_fixed += cur.rowcount
+                    console.print(f"    days_supply → NULL: [green]{cur.rowcount:,}[/green] rows")
+
+            conn.commit()
+            result.rows_affected = total_fixed
+            result.status = "success"
+        except Exception as e:
+            conn.rollback()
+            result.status = "error"
+            result.error_message = str(e)
+
+    result.elapsed_seconds = time.time() - start
+    print_after_count("non-positive drug values nulled", result.rows_affected)
+    return result
+
+
+# ---------------------------------------------------------------------------
+# Stage 10: Link Drug Exposures to Visits
+# ---------------------------------------------------------------------------
+
+def _link_drugs_to_visits_worker(bucket: int, num_buckets: int) -> int:
+    """Worker: link drug_exposure to visit_occurrence by person + date overlap."""
+    worker_conn = make_worker_connection()
+    try:
+        with worker_conn.cursor() as cur:
+            cur.execute(f"SET work_mem = '512MB'")
+            cur.execute(f"""
+                UPDATE {SCHEMA}.drug_exposure de
+                SET visit_occurrence_id = sub.visit_occurrence_id,
+                    provider_id = COALESCE(de.provider_id, sub.provider_id)
+                FROM (
+                    SELECT DISTINCT ON (de2.drug_exposure_id)
+                        de2.drug_exposure_id,
+                        vo.visit_occurrence_id,
+                        vo.provider_id
+                    FROM {SCHEMA}.drug_exposure de2
+                    JOIN {SCHEMA}.visit_occurrence vo
+                        ON vo.person_id = de2.person_id
+                        AND de2.drug_exposure_start_date
+                            BETWEEN vo.visit_start_date AND COALESCE(vo.visit_end_date, vo.visit_start_date)
+                    WHERE de2.visit_occurrence_id IS NULL
+                      AND de2.person_id % {num_buckets} = {bucket}
+                    ORDER BY de2.drug_exposure_id,
+                        -- Prefer inpatient/ER over outpatient
+                        CASE vo.visit_concept_id
+                            WHEN 9201 THEN 0  -- Inpatient
+                            WHEN 9203 THEN 1  -- ER
+                            WHEN 9202 THEN 2  -- Outpatient
+                            ELSE 3
+                        END,
+                        vo.visit_start_date
+                ) sub
+                WHERE de.drug_exposure_id = sub.drug_exposure_id
+            """)
+            rows = cur.rowcount
+        worker_conn.commit()
+        return rows
+    except Exception:
+        worker_conn.rollback()
+        raise
+    finally:
+        worker_conn.close()
+
+
+def stage_10_link_drugs_to_visits(conn, dry_run: bool = False) -> StageResult:
+    """Link drug_exposure records to visit_occurrence by person + date overlap.
+
+    Also backfills provider_id from the matched visit when the drug has no provider.
+    Uses parallel workers hash-sharded by person_id for throughput.
+    """
+    result = StageResult(stage_num=10, name=STAGE_NAMES[10])
+    start = time.time()
+
+    unlinked = query_scalar(
+        conn, f"SELECT count(*) FROM {SCHEMA}.drug_exposure WHERE visit_occurrence_id IS NULL"
+    )
+    print_before_count("drug exposures with no visit link", unlinked)
+
+    if unlinked == 0:
+        result.status = "skipped"
+        result.rows_affected = "all linked"
+        result.elapsed_seconds = time.time() - start
+        return result
+
+    if dry_run:
+        result.status = "skipped"
+        result.rows_affected = unlinked
+        return result
+
+    num_workers = NUM_WORKERS
+    console.print(
+        f"  Linking drugs to visits with [bold]{num_workers}[/bold] parallel workers..."
+    )
+
+    total_linked = 0
+    errors = []
+
+    with make_progress() as progress:
+        task = progress.add_task("Linking drug→visit...", total=num_workers)
+
+        with ThreadPoolExecutor(max_workers=num_workers) as executor:
+            futures = {
+                executor.submit(_link_drugs_to_visits_worker, bucket, num_workers): bucket
+                for bucket in range(num_workers)
+            }
+            for future in as_completed(futures):
+                bucket = futures[future]
+                try:
+                    rows = future.result()
+                    total_linked += rows
+                    console.print(f"    Worker {bucket}: [green]{rows:,}[/green] linked")
+                except Exception as e:
+                    errors.append(f"bucket {bucket}: {e}")
+                    console.print(f"    [red]Worker {bucket} ERROR: {e}[/red]")
+                progress.advance(task)
+
+    if errors:
+        result.status = "error"
+        result.error_message = "; ".join(errors)
+    else:
+        result.status = "success"
+    result.rows_affected = total_linked
+    result.elapsed_seconds = time.time() - start
+    print_after_count("drug exposures linked to visits (+ provider backfill)", total_linked)
+    return result
+
+
+# ---------------------------------------------------------------------------
 # Main orchestrator
 # ---------------------------------------------------------------------------
 
@@ -1503,6 +1992,9 @@ STAGE_FUNCTIONS = {
     5: stage_5_visit_concepts,
     6: stage_6_concept_remap,
     7: stage_7_era_build,
+    8: stage_8_drug_end_dates,
+    9: stage_9_drug_values,
+    10: stage_10_link_drugs_to_visits,
 }
 
 
@@ -1510,7 +2002,7 @@ def run_stage(stage_num: int, conn, dry_run: bool, force: bool) -> StageResult:
     """Run a single enrichment stage with error handling."""
     func = STAGE_FUNCTIONS[stage_num]
 
-    print_stage_header(stage_num, 7, STAGE_NAMES[stage_num])
+    print_stage_header(stage_num, TOTAL_STAGES, STAGE_NAMES[stage_num])
 
     try:
         if stage_num == 7:
@@ -1534,7 +2026,7 @@ def main():
     # Validate stage numbers
     for s in stages:
         if s not in STAGE_NAMES:
-            console.print(f"[red]Invalid stage number: {s}. Valid: 1-7[/red]")
+            console.print(f"[red]Invalid stage number: {s}. Valid: 1-{TOTAL_STAGES}[/red]")
             sys.exit(1)
 
     # Header

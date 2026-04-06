@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Dqd;
 
+use App\Context\SourceContext;
 use App\Events\DqdRunCompleted;
 use App\Models\App\Source;
 use App\Services\Dqd\DqdEngineService;
@@ -41,6 +42,9 @@ class RunDqdJob implements ShouldQueue
      */
     public function handle(DqdEngineService $engine): void
     {
+        // Register source context so SourceAware trait can resolve connections
+        SourceContext::forSource($this->source);
+
         Log::info('RunDqdJob: Starting DQD execution', [
             'source_id' => $this->source->id,
             'category' => $this->category,

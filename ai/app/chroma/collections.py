@@ -22,7 +22,7 @@ def _get_cached_collection(
     *,
     name: str,
     embedding_function: Any,
-    metadata: dict[str, str],
+    metadata: dict[str, Any],
 ) -> Collection:
     cached = _collection_cache.get(cache_key)
     if cached is not None:
@@ -36,6 +36,11 @@ def _get_cached_collection(
     )
     _collection_cache[cache_key] = collection
     return collection
+
+
+def clear_cached_collection(cache_key: str) -> None:
+    """Forget a cached collection handle after external mutation/rebuild."""
+    _collection_cache.pop(cache_key, None)
 
 
 def get_docs_collection() -> Collection:
@@ -97,6 +102,21 @@ def get_ohdsi_papers_collection() -> Collection:
     return _get_cached_collection(
         "ohdsi_papers",
         name="ohdsi_papers",
+        embedding_function=get_clinical_embedder(),  # type: ignore[arg-type]
+        metadata={"hnsw:space": "cosine"},
+    )
+
+
+def get_medical_textbooks_collection() -> Collection:
+    """Foundational medical textbooks collection using SapBERT (768-dim).
+
+    Contains background reference material for biology, genetics, and
+    clinical-methods questions. Kept separate from OHDSI literature to
+    reduce retrieval noise.
+    """
+    return _get_cached_collection(
+        "medical_textbooks",
+        name="medical_textbooks",
         embedding_function=get_clinical_embedder(),  # type: ignore[arg-type]
         metadata={"hnsw:space": "cosine"},
     )
