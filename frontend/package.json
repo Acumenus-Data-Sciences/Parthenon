@@ -43,7 +43,7 @@
     "livekit-client": "^2.18.1",
     "lucide-react": "^0.577.0",
     "maplibre-gl": "^5.22.0",
-    "pusher-js": "^8.4.3",
+    "pusher-js": "^8.5.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-hook-form": "^7.72.1",
