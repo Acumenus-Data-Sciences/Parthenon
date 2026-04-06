@@ -19,6 +19,16 @@ parameters:
 			path: app/Http/Controllers/Api/V1/MappingReviewController.php
 
 		-
+			message: '#^Direct DB\:\:connection\(''inpatient''\) is banned\. Use the SourceAware trait\: \$this\-\>cdm\(\), \$this\-\>results\(\), or \$this\-\>vocab\(\)\. See docs/superpowers/specs/2026\-03\-26\-cdm\-source\-isolation\-design\.md$#'
+			count: 1
+			path: app/Http/Controllers/Api/V1/MorpheusDashboardController.php
+
+		-
+			message: '#^Direct DB\:\:connection\(''inpatient''\) is banned\. Use the SourceAware trait\: \$this\-\>cdm\(\), \$this\-\>results\(\), or \$this\-\>vocab\(\)\. See docs/superpowers/specs/2026\-03\-26\-cdm\-source\-isolation\-design\.md$#'
+			count: 1
+			path: app/Http/Controllers/Api/V1/MorpheusPatientController.php
+
+		-
 			message: '#^Method App\\Models\\Commons\\Call\:\:scopeActive\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -29,6 +39,17 @@ parameters:
 			identifier: missingType.parameter
 			count: 1
 			path: app/Models/Commons/Call.php
+
+		-
+			message: '#^PHPDoc tag @return with type array\<string, mixed\> is incompatible with native type Illuminate\\Http\\Client\\Response\.$#'
+			identifier: return.phpDocType
+			count: 8
+			path: app/Services/AiService.php
+
+		-
+			message: '#^Direct DB\:\:connection\(''omop''\) is banned\. Use the SourceAware trait\: \$this\-\>cdm\(\), \$this\-\>results\(\), or \$this\-\>vocab\(\)\. See docs/superpowers/specs/2026\-03\-26\-cdm\-source\-isolation\-design\.md$#'
+			count: 2
+			path: app/Services/Ares/NetworkComparisonService.php
 
 		-
 			message: '#^Call to static method table\(\) on an unknown class App\\Services\\Ares\\DB\.$#'
@@ -47,12 +68,6 @@ parameters:
 			identifier: class.notFound
 			count: 1
 			path: app/Services/Fhir/FhirNdjsonProcessorService.php
-
-		-
-			message: '#^Call to an undefined method App\\Models\\App\\FhirConnection\:\:usesSmartBackendServices\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Services/Fhir/FhirSyncDispatcherService.php
 
 		-
 			message: '#^Generator expects value type array\<string, string\>, array\<string, bool\|string\|null\> given\.$#'
@@ -131,18 +146,3 @@ parameters:
 			identifier: arrayValues.list
 			count: 1
 			path: app/Support/IncidenceRateResultNormalizer.php
-
-		-
-			message: '#^Direct DB\:\:connection\(''inpatient''\) is banned#'
-			count: 1
-			path: app/Http/Controllers/Api/V1/MorpheusDashboardController.php
-
-		-
-			message: '#^Direct DB\:\:connection\(''inpatient''\) is banned#'
-			count: 1
-			path: app/Http/Controllers/Api/V1/MorpheusPatientController.php
-
-		-
-			message: '#^Direct DB\:\:connection\(''omop''\) is banned#'
-			count: 2
-			path: app/Services/Ares/NetworkComparisonService.php

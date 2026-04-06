@@ -196,6 +196,37 @@ SQL;
         $havingClause = '';
 
         if ($requiresLeftJoin) {
+            // Absence check optimization: "exactly 0" and "at most 0" can use
+            // NOT EXISTS instead of LEFT JOIN + HAVING COUNT = 0. NOT EXISTS
+            // short-circuits after the first matching row, avoiding the full
+            // LEFT JOIN materialization against 86M+ row tables.
+            $occType = (int) ($occurrence['Type'] ?? 2);
+            $occCount = (int) ($occurrence['Count'] ?? 0);
+            $isAbsenceCheck = ($occType === 0 && $occCount === 0) || ($occType === 1 && $occCount === 0);
+
+            if ($isAbsenceCheck) {
+                $conceptFilter = '';
+                if ($codesetId !== null) {
+                    $conceptFilter = "\n            AND e.{$conceptCol} IN (SELECT concept_id FROM codesetId_{$codesetId})";
+                }
+
+                $existsWhere = '';
+                if (! empty($allWhere)) {
+                    $existsWhere = "\n            AND ".implode("\n            AND ", $allWhere);
+                }
+
+                return <<<SQL
+{$cteName} AS (
+    SELECT DISTINCT qe.person_id
+    FROM qualified_events qe
+    WHERE NOT EXISTS (
+        SELECT 1 FROM {$cdmSchema}.{$table} e
+        WHERE e.{$personIdCol} = qe.person_id{$conceptFilter}{$existsWhere}
+    )
+)
+SQL;
+            }
+
             $joinClauses = ["qe.person_id = e.{$personIdCol}"];
 
             if ($codesetId !== null) {
@@ -229,22 +260,16 @@ SQL;
         $selectExpr = 'qe.person_id';
         $groupBy = 'GROUP BY qe.person_id';
 
-        if (! empty($havingClause)) {
-            return <<<SQL
-{$cteName} AS (
-    SELECT {$selectExpr}
-    FROM qualified_events qe
-    {$joinSql}
-    WHERE 1=1{$whereStr}
-    {$groupBy}
-    {$havingClause}
-)
-SQL;
-        }
-
         // Existence-only check: use EXISTS semi-join for early termination.
-        // This avoids producing all matching rows then deduplicating with DISTINCT.
-        if (! $requiresLeftJoin) {
+        // EXISTS stops scanning after the first matching row per person, avoiding
+        // the full JOIN + GROUP BY + HAVING COUNT(*) >= 1 pattern that produces
+        // all matching rows before aggregating. This is the single biggest
+        // optimization for drug-heavy cohorts scanning 86M+ row tables.
+        $occType = (int) ($occurrence['Type'] ?? 2);
+        $occCount = (int) ($occurrence['Count'] ?? 0);
+        $isSimpleExistence = ! $requiresLeftJoin && $occType === 2 && $occCount <= 1;
+
+        if ($isSimpleExistence) {
             $conceptFilter = '';
             if ($codesetId !== null) {
                 $conceptFilter = "\n        AND e.{$conceptCol} IN (SELECT concept_id FROM codesetId_{$codesetId})";
@@ -258,6 +283,19 @@ SQL;
         SELECT 1 FROM {$cdmSchema}.{$table} e
         WHERE e.{$personIdCol} = qe.person_id{$conceptFilter}{$whereStr}
     )
+)
+SQL;
+        }
+
+        if (! empty($havingClause)) {
+            return <<<SQL
+{$cteName} AS (
+    SELECT {$selectExpr}
+    FROM qualified_events qe
+    {$joinSql}
+    WHERE 1=1{$whereStr}
+    {$groupBy}
+    {$havingClause}
 )
 SQL;
         }
