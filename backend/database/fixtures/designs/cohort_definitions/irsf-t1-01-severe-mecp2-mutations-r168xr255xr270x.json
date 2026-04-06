@@ -1,82 +1,79 @@
 {
-    "id": 223,
-    "name": "FOLFIRINOX Recipients",
-    "description": "PDAC patients who received all three FOLFIRINOX components — fluorouracil (955632), oxaliplatin (1318011), and irinotecan (1367268) — within 90 days of first PDAC diagnosis.",
+    "id": 198,
+    "name": "IRSF T1-01: Severe MECP2 Mutations (R168X\/R255X\/R270X)",
+    "description": "Patients with severe MECP2 missense mutations (R168X, R255X, R270X) and CSS > 20. Mean CSS 25-27. N~313. For clinical trial enrollment targeting severe Rett phenotype.",
     "expression_json": {
         "ConceptSets": [
             {
                 "id": 0,
-                "name": "PDAC Condition",
+                "name": "CSS Total Score",
                 "expression": {
                     "items": [
                         {
                             "concept": {
-                                "DOMAIN_ID": "Condition",
-                                "CONCEPT_ID": 4180793,
-                                "CONCEPT_CODE": "",
-                                "CONCEPT_NAME": "Malignant tumor of pancreas",
-                                "VOCABULARY_ID": "SNOMED",
-                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 2000001000,
+                                "CONCEPT_NAME": "CSS Total Score",
+                                "VOCABULARY_ID": "IRSF-NHS",
+                                "CONCEPT_CLASS_ID": "Clinical Observation",
                                 "STANDARD_CONCEPT": "S"
                             },
                             "isExcluded": false,
                             "includeMapped": false,
-                            "includeDescendants": true
+                            "includeDescendants": false
                         }
                     ]
                 }
             },
             {
                 "id": 1,
-                "name": "FOLFIRINOX Components",
+                "name": "Severe MECP2 Mutations",
                 "expression": {
                     "items": [
                         {
                             "concept": {
-                                "DOMAIN_ID": "Drug",
-                                "CONCEPT_ID": 955632,
-                                "CONCEPT_CODE": "",
-                                "CONCEPT_NAME": "Fluorouracil",
-                                "VOCABULARY_ID": "RxNorm",
-                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "DOMAIN_ID": "Observation",
+                                "CONCEPT_ID": 2000003011,
+                                "CONCEPT_NAME": "IRSF MECP2 Mutation R168X (c.C502T)",
+                                "VOCABULARY_ID": "IRSF-NHS",
+                                "CONCEPT_CLASS_ID": "Observable Entity",
                                 "STANDARD_CONCEPT": "S"
                             },
                             "isExcluded": false,
                             "includeMapped": false,
-                            "includeDescendants": true
+                            "includeDescendants": false
                         },
                         {
                             "concept": {
-                                "DOMAIN_ID": "Drug",
-                                "CONCEPT_ID": 1318011,
-                                "CONCEPT_CODE": "",
-                                "CONCEPT_NAME": "Oxaliplatin",
-                                "VOCABULARY_ID": "RxNorm",
-                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "DOMAIN_ID": "Observation",
+                                "CONCEPT_ID": 2000003012,
+                                "CONCEPT_NAME": "IRSF MECP2 Mutation R255X (c.C763T)",
+                                "VOCABULARY_ID": "IRSF-NHS",
+                                "CONCEPT_CLASS_ID": "Observable Entity",
                                 "STANDARD_CONCEPT": "S"
                             },
                             "isExcluded": false,
                             "includeMapped": false,
-                            "includeDescendants": true
+                            "includeDescendants": false
                         },
                         {
                             "concept": {
-                                "DOMAIN_ID": "Drug",
-                                "CONCEPT_ID": 1367268,
-                                "CONCEPT_CODE": "",
-                                "CONCEPT_NAME": "Irinotecan",
-                                "VOCABULARY_ID": "RxNorm",
-                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "DOMAIN_ID": "Observation",
+                                "CONCEPT_ID": 2000003013,
+                                "CONCEPT_NAME": "IRSF MECP2 Mutation R270X (c.C808T)",
+                                "VOCABULARY_ID": "IRSF-NHS",
+                                "CONCEPT_CLASS_ID": "Observable Entity",
                                 "STANDARD_CONCEPT": "S"
                             },
                             "isExcluded": false,
                             "includeMapped": false,
-                            "includeDescendants": true
+                            "includeDescendants": false
                         }
                     ]
                 }
             }
         ],
+        "InclusionRules": [],
         "QualifiedLimit": {
             "Type": "First"
         },
@@ -86,9 +83,12 @@
         "PrimaryCriteria": {
             "CriteriaList": [
                 {
-                    "ConditionOccurrence": {
-                        "First": true,
-                        "CodesetId": 0
+                    "Measurement": {
+                        "CodesetId": 0,
+                        "ValueAsNumber": {
+                            "Op": "gt",
+                            "Value": 20
+                        }
                     }
                 }
             ],
@@ -101,28 +101,29 @@
             "EraPad": 0,
             "CollapseType": "ERA"
         },
+        "CensoringCriteria": [],
         "AdditionalCriteria": {
             "Type": "ALL",
             "Groups": [],
             "CriteriaList": [
                 {
                     "Criteria": {
-                        "DrugExposure": {
+                        "Observation": {
                             "CodesetId": 1
                         }
                     },
                     "Occurrence": {
                         "Type": 2,
-                        "Count": 3
+                        "Count": 1
                     },
                     "StartWindow": {
                         "End": {
-                            "Days": 90,
+                            "Days": 99999,
                             "Coeff": 1
                         },
                         "Start": {
-                            "Days": 0,
-                            "Coeff": 1
+                            "Days": 99999,
+                            "Coeff": -1
                         }
                     }
                 }
@@ -132,15 +133,14 @@
     "author_id": 117,
     "is_public": true,
     "version": 1,
-    "created_at": "2026-03-28T18:26:28.000000Z",
-    "updated_at": "2026-03-30T21:06:43.000000Z",
+    "created_at": "2026-03-26T20:46:03.000000Z",
+    "updated_at": "2026-03-26T20:46:03.000000Z",
     "deleted_at": null,
     "tags": [
-        "pancreatic-cancer",
-        "pdac",
-        "folfirinox",
-        "chemotherapy",
-        "corpus"
+        "IRSF-NHS",
+        "Tier 1",
+        "Clinical Trial",
+        "Genotype"
     ],
     "share_token": null,
     "share_expires_at": null

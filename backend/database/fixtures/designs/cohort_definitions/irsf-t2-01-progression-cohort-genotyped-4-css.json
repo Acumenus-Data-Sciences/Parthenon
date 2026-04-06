@@ -1,32 +1,32 @@
 {
-    "id": 221,
-    "name": "All PDAC Patients",
-    "description": "All patients with a diagnosis of malignant tumor of pancreas (SNOMED 4180793). Serves as the base cohort for all pancreatic cancer sub-analyses in the multimodal corpus.",
+    "id": 201,
+    "name": "IRSF T2-01: Progression Cohort (Genotyped + 4+ CSS)",
+    "description": "Patients with known mutation and 4+ CSS assessments. N~848. FDA-quality external control arm for single-arm trials.",
     "expression_json": {
         "ConceptSets": [
             {
                 "id": 0,
-                "name": "PDAC Condition",
+                "name": "CSS Total Score",
                 "expression": {
                     "items": [
                         {
                             "concept": {
-                                "DOMAIN_ID": "Condition",
-                                "CONCEPT_ID": 4180793,
-                                "CONCEPT_CODE": "",
-                                "CONCEPT_NAME": "Malignant tumor of pancreas",
-                                "VOCABULARY_ID": "SNOMED",
-                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 2000001000,
+                                "CONCEPT_NAME": "CSS Total Score",
+                                "VOCABULARY_ID": "IRSF-NHS",
+                                "CONCEPT_CLASS_ID": "Clinical Observation",
                                 "STANDARD_CONCEPT": "S"
                             },
                             "isExcluded": false,
                             "includeMapped": false,
-                            "includeDescendants": true
+                            "includeDescendants": false
                         }
                     ]
                 }
             }
         ],
+        "InclusionRules": [],
         "QualifiedLimit": {
             "Type": "First"
         },
@@ -36,8 +36,7 @@
         "PrimaryCriteria": {
             "CriteriaList": [
                 {
-                    "ConditionOccurrence": {
-                        "First": true,
+                    "Measurement": {
                         "CodesetId": 0
                     }
                 }
@@ -50,18 +49,20 @@
         "CollapseSettings": {
             "EraPad": 0,
             "CollapseType": "ERA"
-        }
+        },
+        "CensoringCriteria": []
     },
     "author_id": 117,
     "is_public": true,
     "version": 1,
-    "created_at": "2026-03-28T18:26:28.000000Z",
-    "updated_at": "2026-03-30T21:06:43.000000Z",
+    "created_at": "2026-03-26T20:46:03.000000Z",
+    "updated_at": "2026-03-26T20:46:03.000000Z",
     "deleted_at": null,
     "tags": [
-        "pancreatic-cancer",
-        "pdac",
-        "corpus"
+        "IRSF-NHS",
+        "Tier 2",
+        "Natural History",
+        "External Control"
     ],
     "share_token": null,
     "share_expires_at": null

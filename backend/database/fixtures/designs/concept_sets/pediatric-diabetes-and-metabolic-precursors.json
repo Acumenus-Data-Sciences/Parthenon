@@ -1,372 +1,280 @@
 {
+    "id": 149,
     "name": "Pediatric Diabetes and Metabolic Precursors",
     "description": "Comprehensive concept set for pediatric diabetes mellitus including Type 1, Type 2, MODY, neonatal diabetes, cystic fibrosis-related diabetes, and all diabetic complications. Also includes metabolic precursors: prediabetes, impaired glucose tolerance, impaired fasting glycemia, hyperglycemia, insulin resistance, and metabolic syndrome. Excludes gestational diabetes mellitus. Designed for use in pediatric (age 2-17) cohort definitions per ADA Standards of Medical Care in Diabetes.",
-    "expression": {
-        "items": [
-            {
-                "concept": {
-                    "CONCEPT_ID": 201820,
-                    "CONCEPT_NAME": "Diabetes mellitus",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "73211009"
-                },
-                "isExcluded": false,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 442793,
-                    "CONCEPT_NAME": "Complication due to diabetes mellitus",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "74627003"
-                },
-                "isExcluded": false,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 4024659,
-                    "CONCEPT_NAME": "Gestational diabetes mellitus",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "11687002"
-                },
-                "isExcluded": true,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 4058243,
-                    "CONCEPT_NAME": "Diabetes mellitus during pregnancy, childbirth and the puerperium",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "199223000"
-                },
-                "isExcluded": true,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 194700,
-                    "CONCEPT_NAME": "Diabetes mellitus in mother complicating pregnancy, childbirth AND/OR puerperium",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "76751001"
-                },
-                "isExcluded": true,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 37018196,
-                    "CONCEPT_NAME": "Prediabetes",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Clinical Finding",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "714628002"
-                },
-                "isExcluded": false,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 4311629,
-                    "CONCEPT_NAME": "Impaired glucose tolerance",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "9414007"
-                },
-                "isExcluded": false,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 4030067,
-                    "CONCEPT_NAME": "Impaired glucose tolerance in pregnancy",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "237628005"
-                },
-                "isExcluded": true,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 4308509,
-                    "CONCEPT_NAME": "Impaired fasting glycemia",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "390951007"
-                },
-                "isExcluded": false,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 4214376,
-                    "CONCEPT_NAME": "Hyperglycemia",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "80394007"
-                },
-                "isExcluded": false,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 35622016,
-                    "CONCEPT_NAME": "Insulin resistance",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "763325000"
-                },
-                "isExcluded": false,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 436940,
-                    "CONCEPT_NAME": "Metabolic syndrome X",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "237602007"
-                },
-                "isExcluded": false,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 443727,
-                    "CONCEPT_NAME": "Diabetic ketoacidosis",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "420422005"
-                },
-                "isExcluded": false,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 4016046,
-                    "CONCEPT_NAME": "Chronic hyperglycemia",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "170765005"
-                },
-                "isExcluded": false,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 44808373,
-                    "CONCEPT_NAME": "Impaired glucose regulation",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "849171000000106"
-                },
-                "isExcluded": false,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 4219466,
-                    "CONCEPT_NAME": "Pregestational diabetes mellitus AND/OR impaired glucose tolerance, modified White class A",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "82141001"
-                },
-                "isExcluded": true,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 4146514,
-                    "CONCEPT_NAME": "Pregestational diabetes mellitus AND/OR impaired glucose tolerance, modified White class B",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "34818008"
-                },
-                "isExcluded": true,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 4242853,
-                    "CONCEPT_NAME": "Pregestational diabetes mellitus AND/OR impaired glucose tolerance, modified White class C",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "38063000"
-                },
-                "isExcluded": true,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 4144221,
-                    "CONCEPT_NAME": "Pregestational diabetes mellitus AND/OR impaired glucose tolerance, modified White class D",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "33669002"
-                },
-                "isExcluded": true,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 4182243,
-                    "CONCEPT_NAME": "Pregestational diabetes mellitus AND/OR impaired glucose tolerance, modified White class F",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "4307007"
-                },
-                "isExcluded": true,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 4220981,
-                    "CONCEPT_NAME": "Pregestational diabetes mellitus AND/OR impaired glucose tolerance, modified White class FR",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "82701004"
-                },
-                "isExcluded": true,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 4305491,
-                    "CONCEPT_NAME": "Pregestational diabetes mellitus AND/OR impaired glucose tolerance, modified White class R",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "82260000"
-                },
-                "isExcluded": true,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 37169731,
-                    "CONCEPT_NAME": "Prediabetes in mother during pregnancy",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "16896421000119107"
-                },
-                "isExcluded": true,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 42538560,
-                    "CONCEPT_NAME": "Syndrome of infant of mother with gestational diabetes",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "762291006"
-                },
-                "isExcluded": true,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 45766963,
-                    "CONCEPT_NAME": "Fetal hypertrophic cardiomyopathy due to maternal diabetes mellitus",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "704241002"
-                },
-                "isExcluded": true,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 4034966,
-                    "CONCEPT_NAME": "Hyperglycemic disorder in pregnancy",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "237625008"
-                },
-                "isExcluded": true,
-                "includeDescendants": true,
-                "includeMapped": false
-            }
-        ]
-    }
+    "expression_json": null,
+    "author_id": 117,
+    "is_public": true,
+    "tags": [
+        "pediatric",
+        "diabetes",
+        "endocrine",
+        "metabolic",
+        "prediabetes"
+    ],
+    "created_at": "2026-04-05T03:07:04.000000Z",
+    "updated_at": "2026-04-05T03:07:04.000000Z",
+    "deleted_at": null,
+    "items": [
+        {
+            "id": 1371,
+            "concept_set_id": 149,
+            "concept_id": 201820,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:07:33.000000Z",
+            "updated_at": "2026-04-05T03:07:33.000000Z"
+        },
+        {
+            "id": 1372,
+            "concept_set_id": 149,
+            "concept_id": 442793,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:07:33.000000Z",
+            "updated_at": "2026-04-05T03:07:33.000000Z"
+        },
+        {
+            "id": 1373,
+            "concept_set_id": 149,
+            "concept_id": 4024659,
+            "is_excluded": true,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:07:33.000000Z",
+            "updated_at": "2026-04-05T03:07:33.000000Z"
+        },
+        {
+            "id": 1374,
+            "concept_set_id": 149,
+            "concept_id": 4058243,
+            "is_excluded": true,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:07:33.000000Z",
+            "updated_at": "2026-04-05T03:07:33.000000Z"
+        },
+        {
+            "id": 1375,
+            "concept_set_id": 149,
+            "concept_id": 194700,
+            "is_excluded": true,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:07:33.000000Z",
+            "updated_at": "2026-04-05T03:07:33.000000Z"
+        },
+        {
+            "id": 1376,
+            "concept_set_id": 149,
+            "concept_id": 37018196,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:07:33.000000Z",
+            "updated_at": "2026-04-05T03:07:33.000000Z"
+        },
+        {
+            "id": 1377,
+            "concept_set_id": 149,
+            "concept_id": 4311629,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:07:33.000000Z",
+            "updated_at": "2026-04-05T03:07:33.000000Z"
+        },
+        {
+            "id": 1378,
+            "concept_set_id": 149,
+            "concept_id": 4030067,
+            "is_excluded": true,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:07:33.000000Z",
+            "updated_at": "2026-04-05T03:07:33.000000Z"
+        },
+        {
+            "id": 1379,
+            "concept_set_id": 149,
+            "concept_id": 4308509,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:07:33.000000Z",
+            "updated_at": "2026-04-05T03:07:33.000000Z"
+        },
+        {
+            "id": 1380,
+            "concept_set_id": 149,
+            "concept_id": 4214376,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:07:33.000000Z",
+            "updated_at": "2026-04-05T03:07:33.000000Z"
+        },
+        {
+            "id": 1381,
+            "concept_set_id": 149,
+            "concept_id": 35622016,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:07:34.000000Z",
+            "updated_at": "2026-04-05T03:07:34.000000Z"
+        },
+        {
+            "id": 1382,
+            "concept_set_id": 149,
+            "concept_id": 436940,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:07:34.000000Z",
+            "updated_at": "2026-04-05T03:07:34.000000Z"
+        },
+        {
+            "id": 1383,
+            "concept_set_id": 149,
+            "concept_id": 443727,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:07:34.000000Z",
+            "updated_at": "2026-04-05T03:07:34.000000Z"
+        },
+        {
+            "id": 1384,
+            "concept_set_id": 149,
+            "concept_id": 4016046,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:07:34.000000Z",
+            "updated_at": "2026-04-05T03:07:34.000000Z"
+        },
+        {
+            "id": 1385,
+            "concept_set_id": 149,
+            "concept_id": 44808373,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:07:34.000000Z",
+            "updated_at": "2026-04-05T03:07:34.000000Z"
+        },
+        {
+            "id": 1391,
+            "concept_set_id": 149,
+            "concept_id": 4219466,
+            "is_excluded": true,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:41:35.000000Z",
+            "updated_at": "2026-04-05T03:41:35.000000Z"
+        },
+        {
+            "id": 1392,
+            "concept_set_id": 149,
+            "concept_id": 4146514,
+            "is_excluded": true,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:41:35.000000Z",
+            "updated_at": "2026-04-05T03:41:35.000000Z"
+        },
+        {
+            "id": 1393,
+            "concept_set_id": 149,
+            "concept_id": 4242853,
+            "is_excluded": true,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:41:35.000000Z",
+            "updated_at": "2026-04-05T03:41:35.000000Z"
+        },
+        {
+            "id": 1394,
+            "concept_set_id": 149,
+            "concept_id": 4144221,
+            "is_excluded": true,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:41:35.000000Z",
+            "updated_at": "2026-04-05T03:41:35.000000Z"
+        },
+        {
+            "id": 1395,
+            "concept_set_id": 149,
+            "concept_id": 4182243,
+            "is_excluded": true,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:41:35.000000Z",
+            "updated_at": "2026-04-05T03:41:35.000000Z"
+        },
+        {
+            "id": 1396,
+            "concept_set_id": 149,
+            "concept_id": 4220981,
+            "is_excluded": true,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:41:35.000000Z",
+            "updated_at": "2026-04-05T03:41:35.000000Z"
+        },
+        {
+            "id": 1397,
+            "concept_set_id": 149,
+            "concept_id": 4305491,
+            "is_excluded": true,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:41:35.000000Z",
+            "updated_at": "2026-04-05T03:41:35.000000Z"
+        },
+        {
+            "id": 1398,
+            "concept_set_id": 149,
+            "concept_id": 37169731,
+            "is_excluded": true,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:41:35.000000Z",
+            "updated_at": "2026-04-05T03:41:35.000000Z"
+        },
+        {
+            "id": 1399,
+            "concept_set_id": 149,
+            "concept_id": 42538560,
+            "is_excluded": true,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:41:35.000000Z",
+            "updated_at": "2026-04-05T03:41:35.000000Z"
+        },
+        {
+            "id": 1401,
+            "concept_set_id": 149,
+            "concept_id": 45766963,
+            "is_excluded": true,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:49:56.000000Z",
+            "updated_at": "2026-04-05T03:49:56.000000Z"
+        },
+        {
+            "id": 1402,
+            "concept_set_id": 149,
+            "concept_id": 4034966,
+            "is_excluded": true,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:50:26.000000Z",
+            "updated_at": "2026-04-05T03:50:26.000000Z"
+        }
+    ]
 }

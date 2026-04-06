@@ -1,0 +1,106 @@
+{
+    "id": 207,
+    "name": "IRSF T3-04: Seizure-Free Rett Patients",
+    "description": "Rett patients with no seizure diagnosis and no AEDs. N~534. Protective phenotype research.",
+    "expression_json": {
+        "ConceptSets": [
+            {
+                "id": 0,
+                "name": "CSS Epilepsy\/Seizures Score",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 2000001013,
+                                "CONCEPT_NAME": "IRSF CSS Epilepsy\/Seizures",
+                                "VOCABULARY_ID": "IRSF-NHS",
+                                "CONCEPT_CLASS_ID": "Clinical Observation",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        }
+                    ]
+                }
+            }
+        ],
+        "InclusionRules": [],
+        "QualifiedLimit": {
+            "Type": "First"
+        },
+        "ExpressionLimit": {
+            "Type": "First"
+        },
+        "PrimaryCriteria": {
+            "CriteriaList": [
+                {
+                    "Measurement": {
+                        "CodesetId": 0
+                    }
+                }
+            ],
+            "ObservationWindow": {
+                "PostDays": 0,
+                "PriorDays": 0
+            }
+        },
+        "CollapseSettings": {
+            "EraPad": 0,
+            "CollapseType": "ERA"
+        },
+        "CensoringCriteria": [],
+        "AdditionalCriteria": {
+            "Type": "ALL",
+            "Groups": [
+                {
+                    "Type": "AT_MOST_0",
+                    "Groups": [],
+                    "CriteriaList": [
+                        {
+                            "Criteria": {
+                                "Measurement": {
+                                    "CodesetId": 0,
+                                    "ValueAsNumber": {
+                                        "Op": "gt",
+                                        "Value": 0
+                                    }
+                                }
+                            },
+                            "Occurrence": {
+                                "Type": 2,
+                                "Count": 1
+                            },
+                            "StartWindow": {
+                                "End": {
+                                    "Days": 99999,
+                                    "Coeff": 1
+                                },
+                                "Start": {
+                                    "Days": 99999,
+                                    "Coeff": -1
+                                }
+                            }
+                        }
+                    ]
+                }
+            ],
+            "CriteriaList": []
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-03-26T20:46:04.000000Z",
+    "updated_at": "2026-03-26T20:46:04.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "IRSF-NHS",
+        "Tier 3",
+        "Phenotype",
+        "Seizure-Free"
+    ],
+    "share_token": null,
+    "share_expires_at": null
+}

@@ -1,0 +1,45 @@
+{
+    "id": 12,
+    "name": "IRSF-006: AED Polypharmacy Effect on Functional Impairment (SCCS)",
+    "description": "Self-Controlled Case Series examining whether transition to 3+ concurrent anticonvulsants (AED polypharmacy, cohort 208) is associated with severe functional impairment (CSS Total >= 30, cohort 212). SCCS uses each patient as their own control, eliminating confounding by genotype, sex, and baseline severity. Two risk windows: on-treatment and 90-day post-treatment. 180-day naive period excludes early observation. Event-dependent observation accounts for death censoring. This is the first within-patient AED safety study in Rett syndrome.",
+    "design_json": {
+        "naivePeriod": 180,
+        "riskWindows": [
+            {
+                "end": {
+                    "anchor": "era end",
+                    "offset": 0
+                },
+                "label": "On treatment (polypharmacy era)",
+                "start": {
+                    "anchor": "era start",
+                    "offset": 0
+                }
+            },
+            {
+                "end": {
+                    "anchor": "era end",
+                    "offset": 90
+                },
+                "label": "Post-treatment 90 days",
+                "start": {
+                    "anchor": "era end",
+                    "offset": 1
+                }
+            }
+        ],
+        "outcomeCohortId": 212,
+        "exposureCohortId": 208,
+        "firstOutcomeOnly": true,
+        "covariateSettings": {
+            "useAgeAsSpline": true,
+            "useSeasonality": true,
+            "useCalendarTime": true
+        },
+        "eventDependentObservation": true
+    },
+    "author_id": 117,
+    "created_at": "2026-03-27T00:08:53.000000Z",
+    "updated_at": "2026-03-27T00:08:53.000000Z",
+    "deleted_at": null
+}

@@ -1,190 +1,149 @@
 {
+    "id": 148,
     "name": "Pediatric Hypertension",
-    "description": "Comprehensive concept set for pediatric hypertension including essential hypertension, secondary hypertension, hypertensive heart/renal disease, prehypertension, and labile hypertension. Excludes obstetric/pregnancy-related hypertension. Designed for use in pediatric (age 2-17) cohort definitions per AAP 2017 Clinical Practice Guidelines.",
-    "expression": {
-        "items": [
-            {
-                "concept": {
-                    "CONCEPT_ID": 316866,
-                    "CONCEPT_NAME": "Hypertensive disorder",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "38341003"
-                },
-                "isExcluded": false,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 4279525,
-                    "CONCEPT_NAME": "Hypertension in the obstetric context",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "367390009"
-                },
-                "isExcluded": true,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 321080,
-                    "CONCEPT_NAME": "Hypertension complicating pregnancy, childbirth and the puerperium",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "198941007"
-                },
-                "isExcluded": true,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 439393,
-                    "CONCEPT_NAME": "Pre-eclampsia",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "398254007"
-                },
-                "isExcluded": true,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 45765798,
-                    "CONCEPT_NAME": "Prehypertension",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Clinical Finding",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "702817009"
-                },
-                "isExcluded": false,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 44783644,
-                    "CONCEPT_NAME": "Labile hypertension due to being in a clinical environment",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "697930002"
-                },
-                "isExcluded": false,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 4337510,
-                    "CONCEPT_NAME": "Episodic pulmonary hypertension",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "87394009"
-                },
-                "isExcluded": true,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 4289142,
-                    "CONCEPT_NAME": "Eclampsia added to pre-existing hypertension",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "69909000"
-                },
-                "isExcluded": true,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 45757119,
-                    "CONCEPT_NAME": "Eclampsia with pre-existing hypertension in childbirth",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "10752641000119102"
-                },
-                "isExcluded": true,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 44784484,
-                    "CONCEPT_NAME": "Hypertension in the puerperium with pulmonary edema",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "698640000"
-                },
-                "isExcluded": true,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 45757356,
-                    "CONCEPT_NAME": "Pre-existing hypertensive chronic kidney disease in mother complicating pregnancy",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "118781000119108"
-                },
-                "isExcluded": true,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 4057979,
-                    "CONCEPT_NAME": "Pre-existing secondary hypertension complicating pregnancy, childbirth and puerperium",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "199008003"
-                },
-                "isExcluded": true,
-                "includeDescendants": true,
-                "includeMapped": false
-            },
-            {
-                "concept": {
-                    "CONCEPT_ID": 4118910,
-                    "CONCEPT_NAME": "Maternal hypertension",
-                    "DOMAIN_ID": "Condition",
-                    "VOCABULARY_ID": "SNOMED",
-                    "CONCEPT_CLASS_ID": "Disorder",
-                    "STANDARD_CONCEPT": "S",
-                    "CONCEPT_CODE": "288250001"
-                },
-                "isExcluded": true,
-                "includeDescendants": true,
-                "includeMapped": false
-            }
-        ]
-    }
+    "description": "Comprehensive concept set for pediatric hypertension including essential hypertension, secondary hypertension, hypertensive heart\/renal disease, prehypertension, and labile hypertension. Excludes obstetric\/pregnancy-related hypertension. Designed for use in pediatric (age 2-17) cohort definitions per AAP 2017 Clinical Practice Guidelines.",
+    "expression_json": null,
+    "author_id": 117,
+    "is_public": true,
+    "tags": [
+        "pediatric",
+        "hypertension",
+        "cardiovascular",
+        "blood-pressure"
+    ],
+    "created_at": "2026-04-05T03:06:03.000000Z",
+    "updated_at": "2026-04-05T03:06:03.000000Z",
+    "deleted_at": null,
+    "items": [
+        {
+            "id": 1364,
+            "concept_set_id": 148,
+            "concept_id": 316866,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:06:24.000000Z",
+            "updated_at": "2026-04-05T03:06:24.000000Z"
+        },
+        {
+            "id": 1365,
+            "concept_set_id": 148,
+            "concept_id": 4279525,
+            "is_excluded": true,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:06:24.000000Z",
+            "updated_at": "2026-04-05T03:06:24.000000Z"
+        },
+        {
+            "id": 1366,
+            "concept_set_id": 148,
+            "concept_id": 321080,
+            "is_excluded": true,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:06:24.000000Z",
+            "updated_at": "2026-04-05T03:06:24.000000Z"
+        },
+        {
+            "id": 1367,
+            "concept_set_id": 148,
+            "concept_id": 439393,
+            "is_excluded": true,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:06:24.000000Z",
+            "updated_at": "2026-04-05T03:06:24.000000Z"
+        },
+        {
+            "id": 1368,
+            "concept_set_id": 148,
+            "concept_id": 45765798,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:06:24.000000Z",
+            "updated_at": "2026-04-05T03:06:24.000000Z"
+        },
+        {
+            "id": 1369,
+            "concept_set_id": 148,
+            "concept_id": 44783644,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:06:24.000000Z",
+            "updated_at": "2026-04-05T03:06:24.000000Z"
+        },
+        {
+            "id": 1370,
+            "concept_set_id": 148,
+            "concept_id": 4337510,
+            "is_excluded": true,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:06:24.000000Z",
+            "updated_at": "2026-04-05T03:06:24.000000Z"
+        },
+        {
+            "id": 1386,
+            "concept_set_id": 148,
+            "concept_id": 4289142,
+            "is_excluded": true,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:38:11.000000Z",
+            "updated_at": "2026-04-05T03:38:11.000000Z"
+        },
+        {
+            "id": 1387,
+            "concept_set_id": 148,
+            "concept_id": 45757119,
+            "is_excluded": true,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:38:11.000000Z",
+            "updated_at": "2026-04-05T03:38:11.000000Z"
+        },
+        {
+            "id": 1388,
+            "concept_set_id": 148,
+            "concept_id": 44784484,
+            "is_excluded": true,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:38:11.000000Z",
+            "updated_at": "2026-04-05T03:38:11.000000Z"
+        },
+        {
+            "id": 1389,
+            "concept_set_id": 148,
+            "concept_id": 45757356,
+            "is_excluded": true,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:38:11.000000Z",
+            "updated_at": "2026-04-05T03:38:11.000000Z"
+        },
+        {
+            "id": 1390,
+            "concept_set_id": 148,
+            "concept_id": 4057979,
+            "is_excluded": true,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:38:11.000000Z",
+            "updated_at": "2026-04-05T03:38:11.000000Z"
+        },
+        {
+            "id": 1400,
+            "concept_set_id": 148,
+            "concept_id": 4118910,
+            "is_excluded": true,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-05T03:49:56.000000Z",
+            "updated_at": "2026-04-05T03:49:56.000000Z"
+        }
+    ]
 }

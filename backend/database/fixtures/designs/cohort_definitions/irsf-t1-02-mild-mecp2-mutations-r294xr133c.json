@@ -1,54 +1,66 @@
 {
-    "id": 225,
-    "name": "KRAS Mutant PDAC",
-    "description": "PDAC patients with a detected KRAS somatic mutation (concept 3012200, value Present). KRAS is mutated in ~93% of pancreatic adenocarcinomas and is the hallmark oncogenic driver.",
+    "id": 199,
+    "name": "IRSF T1-02: Mild MECP2 Mutations (R294X\/R133C)",
+    "description": "Patients with milder MECP2 mutations (R294X, R133C) with CSS assessment. Mean CSS 17-18. N~187. Comparison arm for genotype-stratified trials.",
     "expression_json": {
         "ConceptSets": [
             {
                 "id": 0,
-                "name": "PDAC Condition",
+                "name": "CSS Total Score",
                 "expression": {
                     "items": [
                         {
                             "concept": {
-                                "DOMAIN_ID": "Condition",
-                                "CONCEPT_ID": 4180793,
-                                "CONCEPT_CODE": "",
-                                "CONCEPT_NAME": "Malignant tumor of pancreas",
-                                "VOCABULARY_ID": "SNOMED",
-                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 2000001000,
+                                "CONCEPT_NAME": "CSS Total Score",
+                                "VOCABULARY_ID": "IRSF-NHS",
+                                "CONCEPT_CLASS_ID": "Clinical Observation",
                                 "STANDARD_CONCEPT": "S"
                             },
                             "isExcluded": false,
                             "includeMapped": false,
-                            "includeDescendants": true
+                            "includeDescendants": false
                         }
                     ]
                 }
             },
             {
                 "id": 1,
-                "name": "KRAS Mutation Analysis",
+                "name": "Mild MECP2 Mutations",
                 "expression": {
                     "items": [
                         {
                             "concept": {
-                                "DOMAIN_ID": "Measurement",
-                                "CONCEPT_ID": 3012200,
-                                "CONCEPT_CODE": "",
-                                "CONCEPT_NAME": "KRAS gene mutations found [Identifier] in Blood or Tissue by Molecular genetics method",
-                                "VOCABULARY_ID": "LOINC",
-                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "DOMAIN_ID": "Observation",
+                                "CONCEPT_ID": 2000003014,
+                                "CONCEPT_NAME": "IRSF MECP2 Mutation R294X (c.C880T)",
+                                "VOCABULARY_ID": "IRSF-NHS",
+                                "CONCEPT_CLASS_ID": "Observable Entity",
                                 "STANDARD_CONCEPT": "S"
                             },
                             "isExcluded": false,
                             "includeMapped": false,
-                            "includeDescendants": true
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Observation",
+                                "CONCEPT_ID": 2000003001,
+                                "CONCEPT_NAME": "IRSF MECP2 Mutation R133C (c.C397T)",
+                                "VOCABULARY_ID": "IRSF-NHS",
+                                "CONCEPT_CLASS_ID": "Observable Entity",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
                         }
                     ]
                 }
             }
         ],
+        "InclusionRules": [],
         "QualifiedLimit": {
             "Type": "First"
         },
@@ -58,8 +70,7 @@
         "PrimaryCriteria": {
             "CriteriaList": [
                 {
-                    "ConditionOccurrence": {
-                        "First": true,
+                    "Measurement": {
                         "CodesetId": 0
                     }
                 }
@@ -73,20 +84,15 @@
             "EraPad": 0,
             "CollapseType": "ERA"
         },
+        "CensoringCriteria": [],
         "AdditionalCriteria": {
             "Type": "ALL",
             "Groups": [],
             "CriteriaList": [
                 {
                     "Criteria": {
-                        "Measurement": {
-                            "CodesetId": 1,
-                            "ValueAsConcept": [
-                                {
-                                    "CONCEPT_ID": 4181412,
-                                    "CONCEPT_NAME": "Present"
-                                }
-                            ]
+                        "Observation": {
+                            "CodesetId": 1
                         }
                     },
                     "Occurrence": {
@@ -95,11 +101,11 @@
                     },
                     "StartWindow": {
                         "End": {
-                            "Days": 365,
+                            "Days": 99999,
                             "Coeff": 1
                         },
                         "Start": {
-                            "Days": 365,
+                            "Days": 99999,
                             "Coeff": -1
                         }
                     }
@@ -110,15 +116,14 @@
     "author_id": 117,
     "is_public": true,
     "version": 1,
-    "created_at": "2026-03-28T19:33:58.000000Z",
-    "updated_at": "2026-03-30T21:06:44.000000Z",
+    "created_at": "2026-03-26T20:46:03.000000Z",
+    "updated_at": "2026-03-26T20:46:03.000000Z",
     "deleted_at": null,
     "tags": [
-        "pancreatic-cancer",
-        "pdac",
-        "kras",
-        "genomics",
-        "corpus"
+        "IRSF-NHS",
+        "Tier 1",
+        "Clinical Trial",
+        "Genotype"
     ],
     "share_token": null,
     "share_expires_at": null
