@@ -68,6 +68,7 @@ OPTIONAL_ROUTERS: list[tuple[str, dict[str, Any]]] = [
     ("app.routers.study_agent", {"prefix": "/study-agent", "tags": ["study-agent"]}),
     ("app.routers.ariadne", {"prefix": "/ariadne", "tags": ["ariadne"]}),
     ("app.routers.text_to_sql", {"prefix": "/text-to-sql", "tags": ["text-to-sql"]}),
+    ("app.routers.wiki", {"prefix": "/wiki", "tags": ["wiki"]}),
     ("app.routers.gis_import", {}),
     ("app.routers.genomics", {}),
     ("app.routers.patient_similarity", {"tags": ["patient-similarity"]}),

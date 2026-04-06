@@ -74,6 +74,9 @@ class RolePermissionSeeder extends Seeder
 
         // ── Patient similarity engine ────────────────────────────────────
         'patient-similarity' => ['view', 'compute'],
+
+        // ── AI-maintained wiki ───────────────────────────────────────────
+        'wiki' => ['view', 'ingest', 'lint', 'manage'],
     ];
 
     /**
@@ -99,6 +102,7 @@ class RolePermissionSeeder extends Seeder
             'profiler.view', 'profiler.scan', 'profiler.delete',
             'etl.view', 'etl.create', 'etl.delete', 'etl.export',
             'surveys.view', 'surveys.create', 'surveys.edit', 'surveys.delete',
+            'wiki.view', 'wiki.ingest', 'wiki.lint', 'wiki.manage',
         ],
 
         // Clinical/epidemiological researcher — primary user persona.
@@ -117,6 +121,7 @@ class RolePermissionSeeder extends Seeder
             'etl.view', 'etl.create', 'etl.export',
             'surveys.view', 'surveys.create', 'surveys.edit',
             'patient-similarity.view',
+            'wiki.view', 'wiki.ingest', 'wiki.lint',
         ],
 
         // Responsible for data pipelines and CDM quality.
@@ -132,6 +137,7 @@ class RolePermissionSeeder extends Seeder
             'profiler.view', 'profiler.scan',
             'etl.view', 'etl.create', 'etl.export',
             'patient-similarity.compute',
+            'wiki.view', 'wiki.ingest', 'wiki.lint', 'wiki.manage',
         ],
 
         // Reviews and approves AI concept mapping suggestions.
@@ -141,6 +147,7 @@ class RolePermissionSeeder extends Seeder
             'ingestion.view',
             'sources.view',
             'jobs.view',
+            'wiki.view',
         ],
 
         // Read-only access to research outputs.
@@ -159,6 +166,7 @@ class RolePermissionSeeder extends Seeder
             'etl.view',
             'surveys.view',
             'patient-similarity.view',
+            'wiki.view',
         ],
     ];
 

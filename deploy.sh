@@ -365,7 +365,7 @@ if $DO_OPENAPI; then
   fi
 
   if is_running node; then
-    if docker compose exec node sh -c "cd /app && npm run generate:api-types" 2>/dev/null; then
+    if docker compose exec -T node sh -c "cat > /tmp/api.json && cd /app && OPENAPI_INPUT=/tmp/api.json npm run generate:api-types" < backend/api.json 2>/dev/null; then
       ok "Types generated → frontend/src/types/api.generated.ts"
     else
       warn "Type generation failed (non-critical)"

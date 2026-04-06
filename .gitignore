@@ -135,6 +135,7 @@ output/
 tmp/
 backend/tmp/
 external/
+data/wiki/
 
 # IRSF ETL
 scripts/irsf_etl/output/

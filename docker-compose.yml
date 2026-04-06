@@ -170,6 +170,7 @@ services:
       - ./OHDSI-scraper/medical_textbooks_extracted:/app/medical_textbooks:ro
       - ./backend/storage/app:/var/www/html/storage/app:ro
       - /tmp/parthenon-ai-models:/models
+      - wiki-data:/data/wiki
     environment:
       - DATABASE_URL=postgresql://abby_analyst:${ABBY_PG_PASSWORD}@host.docker.internal:5432/parthenon
       - GIS_DATABASE_URL=postgresql://abby_analyst:${ABBY_PG_PASSWORD}@host.docker.internal:5432/parthenon
@@ -733,9 +734,11 @@ services:
       - docs_site_npm_cache:/tmp/npm-cache
     command: >
       sh -c "
-        mkdir -p /tmp/npm-cache /dist &&
-        chown -R node:node /docs/node_modules /tmp/npm-cache /dist &&
-        su node -s /bin/sh -c 'npm ci --legacy-peer-deps --prefer-offline && DOCKER_BUILD=1 npm run build:docker'
+        mkdir -p /tmp/npm-cache /dist /tmp/docs-build &&
+        chown -R node:node /docs/node_modules /tmp/npm-cache /dist /tmp/docs-build &&
+        su node -s /bin/sh -c 'npm ci --legacy-peer-deps --prefer-offline && DOCKER_BUILD=1 DOCS_BUILD_OUT_DIR=/tmp/docs-build npm run build:docker' &&
+        rm -rf /dist/* &&
+        cp -a /tmp/docs-build/. /dist/
       "
     deploy:
       resources:
@@ -1123,6 +1126,12 @@ volumes:
   jupyterhub-data:
   docs_site_node_modules:
   docs_site_npm_cache:
+  wiki-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/data/wiki
 
 networks:
   parthenon:

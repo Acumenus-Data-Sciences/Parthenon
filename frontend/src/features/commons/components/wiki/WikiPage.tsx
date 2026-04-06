@@ -1,508 +1,250 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { BookOpen, PencilRuler, Sparkles } from "lucide-react";
+import { toast } from "@/components/ui/Toast";
 import {
-  BookOpen,
-  Plus,
-  Search,
-  ArrowLeft,
-  Edit2,
-  Trash2,
-  Clock,
-  Tag,
-} from "lucide-react";
-import {
-  useWikiArticles,
-  useWikiArticle,
-  useCreateWikiArticle,
-  useUpdateWikiArticle,
-  useDeleteWikiArticle,
-  useWikiRevisions,
-} from "../../api";
-import { UserAvatar } from "../UserAvatar";
-import type { WikiArticle } from "../../types";
-import { useAuthStore } from "@/stores/authStore";
-import { Modal } from "@/components/ui/Modal";
+  useInitWikiWorkspace,
+  useIngestWikiSource,
+  useWikiActivity,
+  useWikiLint,
+  useWikiPage,
+  useWikiPages,
+  useWikiQuery,
+  useWikiWorkspaces,
+} from "../../api/wiki";
+import { useWikiStore } from "@/stores/wikiStore";
+import { WikiActivityFeed } from "./WikiActivityFeed";
+import { WikiIngestPanel } from "./WikiIngestPanel";
+import { WikiPageTree } from "./WikiPageTree";
+import { WikiPageView } from "./WikiPageView";
+import { WikiQueryPanel } from "./WikiQueryPanel";
+import { WikiWorkspaceSelector } from "./WikiWorkspaceSelector";
+import { LegacyWikiPage } from "./LegacyWikiPage";
 
-// ---------------------------------------------------------------------------
-// Article List
-// ---------------------------------------------------------------------------
+function AiWikiPage() {
+  const workspace = useWikiStore((state) => state.workspace);
+  const selectedPageSlug = useWikiStore((state) => state.selectedPageSlug);
+  const searchQuery = useWikiStore((state) => state.searchQuery);
+  const queryPanelOpen = useWikiStore((state) => state.queryPanelOpen);
+  const ingestPanelOpen = useWikiStore((state) => state.ingestPanelOpen);
+  const lastQueryResponse = useWikiStore((state) => state.lastQueryResponse);
+  const lastLintResponse = useWikiStore((state) => state.lastLintResponse);
+  const draftWorkspaceName = useWikiStore((state) => state.draftWorkspaceName);
+  const setWorkspace = useWikiStore((state) => state.setWorkspace);
+  const setSelectedPageSlug = useWikiStore((state) => state.setSelectedPageSlug);
+  const setSearchQuery = useWikiStore((state) => state.setSearchQuery);
+  const setQueryPanelOpen = useWikiStore((state) => state.setQueryPanelOpen);
+  const setIngestPanelOpen = useWikiStore((state) => state.setIngestPanelOpen);
+  const setLastQueryResponse = useWikiStore((state) => state.setLastQueryResponse);
+  const setLastLintResponse = useWikiStore((state) => state.setLastLintResponse);
+  const setDraftWorkspaceName = useWikiStore((state) => state.setDraftWorkspaceName);
 
-function ArticleList({
-  onSelect,
-  onCreate,
-}: {
-  onSelect: (slug: string) => void;
-  onCreate: () => void;
-}) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const { data: articles = [], isLoading } = useWikiArticles(
-    searchQuery.length >= 2 ? searchQuery : undefined,
-  );
+  const workspacesQuery = useWikiWorkspaces();
+  const pagesQuery = useWikiPages(workspace, searchQuery);
+  const pageQuery = useWikiPage(workspace, selectedPageSlug);
+  const activityQuery = useWikiActivity(workspace);
+  const initWorkspace = useInitWikiWorkspace();
+  const ingestMutation = useIngestWikiSource();
+  const queryMutation = useWikiQuery();
+  const lintMutation = useWikiLint();
 
-  return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      {/* Header */}
-      <div style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "var(--space-3) var(--space-4)",
-        borderBottom: "1px solid var(--border-default)",
-        flexShrink: 0,
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
-          <BookOpen size={15} style={{ color: "var(--primary)" }} />
-          <span style={{ fontSize: "var(--text-sm)", fontWeight: 600, color: "var(--text-primary)" }}>
-            Knowledge Base
-          </span>
-        </div>
-        <button
-          onClick={onCreate}
-          className="btn btn-primary btn-sm"
-          style={{ display: "flex", alignItems: "center", gap: "var(--space-1)" }}
-        >
-          <Plus size={13} />
-          New Article
-        </button>
-      </div>
+  const workspaces = workspacesQuery.data ?? [];
+  const pages = pagesQuery.data ?? [];
+  const activity = activityQuery.data ?? [];
 
-      {/* Search */}
-      <div style={{ padding: "var(--space-3) var(--space-4)", borderBottom: "1px solid var(--border-subtle)", flexShrink: 0 }}>
-        <div style={{ position: "relative" }}>
-          <Search
-            size={13}
-            style={{
-              position: "absolute",
-              left: "var(--space-3)",
-              top: "50%",
-              transform: "translateY(-50%)",
-              color: "var(--text-ghost)",
-              pointerEvents: "none",
-            }}
-          />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search articles…"
-            className="form-input"
-            style={{ paddingLeft: "var(--space-8)", fontSize: "var(--text-xs)", minHeight: 32 }}
-          />
-        </div>
-      </div>
-
-      {/* Article list */}
-      <div style={{ flex: 1, overflowY: "auto" }}>
-        {isLoading && (
-          <p style={{ padding: "var(--space-4)", fontSize: "var(--text-sm)", color: "var(--text-muted)" }}>Loading…</p>
-        )}
-
-        {!isLoading && articles.length === 0 && (
-          <div style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "var(--space-2)",
-            paddingTop: "var(--space-12)",
-            paddingBottom: "var(--space-12)",
-            textAlign: "center",
-          }}>
-            <BookOpen size={40} style={{ color: "var(--text-ghost)", opacity: 0.4 }} />
-            <p style={{ fontSize: "var(--text-sm)", color: "var(--text-muted)" }}>No articles yet</p>
-            <p style={{ fontSize: "var(--text-xs)", color: "var(--text-ghost)" }}>
-              Document institutional knowledge, tips, and lessons learned
-            </p>
-          </div>
-        )}
-
-        {articles.map((article) => (
-          <button
-            key={article.id}
-            onClick={() => onSelect(article.slug)}
-            style={{
-              display: "block",
-              width: "100%",
-              padding: "var(--space-3) var(--space-4)",
-              textAlign: "left",
-              borderBottom: "1px solid var(--border-subtle)",
-              background: "none",
-              cursor: "pointer",
-              transition: "background var(--duration-fast)",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "var(--surface-overlay)")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
-          >
-            <p style={{ fontSize: "var(--text-sm)", fontWeight: 500, color: "var(--text-primary)", marginBottom: "var(--space-1)" }}>
-              {article.title}
-            </p>
-            <p style={{
-              fontSize: "var(--text-xs)",
-              color: "var(--text-muted)",
-              display: "-webkit-box",
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: "vertical",
-              overflow: "hidden",
-            }}>
-              {article.body.slice(0, 150)}
-            </p>
-            <div style={{ marginTop: "var(--space-2)", display: "flex", alignItems: "center", gap: "var(--space-2)", flexWrap: "wrap" }}>
-              {article.author && (
-                <span style={{ fontSize: "var(--text-xs)", color: "var(--text-ghost)" }}>
-                  {article.author.name}
-                </span>
-              )}
-              <span style={{ fontSize: "var(--text-xs)", color: "var(--text-ghost)" }}>
-                {new Date(article.updated_at).toLocaleDateString()}
-              </span>
-              {article.tags.slice(0, 3).map((tag) => (
-                <span key={tag} className="badge badge-info" style={{ fontSize: 10 }}>
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Article Detail
-// ---------------------------------------------------------------------------
-
-function ArticleDetail({
-  slug,
-  onBack,
-  onEdit,
-}: {
-  slug: string;
-  onBack: () => void;
-  onEdit: () => void;
-}) {
-  const { data: article, isLoading } = useWikiArticle(slug);
-  const { data: revisions = [] } = useWikiRevisions(slug);
-  const deleteMutation = useDeleteWikiArticle();
-  const user = useAuthStore((s) => s.user);
-  const [showRevisions, setShowRevisions] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState(false);
-
-  if (isLoading || !article) {
-    return <p style={{ padding: "var(--space-4)", fontSize: "var(--text-sm)", color: "var(--text-muted)" }}>Loading…</p>;
-  }
-
-  return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      {/* Header */}
-      <div style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "var(--space-3) var(--space-4)",
-        borderBottom: "1px solid var(--border-default)",
-        flexShrink: 0,
-      }}>
-        <button
-          onClick={onBack}
-          className="btn btn-ghost btn-sm"
-          style={{ display: "flex", alignItems: "center", gap: "var(--space-1)" }}
-        >
-          <ArrowLeft size={13} />
-          Back
-        </button>
-
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-1)" }}>
-          {revisions.length > 0 && (
-            <button
-              onClick={() => setShowRevisions(!showRevisions)}
-              title="Edit history"
-              className="btn btn-ghost btn-icon btn-sm"
-            >
-              <Clock size={13} />
-            </button>
-          )}
-          <button onClick={onEdit} title="Edit" className="btn btn-ghost btn-icon btn-sm">
-            <Edit2 size={13} />
-          </button>
-          {article.created_by === user?.id && (
-            <button
-              onClick={() => setConfirmDelete(true)}
-              title="Delete"
-              className="btn btn-ghost btn-icon btn-sm"
-            >
-              <Trash2 size={13} />
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Content */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "var(--space-5)" }}>
-        <h1 style={{ fontSize: "var(--text-xl)", fontWeight: 700, color: "var(--text-primary)" }}>
-          {article.title}
-        </h1>
-
-        {/* Author + date */}
-        <div style={{ marginTop: "var(--space-2)", display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-          {article.author && (
-            <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
-              <UserAvatar user={article.author} size="sm" />
-              <span style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>
-                {article.author.name}
-              </span>
-            </div>
-          )}
-          <span style={{ fontSize: "var(--text-xs)", color: "var(--text-ghost)" }}>
-            Updated {new Date(article.updated_at).toLocaleDateString()}
-          </span>
-        </div>
-
-        {/* Tags */}
-        {article.tags.length > 0 && (
-          <div style={{ marginTop: "var(--space-3)", display: "flex", flexWrap: "wrap", gap: "var(--space-1)" }}>
-            {article.tags.map((tag) => (
-              <span key={tag} className="badge badge-info" style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-1)" }}>
-                <Tag size={10} />
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {/* Body */}
-        <div style={{
-          marginTop: "var(--space-5)",
-          fontSize: "var(--text-sm)",
-          lineHeight: 1.75,
-          color: "var(--text-secondary)",
-          whiteSpace: "pre-wrap",
-        }}>
-          {article.body}
-        </div>
-
-        {/* Revision history */}
-        {showRevisions && revisions.length > 0 && (
-          <div style={{ marginTop: "var(--space-6)", paddingTop: "var(--space-4)", borderTop: "1px solid var(--border-default)" }}>
-            <p style={{ fontSize: "var(--text-xs)", fontWeight: 600, color: "var(--text-muted)", marginBottom: "var(--space-3)" }}>
-              Edit History ({revisions.length})
-            </p>
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
-              {revisions.map((rev) => (
-                <div key={rev.id} style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>
-                  <Clock size={11} />
-                  <span>{rev.editor?.name ?? "Unknown"}</span>
-                  <span style={{ color: "var(--text-ghost)" }}>
-                    {new Date(rev.created_at).toLocaleString()}
-                  </span>
-                  {rev.edit_summary && (
-                    <span style={{ fontStyle: "italic", color: "var(--text-ghost)" }}>
-                      — {rev.edit_summary}
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Delete confirmation modal */}
-      <Modal
-        open={confirmDelete}
-        onClose={() => setConfirmDelete(false)}
-        title="Delete Article"
-        size="sm"
-        footer={
-          <>
-            <button className="btn btn-ghost" onClick={() => setConfirmDelete(false)}>
-              Cancel
-            </button>
-            <button
-              className="btn btn-danger"
-              disabled={deleteMutation.isPending}
-              onClick={() => deleteMutation.mutate(slug, { onSuccess: onBack })}
-            >
-              {deleteMutation.isPending ? "Deleting…" : "Delete"}
-            </button>
-          </>
-        }
-      >
-        <p style={{ color: "var(--text-secondary)", fontSize: "var(--text-sm)" }}>
-          This article and all its revision history will be permanently deleted. This action cannot be undone.
-        </p>
-      </Modal>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Article Editor (create / edit) — uses Modal
-// ---------------------------------------------------------------------------
-
-interface ArticleEditorProps {
-  article?: WikiArticle;
-  open: boolean;
-  onClose: () => void;
-}
-
-function ArticleEditor({ article, open, onClose }: ArticleEditorProps) {
-  const [title, setTitle] = useState(article?.title ?? "");
-  const [body, setBody] = useState(article?.body ?? "");
-  const [tagsInput, setTagsInput] = useState(article?.tags.join(", ") ?? "");
-  const [editSummary, setEditSummary] = useState("");
-  const createMutation = useCreateWikiArticle();
-  const updateMutation = useUpdateWikiArticle();
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!title.trim() || !body.trim()) return;
-
-    const tags = tagsInput
-      .split(",")
-      .map((t) => t.trim())
-      .filter(Boolean);
-
-    if (article) {
-      updateMutation.mutate(
-        { slug: article.slug, title: title.trim(), body: body.trim(), tags, edit_summary: editSummary.trim() || undefined },
-        { onSuccess: () => onClose() },
-      );
-    } else {
-      createMutation.mutate(
-        { title: title.trim(), body: body.trim(), tags },
-        { onSuccess: () => onClose() },
-      );
+  useEffect(() => {
+    if (!workspaces.length) return;
+    if (!workspaces.some((candidate) => candidate.name === workspace)) {
+      setWorkspace(workspaces[0].name);
     }
+  }, [workspaces, workspace, setWorkspace]);
+
+  useEffect(() => {
+    if (!pages.length) {
+      if (selectedPageSlug) setSelectedPageSlug(null);
+      return;
+    }
+
+    if (!selectedPageSlug || !pages.some((page) => page.slug === selectedPageSlug)) {
+      setSelectedPageSlug(pages[0].slug);
+    }
+  }, [pages, selectedPageSlug, setSelectedPageSlug]);
+
+  function handleCreateWorkspace() {
+    const nextWorkspace = draftWorkspaceName.trim();
+    if (!nextWorkspace) return;
+    initWorkspace.mutate(nextWorkspace, {
+      onSuccess: (created) => {
+        setWorkspace(created.name);
+        setDraftWorkspaceName("");
+        toast.success(`Workspace ${created.name} initialized`);
+      },
+      onError: () => {
+        toast.error("Unable to initialize wiki workspace");
+      },
+    });
   }
 
-  const isPending = createMutation.isPending || updateMutation.isPending;
+  function handleIngest(payload: { title?: string; rawContent?: string; file?: File | null }) {
+    ingestMutation.mutate(
+      {
+        workspace,
+        title: payload.title,
+        rawContent: payload.rawContent,
+        file: payload.file ?? null,
+      },
+      {
+        onSuccess: (response) => {
+          const preferredPage = response.created_pages.find((page) => page.page_type !== "source_summary")
+            ?? response.created_pages[0];
+          setSelectedPageSlug(preferredPage?.slug ?? null);
+          toast.success(`Ingested ${response.source_title}`);
+        },
+        onError: () => {
+          toast.error("Wiki ingest failed");
+        },
+      },
+    );
+  }
+
+  function handleQuery(question: string) {
+    queryMutation.mutate(
+      { workspace, question },
+      {
+        onSuccess: (response) => {
+          setLastQueryResponse(response);
+        },
+        onError: () => {
+          toast.error("Wiki query failed");
+        },
+      },
+    );
+  }
+
+  function handleLint() {
+    lintMutation.mutate(
+      { workspace },
+      {
+        onSuccess: (response) => {
+          setLastLintResponse(response);
+        },
+        onError: () => {
+          toast.error("Wiki lint failed");
+        },
+      },
+    );
+  }
 
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      title={article ? "Edit Article" : "New Article"}
-      size="lg"
-      footer={
-        <>
-          <button type="button" className="btn btn-ghost" onClick={onClose}>
-            Cancel
-          </button>
-          <button
-            type="submit"
-            form="wiki-article-form"
-            className="btn btn-primary"
-            disabled={!title.trim() || !body.trim() || isPending}
-          >
-            {isPending ? "Saving…" : article ? "Save Changes" : "Publish"}
-          </button>
-        </>
-      }
-    >
-      <form id="wiki-article-form" onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label className="form-label">Title</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Article title"
-            autoFocus
-            className="form-input"
-          />
-        </div>
-
-        <div className="form-group">
-          <label className="form-label">Content</label>
-          <textarea
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            placeholder="Write your article content…"
-            rows={12}
-            className="form-input form-textarea"
-            style={{ minHeight: 220 }}
-          />
-        </div>
-
-        <div className="form-group">
-          <label className="form-label">
-            Tags <span style={{ color: "var(--text-ghost)" }}>(comma-separated)</span>
-          </label>
-          <input
-            type="text"
-            value={tagsInput}
-            onChange={(e) => setTagsInput(e.target.value)}
-            placeholder="e.g. omop, cohort, data-quality"
-            className="form-input"
-          />
-        </div>
-
-        {article && (
-          <div className="form-group">
-            <label className="form-label">
-              Edit Summary <span style={{ color: "var(--text-ghost)" }}>(optional)</span>
-            </label>
-            <input
-              type="text"
-              value={editSummary}
-              onChange={(e) => setEditSummary(e.target.value)}
-              placeholder="Briefly describe what changed"
-              className="form-input"
-            />
+    <div className="flex h-full flex-col gap-4 overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.05),transparent_32%),#121216] p-4">
+      <div className="rounded-2xl border border-white/[0.06] bg-[#15151a] px-5 py-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <BookOpen className="h-4 w-4 text-primary" />
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                Commons Wiki
+              </p>
+            </div>
+            <h1 className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
+              LLM-maintained knowledge base
+            </h1>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
+              Browse durable wiki pages, ingest new source material, and ask the workspace for synthesized answers.
+            </p>
           </div>
-        )}
-      </form>
-    </Modal>
+
+          <div className="rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-primary">
+            <div className="flex items-center gap-2 font-medium">
+              <Sparkles className="h-4 w-4" />
+              AI-backed workspace
+            </div>
+            <p className="mt-1 text-xs text-primary/80">
+              Sources persist on disk and pages are regenerated incrementally.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid min-h-0 flex-1 gap-4 xl:grid-cols-[280px,minmax(0,1fr),360px]">
+        <WikiPageTree
+          pages={pages}
+          selectedSlug={selectedPageSlug}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          onSelect={setSelectedPageSlug}
+        />
+
+        <WikiPageView page={pageQuery.data} onNavigate={setSelectedPageSlug} />
+
+        <div className="flex min-h-0 flex-col gap-4 overflow-y-auto">
+          <WikiWorkspaceSelector
+            workspaces={workspaces}
+            value={workspace}
+            onChange={setWorkspace}
+            draftValue={draftWorkspaceName}
+            onDraftChange={setDraftWorkspaceName}
+            onCreate={handleCreateWorkspace}
+            creating={initWorkspace.isPending}
+          />
+
+          <WikiIngestPanel
+            open={ingestPanelOpen}
+            onToggle={() => setIngestPanelOpen(!ingestPanelOpen)}
+            workspace={workspace}
+            loading={ingestMutation.isPending}
+            onSubmit={handleIngest}
+          />
+
+          <WikiQueryPanel
+            open={queryPanelOpen}
+            onToggle={() => setQueryPanelOpen(!queryPanelOpen)}
+            loading={queryMutation.isPending}
+            lintLoading={lintMutation.isPending}
+            onSubmit={handleQuery}
+            onLint={handleLint}
+            response={lastQueryResponse}
+            lint={lastLintResponse}
+          />
+
+          <WikiActivityFeed activity={activity} />
+        </div>
+      </div>
+    </div>
   );
 }
-
-// ---------------------------------------------------------------------------
-// WikiPage (top-level)
-// ---------------------------------------------------------------------------
-
-type WikiView =
-  | { mode: "list" }
-  | { mode: "detail"; slug: string }
-  | { mode: "create" }
-  | { mode: "edit"; slug: string };
 
 export function WikiPage() {
-  const [view, setView] = useState<WikiView>({ mode: "list" });
-  const { data: editArticle } = useWikiArticle(
-    view.mode === "edit" ? view.slug : "",
-  );
+  const [mode, setMode] = useState<"ai" | "legacy">("ai");
 
   return (
-    <>
-      {/* List is always mounted — detail replaces it visually */}
-      {(view.mode === "list" || view.mode === "create") && (
-        <ArticleList
-          onSelect={(slug) => setView({ mode: "detail", slug })}
-          onCreate={() => setView({ mode: "create" })}
-        />
-      )}
-
-      {view.mode === "detail" && (
-        <ArticleDetail
-          slug={view.slug}
-          onBack={() => setView({ mode: "list" })}
-          onEdit={() => setView({ mode: "edit", slug: view.slug })}
-        />
-      )}
-
-      {/* Editors render as modals over the current view */}
-      <ArticleEditor
-        open={view.mode === "create"}
-        onClose={() => setView({ mode: "list" })}
-      />
-
-      {view.mode === "edit" && editArticle && (
-        <ArticleEditor
-          article={editArticle}
-          open
-          onClose={() => setView({ mode: "detail", slug: view.slug })}
-        />
-      )}
-    </>
+    <div className="flex h-full flex-col overflow-hidden">
+      <div className="border-b border-white/[0.06] bg-[#111115] px-4 py-3">
+        <div className="inline-flex rounded-2xl border border-white/[0.08] bg-black/20 p-1">
+          <button
+            type="button"
+            onClick={() => setMode("ai")}
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm transition ${
+              mode === "ai" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Sparkles className="h-4 w-4" />
+            AI Wiki
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode("legacy")}
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm transition ${
+              mode === "legacy" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <PencilRuler className="h-4 w-4" />
+            Legacy Wiki
+          </button>
+        </div>
+      </div>
+      <div className="min-h-0 flex-1 overflow-hidden">
+        {mode === "ai" ? <AiWikiPage /> : <LegacyWikiPage />}
+      </div>
+    </div>
   );
 }

@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     chroma_host: str = "chromadb"
     chroma_port: int = 8000
     startup_ingest_docs: bool = False
+    wiki_root_dir: str = "/data/wiki"
+    wiki_default_workspace: str = "platform"
 
     # StudyAgent configuration
     study_agent_url: str = "http://study-agent:8765"

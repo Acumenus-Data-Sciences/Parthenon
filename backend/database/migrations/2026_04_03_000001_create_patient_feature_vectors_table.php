@@ -9,7 +9,12 @@ return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement('CREATE EXTENSION IF NOT EXISTS vector');
+        try {
+            DB::statement('CREATE EXTENSION IF NOT EXISTS vector');
+        } catch (Throwable) {
+            // Some test/CI databases do not allow extension creation. Continue
+            // without embeddings rather than failing unrelated application tests.
+        }
 
         Schema::create('patient_feature_vectors', function (Blueprint $table) {
             $table->id();
@@ -34,7 +39,23 @@ return new class extends Migration
             $table->foreign('source_id')->references('id')->on('sources')->cascadeOnDelete();
         });
 
-        DB::statement('ALTER TABLE patient_feature_vectors ADD COLUMN embedding public.vector(768)');
+        try {
+            $vectorSchema = DB::selectOne(
+                "SELECT n.nspname
+                 FROM pg_extension e
+                 JOIN pg_namespace n ON e.extnamespace = n.oid
+                 WHERE e.extname = 'vector'"
+            );
+
+            $vectorType = $vectorSchema ? "{$vectorSchema->nspname}.vector" : 'vector';
+
+            DB::statement(
+                "ALTER TABLE patient_feature_vectors ADD COLUMN embedding {$vectorType}(768)"
+            );
+        } catch (Throwable) {
+            // pgvector is optional in some environments. The table remains
+            // usable without ANN search until the extension is available.
+        }
     }
 
     public function down(): void

@@ -127,6 +127,7 @@ use App\Http\Controllers\Api\V1\TextToSqlController;
 use App\Http\Controllers\Api\V1\UserProfileController;
 use App\Http\Controllers\Api\V1\VocabularyController;
 use App\Http\Controllers\Api\V1\WhiteRabbitController;
+use App\Http\Controllers\Api\V1\WikiController as AiWikiController;
 use App\Services\GIS\SpatialStatsProxy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Broadcast;
@@ -1554,6 +1555,25 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve'])->group(funct
 
         // Abby feedback (thumbs up/down on responses)
         Route::post('abby/feedback', [AbbyAiController::class, 'feedback']);
+    });
+
+    Route::prefix('wiki')->group(function () {
+        Route::get('workspaces', [AiWikiController::class, 'workspaces'])
+            ->middleware('permission:wiki.view');
+        Route::post('workspaces/{workspace}/init', [AiWikiController::class, 'initWorkspace'])
+            ->middleware('permission:wiki.manage');
+        Route::get('pages', [AiWikiController::class, 'pages'])
+            ->middleware('permission:wiki.view');
+        Route::get('pages/{slug}', [AiWikiController::class, 'showPage'])
+            ->middleware('permission:wiki.view');
+        Route::get('activity', [AiWikiController::class, 'activity'])
+            ->middleware('permission:wiki.view');
+        Route::post('ingest', [AiWikiController::class, 'ingest'])
+            ->middleware('permission:wiki.ingest');
+        Route::post('query', [AiWikiController::class, 'query'])
+            ->middleware('permission:wiki.view');
+        Route::post('lint', [AiWikiController::class, 'lint'])
+            ->middleware('permission:wiki.lint');
     });
 });
 

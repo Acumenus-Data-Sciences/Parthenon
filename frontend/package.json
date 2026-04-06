@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
-    "generate:api-types": "openapi-typescript ../backend/api.json -o src/types/api.generated.ts"
+    "generate:api-types": "sh -c 'openapi-typescript \"${OPENAPI_INPUT:-../backend/api.json}\" -o src/types/api.generated.ts'"
   },
   "dependencies": {
     "@dagrejs/dagre": "^3.0.0",

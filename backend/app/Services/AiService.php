@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use Illuminate\Http\Client\Response;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 
 class AiService
@@ -210,5 +212,108 @@ class AiService
             ->post("{$this->baseUrl}{$endpoint}", $data);
 
         return $response->json();
+    }
+
+    /**
+     * @param  array<string, mixed>  $query
+     * @return array<string, mixed>
+     */
+    public function get(string $endpoint, array $query = [], int $timeout = 30): array
+    {
+        $response = Http::timeout($timeout)
+            ->get("{$this->baseUrl}{$endpoint}", $query);
+
+        return $response->json();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function wikiWorkspaces(): Response
+    {
+        return Http::timeout(60)->get("{$this->baseUrl}/wiki/workspaces");
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function wikiInitWorkspace(string $workspace): Response
+    {
+        return Http::timeout(120)->post("{$this->baseUrl}/wiki/workspaces/{$workspace}/init");
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function wikiPages(string $workspace = 'platform', ?string $query = null): Response
+    {
+        $params = ['workspace' => $workspace];
+        if ($query !== null && $query !== '') {
+            $params['q'] = $query;
+        }
+
+        return Http::timeout(60)->get("{$this->baseUrl}/wiki/pages", $params);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function wikiPage(string $slug, string $workspace = 'platform'): Response
+    {
+        return Http::timeout(60)->get("{$this->baseUrl}/wiki/pages/{$slug}", ['workspace' => $workspace]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function wikiActivity(string $workspace = 'platform', int $limit = 50): Response
+    {
+        return Http::timeout(60)->get("{$this->baseUrl}/wiki/activity", ['workspace' => $workspace, 'limit' => $limit]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function wikiIngest(
+        string $workspace,
+        ?UploadedFile $file,
+        ?string $title,
+        ?string $rawContent,
+    ): Response {
+        $request = Http::timeout(300);
+        if ($file !== null) {
+            $request = $request->attach(
+                'file',
+                file_get_contents($file->getRealPath()),
+                $file->getClientOriginalName()
+            );
+        }
+
+        return $request->post("{$this->baseUrl}/wiki/ingest", array_filter([
+            'workspace' => $workspace,
+            'title' => $title,
+            'raw_content' => $rawContent,
+        ], static fn ($value) => $value !== null && $value !== ''));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function wikiQuery(string $workspace, string $question): Response
+    {
+        return Http::timeout(180)->post("{$this->baseUrl}/wiki/query", [
+            'workspace' => $workspace,
+            'question' => $question,
+        ]);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function wikiLint(string $workspace): Response
+    {
+        return Http::timeout(180)->post("{$this->baseUrl}/wiki/lint", [
+            'workspace' => $workspace,
+        ]);
     }
 }

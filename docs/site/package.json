@@ -6,7 +6,7 @@
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
     "build": "docusaurus build",
-    "build:docker": "npm run gen-api-docs && sh scripts/fix-api-docs-labels.sh && npx docusaurus build --out-dir /dist",
+    "build:docker": "sh -c 'npm run gen-api-docs && sh scripts/fix-api-docs-labels.sh && npx docusaurus build --out-dir \"${DOCS_BUILD_OUT_DIR:-/dist}\"'",
     "gen-api-docs": "docusaurus gen-api-docs all",
     "clean-api-docs": "docusaurus clean-api-docs all",
     "swizzle": "docusaurus swizzle",
