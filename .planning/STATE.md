@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v5.4
 milestone_name: milestone
 status: executing
-stopped_at: Completed quick-1 (IRSF schema isolation + vocab load)
-last_updated: "2026-03-27T06:36:20.989Z"
-last_activity: 2026-03-26 -- Completed 09-01 growth measurement unpivot (34,135 rows)
+stopped_at: Completed quick-17 (wiki engine ChromaDB semantic search)
+last_updated: "2026-04-06T23:21:05.344Z"
+last_activity: "2026-04-05 - Fixed cross-domain SNOMED hierarchy propagation (Condition: 839→2 roots, Measurement: 620→5 roots)"
 progress:
   total_phases: 12
   completed_phases: 10
@@ -177,9 +177,10 @@ None yet.
 | 14 | OIDC SSO for Grafana via Authentik — OAuth2 provider + Generic OAuth config | 2026-04-03 | 57e098975 | [14-oidc-sso-for-grafana-via-authentik-creat](./quick/14-oidc-sso-for-grafana-via-authentik-creat/) |
 | 15 | Native SSO bootstrap for Acropolis installer (OIDC + SAML for all services) | 2026-04-03 | 052467c97 | [15-update-acropolis-installer-authentik-py-](./quick/15-update-acropolis-installer-authentik-py-/) |
 | 16 | Rebuild cross-domain SNOMED hierarchy + clinical groupings navigation | 2026-04-05 | 4b0f8af45 | [16-rebuild-concept-hierarchy-cross-domain-s](./quick/16-rebuild-concept-hierarchy-cross-domain-s/) |
+| 17 | Refactor wiki engine to use ChromaDB for semantic search | 2026-04-06 | 8b5341775 | [17-refactor-wiki-engine-to-use-chromadb-for](./quick/17-refactor-wiki-engine-to-use-chromadb-for/) |
 
 ## Session Continuity
 
-Last session: 2026-04-05T04:42:00Z
-Stopped at: Completed quick-16 (cross-domain SNOMED hierarchy + clinical groupings)
+Last session: 2026-04-06T23:21:05.342Z
+Stopped at: Completed quick-17 (wiki engine ChromaDB semantic search)
 Resume file: None
