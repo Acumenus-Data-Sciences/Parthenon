@@ -19,7 +19,7 @@ class ArachneDistributeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'study_slug' => ['required', 'string', 'exists:app.studies,slug'],
+            'study_slug' => ['required', 'string', 'exists:studies,slug'],
             'node_ids' => ['required', 'array', 'min:1'],
             'node_ids.*' => ['required', 'integer'],
             'analysis_spec' => ['nullable', 'array'],

@@ -93,7 +93,7 @@ class AbbyAiController extends Controller
             'user_profile' => 'sometimes|array',
             'user_profile.name' => 'sometimes|string|max:255',
             'user_profile.roles' => 'sometimes|array',
-            'conversation_id' => 'sometimes|nullable|integer|exists:app.abby_conversations,id',
+            'conversation_id' => 'sometimes|nullable|integer|exists:abby_conversations,id',
         ]);
 
         $user = $request->user();
@@ -177,7 +177,7 @@ class AbbyAiController extends Controller
             'user_profile' => 'sometimes|array',
             'user_profile.name' => 'sometimes|string|max:255',
             'user_profile.roles' => 'sometimes|array',
-            'conversation_id' => 'sometimes|nullable|integer|exists:app.abby_conversations,id',
+            'conversation_id' => 'sometimes|nullable|integer|exists:abby_conversations,id',
         ]);
 
         $aiBaseUrl = config('services.ai.base_url', 'http://python-ai:8000');

@@ -18,7 +18,7 @@ class DataInterrogationRequest extends FormRequest
     {
         return [
             'question' => ['required', 'string', 'max:2000'],
-            'source_id' => ['required', 'integer', 'exists:app.sources,id'],
+            'source_id' => ['required', 'integer', 'exists:sources,id'],
         ];
     }
 }
