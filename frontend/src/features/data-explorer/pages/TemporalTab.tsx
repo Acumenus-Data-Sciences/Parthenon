@@ -14,6 +14,7 @@ import {
 import { useTemporalTrends } from "../hooks/useAchillesData";
 import type { Domain } from "../types/dataExplorer";
 import { DOMAIN_LABELS } from "../types/dataExplorer";
+import { formatYearMonth, formatCompact } from "../components/charts/chartUtils";
 
 interface TemporalTabProps {
   sourceId: number;
@@ -37,20 +38,6 @@ const DOMAIN_COLORS: Record<Domain, string> = {
   visit: "#E85A6B",
 };
 
-/** Format year_month "2020-01" to "Jan 2020" */
-function formatMonth(ym: string): string {
-  const [year, month] = ym.split("-");
-  const date = new Date(Number(year), Number(month) - 1);
-  return date.toLocaleDateString("en-US", { month: "short", year: "numeric" });
-}
-
-/** Format large numbers compactly */
-function formatCompact(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return n.toLocaleString();
-}
-
 function MultiLineTooltip({
   active,
   payload,
@@ -64,7 +51,7 @@ function MultiLineTooltip({
   return (
     <div className="rounded-lg border border-[#323238] bg-[#1A1A1E] px-3 py-2 shadow-lg">
       <p className="text-xs text-[#8A857D] mb-1">
-        {label ? formatMonth(label) : ""}
+        {label ? formatYearMonth(label) : ""}
       </p>
       {payload.map((p, idx) => (
         <p
@@ -213,7 +200,7 @@ export default function TemporalTab({ sourceId }: TemporalTabProps) {
               />
               <XAxis
                 dataKey="year_month"
-                tickFormatter={formatMonth}
+                tickFormatter={formatYearMonth}
                 interval={tickInterval}
                 tick={{ fill: "#F0EDE8", fontSize: 10 }}
                 axisLine={{ stroke: "#323238" }}
