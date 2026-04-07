@@ -239,6 +239,28 @@ def test_query_medical_textbooks_uses_separate_collection():
         mock_coll.query.assert_called_once_with(query_texts=["What is HGVS?"], n_results=2)
 
 
+def test_query_wiki_uses_wiki_collection():
+    """Wiki retrieval should query the dedicated SapBERT wiki collection."""
+    with patch("app.chroma.retrieval.get_wiki_collection") as mock_coll_fn:
+        mock_coll = MagicMock()
+        mock_coll_fn.return_value = mock_coll
+        mock_coll.query.return_value = {
+            "documents": [["The paper reports federated oncology results."]],
+            "distances": [[0.1]],
+            "metadatas": [[{"title": "Federated Oncology Paper", "source_slug": "federated-oncology-paper", "page_type": "concept"}]],
+        }
+
+        from app.chroma.retrieval import query_wiki
+
+        results = query_wiki("What does the oncology paper say?", top_k=2)
+
+        assert len(results) == 1
+        assert results[0]["source_tag"] == "wiki"
+        assert results[0]["source_label"] == "Knowledge Base Paper"
+        assert results[0]["title"] == "Federated Oncology Paper"
+        mock_coll.query.assert_called_once_with(query_texts=["What does the oncology paper say?"], n_results=2)
+
+
 def test_get_ranked_rag_results_only_queries_textbooks_for_foundational_topics():
     """Textbooks should be queried selectively, not for every OHDSI request."""
     docs_future = MagicMock()
@@ -283,3 +305,24 @@ def test_get_ranked_rag_results_only_queries_textbooks_for_foundational_topics()
 
         submitted_fns = [call.args[0].__name__ for call in mock_submit.call_args_list]
         assert "query_medical_textbooks" not in submitted_fns
+
+
+def test_get_ranked_rag_results_queries_wiki_for_commons_abby():
+    """Commons Abby should consult the wiki knowledge base for newly ingested papers."""
+    docs_future = MagicMock()
+    docs_future.result.return_value = []
+    faq_future = MagicMock()
+    faq_future.result.return_value = []
+    wiki_future = MagicMock()
+    wiki_future.result.return_value = [{"text": "Wiki paper result", "score": 0.92, "source_tag": "wiki"}]
+
+    with patch("app.chroma.retrieval._query_pool.submit") as mock_submit:
+        mock_submit.side_effect = [docs_future, faq_future, wiki_future]
+
+        from app.chroma.retrieval import get_ranked_rag_results
+
+        results = get_ranked_rag_results("Summarize the new paper", page_context="commons_ask_abby", user_id=None)
+
+        assert results
+        submitted_fns = [call.args[0].__name__ for call in mock_submit.call_args_list]
+        assert "query_wiki" in submitted_fns

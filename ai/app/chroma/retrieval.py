@@ -16,6 +16,7 @@ from app.chroma.collections import (
     get_docs_collection,
     get_faq_collection,
     get_medical_textbooks_collection,
+    get_wiki_collection,
 )
 
 logger = logging.getLogger(__name__)
@@ -44,6 +45,7 @@ SOURCE_LABELS = {
     "clinical": "Clinical Reference (OMOP Vocabulary)",
     "ohdsi": "OHDSI Research Literature",
     "textbook": "Medical Textbook Reference",
+    "wiki": "Knowledge Base Paper",
 }
 
 STOPWORDS = {
@@ -84,9 +86,15 @@ def _humanize_source_name(path: str) -> str:
 
 def _normalize_result_metadata(meta: dict, doc: str) -> tuple[str, str, str, str | None]:
     """Normalize metadata across collections to a stable provenance shape."""
-    source_file = str(meta.get("source_file") or meta.get("source") or "").strip()
+    source_file = str(
+        meta.get("source_file")
+        or meta.get("source")
+        or meta.get("source_slug")
+        or meta.get("slug")
+        or ""
+    ).strip()
     title = str(meta.get("title") or "").strip()
-    section = str(meta.get("section") or meta.get("heading_path") or "").strip()
+    section = str(meta.get("section") or meta.get("heading_path") or meta.get("page_type") or "").strip()
     url = str(meta.get("url") or meta.get("doi") or "").strip() or None
 
     if not title and source_file:
@@ -298,9 +306,29 @@ def query_medical_textbooks(
         return []
 
 
+def query_wiki(
+    query: str,
+    top_k: int = DEFAULT_TOP_K,
+    threshold: float = DEFAULT_DISTANCE_THRESHOLD,
+) -> list[dict[str, object]]:
+    """Query the AI-maintained wiki pages collection (SapBERT embeddings)."""
+    try:
+        collection = get_wiki_collection()
+        results = collection.query(query_texts=[query], n_results=top_k)
+        return _extract_query_results(query, results, threshold, "wiki")
+    except Exception as e:
+        logger.warning("Wiki query failed: %s", e)
+        return []
+
+
 def _should_query_medical_textbooks(query: str, page_context: str) -> bool:
     """Only consult textbooks for foundational biology/genomics questions."""
     return page_context in _TEXTBOOK_PAGES or bool(_TEXTBOOK_TOPIC_PATTERN.search(query))
+
+
+def _should_query_wiki(page_context: str) -> bool:
+    """Commons Abby should search the wiki-backed knowledge base."""
+    return page_context in {"commons_ask_abby", "studies", "analyses"}
 
 
 def build_rag_context(
@@ -363,6 +391,8 @@ def get_ranked_rag_results(
     }
     if user_id is not None:
         futures["conv"] = _query_pool.submit(query_user_conversations, query, user_id)
+    if _should_query_wiki(page_context):
+        futures["wiki"] = _query_pool.submit(query_wiki, query)
     if is_clinical:
         futures["clinical"] = _query_pool.submit(query_clinical, query)
         futures["ohdsi"] = _query_pool.submit(query_ohdsi_papers, query)

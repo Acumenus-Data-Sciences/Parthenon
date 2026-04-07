@@ -49,6 +49,7 @@ export function WikiPage() {
   const setPdfModalFilename = useWikiStore((s) => s.setPdfModalFilename);
   const setChatDrawerOpen = useWikiStore((s) => s.setChatDrawerOpen);
   const addChatMessage = useWikiStore((s) => s.addChatMessage);
+  const clearChat = useWikiStore((s) => s.clearChat);
 
   // Debounce search for backend API calls (300ms)
   const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
@@ -105,7 +106,16 @@ export function WikiPage() {
           const preferred = response.created_pages.find((p) => p.page_type !== "source_summary") ?? response.created_pages[0];
           setSelectedPageSlug(preferred?.slug ?? null);
           setLintResponse(null);
+          clearChat(response.source_slug);
+          addChatMessage(response.source_slug, {
+            id: chatId(),
+            role: "assistant",
+            content: `I ingested **${response.source_title}** into the Knowledge Base. Ask me to summarize it, compare it to other papers, or walk through methods and findings.`,
+            citations: response.created_pages.filter((page) => page.source_slug === response.source_slug),
+            timestamp: new Date().toISOString(),
+          });
           setIngestModalOpen(false);
+          setChatDrawerOpen(true);
           toast.success(`Ingested "${response.source_title}"`);
         },
         onError: () => toast.error("Ingest failed"),

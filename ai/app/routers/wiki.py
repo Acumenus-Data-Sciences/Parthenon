@@ -77,7 +77,11 @@ async def ingest(
     raw_content: str | None = Form(default=None),
     file: UploadFile | None = File(default=None),
 ) -> WikiIngestResponse:
-    if file is None and not raw_content:
+    normalized_content = raw_content.strip() if raw_content is not None else None
+    if file is not None and normalized_content:
+        raise HTTPException(status_code=422, detail="Provide either file or raw_content, not both.")
+
+    if file is None and not normalized_content:
         raise HTTPException(status_code=422, detail="Either file or raw_content is required.")
 
     content_bytes = await file.read() if file is not None else None
@@ -85,7 +89,7 @@ async def ingest(
         workspace=workspace,
         filename=file.filename if file is not None else None,
         content_bytes=content_bytes,
-        raw_content=raw_content,
+        raw_content=normalized_content,
         title=title,
     )
 

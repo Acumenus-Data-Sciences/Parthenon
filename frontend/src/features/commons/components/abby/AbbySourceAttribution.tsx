@@ -8,6 +8,7 @@ const COLLECTION_LABELS: Record<string, string> = {
   clinical: "Clinical Reference",
   ohdsi: "OHDSI Research Literature",
   textbook: "Medical Textbook Reference",
+  wiki: "Knowledge Base",
   commons_messages: "Discussion",
   review_decisions: "Review decision",
   wiki_articles: "Wiki",

@@ -80,3 +80,14 @@ async def test_ingest_requires_file_or_raw_content():
         await wiki_router.ingest(workspace="platform", title=None, raw_content=None, file=None)
 
     assert exc.value.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_ingest_rejects_both_file_and_raw_content():
+    file = type("FakeUpload", (), {"read": AsyncMock(return_value=b"%PDF-1.7"), "filename": "paper.pdf"})()
+
+    with pytest.raises(HTTPException) as exc:
+        await wiki_router.ingest(workspace="platform", title=None, raw_content="text", file=file)
+
+    assert exc.value.status_code == 422
+    assert exc.value.detail == "Provide either file or raw_content, not both."

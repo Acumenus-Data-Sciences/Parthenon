@@ -79,6 +79,12 @@ class WikiController extends Controller
             ], 422);
         }
 
+        if ($request->hasFile('file') && ! empty($validated['raw_content'])) {
+            return response()->json([
+                'detail' => 'Provide either file or raw_content, not both.',
+            ], 422);
+        }
+
         return $this->proxyJson(
             $aiService->wikiIngest(
                 $validated['workspace'] ?? 'platform',
