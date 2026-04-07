@@ -1,15 +1,16 @@
 import { useEffect, useRef, useState } from "react";
-import { Bot, Send, User } from "lucide-react";
+import { Bot, Maximize2, Send, User } from "lucide-react";
 import type { WikiChatMessage } from "../../types/wiki";
 import { MarkdownRenderer } from "./MarkdownRenderer";
 
 export function WikiChatPanel({
-  messages, loading, onSend, onNavigate, currentPageTitle,
+  messages, loading, onSend, onNavigate, onExpandChat, currentPageTitle,
 }: {
   messages: WikiChatMessage[];
   loading: boolean;
   onSend: (question: string) => void;
   onNavigate: (slug: string) => void;
+  onExpandChat?: () => void;
   currentPageTitle?: string | null;
 }) {
   const [input, setInput] = useState("");
@@ -90,6 +91,16 @@ export function WikiChatPanel({
           placeholder={currentPageTitle ? `Ask about "${currentPageTitle.slice(0, 40)}"...` : "Ask the knowledge base..."}
           className="min-w-0 flex-1 rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8] placeholder:text-[#5A5650] outline-none transition-colors focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40"
         />
+        {onExpandChat && (
+          <button
+            type="button"
+            onClick={onExpandChat}
+            className="rounded-lg border border-[#232328] bg-[#151518] p-2 text-[#8A857D] transition-colors hover:text-[#2DD4BF]"
+            title="Expand chat"
+          >
+            <Maximize2 size={14} />
+          </button>
+        )}
         <button
           type="button"
           onClick={handleSubmit}

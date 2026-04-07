@@ -1,5 +1,8 @@
-import { AlertTriangle, FileText, FileType } from "lucide-react";
+import { useEffect, useState } from "react";
+import { AlertTriangle, ChevronDown, ChevronUp, FileText, FileType } from "lucide-react";
 import type { WikiLintIssue, WikiPageSummary } from "../../types/wiki";
+
+const PAGE_SIZE = 15;
 
 interface SourceEntry {
   slug: string;
@@ -69,7 +72,15 @@ export function WikiPageTree({
   onSelect: (slug: string) => void;
   lintIssues: WikiLintIssue[];
 }) {
+  const [showAll, setShowAll] = useState(false);
+
+  // Reset pagination when search query changes
+  useEffect(() => {
+    setShowAll(false);
+  }, [searchQuery]);
+
   // Filter by search query
+  const isSearching = searchQuery.trim().length > 0;
   const filtered = pages.filter((p) => {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return true;
@@ -80,10 +91,13 @@ export function WikiPageTree({
   });
 
   const sources = buildSourceList(filtered, lintIssues);
+  // When searching, show all results; otherwise paginate
+  const displayed = isSearching || showAll ? sources : sources.slice(0, PAGE_SIZE);
+  const hasMore = !isSearching && sources.length > PAGE_SIZE;
 
   return (
     <div className="space-y-0.5 px-2 py-2">
-      {sources.map((source) => {
+      {displayed.map((source) => {
         // Find the best page to select when clicked (prefer concept over source_summary)
         const conceptPage = source.childPages.find((p) => p.page_type !== "source_summary");
         const targetSlug = conceptPage?.slug ?? source.childPages[0]?.slug ?? source.slug;
@@ -134,7 +148,27 @@ export function WikiPageTree({
         );
       })}
 
-      {sources.length === 0 && (
+      {hasMore && (
+        <button
+          type="button"
+          onClick={() => setShowAll((prev) => !prev)}
+          className="flex w-full items-center justify-center gap-1.5 py-2.5 text-xs text-[#2DD4BF] transition-colors hover:text-[#26B8A5]"
+        >
+          {showAll ? (
+            <>
+              <ChevronUp size={12} />
+              Show latest {PAGE_SIZE}
+            </>
+          ) : (
+            <>
+              <ChevronDown size={12} />
+              Show all {sources.length} papers
+            </>
+          )}
+        </button>
+      )}
+
+      {displayed.length === 0 && (
         <div className="px-3 py-12 text-center">
           <FileText size={24} className="mx-auto mb-2 text-[#323238]" />
           <p className="text-xs text-[#5A5650]">

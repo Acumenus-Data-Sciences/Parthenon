@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   AlertTriangle,
   BookOpen,
@@ -18,6 +18,7 @@ import {
 } from "../../api/wiki";
 import { useWikiStore } from "@/stores/wikiStore";
 import { WikiActivityDrawer } from "./WikiActivityDrawer";
+import { WikiChatDrawer } from "./WikiChatDrawer";
 import { WikiChatPanel } from "./WikiChatPanel";
 import { WikiIngestModal } from "./WikiIngestModal";
 import { WikiPageTree } from "./WikiPageTree";
@@ -38,6 +39,7 @@ export function WikiPage() {
   const ingestModalOpen = useWikiStore((s) => s.ingestModalOpen);
   const activityDrawerOpen = useWikiStore((s) => s.activityDrawerOpen);
   const pdfModalFilename = useWikiStore((s) => s.pdfModalFilename);
+  const chatDrawerOpen = useWikiStore((s) => s.chatDrawerOpen);
   const chatMessages = useWikiStore((s) => s.chatMessages);
   const setSelectedPageSlug = useWikiStore((s) => s.setSelectedPageSlug);
   const setSearchQuery = useWikiStore((s) => s.setSearchQuery);
@@ -45,10 +47,18 @@ export function WikiPage() {
   const setIngestModalOpen = useWikiStore((s) => s.setIngestModalOpen);
   const setActivityDrawerOpen = useWikiStore((s) => s.setActivityDrawerOpen);
   const setPdfModalFilename = useWikiStore((s) => s.setPdfModalFilename);
+  const setChatDrawerOpen = useWikiStore((s) => s.setChatDrawerOpen);
   const addChatMessage = useWikiStore((s) => s.addChatMessage);
 
+  // Debounce search for backend API calls (300ms)
+  const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchQuery), 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   useWikiWorkspaces(); // keep workspace initialized
-  const pagesQuery = useWikiPages(WORKSPACE, searchQuery);
+  const pagesQuery = useWikiPages(WORKSPACE, debouncedSearch);
   const pageQuery = useWikiPage(WORKSPACE, selectedPageSlug);
   const activityQuery = useWikiActivity(WORKSPACE);
   const ingestMutation = useIngestWikiSource();
@@ -242,6 +252,7 @@ export function WikiPage() {
               loading={queryMutation.isPending}
               onSend={handleChatSend}
               onNavigate={handleNavigate}
+              onExpandChat={() => setChatDrawerOpen(true)}
               currentPageTitle={pageQuery.data?.title}
             />
           </div>
@@ -258,6 +269,15 @@ export function WikiPage() {
       {pdfModalFilename && (
         <WikiPdfModal workspace={WORKSPACE} filename={pdfModalFilename} onClose={() => setPdfModalFilename(null)} />
       )}
+      <WikiChatDrawer
+        open={chatDrawerOpen}
+        messages={chatMessages}
+        loading={queryMutation.isPending}
+        onSend={handleChatSend}
+        onNavigate={handleNavigate}
+        onClose={() => setChatDrawerOpen(false)}
+        currentPageTitle={pageQuery.data?.title}
+      />
     </div>
   );
 }
