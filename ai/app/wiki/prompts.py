@@ -40,7 +40,14 @@ Source text:
 """
 
 
-def build_query_prompt(question: str, page_context: str) -> str:
+def build_query_prompt(question: str, page_context: str, focus_title: str | None = None) -> str:
+    focus_block = ""
+    if focus_title:
+        focus_block = f"""
+Current paper focus:
+{focus_title}
+"""
+
     return f"""Answer the question using only the wiki context below.
 
 Rules:
@@ -48,8 +55,10 @@ Rules:
 - If the context is incomplete, say so in one sentence.
 - Do not repeat the question.
 - Do not explain your reasoning process.
+- Prioritize the current paper focus when it is provided, but note clearly when broader wiki context is also being used.
 
 Question: {question}
+{focus_block}
 
 Wiki context:
 {page_context[:12000]}

@@ -54,6 +54,8 @@ class WikiActivityResponse(BaseModel):
 class WikiQueryRequest(BaseModel):
     workspace: str = "platform"
     question: str = Field(..., min_length=3, max_length=4000)
+    page_slug: str | None = Field(default=None, max_length=255)
+    source_slug: str | None = Field(default=None, max_length=255)
 
 
 class WikiQueryResponse(BaseModel):
@@ -87,4 +89,3 @@ class WikiIngestResponse(BaseModel):
     source_title: str
     created_pages: list[WikiPageSummary] = Field(default_factory=list)
     activity: WikiActivityItem
-

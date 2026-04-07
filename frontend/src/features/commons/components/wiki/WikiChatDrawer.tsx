@@ -76,7 +76,7 @@ export function WikiChatDrawer({
                 <div>
                   <p className="text-sm font-semibold text-[#F0EDE8]">Wiki Assistant</p>
                   <p className="text-[10px] text-[#8A857D]">
-                    {currentPageTitle ? `Viewing: ${currentPageTitle.slice(0, 50)}` : "Ask questions about ingested knowledge"}
+                    {currentPageTitle ? `Scoped to: ${currentPageTitle.slice(0, 50)}` : "Ask questions about ingested knowledge"}
                   </p>
                 </div>
               </div>

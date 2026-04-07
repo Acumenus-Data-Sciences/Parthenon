@@ -55,6 +55,7 @@ class WikiEngine:
         self.root_dir = Path(root_dir or settings.wiki_root_dir)
         self.default_workspace = default_workspace or settings.wiki_default_workspace
         self.adapter = adapter or ExternalDocumentAdapter()
+        self._ollama_client: httpx.AsyncClient | None = None
 
     def init_workspace(self, workspace: str | None = None) -> WikiWorkspace:
         workspace_name = self._normalize_workspace(workspace)
@@ -91,43 +92,17 @@ class WikiEngine:
 
     def list_pages(self, workspace: str | None = None, query: str | None = None) -> list[WikiPageSummary]:
         workspace_dir = self._workspace_dir(workspace)
-        entries = search_index(workspace_dir, query or "") if query else read_index(workspace_dir)
+        entries = self._read_entries(workspace_dir)
+        entries = search_index(workspace_dir, query or "", entries=entries) if query else entries
         return [self._entry_to_summary(workspace_dir.name, entry) for entry in entries]
 
     def get_page(self, workspace: str | None, slug: str) -> WikiPageDetail:
         workspace_dir = self._workspace_dir(workspace)
-        entry = next((candidate for candidate in read_index(workspace_dir) if candidate.slug == slug), None)
+        _, entries_by_slug = self._entry_maps(workspace_dir)
+        entry = entries_by_slug.get(slug)
         if entry is None:
             raise FileNotFoundError(f"Wiki page '{slug}' not found in workspace '{workspace_dir.name}'.")
-
-        page_path = workspace_dir / entry.path
-        metadata, body = parse_markdown_page(page_path)
-        # Resolve stored filename for source download
-        source_slug = entry.source_slug or None
-        source_type = entry.source_type or None
-        stored_filename: str | None = None
-        if source_slug:
-            sources_dir = workspace_dir / "sources"
-            for candidate_path in sources_dir.iterdir() if sources_dir.exists() else []:
-                if candidate_path.stem == source_slug:
-                    stored_filename = candidate_path.name
-                    break
-
-        return WikiPageDetail(
-            workspace=workspace_dir.name,
-            title=str(metadata.get("title", entry.title)),
-            slug=entry.slug,
-            page_type=str(metadata.get("type", entry.page_type)),
-            path=entry.path,
-            keywords=list(metadata.get("keywords", entry.keywords)),
-            links=list(metadata.get("links", entry.links)),
-            updated_at=str(metadata.get("updated_at", entry.updated_at)),
-            body=body,
-            source_title=str(metadata.get("source_title")) if metadata.get("source_title") else None,
-            source_slug=source_slug,
-            source_type=source_type,
-            stored_filename=stored_filename,
-        )
+        return self._page_detail_from_entry(workspace_dir, entry)
 
     def list_activity(self, workspace: str | None = None, limit: int = 50) -> list[WikiActivityItem]:
         workspace_dir = self._workspace_dir(workspace)
@@ -222,54 +197,33 @@ class WikiEngine:
             ),
         )
 
-    async def query(self, workspace: str | None, question: str) -> WikiQueryResponse:
+    async def query(
+        self,
+        workspace: str | None,
+        question: str,
+        *,
+        page_slug: str | None = None,
+        source_slug: str | None = None,
+    ) -> WikiQueryResponse:
         workspace_dir = self._workspace_dir(workspace)
-
-        # Semantic search via ChromaDB with keyword fallback
-        details: list[WikiPageDetail] = []
-        try:
-            from app.chroma.collections import get_wiki_collection
-
-            collection = get_wiki_collection()
-            results = collection.query(
-                query_texts=[question],
-                n_results=10,
-                where={"workspace": workspace_dir.name},
-            )
-            if results and results["ids"] and results["ids"][0]:
-                # Deduplicate by slug (multiple chunks from same page)
-                seen_slugs: list[str] = []
-                metadatas = results["metadatas"]
-                for meta in (metadatas[0] if metadatas else []):
-                    slug = str(meta.get("slug", ""))
-                    if slug and slug not in seen_slugs:
-                        seen_slugs.append(slug)
-                    if len(seen_slugs) >= 5:
-                        break
-                for slug in seen_slugs:
-                    try:
-                        details.append(self.get_page(workspace_dir.name, slug))
-                    except FileNotFoundError:
-                        continue
-        except Exception:
-            import logging
-            logging.getLogger(__name__).warning(
-                "ChromaDB query failed, falling back to keyword search", exc_info=True
-            )
-
-        # Fallback to keyword-based search if ChromaDB returned nothing
-        if not details:
-            matches = search_index(workspace_dir, question)[:5]
-            details = [self.get_page(workspace_dir.name, entry.slug) for entry in matches]
+        entries, entries_by_slug = self._entry_maps(workspace_dir)
+        details = self._resolve_query_details(
+            workspace_dir,
+            question,
+            entries,
+            entries_by_slug,
+            page_slug=page_slug,
+            source_slug=source_slug,
+        )
+        focus_detail = next((detail for detail in details if detail.slug == page_slug), None) if page_slug else None
+        focus_title = focus_detail.source_title or focus_detail.title if focus_detail else None
 
         if not details:
             answer = "No relevant wiki pages matched this question yet."
             citations: list[WikiPageSummary] = []
         else:
-            prompt_context = "\n\n".join(
-                f"# {detail.title}\n{detail.body[:2500]}" for detail in details
-            )
-            answer = await self._answer_question(question, prompt_context)
+            prompt_context = self._build_query_context(details, focus_detail)
+            answer = await self._answer_question(question, prompt_context, focus_title=focus_title)
             citations = [self._detail_to_summary(detail) for detail in details]
 
         append_log_entry(
@@ -289,7 +243,7 @@ class WikiEngine:
         issues: list[WikiLintIssue] = []
 
         for slug, entry in known_entries.items():
-            page = self.get_page(workspace_dir.name, slug)
+            page = self._page_detail_from_entry(workspace_dir, entry)
             links = extract_wikilinks(page.body)
             for link in links:
                 if link not in known_entries:
@@ -347,9 +301,15 @@ class WikiEngine:
             )
         return normalized or self._fallback_pages(source_title, source_text)
 
-    async def _answer_question(self, question: str, page_context: str) -> str:
+    async def _answer_question(
+        self,
+        question: str,
+        page_context: str,
+        *,
+        focus_title: str | None = None,
+    ) -> str:
         try:
-            return await self._call_llm_text(build_query_prompt(question, page_context))
+            return await self._call_llm_text(build_query_prompt(question, page_context, focus_title))
         except Exception:
             snippets = [segment.strip() for segment in page_context.split("\n\n") if segment.strip()]
             excerpt = "\n\n".join(snippets[:3])
@@ -371,32 +331,31 @@ class WikiEngine:
         return await self._call_ollama(prompt, expect_json=False)
 
     async def _call_ollama(self, prompt: str, *, expect_json: bool) -> str:
-        async with httpx.AsyncClient(timeout=settings.ollama_timeout) as client:
-            response = await client.post(
-                f"{settings.abby_llm_base_url}/api/chat",
-                json={
-                    "model": settings.abby_llm_model,
-                    "messages": [
-                        {
-                            "role": "system",
-                            "content": "Return valid JSON only. No explanation." if expect_json else "Output the final answer only. No reasoning, no chain of thought. Use concise markdown.",
-                        },
-                        {"role": "user", "content": prompt},
-                    ],
-                    "stream": False,
-                    "think": False,
-                    "keep_alive": settings.abby_ollama_keep_alive,
-                    "options": {
-                        "temperature": 0.1,
-                        "num_predict": max(settings.ollama_num_predict, 512),
+        response = await self._get_ollama_client().post(
+            f"{settings.abby_llm_base_url}/api/chat",
+            json={
+                "model": settings.abby_llm_model,
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "Return valid JSON only. No explanation." if expect_json else "Output the final answer only. No reasoning, no chain of thought. Use concise markdown.",
                     },
+                    {"role": "user", "content": prompt},
+                ],
+                "stream": False,
+                "think": False,
+                "keep_alive": settings.abby_ollama_keep_alive,
+                "options": {
+                    "temperature": 0.1,
+                    "num_predict": max(settings.ollama_num_predict, 512),
                 },
-            )
-            response.raise_for_status()
-            data = response.json()
-            raw = str(data.get("message", {}).get("content", "")).strip()
-            # Strip reasoning model think blocks that leak through despite think=False
-            return _strip_think_blocks(raw)
+            },
+        )
+        response.raise_for_status()
+        data = response.json()
+        raw = str(data.get("message", {}).get("content", "")).strip()
+        # Strip reasoning model think blocks that leak through despite think=False
+        return _strip_think_blocks(raw)
 
     @staticmethod
     def _chunk_text(text: str, chunk_size: int = 500, overlap: int = 50) -> list[str]:
@@ -528,6 +487,202 @@ class WikiEngine:
             )
 
         return self._entry_to_summary(workspace_dir.name, entry)
+
+    def _read_entries(self, workspace_dir: Path) -> list[IndexEntry]:
+        return read_index(workspace_dir)
+
+    def _entry_maps(self, workspace_dir: Path) -> tuple[list[IndexEntry], dict[str, IndexEntry]]:
+        entries = self._read_entries(workspace_dir)
+        return entries, {entry.slug: entry for entry in entries}
+
+    def _source_filename_map(self, workspace_dir: Path) -> dict[str, str]:
+        sources_dir = workspace_dir / "sources"
+        if not sources_dir.exists():
+            return {}
+        return {
+            candidate_path.stem: candidate_path.name
+            for candidate_path in sources_dir.iterdir()
+            if candidate_path.is_file()
+        }
+
+    def _page_detail_from_entry(
+        self,
+        workspace_dir: Path,
+        entry: IndexEntry,
+        *,
+        source_files: dict[str, str] | None = None,
+    ) -> WikiPageDetail:
+        page_path = workspace_dir / entry.path
+        metadata, body = parse_markdown_page(page_path)
+        source_slug = entry.source_slug or None
+        source_type = entry.source_type or None
+        stored_filename: str | None = None
+        if source_slug:
+            source_files = source_files or self._source_filename_map(workspace_dir)
+            candidate_name = source_files.get(source_slug)
+            if candidate_name:
+                candidate_path = workspace_dir / "sources" / candidate_name
+                stored_filename = candidate_name
+                if source_type == "pdf" and candidate_path.suffix.lower() == ".pdf":
+                    try:
+                        with open(candidate_path, "rb") as handle:
+                            if handle.read(5) != b"%PDF-":
+                                stored_filename = None
+                                source_type = None
+                    except OSError:
+                        stored_filename = None
+                        source_type = None
+
+        return WikiPageDetail(
+            workspace=workspace_dir.name,
+            title=str(metadata.get("title", entry.title)),
+            slug=entry.slug,
+            page_type=str(metadata.get("type", entry.page_type)),
+            path=entry.path,
+            keywords=list(metadata.get("keywords", entry.keywords)),
+            links=list(metadata.get("links", entry.links)),
+            updated_at=str(metadata.get("updated_at", entry.updated_at)),
+            body=body,
+            source_title=str(metadata.get("source_title")) if metadata.get("source_title") else None,
+            source_slug=source_slug,
+            source_type=source_type,
+            stored_filename=stored_filename,
+        )
+
+    def _build_query_context(
+        self,
+        details: list[WikiPageDetail],
+        focus_detail: WikiPageDetail | None,
+    ) -> str:
+        sections: list[str] = []
+        if focus_detail:
+            sections.append(
+                "\n".join(
+                    [
+                        "# Current paper focus",
+                        f"- Paper: {focus_detail.source_title or focus_detail.title}",
+                        f"- Current page: {focus_detail.title}",
+                        f"- Page type: {focus_detail.page_type}",
+                    ]
+                )
+            )
+
+        for index, detail in enumerate(details, start=1):
+            sections.append(
+                "\n".join(
+                    [
+                        f"# Source {index}: {detail.title}",
+                        f"- Page type: {detail.page_type}",
+                        f"- Source title: {detail.source_title or detail.title}",
+                        f"- Source slug: {detail.source_slug or detail.slug}",
+                        "",
+                        detail.body[:2500],
+                    ]
+                ).strip()
+            )
+        return "\n\n".join(section for section in sections if section.strip())
+
+    def _resolve_query_details(
+        self,
+        workspace_dir: Path,
+        question: str,
+        entries: list[IndexEntry],
+        entries_by_slug: dict[str, IndexEntry],
+        *,
+        page_slug: str | None,
+        source_slug: str | None,
+    ) -> list[WikiPageDetail]:
+        source_files = self._source_filename_map(workspace_dir)
+        resolved_source_slug = source_slug
+        if page_slug and not resolved_source_slug:
+            resolved_source_slug = entries_by_slug.get(page_slug).source_slug if page_slug in entries_by_slug else None
+
+        selected_entries: list[IndexEntry] = []
+        if page_slug and page_slug in entries_by_slug:
+            selected_entries.append(entries_by_slug[page_slug])
+        if resolved_source_slug:
+            selected_entries.extend(
+                entry
+                for entry in entries
+                if entry.source_slug == resolved_source_slug and entry.slug not in {candidate.slug for candidate in selected_entries}
+            )
+
+        detail_map: dict[str, WikiPageDetail] = {}
+        for entry in selected_entries:
+            detail_map[entry.slug] = self._page_detail_from_entry(workspace_dir, entry, source_files=source_files)
+
+        for slug in self._query_chroma_slugs(workspace_dir.name, question, source_slug=resolved_source_slug):
+            entry = entries_by_slug.get(slug)
+            if entry and slug not in detail_map:
+                detail_map[slug] = self._page_detail_from_entry(workspace_dir, entry, source_files=source_files)
+            if len(detail_map) >= 5:
+                break
+
+        if len(detail_map) < 5:
+            search_pool = entries
+            if resolved_source_slug:
+                scoped_pool = [entry for entry in entries if entry.source_slug == resolved_source_slug]
+                if scoped_pool:
+                    search_pool = scoped_pool
+            matches = search_index(workspace_dir, question, entries=search_pool)
+            for entry in matches:
+                if entry.slug not in detail_map:
+                    detail_map[entry.slug] = self._page_detail_from_entry(workspace_dir, entry, source_files=source_files)
+                if len(detail_map) >= 5:
+                    break
+
+        ordered_details: list[WikiPageDetail] = []
+        for entry in selected_entries:
+            detail = detail_map.get(entry.slug)
+            if detail and detail.slug not in {candidate.slug for candidate in ordered_details}:
+                ordered_details.append(detail)
+        for detail in detail_map.values():
+            if detail.slug not in {candidate.slug for candidate in ordered_details}:
+                ordered_details.append(detail)
+        return ordered_details[:5]
+
+    def _query_chroma_slugs(
+        self,
+        workspace: str,
+        question: str,
+        *,
+        source_slug: str | None = None,
+    ) -> list[str]:
+        try:
+            from app.chroma.collections import get_wiki_collection
+
+            collection = get_wiki_collection()
+            slug_candidates: list[str] = []
+            where_filters = [{"workspace": workspace}]
+            if source_slug:
+                where_filters.insert(0, {"workspace": workspace, "source_slug": source_slug})
+
+            for where_filter in where_filters:
+                results = collection.query(query_texts=[question], n_results=8, where=where_filter)
+                metadatas = results.get("metadatas") if results else None
+                for meta in (metadatas[0] if metadatas else []):
+                    slug = str(meta.get("slug", "")).strip()
+                    if slug and slug not in slug_candidates:
+                        slug_candidates.append(slug)
+                    if len(slug_candidates) >= 5:
+                        return slug_candidates
+            return slug_candidates
+        except Exception:
+            import logging
+
+            logging.getLogger(__name__).warning(
+                "ChromaDB query failed, falling back to keyword search", exc_info=True
+            )
+            return []
+
+    def _get_ollama_client(self) -> httpx.AsyncClient:
+        if self._ollama_client is None:
+            self._ollama_client = httpx.AsyncClient(
+                timeout=settings.ollama_timeout,
+                limits=httpx.Limits(max_connections=20, max_keepalive_connections=10),
+                trust_env=False,
+            )
+        return self._ollama_client
 
     def _workspace_dir(self, workspace: str | None) -> Path:
         workspace_summary = self.init_workspace(workspace)

@@ -40,7 +40,6 @@ export function WikiPage() {
   const activityDrawerOpen = useWikiStore((s) => s.activityDrawerOpen);
   const pdfModalFilename = useWikiStore((s) => s.pdfModalFilename);
   const chatDrawerOpen = useWikiStore((s) => s.chatDrawerOpen);
-  const chatMessages = useWikiStore((s) => s.chatMessages);
   const setSelectedPageSlug = useWikiStore((s) => s.setSelectedPageSlug);
   const setSearchQuery = useWikiStore((s) => s.setSearchQuery);
   const setLintResponse = useWikiStore((s) => s.setLintResponse);
@@ -73,6 +72,9 @@ export function WikiPage() {
   const totalPages = pagesResponse?.total ?? 0;
   const activity = activityQuery.data ?? [];
   const lintIssues = lintResponse?.issues ?? [];
+  const currentPage = pageQuery.data;
+  const chatScopeId = currentPage?.source_slug ?? currentPage?.slug ?? WORKSPACE;
+  const chatMessages = useWikiStore((s) => s.chatMessagesByScope[chatScopeId] ?? []);
 
   // Auto-select first page (prefer concept over source_summary)
   useEffect(() => {
@@ -111,22 +113,36 @@ export function WikiPage() {
   }
 
   function handleChatSend(question: string) {
-    // Include the currently selected page's title as context so the LLM knows
-    // which document the user is looking at
-    const currentPage = pageQuery.data;
-    const contextualQuestion = currentPage
-      ? `[Context: The user is viewing "${currentPage.title}"]\n\n${question}`
-      : question;
-
-    addChatMessage({ id: chatId(), role: "user", content: question, timestamp: new Date().toISOString() });
+    addChatMessage(chatScopeId, {
+      id: chatId(),
+      role: "user",
+      content: question,
+      timestamp: new Date().toISOString(),
+    });
     queryMutation.mutate(
-      { workspace: WORKSPACE, question: contextualQuestion },
+      {
+        workspace: WORKSPACE,
+        question,
+        pageSlug: currentPage?.slug ?? null,
+        sourceSlug: currentPage?.source_slug ?? currentPage?.slug ?? null,
+      },
       {
         onSuccess: (response) => {
-          addChatMessage({ id: chatId(), role: "assistant", content: response.answer, citations: response.citations, timestamp: new Date().toISOString() });
+          addChatMessage(chatScopeId, {
+            id: chatId(),
+            role: "assistant",
+            content: response.answer,
+            citations: response.citations,
+            timestamp: new Date().toISOString(),
+          });
         },
         onError: () => {
-          addChatMessage({ id: chatId(), role: "assistant", content: "Sorry, I couldn't process that question.", timestamp: new Date().toISOString() });
+          addChatMessage(chatScopeId, {
+            id: chatId(),
+            role: "assistant",
+            content: "Sorry, I couldn't process that question.",
+            timestamp: new Date().toISOString(),
+          });
         },
       },
     );
@@ -258,7 +274,7 @@ export function WikiPage() {
               onSend={handleChatSend}
               onNavigate={handleNavigate}
               onExpandChat={() => setChatDrawerOpen(true)}
-              currentPageTitle={pageQuery.data?.title}
+              currentPageTitle={currentPage?.source_title ?? currentPage?.title}
             />
           </div>
         </div>
@@ -281,7 +297,7 @@ export function WikiPage() {
         onSend={handleChatSend}
         onNavigate={handleNavigate}
         onClose={() => setChatDrawerOpen(false)}
-        currentPageTitle={pageQuery.data?.title}
+        currentPageTitle={currentPage?.source_title ?? currentPage?.title}
       />
     </div>
   );

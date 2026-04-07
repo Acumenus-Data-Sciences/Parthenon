@@ -63,7 +63,7 @@ test('researcher can query wiki', function () {
         $mock = Mockery::mock(AiService::class);
         $mock->shouldReceive('wikiQuery')
             ->once()
-            ->with('platform', 'What changed?')
+            ->with('platform', 'What changed?', 'paper-methods', 'paper-a')
             ->andReturn(fakeAiResponse([
                 'workspace' => 'platform',
                 'answer' => 'Answer',
@@ -77,6 +77,8 @@ test('researcher can query wiki', function () {
         ->postJson('/api/v1/wiki/query', [
             'workspace' => 'platform',
             'question' => 'What changed?',
+            'page_slug' => 'paper-methods',
+            'source_slug' => 'paper-a',
         ])
         ->assertOk()
         ->assertJsonPath('answer', 'Answer');

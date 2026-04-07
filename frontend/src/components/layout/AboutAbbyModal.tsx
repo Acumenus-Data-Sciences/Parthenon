@@ -32,7 +32,7 @@ export function AboutAbbyModal({ open, onClose }: AboutAbbyModalProps) {
     : "Abby — AI Research Assistant";
 
   return (
-    <Modal open={open} onClose={onClose} size="lg">
+    <Modal open={open} onClose={onClose} size="lg" title="About Abby">
       <div style={{ padding: "8px 4px" }}>
         {/* Hero with crossfade */}
         <div style={{ textAlign: "center", marginBottom: 32 }}>
@@ -77,17 +77,6 @@ export function AboutAbbyModal({ open, onClose }: AboutAbbyModalProps) {
           >
             {caption}
           </p>
-          <h2
-            style={{
-              fontSize: 28,
-              fontWeight: 700,
-              color: "var(--gold, #C9A227)",
-              margin: "0 0 4px",
-              letterSpacing: "-0.5px",
-            }}
-          >
-            About Abby
-          </h2>
           <p
             style={{
               fontSize: 14,

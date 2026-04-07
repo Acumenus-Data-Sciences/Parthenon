@@ -68,6 +68,72 @@ async def test_query_uses_matching_pages(tmp_path, monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_query_prefers_selected_paper_scope(tmp_path, monkeypatch):
+    engine = WikiEngine(root_dir=str(tmp_path))
+
+    async def fake_generate_pages(workspace: str, source_title: str, source_text: str):
+        if source_title == "Paper A":
+            return [
+                {
+                    "type": "concept",
+                    "title": "Paper A Findings",
+                    "body": "Paper A focuses on federated oncology methods.",
+                    "keywords": ["oncology", "federated"],
+                    "links": [],
+                }
+            ]
+        return [
+            {
+                "type": "concept",
+                "title": "Paper B Findings",
+                "body": "Paper B focuses on diabetes registries.",
+                "keywords": ["diabetes", "registry"],
+                "links": [],
+            }
+        ]
+
+    captured: dict[str, str | None] = {"context": None, "focus_title": None}
+
+    async def fake_answer(question: str, page_context: str, *, focus_title: str | None = None):
+        captured["context"] = page_context
+        captured["focus_title"] = focus_title
+        return "Scoped answer"
+
+    monkeypatch.setattr(engine, "_generate_pages", fake_generate_pages)
+    monkeypatch.setattr(engine, "_answer_question", fake_answer)
+    monkeypatch.setattr(engine, "_query_chroma_slugs", lambda *args, **kwargs: [])
+
+    await engine.ingest(
+        workspace="platform",
+        filename="paper-a.md",
+        content_bytes=b"# Paper A\nBody",
+        raw_content=None,
+        title="Paper A",
+    )
+    await engine.ingest(
+        workspace="platform",
+        filename="paper-b.md",
+        content_bytes=b"# Paper B\nBody",
+        raw_content=None,
+        title="Paper B",
+    )
+
+    response = await engine.query(
+        "platform",
+        "What are the main findings?",
+        page_slug="paper-a-findings",
+        source_slug="paper-a",
+    )
+
+    assert response.answer == "Scoped answer"
+    assert response.citations
+    assert all(citation.source_slug == "paper-a" for citation in response.citations)
+    assert "Paper A focuses on federated oncology methods." in str(captured["context"])
+    assert "Paper B focuses on diabetes registries." not in str(captured["context"])
+    assert captured["focus_title"] == "Paper A"
+
+
+@pytest.mark.asyncio
 async def test_lint_reports_broken_wikilinks(tmp_path, monkeypatch):
     engine = WikiEngine(root_dir=str(tmp_path))
 
@@ -95,4 +161,3 @@ async def test_lint_reports_broken_wikilinks(tmp_path, monkeypatch):
     lint = await engine.lint("platform")
     assert lint.issues
     assert lint.issues[0].severity == "error"
-

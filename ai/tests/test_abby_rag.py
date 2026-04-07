@@ -45,6 +45,84 @@ def test_chat_works_without_rag_context():
     assert "I can help" in data["reply"]
 
 
+def test_prompt_includes_working_and_episodic_memory():
+    """Prompt builder injects explicit session memory and Chroma user history."""
+    from app.memory.intent_stack import IntentStack
+    from app.memory.scratch_pad import ScratchPad
+    from app.routers.abby import ChatRequest, _build_chat_system_prompt
+
+    intent_stack = IntentStack()
+    intent_stack.push("diabetes cohort building", turn=1)
+    scratch_pad = ScratchPad()
+    scratch_pad.store("draft_sql", "SELECT COUNT(*) FROM omop.person")
+
+    request = ChatRequest(
+        message="How should I refine it?",
+        page_context="cohort_builder",
+        user_id=42,
+    )
+    session = {
+        "intent_stack": intent_stack,
+        "scratch_pad": scratch_pad,
+        "turn": 1,
+    }
+
+    with (
+        patch("app.routers.abby._get_help_context", return_value=""),
+        patch("app.routers.abby.build_rag_context", return_value=""),
+        patch("app.routers.abby._should_skip_live_context", return_value=True),
+        patch("app.routers.abby._should_include_data_quality_context", return_value=False),
+        patch("app.routers.abby._should_include_institutional_context", return_value=False),
+        patch(
+            "app.routers.abby.query_user_conversations",
+            return_value=[
+                {
+                    "text": "Q: What washout should I use?\nA: We typically start with 180 days for claims data.",
+                    "page_context": "cohort_builder",
+                }
+            ],
+        ),
+    ):
+        prompt = _build_chat_system_prompt(request, model_profile="medgemma", session=session)
+
+    assert "Active conversation topics: diabetes cohort building" in prompt
+    assert "Working scratch pad:" in prompt
+    assert "User History" in prompt
+    assert "Relevant prior Abby conversations:" in prompt
+
+
+def test_stream_chat_persists_memory_after_completion():
+    """Streaming chat should update Abby memory just like the non-streaming route."""
+
+    async def fake_stream_ollama(*, on_complete=None, **_kwargs):
+        if on_complete is not None:
+            on_complete("Stored streamed answer.", ["What next?"])
+        yield 'data: {"token": "Stored streamed answer."}\n\n'
+        yield 'data: [DONE]\n\n'
+
+    with (
+        patch("app.routers.abby._build_chat_system_prompt", return_value="You are Abby."),
+        patch("app.routers.abby._stream_ollama", new=fake_stream_ollama),
+        patch("app.routers.abby.store_conversation_turn") as mock_store,
+        patch("app.routers.abby._fetch_user_profile", return_value=None),
+        patch("app.routers.abby._save_user_profile"),
+    ):
+        resp = client.post("/abby/chat/stream", json={
+            "message": "Remember this answer",
+            "page_context": "general",
+            "user_id": 42,
+        })
+
+    assert resp.status_code == 200
+    assert "[DONE]" in resp.text
+    mock_store.assert_called_once_with(
+        user_id=42,
+        question="Remember this answer",
+        answer="Stored streamed answer.",
+        page_context="general",
+    )
+
+
 def test_context_assembler_produces_structured_prompt():
     """Verify the context assembler integrates with the existing RAG pipeline."""
     from app.memory.context_assembler import ContextAssembler, ContextPiece, ContextTier

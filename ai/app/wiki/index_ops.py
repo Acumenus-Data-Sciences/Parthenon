@@ -105,20 +105,24 @@ _STOP_WORDS = frozenset(
 )
 
 
-def search_index(workspace_dir: str | Path, query: str) -> list[IndexEntry]:
+def search_index(
+    workspace_dir: str | Path,
+    query: str,
+    entries: list[IndexEntry] | None = None,
+) -> list[IndexEntry]:
     normalized = query.strip().lower()
     if not normalized:
-        return read_index(workspace_dir)
+        return list(entries) if entries is not None else read_index(workspace_dir)
 
     tokens = [
         token for token in normalized.split()
         if token not in _STOP_WORDS and len(token) > 1
     ]
     if not tokens:
-        return read_index(workspace_dir)
+        return list(entries) if entries is not None else read_index(workspace_dir)
 
     results: list[tuple[int, IndexEntry]] = []
-    for entry in read_index(workspace_dir):
+    for entry in entries if entries is not None else read_index(workspace_dir):
         haystack = " ".join([
             entry.title.lower(),
             entry.slug.lower(),
@@ -135,4 +139,3 @@ def search_index(workspace_dir: str | Path, query: str) -> list[IndexEntry]:
 
 def _sanitize_cell(value: str) -> str:
     return value.replace("|", "/").strip()
-

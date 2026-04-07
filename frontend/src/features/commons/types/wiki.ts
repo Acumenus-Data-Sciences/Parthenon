@@ -42,6 +42,13 @@ export interface WikiQueryResponse {
   citations: WikiPageSummary[];
 }
 
+export interface WikiQueryRequest {
+  workspace: string;
+  question: string;
+  pageSlug?: string | null;
+  sourceSlug?: string | null;
+}
+
 export interface WikiLintIssue {
   severity: string;
   page_slug: string;

@@ -9,7 +9,7 @@ interface WikiState {
   activityDrawerOpen: boolean;
   chatDrawerOpen: boolean;
   pdfModalFilename: string | null;
-  chatMessages: WikiChatMessage[];
+  chatMessagesByScope: Record<string, WikiChatMessage[]>;
   setSelectedPageSlug: (slug: string | null) => void;
   setSearchQuery: (query: string) => void;
   setLintResponse: (response: WikiLintResponse | null) => void;
@@ -17,8 +17,8 @@ interface WikiState {
   setActivityDrawerOpen: (open: boolean) => void;
   setChatDrawerOpen: (open: boolean) => void;
   setPdfModalFilename: (filename: string | null) => void;
-  addChatMessage: (message: WikiChatMessage) => void;
-  clearChat: () => void;
+  addChatMessage: (scope: string, message: WikiChatMessage) => void;
+  clearChat: (scope?: string) => void;
 }
 
 export const useWikiStore = create<WikiState>()((set) => ({
@@ -29,7 +29,7 @@ export const useWikiStore = create<WikiState>()((set) => ({
   activityDrawerOpen: false,
   chatDrawerOpen: false,
   pdfModalFilename: null,
-  chatMessages: [],
+  chatMessagesByScope: {},
   setSelectedPageSlug: (slug) => set({ selectedPageSlug: slug }),
   setSearchQuery: (query) => set({ searchQuery: query }),
   setLintResponse: (response) => set({ lintResponse: response }),
@@ -37,6 +37,21 @@ export const useWikiStore = create<WikiState>()((set) => ({
   setActivityDrawerOpen: (open) => set({ activityDrawerOpen: open }),
   setChatDrawerOpen: (open) => set({ chatDrawerOpen: open }),
   setPdfModalFilename: (filename) => set({ pdfModalFilename: filename }),
-  addChatMessage: (message) => set((state) => ({ chatMessages: [...state.chatMessages, message] })),
-  clearChat: () => set({ chatMessages: [] }),
+  addChatMessage: (scope, message) => set((state) => ({
+    chatMessagesByScope: {
+      ...state.chatMessagesByScope,
+      [scope]: [...(state.chatMessagesByScope[scope] ?? []), message],
+    },
+  })),
+  clearChat: (scope) => set((state) => {
+    if (!scope) {
+      return { chatMessagesByScope: {} };
+    }
+    return {
+      chatMessagesByScope: {
+        ...state.chatMessagesByScope,
+        [scope]: [],
+      },
+    };
+  }),
 }));

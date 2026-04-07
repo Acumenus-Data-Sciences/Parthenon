@@ -90,12 +90,43 @@ async def ingest(
 
 @router.post("/query", response_model=WikiQueryResponse)
 async def query(request: WikiQueryRequest) -> WikiQueryResponse:
-    return await _get_engine().query(request.workspace, request.question)
+    return await _get_engine().query(
+        request.workspace,
+        request.question,
+        page_slug=request.page_slug,
+        source_slug=request.source_slug,
+    )
 
 
 @router.post("/lint", response_model=WikiLintResponse)
 async def lint(request: WikiLintRequest) -> WikiLintResponse:
     return await _get_engine().lint(request.workspace)
+
+
+def _detect_media_type(path: "Path") -> str:
+    """Detect actual media type by checking file magic bytes, not just extension."""
+    ext_types = {
+        ".md": "text/markdown",
+        ".markdown": "text/markdown",
+        ".txt": "text/plain",
+    }
+    ext = path.suffix.lower()
+    if ext in ext_types:
+        return ext_types[ext]
+
+    # For .pdf files, verify they are actually PDFs via magic bytes
+    if ext == ".pdf":
+        try:
+            with open(path, "rb") as f:
+                header = f.read(5)
+            if header == b"%PDF-":
+                return "application/pdf"
+            # Many scraped "PDFs" are actually saved HTML pages
+            return "text/html"
+        except OSError:
+            return "application/octet-stream"
+
+    return "application/octet-stream"
 
 
 @router.get("/sources/{workspace}/{filename}")
@@ -114,13 +145,7 @@ def download_source(workspace: str, filename: str) -> FileResponse:
     except ValueError as exc:
         raise HTTPException(status_code=403, detail="Access denied.") from exc
 
-    media_types = {
-        ".pdf": "application/pdf",
-        ".md": "text/markdown",
-        ".markdown": "text/markdown",
-        ".txt": "text/plain",
-    }
-    media_type = media_types.get(source_path.suffix.lower(), "application/octet-stream")
+    media_type = _detect_media_type(source_path)
 
     return FileResponse(
         path=source_path,

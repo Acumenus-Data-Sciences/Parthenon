@@ -84,13 +84,20 @@ export function WikiChatPanel({
       {/* Input */}
       <div className="flex items-center gap-3 px-5 py-3">
         <Bot size={16} className="flex-shrink-0 text-[#2DD4BF]" />
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={currentPageTitle ? `Ask about "${currentPageTitle.slice(0, 40)}"...` : "Ask the knowledge base..."}
-          className="min-w-0 flex-1 rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8] placeholder:text-[#5A5650] outline-none transition-colors focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40"
-        />
+        <div className="min-w-0 flex-1">
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={currentPageTitle ? `Ask about "${currentPageTitle.slice(0, 40)}"...` : "Ask the knowledge base..."}
+            className="w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8] placeholder:text-[#5A5650] outline-none transition-colors focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40"
+          />
+          {currentPageTitle && (
+            <p className="mt-1 pl-1 text-[10px] text-[#5A5650]">
+              Abby is scoped to this paper and its related wiki pages.
+            </p>
+          )}
+        </div>
         {onExpandChat && (
           <button
             type="button"

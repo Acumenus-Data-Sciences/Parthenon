@@ -774,7 +774,7 @@ def build_root_env(cfg: dict[str, Any]) -> str:
         f"OLLAMA_BASE_URL={cfg['ollama_url'] or 'http://host.docker.internal:11434'}",
         f"OLLAMA_MODEL=MedAIBase/MedGemma1.5:4b",
         f"ABBY_OLLAMA_BASE_URL=http://host.docker.internal:11435",
-        f"ABBY_OLLAMA_MODEL=qwen3:30b",
+        f"ABBY_OLLAMA_MODEL=gemma4:26b",
     ]
 
     # Optional sidecar service ports

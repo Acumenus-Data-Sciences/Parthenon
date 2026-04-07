@@ -15,7 +15,7 @@ import os
 import re
 import time
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, AsyncGenerator, cast
+from typing import TYPE_CHECKING, Any, AsyncGenerator, Callable, cast
 
 if TYPE_CHECKING:
     from anthropic.types import MessageParam
@@ -26,7 +26,12 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field, model_validator
 
 from app.chroma.memory import store_conversation_turn
-from app.chroma.retrieval import build_rag_context, get_ranked_rag_results, query_docs
+from app.chroma.retrieval import (
+    build_rag_context,
+    get_ranked_rag_results,
+    query_docs,
+    query_user_conversations,
+)
 from app.config import settings
 from app.memory.context_assembler import ContextAssembler, ContextPiece, ContextTier
 from app.memory.intent_stack import IntentStack
@@ -1070,7 +1075,50 @@ def _build_context_block(model_profile: str, pieces: list[ContextPiece]) -> tupl
     return assembler.format_prompt(selected), True
 
 
-def _build_chat_system_prompt(request: ChatRequest, model_profile: str = "medgemma") -> str:
+def _build_episodic_memory_context(request: ChatRequest) -> str:
+    """Format long-term Abby memory retrieved from ChromaDB for prompt injection."""
+    if request.user_id is None:
+        return ""
+
+    try:
+        memories = query_user_conversations(
+            request.message,
+            request.user_id,
+            top_k=3,
+        )
+    except Exception as e:
+        logger.warning("User memory retrieval failed for user %s: %s", request.user_id, e)
+        return ""
+
+    if not memories:
+        return ""
+
+    lines = ["Relevant prior Abby conversations:"]
+    seen: set[str] = set()
+    for memory in memories:
+        text = _clean_grounded_text(str(memory.get("text", "") or ""))
+        if not text or text in seen:
+            continue
+        seen.add(text)
+
+        if len(text) > 300:
+            text = text[:300].rstrip() + "..."
+
+        page_context = str(memory.get("page_context", "") or "").strip()
+        prefix = "- Previous Abby exchange"
+        if page_context:
+            prefix += f" [{page_context}]"
+        lines.append(f"{prefix}: {text}")
+
+    return "\n".join(lines) if len(lines) > 1 else ""
+
+
+def _build_chat_system_prompt(
+    request: ChatRequest,
+    model_profile: str = "medgemma",
+    *,
+    session: dict | None = None,
+) -> str:
     """Build the system prompt for a chat request.
 
     Four context enrichment steps (each only injected when relevant):
@@ -1092,6 +1140,44 @@ def _build_chat_system_prompt(request: ChatRequest, model_profile: str = "medgem
     compact = model_profile != "claude"
     system_prompt = (COMPACT_CAPABILITY_PREAMBLE if compact else CAPABILITY_PREAMBLE) + page_prompt
     context_pieces: list[ContextPiece] = []
+    session_state = session or _get_session(request.conversation_id)
+
+    # ── Step 0: Working + episodic memory ───────────────────────────────────
+    intent_context = session_state["intent_stack"].get_context_string()
+    if intent_context:
+        context_pieces.append(
+            ContextPiece(
+                tier=ContextTier.WORKING,
+                content=intent_context,
+                relevance=0.85,
+                tokens=_estimate_tokens(intent_context),
+                source="intent_stack",
+            )
+        )
+
+    scratch_context = session_state["scratch_pad"].get_context_string()
+    if scratch_context:
+        context_pieces.append(
+            ContextPiece(
+                tier=ContextTier.WORKING,
+                content=scratch_context,
+                relevance=0.7,
+                tokens=_estimate_tokens(scratch_context),
+                source="scratch_pad",
+            )
+        )
+
+    episodic_context = _build_episodic_memory_context(request)
+    if episodic_context:
+        context_pieces.append(
+            ContextPiece(
+                tier=ContextTier.EPISODIC,
+                content=episodic_context,
+                relevance=0.88,
+                tokens=_estimate_tokens(episodic_context),
+                source="conversation_memory",
+            )
+        )
 
     # ── Step 1: Help knowledge (static, page-specific) ──────────────────────
     help_started = time.perf_counter()
@@ -1485,6 +1571,28 @@ def _should_store_conversation_answer(answer: str) -> bool:
     return not re.match(r"^(results?|methods?|background|objective|conclusions?)\b[:\s-]", cleaned, re.IGNORECASE)
 
 
+def _detect_request_topic(message: str) -> str:
+    """Derive a coarse working-memory topic from the incoming request."""
+    from app.memory.profile_learner import DOMAIN_KEYWORDS
+
+    msg_lower = message.lower()
+    detected_topics = [
+        domain for domain, keywords in DOMAIN_KEYWORDS.items()
+        if any(keyword in msg_lower for keyword in keywords)
+    ]
+    return detected_topics[0] if detected_topics else message[:80]
+
+
+def _prepare_chat_session(request: ChatRequest) -> dict:
+    """Advance and refresh the per-conversation working-memory session."""
+    session = _get_session(request.conversation_id)
+    session["turn"] += 1
+    turn = session["turn"]
+    session["intent_stack"].prune(current_turn=turn)
+    session["intent_stack"].push(_detect_request_topic(request.message), turn=turn)
+    return session
+
+
 def _should_store_conversation_turn(
     request: ChatRequest,
     answer: str,
@@ -1497,6 +1605,50 @@ def _should_store_conversation_turn(
     if routing_reason == "grounded_definition":
         return False
     return True
+
+
+def _learn_user_profile_from_turn(user_id: int, question: str, answer: str) -> None:
+    """Update the learned Abby user profile from a completed turn."""
+    learner = ProfileLearner()
+    profile_data = _fetch_user_profile(user_id)
+    profile = MemoryUserProfile.from_dict(profile_data) if profile_data else MemoryUserProfile()
+    messages_for_learning = [
+        {"role": "user", "content": question},
+        {"role": "assistant", "content": answer},
+    ]
+    updated_profile = learner.learn_from_conversation(profile, messages_for_learning)
+    _save_user_profile(user_id, updated_profile.to_dict())
+
+
+def _post_process_chat_turn(
+    request: ChatRequest,
+    reply: str,
+    *,
+    routing_reason: str,
+) -> None:
+    """Persist Abby memory/profile updates after a completed response."""
+    if request.user_id is not None and _should_store_conversation_turn(
+        request,
+        reply,
+        routing_reason=routing_reason,
+    ):
+        try:
+            store_conversation_turn(
+                user_id=request.user_id,
+                question=request.message,
+                answer=reply,
+                page_context=request.page_context,
+            )
+        except Exception as e:
+            logger.warning("Failed to store conversation memory: %s", e)
+    elif request.user_id is not None:
+        logger.info("Skipping conversation memory storage for low-quality Abby answer")
+
+    if request.user_id is not None:
+        try:
+            _learn_user_profile_from_turn(request.user_id, request.message, reply)
+        except Exception:
+            logger.exception("Profile learning failed (non-blocking)")
 
 
 def _fetch_user_profile(user_id: int) -> dict | None:
@@ -1587,19 +1739,7 @@ async def chat(request: ChatRequest) -> ChatResponse:
     complexity, budget status, and PHI safety checks.
     """
     request_started = time.perf_counter()
-    # Working memory: track intent and update turn counter
-    session = _get_session(request.conversation_id)
-    session["turn"] += 1
-    turn = session["turn"]
-    session["intent_stack"].prune(current_turn=turn)
-
-    # Extract topic using domain keywords
-    from app.memory.profile_learner import DOMAIN_KEYWORDS
-    msg_lower = request.message.lower()
-    detected_topics = [domain for domain, keywords in DOMAIN_KEYWORDS.items()
-                       if any(kw in msg_lower for kw in keywords)]
-    topic = detected_topics[0] if detected_topics else request.message[:80]
-    session["intent_stack"].push(topic, turn=turn)
+    session = _prepare_chat_session(request)
 
     # Phase 2: Route to appropriate model
     cost_tracker = _get_cost_tracker()
@@ -1612,6 +1752,7 @@ async def chat(request: ChatRequest) -> ChatResponse:
     system_prompt = _build_chat_system_prompt(
         request,
         model_profile="claude" if routing.model == "claude" else "medgemma",
+        session=session,
     )
 
     reply = ""
@@ -1639,7 +1780,11 @@ async def chat(request: ChatRequest) -> ChatResponse:
                 "Redactions: %d", phi_result.redaction_count,
             )
             routing = RoutingDecision(model="local", stage=0, reason="phi_blocked", confidence=1.0)
-            system_prompt = _build_chat_system_prompt(request, model_profile="medgemma")
+            system_prompt = _build_chat_system_prompt(
+                request,
+                model_profile="medgemma",
+                session=session,
+            )
         else:
             # Safe to send to Claude
             claude_client = _get_claude_client()
@@ -1668,7 +1813,11 @@ async def chat(request: ChatRequest) -> ChatResponse:
             except Exception:
                 logger.exception("Claude API call failed, falling back to local")
                 routing = RoutingDecision(model="local", stage=0, reason="claude_error", confidence=1.0)
-                system_prompt = _build_chat_system_prompt(request, model_profile="medgemma")
+                system_prompt = _build_chat_system_prompt(
+                    request,
+                    model_profile="medgemma",
+                    session=session,
+                )
 
     if not reply and routing.model == "local":
         # Local path: MedGemma via Ollama (existing behavior)
@@ -1691,38 +1840,7 @@ async def chat(request: ChatRequest) -> ChatResponse:
                 num_predict=local_num_predict,
             )
 
-    # Store conversation in memory (fire-and-forget, don't block response)
-    if request.user_id is not None and _should_store_conversation_turn(
-        request,
-        reply,
-        routing_reason=routing.reason,
-    ):
-        try:
-            store_conversation_turn(
-                user_id=request.user_id,
-                question=request.message,
-                answer=reply,
-                page_context=request.page_context,
-            )
-        except Exception as e:
-            logger.warning("Failed to store conversation memory: %s", e)
-    elif request.user_id is not None:
-        logger.info("Skipping conversation memory storage for low-quality Abby answer")
-
-    # Learn from this conversation turn (non-blocking)
-    if request.user_id is not None:
-        try:
-            learner = ProfileLearner()
-            profile_data = _fetch_user_profile(request.user_id)
-            profile = MemoryUserProfile.from_dict(profile_data) if profile_data else MemoryUserProfile()
-            messages_for_learning = [
-                {"role": "user", "content": request.message},
-                {"role": "assistant", "content": reply},
-            ]
-            updated_profile = learner.learn_from_conversation(profile, messages_for_learning)
-            _save_user_profile(request.user_id, updated_profile.to_dict())
-        except Exception:
-            logger.exception("Profile learning failed (non-blocking)")
+    _post_process_chat_turn(request, reply, routing_reason=routing.reason)
 
     # Check for FAQ promotion (non-blocking)
     try:
@@ -1789,7 +1907,8 @@ async def execute_plan_endpoint(request: ExecutePlanRequest) -> dict:
 async def _stream_ollama(system_prompt: str, user_message: str,
                          history: list[ChatMessage] | None = None,
                          temperature: float = 0.3,
-                         num_predict: int | None = None) -> AsyncGenerator[str, None]:
+                         num_predict: int | None = None,
+                         on_complete: Callable[[str, list[str]], None] | None = None) -> AsyncGenerator[str, None]:
     """Stream tokens from Ollama as SSE events."""
     started = time.perf_counter()
     messages = [{"role": "system", "content": system_prompt}]
@@ -1881,6 +2000,13 @@ async def _stream_ollama(system_prompt: str, user_message: str,
                     suggestions = retry_suggestions
             if suggestions:
                 yield f"data: {json.dumps({'suggestions': suggestions})}\n\n"
+
+            if on_complete is not None:
+                try:
+                    on_complete((visible_content or full_content).strip(), suggestions)
+                except Exception:
+                    logger.exception("Abby stream post-processing failed")
+
             yield "data: [DONE]\n\n"
 
             _log_latency(
@@ -1929,8 +2055,10 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
     responses as Server-Sent Events for real-time display in the UI.
     """
     started = time.perf_counter()
+    session = _prepare_chat_session(request)
     grounded_definition_reply, grounded_sources = _try_grounded_definition_answer(request)
     if grounded_definition_reply:
+        _post_process_chat_turn(request, grounded_definition_reply, routing_reason="grounded_definition")
         _log_latency(
             "abby_chat_stream_grounded",
             page_context=request.page_context,
@@ -1960,7 +2088,11 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
             },
         )
 
-    system_prompt = _build_chat_system_prompt(request, model_profile="medgemma")
+    system_prompt = _build_chat_system_prompt(
+        request,
+        model_profile="medgemma",
+        session=session,
+    )
     local_num_predict = _get_local_num_predict(request.page_context)
     _log_latency(
         "abby_chat_stream_ready",
@@ -1979,6 +2111,11 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
             history=request.history,
             temperature=0.3,
             num_predict=local_num_predict,
+            on_complete=lambda reply, _suggestions: _post_process_chat_turn(
+                request,
+                reply,
+                routing_reason="local",
+            ),
         ),
         media_type="text/event-stream",
         headers={

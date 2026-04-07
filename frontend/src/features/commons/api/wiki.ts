@@ -6,7 +6,7 @@ import type {
   WikiLintResponse,
   WikiPageDetail,
   WikiPageListResponse,
-  WikiPageSummary,
+  WikiQueryRequest,
   WikiQueryResponse,
   WikiWorkspace,
 } from "../types/wiki";
@@ -71,10 +71,7 @@ async function ingestWikiSource(payload: {
   return data;
 }
 
-async function queryWiki(payload: {
-  workspace: string;
-  question: string;
-}): Promise<WikiQueryResponse> {
+async function queryWiki(payload: WikiQueryRequest): Promise<WikiQueryResponse> {
   const { data } = await apiClient.post<WikiQueryResponse>("/wiki/query", payload);
   return data;
 }
@@ -92,6 +89,7 @@ export function useWikiWorkspaces() {
   return useQuery({
     queryKey: [WIKI_WORKSPACES_KEY],
     queryFn: fetchWorkspaces,
+    staleTime: 60_000,
   });
 }
 
@@ -110,6 +108,7 @@ export function useWikiPages(workspace: string, query?: string, limit?: number, 
     queryKey: [WIKI_PAGES_KEY, workspace, query ?? "", limit ?? "all", offset ?? 0],
     queryFn: () => fetchPages(workspace, query, limit, offset),
     enabled: !!workspace,
+    staleTime: 30_000,
   });
 }
 
@@ -118,6 +117,7 @@ export function useWikiPage(workspace: string, slug: string | null) {
     queryKey: [WIKI_PAGE_KEY, workspace, slug],
     queryFn: () => fetchPage(workspace, slug!),
     enabled: !!workspace && !!slug,
+    staleTime: 30_000,
   });
 }
 

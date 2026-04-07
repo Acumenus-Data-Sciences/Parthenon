@@ -309,12 +309,26 @@ class AiService
     /**
      * @return array<string, mixed>
      */
-    public function wikiQuery(string $workspace, string $question): Response
-    {
-        return Http::timeout(180)->post("{$this->baseUrl}/wiki/query", [
+    public function wikiQuery(
+        string $workspace,
+        string $question,
+        ?string $pageSlug = null,
+        ?string $sourceSlug = null,
+    ): Response {
+        $payload = [
             'workspace' => $workspace,
             'question' => $question,
-        ]);
+        ];
+
+        if ($pageSlug !== null && $pageSlug !== '') {
+            $payload['page_slug'] = $pageSlug;
+        }
+
+        if ($sourceSlug !== null && $sourceSlug !== '') {
+            $payload['source_slug'] = $sourceSlug;
+        }
+
+        return Http::timeout(180)->post("{$this->baseUrl}/wiki/query", $payload);
     }
 
     /**

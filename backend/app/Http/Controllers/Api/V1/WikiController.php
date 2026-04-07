@@ -94,11 +94,15 @@ class WikiController extends Controller
         $validated = $request->validate([
             'workspace' => 'nullable|string|max:100',
             'question' => 'required|string|min:3|max:4000',
+            'page_slug' => 'nullable|string|max:255',
+            'source_slug' => 'nullable|string|max:255',
         ]);
 
         return $this->proxyJson($aiService->wikiQuery(
             $validated['workspace'] ?? 'platform',
             $validated['question'],
+            $validated['page_slug'] ?? null,
+            $validated['source_slug'] ?? null,
         ));
     }
 

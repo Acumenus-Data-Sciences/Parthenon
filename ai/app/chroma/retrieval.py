@@ -164,6 +164,8 @@ def _convert_distances_to_results(
             "source_file": source_file,
             "section": section,
             "url": url,
+            "page_context": str(meta.get("page_context") or "").strip(),
+            "timestamp": str(meta.get("timestamp") or "").strip(),
         })
     return sorted(  # type: ignore[return-value]
         results,
