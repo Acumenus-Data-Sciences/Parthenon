@@ -388,9 +388,10 @@ def phase2_resolve_authors_and_works(
     log.info("PHASE 2: Resolving authors via OpenAlex and fetching works")
     log.info("=" * 70)
 
-    # Build a set of known DOIs for deduplication
+    # Build identifier sets for deduplication across seed papers and coauthored works.
     known_dois = {p.doi.lower() for p in existing_papers if p.doi}
     known_pmids = {p.pmid for p in existing_papers if p.pmid}
+    known_openalex_ids = {p.openalex_id for p in existing_papers if p.openalex_id}
 
     resolved_authors = []
     new_papers = []
@@ -423,6 +424,10 @@ def phase2_resolve_authors_and_works(
         log.info(f"  Retrieved {len(works)} works")
 
         for work in works:
+            openalex_id = work.get("id")
+            if openalex_id and openalex_id in known_openalex_ids:
+                continue
+
             doi = work.get("doi", "")
             if doi:
                 doi = doi.replace("https://doi.org/", "")
@@ -444,13 +449,15 @@ def phase2_resolve_authors_and_works(
                 title=work.get("title", "") or "",
                 doi=doi if doi else None,
                 pmid=pmid,
-                openalex_id=work.get("id"),
+                openalex_id=openalex_id,
                 year=work.get("publication_year"),
                 is_oa=oa_info.get("is_oa", False),
                 oa_url=oa_info.get("oa_url"),
                 source="openalex_author_works",
             )
             new_papers.append(paper)
+            if openalex_id:
+                known_openalex_ids.add(openalex_id)
             if doi:
                 known_dois.add(doi.lower())
             if pmid:
@@ -649,11 +656,31 @@ def pmc_pdf_url(pmcid: str) -> str:
     return f"https://www.ncbi.nlm.nih.gov/pmc/articles/{pmcid}/pdf/"
 
 
+def _paper_identity_key(paper: Paper) -> str:
+    """Return a stable per-paper identity string for filename disambiguation."""
+    primary_id = paper.doi or paper.pmcid or paper.pmid or paper.openalex_id or ""
+    if primary_id:
+        return primary_id
+
+    return "|".join(
+        [
+            (paper.title or "").strip().lower(),
+            str(paper.year or ""),
+            paper.oa_url or "",
+        ]
+    )
+
+
 def _safe_pdf_path(pdf_dir: Path, paper: Paper) -> str:
-    safe_id = paper.doi or paper.pmid or paper.pmcid or hashlib.md5(
-        paper.title.encode()
-    ).hexdigest()[:12]
-    safe_filename = re.sub(r'[^\w\-.]', '_', safe_id) + ".pdf"
+    preferred_label = paper.doi or paper.pmcid or paper.pmid or paper.openalex_id
+    if not preferred_label:
+        preferred_label = paper.title or "paper"
+
+    safe_label = re.sub(r"[^\w\-.]+", "_", preferred_label).strip("._") or "paper"
+    safe_label = safe_label[:96]
+
+    fingerprint = hashlib.sha1(_paper_identity_key(paper).encode("utf-8")).hexdigest()[:12]
+    safe_filename = f"{safe_label}__{fingerprint}.pdf"
     return str(pdf_dir / safe_filename)
 
 
@@ -676,6 +703,58 @@ def _download_one_paper(pdf_dir: Path, paper: Paper) -> tuple[Paper, bool]:
         paper.pdf_path = filepath
 
     return paper, success
+
+
+def _pdf_preference_key(path: Path) -> tuple[int, int, int, str]:
+    """Prefer canonical-looking filenames when duplicate content is found."""
+    name = path.name.lower()
+    return (
+        1 if name.startswith("https_openalex.org_") else 0,
+        1 if "annotation_" in name else 0,
+        len(name),
+        name,
+    )
+
+
+def dedupe_downloaded_pdf_content(papers: list[Paper], pdf_dir: Path) -> tuple[int, int]:
+    """Remove exact duplicate PDF binaries and clear duplicate paper references.
+
+    Returns ``(removed_files, cleared_paper_refs)``.
+    """
+    papers_by_path: dict[str, list[Paper]] = {}
+    for paper in papers:
+        if paper.pdf_path:
+            papers_by_path.setdefault(paper.pdf_path, []).append(paper)
+
+    existing_paths = [Path(path) for path in papers_by_path if Path(path).exists()]
+    files_by_hash: dict[str, list[Path]] = {}
+    for path in existing_paths:
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        files_by_hash.setdefault(digest, []).append(path)
+
+    removed_files = 0
+    cleared_refs = 0
+
+    for paths in files_by_hash.values():
+        if len(paths) <= 1:
+            continue
+
+        canonical = min(paths, key=_pdf_preference_key)
+        for duplicate in paths:
+            if duplicate == canonical:
+                continue
+
+            try:
+                duplicate.unlink()
+                removed_files += 1
+            except FileNotFoundError:
+                pass
+
+            for paper in papers_by_path.get(str(duplicate), []):
+                paper.pdf_path = None
+                cleared_refs += 1
+
+    return removed_files, cleared_refs
 
 
 def phase5_download_pdfs(papers: list[Paper]) -> list[Paper]:
@@ -712,6 +791,14 @@ def phase5_download_pdfs(papers: list[Paper]) -> list[Paper]:
 
             if i % 50 == 0 or i == len(downloadable):
                 log.info(f"  ... processed {i}/{len(downloadable)}, downloaded {downloaded}")
+
+    removed_files, cleared_refs = dedupe_downloaded_pdf_content(papers, pdf_dir)
+    if removed_files:
+        log.info(
+            "Removed %d exact-duplicate PDF files and cleared %d duplicate paper references",
+            removed_files,
+            cleared_refs,
+        )
 
     log.info(f"Downloaded: {downloaded}, Failed: {failed}")
     return papers
