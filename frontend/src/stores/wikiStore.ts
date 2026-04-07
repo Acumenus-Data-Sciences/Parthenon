@@ -43,6 +43,7 @@ if (typeof window !== "undefined") {
 
 interface WikiState {
   selectedPageSlug: string | null;
+  lastOpenedSlug: string | null;
   searchQuery: string;
   lintResponse: WikiLintResponse | null;
   ingestModalOpen: boolean;
@@ -67,6 +68,7 @@ export const useWikiStore = create<WikiState>()(
   persist(
     (set) => ({
       selectedPageSlug: null,
+      lastOpenedSlug: null,
       searchQuery: "",
       lintResponse: null,
       ingestModalOpen: false,
@@ -74,7 +76,7 @@ export const useWikiStore = create<WikiState>()(
       chatDrawerOpen: false,
       pdfModalFilename: null,
       chatMessagesByScope: {},
-      setSelectedPageSlug: (slug) => set({ selectedPageSlug: slug }),
+      setSelectedPageSlug: (slug) => set({ selectedPageSlug: slug, lastOpenedSlug: slug ?? undefined }),
       setSearchQuery: (query) => set({ searchQuery: query }),
       setLintResponse: (response) => set({ lintResponse: response }),
       setIngestModalOpen: (open) => set({ ingestModalOpen: open }),
@@ -130,6 +132,7 @@ export const useWikiStore = create<WikiState>()(
       // should reset on page load.
       partialize: (state) => ({
         chatMessagesByScope: state.chatMessagesByScope,
+        lastOpenedSlug: state.lastOpenedSlug,
       }),
     },
   ),

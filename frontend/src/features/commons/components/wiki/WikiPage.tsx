@@ -91,17 +91,35 @@ export function WikiPage() {
     setChatContentHeight(height);
   }, []);
 
-  // Auto-select first page (prefer concept over source_summary)
+  // Auto-select: latest ingested paper → last opened → first concept page
+  const lastOpenedSlug = useWikiStore((s) => s.lastOpenedSlug);
   useEffect(() => {
     if (!pages.length) {
       if (selectedPageSlug) setSelectedPageSlug(null);
       return;
     }
-    if (!selectedPageSlug || !pages.some((p) => p.slug === selectedPageSlug)) {
-      const preferred = pages.find((p) => p.page_type !== "source_summary") ?? pages[0];
-      setSelectedPageSlug(preferred.slug);
+    if (selectedPageSlug && pages.some((p) => p.slug === selectedPageSlug)) return;
+
+    // 1. Latest ingested paper (highest ingested_at, prefer concept over source_summary)
+    const withIngested = pages
+      .filter((p) => p.ingested_at)
+      .sort((a, b) => (b.ingested_at ?? "").localeCompare(a.ingested_at ?? ""));
+    const latestIngested = withIngested.find((p) => p.page_type !== "source_summary") ?? withIngested[0];
+    if (latestIngested) {
+      setSelectedPageSlug(latestIngested.slug);
+      return;
     }
-  }, [pages, selectedPageSlug, setSelectedPageSlug]);
+
+    // 2. Last opened page (persisted across sessions)
+    if (lastOpenedSlug && pages.some((p) => p.slug === lastOpenedSlug)) {
+      setSelectedPageSlug(lastOpenedSlug);
+      return;
+    }
+
+    // 3. Fallback: first concept page
+    const preferred = pages.find((p) => p.page_type !== "source_summary") ?? pages[0];
+    setSelectedPageSlug(preferred.slug);
+  }, [pages, selectedPageSlug, lastOpenedSlug, setSelectedPageSlug]);
 
   // Auto-lint on load
   useEffect(() => {
