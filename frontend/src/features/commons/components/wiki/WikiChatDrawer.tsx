@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { Bot, Send, Sparkles, User, X } from "lucide-react";
+import { Send, User, X } from "lucide-react";
 import type { WikiChatMessage } from "../../types/wiki";
 import { MarkdownRenderer } from "./MarkdownRenderer";
+import AbbyAvatar from "../abby/AbbyAvatar";
 
 const EXAMPLE_PROMPTS = [
   "What are the main approaches to ETL for OMOP CDM?",
@@ -70,11 +71,9 @@ export function WikiChatDrawer({
             {/* Header */}
             <div className="flex items-center justify-between border-b border-[#232328] px-5 py-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#2DD4BF]/20 to-[#A78BFA]/20">
-                  <Sparkles size={16} className="text-[#2DD4BF]" />
-                </div>
+                <AbbyAvatar size="md" showStatus />
                 <div>
-                  <p className="text-sm font-semibold text-[#F0EDE8]">Wiki Assistant</p>
+                  <p className="text-sm font-semibold text-[#F0EDE8]">Abby</p>
                   <p className="text-[10px] text-[#8A857D]">
                     {currentPageTitle ? `Scoped to: ${currentPageTitle.slice(0, 50)}` : "Ask questions about ingested knowledge"}
                   </p>
@@ -111,14 +110,15 @@ export function WikiChatDrawer({
                 <div className="space-y-4">
                   {messages.map((msg) => (
                     <div key={msg.id} className="flex gap-3">
-                      <div className={`mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full ${
-                        msg.role === "user" ? "bg-[#1A1A1E]" : "bg-gradient-to-br from-[#2DD4BF]/20 to-[#A78BFA]/20"
-                      }`}>
-                        {msg.role === "user"
-                          ? <User size={13} className="text-[#8A857D]" />
-                          : <Bot size={13} className="text-[#2DD4BF]" />
-                        }
-                      </div>
+                      {msg.role === "user" ? (
+                        <div className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#1A1A1E]">
+                          <User size={13} className="text-[#8A857D]" />
+                        </div>
+                      ) : (
+                        <div className="mt-0.5 flex-shrink-0">
+                          <AbbyAvatar size="sm" />
+                        </div>
+                      )}
                       <div className="min-w-0 flex-1 pt-0.5">
                         {msg.role === "user" ? (
                           <p className="text-sm text-[#F0EDE8]">{msg.content}</p>
@@ -143,8 +143,8 @@ export function WikiChatDrawer({
                   ))}
                   {loading && (
                     <div className="flex gap-3">
-                      <div className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#2DD4BF]/20 to-[#A78BFA]/20">
-                        <Bot size={13} className="animate-pulse text-[#2DD4BF]" />
+                      <div className="mt-0.5 flex-shrink-0 animate-pulse">
+                        <AbbyAvatar size="sm" />
                       </div>
                       <p className="pt-1 text-sm text-[#5A5650]">Searching wiki and synthesizing answer...</p>
                     </div>

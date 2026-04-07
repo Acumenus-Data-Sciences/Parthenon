@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { Bot, Maximize2, Send, User } from "lucide-react";
+import { Maximize2, Send, User } from "lucide-react";
 import type { WikiChatMessage } from "../../types/wiki";
 import { MarkdownRenderer } from "./MarkdownRenderer";
+import AbbyAvatar from "../abby/AbbyAvatar";
 
 export function WikiChatPanel({
   messages, loading, onSend, onNavigate, onExpandChat, currentPageTitle,
@@ -39,14 +40,15 @@ export function WikiChatPanel({
           <div className="space-y-3">
             {messages.map((msg) => (
               <div key={msg.id} className="flex gap-2.5">
-                <div className={`mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full ${
-                  msg.role === "user" ? "bg-[#1A1A1E]" : "bg-[#2DD4BF]/10"
-                }`}>
-                  {msg.role === "user"
-                    ? <User size={12} className="text-[#8A857D]" />
-                    : <Bot size={12} className="text-[#2DD4BF]" />
-                  }
-                </div>
+                {msg.role === "user" ? (
+                  <div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[#1A1A1E]">
+                    <User size={12} className="text-[#8A857D]" />
+                  </div>
+                ) : (
+                  <div className="mt-0.5 flex-shrink-0">
+                    <AbbyAvatar size="sm" />
+                  </div>
+                )}
                 <div className="min-w-0 flex-1">
                   {msg.role === "user" ? (
                     <p className="text-sm text-[#F0EDE8]">{msg.content}</p>
@@ -71,8 +73,8 @@ export function WikiChatPanel({
             ))}
             {loading && (
               <div className="flex gap-2.5">
-                <div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[#2DD4BF]/10">
-                  <Bot size={12} className="animate-pulse text-[#2DD4BF]" />
+                <div className="mt-0.5 flex-shrink-0 animate-pulse">
+                  <AbbyAvatar size="sm" />
                 </div>
                 <p className="text-sm text-[#5A5650]">Searching wiki...</p>
               </div>
@@ -83,7 +85,9 @@ export function WikiChatPanel({
 
       {/* Input */}
       <div className="flex items-center gap-3 px-5 py-3">
-        <Bot size={16} className="flex-shrink-0 text-[#2DD4BF]" />
+        <div className="flex-shrink-0">
+          <AbbyAvatar size="sm" />
+        </div>
         <div className="min-w-0 flex-1">
           <input
             value={input}
