@@ -415,7 +415,7 @@ export function AbbyPanel() {
           signal: abortController.signal,
         });
 
-        if (response.ok && response.headers.get("content-type")?.includes("text/event-stream")) {
+        if (response.ok && response.body) {
           // SSE streaming
           const reader = response.body?.getReader();
           const decoder = new TextDecoder();

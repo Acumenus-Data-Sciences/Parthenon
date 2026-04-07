@@ -1931,6 +1931,7 @@ async def _stream_ollama(system_prompt: str, user_message: str,
                          history: list[ChatMessage] | None = None,
                          temperature: float = 0.3,
                          num_predict: int | None = None,
+                         sources: list[dict[str, object]] | None = None,
                          on_complete: Callable[[str, list[str]], None] | None = None) -> AsyncGenerator[str, None]:
     """Stream tokens from Ollama as SSE events."""
     started = time.perf_counter()
@@ -2023,6 +2024,8 @@ async def _stream_ollama(system_prompt: str, user_message: str,
                     suggestions = retry_suggestions
             if suggestions:
                 yield f"data: {json.dumps({'suggestions': suggestions})}\n\n"
+            if sources:
+                yield f"data: {json.dumps({'sources': sources})}\n\n"
 
             if on_complete is not None:
                 try:
@@ -2060,10 +2063,161 @@ async def _stream_ollama(system_prompt: str, user_message: str,
         yield "data: [DONE]\n\n"
 
 
+async def _stream_claude_response(
+    system_prompt: str,
+    user_message: str,
+    history: list[ChatMessage] | None = None,
+    sources: list[dict[str, object]] | None = None,
+    request_hash: str | None = None,
+    request_user_id: int | None = None,
+    route_reason: str = "claude_stream",
+    on_complete: Callable[[str, list[str]], None] | None = None,
+) -> AsyncGenerator[str, None]:
+    """Stream tokens from Claude as SSE events."""
+    import asyncio
+    import queue
+
+    import anthropic
+
+    started = time.perf_counter()
+    token_queue: queue.Queue[tuple[str, object] | None] = queue.Queue()
+    history_dicts = [{"role": msg.role, "content": msg.content} for msg in history[-10:]] if history else []
+
+    def _run_sync_stream() -> None:
+        final_model = settings.claude_model
+        full_content = ""
+        usage_in = 0
+        usage_out = 0
+        try:
+            client = anthropic.Anthropic(api_key=settings.claude_api_key)
+            with client.messages.stream(
+                model=settings.claude_model,
+                max_tokens=settings.claude_max_tokens,
+                system=system_prompt,
+                messages=[*history_dicts, {"role": "user", "content": user_message}],
+            ) as stream:
+                for text in stream.text_stream:
+                    if not text:
+                        continue
+                    full_content += text
+                    token_queue.put(("token", text))
+
+                try:
+                    final_message = stream.get_final_message()
+                    final_model = getattr(final_message, "model", final_model)
+                    usage = getattr(final_message, "usage", None)
+                    usage_in = int(getattr(usage, "input_tokens", 0) or 0)
+                    usage_out = int(getattr(usage, "output_tokens", 0) or 0)
+                except Exception:
+                    logger.debug("Claude stream final message unavailable", exc_info=True)
+        except Exception as exc:
+            logger.exception("Claude streaming failed")
+            token_queue.put(("error", str(exc)))
+            return
+        finally:
+            token_queue.put(
+                (
+                    "complete",
+                    {
+                        "full_content": full_content,
+                        "model": final_model,
+                        "tokens_in": usage_in,
+                        "tokens_out": usage_out,
+                    },
+                )
+            )
+            token_queue.put(None)
+
+    loop = asyncio.get_event_loop()
+    loop.run_in_executor(None, _run_sync_stream)
+
+    full_content = ""
+    final_model = settings.claude_model
+    tokens_in = 0
+    tokens_out = 0
+
+    while True:
+        try:
+            item = token_queue.get_nowait()
+        except queue.Empty:
+            await asyncio.sleep(0.05)
+            continue
+
+        if item is None:
+            break
+
+        kind, payload = item
+        if kind == "token":
+            token = str(payload)
+            full_content += token
+            yield f"data: {json.dumps({'token': token})}\n\n"
+            continue
+
+        if kind == "error":
+            yield f"data: {json.dumps({'error': f'Claude API unavailable: {payload}'})}\n\n"
+            yield "data: [DONE]\n\n"
+            return
+
+        if kind == "complete":
+            meta = cast(dict[str, object], payload)
+            full_content = str(meta.get("full_content", full_content))
+            final_model = str(meta.get("model", final_model))
+            tokens_in = int(meta.get("tokens_in", 0) or 0)
+            tokens_out = int(meta.get("tokens_out", 0) or 0)
+
+    _, suggestions = _extract_suggestions(full_content)
+    if suggestions:
+        yield f"data: {json.dumps({'suggestions': suggestions})}\n\n"
+    if sources:
+        yield f"data: {json.dumps({'sources': sources})}\n\n"
+
+    if tokens_in > 0 or tokens_out > 0:
+        try:
+            _get_cost_tracker().record_usage(
+                user_id=request_user_id,
+                tokens_in=tokens_in,
+                tokens_out=tokens_out,
+                cost_usd=ClaudeClient(api_key=settings.claude_api_key).estimate_cost(
+                    tokens_in=tokens_in,
+                    tokens_out=tokens_out,
+                    model=final_model,
+                ),
+                model=final_model,
+                request_hash=request_hash or "",
+                redaction_count=0,
+                route_reason=route_reason,
+            )
+        except Exception:
+            logger.debug("Claude stream usage accounting failed", exc_info=True)
+
+    if on_complete is not None:
+        try:
+            on_complete(full_content.strip(), suggestions)
+        except Exception:
+            logger.exception("Abby Claude stream post-processing failed")
+
+    yield "data: [DONE]\n\n"
+
+    _log_latency(
+        "abby_claude_stream",
+        model=final_model,
+        route_reason=route_reason,
+        total_ms=(time.perf_counter() - started) * 1000,
+        prompt_chars=len(system_prompt),
+        prompt_tokens_est=_estimate_tokens(system_prompt),
+        message_chars=len(user_message),
+        history_turns=len(history[-10:]) if history else 0,
+        response_chars=len(full_content),
+        tokens_in=tokens_in,
+        tokens_out=tokens_out,
+    )
+
+
 async def _stream_chat_response(response: ChatResponse) -> AsyncGenerator[str, None]:
     """Emit a completed chat response over SSE for grounded/static answers."""
     if response.reply:
-        yield f"data: {json.dumps({'token': response.reply})}\n\n"
+        for chunk in re.findall(r"\S+\s*|\n+", response.reply):
+            yield f"data: {json.dumps({'token': chunk})}\n\n"
     if response.suggestions:
         yield f"data: {json.dumps({'suggestions': response.suggestions})}\n\n"
     if response.sources:
@@ -2078,29 +2232,6 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
     responses as Server-Sent Events for real-time display in the UI.
     """
     started = time.perf_counter()
-
-    # Commons/studies/analyses rely heavily on fresh RAG retrieval and may be
-    # routed to the higher-utility non-streaming path. Preserve the SSE
-    # contract by emitting the completed chat response as streamed events.
-    if request.page_context in {"commons_ask_abby", "studies", "analyses"}:
-        response = await chat(request)
-        _log_latency(
-            "abby_chat_stream_via_chat",
-            page_context=request.page_context,
-            total_ms=(time.perf_counter() - started) * 1000,
-            reply_chars=len(response.reply),
-            sources=len(response.sources),
-        )
-        return StreamingResponse(
-            _stream_chat_response(response),
-            media_type="text/event-stream",
-            headers={
-                "Cache-Control": "no-cache",
-                "Connection": "keep-alive",
-                "X-Accel-Buffering": "no",
-            },
-        )
-
     session = _prepare_chat_session(request)
     grounded_definition_reply, grounded_sources = _try_grounded_definition_answer(request)
     if grounded_definition_reply:
@@ -2134,20 +2265,107 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
             },
         )
 
+    cost_tracker = _get_cost_tracker()
+    budget_exhausted = cost_tracker.is_budget_exhausted()
+    routing = _router.route(request.message, budget_exhausted=budget_exhausted)
+    if routing.model == "claude" and _get_claude_client() is None:
+        logger.debug("Claude routed but no client available, falling back to local before stream build")
+        routing = RoutingDecision(model="local", stage=0, reason="claude_unavailable", confidence=1.0)
+
+    sources: list[dict[str, object]] = []
+    try:
+        rag_results = get_ranked_rag_results(
+            query=request.message,
+            page_context=request.page_context,
+            user_id=request.user_id,
+        )
+        sources = [
+            {
+                "source_label": str(r.get("source_label", "")),
+                "title": str(r.get("title", "")),
+                "section": str(r.get("section", "")),
+                "score": float(str(r.get("score", 0) or 0)),
+            }
+            for r in rag_results[:5]
+            if float(str(r.get("score", 0) or 0)) >= 0.5
+        ]
+    except Exception:
+        logger.debug("Source extraction for stream failed (non-blocking)")
+
     system_prompt = _build_chat_system_prompt(
         request,
-        model_profile="medgemma",
+        model_profile="claude" if routing.model == "claude" else "medgemma",
         session=session,
     )
     local_num_predict = _get_local_num_predict(request.page_context)
+
+    if routing.model == "claude":
+        history_dicts = [{"role": m.role, "content": m.content} for m in request.history]
+        user_text = request.message
+        for history_item in history_dicts:
+            user_text += "\n" + history_item.get("content", "")
+        phi_result = _phi_sanitizer.scan(user_text)
+        if phi_result.phi_detected and settings.phi_block_on_detection:
+            logger.warning(
+                "PHI detected in cloud-bound prompt, falling back to local stream. Redactions: %d",
+                phi_result.redaction_count,
+            )
+            routing = RoutingDecision(model="local", stage=0, reason="phi_blocked", confidence=1.0)
+            system_prompt = _build_chat_system_prompt(
+                request,
+                model_profile="medgemma",
+                session=session,
+            )
+        else:
+            request_hash = ClaudeClient._compute_hash(
+                system_prompt=system_prompt,
+                messages=[*history_dicts, {"role": "user", "content": request.message}],
+            )
+            _log_latency(
+                "abby_chat_stream_ready",
+                model=routing.model,
+                route_reason=routing.reason,
+                page_context=request.page_context,
+                total_ms=(time.perf_counter() - started) * 1000,
+                prompt_chars=len(system_prompt),
+                prompt_tokens_est=_estimate_tokens(system_prompt),
+                history_turns=len(request.history[-10:]) if request.history else 0,
+                sources=len(sources),
+            )
+            return StreamingResponse(
+                _stream_claude_response(
+                    system_prompt=system_prompt,
+                    user_message=phi_result.redacted_text if phi_result.redaction_count > 0 else request.message,
+                    history=request.history,
+                    sources=sources,
+                    request_hash=request_hash,
+                    request_user_id=request.user_id,
+                    route_reason=routing.reason,
+                    on_complete=lambda reply, _suggestions: _post_process_chat_turn(
+                        request,
+                        reply,
+                        routing_reason=routing.reason,
+                    ),
+                ),
+                media_type="text/event-stream",
+                headers={
+                    "Cache-Control": "no-cache",
+                    "Connection": "keep-alive",
+                    "X-Accel-Buffering": "no",
+                },
+            )
+
     _log_latency(
         "abby_chat_stream_ready",
+        model=routing.model,
+        route_reason=routing.reason,
         page_context=request.page_context,
         total_ms=(time.perf_counter() - started) * 1000,
         prompt_chars=len(system_prompt),
         prompt_tokens_est=_estimate_tokens(system_prompt),
         num_predict=local_num_predict,
         history_turns=len(request.history[-10:]) if request.history else 0,
+        sources=len(sources),
     )
 
     return StreamingResponse(
@@ -2157,6 +2375,7 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
             history=request.history,
             temperature=0.3,
             num_predict=local_num_predict,
+            sources=sources,
             on_complete=lambda reply, _suggestions: _post_process_chat_turn(
                 request,
                 reply,

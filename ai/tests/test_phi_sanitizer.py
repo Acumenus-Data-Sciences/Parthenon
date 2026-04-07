@@ -1,4 +1,7 @@
 """Tests for PHI Sanitizer — regex-based PHI detection and redaction."""
+import sys
+from types import SimpleNamespace
+
 import pytest
 from app.routing.phi_sanitizer import PHISanitizer, SanitizationResult
 
@@ -97,3 +100,16 @@ def test_concept_ids_not_flagged_as_mrn(sanitizer: PHISanitizer) -> None:
 def test_year_not_flagged_as_dob(sanitizer: PHISanitizer) -> None:
     result = sanitizer.scan("Data from 2019 to 2024 shows an increasing trend")
     assert result.phi_detected is False
+
+
+def test_missing_spacy_model_falls_back_to_regex_only(monkeypatch: pytest.MonkeyPatch) -> None:
+    def broken_load(_name: str) -> None:
+        raise OSError("missing en_core_web_sm")
+
+    monkeypatch.setitem(sys.modules, "spacy", SimpleNamespace(load=broken_load))
+
+    sanitizer = PHISanitizer(use_ner=True)
+    result = sanitizer.scan("Contact john.doe@hospital.org")
+
+    assert result.phi_detected is True
+    assert sanitizer._ner_available is False

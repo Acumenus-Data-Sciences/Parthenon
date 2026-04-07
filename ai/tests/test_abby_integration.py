@@ -30,6 +30,7 @@ from app.routers.abby import (
     ResearchProfile,
     RoutingDecision,
     UserProfile,
+    chat_stream,
     _extract_suggestions,
     _is_reference_only_grounded_sentence,
     _looks_truncated_visible_reply,
@@ -363,7 +364,7 @@ class TestChatEndpointResponseContract:
         ]
         mock_store.assert_not_called()
 
-    def test_stream_grounded_definition_emits_sources_event(self) -> None:
+    async def test_stream_grounded_definition_emits_sources_event(self) -> None:
         with patch(
             "app.routers.abby._try_grounded_definition_answer",
             return_value=(
@@ -380,27 +381,25 @@ class TestChatEndpointResponseContract:
                 ],
             ),
         ):
-            with client.stream(
-                "POST",
-                "/abby/chat/stream",
-                json={
-                    "message": "What is ClinVar?",
-                    "page_context": "genomics",
-                },
-            ) as resp:
-                lines = [
-                    line.decode() if isinstance(line, bytes) else line
-                    for line in resp.iter_lines()
-                    if line
-                ]
+            response = await chat_stream(
+                ChatRequest(
+                    message="What is ClinVar?",
+                    page_context="genomics",
+                )
+            )
+            chunks = []
+            async for chunk in response.body_iterator:
+                chunks.append(chunk.decode() if isinstance(chunk, bytes) else chunk)
+            lines = [line for line in "".join(chunks).splitlines() if line]
 
-        assert resp.status_code == 200
+        assert response.status_code == 200
         payloads = [
             json.loads(line.removeprefix("data: "))
             for line in lines
             if line.startswith("data: ") and line != "data: [DONE]"
         ]
-        assert {"token": "ClinVar is the NCBI public archive of submitted interpretations of human genetic variants."} in payloads
+        token_text = "".join(payload["token"] for payload in payloads if "token" in payload)
+        assert token_text == "ClinVar is the NCBI public archive of submitted interpretations of human genetic variants."
         assert {
             "sources": [
                 {
@@ -413,6 +412,41 @@ class TestChatEndpointResponseContract:
                 }
             ]
         } in payloads
+
+    async def test_commons_ask_abby_stream_uses_streaming_path(self) -> None:
+        async def fake_claude_stream(*args: Any, **kwargs: Any):
+            yield 'data: {"token": "Hello"}\n\n'
+            yield "data: [DONE]\n\n"
+
+        with (
+            patch("app.routers.abby.chat", side_effect=AssertionError("chat() should not be used for commons stream")),
+            patch("app.routers.abby._try_grounded_definition_answer", return_value=("", [])),
+            patch("app.routers.abby._build_chat_system_prompt", return_value="You are Abby."),
+            patch("app.routers.abby.get_ranked_rag_results", return_value=[]),
+            patch("app.routers.abby._stream_claude_response", new=fake_claude_stream),
+            patch("app.routers.abby._get_claude_client", return_value=object()),
+            patch("app.routers.abby._get_cost_tracker") as mock_tracker,
+            patch("app.routers.abby._phi_sanitizer.scan") as mock_scan,
+            patch("app.routers.abby._router.route", return_value=RoutingDecision(model="claude", stage=0, reason="test", confidence=1.0)),
+        ):
+            mock_cost = MagicMock()
+            mock_cost.is_budget_exhausted.return_value = False
+            mock_tracker.return_value = mock_cost
+            mock_scan.return_value = MagicMock(phi_detected=False, redaction_count=0, redacted_text="")
+
+            response = await chat_stream(
+                ChatRequest(
+                    message="What is OMOP vocabulary mapping?",
+                    page_context="commons_ask_abby",
+                )
+            )
+            chunks = []
+            async for chunk in response.body_iterator:
+                chunks.append(chunk.decode() if isinstance(chunk, bytes) else chunk)
+            lines = [line for line in "".join(chunks).splitlines() if line]
+
+        assert response.status_code == 200
+        assert 'data: {"token": "Hello"}' in lines
 
     def test_anonymous_user_no_user_id(self) -> None:
         """No user_id — no profile fetch, no profile save, still returns reply."""

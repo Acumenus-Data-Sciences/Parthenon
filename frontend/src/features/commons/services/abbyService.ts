@@ -213,10 +213,7 @@ export async function queryAbbyStream(
     signal: handlers.signal,
   });
 
-  if (
-    !response.ok ||
-    !response.headers.get("content-type")?.includes("text/event-stream")
-  ) {
+  if (!response.ok || !response.body) {
     return queryAbby(request, handlers.signal);
   }
 

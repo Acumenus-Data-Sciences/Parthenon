@@ -6,12 +6,15 @@ Protected Health Information (PHI) is never transmitted without explicit consent
 from __future__ import annotations
 
 import hashlib
+import logging
 import re
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     import spacy
+
+logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -162,11 +165,23 @@ class PHISanitizer:
     def __init__(self, use_ner: bool = True) -> None:
         self.use_ner = use_ner
         self._nlp: "spacy.Language | None" = None  # lazy-loaded
+        self._ner_available = use_ner
 
-    def _get_nlp(self) -> "spacy.Language":
+    def _get_nlp(self) -> "spacy.Language | None":
+        if not self._ner_available:
+            return None
         if self._nlp is None:
-            import spacy  # noqa: PLC0415
-            self._nlp = spacy.load("en_core_web_sm")
+            try:
+                import spacy  # noqa: PLC0415
+
+                self._nlp = spacy.load("en_core_web_sm")
+            except Exception as exc:
+                self._ner_available = False
+                logger.warning(
+                    "PHI NER disabled; spaCy model unavailable. Falling back to regex-only scan: %s",
+                    exc,
+                )
+                return None
         return self._nlp
 
     def scan(self, text: str) -> SanitizationResult:
@@ -202,17 +217,26 @@ class PHISanitizer:
         # --- spaCy NER (optional) ---
         if self.use_ner:
             nlp = self._get_nlp()
-            doc = nlp(text)
-            for ent in doc.ents:
-                if ent.label_ == "PERSON":
-                    findings.append(
-                        PHIFinding(
-                            pattern_type="person_name",
-                            matched_text=ent.text,
-                            start=ent.start_char,
-                            end=ent.end_char,
-                        )
+            if nlp is not None:
+                try:
+                    doc = nlp(text)
+                    for ent in doc.ents:
+                        if ent.label_ == "PERSON":
+                            findings.append(
+                                PHIFinding(
+                                    pattern_type="person_name",
+                                    matched_text=ent.text,
+                                    start=ent.start_char,
+                                    end=ent.end_char,
+                                )
+                            )
+                except Exception as exc:
+                    self._ner_available = False
+                    logger.warning(
+                        "PHI NER disabled after runtime failure. Falling back to regex-only scan: %s",
+                        exc,
                     )
+                    self._nlp = None
 
         findings = _deduplicate_findings(findings)
 
