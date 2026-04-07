@@ -626,7 +626,12 @@ def phase4_unpaywall_enrichment(papers: list[Paper]) -> list[Paper]:
 # --- Phase 5: Download PDFs --------------------------------------------------
 
 def download_pdf(url: str, filepath: str) -> bool:
-    """Download a PDF from a URL to a local file."""
+    """Download a PDF from a URL to a local file.
+
+    Validates the response is an actual PDF by checking both the Content-Type
+    header and the file magic bytes (%PDF-).  HTML pages, login walls, and
+    cookie consent pages are rejected.
+    """
     try:
         time.sleep(CONFIG["download_delay"])
         resp = requests.get(
@@ -637,15 +642,29 @@ def download_pdf(url: str, filepath: str) -> bool:
         )
         resp.raise_for_status()
 
-        content_type = resp.headers.get("Content-Type", "")
-        # Accept PDF or octet-stream
-        if "pdf" in content_type or "octet-stream" in content_type or len(resp.content) > 10000:
+        content_type = resp.headers.get("Content-Type", "").lower()
+
+        # Reject HTML responses outright (login pages, cookie walls, error pages)
+        if "html" in content_type or "xml" in content_type:
+            log.debug(f"Rejected HTML/XML response from {url}: {content_type}")
+            return False
+
+        # Accept if Content-Type says PDF or octet-stream
+        type_ok = "pdf" in content_type or "octet-stream" in content_type
+
+        # Always verify the actual bytes start with the PDF magic header
+        is_pdf = resp.content[:5] == b"%PDF-"
+
+        if type_ok and is_pdf:
             with open(filepath, "wb") as f:
                 f.write(resp.content)
             os.chmod(filepath, 0o644)
             return True
+
+        if not is_pdf:
+            log.debug(f"Not a valid PDF (bad magic bytes) from {url}: content_type={content_type}")
         else:
-            log.debug(f"Non-PDF content type from {url}: {content_type}")
+            log.debug(f"Unexpected content type from {url}: {content_type}")
     except Exception as e:
         log.debug(f"Download failed from {url}: {e}")
     return False
