@@ -1,87 +1,81 @@
-import { AlertTriangle, FileText, Link2, Tags } from "lucide-react";
+import { AlertTriangle, FileType } from "lucide-react";
 import type { WikiLintIssue, WikiPageDetail } from "../../types/wiki";
 import { MarkdownRenderer } from "./MarkdownRenderer";
 
 export function WikiPageView({
-  page,
-  onNavigate,
-  lintIssues,
+  page, onNavigate, lintIssues, onViewSource,
 }: {
   page?: WikiPageDetail;
   onNavigate: (slug: string) => void;
   lintIssues: WikiLintIssue[];
+  onViewSource?: (filename: string) => void;
 }) {
   if (!page) {
     return (
-      <div className="flex h-full items-center justify-center rounded-2xl border border-white/[0.06] bg-[#15151a] p-8 text-center">
+      <div className="flex h-full items-center justify-center p-8 text-center">
         <div>
-          <p className="text-sm font-medium text-foreground">No page selected</p>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Select a page from the tree to view its content.
-          </p>
+          <p className="text-sm text-[#8A857D]">Select a paper to view</p>
         </div>
       </div>
     );
   }
 
-  const pageIssues = lintIssues.filter((issue) => issue.page_slug === page.slug);
+  const pageIssues = lintIssues.filter((i) => i.page_slug === page.slug);
+  const canViewSource = page.stored_filename && page.source_type === "pdf";
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-white/[0.06] bg-[#15151a]">
-      <div className="border-b border-white/[0.06] px-6 py-4">
-        <div className="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-          <span className="rounded-full border border-white/[0.08] px-2 py-0.5">{page.page_type}</span>
-          <span>{new Date(page.updated_at).toLocaleString()}</span>
-        </div>
-        <h2 className="mt-2 text-xl font-semibold tracking-tight text-foreground">{page.title}</h2>
-        <div className="mt-3 flex flex-wrap gap-3 text-xs text-muted-foreground">
-          <span className="flex items-center gap-1.5">
-            <FileText className="h-3.5 w-3.5" />
-            {page.path}
-          </span>
-          {page.source_title && (
-            <span className="flex items-center gap-1.5">
-              <Tags className="h-3.5 w-3.5" />
-              Source: {page.source_title}
-            </span>
-          )}
-          {!!page.links.length && (
-            <span className="flex items-center gap-1.5">
-              <Link2 className="h-3.5 w-3.5" />
-              {page.links.length} linked page{page.links.length === 1 ? "" : "s"}
-            </span>
+    <div className="flex h-full flex-col overflow-hidden">
+      {/* Header — clean, human-readable */}
+      <div className="border-b border-[#232328] bg-[#1C1C20] px-6 py-4">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0 flex-1">
+            <h2 className="text-xl font-bold text-[#F0EDE8]">{page.title}</h2>
+            <p className="mt-1.5 text-xs text-[#5A5650]">
+              Last updated {new Date(page.updated_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+            </p>
+          </div>
+
+          {canViewSource && onViewSource && (
+            <button
+              type="button"
+              onClick={() => onViewSource(page.stored_filename!)}
+              className="inline-flex flex-shrink-0 items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#2DD4BF]/20 to-[#A78BFA]/20 border border-[#2DD4BF]/30 px-3 py-2 text-xs font-medium text-[#2DD4BF] transition-all hover:from-[#2DD4BF]/30 hover:to-[#A78BFA]/30"
+            >
+              <FileType size={14} />
+              View PDF
+            </button>
           )}
         </div>
-        {!!page.keywords.length && (
+
+        {/* Keywords — only show meaningful ones */}
+        {page.keywords.length > 0 && page.keywords[0] !== "source" && (
           <div className="mt-3 flex flex-wrap gap-1.5">
-            {page.keywords.map((keyword) => (
-              <span
-                key={keyword}
-                className="rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[11px] text-primary"
-              >
-                {keyword}
-              </span>
-            ))}
+            {page.keywords
+              .filter((kw) => kw !== "source" && kw !== "summary" && kw !== "pdf" && kw !== "text" && kw !== "markdown")
+              .map((kw) => (
+                <span key={kw} className="inline-flex items-center rounded px-2 py-0.5 text-[10px] font-medium bg-[#60A5FA]/15 text-[#60A5FA]">
+                  {kw}
+                </span>
+              ))}
           </div>
         )}
       </div>
 
-      {/* Inline lint warnings for this page */}
+      {/* Lint warnings */}
       {pageIssues.length > 0 && (
-        <div className="border-b border-amber-500/10 bg-amber-500/5 px-6 py-2.5">
+        <div className="border-b border-[#C9A227]/20 bg-[#C9A227]/5 px-6 py-2">
           <div className="flex items-start gap-2">
-            <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-amber-400" />
-            <div className="space-y-1">
+            <AlertTriangle size={14} className="mt-0.5 flex-shrink-0 text-[#C9A227]" />
+            <div className="space-y-0.5">
               {pageIssues.map((issue) => (
-                <p key={issue.message} className="text-xs text-amber-300/80">
-                  {issue.message}
-                </p>
+                <p key={issue.message} className="text-xs text-[#C9A227]/80">{issue.message}</p>
               ))}
             </div>
           </div>
         </div>
       )}
 
+      {/* Body */}
       <div className="flex-1 overflow-y-auto px-6 py-5">
         <MarkdownRenderer markdown={page.body} onNavigate={onNavigate} />
       </div>

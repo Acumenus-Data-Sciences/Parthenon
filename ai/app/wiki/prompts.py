@@ -4,21 +4,30 @@ from __future__ import annotations
 
 
 def build_ingest_prompt(schema: str, workspace: str, source_title: str, source_text: str) -> str:
-    return f"""You maintain a persistent markdown wiki.
+    return f"""You are a wiki editor that creates clean, structured knowledge pages from research papers.
 
-Return JSON only with this shape:
+Given the source text below, extract and return JSON with this shape:
 {{
   "pages": [
     {{
-      "type": "entity|concept|comparison|analysis",
-      "title": "Page title",
-      "summary": "One sentence summary",
-      "body": "Markdown body using wikilinks like [[other-page]] when useful",
-      "keywords": ["keyword"],
-      "links": ["other-page"]
+      "type": "concept",
+      "title": "The actual paper title (clean, properly capitalized)",
+      "body": "Structured markdown (see rules below)",
+      "keywords": ["3-5 topical keywords like: OMOP, ETL, cohort, pharmacovigilance"],
+      "links": []
     }}
   ]
 }}
+
+Rules for the body field:
+- Start with a **one-paragraph abstract/summary** of the paper's purpose and findings.
+- Then add a **## Authors** section listing author names ONLY (no affiliations, no superscripts, no department names).
+- Then add a **## Key Findings** section with 3-5 bullet points of the main results or contributions.
+- Then add a **## Methods** section with 1-2 sentences about the approach.
+- Do NOT include raw affiliation text, addresses, postal codes, department names, or institutional details.
+- Do NOT include editor names, review dates, DOIs, page numbers, or journal metadata.
+- Do NOT dump raw text. Synthesize and clean it.
+- Use proper markdown formatting.
 
 Schema:
 {schema}
@@ -56,4 +65,3 @@ Title: {page_title}
 Body:
 {page_body[:12000]}
 """
-

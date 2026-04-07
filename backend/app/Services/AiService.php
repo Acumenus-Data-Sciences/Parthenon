@@ -322,4 +322,9 @@ class AiService
             'workspace' => $workspace,
         ]);
     }
+
+    public function wikiSourceUrl(string $workspace, string $filename): string
+    {
+        return "{$this->baseUrl}/wiki/sources/{$workspace}/{$filename}";
+    }
 }

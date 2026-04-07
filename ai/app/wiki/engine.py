@@ -539,30 +539,62 @@ class WikiEngine:
         return candidate if candidate in branches else "main"
 
     def _fallback_pages(self, source_title: str, source_text: str) -> list[dict[str, str | list[str]]]:
-        first_line = next((line.strip() for line in source_text.splitlines() if line.strip()), source_title)
-        concept_title = source_title if source_title != first_line else f"{source_title} Overview"
         return [
             {
-                "title": concept_title,
+                "title": source_title,
                 "type": "concept",
-                "body": self._fallback_body(concept_title, source_text),
-                "keywords": [slugify(source_title).replace("-", " "), "summary"],
+                "body": self._fallback_body(source_title, source_text),
+                "keywords": self._extract_keywords(source_text),
                 "links": [],
             }
         ]
 
     def _fallback_body(self, title: str, source_text: str) -> str:
-        excerpt = source_text.strip()[:3000]
-        return f"## Summary\n\n{excerpt}\n"
+        # Extract a clean excerpt — skip lines that look like affiliations or metadata
+        clean_lines: list[str] = []
+        for line in source_text.splitlines():
+            stripped = line.strip()
+            if not stripped:
+                if clean_lines:
+                    clean_lines.append("")
+                continue
+            # Skip affiliation-like lines (contain department, university, postal codes)
+            lower = stripped.lower()
+            if any(skip in lower for skip in [
+                "department of", "university of", "school of", "institute",
+                "medical center", "hospital,", "@", "edited by", "approved",
+                "received for review", "doi:", "http", "www.", "copyright",
+                "elsevier", "springer", "wiley", "rights reserved",
+            ]):
+                continue
+            # Skip lines that are mostly superscript references (a,b,c,1 patterns)
+            if len(stripped) < 200 and sum(1 for c in stripped if c in "abcdefghijklmnopqrstuvwxyz,") > len(stripped) * 0.4:
+                if any(c.isdigit() for c in stripped) and "," in stripped:
+                    continue
+            clean_lines.append(stripped)
+
+        cleaned = "\n".join(clean_lines).strip()[:2500]
+        return f"{cleaned}\n" if cleaned else f"Content extracted from: {title}\n"
 
     def _source_summary_body(self, source) -> str:
-        excerpt = source.content.strip()[:3000]
-        return (
-            f"## Source\n\n"
-            f"- Original filename: `{source.original_filename}`\n"
-            f"- Source type: `{source.source_type}`\n\n"
-            f"## Extracted Content\n\n{excerpt}\n"
-        )
+        return self._fallback_body(source.title, source.content)
+
+    @staticmethod
+    def _extract_keywords(text: str) -> list[str]:
+        """Extract meaningful keywords from text."""
+        # Common OHDSI/medical terms to look for
+        term_pool = [
+            "OMOP", "OHDSI", "CDM", "ETL", "FHIR", "phenotype", "cohort",
+            "pharmacovigilance", "real-world data", "data quality", "vocabulary",
+            "treatment pathways", "patient-level prediction", "characterization",
+            "oncology", "cancer", "diabetes", "cardiovascular",
+            "SNOMED", "ICD", "RxNorm", "LOINC", "claims", "EHR",
+            "federated", "distributed", "harmonization", "standardization",
+            "machine learning", "NLP", "clinical trial",
+        ]
+        lower_text = text.lower()
+        found = [term for term in term_pool if term.lower() in lower_text]
+        return found[:5] if found else ["research"]
 
     def _entry_to_summary(self, workspace: str, entry: IndexEntry) -> WikiPageSummary:
         return WikiPageSummary(

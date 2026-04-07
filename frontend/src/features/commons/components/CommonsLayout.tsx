@@ -285,8 +285,8 @@ export function CommonsLayout() {
         )}
       </div>
 
-      {/* Right panel — hidden when Ask Abby is active */}
-      {!isAskAbby && (
+      {/* Right panel — hidden when Ask Abby or Wiki is active */}
+      {!isAskAbby && view !== "wiki" && (
         <RightPanel
           slug={activeSlug}
           activeTab={rightTab}

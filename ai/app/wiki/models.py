@@ -21,11 +21,14 @@ class WikiPageSummary(BaseModel):
     keywords: list[str] = Field(default_factory=list)
     links: list[str] = Field(default_factory=list)
     updated_at: str
+    source_slug: str | None = None
+    source_type: str | None = None
 
 
 class WikiPageDetail(WikiPageSummary):
     body: str
     source_title: str | None = None
+    stored_filename: str | None = None
 
 
 class WikiActivityItem(BaseModel):

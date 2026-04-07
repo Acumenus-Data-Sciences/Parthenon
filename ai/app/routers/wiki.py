@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi.responses import FileResponse
 
 from app.wiki.engine import WikiEngine
 from app.wiki.models import (
@@ -87,3 +88,33 @@ async def query(request: WikiQueryRequest) -> WikiQueryResponse:
 async def lint(request: WikiLintRequest) -> WikiLintResponse:
     return await _get_engine().lint(request.workspace)
 
+
+@router.get("/sources/{workspace}/{filename}")
+def download_source(workspace: str, filename: str) -> FileResponse:
+    """Serve an original source file (PDF, markdown, text) for viewing or download."""
+    engine = _get_engine()
+    workspace_dir = engine.root_dir / workspace
+    source_path = workspace_dir / "sources" / filename
+
+    if not source_path.exists() or not source_path.is_file():
+        raise HTTPException(status_code=404, detail=f"Source file '{filename}' not found.")
+
+    # Prevent path traversal
+    try:
+        source_path.resolve().relative_to(workspace_dir.resolve())
+    except ValueError as exc:
+        raise HTTPException(status_code=403, detail="Access denied.") from exc
+
+    media_types = {
+        ".pdf": "application/pdf",
+        ".md": "text/markdown",
+        ".markdown": "text/markdown",
+        ".txt": "text/plain",
+    }
+    media_type = media_types.get(source_path.suffix.lower(), "application/octet-stream")
+
+    return FileResponse(
+        path=source_path,
+        media_type=media_type,
+        filename=filename,
+    )

@@ -7,6 +7,8 @@ use App\Services\AiService;
 use Illuminate\Http\Client\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class WikiController extends Controller
 {
@@ -105,6 +107,25 @@ class WikiController extends Controller
         return $this->proxyJson($aiService->wikiLint(
             $validated['workspace'] ?? 'platform',
         ));
+    }
+
+    public function downloadSource(string $workspace, string $filename, AiService $aiService): StreamedResponse
+    {
+        $url = $aiService->wikiSourceUrl($workspace, $filename);
+        $upstream = Http::timeout(30)->withOptions(['stream' => true])->get($url);
+
+        if ($upstream->failed()) {
+            abort($upstream->status(), 'Source file not found.');
+        }
+
+        $contentType = $upstream->header('Content-Type') ?: 'application/octet-stream';
+
+        return response()->streamDownload(function () use ($upstream) {
+            echo $upstream->body();
+        }, $filename, [
+            'Content-Type' => $contentType,
+            'Content-Disposition' => 'inline; filename="'.$filename.'"',
+        ]);
     }
 
     private function proxyJson(Response $response): JsonResponse

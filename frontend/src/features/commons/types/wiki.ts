@@ -14,11 +14,14 @@ export interface WikiPageSummary {
   keywords: string[];
   links: string[];
   updated_at: string;
+  source_slug?: string | null;
+  source_type?: string | null;
 }
 
 export interface WikiPageDetail extends WikiPageSummary {
   body: string;
   source_title?: string | null;
+  stored_filename?: string | null;
 }
 
 export interface WikiActivityItem {
@@ -51,4 +54,12 @@ export interface WikiIngestResponse {
   source_title: string;
   created_pages: WikiPageSummary[];
   activity: WikiActivityItem;
+}
+
+export interface WikiChatMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  citations?: WikiPageSummary[];
+  timestamp: string;
 }

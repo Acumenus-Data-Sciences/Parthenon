@@ -78,6 +78,10 @@ async function lintWiki(payload: { workspace: string }): Promise<WikiLintRespons
   return data;
 }
 
+export function sourceDownloadUrl(workspace: string, filename: string): string {
+  return `/wiki/sources/${encodeURIComponent(workspace)}/${encodeURIComponent(filename)}`;
+}
+
 export function useWikiWorkspaces() {
   return useQuery({
     queryKey: [WIKI_WORKSPACES_KEY],
