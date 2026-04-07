@@ -1,6 +1,7 @@
 import { useRef, useEffect, useCallback, useState } from "react";
 import { createPortal } from "react-dom";
-import { X, Sparkles, Send, Loader2, Trash2, ChevronRight, Clock, MessageSquare, ChevronLeft } from "lucide-react";
+import { X, Send, Loader2, Trash2, ChevronRight, Clock, MessageSquare, ChevronLeft } from "lucide-react";
+import AbbyAvatar from "@/features/commons/components/abby/AbbyAvatar";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useAbbyStore } from "@/stores/abbyStore";
@@ -566,7 +567,7 @@ export function AbbyPanel() {
       <div className="drawer drawer-lg" role="dialog" aria-label="AI Assistant">
         {/* Header */}
         <div className="ai-panel-header">
-          <Sparkles size={18} style={{ color: "var(--accent)" }} />
+          <AbbyAvatar size="md" showStatus />
           <div style={{ flex: 1 }}>
             <span className="text-panel-title">Abby AI</span>
             <span

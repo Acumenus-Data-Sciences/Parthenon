@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
 import { useUiStore } from "@/stores/uiStore";
 import { useAbbyStore } from "@/stores/abbyStore";
-import { LogOut, User, Search, Sparkles, Bell, Settings, ChevronDown, Database, Star } from "lucide-react";
+import { LogOut, User, Search, Bell, Settings, ChevronDown, Database, Star } from "lucide-react";
+import AbbyAvatar from "@/features/commons/components/abby/AbbyAvatar";
 import { AboutAbbyModal } from "./AboutAbbyModal";
 import { useSourceStore } from "@/stores/sourceStore";
 import { useQuery } from "@tanstack/react-query";
@@ -207,7 +208,7 @@ export function Header() {
               aria-label="AI Assistant"
               title="AI Assistant"
             >
-              <Sparkles size={18} />
+              <AbbyAvatar size="sm" />
             </button>
 
             <AboutAbbyModal
