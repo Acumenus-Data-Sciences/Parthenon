@@ -7,31 +7,74 @@ return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement("
-            CREATE TABLE app.abby_knowledge_artifacts (
-                id BIGSERIAL PRIMARY KEY,
-                type VARCHAR(50) NOT NULL,
-                title VARCHAR(500) NOT NULL,
-                summary TEXT,
-                tags TEXT[],
-                disease_area VARCHAR(100),
-                study_design VARCHAR(50),
-                created_by BIGINT REFERENCES app.users(id),
-                source_conversation_id BIGINT,
-                artifact_data JSONB,
-                embedding vector(384),
-                usage_count INT DEFAULT 0,
-                accuracy_score DECIMAL(3,2),
-                status VARCHAR(20) DEFAULT 'active',
-                created_at TIMESTAMP DEFAULT NOW(),
-                updated_at TIMESTAMP DEFAULT NOW()
-            )
-        ");
-        DB::statement('CREATE INDEX idx_abby_knowledge_artifacts_type ON app.abby_knowledge_artifacts (type)');
-        DB::statement('CREATE INDEX idx_abby_knowledge_artifacts_disease_area ON app.abby_knowledge_artifacts (disease_area)');
-        DB::statement('CREATE INDEX idx_abby_knowledge_artifacts_status ON app.abby_knowledge_artifacts (status)');
-        DB::statement('CREATE INDEX idx_abby_knowledge_artifacts_created_by ON app.abby_knowledge_artifacts (created_by)');
-        DB::statement('CREATE INDEX idx_abby_knowledge_artifacts_embedding ON app.abby_knowledge_artifacts USING hnsw (embedding vector_cosine_ops)');
+        try {
+            DB::statement('CREATE EXTENSION IF NOT EXISTS vector');
+        } catch (Throwable) {
+            // Extension may already exist or require superuser
+        }
+
+        // Resolve the schema where pgvector installed its types
+        $vectorSchema = null;
+        try {
+            $vectorSchema = DB::selectOne(
+                "SELECT n.nspname FROM pg_extension e JOIN pg_namespace n ON e.extnamespace = n.oid WHERE e.extname = 'vector'"
+            );
+        } catch (Throwable) {
+            // pgvector not available
+        }
+
+        if (! $vectorSchema) {
+            // Create tables without vector column when pgvector is unavailable
+            DB::statement("
+                CREATE TABLE IF NOT EXISTS app.abby_knowledge_artifacts (
+                    id BIGSERIAL PRIMARY KEY,
+                    type VARCHAR(50) NOT NULL,
+                    title VARCHAR(500) NOT NULL,
+                    summary TEXT,
+                    tags TEXT[],
+                    disease_area VARCHAR(100),
+                    study_design VARCHAR(50),
+                    created_by BIGINT REFERENCES app.users(id),
+                    source_conversation_id BIGINT,
+                    artifact_data JSONB,
+                    usage_count INT DEFAULT 0,
+                    accuracy_score DECIMAL(3,2),
+                    status VARCHAR(20) DEFAULT 'active',
+                    created_at TIMESTAMP DEFAULT NOW(),
+                    updated_at TIMESTAMP DEFAULT NOW()
+                )
+            ");
+        } else {
+            $vectorType = "{$vectorSchema->nspname}.vector";
+            $vectorOps = "{$vectorSchema->nspname}.vector_cosine_ops";
+
+            DB::statement("
+                CREATE TABLE IF NOT EXISTS app.abby_knowledge_artifacts (
+                    id BIGSERIAL PRIMARY KEY,
+                    type VARCHAR(50) NOT NULL,
+                    title VARCHAR(500) NOT NULL,
+                    summary TEXT,
+                    tags TEXT[],
+                    disease_area VARCHAR(100),
+                    study_design VARCHAR(50),
+                    created_by BIGINT REFERENCES app.users(id),
+                    source_conversation_id BIGINT,
+                    artifact_data JSONB,
+                    embedding {$vectorType}(384),
+                    usage_count INT DEFAULT 0,
+                    accuracy_score DECIMAL(3,2),
+                    status VARCHAR(20) DEFAULT 'active',
+                    created_at TIMESTAMP DEFAULT NOW(),
+                    updated_at TIMESTAMP DEFAULT NOW()
+                )
+            ");
+            DB::statement("CREATE INDEX IF NOT EXISTS idx_abby_knowledge_artifacts_embedding ON app.abby_knowledge_artifacts USING hnsw (embedding {$vectorOps})");
+        }
+
+        DB::statement('CREATE INDEX IF NOT EXISTS idx_abby_knowledge_artifacts_type ON app.abby_knowledge_artifacts (type)');
+        DB::statement('CREATE INDEX IF NOT EXISTS idx_abby_knowledge_artifacts_disease_area ON app.abby_knowledge_artifacts (disease_area)');
+        DB::statement('CREATE INDEX IF NOT EXISTS idx_abby_knowledge_artifacts_status ON app.abby_knowledge_artifacts (status)');
+        DB::statement('CREATE INDEX IF NOT EXISTS idx_abby_knowledge_artifacts_created_by ON app.abby_knowledge_artifacts (created_by)');
 
         DB::statement('
             CREATE TABLE app.abby_corrections (
