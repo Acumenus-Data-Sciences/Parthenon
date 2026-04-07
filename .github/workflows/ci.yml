@@ -41,6 +41,7 @@ jobs:
         env:
           PGPASSWORD: secret
         run: |
+          # Setup extensions and schemas on the migration database
           psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE EXTENSION IF NOT EXISTS vector;"
           psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
           psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS app;"
@@ -53,6 +54,12 @@ jobs:
           psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS inpatient_ext;"
           psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS eunomia_results;"
           psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS vocab;"
+          # Pest tests use pgsql_testing connection → parthenon_testing database (phpunit.xml)
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE DATABASE parthenon_testing OWNER parthenon;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE EXTENSION IF NOT EXISTS vector;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE SCHEMA IF NOT EXISTS app;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE SCHEMA IF NOT EXISTS php;"
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
