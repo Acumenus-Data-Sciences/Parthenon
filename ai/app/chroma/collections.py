@@ -108,11 +108,15 @@ def get_ohdsi_papers_collection() -> Collection:
 
 
 def get_wiki_collection() -> Collection:
-    """Wiki page chunks collection (384-dim, general embedder, cosine)."""
+    """Wiki page chunks collection (768-dim, SapBERT clinical embedder, cosine).
+
+    Uses SapBERT instead of MiniLM because the wiki content is biomedical
+    research papers — clinical terminology matching is critical for retrieval.
+    """
     return _get_cached_collection(
         "wiki_pages",
         name="wiki_pages",
-        embedding_function=get_general_embedder(),  # type: ignore[arg-type]
+        embedding_function=get_clinical_embedder(),  # type: ignore[arg-type]
         metadata={"hnsw:space": "cosine"},
     )
 

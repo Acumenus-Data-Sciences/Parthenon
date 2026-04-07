@@ -103,12 +103,44 @@ def discover_pdfs(source_dir: Path, max_size_mb: float) -> list[Path]:
 # ── Ingest one PDF ──────────────────────────────────────────────────────────
 
 
+_QUALITY_JUNK = [
+    "untitled", "page ", "10.", "doi:", "http", ".pdf", ".txt",
+    "article in press", "elsevier", "springer", "slide ",
+]
+
+
+def _check_quality(result: object) -> list[str]:
+    """Validate the quality of an ingested paper. Returns list of issues."""
+    issues: list[str] = []
+    title = getattr(result, "source_title", "") or ""
+    pages = getattr(result, "created_pages", []) or []
+
+    # Title checks
+    if len(title) < 15:
+        issues.append(f"title too short ({len(title)} chars): '{title}'")
+    if any(junk in title.lower() for junk in _QUALITY_JUNK):
+        issues.append(f"junk in title: '{title[:60]}'")
+
+    # Page count check
+    if len(pages) < 1:
+        issues.append("no pages created")
+
+    # Check concept page quality
+    for page in pages:
+        if getattr(page, "page_type", "") == "concept":
+            kw = getattr(page, "keywords", []) or []
+            if not kw or kw == ["research"]:
+                issues.append("no meaningful keywords")
+            break
+
+    return issues
+
+
 async def ingest_one(engine: object, pdf_path: Path, workspace: str) -> dict:
-    """Ingest a single PDF and return a manifest entry."""
+    """Ingest a single PDF, check quality, and return a manifest entry."""
     content_bytes = pdf_path.read_bytes()
     start = time.monotonic()
 
-    # engine.ingest is async
     result = await engine.ingest(  # type: ignore[union-attr]
         workspace=workspace,
         filename=pdf_path.name,
@@ -118,13 +150,16 @@ async def ingest_one(engine: object, pdf_path: Path, workspace: str) -> dict:
     )
 
     elapsed = time.monotonic() - start
+    quality_issues = _check_quality(result)
+
     return {
-        "status": "success",
+        "status": "success" if not quality_issues else "quality_warning",
         "slug": result.source_slug,
         "title": result.source_title,
         "pages_created": len(result.created_pages),
         "elapsed_s": round(elapsed, 1),
         "error": None,
+        "quality_issues": quality_issues,
         "processed_at": datetime.now(UTC).isoformat(),
     }
 
@@ -219,11 +254,20 @@ def main() -> None:
             entry = asyncio.run(ingest_one(engine, pdf_path, args.workspace))
             processed[pdf_path.name] = entry
             success_count += 1
-            log.info(
-                "[%d/%d] OK: \"%s\" (%d pages, %.1fs)",
-                i + already_done, len(pdfs),
-                entry["title"][:60], entry["pages_created"], entry["elapsed_s"],
-            )
+            qi = entry.get("quality_issues", [])
+            if qi:
+                log.warning(
+                    "[%d/%d] WARN: \"%s\" (%d pages, %.1fs) — %s",
+                    i + already_done, len(pdfs),
+                    entry["title"][:55], entry["pages_created"], entry["elapsed_s"],
+                    "; ".join(qi),
+                )
+            else:
+                log.info(
+                    "[%d/%d] OK: \"%s\" (%d pages, %.1fs)",
+                    i + already_done, len(pdfs),
+                    entry["title"][:60], entry["pages_created"], entry["elapsed_s"],
+                )
         except Exception as exc:
             error_count += 1
             processed[pdf_path.name] = {
