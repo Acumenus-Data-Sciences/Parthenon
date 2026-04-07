@@ -4,10 +4,15 @@ from __future__ import annotations
 
 import json
 import re
+from collections.abc import AsyncGenerator
 from datetime import UTC, datetime
 from pathlib import Path
 
+import logging
+
 import httpx
+
+logger = logging.getLogger(__name__)
 
 _THINK_RE = re.compile(r"<think>.*?</think>", re.DOTALL)
 # Qwen3 often omits the opening <think> tag but includes the closing one
@@ -308,12 +313,220 @@ class WikiEngine:
         *,
         focus_title: str | None = None,
     ) -> str:
+        prompt = build_query_prompt(question, page_context, focus_title)
+
+        # Try Claude first if configured — better reasoning for research Q&A
+        claude_reply = self._try_claude_answer(prompt)
+        if claude_reply:
+            return claude_reply
+
+        # Fall back to local Ollama with higher token budget for wiki queries
         try:
-            return await self._call_llm_text(build_query_prompt(question, page_context, focus_title))
+            return await self._call_llm_text(
+                prompt,
+                num_predict=2048,
+                temperature=0.3,
+            )
         except Exception:
             snippets = [segment.strip() for segment in page_context.split("\n\n") if segment.strip()]
             excerpt = "\n\n".join(snippets[:3])
             return f"I found relevant wiki context but could not reach the LLM.\n\n{excerpt[:1800]}"
+
+    def _try_claude_answer(self, prompt: str) -> str | None:
+        """Attempt to answer via Claude API. Returns None if unavailable or fails."""
+        if not settings.claude_api_key:
+            return None
+        try:
+            from app.routing.claude_client import ClaudeClient
+
+            client = ClaudeClient(api_key=settings.claude_api_key)
+            response = client.chat(
+                system_prompt=(
+                    "You are Abby, a research assistant for clinical informaticians working with "
+                    "OHDSI/OMOP health informatics research papers. Answer questions with specific "
+                    "details from the provided context — cite methods, datasets, findings, and metrics. "
+                    "Use well-structured markdown. Be thorough but focused."
+                ),
+                message=prompt,
+            )
+            if response.reply and response.reply.strip():
+                logger.info(
+                    "Wiki query answered via Claude (tokens_in=%d, tokens_out=%d, cost=$%.4f)",
+                    response.tokens_in,
+                    response.tokens_out,
+                    response.cost_usd,
+                )
+                return response.reply.strip()
+        except Exception:
+            logger.warning("Claude wiki query failed, falling back to local", exc_info=True)
+        return None
+
+    _WIKI_SYSTEM_PROMPT = (
+        "You are Abby, a research assistant for clinical informaticians working with "
+        "OHDSI/OMOP health informatics research papers. Answer questions with specific "
+        "details from the provided context — cite methods, datasets, findings, and metrics. "
+        "Use well-structured markdown. Be thorough but focused."
+    )
+
+    async def stream_answer(
+        self,
+        workspace: str | None,
+        question: str,
+        *,
+        page_slug: str | None = None,
+        source_slug: str | None = None,
+    ) -> AsyncGenerator[str, None]:
+        """Stream wiki answer tokens as SSE events (data: {...}\\n\\n)."""
+        workspace_dir = self._workspace_dir(workspace)
+        entries, entries_by_slug = self._entry_maps(workspace_dir)
+        details = self._resolve_query_details(
+            workspace_dir, question, entries, entries_by_slug,
+            page_slug=page_slug, source_slug=source_slug,
+        )
+        focus_detail = next((d for d in details if d.slug == page_slug), None) if page_slug else None
+        focus_title = (focus_detail.source_title or focus_detail.title) if focus_detail else None
+
+        if not details:
+            yield f"data: {json.dumps({'token': 'No relevant wiki pages matched this question yet.'})}\n\n"
+            yield "data: [DONE]\n\n"
+            return
+
+        prompt_context = self._build_query_context(details, focus_detail)
+        prompt = build_query_prompt(question, prompt_context, focus_title)
+        citations = [self._detail_to_summary(d) for d in details]
+
+        # Emit citations metadata before tokens start
+        yield f"data: {json.dumps({'citations': [c.model_dump() for c in citations]})}\n\n"
+
+        # Try Claude streaming first
+        if settings.claude_api_key:
+            try:
+                async for event in self._stream_claude(prompt):
+                    yield event
+                self._log_wiki_query(workspace_dir, question)
+                return
+            except Exception:
+                logger.warning("Claude streaming failed, falling back to Ollama", exc_info=True)
+
+        # Ollama streaming fallback
+        try:
+            async for event in self._stream_ollama_answer(prompt):
+                yield event
+        except Exception:
+            logger.exception("Ollama streaming failed")
+            yield f"data: {json.dumps({'token': 'I found relevant context but could not reach the LLM.'})}\n\n"
+
+        self._log_wiki_query(workspace_dir, question)
+        yield "data: [DONE]\n\n"
+
+    def _log_wiki_query(self, workspace_dir: Path, question: str) -> None:
+        append_log_entry(
+            workspace_dir,
+            LogEntry(
+                timestamp=_utc_now(),
+                action="query",
+                target=slugify(question)[:48],
+                message=f"Answered wiki query: {question[:120]}",
+            ),
+        )
+
+    async def _stream_claude(self, prompt: str) -> AsyncGenerator[str, None]:
+        """Stream tokens from Claude API as SSE events."""
+        import asyncio
+        import queue
+
+        import anthropic
+
+        token_queue: queue.Queue[str | None] = queue.Queue()
+
+        def _run_sync_stream() -> None:
+            """Run the synchronous Claude stream in a thread, pushing tokens to a queue."""
+            try:
+                client = anthropic.Anthropic(api_key=settings.claude_api_key)
+                with client.messages.stream(
+                    model=settings.claude_model,
+                    max_tokens=settings.claude_max_tokens,
+                    system=self._WIKI_SYSTEM_PROMPT,
+                    messages=[{"role": "user", "content": prompt}],
+                ) as stream:
+                    for text in stream.text_stream:
+                        if text:
+                            token_queue.put(text)
+            except Exception:
+                logger.exception("Claude sync stream error")
+            finally:
+                token_queue.put(None)  # sentinel
+
+        loop = asyncio.get_event_loop()
+        loop.run_in_executor(None, _run_sync_stream)
+
+        while True:
+            # Poll the queue without blocking the event loop
+            try:
+                token = token_queue.get_nowait()
+            except queue.Empty:
+                await asyncio.sleep(0.05)
+                continue
+            if token is None:
+                break
+            yield f"data: {json.dumps({'token': token})}\n\n"
+
+    async def _stream_ollama_answer(self, prompt: str) -> AsyncGenerator[str, None]:
+        """Stream tokens from Ollama as SSE events."""
+        async with self._get_ollama_client().stream(
+            "POST",
+            f"{settings.abby_llm_base_url}/api/chat",
+            json={
+                "model": settings.abby_llm_model,
+                "messages": [
+                    {"role": "system", "content": self._WIKI_SYSTEM_PROMPT},
+                    {"role": "user", "content": prompt},
+                ],
+                "stream": True,
+                "think": False,
+                "keep_alive": settings.abby_ollama_keep_alive,
+                "options": {
+                    "temperature": 0.3,
+                    "num_predict": 2048,
+                },
+            },
+            timeout=settings.ollama_timeout,
+        ) as resp:
+            resp.raise_for_status()
+            pending = ""
+            suppress_reasoning: bool | None = None
+            async for line in resp.aiter_lines():
+                if not line.strip():
+                    continue
+                try:
+                    data = json.loads(line)
+                    if data.get("done"):
+                        break
+                    token = data.get("message", {}).get("content", "")
+                    if not token:
+                        continue
+                    pending += token
+                    # Handle reasoning model think blocks
+                    if suppress_reasoning is None:
+                        stripped = pending.lstrip()
+                        if stripped.startswith("<think>"):
+                            suppress_reasoning = True
+                        elif len(pending) >= 16:
+                            suppress_reasoning = False
+                    if suppress_reasoning is True:
+                        cleaned = _strip_think_blocks(pending)
+                        if cleaned:
+                            yield f"data: {json.dumps({'token': cleaned})}\n\n"
+                            pending = ""
+                            suppress_reasoning = False
+                    elif suppress_reasoning is False:
+                        yield f"data: {json.dumps({'token': pending})}\n\n"
+                        pending = ""
+                except json.JSONDecodeError:
+                    continue
+            # Flush remaining
+            if pending and suppress_reasoning is not True:
+                yield f"data: {json.dumps({'token': pending})}\n\n"
 
     async def _call_llm_json(self, prompt: str) -> dict[str, object]:
         response = await self._call_ollama(prompt, expect_json=True)
@@ -327,27 +540,50 @@ class WikiEngine:
             return {}
         return payload if isinstance(payload, dict) else {}
 
-    async def _call_llm_text(self, prompt: str) -> str:
-        return await self._call_ollama(prompt, expect_json=False)
+    async def _call_llm_text(
+        self,
+        prompt: str,
+        *,
+        num_predict: int | None = None,
+        temperature: float = 0.1,
+    ) -> str:
+        return await self._call_ollama(
+            prompt,
+            expect_json=False,
+            num_predict=num_predict,
+            temperature=temperature,
+        )
 
-    async def _call_ollama(self, prompt: str, *, expect_json: bool) -> str:
+    async def _call_ollama(
+        self,
+        prompt: str,
+        *,
+        expect_json: bool,
+        system_prompt: str | None = None,
+        num_predict: int | None = None,
+        temperature: float = 0.1,
+    ) -> str:
+        if system_prompt is None:
+            system_prompt = (
+                "Return valid JSON only. No explanation."
+                if expect_json
+                else "Output the final answer only. No reasoning, no chain of thought. Use concise markdown."
+            )
+        resolved_num_predict = num_predict or max(settings.ollama_num_predict, 512)
         response = await self._get_ollama_client().post(
             f"{settings.abby_llm_base_url}/api/chat",
             json={
                 "model": settings.abby_llm_model,
                 "messages": [
-                    {
-                        "role": "system",
-                        "content": "Return valid JSON only. No explanation." if expect_json else "Output the final answer only. No reasoning, no chain of thought. Use concise markdown.",
-                    },
+                    {"role": "system", "content": system_prompt},
                     {"role": "user", "content": prompt},
                 ],
                 "stream": False,
                 "think": False,
                 "keep_alive": settings.abby_ollama_keep_alive,
                 "options": {
-                    "temperature": 0.1,
-                    "num_predict": max(settings.ollama_num_predict, 512),
+                    "temperature": temperature,
+                    "num_predict": resolved_num_predict,
                 },
             },
         )
@@ -443,6 +679,12 @@ class WikiEngine:
         absolute_path = workspace_dir / relative_path
         updated_at = _utc_now()
         normalized_links = sorted({link for link in links if link})
+
+        # Preserve ingested_at from existing entry; set on first ingest
+        existing_entries = {e.slug: e for e in read_index(workspace_dir)}
+        existing = existing_entries.get(slug)
+        ingested_at = existing.ingested_at if existing and existing.ingested_at else updated_at
+
         frontmatter = build_frontmatter(
             {
                 "title": title,
@@ -465,6 +707,7 @@ class WikiEngine:
             updated_at=updated_at,
             source_slug=source_slug,
             source_type=source_type,
+            ingested_at=ingested_at,
         )
         upsert_index_entry(workspace_dir, entry)
 
@@ -547,6 +790,7 @@ class WikiEngine:
             source_slug=source_slug,
             source_type=source_type,
             stored_filename=stored_filename,
+            ingested_at=entry.ingested_at or None,
         )
 
     def _build_query_context(
@@ -576,7 +820,7 @@ class WikiEngine:
                         f"- Source title: {detail.source_title or detail.title}",
                         f"- Source slug: {detail.source_slug or detail.slug}",
                         "",
-                        detail.body[:2500],
+                        detail.body[:6000],
                     ]
                 ).strip()
             )
@@ -773,6 +1017,7 @@ class WikiEngine:
             updated_at=entry.updated_at,
             source_slug=entry.source_slug or None,
             source_type=entry.source_type or None,
+            ingested_at=entry.ingested_at or None,
         )
 
     def _detail_to_summary(self, detail: WikiPageDetail) -> WikiPageSummary:
@@ -787,6 +1032,7 @@ class WikiEngine:
             updated_at=detail.updated_at,
             source_slug=detail.source_slug,
             source_type=detail.source_type,
+            ingested_at=detail.ingested_at,
         )
 
 

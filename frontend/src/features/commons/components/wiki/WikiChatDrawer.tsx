@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Send, User, X } from "lucide-react";
+import { Loader2, Send, User, X } from "lucide-react";
 import type { WikiChatMessage } from "../../types/wiki";
 import { MarkdownRenderer } from "./MarkdownRenderer";
 import AbbyAvatar from "../abby/AbbyAvatar";
@@ -108,47 +108,48 @@ export function WikiChatDrawer({
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {messages.map((msg) => (
-                    <div key={msg.id} className="flex gap-3">
-                      {msg.role === "user" ? (
-                        <div className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#1A1A1E]">
-                          <User size={13} className="text-[#8A857D]" />
-                        </div>
-                      ) : (
-                        <div className="mt-0.5 flex-shrink-0">
-                          <AbbyAvatar size="sm" />
-                        </div>
-                      )}
-                      <div className="min-w-0 flex-1 pt-0.5">
+                  {messages.map((msg, idx) => {
+                    const isStreamingMsg = loading && msg.role === "assistant" && idx === messages.length - 1;
+                    return (
+                      <div key={msg.id} className="flex gap-3">
                         {msg.role === "user" ? (
-                          <p className="text-sm text-[#F0EDE8]">{msg.content}</p>
+                          <div className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#1A1A1E]">
+                            <User size={13} className="text-[#8A857D]" />
+                          </div>
+                        ) : isStreamingMsg ? (
+                          <div className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center">
+                            <Loader2 size={18} className="animate-spin text-[#2DD4BF]" />
+                          </div>
                         ) : (
-                          <div className="text-sm text-[#C5C0B8]">
-                            <MarkdownRenderer markdown={msg.content} onNavigate={onNavigate} />
+                          <div className="mt-0.5 flex-shrink-0">
+                            <AbbyAvatar size="sm" />
                           </div>
                         )}
-                        {msg.citations && msg.citations.length > 0 && (
-                          <div className="mt-2 flex flex-wrap gap-1.5">
-                            {msg.citations.map((c) => (
-                              <button key={c.slug} type="button" onClick={() => { onNavigate(c.slug); onClose(); }}
-                                className="rounded border border-[#232328] bg-[#1A1A1E] px-2 py-0.5 text-[10px] text-[#8A857D] transition-colors hover:border-[#2DD4BF]/30 hover:text-[#2DD4BF]"
-                              >
-                                {c.title.slice(0, 50)}
-                              </button>
-                            ))}
-                          </div>
-                        )}
+                        <div className="min-w-0 flex-1 pt-0.5">
+                          {msg.role === "user" ? (
+                            <p className="text-sm text-[#F0EDE8]">{msg.content}</p>
+                          ) : msg.content ? (
+                            <div className="text-sm text-[#C5C0B8]">
+                              <MarkdownRenderer markdown={msg.content} onNavigate={onNavigate} />
+                            </div>
+                          ) : isStreamingMsg ? (
+                            <p className="text-sm text-[#5A5650]">Generating response...</p>
+                          ) : null}
+                          {msg.citations && msg.citations.length > 0 && (
+                            <div className="mt-2 flex flex-wrap gap-1.5">
+                              {msg.citations.map((c) => (
+                                <button key={c.slug} type="button" onClick={() => { onNavigate(c.slug); onClose(); }}
+                                  className="rounded border border-[#232328] bg-[#1A1A1E] px-2 py-0.5 text-[10px] text-[#8A857D] transition-colors hover:border-[#2DD4BF]/30 hover:text-[#2DD4BF]"
+                                >
+                                  {c.title.slice(0, 50)}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                  {loading && (
-                    <div className="flex gap-3">
-                      <div className="mt-0.5 flex-shrink-0 animate-pulse">
-                        <AbbyAvatar size="sm" />
-                      </div>
-                      <p className="pt-1 text-sm text-[#5A5650]">Searching wiki and synthesizing answer...</p>
-                    </div>
-                  )}
+                    );
+                  })}
                 </div>
               )}
             </div>

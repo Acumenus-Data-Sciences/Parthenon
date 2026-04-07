@@ -1572,6 +1572,8 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve'])->group(funct
             ->middleware('permission:wiki.ingest');
         Route::post('query', [AiWikiController::class, 'query'])
             ->middleware('permission:wiki.view');
+        Route::post('query/stream', [AiWikiController::class, 'queryStream'])
+            ->middleware('permission:wiki.view');
         Route::post('lint', [AiWikiController::class, 'lint'])
             ->middleware('permission:wiki.lint');
         Route::get('sources/{workspace}/{filename}', [AiWikiController::class, 'downloadSource'])

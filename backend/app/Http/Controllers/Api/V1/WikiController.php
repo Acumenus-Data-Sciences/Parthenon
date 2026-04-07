@@ -112,6 +112,60 @@ class WikiController extends Controller
         ));
     }
 
+    public function queryStream(Request $request): StreamedResponse
+    {
+        $validated = $request->validate([
+            'workspace' => 'nullable|string|max:100',
+            'question' => 'required|string|min:3|max:4000',
+            'page_slug' => 'nullable|string|max:255',
+            'source_slug' => 'nullable|string|max:255',
+        ]);
+
+        $aiBaseUrl = (string) config('services.ai.url');
+
+        return new StreamedResponse(function () use ($validated, $aiBaseUrl): void {
+            $ch = curl_init("{$aiBaseUrl}/wiki/query/stream");
+            if ($ch === false) {
+                echo 'data: '.json_encode(['error' => 'Failed to connect to AI service'])."\n\n";
+                echo "data: [DONE]\n\n";
+
+                return;
+            }
+
+            $payload = ['workspace' => $validated['workspace'] ?? 'platform', 'question' => $validated['question']];
+            if (! empty($validated['page_slug'])) {
+                $payload['page_slug'] = $validated['page_slug'];
+            }
+            if (! empty($validated['source_slug'])) {
+                $payload['source_slug'] = $validated['source_slug'];
+            }
+
+            curl_setopt_array($ch, [
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => json_encode($payload),
+                CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'Accept: text/event-stream'],
+                CURLOPT_WRITEFUNCTION => function ($ch, $data) {
+                    echo $data;
+                    if (ob_get_level() > 0) {
+                        ob_flush();
+                    }
+                    flush();
+
+                    return strlen($data);
+                },
+                CURLOPT_TIMEOUT => 180,
+            ]);
+
+            curl_exec($ch);
+            curl_close($ch);
+        }, 200, [
+            'Content-Type' => 'text/event-stream',
+            'Cache-Control' => 'no-cache',
+            'Connection' => 'keep-alive',
+            'X-Accel-Buffering' => 'no',
+        ]);
+    }
+
     public function lint(Request $request, AiService $aiService): JsonResponse
     {
         $validated = $request->validate([

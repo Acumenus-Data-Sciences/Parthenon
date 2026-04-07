@@ -16,6 +16,7 @@ export interface WikiPageSummary {
   updated_at: string;
   source_slug?: string | null;
   source_type?: string | null;
+  ingested_at?: string | null;
 }
 
 export interface WikiPageDetail extends WikiPageSummary {

@@ -6,6 +6,7 @@ interface SourceEntry {
   title: string;
   sourceType: string | null;
   updatedAt: string;
+  ingestedAt: string;
   childPages: WikiPageSummary[];
   hasIssues: boolean;
 }
@@ -24,6 +25,9 @@ function buildSourceList(pages: WikiPageSummary[], lintIssues: WikiLintIssue[]):
       if (issueSet.has(page.slug)) existing.hasIssues = true;
       // Use the most recent updated_at
       if (page.updated_at > existing.updatedAt) existing.updatedAt = page.updated_at;
+      // Use the earliest ingested_at for the source group
+      const pageIngested = page.ingested_at ?? page.updated_at;
+      if (pageIngested < existing.ingestedAt) existing.ingestedAt = pageIngested;
     } else {
       const displayTitle = page.title;
       sources.set(key, {
@@ -31,6 +35,7 @@ function buildSourceList(pages: WikiPageSummary[], lintIssues: WikiLintIssue[]):
         title: displayTitle,
         sourceType: page.source_type ?? null,
         updatedAt: page.updated_at,
+        ingestedAt: page.ingested_at ?? page.updated_at,
         childPages: [page],
         hasIssues: issueSet.has(page.slug),
       });
@@ -43,9 +48,9 @@ function buildSourceList(pages: WikiPageSummary[], lintIssues: WikiLintIssue[]):
     if (summary) entry.title = summary.title;
   }
 
-  // Sort by most recently updated (newest first)
+  // Sort by most recently ingested (newest first)
   return Array.from(sources.values()).sort(
-    (a, b) => b.updatedAt.localeCompare(a.updatedAt),
+    (a, b) => b.ingestedAt.localeCompare(a.ingestedAt),
   );
 }
 

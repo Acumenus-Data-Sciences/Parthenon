@@ -134,6 +134,58 @@ async def test_query_prefers_selected_paper_scope(tmp_path, monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_ingest_sets_ingested_at_and_preserves_on_reingest(tmp_path, monkeypatch):
+    """ingested_at is set on first ingest and preserved when the same source is re-ingested."""
+    engine = WikiEngine(root_dir=str(tmp_path))
+
+    async def fake_generate_pages(workspace: str, source_title: str, source_text: str):
+        return [
+            {
+                "type": "concept",
+                "title": "Topic A",
+                "body": "Body text.",
+                "keywords": ["test"],
+                "links": [],
+            }
+        ]
+
+    monkeypatch.setattr(engine, "_generate_pages", fake_generate_pages)
+
+    # First ingest
+    response1 = await engine.ingest(
+        workspace="platform",
+        filename="source-a.md",
+        content_bytes=b"# Source A\nFirst version",
+        raw_content=None,
+        title=None,
+    )
+
+    first_ingested_at = response1.created_pages[0].ingested_at
+    assert first_ingested_at is not None
+    assert first_ingested_at != ""
+
+    # Re-ingest the same source (same slug produced by same title)
+    response2 = await engine.ingest(
+        workspace="platform",
+        filename="source-a.md",
+        content_bytes=b"# Source A\nSecond version",
+        raw_content=None,
+        title=None,
+    )
+
+    # ingested_at should be preserved from the first ingest
+    for page in response2.created_pages:
+        assert page.ingested_at == first_ingested_at, (
+            f"Page '{page.slug}' ingested_at changed on re-ingest: "
+            f"{page.ingested_at} != {first_ingested_at}"
+        )
+
+    # updated_at should be newer than ingested_at
+    for page in response2.created_pages:
+        assert page.updated_at >= first_ingested_at
+
+
+@pytest.mark.asyncio
 async def test_lint_reports_broken_wikilinks(tmp_path, monkeypatch):
     engine = WikiEngine(root_dir=str(tmp_path))
 

@@ -8,8 +8,8 @@ from pathlib import Path
 
 INDEX_HEADER = """# Wiki Index
 
-| type | title | slug | path | keywords | links | updated_at | source_slug | source_type |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| type | title | slug | path | keywords | links | updated_at | source_slug | source_type | ingested_at |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 """
 
 
@@ -24,6 +24,7 @@ class IndexEntry:
     updated_at: str = ""
     source_slug: str = ""
     source_type: str = ""
+    ingested_at: str = ""
 
 
 def ensure_index_file(workspace_dir: str | Path) -> Path:
@@ -56,6 +57,7 @@ def read_index(workspace_dir: str | Path) -> list[IndexEntry]:
                 updated_at=columns[6],
                 source_slug=columns[7] if len(columns) > 7 else "",
                 source_type=columns[8] if len(columns) > 8 else "",
+                ingested_at=columns[9] if len(columns) > 9 else "",
             )
         )
     return entries
@@ -78,6 +80,7 @@ def write_index(workspace_dir: str | Path, entries: list[IndexEntry]) -> Path:
                     _sanitize_cell(entry.updated_at),
                     _sanitize_cell(entry.source_slug),
                     _sanitize_cell(entry.source_type),
+                    _sanitize_cell(entry.ingested_at),
                 ]
             )
             + " |"

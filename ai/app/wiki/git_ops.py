@@ -77,8 +77,8 @@ def wiki_commit(root_dir: str | Path, message: str, paths: list[str | Path] | No
     else:
         _run_git(root, "add", "-A")
 
-    status = _run_git(root, "status", "--porcelain")
-    if not status.strip():
+    staged = _run_git(root, "diff", "--cached", "--name-only")
+    if not staged.strip():
         return None
 
     _run_git(root, "commit", "-m", message)
@@ -143,4 +143,3 @@ def _run_git(root: Path, *args: str, check: bool = True) -> str:
     if check and result.returncode != 0:
         raise RuntimeError(result.stderr.strip() or result.stdout.strip() or f"git {' '.join(args)} failed")
     return result.stdout
-

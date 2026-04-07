@@ -2078,6 +2078,29 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
     responses as Server-Sent Events for real-time display in the UI.
     """
     started = time.perf_counter()
+
+    # Commons/studies/analyses rely heavily on fresh RAG retrieval and may be
+    # routed to the higher-utility non-streaming path. Preserve the SSE
+    # contract by emitting the completed chat response as streamed events.
+    if request.page_context in {"commons_ask_abby", "studies", "analyses"}:
+        response = await chat(request)
+        _log_latency(
+            "abby_chat_stream_via_chat",
+            page_context=request.page_context,
+            total_ms=(time.perf_counter() - started) * 1000,
+            reply_chars=len(response.reply),
+            sources=len(response.sources),
+        )
+        return StreamingResponse(
+            _stream_chat_response(response),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "X-Accel-Buffering": "no",
+            },
+        )
+
     session = _prepare_chat_session(request)
     grounded_definition_reply, grounded_sources = _try_grounded_definition_answer(request)
     if grounded_definition_reply:

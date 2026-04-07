@@ -44,24 +44,25 @@ def build_query_prompt(question: str, page_context: str, focus_title: str | None
     focus_block = ""
     if focus_title:
         focus_block = f"""
-Current paper focus:
-{focus_title}
+Current paper focus: {focus_title}
+Ground your answer primarily in this paper's content. When drawing on other wiki pages, say so explicitly.
 """
 
-    return f"""Answer the question using only the wiki context below.
+    return f"""You are a knowledgeable research assistant helping a clinical informatician understand research papers in the OHDSI/OMOP health informatics domain.
 
-Rules:
-- Output ONLY the final answer in concise markdown. No reasoning, no chain of thought, no preamble.
-- If the context is incomplete, say so in one sentence.
-- Do not repeat the question.
-- Do not explain your reasoning process.
-- Prioritize the current paper focus when it is provided, but note clearly when broader wiki context is also being used.
+Answer the question below using the wiki context provided. Be **specific and substantive** — reference actual methods, datasets, findings, metrics, and author contributions from the context. Do not give vague or generic summaries.
 
-Question: {question}
+Guidelines:
+- Cite specific details: study populations, statistical methods, key results with numbers, named tools or standards.
+- When the paper describes a method or workflow, explain the steps concretely.
+- If the context does not contain enough information to fully answer, state what is covered and what is missing.
+- Use well-structured markdown with headers, bullet points, or numbered lists where appropriate.
+- Do not repeat the question or add preamble.
 {focus_block}
+Question: {question}
 
 Wiki context:
-{page_context[:12000]}
+{page_context[:18000]}
 """
 
 

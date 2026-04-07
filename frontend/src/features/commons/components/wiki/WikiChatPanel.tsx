@@ -1,11 +1,12 @@
-import { useEffect, useRef, useState } from "react";
-import { Maximize2, Send, User } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Loader2, Maximize2, Send, User } from "lucide-react";
 import type { WikiChatMessage } from "../../types/wiki";
 import { MarkdownRenderer } from "./MarkdownRenderer";
 import AbbyAvatar from "../abby/AbbyAvatar";
 
 export function WikiChatPanel({
   messages, loading, onSend, onNavigate, onExpandChat, currentPageTitle,
+  onContentHeightChange,
 }: {
   messages: WikiChatMessage[];
   loading: boolean;
@@ -13,13 +14,40 @@ export function WikiChatPanel({
   onNavigate: (slug: string) => void;
   onExpandChat?: () => void;
   currentPageTitle?: string | null;
+  onContentHeightChange?: (height: number) => void;
 }) {
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages]);
+
+  // Report the natural (unconstrained) content height of the messages area
+  // so the parent layout can allocate the right amount of space.
+  useEffect(() => {
+    if (!contentRef.current || !onContentHeightChange) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        onContentHeightChange(entry.contentRect.height);
+      }
+    });
+    observer.observe(contentRef.current);
+    return () => observer.disconnect();
+  }, [onContentHeightChange]);
+
+  // Also report on message changes (ResizeObserver may not fire for content-only changes)
+  useEffect(() => {
+    if (!contentRef.current || !onContentHeightChange) return;
+    // Use requestAnimationFrame to measure after DOM paint
+    const frame = requestAnimationFrame(() => {
+      if (contentRef.current) {
+        onContentHeightChange(contentRef.current.scrollHeight);
+      }
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [messages, loading, onContentHeightChange]);
 
   function handleSubmit() {
     const trimmed = input.trim();
@@ -33,58 +61,59 @@ export function WikiChatPanel({
   }
 
   return (
-    <div className="border-t border-[#232328] bg-[#151518]">
-      {/* Messages (collapsed when empty, expands with content) */}
+    <div className="flex min-h-0 flex-1 flex-col border-t border-[#232328] bg-[#151518]">
+      {/* Messages — scrolls within the space the parent allocates */}
       {messages.length > 0 && (
-        <div ref={scrollRef} className="max-h-[240px] overflow-y-auto border-b border-[#232328] px-5 py-3">
-          <div className="space-y-3">
-            {messages.map((msg) => (
-              <div key={msg.id} className="flex gap-2.5">
-                {msg.role === "user" ? (
-                  <div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[#1A1A1E]">
-                    <User size={12} className="text-[#8A857D]" />
-                  </div>
-                ) : (
-                  <div className="mt-0.5 flex-shrink-0">
-                    <AbbyAvatar size="sm" />
-                  </div>
-                )}
-                <div className="min-w-0 flex-1">
+        <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto border-b border-[#232328] px-5 py-3">
+          <div ref={contentRef} className="space-y-3">
+            {messages.map((msg, idx) => {
+              const isStreamingMsg = loading && msg.role === "assistant" && idx === messages.length - 1;
+              return (
+                <div key={msg.id} className="flex gap-2.5">
                   {msg.role === "user" ? (
-                    <p className="text-sm text-[#F0EDE8]">{msg.content}</p>
+                    <div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[#1A1A1E]">
+                      <User size={12} className="text-[#8A857D]" />
+                    </div>
+                  ) : isStreamingMsg ? (
+                    <div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center">
+                      <Loader2 size={16} className="animate-spin text-[#2DD4BF]" />
+                    </div>
                   ) : (
-                    <div className="text-sm text-[#C5C0B8]">
-                      <MarkdownRenderer markdown={msg.content} onNavigate={onNavigate} />
+                    <div className="mt-0.5 flex-shrink-0">
+                      <AbbyAvatar size="sm" />
                     </div>
                   )}
-                  {msg.citations && msg.citations.length > 0 && (
-                    <div className="mt-1.5 flex flex-wrap gap-1">
-                      {msg.citations.map((c) => (
-                        <button key={c.slug} type="button" onClick={() => onNavigate(c.slug)}
-                          className="rounded border border-[#232328] bg-[#1A1A1E] px-2 py-0.5 text-[10px] text-[#8A857D] transition-colors hover:border-[#2DD4BF]/30 hover:text-[#2DD4BF]"
-                        >
-                          {c.title.slice(0, 40)}
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                  <div className="min-w-0 flex-1">
+                    {msg.role === "user" ? (
+                      <p className="text-sm text-[#F0EDE8]">{msg.content}</p>
+                    ) : msg.content ? (
+                      <div className="text-sm text-[#C5C0B8]">
+                        <MarkdownRenderer markdown={msg.content} onNavigate={onNavigate} />
+                      </div>
+                    ) : isStreamingMsg ? (
+                      <p className="text-sm text-[#5A5650]">Generating response...</p>
+                    ) : null}
+                    {msg.citations && msg.citations.length > 0 && (
+                      <div className="mt-1.5 flex flex-wrap gap-1">
+                        {msg.citations.map((c) => (
+                          <button key={c.slug} type="button" onClick={() => onNavigate(c.slug)}
+                            className="rounded border border-[#232328] bg-[#1A1A1E] px-2 py-0.5 text-[10px] text-[#8A857D] transition-colors hover:border-[#2DD4BF]/30 hover:text-[#2DD4BF]"
+                          >
+                            {c.title.slice(0, 40)}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
-            {loading && (
-              <div className="flex gap-2.5">
-                <div className="mt-0.5 flex-shrink-0 animate-pulse">
-                  <AbbyAvatar size="sm" />
-                </div>
-                <p className="text-sm text-[#5A5650]">Searching wiki...</p>
-              </div>
-            )}
+              );
+            })}
           </div>
         </div>
       )}
 
       {/* Input */}
-      <div className="flex items-center gap-3 px-5 py-3">
+      <div className="flex flex-shrink-0 items-center gap-3 px-5 py-3">
         <div className="flex-shrink-0">
           <AbbyAvatar size="sm" />
         </div>

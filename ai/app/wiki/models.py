@@ -23,6 +23,7 @@ class WikiPageSummary(BaseModel):
     updated_at: str
     source_slug: str | None = None
     source_type: str | None = None
+    ingested_at: str | None = None
 
 
 class WikiPageDetail(WikiPageSummary):

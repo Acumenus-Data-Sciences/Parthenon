@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 
 from app.wiki.engine import WikiEngine
 from app.wiki.models import (
@@ -101,6 +101,26 @@ async def query(request: WikiQueryRequest) -> WikiQueryResponse:
         request.question,
         page_slug=request.page_slug,
         source_slug=request.source_slug,
+    )
+
+
+@router.post("/query/stream")
+async def query_stream(request: WikiQueryRequest) -> StreamingResponse:
+    """Stream wiki answer tokens as Server-Sent Events."""
+    engine = _get_engine()
+    return StreamingResponse(
+        engine.stream_answer(
+            request.workspace,
+            request.question,
+            page_slug=request.page_slug,
+            source_slug=request.source_slug,
+        ),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
     )
 
 

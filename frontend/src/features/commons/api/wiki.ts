@@ -81,6 +81,86 @@ async function queryWiki(payload: WikiQueryRequest): Promise<WikiQueryResponse> 
   return data;
 }
 
+export interface WikiStreamHandlers {
+  onToken: (token: string) => void;
+  onCitations?: (citations: WikiPageSummary[]) => void;
+  onDone?: () => void;
+  signal?: AbortSignal;
+}
+
+export async function streamWikiQuery(
+  payload: WikiQueryRequest,
+  handlers: WikiStreamHandlers,
+): Promise<void> {
+  const { useAuthStore } = await import("@/stores/authStore");
+  const token = useAuthStore.getState().token;
+
+  const response = await fetch("/api/v1/wiki/query/stream", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "text/event-stream",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    credentials: "include",
+    body: JSON.stringify({
+      workspace: payload.workspace,
+      question: payload.question,
+      page_slug: payload.pageSlug ?? undefined,
+      source_slug: payload.sourceSlug ?? undefined,
+    }),
+    signal: handlers.signal,
+  });
+
+  if (!response.ok || !response.body) {
+    // Fall back to non-streaming query
+    const fallback = await queryWiki(payload);
+    handlers.onToken(fallback.answer);
+    handlers.onCitations?.(fallback.citations);
+    handlers.onDone?.();
+    return;
+  }
+
+  const reader = response.body?.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  if (reader) {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() ?? "";
+
+      for (const line of lines) {
+        if (!line.startsWith("data: ")) continue;
+        const data = line.slice(6);
+        if (data === "[DONE]") {
+          handlers.onDone?.();
+          continue;
+        }
+        try {
+          const parsed = JSON.parse(data) as {
+            token?: string;
+            citations?: WikiPageSummary[];
+          };
+          if (parsed.token) {
+            handlers.onToken(parsed.token);
+          }
+          if (parsed.citations) {
+            handlers.onCitations?.(parsed.citations);
+          }
+        } catch {
+          // skip malformed events
+        }
+      }
+    }
+  }
+  handlers.onDone?.();
+}
+
 async function lintWiki(payload: { workspace: string }): Promise<WikiLintResponse> {
   const { data } = await apiClient.post<WikiLintResponse>("/wiki/lint", payload);
   return data;

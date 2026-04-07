@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   AlertTriangle,
   BookOpen,
@@ -8,14 +8,15 @@ import {
 } from "lucide-react";
 import { toast } from "@/components/ui/Toast";
 import {
+  streamWikiQuery,
   useIngestWikiSource,
   useWikiActivity,
   useWikiLint,
   useWikiPage,
   useWikiPages,
-  useWikiQuery,
   useWikiWorkspaces,
 } from "../../api/wiki";
+import { useAuthStore } from "@/stores/authStore";
 import { useWikiStore } from "@/stores/wikiStore";
 import { WikiActivityDrawer } from "./WikiActivityDrawer";
 import { WikiChatDrawer } from "./WikiChatDrawer";
@@ -34,6 +35,7 @@ const WORKSPACE = "platform";
 const EMPTY_CHAT: never[] = [];
 
 export function WikiPage() {
+  const userId = useAuthStore((s) => s.user?.id);
   const selectedPageSlug = useWikiStore((s) => s.selectedPageSlug);
   const searchQuery = useWikiStore((s) => s.searchQuery);
   const lintResponse = useWikiStore((s) => s.lintResponse);
@@ -49,6 +51,8 @@ export function WikiPage() {
   const setPdfModalFilename = useWikiStore((s) => s.setPdfModalFilename);
   const setChatDrawerOpen = useWikiStore((s) => s.setChatDrawerOpen);
   const addChatMessage = useWikiStore((s) => s.addChatMessage);
+  const appendToMessage = useWikiStore((s) => s.appendToMessage);
+  const setCitationsOnMessage = useWikiStore((s) => s.setCitationsOnMessage);
   const clearChat = useWikiStore((s) => s.clearChat);
 
   // Debounce search for backend API calls (300ms)
@@ -66,8 +70,8 @@ export function WikiPage() {
   const pageQuery = useWikiPage(WORKSPACE, selectedPageSlug);
   const activityQuery = useWikiActivity(WORKSPACE);
   const ingestMutation = useIngestWikiSource();
-  const queryMutation = useWikiQuery();
   const lintMutation = useWikiLint();
+  const [streaming, setStreaming] = useState(false);
 
   const pagesResponse = pagesQuery.data;
   const pages = pagesResponse?.pages ?? [];
@@ -75,8 +79,17 @@ export function WikiPage() {
   const activity = activityQuery.data ?? [];
   const lintIssues = lintResponse?.issues ?? [];
   const currentPage = pageQuery.data;
-  const chatScopeId = currentPage?.source_slug ?? currentPage?.slug ?? WORKSPACE;
+  const paperKey = currentPage?.source_slug ?? currentPage?.slug ?? WORKSPACE;
+  const chatScopeId = userId ? `u${userId}:${paperKey}` : paperKey;
   const chatMessages = useWikiStore((s) => s.chatMessagesByScope[chatScopeId]) ?? EMPTY_CHAT;
+
+  // Measured height of the chat messages content (reported by WikiChatPanel via ResizeObserver).
+  // Used to size the chat wrapper so it claims exactly the space needed, up to 100%.
+  const INPUT_BAR_HEIGHT = 70; // input bar + padding + scope label
+  const [chatContentHeight, setChatContentHeight] = useState(0);
+  const handleContentHeightChange = useCallback((height: number) => {
+    setChatContentHeight(height);
+  }, []);
 
   // Auto-select first page (prefer concept over source_summary)
   useEffect(() => {
@@ -130,7 +143,18 @@ export function WikiPage() {
       content: question,
       timestamp: new Date().toISOString(),
     });
-    queryMutation.mutate(
+
+    // Create an empty assistant message and stream tokens into it
+    const assistantMsgId = chatId();
+    addChatMessage(chatScopeId, {
+      id: assistantMsgId,
+      role: "assistant",
+      content: "",
+      timestamp: new Date().toISOString(),
+    });
+
+    setStreaming(true);
+    streamWikiQuery(
       {
         workspace: WORKSPACE,
         question,
@@ -138,25 +162,20 @@ export function WikiPage() {
         sourceSlug: currentPage?.source_slug ?? currentPage?.slug ?? null,
       },
       {
-        onSuccess: (response) => {
-          addChatMessage(chatScopeId, {
-            id: chatId(),
-            role: "assistant",
-            content: response.answer,
-            citations: response.citations,
-            timestamp: new Date().toISOString(),
-          });
+        onToken: (token) => {
+          appendToMessage(chatScopeId, assistantMsgId, token);
         },
-        onError: () => {
-          addChatMessage(chatScopeId, {
-            id: chatId(),
-            role: "assistant",
-            content: "Sorry, I couldn't process that question.",
-            timestamp: new Date().toISOString(),
-          });
+        onCitations: (citations) => {
+          setCitationsOnMessage(chatScopeId, assistantMsgId, citations);
+        },
+        onDone: () => {
+          setStreaming(false);
         },
       },
-    );
+    ).catch(() => {
+      appendToMessage(chatScopeId, assistantMsgId, "Sorry, I couldn't process that question.");
+      setStreaming(false);
+    });
   }
 
   function handleNavigate(slug: string) {
@@ -241,7 +260,7 @@ export function WikiPage() {
       ) : (
         <div className="flex min-h-0 flex-1 overflow-hidden">
           {/* Left: Paper list — search pinned at top, list scrolls independently */}
-          <div className="flex w-[300px] shrink-0 flex-col overflow-hidden border-r border-[#232328] bg-[#151518]">
+          <div className="flex w-[420px] shrink-0 flex-col overflow-hidden border-r border-[#232328] bg-[#151518]">
             {/* Search + header (pinned) */}
             <div className="shrink-0 border-b border-[#232328] bg-[#1C1C20] px-3 py-2.5">
               <div className="relative">
@@ -269,9 +288,9 @@ export function WikiPage() {
             </div>
           </div>
 
-          {/* Right: Content + Chat at bottom */}
+          {/* Right: Content + Chat — chat claims measured height, paper header always visible */}
           <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-[#0E0E11]">
-            <div className="min-h-0 flex-1 overflow-hidden">
+            <div className="min-h-[120px] flex-1 overflow-auto">
               <WikiPageView
                 page={pageQuery.data}
                 onNavigate={handleNavigate}
@@ -279,14 +298,24 @@ export function WikiPage() {
                 onViewSource={(filename) => setPdfModalFilename(filename)}
               />
             </div>
-            <WikiChatPanel
-              messages={chatMessages}
-              loading={queryMutation.isPending}
-              onSend={handleChatSend}
-              onNavigate={handleNavigate}
-              onExpandChat={() => setChatDrawerOpen(true)}
-              currentPageTitle={currentPage?.source_title ?? currentPage?.title}
-            />
+            <div
+              className="flex min-h-0 flex-shrink-0 flex-col"
+              style={
+                chatMessages.length > 0 && chatContentHeight > 0
+                  ? { flexBasis: `${chatContentHeight + INPUT_BAR_HEIGHT}px`, maxHeight: "calc(100% - 120px)" }
+                  : undefined
+              }
+            >
+              <WikiChatPanel
+                messages={chatMessages}
+                loading={streaming}
+                onSend={handleChatSend}
+                onNavigate={handleNavigate}
+                onExpandChat={() => setChatDrawerOpen(true)}
+                currentPageTitle={currentPage?.source_title ?? currentPage?.title}
+                onContentHeightChange={handleContentHeightChange}
+              />
+            </div>
           </div>
         </div>
       )}
@@ -304,7 +333,7 @@ export function WikiPage() {
       <WikiChatDrawer
         open={chatDrawerOpen}
         messages={chatMessages}
-        loading={queryMutation.isPending}
+        loading={streaming}
         onSend={handleChatSend}
         onNavigate={handleNavigate}
         onClose={() => setChatDrawerOpen(false)}
