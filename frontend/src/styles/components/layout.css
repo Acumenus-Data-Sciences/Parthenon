@@ -131,11 +131,14 @@
   margin: 0 auto;
 }
 
-/* Full-bleed pages (e.g. Commons) bypass padding + max-width */
+/* Full-bleed pages (e.g. Commons) bypass padding + max-width
+   and constrain height so nested flex children can scroll internally */
 .content-main:has(.layout-full-bleed) {
   padding: 0;
   max-width: none;
   width: 100%;
+  overflow: hidden;
+  min-height: 0;
 }
 
 /* Page header */
