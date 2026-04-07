@@ -1764,15 +1764,38 @@ async def chat(request: ChatRequest) -> ChatResponse:
         sources = grounded_sources
         routing = RoutingDecision(model="local", stage=0, reason="grounded_definition", confidence=1.0)
 
+    # Populate sources from RAG results when not grounded (so the UI can show citations)
+    if not sources:
+        try:
+            rag_results = get_ranked_rag_results(
+                query=request.message,
+                page_context=request.page_context,
+                user_id=request.user_id,
+            )
+            sources = [
+                {
+                    "source_label": str(r.get("source_label", "")),
+                    "title": str(r.get("title", "")),
+                    "section": str(r.get("section", "")),
+                    "score": float(str(r.get("score", 0) or 0)),
+                }
+                for r in rag_results[:5]
+                if float(str(r.get("score", 0) or 0)) >= 0.5
+            ]
+        except Exception:
+            logger.debug("Source extraction for response failed (non-blocking)")
+
     if not reply and routing.model == "claude" and _get_claude_client() is not None:
         # Cloud path: PHI sanitization + cloud safety filter
         # Build history_dicts first so we can include history content in PHI scan
         history_dicts = [{"role": m.role, "content": m.content} for m in request.history]
-        # Combine all text that will be sent to Claude for PHI scanning
-        full_cloud_text = system_prompt + "\n" + request.message
+        # Scan only user-supplied text (message + history) for PHI.
+        # The system prompt contains curated knowledge base content (paper
+        # titles, author names, clinical terms) which triggers false positives.
+        user_text = request.message
         for h in history_dicts:
-            full_cloud_text += "\n" + h.get("content", "")
-        phi_result = _phi_sanitizer.scan(full_cloud_text)
+            user_text += "\n" + h.get("content", "")
+        phi_result = _phi_sanitizer.scan(user_text)
 
         if phi_result.phi_detected and settings.phi_block_on_detection:
             logger.warning(
@@ -1792,8 +1815,8 @@ async def chat(request: ChatRequest) -> ChatResponse:
                 raise ValueError("Claude API client is not configured")
             try:
                 claude_response = claude_client.chat(
-                    system_prompt=phi_result.redacted_text,
-                    message=request.message,
+                    system_prompt=system_prompt,
+                    message=phi_result.redacted_text if phi_result.redaction_count > 0 else request.message,
                     history=cast(list["MessageParam"], history_dicts),
                 )
                 reply = claude_response.reply

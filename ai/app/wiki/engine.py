@@ -660,9 +660,9 @@ class WikiEngine:
 
             collection = get_wiki_collection()
             slug_candidates: list[str] = []
-            where_filters: list[dict[str, str]] = [{"workspace": workspace}]
+            where_filters: list[dict] = [{"workspace": workspace}]
             if source_slug:
-                where_filters.insert(0, {"workspace": workspace, "source_slug": source_slug})
+                where_filters.insert(0, {"$and": [{"workspace": workspace}, {"source_slug": source_slug}]})
 
             for where_filter in where_filters:
                 results = collection.query(query_texts=[question], n_results=8, where=where_filter)  # type: ignore[arg-type]
