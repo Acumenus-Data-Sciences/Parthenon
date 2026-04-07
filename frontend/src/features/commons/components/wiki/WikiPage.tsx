@@ -31,6 +31,7 @@ function chatId(): string {
 }
 
 const WORKSPACE = "platform";
+const EMPTY_CHAT: never[] = [];
 
 export function WikiPage() {
   const selectedPageSlug = useWikiStore((s) => s.selectedPageSlug);
@@ -74,7 +75,7 @@ export function WikiPage() {
   const lintIssues = lintResponse?.issues ?? [];
   const currentPage = pageQuery.data;
   const chatScopeId = currentPage?.source_slug ?? currentPage?.slug ?? WORKSPACE;
-  const chatMessages = useWikiStore((s) => s.chatMessagesByScope[chatScopeId] ?? []);
+  const chatMessages = useWikiStore((s) => s.chatMessagesByScope[chatScopeId]) ?? EMPTY_CHAT;
 
   // Auto-select first page (prefer concept over source_summary)
   useEffect(() => {
