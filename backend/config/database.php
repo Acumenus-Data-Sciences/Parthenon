@@ -105,7 +105,7 @@ return [
             'charset' => env('DB_CHARSET', 'utf8'),
             'prefix' => '',
             'prefix_indexes' => true,
-            'search_path' => 'app,php',
+            'search_path' => 'app,php,public',
             'sslmode' => 'prefer',
         ],
 
@@ -122,7 +122,7 @@ return [
             'charset' => env('DB_CHARSET', 'utf8'),
             'prefix' => '',
             'prefix_indexes' => true,
-            'search_path' => 'app,php',
+            'search_path' => 'app,php,public',
             'sslmode' => 'prefer',
         ],
 

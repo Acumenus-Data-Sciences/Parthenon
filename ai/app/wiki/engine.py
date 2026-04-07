@@ -24,7 +24,7 @@ def _strip_think_blocks(text: str) -> str:
     return cleaned.strip()
 
 from app.config import settings
-from app.wiki.adapters.base import build_frontmatter, extract_wikilinks, parse_markdown_page, slugify
+from app.wiki.adapters.base import PreparedSource, build_frontmatter, extract_wikilinks, parse_markdown_page, slugify
 from app.wiki.adapters.external import ExternalDocumentAdapter
 from app.wiki.git_ops import WORKSPACE_PAGE_DIRS, ensure_workspace_structure, init_wiki_repo, list_branches, wiki_commit
 from app.wiki.index_ops import IndexEntry, read_index, search_index, upsert_index_entry
@@ -60,7 +60,7 @@ class WikiEngine:
         workspace_name = self._normalize_workspace(workspace)
         init_wiki_repo(self.root_dir)
         workspace_dir = ensure_workspace_structure(self.root_dir, workspace_name)
-        commit_paths = [self.root_dir / SCHEMA_PATH, workspace_dir / "index.md", workspace_dir / "log.md"]
+        commit_paths: list[str | Path] = [self.root_dir / SCHEMA_PATH, workspace_dir / "index.md", workspace_dir / "log.md"]
         wiki_commit(self.root_dir, f"wiki: initialize workspace {workspace_name}", commit_paths)
         activity = read_log_entries(workspace_dir, limit=1)
         return WikiWorkspace(
@@ -175,7 +175,7 @@ class WikiEngine:
             title=source.title,
             body=self._source_summary_body(source),
             keywords=["source", source.source_type],
-            links=[slugify(page["title"]) for page in pages],
+            links=[slugify(str(page["title"])) for page in pages],
             source_title=source.title,
             source_slug=source.slug,
             source_type=source.source_type,
@@ -183,14 +183,16 @@ class WikiEngine:
         created_pages.append(source_summary)
 
         for page in pages:
+            page_keywords = page.get("keywords", [])
+            page_links = page.get("links", [])
             created_pages.append(
                 self._write_page(
                     workspace_dir=workspace_dir,
-                    page_type=page["type"],
-                    title=page["title"],
-                    body=page["body"],
-                    keywords=page.get("keywords", []),
-                    links=page.get("links", []),
+                    page_type=str(page["type"]),
+                    title=str(page["title"]),
+                    body=str(page["body"]),
+                    keywords=page_keywords if isinstance(page_keywords, list) else [],
+                    links=page_links if isinstance(page_links, list) else [],
                     source_title=source.title,
                     source_slug=source.slug,
                     source_type=source.source_type,
@@ -237,7 +239,8 @@ class WikiEngine:
             if results and results["ids"] and results["ids"][0]:
                 # Deduplicate by slug (multiple chunks from same page)
                 seen_slugs: list[str] = []
-                for meta in results["metadatas"][0]:
+                metadatas = results["metadatas"]
+                for meta in (metadatas[0] if metadatas else []):
                     slug = str(meta.get("slug", ""))
                     if slug and slug not in seen_slugs:
                         seen_slugs.append(slug)
@@ -576,7 +579,7 @@ class WikiEngine:
         cleaned = "\n".join(clean_lines).strip()[:2500]
         return f"{cleaned}\n" if cleaned else f"Content extracted from: {title}\n"
 
-    def _source_summary_body(self, source) -> str:
+    def _source_summary_body(self, source: PreparedSource) -> str:
         return self._fallback_body(source.title, source.content)
 
     @staticmethod

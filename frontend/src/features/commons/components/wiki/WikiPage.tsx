@@ -17,7 +17,6 @@ import {
   useWikiWorkspaces,
 } from "../../api/wiki";
 import { useWikiStore } from "@/stores/wikiStore";
-import type { WikiChatMessage } from "../../types/wiki";
 import { WikiActivityDrawer } from "./WikiActivityDrawer";
 import { WikiChatPanel } from "./WikiChatPanel";
 import { WikiIngestModal } from "./WikiIngestModal";
@@ -209,15 +208,15 @@ export function WikiPage() {
           </div>
         </div>
       ) : (
-        <div className="flex min-h-0 flex-1">
+        <div className="flex min-h-0 flex-1 overflow-hidden">
           {/* Left: Paper list */}
-          <div className="flex w-[300px] shrink-0 flex-col overflow-hidden border-r border-[#232328] bg-[#151518]">
-            <div className="border-b border-[#232328] bg-[#1C1C20] px-4 py-2.5">
+          <div className="flex w-[300px] shrink-0 flex-col border-r border-[#232328] bg-[#151518]">
+            <div className="shrink-0 border-b border-[#232328] bg-[#1C1C20] px-4 py-2.5">
               <p className="text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
-                Papers
+                Papers <span className="ml-1 text-[#5A5650]">{paperCount}</span>
               </p>
             </div>
-            <div className="flex-1 overflow-y-auto">
+            <div className="min-h-0 flex-1 overflow-y-auto">
               <WikiPageTree
                 pages={pages}
                 selectedSlug={selectedPageSlug}
