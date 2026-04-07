@@ -595,7 +595,7 @@ class WikiEngine:
         source_files = self._source_filename_map(workspace_dir)
         resolved_source_slug = source_slug
         if page_slug and not resolved_source_slug:
-            resolved_source_slug = entries_by_slug.get(page_slug).source_slug if page_slug in entries_by_slug else None
+            resolved_source_slug = entries_by_slug[page_slug].source_slug if page_slug in entries_by_slug else None
 
         selected_entries: list[IndexEntry] = []
         selected_slugs: set[str] = set()
@@ -616,9 +616,9 @@ class WikiEngine:
             detail_map[entry.slug] = self._page_detail_from_entry(workspace_dir, entry, source_files=source_files)
 
         for slug in self._query_chroma_slugs(workspace_dir.name, question, source_slug=resolved_source_slug):
-            entry = entries_by_slug.get(slug)
-            if entry and slug not in detail_map:
-                detail_map[slug] = self._page_detail_from_entry(workspace_dir, entry, source_files=source_files)
+            chroma_entry = entries_by_slug.get(slug)
+            if chroma_entry and slug not in detail_map:
+                detail_map[slug] = self._page_detail_from_entry(workspace_dir, chroma_entry, source_files=source_files)
             if len(detail_map) >= 5:
                 break
 
@@ -660,12 +660,12 @@ class WikiEngine:
 
             collection = get_wiki_collection()
             slug_candidates: list[str] = []
-            where_filters = [{"workspace": workspace}]
+            where_filters: list[dict[str, str]] = [{"workspace": workspace}]
             if source_slug:
                 where_filters.insert(0, {"workspace": workspace, "source_slug": source_slug})
 
             for where_filter in where_filters:
-                results = collection.query(query_texts=[question], n_results=8, where=where_filter)
+                results = collection.query(query_texts=[question], n_results=8, where=where_filter)  # type: ignore[arg-type]
                 metadatas = results.get("metadatas") if results else None
                 for meta in (metadatas[0] if metadatas else []):
                     slug = str(meta.get("slug", "")).strip()
