@@ -44,6 +44,7 @@ class WikiWorkspaceListResponse(BaseModel):
 
 class WikiPageListResponse(BaseModel):
     pages: list[WikiPageSummary]
+    total: int = 0
 
 
 class WikiActivityResponse(BaseModel):

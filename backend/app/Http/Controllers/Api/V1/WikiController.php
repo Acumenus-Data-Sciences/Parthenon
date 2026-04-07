@@ -27,11 +27,15 @@ class WikiController extends Controller
         $validated = $request->validate([
             'workspace' => 'nullable|string|max:100',
             'q' => 'nullable|string|max:255',
+            'limit' => 'nullable|integer|min:1|max:500',
+            'offset' => 'nullable|integer|min:0',
         ]);
 
         return $this->proxyJson($aiService->wikiPages(
             $validated['workspace'] ?? 'platform',
             $validated['q'] ?? null,
+            $validated['limit'] ?? null,
+            isset($validated['offset']) ? (int) $validated['offset'] : 0,
         ));
     }
 

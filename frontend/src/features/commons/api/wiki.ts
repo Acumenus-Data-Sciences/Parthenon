@@ -5,6 +5,7 @@ import type {
   WikiIngestResponse,
   WikiLintResponse,
   WikiPageDetail,
+  WikiPageListResponse,
   WikiPageSummary,
   WikiQueryResponse,
   WikiWorkspace,
@@ -27,11 +28,16 @@ async function initWorkspace(name: string): Promise<WikiWorkspace> {
   return data.workspace;
 }
 
-async function fetchPages(workspace: string, query?: string): Promise<WikiPageSummary[]> {
-  const { data } = await apiClient.get<{ pages: WikiPageSummary[] }>("/wiki/pages", {
-    params: { workspace, q: query || undefined },
+async function fetchPages(
+  workspace: string,
+  query?: string,
+  limit?: number,
+  offset?: number,
+): Promise<WikiPageListResponse> {
+  const { data } = await apiClient.get<WikiPageListResponse>("/wiki/pages", {
+    params: { workspace, q: query || undefined, limit, offset },
   });
-  return data.pages;
+  return data;
 }
 
 async function fetchPage(workspace: string, slug: string): Promise<WikiPageDetail> {
@@ -99,10 +105,10 @@ export function useInitWikiWorkspace() {
   });
 }
 
-export function useWikiPages(workspace: string, query?: string) {
+export function useWikiPages(workspace: string, query?: string, limit?: number, offset?: number) {
   return useQuery({
-    queryKey: [WIKI_PAGES_KEY, workspace, query ?? ""],
-    queryFn: () => fetchPages(workspace, query),
+    queryKey: [WIKI_PAGES_KEY, workspace, query ?? "", limit ?? "all", offset ?? 0],
+    queryFn: () => fetchPages(workspace, query, limit, offset),
     enabled: !!workspace,
   });
 }

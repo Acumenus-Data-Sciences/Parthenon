@@ -245,11 +245,15 @@ class AiService
     /**
      * @return array<string, mixed>
      */
-    public function wikiPages(string $workspace = 'platform', ?string $query = null): Response
+    public function wikiPages(string $workspace = 'platform', ?string $query = null, ?int $limit = null, int $offset = 0): Response
     {
         $params = ['workspace' => $workspace];
         if ($query !== null && $query !== '') {
             $params['q'] = $query;
+        }
+        if ($limit !== null) {
+            $params['limit'] = $limit;
+            $params['offset'] = $offset;
         }
 
         return Http::timeout(60)->get("{$this->baseUrl}/wiki/pages", $params);

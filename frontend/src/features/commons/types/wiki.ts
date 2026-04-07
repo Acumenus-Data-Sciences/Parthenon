@@ -31,6 +31,11 @@ export interface WikiActivityItem {
   message: string;
 }
 
+export interface WikiPageListResponse {
+  pages: WikiPageSummary[];
+  total: number;
+}
+
 export interface WikiQueryResponse {
   workspace: string;
   answer: string;

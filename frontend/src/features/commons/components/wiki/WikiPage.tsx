@@ -57,17 +57,30 @@ export function WikiPage() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
+  // When searching, fetch all results; otherwise fetch first page
+  const isSearching = debouncedSearch.trim().length > 0;
+  const [showAll, setShowAll] = useState(false);
+  const PAGE_SIZE = 15;
+  const pageLimit = isSearching || showAll ? undefined : PAGE_SIZE;
+
   useWikiWorkspaces(); // keep workspace initialized
-  const pagesQuery = useWikiPages(WORKSPACE, debouncedSearch);
+  const pagesQuery = useWikiPages(WORKSPACE, debouncedSearch, pageLimit);
   const pageQuery = useWikiPage(WORKSPACE, selectedPageSlug);
   const activityQuery = useWikiActivity(WORKSPACE);
   const ingestMutation = useIngestWikiSource();
   const queryMutation = useWikiQuery();
   const lintMutation = useWikiLint();
 
-  const pages = pagesQuery.data ?? [];
+  const pagesResponse = pagesQuery.data;
+  const pages = pagesResponse?.pages ?? [];
+  const totalPages = pagesResponse?.total ?? 0;
   const activity = activityQuery.data ?? [];
   const lintIssues = lintResponse?.issues ?? [];
+
+  // Reset "show all" when search changes
+  useEffect(() => {
+    setShowAll(false);
+  }, [debouncedSearch]);
 
   // Auto-select first page (prefer concept over source_summary)
   useEffect(() => {
@@ -132,7 +145,8 @@ export function WikiPage() {
   }
 
   const isEmpty = pages.length === 0 && !pagesQuery.isLoading;
-  const paperCount = new Set(pages.map((p) => p.source_slug ?? p.slug)).size;
+  const paperCount = totalPages > 0 ? totalPages : new Set(pages.map((p) => p.source_slug ?? p.slug)).size;
+  const hasMore = !isSearching && !showAll && totalPages > PAGE_SIZE;
 
   return (
     <div className="flex h-full flex-col overflow-hidden bg-[#0E0E11]">
@@ -233,6 +247,10 @@ export function WikiPage() {
                 searchQuery={searchQuery}
                 onSelect={handleNavigate}
                 lintIssues={lintIssues}
+                hasMore={hasMore}
+                totalPapers={totalPages}
+                showingAll={showAll}
+                onToggleShowAll={() => setShowAll((prev) => !prev)}
               />
             </div>
           </div>

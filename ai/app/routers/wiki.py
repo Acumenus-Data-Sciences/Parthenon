@@ -42,8 +42,17 @@ def init_workspace(workspace: str) -> WikiInitWorkspaceResponse:
 
 
 @router.get("/pages", response_model=WikiPageListResponse)
-def list_pages(workspace: str = "platform", q: str | None = None) -> WikiPageListResponse:
-    return WikiPageListResponse(pages=_get_engine().list_pages(workspace, q))
+def list_pages(
+    workspace: str = "platform",
+    q: str | None = None,
+    limit: int | None = None,
+    offset: int = 0,
+) -> WikiPageListResponse:
+    all_pages = _get_engine().list_pages(workspace, q)
+    total = len(all_pages)
+    if limit is not None:
+        all_pages = all_pages[offset:offset + limit]
+    return WikiPageListResponse(pages=all_pages, total=total)
 
 
 @router.get("/pages/{slug}", response_model=WikiPageDetail)
