@@ -103,7 +103,9 @@ it('includes atlas inclusion rules in compiled cohort sql', function () {
 
     expect($sql)->toContain('codesetId_1');
     expect($sql)->toContain('inclusion_rule_0');
-    expect($sql)->toContain('COUNT(*) >= 1');
+    // The compiler uses an EXISTS semi-join optimization for "at least 1" checks
+    // instead of the slower GROUP BY + HAVING COUNT(*) >= 1 pattern.
+    expect($sql)->toContain('WHERE EXISTS');
 });
 
 it('compiles zero-count inclusion rules with left join semantics', function () {
@@ -152,6 +154,8 @@ it('compiles zero-count inclusion rules with left join semantics', function () {
 
     $sql = $compiler->preview($expression, 'cdm', 'vocab');
 
-    expect($sql)->toContain('LEFT JOIN cdm.condition_occurrence e ON qe.person_id = e.person_id');
-    expect($sql)->toContain('COUNT(e.person_id) = 0');
+    // The compiler uses a NOT EXISTS optimization for "exactly 0" absence checks
+    // instead of the slower LEFT JOIN + HAVING COUNT(e.person_id) = 0 pattern.
+    expect($sql)->toContain('WHERE NOT EXISTS');
+    expect($sql)->toContain('cdm.condition_occurrence e');
 });
