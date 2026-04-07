@@ -48,7 +48,7 @@ async def test_query_uses_matching_pages(tmp_path, monkeypatch):
             }
         ]
 
-    async def fake_answer(question: str, page_context: str):
+    async def fake_answer(question: str, page_context: str, *, focus_title: str | None = None):
         return f"Answer for: {question}\n\n{page_context[:60]}"
 
     monkeypatch.setattr(engine, "_generate_pages", fake_generate_pages)

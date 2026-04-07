@@ -216,7 +216,7 @@ class WikiEngine:
             source_slug=source_slug,
         )
         focus_detail = next((detail for detail in details if detail.slug == page_slug), None) if page_slug else None
-        focus_title = focus_detail.source_title or focus_detail.title if focus_detail else None
+        focus_title = (focus_detail.source_title or focus_detail.title) if focus_detail else None
 
         if not details:
             answer = "No relevant wiki pages matched this question yet."
@@ -598,14 +598,18 @@ class WikiEngine:
             resolved_source_slug = entries_by_slug.get(page_slug).source_slug if page_slug in entries_by_slug else None
 
         selected_entries: list[IndexEntry] = []
+        selected_slugs: set[str] = set()
         if page_slug and page_slug in entries_by_slug:
-            selected_entries.append(entries_by_slug[page_slug])
+            selected_entry = entries_by_slug[page_slug]
+            selected_entries.append(selected_entry)
+            selected_slugs.add(selected_entry.slug)
         if resolved_source_slug:
             selected_entries.extend(
                 entry
                 for entry in entries
-                if entry.source_slug == resolved_source_slug and entry.slug not in {candidate.slug for candidate in selected_entries}
+                if entry.source_slug == resolved_source_slug and entry.slug not in selected_slugs
             )
+            selected_slugs.update(entry.slug for entry in selected_entries)
 
         detail_map: dict[str, WikiPageDetail] = {}
         for entry in selected_entries:
@@ -632,13 +636,16 @@ class WikiEngine:
                     break
 
         ordered_details: list[WikiPageDetail] = []
+        ordered_slugs: set[str] = set()
         for entry in selected_entries:
             detail = detail_map.get(entry.slug)
-            if detail and detail.slug not in {candidate.slug for candidate in ordered_details}:
+            if detail and detail.slug not in ordered_slugs:
                 ordered_details.append(detail)
+                ordered_slugs.add(detail.slug)
         for detail in detail_map.values():
-            if detail.slug not in {candidate.slug for candidate in ordered_details}:
+            if detail.slug not in ordered_slugs:
                 ordered_details.append(detail)
+                ordered_slugs.add(detail.slug)
         return ordered_details[:5]
 
     def _query_chroma_slugs(
@@ -778,6 +785,8 @@ class WikiEngine:
             keywords=detail.keywords,
             links=detail.links,
             updated_at=detail.updated_at,
+            source_slug=detail.source_slug,
+            source_type=detail.source_type,
         )
 
 

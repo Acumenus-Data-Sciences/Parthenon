@@ -72,7 +72,12 @@ async function ingestWikiSource(payload: {
 }
 
 async function queryWiki(payload: WikiQueryRequest): Promise<WikiQueryResponse> {
-  const { data } = await apiClient.post<WikiQueryResponse>("/wiki/query", payload);
+  const { data } = await apiClient.post<WikiQueryResponse>("/wiki/query", {
+    workspace: payload.workspace,
+    question: payload.question,
+    page_slug: payload.pageSlug ?? undefined,
+    source_slug: payload.sourceSlug ?? undefined,
+  });
   return data;
 }
 
