@@ -1,4 +1,4 @@
-import { AlertTriangle, ChevronDown, ChevronUp, FileText, FileType } from "lucide-react";
+import { AlertTriangle, FileText, FileType } from "lucide-react";
 import type { WikiLintIssue, WikiPageSummary } from "../../types/wiki";
 
 interface SourceEntry {
@@ -25,7 +25,6 @@ function buildSourceList(pages: WikiPageSummary[], lintIssues: WikiLintIssue[]):
       // Use the most recent updated_at
       if (page.updated_at > existing.updatedAt) existing.updatedAt = page.updated_at;
     } else {
-      // Always use the human-readable title, never the slug
       const displayTitle = page.title;
       sources.set(key, {
         slug: key,
@@ -62,20 +61,12 @@ export function WikiPageTree({
   searchQuery,
   onSelect,
   lintIssues,
-  hasMore,
-  totalPapers,
-  showingAll,
-  onToggleShowAll,
 }: {
   pages: WikiPageSummary[];
   selectedSlug: string | null;
   searchQuery: string;
   onSelect: (slug: string) => void;
   lintIssues: WikiLintIssue[];
-  hasMore?: boolean;
-  totalPapers?: number;
-  showingAll?: boolean;
-  onToggleShowAll?: () => void;
 }) {
   // Client-side keyword filtering for instant feedback
   const filtered = pages.filter((p) => {
@@ -92,7 +83,6 @@ export function WikiPageTree({
   return (
     <div className="space-y-0.5 px-2 py-2">
       {sources.map((source) => {
-        // Find the best page to select when clicked (prefer concept over source_summary)
         const conceptPage = source.childPages.find((p) => p.page_type !== "source_summary");
         const targetSlug = conceptPage?.slug ?? source.childPages[0]?.slug ?? source.slug;
         const isSelected = source.childPages.some((p) => p.slug === selectedSlug);
@@ -141,26 +131,6 @@ export function WikiPageTree({
           </button>
         );
       })}
-
-      {hasMore && onToggleShowAll && (
-        <button
-          type="button"
-          onClick={onToggleShowAll}
-          className="flex w-full items-center justify-center gap-1.5 py-2.5 text-xs text-[#2DD4BF] transition-colors hover:text-[#26B8A5]"
-        >
-          {showingAll ? (
-            <>
-              <ChevronUp size={12} />
-              Show latest 15
-            </>
-          ) : (
-            <>
-              <ChevronDown size={12} />
-              Show all {totalPapers ?? "..."} papers
-            </>
-          )}
-        </button>
-      )}
 
       {sources.length === 0 && (
         <div className="px-3 py-12 text-center">

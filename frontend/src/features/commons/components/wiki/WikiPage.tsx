@@ -57,14 +57,11 @@ export function WikiPage() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // When searching, fetch all results; otherwise fetch first page
+  // Always fetch all pages — scrollable sidebar handles the UX
   const isSearching = debouncedSearch.trim().length > 0;
-  const [showAll, setShowAll] = useState(false);
-  const PAGE_SIZE = 15;
-  const pageLimit = isSearching || showAll ? undefined : PAGE_SIZE;
 
   useWikiWorkspaces(); // keep workspace initialized
-  const pagesQuery = useWikiPages(WORKSPACE, debouncedSearch, pageLimit);
+  const pagesQuery = useWikiPages(WORKSPACE, debouncedSearch);
   const pageQuery = useWikiPage(WORKSPACE, selectedPageSlug);
   const activityQuery = useWikiActivity(WORKSPACE);
   const ingestMutation = useIngestWikiSource();
@@ -76,11 +73,6 @@ export function WikiPage() {
   const totalPages = pagesResponse?.total ?? 0;
   const activity = activityQuery.data ?? [];
   const lintIssues = lintResponse?.issues ?? [];
-
-  // Reset "show all" when search changes
-  useEffect(() => {
-    setShowAll(false);
-  }, [debouncedSearch]);
 
   // Auto-select first page (prefer concept over source_summary)
   useEffect(() => {
@@ -146,7 +138,6 @@ export function WikiPage() {
 
   const isEmpty = pages.length === 0 && !pagesQuery.isLoading;
   const paperCount = totalPages > 0 ? totalPages : new Set(pages.map((p) => p.source_slug ?? p.slug)).size;
-  const hasMore = !isSearching && !showAll && totalPages > PAGE_SIZE;
 
   return (
     <div className="flex h-full flex-col overflow-hidden bg-[#0E0E11]">
@@ -160,17 +151,6 @@ export function WikiPage() {
         )}
 
         <div className="flex-1" />
-
-        {/* Search */}
-        <div className="relative">
-          <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]" />
-          <input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search papers..."
-            className="w-56 rounded-lg border border-[#232328] bg-[#0E0E11] py-2 pl-9 pr-3 text-sm text-[#F0EDE8] placeholder:text-[#5A5650] outline-none transition-all focus:w-72 focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40"
-          />
-        </div>
 
         {/* Ingest */}
         <button
@@ -235,9 +215,19 @@ export function WikiPage() {
         <div className="flex min-h-0 flex-1 overflow-hidden">
           {/* Left: Paper list */}
           <div className="flex w-[300px] shrink-0 flex-col border-r border-[#232328] bg-[#151518]">
-            <div className="shrink-0 border-b border-[#232328] bg-[#1C1C20] px-4 py-2.5">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
-                Papers <span className="ml-1 text-[#5A5650]">{paperCount}</span>
+            {/* Search + header */}
+            <div className="shrink-0 border-b border-[#232328] bg-[#1C1C20] px-3 py-2.5">
+              <div className="relative">
+                <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]" />
+                <input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search papers..."
+                  className="w-full rounded-lg border border-[#232328] bg-[#0E0E11] py-2 pl-9 pr-3 text-sm text-[#F0EDE8] placeholder:text-[#5A5650] outline-none transition-colors focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40"
+                />
+              </div>
+              <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                {isSearching ? "Results" : "Papers"} <span className="ml-1 text-[#5A5650]">{paperCount}</span>
               </p>
             </div>
             <div className="min-h-0 flex-1 overflow-y-auto">
@@ -247,10 +237,6 @@ export function WikiPage() {
                 searchQuery={searchQuery}
                 onSelect={handleNavigate}
                 lintIssues={lintIssues}
-                hasMore={hasMore}
-                totalPapers={totalPages}
-                showingAll={showAll}
-                onToggleShowAll={() => setShowAll((prev) => !prev)}
               />
             </div>
           </div>
