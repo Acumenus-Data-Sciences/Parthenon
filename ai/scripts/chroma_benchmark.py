@@ -3,7 +3,7 @@
 Usage:
   python ai/scripts/chroma_benchmark.py
   python ai/scripts/chroma_benchmark.py --json
-  docker exec -i parthenon-ai python /app/scripts/chroma_benchmark.py --json
+  docker exec -i python-ai python /app/scripts/chroma_benchmark.py --json
 
 The script measures:
 - cached collection access vs repeated get_or_create_collection

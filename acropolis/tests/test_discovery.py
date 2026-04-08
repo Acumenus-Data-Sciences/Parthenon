@@ -18,7 +18,7 @@ def test_curated_services_has_morpheus():
 
 
 def test_match_containers_known():
-    containers = ["parthenon-nginx", "parthenon-darkstar", "parthenon-ai"]
+    containers = ["parthenon-nginx", "parthenon-darkstar", "python-ai"]
     matched, unknown = match_containers_to_registry(containers)
     assert len(matched) == 3
     assert len(unknown) == 0

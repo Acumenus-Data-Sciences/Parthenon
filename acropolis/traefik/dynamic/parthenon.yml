@@ -121,7 +121,7 @@ http:
     parthenon-ai:
       loadBalancer:
         servers:
-          - url: "http://parthenon-ai:8000"
+          - url: "http://python-ai:8000"
     parthenon-ws:
       loadBalancer:
         servers:

@@ -47,7 +47,9 @@ def read_index(workspace_dir: str | Path) -> list[IndexEntry]:
     entries: list[IndexEntry] = []
     for line in path.read_text(encoding="utf-8").splitlines():
         stripped = line.strip()
-        if not stripped.startswith("|") or "type" in stripped or "---" in stripped:
+        if not stripped.startswith("|"):
+            continue
+        if stripped.startswith("| type |") or stripped.startswith("| --- |"):
             continue
         columns = [part.strip() for part in stripped.split("|")[1:-1]]
         if len(columns) < 7:

@@ -5,7 +5,7 @@
 #   - PHP changes are visible in the container (opcache + bind-mount sync)
 #   - Frontend changes are built into the production dist served by Apache
 #   - DB migrations are applied
-#   - Laravel caches are cleared
+#   - Runtime caches are cleared across the stack
 #
 # Usage:
 #   ./deploy.sh             # full deploy (PHP + frontend + DB + docs)
@@ -91,6 +91,126 @@ smoke_check() {
   fi
 }
 
+service_exists() {
+  docker compose config --services 2>/dev/null | grep -qx "$1"
+}
+
+restart_running_service() {
+  local service="$1"
+  local label="$2"
+
+  if ! service_exists "$service"; then
+    return 0
+  fi
+
+  if ! is_running "$service"; then
+    warn "${service} is not running — skipped ${label}"
+    return 0
+  fi
+
+  if docker compose restart "$service" >/dev/null 2>&1; then
+    ok "$label"
+  else
+    fail "$label failed"
+    ERRORS=$((ERRORS + 1))
+  fi
+}
+
+clear_scribe_cache() {
+  if is_running php; then
+    docker compose exec -T php sh -lc 'rm -rf /var/www/html/.scribe/endpoints.cache' >/dev/null 2>&1 || true
+  else
+    rm -rf backend/.scribe/endpoints.cache
+  fi
+}
+
+clear_runtime_caches() {
+  echo ""
+  echo "── Runtime cache reset (all deploy modes) ──"
+
+  if is_running php; then
+    echo "── PHP/Laravel runtime caches ──"
+    if docker compose exec -T php php artisan optimize:clear && \
+       docker compose exec -T php php artisan queue:restart; then
+      ok "Laravel optimize caches cleared and queue restart signaled"
+    else
+      fail "Laravel runtime cache reset failed"
+      ERRORS=$((ERRORS + 1))
+    fi
+
+    if service_exists horizon && is_running horizon; then
+      if docker compose exec -T php php artisan horizon:terminate >/dev/null 2>&1; then
+        ok "Horizon terminate signal sent"
+      else
+        warn "Could not send Horizon terminate signal"
+      fi
+    fi
+
+    if docker compose exec -T php kill -USR2 1 2>/dev/null; then
+      ok "php-fpm reloaded (USR2)"
+    else
+      warn "USR2 signal failed — restarting PHP container"
+      if docker compose restart php >/dev/null 2>&1; then
+        ok "PHP container restarted"
+      else
+        fail "PHP container failed to restart"
+        ERRORS=$((ERRORS + 1))
+      fi
+    fi
+  fi
+
+  if is_running nginx; then
+    echo "── Nginx proxy cache ──"
+    if docker compose exec -T nginx sh -lc 'rm -rf /tmp/nginx-dicom-cache/*' >/dev/null 2>&1; then
+      ok "Nginx DICOM proxy cache cleared"
+    else
+      fail "Failed to clear Nginx DICOM proxy cache"
+      ERRORS=$((ERRORS + 1))
+    fi
+
+    if docker compose exec -T nginx nginx -s reload >/dev/null 2>&1; then
+      ok "Nginx reloaded"
+    else
+      warn "Nginx reload failed — restarting container"
+      if docker compose restart nginx >/dev/null 2>&1; then
+        ok "Nginx container restarted"
+      else
+        fail "Nginx container failed to restart"
+        ERRORS=$((ERRORS + 1))
+      fi
+    fi
+  fi
+
+  restart_running_service reverb "Reverb runtime state reset"
+  restart_running_service python-ai "AI runtime caches reset"
+  restart_running_service blackrabbit "BlackRabbit scan cache reset"
+  restart_running_service study-agent "Study Agent in-process caches reset"
+  restart_running_service hecate "Hecate runtime caches reset"
+  restart_running_service fhir-to-cdm "FHIR-to-CDM temp/runtime cache reset"
+  restart_running_service orthanc "Orthanc metadata cache reset"
+  restart_running_service solr "Solr query caches reset"
+  restart_running_service chromadb "ChromaDB process caches reset"
+  restart_running_service qdrant "Qdrant process caches reset"
+
+  if service_exists darkstar && is_running darkstar; then
+    local darkstar_url="http://127.0.0.1:${R_PORT:-8787}"
+    curl -fsS --max-time 10 "${darkstar_url}/health" >/dev/null 2>&1 || true
+
+    local darkstar_jobs=""
+    if darkstar_jobs="$(curl -fsS --max-time 10 "${darkstar_url}/jobs/list" 2>/dev/null)" && \
+       echo "$darkstar_jobs" | grep -Eq '"jobs"[[:space:]]*:[[:space:]]*\[[[:space:]]*\]'; then
+      if docker compose restart darkstar >/dev/null 2>&1; then
+        ok "Darkstar runtime caches reset"
+      else
+        fail "Darkstar runtime cache reset failed"
+        ERRORS=$((ERRORS + 1))
+      fi
+    else
+      warn "Darkstar has active jobs or jobs API is unavailable — skipped restart to avoid interrupting analyses"
+    fi
+  fi
+}
+
 echo "==> Parthenon deploy"
 
 # ── Pull pre-built images from GHCR ───────────────────────────────────────────
@@ -117,7 +237,9 @@ echo ""
 echo "── Pre-flight checks ──"
 
 is_running() {
-  docker compose ps --status running --format '{{.Name}}' 2>/dev/null | grep -q "parthenon-$1"
+  local container_id
+  container_id="$(docker compose ps -q "$1" 2>/dev/null | head -n 1)"
+  [ -n "$container_id" ] && [ "$(docker inspect -f '{{.State.Running}}' "$container_id" 2>/dev/null)" = "true" ]
 }
 
 if is_running php; then
@@ -165,31 +287,7 @@ fi
 # ── PHP / Laravel ────────────────────────────────────────────────────────────
 if $DO_PHP; then
   echo ""
-  echo "── PHP: reloading php-fpm to clear opcache ──"
-  if docker compose exec php kill -USR2 1 2>/dev/null; then
-    ok "php-fpm reloaded (USR2)"
-  else
-    warn "USR2 signal failed — restarting PHP container"
-    docker compose restart php 2>&1 | sed 's/^/   /'
-    sleep 3
-    if is_running php; then
-      ok "PHP container restarted"
-    else
-      fail "PHP container failed to restart"
-      ERRORS=$((ERRORS + 1))
-    fi
-  fi
-
-  echo "── Laravel: clearing caches ──"
-  if docker compose exec php php artisan config:clear && \
-     docker compose exec php php artisan cache:clear && \
-     docker compose exec php php artisan route:clear && \
-     docker compose exec php php artisan view:clear; then
-    ok "Laravel caches cleared"
-  else
-    fail "Cache clear failed"
-    ERRORS=$((ERRORS + 1))
-  fi
+  echo "── PHP: runtime caches will be reset in the unified cache step ──"
 
   echo "── Laravel: creating storage symlink ──"
   if docker compose exec php php artisan storage:link 2>/dev/null || true; then
@@ -197,6 +295,7 @@ if $DO_PHP; then
   fi
 
   echo "── Generating API documentation ──"
+  clear_scribe_cache
   if docker compose exec php php artisan scribe:generate --no-interaction 2>/dev/null; then
     ok "API docs generated → public/docs/"
   else
@@ -289,6 +388,11 @@ fi
 # ── Frontend production build ─────────────────────────────────────────────────
 if $DO_FRONTEND; then
   echo ""
+  echo "── Frontend: clearing build cache ──"
+  rm -rf frontend/dist
+  rm -f frontend/node_modules/.tmp/tsconfig.app.tsbuildinfo frontend/node_modules/.tmp/tsconfig.node.tsbuildinfo
+  ok "Frontend build cache cleared"
+
   echo "── Frontend: building production dist ──"
 
   # Strategy: try node container first (consistent env), fall back to local npm
@@ -332,6 +436,7 @@ if $DO_DOCS; then
   echo ""
   echo "── Docs: regenerating OpenAPI spec before build ──"
   if is_running php; then
+    clear_scribe_cache
     if docker compose exec php php artisan scribe:generate --no-interaction 2>/dev/null; then
       ok "OpenAPI spec regenerated"
     else
@@ -339,6 +444,10 @@ if $DO_DOCS; then
     fi
   fi
   echo ""
+  echo "── Docs: clearing build cache ──"
+  rm -rf docs/site/build docs/site/.docusaurus docs/site/node_modules/.cache
+  ok "Docs build cache cleared"
+
   echo "── Docs: building Docusaurus site ──"
   if [ -f docs/site/package.json ]; then
     mkdir -p docs/site/build
@@ -360,6 +469,7 @@ if $DO_OPENAPI; then
   echo ""
   echo "── OpenAPI: generating API docs and regenerating TypeScript types ──"
   echo "── Generating API documentation ──"
+  clear_scribe_cache
   if docker compose exec php php artisan scribe:generate --no-interaction 2>/dev/null; then
     ok "API docs + OpenAPI spec generated → public/docs/"
   else
@@ -385,6 +495,9 @@ if $DO_OPENAPI; then
     warn "Node container not running — skipping type generation"
   fi
 fi
+
+# ── Runtime cache reset (always) ────────────────────────────────────────────
+clear_runtime_caches
 
 # ── Guard: rebuild docs if build dir is empty ────────────────────────────────
 # The docs/site/build/ directory is gitignored and can get wiped by git

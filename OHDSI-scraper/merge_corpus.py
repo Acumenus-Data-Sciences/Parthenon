@@ -20,6 +20,7 @@ OHDSI_PAPERS_DIR = BASE_DIR / "OHDSI Papers"
 OHDSI_META = BASE_DIR / "ohdsi_papers_metadata.csv"
 VALIDATED_DIR = BASE_DIR / "validated_oa_corpus" / "pdfs"
 VALIDATED_META = BASE_DIR / "validated_oa_corpus" / "metadata" / "downloaded_paper_metadata.csv"
+EXCLUSIONS_CSV = BASE_DIR / "corpus_exclusions.csv"
 OUTPUT_DIR = BASE_DIR / "corpus"
 OUTPUT_PDFS = OUTPUT_DIR / "pdfs"
 OUTPUT_CSV = OUTPUT_DIR / "metadata.csv"
@@ -51,6 +52,19 @@ OUTPUT_COLUMNS = [
 def normalize_doi(doi: str) -> str:
     """Lowercase, strip whitespace."""
     return doi.strip().lower()
+
+
+def load_exclusions() -> set[str]:
+    """Load DOI exclusions for records we intentionally keep out of the merged corpus."""
+    if not EXCLUSIONS_CSV.exists():
+        return set()
+    excluded: set[str] = set()
+    with EXCLUSIONS_CSV.open(newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            doi = normalize_doi(row.get("DOI", ""))
+            if doi:
+                excluded.add(doi)
+    return excluded
 
 
 def load_ohdsi_papers() -> dict[str, dict[str, str]]:
@@ -126,10 +140,14 @@ def load_validated_corpus() -> dict[str, dict[str, str]]:
 
 def main() -> int:
     # Load both sources
-    ohdsi = load_ohdsi_papers()
-    validated = load_validated_corpus()
+    exclusions = load_exclusions()
+    ohdsi_all = load_ohdsi_papers()
+    validated_all = load_validated_corpus()
+    ohdsi = {doi: record for doi, record in ohdsi_all.items() if doi not in exclusions}
+    validated = {doi: record for doi, record in validated_all.items() if doi not in exclusions}
     print(f"OHDSI Papers (high-quality): {len(ohdsi)}")
     print(f"Validated OA Corpus: {len(validated)}")
+    print(f"Excluded DOIs: {len(exclusions)}")
 
     # Merge — validated wins on duplicates (richer metadata with PMID/PMCID)
     merged: dict[str, dict[str, str]] = {}
@@ -163,6 +181,18 @@ def main() -> int:
     # Create output directory
     OUTPUT_PDFS.mkdir(parents=True, exist_ok=True)
 
+    expected_filenames = {
+        Path(record.get("_pdf_path", "")).name
+        for record in merged.values()
+        if record.get("_pdf_path")
+    }
+    removed = 0
+    for existing_pdf in OUTPUT_PDFS.glob("*.pdf"):
+        if existing_pdf.name in expected_filenames:
+            continue
+        existing_pdf.unlink()
+        removed += 1
+
     # Copy PDFs and write CSV
     copied = 0
     missing = 0
@@ -194,6 +224,7 @@ def main() -> int:
 
     print(f"\nOutput:")
     print(f"  PDFs copied: {copied}")
+    print(f"  PDFs removed: {removed}")
     print(f"  PDFs missing: {missing}")
     print(f"  Metadata rows: {len(rows)}")
     print(f"  Directory: {OUTPUT_DIR}")

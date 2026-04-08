@@ -35,7 +35,7 @@ CURATED_SERVICES: list[CuratedService] = [
     # Ports are container-internal (what Traefik connects to), NOT host-mapped.
     CuratedService("nginx", "parthenon-nginx", 80, "parthenon", "always"),
     CuratedService("darkstar", "parthenon-darkstar", 8787, "darkstar", "always"),
-    CuratedService("python-ai", "parthenon-ai", 8000, "ai", "always"),
+    CuratedService("python-ai", "python-ai", 8000, "ai", "always"),
     CuratedService("morpheus-ingest", "parthenon-morpheus-ingest", 8000, "morpheus", "always"),
     CuratedService("solr", "parthenon-solr", 8983, "solr", "if_running"),
     CuratedService("jupyterhub", "parthenon-jupyterhub", 8000, "jupyter", "if_running"),

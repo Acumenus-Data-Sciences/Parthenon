@@ -1,0 +1,29 @@
+DOI,Title,Reason
+10.1038/s41467-023-39282-y,Longitudinal body mass index and cancer risk: a cohort study of 2.6 million Catalan adults,Rejected by ingestion audit: repeated_lines boilerplate borderline_relevance
+10.1038/ncomms7696,Global migration of influenza A viruses in swine,Rejected by ingestion audit: repeated_lines boilerplate low_relevance
+10.1017/jpa.2020.23,"Satunarcus, a new late Cambrian trilobite genus from southernmost Thailand and a reevaluation of the subfamily Mansuyiinae Hupé, 1955",Rejected by ingestion audit: repeated_lines boilerplate low_relevance
+10.1145/3512290.3528867,EvoRobogami,Rejected by ingestion audit: repeated_lines boilerplate borderline_relevance
+10.1080/10618600.2020.1841650,Scalable Algorithms for Large Competing Risks Data,Rejected by ingestion audit: repeated_lines possible_noise boilerplate
+10.1007/s00285-011-0471-z,Transition probabilities for general birth-death processes with applications in ecology genetics and evolution,Rejected by ingestion audit: repeated_lines boilerplate low_relevance
+10.1177/0278364918772023,Animatronic soft robots by additive folding,Rejected by ingestion audit: repeated_lines boilerplate borderline_relevance
+10.48037/mbmj.v8i7.1254,The effectiveness of an opt-out policy for organ donation,Rejected by ingestion audit: too_short ocr_noise low_relevance
+10.1101/2025.07.09.25331138,Impact of Preexisting Rare Diseases on COVID-19 Severity Reinfection and Long COVID and the Modifying Effects of Vaccination and Antiviral Therapy: A Retrospective Study from the N3C Data Enclave,Rejected by ingestion audit: low_alpha_ratio repeated_lines
+10.1101/2020.04.20.20072116,Characterization and clinical course of 1000 patients with COVID-19 in New York: retrospective case series,Rejected by ingestion audit: repeated_lines possible_noise boilerplate
+10.1101/2020.07.13.20152454,"The natural history of symptomatic COVID-19 in Catalonia, Spain: a multi-state model including 109,367 outpatient diagnoses, 18,019 hospitalisations, and 5,585 COVID-19 deaths among 5,627,520 people",Rejected by ingestion audit: low_alpha_ratio repeated_lines boilerplate
+10.1101/2021.10.25.21265398,Genome-wide polygenic score with APOL1 risk genotypes predicts chronic kidney disease across major continental ancestries,Rejected by ingestion audit: repeated_lines possible_noise boilerplate
+10.1101/2023.01.02.23284109,Genomic assessment of invasion dynamics of SARS-CoV-2 Omicron BA.1,Rejected by ingestion audit: repeated_lines boilerplate borderline_relevance
+10.1101/2023.02.16.23285983,"The impact of varying the number and selection of conditions on estimated multimorbidity prevalence: a cross-sectional study using a large, primary care population dataset",Rejected by ingestion audit: repeated_lines possible_noise boilerplate
+10.1101/2023.05.07.23289614,Polygenic risk affects the penetrance of monogenic kidney disease,Rejected by ingestion audit: repeated_lines possible_noise boilerplate
+10.1017/jpa.2021.104,JPA volume 95 issue 6 Cover and Back matter,Crossref and PDF metadata remain authorless cover matter
+10.1017/jpa.2021.76,JPA volume 95 issue 5 Cover and Back matter,Crossref and PDF metadata remain authorless cover matter
+10.1017/s0016756800019683,GEO volume 128 issue 6 Cover and Back matter,Crossref and PDF metadata remain authorless cover matter
+10.1017/s0016756800023116,GEO volume 130 issue 6 Cover and Back matter,Crossref and PDF metadata remain authorless cover matter
+10.1093/jamia/ocad032,Correction to: Transforming and evaluating the UK Biobank to the OMOP Common Data Model for COVID-19 research and beyond,Correction notice remains authorless in authoritative metadata
+10.1109/jpets.2016.2541058,IEEE Power and Energy Technology Systems Journal publication information,Crossref and PDF metadata remain authorless publication information
+10.1109/mpe.2020.2974558,Officers/Committee,Crossref and PDF metadata remain authorless committee notice
+10.1109/tpwrs.2020.3013179,IEEE Power & Energy Society,Crossref and PDF metadata remain authorless society notice
+10.1109/tpwrs.2020.3029516,IEEE Power & Energy Society,Crossref and PDF metadata remain authorless society notice
+10.1109/tsg.2013.2279012,IEEE Transactions on Smart Grid publication information,Crossref and PDF metadata remain authorless publication information
+10.1109/tsg.2013.2292211,IEEE Transactions on Smart Grid publication information,Crossref and PDF metadata remain authorless publication information
+10.1109/tsg.2013.2296692,IEEE Transactions on Smart Grid publication information,Crossref and PDF metadata remain authorless publication information
+10.17077/0021-065x.5873,"Notes on contributors and back matter, The Iowa Review, v.34 no.1, Spring, 2004",Crossref and PDF metadata remain authorless back matter

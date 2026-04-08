@@ -20,7 +20,7 @@ BASE_SERVICES = [
     ("postgres",   "parthenon-postgres", 60),
     ("redis",      "parthenon-redis",    30),
     ("php",        "parthenon-php",      120),
-    ("python-ai",  "parthenon-ai",       120),
+    ("python-ai",  "python-ai",          120),
     ("jupyterhub", "parthenon-jupyterhub", 60),
     ("darkstar",   "parthenon-darkstar",  120),
     ("nginx",      "parthenon-nginx",    30),

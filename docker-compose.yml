@@ -146,7 +146,7 @@ services:
     restart: unless-stopped
 
   python-ai:
-    container_name: parthenon-ai
+    container_name: python-ai
     image: ghcr.io/sudoshi/parthenon-python-ai:latest
     build:
       context: .

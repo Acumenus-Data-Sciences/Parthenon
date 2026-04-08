@@ -656,13 +656,13 @@ def make_dashboard():
     ry = 0
 
     row5_panels.append(time_series_panel("Request Rate by Status", [
-        ('sum by(status) (count_over_time({container_name="parthenon-ai"} | pattern `<_> - "<method> <path> <_>" <status> <_>` [$__interval]))', '{{status}}', 'A'),
+        ('sum by(status) (count_over_time({container_name="python-ai"} | pattern `<_> - "<method> <path> <_>" <status> <_>` [$__interval]))', '{{status}}', 'A'),
     ], x=0, y=ry, w=12, h=8, unit="short", datasource=LOKI_DS,
         stack=True, overrides=HTTP_STATUS_OVERRIDES,
         description="Uvicorn request rate by HTTP status code"))
 
     row5_panels.append(time_series_panel("Error Rate", [
-        ('sum(count_over_time({container_name="parthenon-ai"} |~ "(?i)error|exception|traceback|fatal" [$__interval]))', 'errors', 'A'),
+        ('sum(count_over_time({container_name="python-ai"} |~ "(?i)error|exception|traceback|fatal" [$__interval]))', 'errors', 'A'),
     ], x=12, y=ry, w=12, h=8, unit="short", datasource=LOKI_DS,
         fixed_color="#9B1B30",
         description="Error log line frequency for the AI service"))
@@ -671,7 +671,7 @@ def make_dashboard():
 
     ai_error_targets = [{
         "refId": "A",
-        "expr": 'topk(10, sum by(message) (count_over_time({container_name="parthenon-ai"} |~ "(?i)error|exception" | regexp `(?P<message>(?:Error|Exception|Traceback)[^\\n]{0,120})` [$__range])))',
+        "expr": 'topk(10, sum by(message) (count_over_time({container_name="python-ai"} |~ "(?i)error|exception" | regexp `(?P<message>(?:Error|Exception|Traceback)[^\\n]{0,120})` [$__range])))',
         "legendFormat": "", "instant": True, "range": False, "format": "table",
     }]
     row5_panels.append(table_panel("Top Error Patterns",
@@ -680,14 +680,14 @@ def make_dashboard():
         description="Most frequent error patterns (Ollama, RAG, SapBERT, etc.)"))
 
     row5_panels.append(time_series_panel("Ollama & RAG Activity", [
-        ('sum by(type) (count_over_time({container_name="parthenon-ai"} |~ "ollama|chroma|embeddi|retriev" | regexp `(?P<type>ollama|chroma|embed|retriev)` [$__interval]))', '{{type}}', 'A'),
+        ('sum by(type) (count_over_time({container_name="python-ai"} |~ "ollama|chroma|embeddi|retriev" | regexp `(?P<type>ollama|chroma|embed|retriev)` [$__interval]))', '{{type}}', 'A'),
     ], x=12, y=ry, w=12, h=8, unit="short", datasource=LOKI_DS,
         description="RAG pipeline component activity over time"))
 
     ry += 8
 
     row5_panels.append(logs_panel("Live Log Stream",
-        '{container_name="parthenon-ai"} |~ "$search" | regexp `(?P<level>INFO|WARNING|ERROR|CRITICAL|DEBUG)` | level=~"$log_level"',
+        '{container_name="python-ai"} |~ "$search" | regexp `(?P<level>INFO|WARNING|ERROR|CRITICAL|DEBUG)` | level=~"$log_level"',
         x=0, y=ry, w=24, h=12,
         description="AI service log stream filtered by level and search text"))
 

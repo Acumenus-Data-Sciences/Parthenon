@@ -136,3 +136,35 @@ def test_legacy_index_without_ingested_at(tmp_path):
     assert len(entries) == 1
     assert entries[0].slug == "old-paper"
     assert entries[0].ingested_at == ""  # graceful default
+
+
+def test_read_index_does_not_skip_rows_with_type_in_content(tmp_path):
+    workspace_dir = tmp_path / "platform"
+    workspace_dir.mkdir()
+
+    upsert_index_entry(
+        workspace_dir,
+        IndexEntry(
+            page_type="concept",
+            title="Type 2 Diabetes Cohort Study",
+            slug="type-2-diabetes-cohort-study",
+            path="wiki/concepts/type-2-diabetes-cohort-study.md",
+            keywords=["diabetes", "cohort-study"],
+            links=[],
+            updated_at="2026-04-08T00:00:00+00:00",
+            source_slug="type-2-diabetes-cohort-study",
+            source_type="pdf",
+            ingested_at="2026-04-08T00:00:00+00:00",
+            doi="10.1234/type2",
+            authors="Doe J",
+            first_author="Doe J",
+            journal="JAMIA",
+            publication_year="2026",
+            primary_domain="clinical-applications",
+        ),
+    )
+
+    entries = read_index(workspace_dir)
+    assert len(entries) == 1
+    assert entries[0].title == "Type 2 Diabetes Cohort Study"
+    assert entries[0].doi == "10.1234/type2"
