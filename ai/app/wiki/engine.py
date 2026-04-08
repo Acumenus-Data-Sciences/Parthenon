@@ -8,6 +8,7 @@ import hashlib
 from collections.abc import AsyncGenerator
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 import logging
 
@@ -64,6 +65,8 @@ class WikiEngine:
         self.default_workspace = default_workspace or settings.wiki_default_workspace
         self.adapter = adapter or ExternalDocumentAdapter()
         self._ollama_client: httpx.AsyncClient | None = None
+        self._chroma_upsert_disabled = False
+        self._llm_page_generation_disabled = False
 
     def init_workspace(self, workspace: str | None = None) -> WikiWorkspace:
         workspace_name = self._normalize_workspace(workspace)
@@ -354,6 +357,8 @@ class WikiEngine:
         source_text: str,
         source_metadata: dict[str, str],
     ) -> list[dict[str, str | list[str]]]:
+        if self._llm_page_generation_disabled:
+            return self._fallback_pages(source_title, source_text, source_metadata)
         schema = (self.root_dir / SCHEMA_PATH).read_text(encoding="utf-8")
         prompt = build_ingest_prompt(
             schema,
@@ -365,7 +370,15 @@ class WikiEngine:
             journal=source_metadata["journal"],
             publication_year=source_metadata["publication_year"],
         )
-        payload = await self._call_llm_json(prompt)
+        try:
+            payload = await self._call_llm_json(prompt)
+        except Exception:
+            self._llm_page_generation_disabled = True
+            logger.warning(
+                "Wiki page generation LLM unavailable; falling back to deterministic pages for the rest of this run",
+                exc_info=True,
+            )
+            return self._fallback_pages(source_title, source_text, source_metadata)
         pages = payload.get("pages") if isinstance(payload, dict) else None
         if not isinstance(pages, list):
             return self._fallback_pages(source_title, source_text, source_metadata)
@@ -837,24 +850,28 @@ class WikiEngine:
         upsert_index_entry(workspace_dir, entry)
 
         # Upsert into ChromaDB for semantic search (non-blocking on failure)
-        try:
-            self._upsert_page_to_chroma(
-                workspace=workspace_dir.name,
-                slug=slug,
-                title=title,
-                page_type=page_type,
-                body=body,
-                keywords=keywords,
-                source_slug=source_slug,
-                source_type=source_type,
-                metadata=source_metadata,
-                primary_domain=primary_domain,
-            )
-        except Exception:
-            import logging
-            logging.getLogger(__name__).warning(
-                "ChromaDB upsert failed for wiki page %s", slug, exc_info=True
-            )
+        if not self._chroma_upsert_disabled:
+            try:
+                self._upsert_page_to_chroma(
+                    workspace=workspace_dir.name,
+                    slug=slug,
+                    title=title,
+                    page_type=page_type,
+                    body=body,
+                    keywords=keywords,
+                    source_slug=source_slug,
+                    source_type=source_type,
+                    metadata=source_metadata,
+                    primary_domain=primary_domain,
+                )
+            except Exception:
+                self._chroma_upsert_disabled = True
+                import logging
+                logging.getLogger(__name__).warning(
+                    "ChromaDB upsert failed for wiki page %s; disabling further wiki upserts for this run",
+                    slug,
+                    exc_info=True,
+                )
 
         return self._entry_to_summary(workspace_dir.name, entry)
 
@@ -1231,8 +1248,8 @@ class WikiEngine:
         publication_year_min: str | None,
         publication_year_max: str | None,
         first_author: str | None,
-    ) -> list[dict]:
-        base_and: list[dict[str, str | dict[str, str]]] = [{"workspace": workspace}]
+    ) -> list[dict[str, Any]]:
+        base_and: list[dict[str, Any]] = [{"workspace": workspace}]
         if source_slug:
             base_and.append({"source_slug": source_slug})
         if primary_domain:
@@ -1250,8 +1267,10 @@ class WikiEngine:
         if year_filter:
             base_and.append({"publication_year": year_filter})
 
-        exact_filter = {"$and": base_and} if len(base_and) > 1 else base_and[0]
-        filters = [exact_filter]
+        exact_filter: dict[str, Any] = (
+            {"$and": base_and} if len(base_and) > 1 else base_and[0]
+        )
+        filters: list[dict[str, Any]] = [exact_filter]
         if len(base_and) > 1:
             filters.append({"workspace": workspace})
         return filters

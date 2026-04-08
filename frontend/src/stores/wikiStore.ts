@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist, type StateStorage } from "zustand/middleware";
+import { persist, createJSONStorage, type StateStorage } from "zustand/middleware";
 import type { WikiChatMessage, WikiLintResponse, WikiPageSummary } from "@/features/commons/types/wiki";
 
 // Debounced localStorage adapter — prevents blocking the main thread
@@ -7,7 +7,6 @@ import type { WikiChatMessage, WikiLintResponse, WikiPageSummary } from "@/featu
 function createDebouncedStorage(delay = 1000): StateStorage {
   let pending: string | null = null;
   let timer: ReturnType<typeof setTimeout> | null = null;
-  const key = "parthenon-wiki-chat";
 
   return {
     getItem: (name: string) => localStorage.getItem(name),
@@ -127,13 +126,14 @@ export const useWikiStore = create<WikiState>()(
     }),
     {
       name: "parthenon-wiki-chat",
-      storage: debouncedStorage,
+      storage: createJSONStorage(() => debouncedStorage),
       // Only persist chat messages — UI state (modals, drawers, selection)
       // should reset on page load.
-      partialize: (state) => ({
-        chatMessagesByScope: state.chatMessagesByScope,
-        lastOpenedSlug: state.lastOpenedSlug,
-      }),
+      partialize: (state) =>
+        ({
+          chatMessagesByScope: state.chatMessagesByScope,
+          lastOpenedSlug: state.lastOpenedSlug,
+        }) as unknown as WikiState,
     },
   ),
 );

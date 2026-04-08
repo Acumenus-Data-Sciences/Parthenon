@@ -43,6 +43,16 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--skip-chroma-clear", action="store_true", help="Do not delete the wiki_pages Chroma collection.")
     parser.add_argument("--skip-existing", action="store_true", help="Skip papers whose DOI already exists in the workspace index.")
     parser.add_argument("--no-commit", action="store_true", help="Write files without creating git commits.")
+    parser.add_argument(
+        "--disable-page-llm",
+        action="store_true",
+        help="Skip LLM page generation and always use deterministic fallback pages.",
+    )
+    parser.add_argument(
+        "--disable-chroma-upserts",
+        action="store_true",
+        help="Skip Chroma wiki page upserts during this ingest run.",
+    )
     parser.add_argument("--corpus-dir", default=None, help="Override the OHDSI corpus directory.")
     return parser.parse_args()
 
@@ -60,6 +70,10 @@ async def rebuild_wiki(args: argparse.Namespace) -> int:
         raise FileNotFoundError(f"PDF directory not found: {pdf_dir}")
 
     engine = WikiEngine(root_dir=str(wiki_root))
+    if args.disable_page_llm:
+        engine._llm_page_generation_disabled = True
+    if args.disable_chroma_upserts:
+        engine._chroma_upsert_disabled = True
     workspace_dir = wiki_root / args.workspace
     init_wiki_repo(wiki_root)
     ensure_workspace_structure(wiki_root, args.workspace)
@@ -240,8 +254,9 @@ def _existing_source_dois(workspace_dir: Path) -> set[str]:
 
 
 def _wiki_commit_with_retry(root_dir: Path, message: str, paths: list[Path]) -> None:
+    paths_arg: list[str | Path] = list(paths)
     try:
-        wiki_commit(root_dir, message, paths)
+        wiki_commit(root_dir, message, paths_arg)
         return
     except RuntimeError as exc:
         if "index.lock" not in str(exc):
@@ -249,7 +264,7 @@ def _wiki_commit_with_retry(root_dir: Path, message: str, paths: list[Path]) -> 
     lock_path = Path(root_dir) / ".git" / "index.lock"
     if lock_path.exists():
         lock_path.unlink()
-    wiki_commit(root_dir, message, paths)
+    wiki_commit(root_dir, message, paths_arg)
 
 
 def _clear_wiki_collection() -> None:

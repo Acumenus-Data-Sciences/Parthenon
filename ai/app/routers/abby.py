@@ -2081,7 +2081,9 @@ async def _stream_claude_response(
 
     started = time.perf_counter()
     token_queue: queue.Queue[tuple[str, object] | None] = queue.Queue()
-    history_dicts = [{"role": msg.role, "content": msg.content} for msg in history[-10:]] if history else []
+    history_dicts: list[dict[str, Any]] = (
+        [{"role": msg.role, "content": msg.content} for msg in history[-10:]] if history else []
+    )
 
     def _run_sync_stream() -> None:
         final_model = settings.claude_model
@@ -2094,7 +2096,7 @@ async def _stream_claude_response(
                 model=settings.claude_model,
                 max_tokens=settings.claude_max_tokens,
                 system=system_prompt,
-                messages=[*history_dicts, {"role": "user", "content": user_message}],
+                messages=cast(Any, [*history_dicts, {"role": "user", "content": user_message}]),
             ) as stream:
                 for text in stream.text_stream:
                     if not text:
@@ -2159,7 +2161,7 @@ async def _stream_claude_response(
             return
 
         if kind == "complete":
-            meta = cast(dict[str, object], payload)
+            meta = cast(dict[str, Any], payload)
             full_content = str(meta.get("full_content", full_content))
             final_model = str(meta.get("model", final_model))
             tokens_in = int(meta.get("tokens_in", 0) or 0)
@@ -2300,10 +2302,12 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
     local_num_predict = _get_local_num_predict(request.page_context)
 
     if routing.model == "claude":
-        history_dicts = [{"role": m.role, "content": m.content} for m in request.history]
+        history_dicts: list[dict[str, Any]] = [
+            {"role": m.role, "content": m.content} for m in request.history
+        ]
         user_text = request.message
         for history_item in history_dicts:
-            user_text += "\n" + history_item.get("content", "")
+            user_text += "\n" + str(history_item.get("content", ""))
         phi_result = _phi_sanitizer.scan(user_text)
         if phi_result.phi_detected and settings.phi_block_on_detection:
             logger.warning(
@@ -2319,7 +2323,7 @@ async def chat_stream(request: ChatRequest) -> StreamingResponse:
         else:
             request_hash = ClaudeClient._compute_hash(
                 system_prompt=system_prompt,
-                messages=[*history_dicts, {"role": "user", "content": request.message}],
+                messages=cast(Any, [*history_dicts, {"role": "user", "content": request.message}]),
             )
             _log_latency(
                 "abby_chat_stream_ready",

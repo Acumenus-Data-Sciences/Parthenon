@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Loader2, Maximize2, Send, User } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import type { WikiChatMessage } from "../../types/wiki";
