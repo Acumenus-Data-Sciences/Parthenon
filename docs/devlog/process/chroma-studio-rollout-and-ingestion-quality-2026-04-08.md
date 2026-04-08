@@ -60,6 +60,45 @@ This is exposed through:
 - `backend/app/Services/Solr/VectorExplorerSearchService.php`
 - `frontend/src/features/administration/api/chromaStudioApi.ts`
 
+### Post-rollout performance and inspector optimizations
+
+After the initial rollout, the Vector Explorer still felt slow in-browser even though Solr-backed projection assembly had been repaired. A follow-up pass focused on the real bottlenecks: oversized cached projection payloads and expensive client-side hover churn.
+
+The follow-up changes include:
+
+- compact Solr projection payloads that return only render-critical point metadata by default (`source`, `type`, `category`, `title`, plus an active color field when needed)
+- on-demand point detail hydration for the inspector so full metadata is only fetched when a point is selected
+- hover handling that updates only the previously hovered and newly hovered point instances instead of repainting the full point cloud on every pointer move
+- cluster overlay cleanup so hull/topology helpers no longer re-filter cluster visibility when they already receive the visible point subset
+- a dedicated Solr-backed point-details route:
+  - `GET /api/v1/admin/chroma-studio/collections/{name}/projection-point?point_id=...`
+
+Measured impact from the payload trim on Solr-cached 5K projections:
+
+- `wiki_pages`: `5,047,282` bytes -> `1,922,965` bytes
+- `docs`: `3,255,801` bytes -> `1,866,941` bytes
+- `ohdsi_papers`: `2,612,380` bytes -> `1,868,462` bytes
+- `clinical_reference`: `973,038` bytes -> `631,090` bytes
+
+Measured Solr-backed projection assembly after the optimization pass:
+
+- `clinical_reference`: `~61.5 ms`
+- `wiki_pages`: `~82.9-102.6 ms`
+- `ohdsi_papers`: `~111.4 ms`
+- `docs`: `~130.1 ms`
+
+Primary files touched in this optimization pass:
+
+- `backend/app/Http/Controllers/Api/V1/Admin/ChromaStudioController.php`
+- `backend/app/Services/Solr/VectorExplorerSearchService.php`
+- `backend/routes/api.php`
+- `frontend/src/features/administration/api/chromaStudioApi.ts`
+- `frontend/src/features/administration/components/vector-explorer/useVectorExplorer.ts`
+- `frontend/src/features/administration/components/vector-explorer/ThreeScene.tsx`
+- `frontend/src/features/administration/components/vector-explorer/PointInspector.tsx`
+- `frontend/src/features/administration/components/vector-explorer/VectorExplorer.tsx`
+- `frontend/src/features/administration/components/vector-explorer/ClusterHulls.tsx`
+
 ### Projection pipeline changes
 
 The AI projection service and Laravel proxy were extended so cached and live projections are consistent and inspectable:
@@ -166,6 +205,8 @@ Results:
 - `./deploy.sh --frontend` succeeded, including frontend smoke checks
 - `python-ai` restarted successfully
 - container-local AI health and Chroma health endpoints both returned `ok`
+- follow-up PHP syntax checks and `./node_modules/.bin/tsc --noEmit` passed after the payload/inspector optimization pass
+- live Solr detail retrieval was verified against cached `wiki_pages` points, including metadata keys such as `chunk_index`, `keywords`, `workspace`, `authors`, `journal`, and `slug`
 
 ## Deployment Notes
 
