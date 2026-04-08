@@ -202,12 +202,14 @@ class VectorExplorerSearchService
             $cx = (float) ($statsDoc["meta_f_cluster_{$i}_cx"] ?? 0);
             $cy = (float) ($statsDoc["meta_f_cluster_{$i}_cy"] ?? 0);
             $cz = (float) ($statsDoc["meta_f_cluster_{$i}_cz"] ?? 0);
+            $summary = $this->decodeClusterSummary($statsDoc["meta_t_cluster_{$i}_summary_json"] ?? null);
 
             $clusters[] = [
                 'id' => $i,
                 'label' => $label,
                 'centroid' => [$cx, $cy, $cz],
                 'size' => $size,
+                'summary' => $summary,
             ];
         }
 
@@ -448,5 +450,19 @@ class VectorExplorerSearchService
         }
 
         return $facets;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function decodeClusterSummary(mixed $raw): ?array
+    {
+        if (! is_string($raw) || trim($raw) === '') {
+            return null;
+        }
+
+        $decoded = json_decode($raw, true);
+
+        return is_array($decoded) ? $decoded : null;
     }
 }

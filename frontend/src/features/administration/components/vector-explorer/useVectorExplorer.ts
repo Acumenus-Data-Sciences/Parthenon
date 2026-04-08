@@ -39,11 +39,17 @@ export interface VectorExplorerState {
   pointDetailsById: Record<string, ProjectionResponse["points"][number]>;
   pointDetailsLoadingIds: Set<string>;
   pointDetailsError: string | null;
+  selectedClusterId: number | null;
   selectedPoints: Set<string>;
   hoveredPoint: string | null;
   isExpanded: boolean;
   isLoading: boolean;
   isFallback: boolean;
+  overlayVisibility: {
+    hulls: boolean;
+    topology: boolean;
+    queryRays: boolean;
+  };
   clusterVisibility: Map<number, boolean>;
   qaLayers: { outliers: boolean; duplicates: boolean; orphans: boolean };
   error: string | null;
@@ -71,11 +77,17 @@ export function useVectorExplorer(collectionName: string | null, collectionSize?
     pointDetailsById: {},
     pointDetailsLoadingIds: new Set(),
     pointDetailsError: null,
+    selectedClusterId: null,
     selectedPoints: new Set(),
     hoveredPoint: null,
     isExpanded: false,
     isLoading: false,
     isFallback: false,
+    overlayVisibility: {
+      hulls: true,
+      topology: false,
+      queryRays: true,
+    },
     clusterVisibility: new Map(),
     qaLayers: { outliers: true, duplicates: true, orphans: true },
     error: null,
@@ -122,12 +134,13 @@ export function useVectorExplorer(collectionName: string | null, collectionSize?
         }
 
         setState((s) => ({
-      ...s,
-      projectionData: data,
-      isLoading: false,
-      clusterVisibility: visibility,
-      pointDetailsError: null,
-    }));
+          ...s,
+          projectionData: data,
+          isLoading: false,
+          clusterVisibility: visibility,
+          pointDetailsError: null,
+          selectedClusterId: data.clusters[0]?.id ?? null,
+        }));
       } catch (err: unknown) {
         // Axios throws CanceledError (not DOMException) when AbortController fires
         const isCanceled =
@@ -232,8 +245,14 @@ export function useVectorExplorer(collectionName: string | null, collectionSize?
       pointDetailsById: {},
       pointDetailsLoadingIds: new Set(),
       pointDetailsError: null,
+      selectedClusterId: null,
       selectedPoints: new Set(),
       hoveredPoint: null,
+      overlayVisibility: {
+        hulls: true,
+        topology: false,
+        queryRays: true,
+      },
       clusterVisibility: new Map(),
       error: null,
       isFallback: false,
@@ -553,6 +572,20 @@ export function useVectorExplorer(collectionName: string | null, collectionSize?
     setState((s) => (s.hoveredPoint === id ? s : { ...s, hoveredPoint: id }));
   }, []);
 
+  const setSelectedCluster = useCallback((clusterId: number | null) => {
+    setState((s) => (s.selectedClusterId === clusterId ? s : { ...s, selectedClusterId: clusterId }));
+  }, []);
+
+  const toggleOverlay = useCallback((overlay: "hulls" | "topology" | "queryRays") => {
+    setState((s) => ({
+      ...s,
+      overlayVisibility: {
+        ...s.overlayVisibility,
+        [overlay]: !s.overlayVisibility[overlay],
+      },
+    }));
+  }, []);
+
   const toggleCluster = useCallback((clusterId: number) => {
     setState((s) => {
       const next = new Map(s.clusterVisibility);
@@ -594,8 +627,10 @@ export function useVectorExplorer(collectionName: string | null, collectionSize?
     runQuery,
     setDimensions,
     setExpanded,
+    setSelectedCluster,
     selectPoint,
     setHoveredPoint,
+    toggleOverlay,
     toggleCluster,
     toggleQaLayer,
     refresh,

@@ -10,6 +10,8 @@ interface QueryVisualsProps {
   accentColor: string;
 }
 
+const ignoreRaycast: THREE.Object3D["raycast"] = () => {};
+
 function similarityFromDistance(distance: number | null | undefined): number {
   if (distance === null || distance === undefined || Number.isNaN(distance)) {
     return 0.5;
@@ -101,7 +103,7 @@ export default function QueryVisuals({
 
   return (
     <group>
-      <lineSegments renderOrder={1}>
+      <lineSegments renderOrder={1} raycast={ignoreRaycast}>
         <bufferGeometry>
           <bufferAttribute
             attach="attributes-position"
@@ -119,7 +121,11 @@ export default function QueryVisuals({
         <lineBasicMaterial vertexColors transparent opacity={0.75} toneMapped={false} />
       </lineSegments>
 
-      <mesh position={[geometry.anchor.x, geometry.anchor.y, geometry.anchor.z]} renderOrder={2}>
+      <mesh
+        position={[geometry.anchor.x, geometry.anchor.y, geometry.anchor.z]}
+        renderOrder={2}
+        raycast={ignoreRaycast}
+      >
         <sphereGeometry args={[0.05, 16, 16]} />
         <meshBasicMaterial color={accentColor} toneMapped={false} />
       </mesh>

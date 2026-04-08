@@ -2,13 +2,14 @@ import { useMemo, type FormEvent } from "react";
 import { createPortal } from "react-dom";
 import { Maximize2, Minimize2, Loader2, WifiOff, RefreshCw } from "lucide-react";
 import { Panel } from "@/components/ui";
-import type { CollectionOverview } from "../../api/chromaStudioApi";
+import type { CollectionOverview, CollectionSummary } from "../../api/chromaStudioApi";
 import { useVectorExplorer } from "./useVectorExplorer";
 import ThreeScene from "./ThreeScene";
 import ModeSelector from "./ModeSelector";
 import SampleSlider from "./SampleSlider";
 import DimensionToggle from "./DimensionToggle";
 import ColorLegend from "./ColorLegend";
+import ClusterProfile from "./ClusterProfile";
 import PointInspector from "./PointInspector";
 import MetadataColorPicker from "./MetadataColorPicker";
 import QualitySummary from "./QualitySummary";
@@ -17,9 +18,18 @@ import { getAdaptiveSampleSteps, getCollectionTheme } from "./constants";
 interface VectorExplorerProps {
   collectionName: string | null;
   overview: CollectionOverview | null;
+  collections: CollectionSummary[];
+  loadingCollections: boolean;
+  onCollectionChange: (collectionName: string) => void;
 }
 
-export default function VectorExplorer({ collectionName, overview }: VectorExplorerProps) {
+export default function VectorExplorer({
+  collectionName,
+  overview,
+  collections,
+  loadingCollections,
+  onCollectionChange,
+}: VectorExplorerProps) {
   const explorer = useVectorExplorer(collectionName, overview?.count);
   const { projectionData, activeMode, isExpanded, isLoading, isFallback, error } = explorer;
   const collectionTheme = useMemo(() => getCollectionTheme(collectionName), [collectionName]);
@@ -44,52 +54,16 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
     () => new Set(projectionData?.quality.orphan_ids ?? []),
     [projectionData?.quality.orphan_ids],
   );
-  const sourceOptions = useMemo(() => {
-    const overviewFacet = overview?.facets.find((facet) => facet.key === "source");
-    const searchFacet = explorer.projectionSearchResults?.facets.source;
-    return Array.from(
-      new Set([
-        ...(overviewFacet?.values.map((value) => value.label) ?? []),
-        ...Object.keys(searchFacet ?? {}),
-      ]),
-    ).sort();
-  }, [overview?.facets, explorer.projectionSearchResults?.facets.source]);
-  const docTypeOptions = useMemo(() => {
-    const overviewFacet = overview?.facets.find((facet) => facet.key === "type");
-    const searchFacet = explorer.projectionSearchResults?.facets.doc_type;
-    return Array.from(
-      new Set([
-        ...(overviewFacet?.values.map((value) => value.label) ?? []),
-        ...Object.keys(searchFacet ?? {}),
-      ]),
-    ).sort();
-  }, [overview?.facets, explorer.projectionSearchResults?.facets.doc_type]);
-
   function handleQuerySubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     explorer.runQuery();
-  }
-
-  function handleProjectionSearchSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!isProjectionSearchAvailable) {
-      explorer.clearProjectionSearch();
-      return;
-    }
-    explorer.runProjectionSearch();
   }
 
   const allPoints = projectionData?.points ?? [];
   const clusters = projectionData?.clusters ?? [];
   const quality = projectionData?.quality ?? null;
   const stats = projectionData?.stats ?? null;
-  const isProjectionSearchAvailable = stats?.source === "solr";
-  const filteredPointIds = isProjectionSearchAvailable && explorer.projectionSearchResults
-    ? new Set(explorer.projectionSearchResults.points.map((point) => point.id))
-    : null;
-  const points = filteredPointIds
-    ? allPoints.filter((point) => filteredPointIds.has(point.id))
-    : allPoints;
+  const points = allPoints;
   const visiblePoints = useMemo(
     () => points.filter((point) => explorer.clusterVisibility.get(point.cluster_id) ?? true),
     [points, explorer.clusterVisibility],
@@ -103,6 +77,10 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
     () =>
       visiblePoints.map((point) => explorer.pointDetailsById[point.id] ?? point),
     [explorer.pointDetailsById, visiblePoints],
+  );
+  const selectedCluster = useMemo(
+    () => clusters.find((cluster) => cluster.id === explorer.selectedClusterId) ?? null,
+    [clusters, explorer.selectedClusterId],
   );
 
   if (isLoading && !projectionData) {
@@ -142,6 +120,7 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
       hoveredPoint={explorer.hoveredPoint}
       selectedPoints={explorer.selectedPoints}
       clusterVisibility={explorer.clusterVisibility}
+      overlayVisibility={explorer.overlayVisibility}
       qaLayers={explorer.qaLayers}
       outlierIds={outlierIds}
       duplicateIds={duplicateIds}
@@ -160,14 +139,29 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
           <div className="flex items-center justify-between border-b border-[#232328] bg-[#0E0E11] px-4 py-2">
             <div className="flex items-center gap-4">
               <h2 className="text-sm font-semibold text-[#F0EDE8]">Vector Explorer</h2>
-              {overview && (
-                <span
-                  className="rounded px-2 py-0.5 text-xs"
-                  style={{ background: collectionTheme.bg, color: collectionTheme.text }}
+              <div className="flex items-center gap-2">
+                <select
+                  value={collectionName ?? ""}
+                  onChange={(event) => onCollectionChange(event.target.value)}
+                  disabled={loadingCollections}
+                  className="rounded border border-[#232328] bg-[#151518] px-2.5 py-1.5 text-sm text-[#E8E4DC] outline-none transition focus:border-[#C9A227]/50 disabled:opacity-50"
                 >
-                  {overview.name} ({(stats?.sampled ?? 0).toLocaleString()})
-                </span>
-              )}
+                  {loadingCollections ? <option value="">Loading...</option> : null}
+                  {collections.map((collection) => (
+                    <option key={collection.name} value={collection.name}>
+                      {collection.name} {collection.count != null ? `(${collection.count.toLocaleString()})` : ""}
+                    </option>
+                  ))}
+                </select>
+                {overview && (
+                  <span
+                    className="rounded px-2 py-0.5 text-xs"
+                    style={{ background: collectionTheme.bg, color: collectionTheme.text }}
+                  >
+                    {(stats?.sampled ?? 0).toLocaleString()} sampled
+                  </span>
+                )}
+              </div>
               <ModeSelector
                 activeMode={activeMode}
                 onChange={explorer.setMode}
@@ -217,87 +211,6 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
               />
             </div>
           )}
-
-          <div className="border-b border-[#232328] px-4 py-3">
-            <form onSubmit={handleProjectionSearchSubmit} className="grid gap-2 md:grid-cols-[minmax(0,1.4fr)_repeat(2,minmax(0,0.8fr))_auto_auto]">
-              <input
-                value={explorer.projectionSearchText}
-                onChange={(event) => explorer.setProjectionSearchText(event.target.value)}
-                placeholder="Filter visible points by text"
-                disabled={!isProjectionSearchAvailable}
-                className="rounded border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#C9A227]/50"
-              />
-              <select
-                value={explorer.projectionSearchSource}
-                onChange={(event) => explorer.setProjectionSearchSource(event.target.value)}
-                disabled={!isProjectionSearchAvailable}
-                className="rounded border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#C9A227]/50"
-              >
-                <option value="">All sources</option>
-                {sourceOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={explorer.projectionSearchDocType}
-                onChange={(event) => explorer.setProjectionSearchDocType(event.target.value)}
-                disabled={!isProjectionSearchAvailable}
-                className="rounded border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#C9A227]/50"
-              >
-                <option value="">All types</option>
-                {docTypeOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={explorer.projectionSearchClusterId}
-                onChange={(event) => explorer.setProjectionSearchClusterId(event.target.value)}
-                disabled={!isProjectionSearchAvailable}
-                className="rounded border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#C9A227]/50"
-              >
-                <option value="">All clusters</option>
-                {clusters.map((cluster) => (
-                  <option key={cluster.id} value={String(cluster.id)}>
-                    {cluster.label}
-                  </option>
-                ))}
-              </select>
-              <button
-                type="submit"
-                disabled={!isProjectionSearchAvailable || explorer.isProjectionSearchLoading}
-                className="rounded px-3 py-2 text-sm font-medium disabled:opacity-40"
-                style={{ background: collectionTheme.bg, color: collectionTheme.text }}
-              >
-                {explorer.isProjectionSearchLoading ? "Filtering..." : "Apply"}
-              </button>
-              <button
-                type="button"
-                onClick={explorer.clearProjectionSearch}
-                className="rounded border border-[#232328] px-3 py-2 text-sm text-[#8A857D] hover:bg-[#151518] hover:text-[#F0EDE8]"
-              >
-                Clear
-              </button>
-            </form>
-            {!isProjectionSearchAvailable && (
-              <div className="mt-2 text-xs text-[#5A5650]">
-                Projection filters are available when viewing the Solr-cached projection.
-              </div>
-            )}
-            {(explorer.projectionSearchResults || explorer.projectionSearchError) && (
-              <div className="mt-2 flex items-center justify-between text-xs">
-                <span className="text-[#5A5650]">
-                  Showing {visiblePoints.length.toLocaleString()} of {(stats?.sampled ?? 0).toLocaleString()} sampled points
-                </span>
-                {explorer.projectionSearchError && (
-                  <span className="text-[#E85A6B]">{explorer.projectionSearchError}</span>
-                )}
-              </div>
-            )}
-          </div>
 
           {activeMode === "query" && (
             <div className="border-b border-[#232328] px-4 py-3">
@@ -354,9 +267,87 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
             quality={quality}
             collectionTheme={collectionTheme}
             clusterVisibility={explorer.clusterVisibility}
+            selectedClusterId={explorer.selectedClusterId}
+            onSelectCluster={explorer.setSelectedCluster}
             onToggleCluster={explorer.toggleCluster}
             totalSampled={stats?.sampled ?? 0}
           />
+
+          <div className="space-y-1 border-t border-[#232328] pt-3">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
+              Overlays
+            </h4>
+            {[
+              {
+                key: "hulls" as const,
+                label: "Cluster hulls",
+                help: "Convex envelopes around clusters",
+                enabled: activeMode === "clusters",
+              },
+              {
+                key: "topology" as const,
+                label: "Topology lines",
+                help: "k-NN links between nearby points",
+                enabled: activeMode === "clusters",
+              },
+              {
+                key: "queryRays" as const,
+                label: "Query rays",
+                help: "Anchor-to-result similarity links",
+                enabled: activeMode === "query",
+              },
+            ].map((item) => {
+              const active = explorer.overlayVisibility[item.key];
+              return (
+                <button
+                  key={item.key}
+                  type="button"
+                  onClick={() => item.enabled && explorer.toggleOverlay(item.key)}
+                  disabled={!item.enabled}
+                  className={`flex w-full items-center justify-between rounded border px-2 py-2 text-left transition-colors ${
+                    item.enabled
+                      ? "border-[#232328] bg-[#111216] hover:bg-[#151518]"
+                      : "cursor-not-allowed border-[#232328]/60 bg-[#0E0E11] opacity-50"
+                  }`}
+                >
+                  <div className="min-w-0">
+                    <div className="text-sm text-[#C5C0B8]">{item.label}</div>
+                    <div className="text-xs text-[#5A5650]">{item.help}</div>
+                  </div>
+                  <div
+                    className={`relative h-5 w-9 rounded-full border transition-colors ${
+                      active ? "border-transparent" : "border-[#3A3630] bg-[#151518]"
+                    }`}
+                    style={
+                      active
+                        ? { background: collectionTheme.bg }
+                        : undefined
+                    }
+                  >
+                    <span
+                      className="absolute top-0.5 h-3.5 w-3.5 rounded-full transition-all"
+                      style={{
+                        left: active ? "18px" : "2px",
+                        background: active ? collectionTheme.text : "#8A857D",
+                      }}
+                    />
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {activeMode === "clusters" && (
+            <div>
+              <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
+                Cluster Profile
+              </h4>
+              <ClusterProfile
+                cluster={selectedCluster}
+                accentColor={collectionTheme.text}
+              />
+            </div>
+          )}
 
           <div>
             <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
@@ -477,84 +468,6 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
         <div className="mb-2 flex items-center gap-2 rounded bg-[#E85A6B]/10 px-2 py-1 text-xs text-[#E85A6B]">
           <WifiOff className="h-3 w-3" />
           {error}
-        </div>
-      )}
-      <form onSubmit={handleProjectionSearchSubmit} className="mb-2 grid gap-2 md:grid-cols-[minmax(0,1.4fr)_repeat(2,minmax(0,0.8fr))_auto_auto]">
-        <input
-          value={explorer.projectionSearchText}
-          onChange={(event) => explorer.setProjectionSearchText(event.target.value)}
-          placeholder="Filter visible points by text"
-          disabled={!isProjectionSearchAvailable}
-          className="rounded border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#C9A227]/50"
-        />
-        <select
-          value={explorer.projectionSearchSource}
-          onChange={(event) => explorer.setProjectionSearchSource(event.target.value)}
-          disabled={!isProjectionSearchAvailable}
-          className="rounded border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#C9A227]/50"
-        >
-          <option value="">All sources</option>
-          {sourceOptions.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
-        <select
-          value={explorer.projectionSearchDocType}
-          onChange={(event) => explorer.setProjectionSearchDocType(event.target.value)}
-          disabled={!isProjectionSearchAvailable}
-          className="rounded border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#C9A227]/50"
-        >
-          <option value="">All types</option>
-          {docTypeOptions.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
-        <select
-          value={explorer.projectionSearchClusterId}
-          onChange={(event) => explorer.setProjectionSearchClusterId(event.target.value)}
-          disabled={!isProjectionSearchAvailable}
-          className="rounded border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#C9A227]/50"
-        >
-          <option value="">All clusters</option>
-          {clusters.map((cluster) => (
-            <option key={cluster.id} value={String(cluster.id)}>
-              {cluster.label}
-            </option>
-          ))}
-        </select>
-        <button
-          type="submit"
-          disabled={!isProjectionSearchAvailable || explorer.isProjectionSearchLoading}
-          className="rounded px-3 py-2 text-sm font-medium disabled:opacity-40"
-          style={{ background: collectionTheme.bg, color: collectionTheme.text }}
-        >
-          {explorer.isProjectionSearchLoading ? "Filtering..." : "Apply"}
-        </button>
-        <button
-          type="button"
-          onClick={explorer.clearProjectionSearch}
-          className="rounded border border-[#232328] px-3 py-2 text-sm text-[#8A857D] hover:bg-[#151518] hover:text-[#F0EDE8]"
-        >
-          Clear
-        </button>
-      </form>
-      {!isProjectionSearchAvailable && (
-        <div className="mb-2 text-xs text-[#5A5650]">
-          Projection filters are available when viewing the Solr-cached projection.
-        </div>
-      )}
-      {(explorer.projectionSearchResults || explorer.projectionSearchError) && (
-        <div className="mb-2 flex items-center justify-between text-xs">
-          <span className="text-[#5A5650]">
-            Showing {visiblePoints.length.toLocaleString()} of {(stats?.sampled ?? 0).toLocaleString()} sampled points
-          </span>
-          {explorer.projectionSearchError && (
-            <span className="text-[#E85A6B]">{explorer.projectionSearchError}</span>
-          )}
         </div>
       )}
       {activeMode === "query" && (

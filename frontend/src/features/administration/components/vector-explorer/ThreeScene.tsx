@@ -26,6 +26,7 @@ interface ThreeSceneProps {
   hoveredPoint: string | null;
   selectedPoints: Set<string>;
   clusterVisibility: Map<number, boolean>;
+  overlayVisibility: { hulls: boolean; topology: boolean; queryRays: boolean };
   qaLayers: { outliers: boolean; duplicates: boolean; orphans: boolean };
   outlierIds: Set<string>;
   duplicateIds: Set<string>;
@@ -38,6 +39,7 @@ interface ThreeSceneProps {
 
 const tempObject = new THREE.Object3D();
 const tempColor = new THREE.Color();
+const ignoreRaycast: THREE.Object3D["raycast"] = () => {};
 
 function similarityFromDistance(distance: number | null | undefined): number {
   if (distance === null || distance === undefined || Number.isNaN(distance)) {
@@ -194,7 +196,7 @@ function TopologyLines({
   }
 
   return (
-    <lineSegments renderOrder={0}>
+    <lineSegments renderOrder={0} raycast={ignoreRaycast}>
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"
@@ -432,7 +434,7 @@ export default function ThreeScene(props: ThreeSceneProps) {
       dpr={[1, 2]}
     >
       <ambientLight intensity={0.8} />
-      {props.activeMode === "clusters" && (
+      {props.activeMode === "clusters" && props.overlayVisibility.hulls && (
         <ClusterHulls
           points={props.points}
           clusters={props.clusters}
@@ -440,7 +442,7 @@ export default function ThreeScene(props: ThreeSceneProps) {
           clusterVisibility={props.clusterVisibility}
         />
       )}
-      {props.activeMode === "clusters" && (
+      {props.activeMode === "clusters" && props.overlayVisibility.topology && (
         <TopologyLines
           points={props.points}
           edges={props.edges}
@@ -448,7 +450,7 @@ export default function ThreeScene(props: ThreeSceneProps) {
           collectionTheme={props.collectionTheme}
         />
       )}
-      {props.activeMode === "query" && (
+      {props.activeMode === "query" && props.overlayVisibility.queryRays && (
         <QueryVisuals
           points={props.points}
           results={props.queryItems}

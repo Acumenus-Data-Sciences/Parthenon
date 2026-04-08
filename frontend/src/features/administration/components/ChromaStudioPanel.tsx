@@ -188,7 +188,13 @@ export default function ChromaStudioPanel() {
     <div className="space-y-4">
       {/* 3D Semantic Map — front and center */}
       {overview && overview.count > 0 && (
-        <VectorExplorer collectionName={selectedCollection} overview={overview} />
+        <VectorExplorer
+          collectionName={selectedCollection}
+          overview={overview}
+          collections={collections}
+          loadingCollections={loadingCollections}
+          onCollectionChange={setSelectedCollection}
+        />
       )}
 
       {/* Header row — matches GisDataPanel pattern */}

@@ -13,6 +13,7 @@ interface ClusterHullsProps {
 
 const MIN_POINTS_FOR_HULL = 8;
 const MAX_POINTS_PER_HULL = 96;
+const ignoreRaycast: THREE.Object3D["raycast"] = () => {};
 
 function selectHullPoints(points: ProjectedPoint3D[], centroid: [number, number, number]): ProjectedPoint3D[] {
   if (points.length <= MAX_POINTS_PER_HULL) {
@@ -100,7 +101,7 @@ export default function ClusterHulls({
   return (
     <group renderOrder={-1}>
       {hulls.map((hull) => (
-        <mesh key={hull.id} geometry={hull.geometry}>
+        <mesh key={hull.id} geometry={hull.geometry} raycast={ignoreRaycast}>
           <meshBasicMaterial
             color={hull.color}
             transparent

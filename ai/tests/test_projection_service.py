@@ -9,6 +9,8 @@ from app.services.projection import (
     ProjectionResult,
     QualityReport,
     ProjectedPoint,
+    _build_cluster_summary,
+    _build_global_metadata_counters,
     cache_result,
     get_cached_projection,
     _compute_knn_edges,
@@ -116,3 +118,79 @@ def test_compute_knn_edges_handles_single_point():
     embeddings = np.array([[1.0, 0.0, 0.0]], dtype=np.float32)
 
     assert _compute_knn_edges(embeddings, ["solo"]) == []
+
+
+def test_build_cluster_summary_prefers_semantic_metadata_over_provenance():
+    """Cluster labels should prefer semantic fields like page type and domain."""
+    cluster_metas = [
+        {
+            "workspace": "platform",
+            "source_type": "pdf",
+            "page_type": "concept",
+            "primary_domain": "vocabulary-mapping",
+            "journal": "JAMIA",
+            "publication_year": "2023",
+            "title": "Vocabulary standards for oncology outcomes",
+        },
+        {
+            "workspace": "platform",
+            "source_type": "pdf",
+            "page_type": "concept",
+            "primary_domain": "vocabulary-mapping",
+            "journal": "JAMIA",
+            "publication_year": "2023",
+            "title": "Vocabulary standards for diabetes phenotypes",
+        },
+        {
+            "workspace": "platform",
+            "source_type": "pdf",
+            "page_type": "concept",
+            "primary_domain": "vocabulary-mapping",
+            "journal": "JAMIA",
+            "publication_year": "2022",
+            "title": "Vocabulary standards for asthma cohorts",
+        },
+        {
+            "workspace": "platform",
+            "source_type": "pdf",
+            "page_type": "concept",
+            "primary_domain": "vocabulary-mapping",
+            "journal": "JAMIA",
+            "publication_year": "2022",
+            "title": "Vocabulary standards for CKD cohorts",
+        },
+    ]
+    all_metas = cluster_metas + [
+        {
+            "workspace": "platform",
+            "source_type": "pdf",
+            "page_type": "analysis",
+            "primary_domain": "patient-level-prediction",
+            "journal": "OHDSI Proceedings",
+            "publication_year": "2021",
+            "title": "Model calibration for clinical risk scores",
+        },
+        {
+            "workspace": "platform",
+            "source_type": "pdf",
+            "page_type": "analysis",
+            "primary_domain": "patient-level-prediction",
+            "journal": "OHDSI Proceedings",
+            "publication_year": "2021",
+            "title": "Transportability of prediction models",
+        },
+    ]
+
+    label, summary = _build_cluster_summary(
+        cluster_metas,
+        _build_global_metadata_counters(all_metas),
+        len(all_metas),
+    )
+
+    assert label == "Concept Pages · Vocabulary Mapping"
+    assert summary is not None
+    assert summary["dominant_metadata"][0]["key"] in {"primary_domain", "page_type"}
+    assert summary["dominant_metadata"][1]["key"] in {"primary_domain", "page_type"}
+    assert all(item["key"] != "workspace" for item in summary["dominant_metadata"][:2])
+    assert all(item["key"] != "source_type" for item in summary["dominant_metadata"][:2])
+    assert summary["representative_titles"]

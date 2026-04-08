@@ -226,6 +226,9 @@ class SolrIndexVectorExplorer extends Command
                 $cid = $c['id'];
                 $statsDoc["meta_s_cluster_{$cid}_label"] = $c['label'] ?? 'Unknown';
                 $statsDoc["meta_i_cluster_{$cid}_size"] = $c['size'] ?? 0;
+                if (! empty($c['summary']) && is_array($c['summary'])) {
+                    $statsDoc["meta_t_cluster_{$cid}_summary_json"] = json_encode($c['summary'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+                }
                 if (isset($c['centroid'])) {
                     $statsDoc["meta_f_cluster_{$cid}_cx"] = $c['centroid'][0] ?? 0.0;
                     $statsDoc["meta_f_cluster_{$cid}_cy"] = $c['centroid'][1] ?? 0.0;

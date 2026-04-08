@@ -1,13 +1,79 @@
 """PCA→UMAP projection pipeline with clustering and quality detection."""
 import hashlib
 import logging
+import re
 import time
+from collections import Counter, defaultdict
 from dataclasses import dataclass
+from typing import Any
 
 import numpy as np
 from numpy.typing import NDArray
 
 logger = logging.getLogger(__name__)
+
+PAGE_TYPE_LABELS = {
+    "source_summary": "Source Summaries",
+    "entity": "Entities",
+    "concept": "Concept Pages",
+    "comparison": "Comparisons",
+    "analysis": "Analysis Pages",
+}
+
+METADATA_KEY_LABELS = {
+    "primary_domain": "Primary Domain",
+    "page_type": "Page Type",
+    "journal": "Journal",
+    "publication_year": "Publication Year",
+    "first_author": "First Author",
+    "category": "Category",
+    "type": "Type",
+    "source": "Source",
+    "source_type": "Source Type",
+    "workspace": "Workspace",
+}
+
+LABEL_PRIORITY = {
+    "primary_domain": 1.6,
+    "page_type": 1.5,
+    "category": 1.25,
+    "type": 1.15,
+    "journal": 1.1,
+    "publication_year": 1.0,
+    "first_author": 0.95,
+    "source": 0.45,
+    "source_type": 0.4,
+    "workspace": 0.35,
+}
+
+NON_LABEL_KEYS = {
+    "workspace",
+    "source",
+    "source_type",
+    "slug",
+    "source_slug",
+    "doi",
+    "authors",
+    "title",
+    "keywords",
+    "document",
+    "chunk_index",
+}
+
+SUMMARY_KEYS = (
+    "primary_domain",
+    "page_type",
+    "category",
+    "type",
+    "journal",
+    "publication_year",
+    "first_author",
+    "source",
+    "source_type",
+    "workspace",
+)
+
+GENERIC_LABEL_VALUES = {"platform", "pdf", "markdown", "jsonl", "docs", "wiki"}
 
 # ── Types ────────────────────────────────────────────────────────────────────
 
@@ -27,6 +93,7 @@ class Cluster:
     label: str
     centroid: list[float]
     size: int
+    summary: dict[str, Any] | None = None
 
 
 @dataclass
@@ -223,34 +290,204 @@ def _compute_clusters(
     km = KMeans(n_clusters=best_k, random_state=42, n_init=10)
     labels = km.fit_predict(projected)
 
+    global_counters = _build_global_metadata_counters(metadatas)
     clusters = []
     for cid in range(best_k):
         mask = labels == cid
         cluster_metas = [metadatas[i] for i in range(n) if mask[i]]
-        label = _generate_cluster_label(cluster_metas)
+        label, summary = _build_cluster_summary(cluster_metas, global_counters, n)
         centroid = km.cluster_centers_[cid].tolist()
         clusters.append(Cluster(
             id=cid,
             label=label,
             centroid=centroid,
             size=int(mask.sum()),
+            summary=summary,
         ))
 
     return clusters
 
 
-def _generate_cluster_label(metadatas: list[dict]) -> str:
-    """Auto-label from most common metadata value across all fields."""
-    from collections import Counter
-    counter: Counter[str] = Counter()
+def _build_global_metadata_counters(metadatas: list[dict]) -> dict[str, Counter[str]]:
+    counters: dict[str, Counter[str]] = {}
     for meta in metadatas:
-        for v in meta.values():
-            if isinstance(v, str) and len(v) < 50:
-                counter[v] += 1
-    if counter:
-        label, _ = counter.most_common(1)[0]
-        return label
-    return "Unknown"
+        for key, value in meta.items():
+            normalized = _normalize_metadata_value(key, value)
+            if normalized is None:
+                continue
+            counters.setdefault(key, Counter())[normalized] += 1
+    return counters
+
+
+def _build_cluster_summary(
+    metadatas: list[dict],
+    global_counters: dict[str, Counter[str]],
+    total_samples: int,
+) -> tuple[str, dict[str, Any] | None]:
+    cluster_size = len(metadatas)
+    if cluster_size == 0:
+        return "Unknown", None
+
+    cluster_counters: dict[str, Counter[str]] = defaultdict(Counter)
+    title_counter: Counter[str] = Counter()
+
+    for meta in metadatas:
+        for key, value in meta.items():
+            normalized = _normalize_metadata_value(key, value)
+            if normalized is None:
+                continue
+            cluster_counters[key][normalized] += 1
+
+        title = _normalize_metadata_value("title", meta.get("title"), for_title=True)
+        if title is not None:
+            title_counter[title] += 1
+
+    dominant_metadata: list[dict[str, Any]] = []
+    for key in SUMMARY_KEYS:
+        counter = cluster_counters.get(key)
+        if not counter:
+            continue
+
+        value, count = counter.most_common(1)[0]
+        share = count / cluster_size
+        global_count = global_counters.get(key, Counter()).get(value, 0)
+        global_share = global_count / max(total_samples, 1)
+        lift = share / max(global_share, 1 / max(total_samples, 1))
+        score = share * min(lift, 4.0) * LABEL_PRIORITY.get(key, 0.75)
+
+        dominant_metadata.append({
+            "key": key,
+            "label": METADATA_KEY_LABELS.get(key, _humanize_token(key)),
+            "value": value,
+            "display_value": _format_metadata_value(key, value),
+            "count": count,
+            "percentage": round(share * 100, 1),
+            "score": round(score, 4),
+        })
+
+    dominant_metadata.sort(key=lambda item: (-float(item["score"]), -float(item["percentage"]), str(item["key"])))
+    representative_titles = [title for title, _ in title_counter.most_common(3)]
+    label, used_keys = _generate_cluster_label(dominant_metadata)
+
+    subtitle_parts: list[str] = []
+    for item in dominant_metadata:
+        key = str(item["key"])
+        if key in used_keys:
+            continue
+
+        display_value = str(item["display_value"])
+        percentage = float(item["percentage"])
+
+        if key in {"journal", "first_author"}:
+            subtitle_parts.append(display_value)
+        elif key == "publication_year":
+            subtitle_parts.append(f"{display_value} cohort")
+        elif key in {"page_type", "primary_domain", "category", "type"}:
+            subtitle_parts.append(f"{percentage:.0f}% {display_value}")
+
+        if len(subtitle_parts) >= 2:
+            break
+
+    if not subtitle_parts:
+        for item in dominant_metadata:
+            key = str(item["key"])
+            if key in used_keys:
+                subtitle_parts.append(f"{float(item['percentage']):.0f}% {item['display_value']}")
+            if len(subtitle_parts) >= 2:
+                break
+
+    summary = {
+        "subtitle": " · ".join(subtitle_parts),
+        "dominant_metadata": [
+            {k: v for k, v in item.items() if k != "score"}
+            for item in dominant_metadata[:6]
+        ],
+        "representative_titles": representative_titles,
+    }
+    return label, summary
+
+
+def _generate_cluster_label(dominant_metadata: list[dict[str, Any]]) -> tuple[str, set[str]]:
+    by_key = {str(item["key"]): item for item in dominant_metadata}
+
+    page_type = by_key.get("page_type")
+    primary_domain = by_key.get("primary_domain")
+    category = by_key.get("category")
+    doc_type = by_key.get("type")
+
+    if page_type and primary_domain:
+        return (
+            f"{page_type['display_value']} · {primary_domain['display_value']}",
+            {"page_type", "primary_domain"},
+        )
+
+    if category and doc_type:
+        return (
+            f"{category['display_value']} · {doc_type['display_value']}",
+            {"category", "type"},
+        )
+
+    label_candidates = [
+        item
+        for item in dominant_metadata
+        if str(item["key"]) not in NON_LABEL_KEYS
+        and str(item["value"]).strip().lower() not in GENERIC_LABEL_VALUES
+    ]
+    if label_candidates:
+        best = label_candidates[0]
+        used_keys = {str(best["key"])}
+        if len(label_candidates) > 1 and float(best["percentage"]) < 75:
+            second = label_candidates[1]
+            if str(second["key"]) != str(best["key"]) and float(second["percentage"]) >= 35:
+                used_keys.add(str(second["key"]))
+                return f"{best['display_value']} · {second['display_value']}", used_keys
+        return str(best["display_value"]), used_keys
+
+    fallback = dominant_metadata[0] if dominant_metadata else None
+    if fallback:
+        return str(fallback["display_value"]), {str(fallback["key"])}
+    return "Unknown", set()
+
+
+def _normalize_metadata_value(key: str, value: Any, *, for_title: bool = False) -> str | None:
+    if value is None:
+        return None
+
+    normalized: str
+    if isinstance(value, bool):
+        normalized = "true" if value else "false"
+    elif isinstance(value, int):
+        normalized = str(value)
+    elif isinstance(value, float):
+        normalized = str(int(value)) if value.is_integer() else f"{value:.2f}".rstrip("0").rstrip(".")
+    elif isinstance(value, str):
+        normalized = re.sub(r"\s+", " ", value).strip()
+    else:
+        return None
+
+    if not normalized:
+        return None
+
+    max_length = 160 if for_title or key == "title" else 80
+    if len(normalized) > max_length:
+        return None
+
+    return normalized
+
+
+def _format_metadata_value(key: str, value: str) -> str:
+    if key == "page_type":
+        return PAGE_TYPE_LABELS.get(value, _humanize_token(value))
+    if key == "primary_domain":
+        return _humanize_token(value)
+    if key in {"category", "type", "source_type", "source"}:
+        return _humanize_token(value)
+    return value
+
+
+def _humanize_token(value: str) -> str:
+    cleaned = value.replace("_", " ").replace("-", " ").strip()
+    return cleaned.title() if cleaned else value
 
 
 def _detect_quality_issues(

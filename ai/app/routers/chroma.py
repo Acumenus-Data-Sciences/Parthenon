@@ -505,7 +505,13 @@ def _result_to_dict(result: ProjectionResult) -> dict:
             for edge in result.edges
         ],
         "clusters": [
-            {"id": c.id, "label": c.label, "centroid": c.centroid, "size": c.size}
+            {
+                "id": c.id,
+                "label": c.label,
+                "centroid": c.centroid,
+                "size": c.size,
+                "summary": c.summary,
+            }
             for c in result.clusters
         ],
         "quality": {

@@ -82,11 +82,27 @@ export interface ProjectedPoint3D {
   cluster_id: number;
 }
 
+export interface ClusterMetadataSummary {
+  key: string;
+  label: string;
+  value: string;
+  display_value: string;
+  count: number;
+  percentage: number;
+}
+
+export interface ClusterSummary {
+  subtitle?: string | null;
+  dominant_metadata: ClusterMetadataSummary[];
+  representative_titles: string[];
+}
+
 export interface ClusterInfo {
   id: number;
   label: string;
   centroid: [number, number, number];
   size: number;
+  summary?: ClusterSummary | null;
 }
 
 export interface ProjectionEdge {
