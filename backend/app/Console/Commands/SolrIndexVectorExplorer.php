@@ -17,6 +17,8 @@ class SolrIndexVectorExplorer extends Command
 
     private const SOLR_BATCH_SIZE = 500;
 
+    private const MAX_DOCUMENT_TEXT_LENGTH = 4000;
+
     public function handle(SolrClientWrapper $solr): int
     {
         if (! $solr->isEnabled()) {
@@ -79,6 +81,13 @@ class SolrIndexVectorExplorer extends Command
             ]);
 
             if (! $projResponse->successful()) {
+                $detail = $projResponse->json('detail') ?? $projResponse->body();
+                if ($projResponse->status() === 400 && str_contains((string) $detail, 'Collection is empty')) {
+                    $this->warn("  Skipping '{$name}': collection is empty.");
+
+                    continue;
+                }
+
                 $this->warn("  Failed to project '{$name}': ".$projResponse->body());
                 $totalErrors++;
 
@@ -87,6 +96,7 @@ class SolrIndexVectorExplorer extends Command
 
             $projection = $projResponse->json();
             $points = $projection['points'] ?? [];
+            $edges = $projection['edges'] ?? [];
             $clusters = $projection['clusters'] ?? [];
             $quality = $projection['quality'] ?? [];
             $stats = $projection['stats'] ?? [];
@@ -101,6 +111,7 @@ class SolrIndexVectorExplorer extends Command
             $outlierSet = array_flip($quality['outlier_ids'] ?? []);
             $orphanSet = array_flip($quality['orphan_ids'] ?? []);
             $duplicateMap = $this->buildDuplicateMap($quality['duplicate_pairs'] ?? []);
+            $edgeMap = $this->buildEdgeMap($edges);
             $clusterLabelMap = [];
             foreach ($clusters as $c) {
                 $clusterLabelMap[$c['id']] = $c['label'] ?? 'Unknown';
@@ -123,11 +134,19 @@ class SolrIndexVectorExplorer extends Command
                     'cluster_label' => $clusterLabelMap[$point['cluster_id'] ?? 0] ?? 'Unknown',
                     'is_outlier' => isset($outlierSet[$chromaId]),
                     'is_orphan' => isset($orphanSet[$chromaId]),
+                    'meta_i_projection_dimensions' => 3,
                 ];
 
                 // Duplicate references
                 if (isset($duplicateMap[$chromaId])) {
                     $doc['duplicate_of'] = $duplicateMap[$chromaId];
+                }
+
+                if (isset($edgeMap[$chromaId])) {
+                    foreach (array_slice($edgeMap[$chromaId], 0, 5) as $index => $edge) {
+                        $doc["meta_s_edge_{$index}_target"] = $edge['target'];
+                        $doc["meta_f_edge_{$index}_similarity"] = $edge['similarity'];
+                    }
                 }
 
                 // Map metadata to Solr fields
@@ -145,7 +164,7 @@ class SolrIndexVectorExplorer extends Command
                     $doc['title'] = (string) $meta['title'];
                 }
                 if (isset($meta['document'])) {
-                    $doc['document_text'] = (string) $meta['document'];
+                    $doc['document_text'] = mb_substr((string) $meta['document'], 0, self::MAX_DOCUMENT_TEXT_LENGTH);
                 }
 
                 // Dynamic metadata fields
@@ -195,6 +214,10 @@ class SolrIndexVectorExplorer extends Command
                 'num_outliers' => count($quality['outlier_ids'] ?? []),
                 'num_duplicates' => count($quality['duplicate_pairs'] ?? []),
                 'num_orphans' => count($quality['orphan_ids'] ?? []),
+                'num_edges' => count($edges),
+                'meta_i_projection_dimensions' => 3,
+                'meta_i_requested_sample_size' => $sampleSize,
+                'meta_i_knn_neighbors' => (int) ($stats['knn_neighbors'] ?? 0),
                 'indexed_at' => now()->toIso8601String(),
             ];
 
@@ -210,15 +233,23 @@ class SolrIndexVectorExplorer extends Command
                 }
             }
 
-            $solr->addDocuments($core, [$statsDoc]);
+            if (! $solr->addDocuments($core, [$statsDoc])) {
+                $this->warn("  Failed to index stats doc for '{$name}'");
+                $totalErrors++;
 
-            $totalIndexed += $indexed;
+                continue;
+            }
+
+            $totalIndexed += $indexed + 1;
             $this->info("  Indexed {$indexed} points + stats for '{$name}'");
         }
 
         // Commit
         $this->info('Committing...');
-        $solr->commit($core);
+        if (! $solr->commit($core)) {
+            $this->warn('Solr commit failed.');
+            $totalErrors++;
+        }
 
         $elapsed = round(microtime(true) - $startTime, 1);
         $docCount = $solr->documentCount($core);
@@ -266,6 +297,30 @@ class SolrIndexVectorExplorer extends Command
                 $map[$pair[0]][] = $pair[1];
                 $map[$pair[1]][] = $pair[0];
             }
+        }
+
+        return $map;
+    }
+
+    /**
+     * @param  array<int, array{source_id: string, target_id: string, similarity: float|int}>  $edges
+     * @return array<string, list<array{target: string, similarity: float}>>
+     */
+    private function buildEdgeMap(array $edges): array
+    {
+        $map = [];
+
+        foreach ($edges as $edge) {
+            $source = (string) ($edge['source_id'] ?? '');
+            $target = (string) ($edge['target_id'] ?? '');
+            $similarity = (float) ($edge['similarity'] ?? 0.0);
+
+            if ($source === '' || $target === '') {
+                continue;
+            }
+
+            $map[$source][] = ['target' => $target, 'similarity' => $similarity];
+            $map[$target][] = ['target' => $source, 'similarity' => $similarity];
         }
 
         return $map;

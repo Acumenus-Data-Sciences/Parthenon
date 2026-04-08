@@ -1109,6 +1109,8 @@ Route::prefix('v1')->group(function () {
                 Route::post('/seed-faq', [ChromaStudioController::class, 'seedFaq']);
                 Route::post('/aggregate-conversations', [ChromaStudioController::class, 'aggregateConversations']);
                 Route::post('/collections/{name}/project', [ChromaStudioController::class, 'projectCollection']);
+                Route::get('/collections/{name}/projection-search', [ChromaStudioController::class, 'searchProjectionPoints']);
+                Route::get('/collections/{name}/projection-point', [ChromaStudioController::class, 'projectionPoint']);
             });
 
             // ── Vocabulary management (super-admin only) ──────────────────

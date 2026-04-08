@@ -8,6 +8,7 @@ import hashlib
 import json
 import logging
 import re
+import csv
 from pathlib import Path
 from typing import Any
 
@@ -18,6 +19,7 @@ from app.chroma.collections import (
     get_medical_textbooks_collection,
     get_ohdsi_papers_collection,
 )
+from app.chroma.quality import audit_document
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +29,14 @@ MARKDOWN_HEADERS = [
     ("###", "h3"),
 ]
 _UPPERCASE_TITLE_WORDS = {"cdm", "dna", "faq", "fda", "hgvs", "hipaa", "ncbi", "ohdsi", "omop", "rna"}
+_IGNORED_DOC_PATH_PARTS = {
+    "node_modules",
+    ".docusaurus",
+    "build",
+    "dist",
+    ".next",
+    ".vitepress",
+}
 
 
 def _upsert_resilient(
@@ -189,6 +199,28 @@ def chunk_markdown(
     ]
 
 
+def _should_skip_docs_path(relative_path: str) -> bool:
+    """Skip generated/vendor docs that should never be embedded."""
+    parts = set(Path(relative_path).parts)
+    return any(part in parts for part in _IGNORED_DOC_PATH_PARTS)
+
+
+def _attach_audit_metadata(
+    metadata: dict[str, str | int | float | bool],
+    *,
+    result: Any,
+) -> None:
+    """Persist the audit verdict so retrieval can filter/debug low-trust chunks."""
+    metadata["ingest_disposition"] = result.disposition
+    metadata["ingest_reasons"] = ", ".join(result.reasons[:8])
+    metadata["ingest_metadata_score"] = round(result.scores.metadata_score, 3)
+    metadata["ingest_relevance_score"] = round(result.scores.relevance_score, 3)
+    metadata["ingest_boilerplate_score"] = round(result.scores.boilerplate_score, 3)
+    metadata["ingest_noise_score"] = round(result.scores.noise_score, 3)
+    if result.quality_score is not None:
+        metadata["ingest_source_quality_score"] = round(result.quality_score, 3)
+
+
 def ingest_docs_directory(docs_dir: str) -> dict[str, int]:
     """Ingest all markdown files from a directory into the docs collection.
 
@@ -197,7 +229,7 @@ def ingest_docs_directory(docs_dir: str) -> dict[str, int]:
     """
     collection = get_docs_collection()
     docs_path = Path(docs_dir)
-    stats = {"ingested": 0, "skipped": 0, "chunks": 0}
+    stats = {"ingested": 0, "skipped": 0, "chunks": 0, "rejected": 0, "review": 0}
 
     if not docs_path.exists():
         logger.warning("Docs directory not found: %s", docs_dir)
@@ -207,6 +239,11 @@ def ingest_docs_directory(docs_dir: str) -> dict[str, int]:
     logger.info("Found %d markdown files in %s", len(md_files), docs_dir)
 
     for filepath in md_files:
+        relative_path = str(filepath.relative_to(docs_path))
+        if _should_skip_docs_path(relative_path):
+            stats["skipped"] += 1
+            continue
+
         try:
             text = filepath.read_text(encoding="utf-8")
         except OSError as e:
@@ -214,7 +251,21 @@ def ingest_docs_directory(docs_dir: str) -> dict[str, int]:
             continue
 
         file_hash = content_hash(text)
-        relative_path = str(filepath.relative_to(docs_path))
+
+        audit_result = audit_document(
+            target_collection="docs",
+            source_kind="markdown",
+            source_id=relative_path,
+            path=str(filepath),
+            text=text,
+            metadata={"title": _extract_markdown_title(text, relative_path)},
+        )
+        if audit_result.disposition == "reject":
+            stats["rejected"] += 1
+            logger.info("Skipping rejected docs source %s: %s", relative_path, audit_result.reasons)
+            continue
+        if audit_result.disposition == "review":
+            stats["review"] += 1
 
         # Check if any existing chunk has this file hash (means unchanged)
         existing = collection.get(
@@ -237,7 +288,7 @@ def ingest_docs_directory(docs_dir: str) -> dict[str, int]:
 
         ids = [f"{relative_path}::{i}::{file_hash}" for i in range(len(chunks))]
         metadatas: list[dict[str, str | int | float | bool]] = [
-            {
+            dict({
                 "source": relative_path,
                 "source_file": relative_path,
                 "title": chunk["title"],
@@ -247,9 +298,11 @@ def ingest_docs_directory(docs_dir: str) -> dict[str, int]:
                 "chunk_index": i,
                 "total_chunks": len(chunks),
                 "version": file_hash[:8],
-            }
+            })
             for i, chunk in enumerate(chunks)
         ]
+        for metadata in metadatas:
+            _attach_audit_metadata(metadata, result=audit_result)
 
         _upsert_resilient(
             collection,
@@ -306,12 +359,12 @@ def ingest_ohdsi_corpus(
         import fitz  # pymupdf
     except ImportError:
         logger.error("pymupdf required for PDF ingestion. Install with: pip install pymupdf")
-        return {"ingested": 0, "skipped": 0, "chunks": 0, "errors": 0}
+        return {"ingested": 0, "skipped": 0, "chunks": 0, "errors": 0, "rejected": 0, "review": 0}
 
     collection = get_ohdsi_papers_collection()
     corpus_path = Path(corpus_dir)
     pdf_dir = corpus_path / "pdfs"
-    stats = {"ingested": 0, "skipped": 0, "chunks": 0, "errors": 0}
+    stats = {"ingested": 0, "skipped": 0, "chunks": 0, "errors": 0, "rejected": 0, "review": 0}
 
     if not pdf_dir.exists():
         logger.warning("PDF directory not found: %s", pdf_dir)
@@ -364,6 +417,27 @@ def ingest_ohdsi_corpus(
             # Get metadata for this paper
             meta = paper_metadata.get(pdf_path.name, {})
 
+            audit_result = audit_document(
+                target_collection="ohdsi_papers",
+                source_kind="pdf",
+                source_id=pdf_path.name,
+                path=str(pdf_path),
+                text=text,
+                metadata={
+                    "title": meta.get("title"),
+                    "doi": meta.get("doi"),
+                    "year": meta.get("year"),
+                    "journal": meta.get("journal"),
+                    "authors": meta.get("authors"),
+                },
+            )
+            if audit_result.disposition == "reject":
+                logger.info("Skipping rejected OHDSI PDF %s: %s", pdf_path.name, audit_result.reasons)
+                stats["rejected"] += 1
+                continue
+            if audit_result.disposition == "review":
+                stats["review"] += 1
+
             # Chunk the text
             chunks = chunk_plain_text(text)
             if not chunks:
@@ -384,6 +458,7 @@ def ingest_ohdsi_corpus(
                     chunk_meta["doi"] = str(meta["doi"])
                 if meta.get("year"):
                     chunk_meta["year"] = int(meta["year"])
+                _attach_audit_metadata(chunk_meta, result=audit_result)
 
                 batch_ids.append(chunk_id)
                 batch_docs.append(chunk)
@@ -465,7 +540,7 @@ def _ingest_markdown_source(
     batch_size: int = 32,
 ) -> dict[str, int]:
     """Ingest markdown files from a directory into the ohdsi_papers collection."""
-    stats = {"ingested": 0, "skipped": 0, "chunks": 0, "errors": 0}
+    stats = {"ingested": 0, "skipped": 0, "chunks": 0, "errors": 0, "rejected": 0, "review": 0}
 
     if not source_dir.exists():
         logger.warning("Source directory not found: %s", source_dir)
@@ -529,6 +604,26 @@ def _ingest_markdown_source(
         # Prefer the relative path to avoid collisions like multiple README.md files.
         file_meta = manifest_meta.get(relative_path, {}) or manifest_meta.get(filepath.name, {})
 
+        audit_result = audit_document(
+            target_collection="ohdsi_papers",
+            source_kind="markdown",
+            source_id=f"{source_tag}:{relative_path}",
+            path=str(filepath),
+            text=text,
+            metadata={
+                "title": file_meta.get("title") or _extract_markdown_title(text, relative_path),
+                "package": file_meta.get("package"),
+                "year": file_meta.get("year"),
+                "quality_score": file_meta.get("quality_score"),
+            },
+        )
+        if audit_result.disposition == "reject":
+            logger.info("Skipping rejected OHDSI knowledge source %s: %s", relative_path, audit_result.reasons)
+            stats["rejected"] += 1
+            continue
+        if audit_result.disposition == "review":
+            stats["review"] += 1
+
         for j, chunk in enumerate(chunks):
             chunk_id = f"{source_tag}::{relative_path}::{j}::{file_hash}"
             chunk_meta: dict[str, str | int | float | bool] = {
@@ -551,6 +646,7 @@ def _ingest_markdown_source(
                 chunk_meta["year"] = int(file_meta["year"])
             if file_meta.get("quality_score"):
                 chunk_meta["quality_score"] = float(file_meta["quality_score"])
+            _attach_audit_metadata(chunk_meta, result=audit_result)
 
             batch_ids.append(chunk_id)
             batch_docs.append(chunk["text"])
@@ -625,7 +721,7 @@ def ingest_medical_textbooks(
     """
     collection = get_medical_textbooks_collection()
     tb_path = Path(textbooks_dir)
-    stats = {"ingested": 0, "skipped": 0, "chunks": 0, "errors": 0}
+    stats = {"ingested": 0, "skipped": 0, "chunks": 0, "errors": 0, "rejected": 0, "review": 0}
 
     if not tb_path.exists():
         logger.warning("Textbooks directory not found: %s", tb_path)
@@ -659,6 +755,11 @@ def ingest_medical_textbooks(
 
             lines = [ln for ln in file_text.strip().split("\n") if ln.strip()]
             chunk_count = 0
+            sample_text_parts: list[str] = []
+            representative_meta: dict[str, str | int | float | bool] = {}
+            file_batch_ids: list[str] = []
+            file_batch_docs: list[str] = []
+            file_batch_metas: list[dict[str, str | int | float | bool]] = []
 
             for line in lines:
                 try:
@@ -670,6 +771,11 @@ def ingest_medical_textbooks(
                 meta = doc.get("metadata", {})
                 if len(text) < 100:
                     continue
+                if len(sample_text_parts) < 40:
+                    sample_text_parts.append(text)
+                for key in ("title", "category", "tier", "priority"):
+                    if meta.get(key) is not None and key not in representative_meta:
+                        representative_meta[key] = meta[key]
 
                 chunk_id = f"textbook::{source_key}::{meta.get('chunk_index', chunk_count)}::{file_hash}"
                 chunk_meta: dict[str, str | int | float | bool] = {
@@ -687,14 +793,36 @@ def ingest_medical_textbooks(
                 if meta.get("tier") is not None:
                     chunk_meta["tier"] = int(meta["tier"])
 
-                batch_ids.append(chunk_id)
-                batch_docs.append(text)
-                batch_metas.append(chunk_meta)
+                file_batch_ids.append(chunk_id)
+                file_batch_docs.append(text)
+                file_batch_metas.append(chunk_meta)
                 chunk_count += 1
 
-                if len(batch_ids) >= batch_size:
-                    _upsert_resilient(collection, batch_ids, batch_docs, batch_metas, batch_size)
-                    batch_ids, batch_docs, batch_metas = [], [], []
+            final_audit = audit_document(
+                target_collection="medical_textbooks",
+                source_kind="jsonl",
+                source_id=source_key,
+                path=str(filepath),
+                text="\n\n".join(sample_text_parts),
+                metadata=representative_meta,
+            )
+            if final_audit.disposition == "reject":
+                stats["rejected"] += 1
+                logger.info("Skipping rejected textbook %s: %s", filepath.name, final_audit.reasons)
+                continue
+            if final_audit.disposition == "review":
+                stats["review"] += 1
+
+            for chunk_meta in file_batch_metas:
+                _attach_audit_metadata(chunk_meta, result=final_audit)
+
+            batch_ids.extend(file_batch_ids)
+            batch_docs.extend(file_batch_docs)
+            batch_metas.extend(file_batch_metas)
+
+            if len(batch_ids) >= batch_size:
+                _upsert_resilient(collection, batch_ids, batch_docs, batch_metas, batch_size)
+                batch_ids, batch_docs, batch_metas = [], [], []
 
             stats["ingested"] += 1
             stats["chunks"] += chunk_count
@@ -734,5 +862,30 @@ def _load_harvester_metadata(metadata_dir: Path) -> dict[str, dict]:
             except Exception as e:
                 logger.warning("Failed to load %s: %s", state_file, e)
             break
+
+    if papers_by_filename:
+        return papers_by_filename
+
+    metadata_csv = metadata_dir.parent / "metadata.csv"
+    if metadata_csv.exists():
+        try:
+            with metadata_csv.open("r", encoding="utf-8", newline="") as handle:
+                for row in csv.DictReader(handle):
+                    filename = str(row.get("Filename") or "").strip()
+                    if not filename:
+                        continue
+                    papers_by_filename[filename] = {
+                        "title": row.get("Title") or row.get("PDF Title") or "",
+                        "doi": row.get("DOI") or "",
+                        "year": row.get("Publication Year") or "",
+                        "journal": row.get("Journal") or "",
+                        "authors": row.get("Authors") or "",
+                        "first_author": row.get("First Author") or "",
+                        "pmid": row.get("PMID") or "",
+                        "pmcid": row.get("PMCID") or "",
+                    }
+            logger.info("Loaded metadata from %s: %d papers", metadata_csv, len(papers_by_filename))
+        except Exception as e:
+            logger.warning("Failed to load %s: %s", metadata_csv, e)
 
     return papers_by_filename

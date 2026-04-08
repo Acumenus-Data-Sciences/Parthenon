@@ -352,11 +352,12 @@ class ProjectionInput(BaseModel):
     sample_size: int = 5000
     method: str = "pca-umap"
     dimensions: int = 3
+    refresh: bool = False
 
 
 @router.post("/collections/{name}/project")
 async def project_collection(name: str, body: ProjectionInput) -> dict:
-    """Compute 3D projection with clustering and quality analysis."""
+    """Compute 2D/3D projection with clustering and quality analysis."""
     if body.method != "pca-umap":
         raise HTTPException(status_code=400, detail="Only 'pca-umap' method is supported.")
     if body.dimensions not in (2, 3):
@@ -383,9 +384,10 @@ async def project_collection(name: str, body: ProjectionInput) -> dict:
         raise HTTPException(status_code=400, detail="Collection is empty.")
 
     # Check cache
-    cached = get_cached_projection(name, body.sample_size, total_count)
-    if cached is not None:
-        return _result_to_dict(cached)
+    if not body.refresh:
+        cached = get_cached_projection(name, body.sample_size, total_count, body.dimensions)
+        if cached is not None:
+            return _result_to_dict(cached)
 
     # For large collections, fetch only IDs first then sample before fetching embeddings.
     # This prevents OOM on collections with 100K+ vectors.
@@ -486,7 +488,7 @@ async def project_collection(name: str, body: ProjectionInput) -> dict:
     result.stats["sampled"] = len(ids)
 
     # Cache
-    cache_result(name, body.sample_size, total_count, result)
+    cache_result(name, body.sample_size, total_count, result, body.dimensions)
 
     return _result_to_dict(result)
 
@@ -497,6 +499,10 @@ def _result_to_dict(result: ProjectionResult) -> dict:
         "points": [
             {"id": p.id, "x": p.x, "y": p.y, "z": p.z, "metadata": p.metadata, "cluster_id": p.cluster_id}
             for p in result.points
+        ],
+        "edges": [
+            {"source_id": edge.source_id, "target_id": edge.target_id, "similarity": edge.similarity}
+            for edge in result.edges
         ],
         "clusters": [
             {"id": c.id, "label": c.label, "centroid": c.centroid, "size": c.size}

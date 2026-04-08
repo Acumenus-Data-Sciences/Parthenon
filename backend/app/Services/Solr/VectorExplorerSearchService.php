@@ -21,8 +21,16 @@ class VectorExplorerSearchService
      *
      * @return array{points: list<array<string, mixed>>, clusters: list<array<string, mixed>>, quality: array<string, mixed>, stats: array<string, mixed>}|null
      */
-    public function getProjection(string $collectionName): ?array
-    {
+    public function getProjection(
+        string $collectionName,
+        ?int $requestedSampleSize = null,
+        int $dimensions = 3,
+        ?string $colorField = null,
+    ): ?array {
+        if ($dimensions !== 3) {
+            return null;
+        }
+
         $core = config('solr.cores.vector_explorer', 'vector_explorer');
 
         // Fetch stats doc first to get metadata
@@ -31,6 +39,7 @@ class VectorExplorerSearchService
             'fq' => [
                 'collection_name:"'.addcslashes($collectionName, '"\\').'"',
                 'is_stats_doc:true',
+                'meta_i_projection_dimensions:'.$dimensions,
             ],
             'rows' => 1,
             'fl' => '*',
@@ -46,8 +55,44 @@ class VectorExplorerSearchService
         }
 
         $statsDoc = $statsDocs[0];
+        $totalVectors = (int) ($statsDoc['total_vectors'] ?? 0);
+        $sampled = (int) ($statsDoc['sampled'] ?? 0);
+
+        if ($requestedSampleSize !== null) {
+            $requestedEffectiveSample = $requestedSampleSize === 0
+                ? $totalVectors
+                : $requestedSampleSize;
+            $matchesRequestedSample = $sampled > 0 && (
+                ($requestedEffectiveSample >= $totalVectors && $sampled === $totalVectors)
+                || $requestedEffectiveSample === $sampled
+            );
+
+            if (! $matchesRequestedSample) {
+                return null;
+            }
+        }
 
         // Fetch all points (non-stats docs)
+        $pointFields = [
+            'chroma_id',
+            'x',
+            'y',
+            'z',
+            'cluster_id',
+            'is_outlier',
+            'is_orphan',
+            'duplicate_of',
+            'source',
+            'doc_type',
+            'category',
+            'title',
+        ];
+        $dynamicColorFields = $this->resolveDynamicColorFields($colorField);
+        $pointFields = [...$pointFields, ...$dynamicColorFields];
+        for ($i = 0; $i < 5; $i++) {
+            $pointFields[] = "meta_s_edge_{$i}_target";
+            $pointFields[] = "meta_f_edge_{$i}_similarity";
+        }
         $pointsResult = $this->solr->select($core, [
             'q' => '*:*',
             'fq' => [
@@ -55,7 +100,7 @@ class VectorExplorerSearchService
                 '-is_stats_doc:true',
             ],
             'rows' => 50000,
-            'fl' => 'chroma_id,x,y,z,cluster_id,cluster_label,is_outlier,is_orphan,duplicate_of,source,doc_type,category,title,document_text,meta_s_*,meta_i_*,meta_f_*',
+            'fl' => implode(',', $pointFields),
             'sort' => 'cluster_id asc',
         ]);
 
@@ -67,10 +112,12 @@ class VectorExplorerSearchService
 
         // Transform Solr docs to projection format
         $points = [];
+        $edges = [];
         $outlierIds = [];
         $orphanIds = [];
         $duplicatePairs = [];
         $seenDuplicates = [];
+        $seenEdges = [];
 
         foreach ($rawPoints as $doc) {
             $chromaId = $doc['chroma_id'] ?? '';
@@ -89,15 +136,12 @@ class VectorExplorerSearchService
             if (isset($doc['title'])) {
                 $metadata['title'] = $doc['title'];
             }
-            if (isset($doc['document_text'])) {
-                $metadata['document'] = $doc['document_text'];
-            }
-
-            // Dynamic metadata
-            foreach ($doc as $key => $value) {
-                if (str_starts_with($key, 'meta_s_') || str_starts_with($key, 'meta_i_') || str_starts_with($key, 'meta_f_')) {
-                    $originalKey = substr($key, 7);
-                    $metadata[$originalKey] = $value;
+            if ($colorField !== null) {
+                foreach ($dynamicColorFields as $dynamicColorField) {
+                    if (isset($doc[$dynamicColorField])) {
+                        $metadata[$colorField] = $doc[$dynamicColorField];
+                        break;
+                    }
                 }
             }
 
@@ -127,6 +171,26 @@ class VectorExplorerSearchService
                     }
                 }
             }
+
+            for ($i = 0; $i < 5; $i++) {
+                $target = $doc["meta_s_edge_{$i}_target"] ?? null;
+                $similarity = $doc["meta_f_edge_{$i}_similarity"] ?? null;
+                if (! is_string($target) || $target === '' || $similarity === null) {
+                    continue;
+                }
+
+                $pairKey = $chromaId < $target ? "{$chromaId}:{$target}" : "{$target}:{$chromaId}";
+                if (isset($seenEdges[$pairKey])) {
+                    continue;
+                }
+                $seenEdges[$pairKey] = true;
+                [$sourceId, $targetId] = $chromaId < $target ? [$chromaId, $target] : [$target, $chromaId];
+                $edges[] = [
+                    'source_id' => $sourceId,
+                    'target_id' => $targetId,
+                    'similarity' => (float) $similarity,
+                ];
+            }
         }
 
         // Rebuild clusters from stats doc dynamic fields
@@ -149,6 +213,7 @@ class VectorExplorerSearchService
 
         return [
             'points' => $points,
+            'edges' => $edges,
             'clusters' => $clusters,
             'quality' => [
                 'outlier_ids' => $outlierIds,
@@ -156,13 +221,117 @@ class VectorExplorerSearchService
                 'orphan_ids' => $orphanIds,
             ],
             'stats' => [
-                'total_vectors' => (int) ($statsDoc['total_vectors'] ?? count($points)),
-                'sampled' => (int) ($statsDoc['sampled'] ?? count($points)),
+                'total_vectors' => $totalVectors ?: count($points),
+                'sampled' => $sampled ?: count($points),
                 'projection_time_ms' => (int) ($statsDoc['projection_time_ms'] ?? 0),
                 'source' => 'solr',
+                'dimensions' => (int) ($statsDoc['meta_i_projection_dimensions'] ?? $dimensions),
+                'knn_neighbors' => (int) ($statsDoc['meta_i_knn_neighbors'] ?? 0),
+                'num_edges' => (int) ($statsDoc['num_edges'] ?? count($edges)),
                 'indexed_at' => $statsDoc['indexed_at'] ?? null,
             ],
         ];
+    }
+
+    /**
+     * Fetch full metadata for a single projected point.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function getPointDetails(string $collectionName, string $pointId): ?array
+    {
+        $core = config('solr.cores.vector_explorer', 'vector_explorer');
+
+        $result = $this->solr->select($core, [
+            'q' => '*:*',
+            'fq' => [
+                'collection_name:"'.addcslashes($collectionName, '"\\').'"',
+                'chroma_id:"'.addcslashes($pointId, '"\\').'"',
+                '-is_stats_doc:true',
+            ],
+            'rows' => 1,
+            'fl' => '*',
+        ]);
+
+        if ($result === null) {
+            return null;
+        }
+
+        $doc = $result['response']['docs'][0] ?? null;
+        if (! is_array($doc)) {
+            return null;
+        }
+
+        return [
+            'id' => $doc['chroma_id'] ?? $pointId,
+            'x' => (float) ($doc['x'] ?? 0),
+            'y' => (float) ($doc['y'] ?? 0),
+            'z' => (float) ($doc['z'] ?? 0),
+            'cluster_id' => (int) ($doc['cluster_id'] ?? 0),
+            'metadata' => $this->buildFullMetadata($doc),
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function resolveDynamicColorFields(?string $colorField): array
+    {
+        if ($colorField === null || $colorField === '') {
+            return [];
+        }
+
+        if (! preg_match('/^[A-Za-z0-9_]+$/', $colorField)) {
+            return [];
+        }
+
+        if (in_array($colorField, ['source', 'type', 'category', 'title'], true)) {
+            return [];
+        }
+
+        return [
+            "meta_s_{$colorField}",
+            "meta_i_{$colorField}",
+            "meta_f_{$colorField}",
+            "meta_t_{$colorField}",
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildFullMetadata(array $doc): array
+    {
+        $metadata = array_filter([
+            'source' => $doc['source'] ?? null,
+            'type' => $doc['doc_type'] ?? null,
+            'category' => $doc['category'] ?? null,
+            'title' => $doc['title'] ?? null,
+            'document' => $doc['document_text'] ?? null,
+        ], static fn ($value) => $value !== null && $value !== '');
+
+        $internalMetaFields = [
+            'meta_i_projection_dimensions',
+        ];
+
+        foreach ($doc as $key => $value) {
+            if (str_starts_with($key, 'meta_s_edge_') || str_starts_with($key, 'meta_f_edge_')) {
+                continue;
+            }
+
+            if (! str_starts_with($key, 'meta_s_') && ! str_starts_with($key, 'meta_i_') && ! str_starts_with($key, 'meta_f_') && ! str_starts_with($key, 'meta_t_')) {
+                continue;
+            }
+
+            if (in_array($key, $internalMetaFields, true)) {
+                continue;
+            }
+
+            $originalKey = substr($key, 7);
+            $metadata[$originalKey] = $value;
+        }
+
+        return $metadata;
     }
 
     /**

@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, type FormEvent } from "react";
 import { createPortal } from "react-dom";
 import { Maximize2, Minimize2, Loader2, WifiOff, RefreshCw } from "lucide-react";
 import { Panel } from "@/components/ui";
@@ -7,11 +7,12 @@ import { useVectorExplorer } from "./useVectorExplorer";
 import ThreeScene from "./ThreeScene";
 import ModeSelector from "./ModeSelector";
 import SampleSlider from "./SampleSlider";
+import DimensionToggle from "./DimensionToggle";
 import ColorLegend from "./ColorLegend";
 import PointInspector from "./PointInspector";
 import MetadataColorPicker from "./MetadataColorPicker";
 import QualitySummary from "./QualitySummary";
-import { getCollectionTheme } from "./constants";
+import { getAdaptiveSampleSteps, getCollectionTheme } from "./constants";
 
 interface VectorExplorerProps {
   collectionName: string | null;
@@ -19,9 +20,13 @@ interface VectorExplorerProps {
 }
 
 export default function VectorExplorer({ collectionName, overview }: VectorExplorerProps) {
-  const explorer = useVectorExplorer(collectionName);
+  const explorer = useVectorExplorer(collectionName, overview?.count);
   const { projectionData, activeMode, isExpanded, isLoading, isFallback, error } = explorer;
   const collectionTheme = useMemo(() => getCollectionTheme(collectionName), [collectionName]);
+  const sampleSteps = useMemo(
+    () => getAdaptiveSampleSteps(overview?.count ?? 0),
+    [overview?.count],
+  );
 
   const outlierIds = useMemo(
     () => new Set(projectionData?.quality.outlier_ids ?? []),
@@ -38,6 +43,66 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
   const orphanIds = useMemo(
     () => new Set(projectionData?.quality.orphan_ids ?? []),
     [projectionData?.quality.orphan_ids],
+  );
+  const sourceOptions = useMemo(() => {
+    const overviewFacet = overview?.facets.find((facet) => facet.key === "source");
+    const searchFacet = explorer.projectionSearchResults?.facets.source;
+    return Array.from(
+      new Set([
+        ...(overviewFacet?.values.map((value) => value.label) ?? []),
+        ...Object.keys(searchFacet ?? {}),
+      ]),
+    ).sort();
+  }, [overview?.facets, explorer.projectionSearchResults?.facets.source]);
+  const docTypeOptions = useMemo(() => {
+    const overviewFacet = overview?.facets.find((facet) => facet.key === "type");
+    const searchFacet = explorer.projectionSearchResults?.facets.doc_type;
+    return Array.from(
+      new Set([
+        ...(overviewFacet?.values.map((value) => value.label) ?? []),
+        ...Object.keys(searchFacet ?? {}),
+      ]),
+    ).sort();
+  }, [overview?.facets, explorer.projectionSearchResults?.facets.doc_type]);
+
+  function handleQuerySubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    explorer.runQuery();
+  }
+
+  function handleProjectionSearchSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!isProjectionSearchAvailable) {
+      explorer.clearProjectionSearch();
+      return;
+    }
+    explorer.runProjectionSearch();
+  }
+
+  const allPoints = projectionData?.points ?? [];
+  const clusters = projectionData?.clusters ?? [];
+  const quality = projectionData?.quality ?? null;
+  const stats = projectionData?.stats ?? null;
+  const isProjectionSearchAvailable = stats?.source === "solr";
+  const filteredPointIds = isProjectionSearchAvailable && explorer.projectionSearchResults
+    ? new Set(explorer.projectionSearchResults.points.map((point) => point.id))
+    : null;
+  const points = filteredPointIds
+    ? allPoints.filter((point) => filteredPointIds.has(point.id))
+    : allPoints;
+  const visiblePoints = useMemo(
+    () => points.filter((point) => explorer.clusterVisibility.get(point.cluster_id) ?? true),
+    [points, explorer.clusterVisibility],
+  );
+  const visibleQueryCount = useMemo(() => {
+    const pointIds = new Set(visiblePoints.map((point) => point.id));
+    return (explorer.queryResults?.items ?? []).filter((item) => pointIds.has(item.id)).length;
+  }, [visiblePoints, explorer.queryResults?.items]);
+  const edgeCount = stats?.num_edges ?? projectionData?.edges.length ?? 0;
+  const inspectorPoints = useMemo(
+    () =>
+      visiblePoints.map((point) => explorer.pointDetailsById[point.id] ?? point),
+    [explorer.pointDetailsById, visiblePoints],
   );
 
   if (isLoading && !projectionData) {
@@ -66,14 +131,10 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
     );
   }
 
-  const points = projectionData?.points ?? [];
-  const clusters = projectionData?.clusters ?? [];
-  const quality = projectionData?.quality ?? null;
-  const stats = projectionData?.stats ?? null;
-
   const sceneContent = (
     <ThreeScene
-      points={points}
+      points={visiblePoints}
+      edges={projectionData?.edges ?? []}
       clusters={clusters}
       activeMode={isFallback ? "clusters" : activeMode}
       collectionTheme={collectionTheme}
@@ -85,6 +146,7 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
       outlierIds={outlierIds}
       duplicateIds={duplicateIds}
       orphanIds={orphanIds}
+      queryItems={explorer.queryResults?.items ?? []}
       isExpanded={isExpanded}
       onHover={explorer.setHoveredPoint}
       onSelect={explorer.selectPoint}
@@ -116,8 +178,17 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
               />
             </div>
             <div className="flex items-center gap-3">
+              <DimensionToggle
+                value={explorer.dimensions}
+                onChange={explorer.setDimensions}
+                accentColor={collectionTheme.text}
+                accentBg={collectionTheme.bg}
+                disabled={isFallback}
+                disabledTooltip="Requires AI service connection"
+              />
               <SampleSlider
                 value={explorer.sampleSize}
+                steps={sampleSteps}
                 onChange={explorer.setSampleSize}
                 accentColor={collectionTheme.text}
                 accentBg={collectionTheme.bg}
@@ -144,6 +215,116 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
                 qaLayers={explorer.qaLayers}
                 onToggle={explorer.toggleQaLayer}
               />
+            </div>
+          )}
+
+          <div className="border-b border-[#232328] px-4 py-3">
+            <form onSubmit={handleProjectionSearchSubmit} className="grid gap-2 md:grid-cols-[minmax(0,1.4fr)_repeat(2,minmax(0,0.8fr))_auto_auto]">
+              <input
+                value={explorer.projectionSearchText}
+                onChange={(event) => explorer.setProjectionSearchText(event.target.value)}
+                placeholder="Filter visible points by text"
+                disabled={!isProjectionSearchAvailable}
+                className="rounded border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#C9A227]/50"
+              />
+              <select
+                value={explorer.projectionSearchSource}
+                onChange={(event) => explorer.setProjectionSearchSource(event.target.value)}
+                disabled={!isProjectionSearchAvailable}
+                className="rounded border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#C9A227]/50"
+              >
+                <option value="">All sources</option>
+                {sourceOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={explorer.projectionSearchDocType}
+                onChange={(event) => explorer.setProjectionSearchDocType(event.target.value)}
+                disabled={!isProjectionSearchAvailable}
+                className="rounded border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#C9A227]/50"
+              >
+                <option value="">All types</option>
+                {docTypeOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={explorer.projectionSearchClusterId}
+                onChange={(event) => explorer.setProjectionSearchClusterId(event.target.value)}
+                disabled={!isProjectionSearchAvailable}
+                className="rounded border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#C9A227]/50"
+              >
+                <option value="">All clusters</option>
+                {clusters.map((cluster) => (
+                  <option key={cluster.id} value={String(cluster.id)}>
+                    {cluster.label}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="submit"
+                disabled={!isProjectionSearchAvailable || explorer.isProjectionSearchLoading}
+                className="rounded px-3 py-2 text-sm font-medium disabled:opacity-40"
+                style={{ background: collectionTheme.bg, color: collectionTheme.text }}
+              >
+                {explorer.isProjectionSearchLoading ? "Filtering..." : "Apply"}
+              </button>
+              <button
+                type="button"
+                onClick={explorer.clearProjectionSearch}
+                className="rounded border border-[#232328] px-3 py-2 text-sm text-[#8A857D] hover:bg-[#151518] hover:text-[#F0EDE8]"
+              >
+                Clear
+              </button>
+            </form>
+            {!isProjectionSearchAvailable && (
+              <div className="mt-2 text-xs text-[#5A5650]">
+                Projection filters are available when viewing the Solr-cached projection.
+              </div>
+            )}
+            {(explorer.projectionSearchResults || explorer.projectionSearchError) && (
+              <div className="mt-2 flex items-center justify-between text-xs">
+                <span className="text-[#5A5650]">
+                  Showing {visiblePoints.length.toLocaleString()} of {(stats?.sampled ?? 0).toLocaleString()} sampled points
+                </span>
+                {explorer.projectionSearchError && (
+                  <span className="text-[#E85A6B]">{explorer.projectionSearchError}</span>
+                )}
+              </div>
+            )}
+          </div>
+
+          {activeMode === "query" && (
+            <div className="border-b border-[#232328] px-4 py-3">
+              <form onSubmit={handleQuerySubmit} className="flex items-center gap-2">
+                <input
+                  value={explorer.queryText}
+                  onChange={(event) => explorer.setQueryText(event.target.value)}
+                  placeholder="Search within the vector space"
+                  className="flex-1 rounded border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#C9A227]/50"
+                />
+                <button
+                  type="submit"
+                  disabled={explorer.isQueryLoading || explorer.queryText.trim().length === 0}
+                  className="rounded px-3 py-2 text-sm font-medium disabled:opacity-40"
+                  style={{ background: collectionTheme.bg, color: collectionTheme.text }}
+                >
+                  {explorer.isQueryLoading ? "Searching..." : "Search"}
+                </button>
+              </form>
+              <div className="mt-2 flex items-center justify-between text-xs">
+                <span className="text-[#5A5650]">
+                  {visibleQueryCount} of {(explorer.queryResults?.items.length ?? 0).toLocaleString()} results visible in this projection
+                </span>
+                {explorer.queryError && (
+                  <span className="text-[#E85A6B]">{explorer.queryError}</span>
+                )}
+              </div>
             </div>
           )}
 
@@ -182,12 +363,14 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
               Inspector
             </h4>
             <PointInspector
-              points={points}
+              points={inspectorPoints}
               selectedIds={explorer.selectedPoints}
               accentColor={collectionTheme.text}
               outlierIds={outlierIds}
               duplicateIds={duplicateIds}
               orphanIds={orphanIds}
+              loadingIds={explorer.pointDetailsLoadingIds}
+              error={explorer.pointDetailsError}
             />
           </div>
 
@@ -206,12 +389,30 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
                 </span>
               </div>
               <div className="flex justify-between text-xs">
-                <span className="text-[#5A5650]">Source</span>
+                <span className="text-[#5A5650]">Projection</span>
                 <span className="font-['IBM_Plex_Mono',monospace] text-[#8A857D]">
-                  {stats.source === "solr" ? "Solr (cached)" : "Live UMAP"}
+                  {explorer.dimensions}D
                 </span>
               </div>
-              {stats.source !== "solr" && (
+              {stats.knn_neighbors ? (
+                <div className="flex justify-between text-xs">
+                  <span className="text-[#5A5650]">k-NN graph</span>
+                  <span className="font-['IBM_Plex_Mono',monospace] text-[#8A857D]">
+                    k={stats.knn_neighbors} · {edgeCount.toLocaleString()} edges
+                  </span>
+                </div>
+              ) : null}
+              <div className="flex justify-between text-xs">
+                <span className="text-[#5A5650]">Source</span>
+                <span className="font-['IBM_Plex_Mono',monospace] text-[#8A857D]">
+                  {stats.source === "solr"
+                    ? "Solr (cached)"
+                    : stats.source === "fallback"
+                      ? "Client fallback"
+                      : "Live UMAP"}
+                </span>
+              </div>
+              {stats.source !== "solr" && stats.source !== "fallback" && (
                 <div className="flex justify-between text-xs">
                   <span className="text-[#5A5650]">Projection time</span>
                   <span className="font-['IBM_Plex_Mono',monospace] text-[#8A857D]">
@@ -238,12 +439,18 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
   return (
     <Panel>
       <div className="mb-2 flex items-center justify-between">
-        <h3 className="text-base font-semibold text-[#F0EDE8]">3D Semantic Map</h3>
+        <h3 className="text-base font-semibold text-[#F0EDE8]">
+          {explorer.dimensions}D Semantic Map
+        </h3>
         <div className="flex items-center gap-2">
           {stats && (
             <span className="text-xs text-[#5A5650]">
               {stats.sampled.toLocaleString()} pts
-              {stats.source === "solr" ? " · cached" : ` · ${(stats.projection_time_ms / 1000).toFixed(1)}s`}
+              {stats.source === "solr"
+                ? " · cached"
+                : stats.source === "fallback"
+                  ? " · fallback"
+                  : ` · ${(stats.projection_time_ms / 1000).toFixed(1)}s`}
             </span>
           )}
           {isLoading && <Loader2 className="h-3 w-3 animate-spin" style={{ color: collectionTheme.accent }} />}
@@ -270,6 +477,112 @@ export default function VectorExplorer({ collectionName, overview }: VectorExplo
         <div className="mb-2 flex items-center gap-2 rounded bg-[#E85A6B]/10 px-2 py-1 text-xs text-[#E85A6B]">
           <WifiOff className="h-3 w-3" />
           {error}
+        </div>
+      )}
+      <form onSubmit={handleProjectionSearchSubmit} className="mb-2 grid gap-2 md:grid-cols-[minmax(0,1.4fr)_repeat(2,minmax(0,0.8fr))_auto_auto]">
+        <input
+          value={explorer.projectionSearchText}
+          onChange={(event) => explorer.setProjectionSearchText(event.target.value)}
+          placeholder="Filter visible points by text"
+          disabled={!isProjectionSearchAvailable}
+          className="rounded border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#C9A227]/50"
+        />
+        <select
+          value={explorer.projectionSearchSource}
+          onChange={(event) => explorer.setProjectionSearchSource(event.target.value)}
+          disabled={!isProjectionSearchAvailable}
+          className="rounded border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#C9A227]/50"
+        >
+          <option value="">All sources</option>
+          {sourceOptions.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+        <select
+          value={explorer.projectionSearchDocType}
+          onChange={(event) => explorer.setProjectionSearchDocType(event.target.value)}
+          disabled={!isProjectionSearchAvailable}
+          className="rounded border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#C9A227]/50"
+        >
+          <option value="">All types</option>
+          {docTypeOptions.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+        <select
+          value={explorer.projectionSearchClusterId}
+          onChange={(event) => explorer.setProjectionSearchClusterId(event.target.value)}
+          disabled={!isProjectionSearchAvailable}
+          className="rounded border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#C9A227]/50"
+        >
+          <option value="">All clusters</option>
+          {clusters.map((cluster) => (
+            <option key={cluster.id} value={String(cluster.id)}>
+              {cluster.label}
+            </option>
+          ))}
+        </select>
+        <button
+          type="submit"
+          disabled={!isProjectionSearchAvailable || explorer.isProjectionSearchLoading}
+          className="rounded px-3 py-2 text-sm font-medium disabled:opacity-40"
+          style={{ background: collectionTheme.bg, color: collectionTheme.text }}
+        >
+          {explorer.isProjectionSearchLoading ? "Filtering..." : "Apply"}
+        </button>
+        <button
+          type="button"
+          onClick={explorer.clearProjectionSearch}
+          className="rounded border border-[#232328] px-3 py-2 text-sm text-[#8A857D] hover:bg-[#151518] hover:text-[#F0EDE8]"
+        >
+          Clear
+        </button>
+      </form>
+      {!isProjectionSearchAvailable && (
+        <div className="mb-2 text-xs text-[#5A5650]">
+          Projection filters are available when viewing the Solr-cached projection.
+        </div>
+      )}
+      {(explorer.projectionSearchResults || explorer.projectionSearchError) && (
+        <div className="mb-2 flex items-center justify-between text-xs">
+          <span className="text-[#5A5650]">
+            Showing {visiblePoints.length.toLocaleString()} of {(stats?.sampled ?? 0).toLocaleString()} sampled points
+          </span>
+          {explorer.projectionSearchError && (
+            <span className="text-[#E85A6B]">{explorer.projectionSearchError}</span>
+          )}
+        </div>
+      )}
+      {activeMode === "query" && (
+        <form onSubmit={handleQuerySubmit} className="mb-2 flex items-center gap-2">
+          <input
+            value={explorer.queryText}
+            onChange={(event) => explorer.setQueryText(event.target.value)}
+            placeholder="Search within the vector space"
+            className="flex-1 rounded border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#C9A227]/50"
+          />
+          <button
+            type="submit"
+            disabled={explorer.isQueryLoading || explorer.queryText.trim().length === 0}
+            className="rounded px-3 py-2 text-sm font-medium disabled:opacity-40"
+            style={{ background: collectionTheme.bg, color: collectionTheme.text }}
+          >
+            {explorer.isQueryLoading ? "Searching..." : "Search"}
+          </button>
+        </form>
+      )}
+      {activeMode === "query" && (explorer.queryError || explorer.queryResults) && (
+        <div className="mb-2 flex items-center justify-between text-xs text-[#5A5650]">
+          <span>
+            {visibleQueryCount} of {(explorer.queryResults?.items.length ?? 0).toLocaleString()} results visible in this projection
+          </span>
+          {explorer.queryError && (
+            <span className="text-[#E85A6B]">{explorer.queryError}</span>
+          )}
         </div>
       )}
       <div className="h-[500px] rounded-lg border" style={{ borderColor: collectionTheme.border }}>

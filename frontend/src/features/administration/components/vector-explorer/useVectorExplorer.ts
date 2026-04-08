@@ -1,13 +1,44 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { fetchProjection } from "../../api/chromaStudioApi";
-import type { ProjectionResponse } from "../../api/chromaStudioApi";
-import { DEFAULT_SAMPLE_SIZE, DEBOUNCE_MS, type ExplorerMode } from "./constants";
+import {
+  fetchProjection,
+  fetchProjectionPointDetails,
+  queryCollection,
+  searchProjectionPoints,
+} from "../../api/chromaStudioApi";
+import type {
+  ProjectionResponse,
+  ProjectionSearchResponse,
+  QueryResponse,
+} from "../../api/chromaStudioApi";
+import {
+  DEFAULT_SAMPLE_SIZE,
+  DEBOUNCE_MS,
+  getRecommendedSampleSize,
+  type ExplorerMode,
+} from "./constants";
+
+const BASE_PROJECTION_METADATA_FIELDS = new Set(["source", "type", "category", "title"]);
 
 export interface VectorExplorerState {
   projectionData: ProjectionResponse | null;
   activeMode: ExplorerMode;
   sampleSize: number;
+  dimensions: 2 | 3;
+  projectionSearchText: string;
+  projectionSearchSource: string;
+  projectionSearchDocType: string;
+  projectionSearchClusterId: string;
+  projectionSearchResults: ProjectionSearchResponse | null;
+  isProjectionSearchLoading: boolean;
+  projectionSearchError: string | null;
+  queryText: string;
+  queryResults: QueryResponse | null;
+  isQueryLoading: boolean;
+  queryError: string | null;
   colorField: string | null;
+  pointDetailsById: Record<string, ProjectionResponse["points"][number]>;
+  pointDetailsLoadingIds: Set<string>;
+  pointDetailsError: string | null;
   selectedPoints: Set<string>;
   hoveredPoint: string | null;
   isExpanded: boolean;
@@ -18,12 +49,28 @@ export interface VectorExplorerState {
   error: string | null;
 }
 
-export function useVectorExplorer(collectionName: string | null) {
+export function useVectorExplorer(collectionName: string | null, collectionSize?: number | null) {
+  const initialSampleSize = collectionSize ? getRecommendedSampleSize(collectionSize) : DEFAULT_SAMPLE_SIZE;
   const [state, setState] = useState<VectorExplorerState>({
     projectionData: null,
     activeMode: "clusters",
-    sampleSize: DEFAULT_SAMPLE_SIZE,
+    sampleSize: initialSampleSize,
+    dimensions: 3,
+    projectionSearchText: "",
+    projectionSearchSource: "",
+    projectionSearchDocType: "",
+    projectionSearchClusterId: "",
+    projectionSearchResults: null,
+    isProjectionSearchLoading: false,
+    projectionSearchError: null,
+    queryText: "",
+    queryResults: null,
+    isQueryLoading: false,
+    queryError: null,
     colorField: null,
+    pointDetailsById: {},
+    pointDetailsLoadingIds: new Set(),
+    pointDetailsError: null,
     selectedPoints: new Set(),
     hoveredPoint: null,
     isExpanded: false,
@@ -36,9 +83,16 @@ export function useVectorExplorer(collectionName: string | null) {
 
   const abortRef = useRef<AbortController | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const sampleSizeRef = useRef(initialSampleSize);
+  const dimensionsRef = useRef<2 | 3>(3);
+  const colorFieldRef = useRef<string | null>(null);
 
-  const loadProjection = useCallback(
-    async (sampleSize: number) => {
+  const loadProjectionWithOptions = useCallback(
+    async (
+      sampleSize: number,
+      dimensions: 2 | 3,
+      options?: { forceRefresh?: boolean },
+    ) => {
       if (!collectionName) return;
 
       abortRef.current?.abort();
@@ -50,7 +104,13 @@ export function useVectorExplorer(collectionName: string | null) {
       try {
         const data = await fetchProjection(
           collectionName,
-          { sample_size: sampleSize, method: "pca-umap", dimensions: 3 },
+          {
+            sample_size: sampleSize,
+            method: "pca-umap",
+            dimensions,
+            refresh: options?.forceRefresh,
+            color_field: colorFieldRef.current ?? undefined,
+          },
           controller.signal,
         );
 
@@ -62,11 +122,12 @@ export function useVectorExplorer(collectionName: string | null) {
         }
 
         setState((s) => ({
-          ...s,
-          projectionData: data,
-          isLoading: false,
-          clusterVisibility: visibility,
-        }));
+      ...s,
+      projectionData: data,
+      isLoading: false,
+      clusterVisibility: visibility,
+      pointDetailsError: null,
+    }));
       } catch (err: unknown) {
         // Axios throws CanceledError (not DOMException) when AbortController fires
         const isCanceled =
@@ -109,9 +170,15 @@ export function useVectorExplorer(collectionName: string | null) {
               ...s,
               projectionData: {
                 points: fallbackPoints,
+                edges: [],
                 clusters: [],
                 quality: { outlier_ids: [], duplicate_pairs: [], orphan_ids: [] },
-                stats: { total_vectors: overview.count, sampled: records.length, projection_time_ms: 0 },
+                stats: {
+                  total_vectors: overview.count,
+                  sampled: records.length,
+                  projection_time_ms: 0,
+                  source: "fallback",
+                },
               },
               isLoading: false,
               isFallback: true,
@@ -134,30 +201,337 @@ export function useVectorExplorer(collectionName: string | null) {
   );
 
   useEffect(() => {
-    if (collectionName) {
-      loadProjection(state.sampleSize);
+    if (!collectionName) {
+      return () => {
+        abortRef.current?.abort();
+      };
     }
+
+    const nextSampleSize = collectionSize ? getRecommendedSampleSize(collectionSize) : DEFAULT_SAMPLE_SIZE;
+    sampleSizeRef.current = nextSampleSize;
+    dimensionsRef.current = 3;
+    colorFieldRef.current = null;
+    setState((s) => ({
+      ...s,
+      projectionData: null,
+      activeMode: "clusters",
+      sampleSize: nextSampleSize,
+      dimensions: 3,
+      projectionSearchText: "",
+      projectionSearchSource: "",
+      projectionSearchDocType: "",
+      projectionSearchClusterId: "",
+      projectionSearchResults: null,
+      isProjectionSearchLoading: false,
+      projectionSearchError: null,
+      queryText: "",
+      queryResults: null,
+      isQueryLoading: false,
+      queryError: null,
+      colorField: null,
+      pointDetailsById: {},
+      pointDetailsLoadingIds: new Set(),
+      pointDetailsError: null,
+      selectedPoints: new Set(),
+      hoveredPoint: null,
+      clusterVisibility: new Map(),
+      error: null,
+      isFallback: false,
+    }));
+    loadProjectionWithOptions(nextSampleSize, 3);
+
     return () => {
       abortRef.current?.abort();
+      if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [collectionName]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [collectionName, collectionSize, loadProjectionWithOptions]);
+
+  useEffect(() => {
+    if (!collectionName || state.projectionData?.stats?.source !== "solr" || state.selectedPoints.size === 0) {
+      return;
+    }
+
+    const missingIds = Array.from(state.selectedPoints).filter(
+      (id) => !(id in state.pointDetailsById) && !state.pointDetailsLoadingIds.has(id),
+    );
+
+    if (missingIds.length === 0) {
+      return;
+    }
+
+    let cancelled = false;
+
+    setState((s) => ({
+      ...s,
+      pointDetailsError: null,
+      pointDetailsLoadingIds: new Set([...s.pointDetailsLoadingIds, ...missingIds]),
+    }));
+
+    Promise.all(
+      missingIds.map(async (id) => ({
+        id,
+        detail: await fetchProjectionPointDetails(collectionName, id),
+      })),
+    )
+      .then((results) => {
+        if (cancelled) {
+          return;
+        }
+
+        setState((s) => {
+          const pointDetailsById = { ...s.pointDetailsById };
+          const pointDetailsLoadingIds = new Set(s.pointDetailsLoadingIds);
+
+          for (const result of results) {
+            pointDetailsById[result.id] = result.detail;
+            pointDetailsLoadingIds.delete(result.id);
+          }
+
+          return {
+            ...s,
+            pointDetailsById,
+            pointDetailsLoadingIds,
+          };
+        });
+      })
+      .catch((err: unknown) => {
+        if (cancelled) {
+          return;
+        }
+
+        const axiosErr = err as { response?: { data?: { error?: string } }; message?: string };
+        const pointDetailsError =
+          axiosErr?.response?.data?.error || axiosErr?.message || "Failed to load point details.";
+
+        setState((s) => {
+          const pointDetailsLoadingIds = new Set(s.pointDetailsLoadingIds);
+          for (const id of missingIds) {
+            pointDetailsLoadingIds.delete(id);
+          }
+
+          return {
+            ...s,
+            pointDetailsLoadingIds,
+            pointDetailsError,
+          };
+        });
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    collectionName,
+    state.pointDetailsById,
+    state.pointDetailsLoadingIds,
+    state.projectionData?.stats?.source,
+    state.selectedPoints,
+  ]);
 
   const setSampleSize = useCallback(
     (size: number) => {
-      setState((s) => ({ ...s, sampleSize: size }));
+      if (size === sampleSizeRef.current) {
+        return;
+      }
+      sampleSizeRef.current = size;
+      setState((s) => ({
+        ...s,
+        sampleSize: size,
+        projectionSearchResults: null,
+        projectionSearchError: null,
+      }));
       if (debounceRef.current) clearTimeout(debounceRef.current);
-      debounceRef.current = setTimeout(() => loadProjection(size), DEBOUNCE_MS);
+      debounceRef.current = setTimeout(
+        () => loadProjectionWithOptions(size, dimensionsRef.current),
+        DEBOUNCE_MS,
+      );
     },
-    [loadProjection],
+    [loadProjectionWithOptions],
   );
 
   const setMode = useCallback((mode: ExplorerMode) => {
     setState((s) => ({ ...s, activeMode: mode, colorField: null }));
   }, []);
 
-  const setColorField = useCallback((field: string | null) => {
-    setState((s) => ({ ...s, colorField: field }));
+  const setColorField = useCallback(
+    (field: string | null) => {
+      if (colorFieldRef.current === field) {
+        return;
+      }
+      colorFieldRef.current = field;
+      setState((s) => (s.colorField === field ? s : { ...s, colorField: field }));
+
+      if (field && !BASE_PROJECTION_METADATA_FIELDS.has(field)) {
+        loadProjectionWithOptions(sampleSizeRef.current, dimensionsRef.current);
+      }
+    },
+    [loadProjectionWithOptions],
+  );
+
+  const setQueryText = useCallback((queryText: string) => {
+    setState((s) => ({ ...s, queryText }));
   }, []);
+
+  const setProjectionSearchText = useCallback((projectionSearchText: string) => {
+    setState((s) => ({ ...s, projectionSearchText }));
+  }, []);
+
+  const setProjectionSearchSource = useCallback((projectionSearchSource: string) => {
+    setState((s) => ({ ...s, projectionSearchSource }));
+  }, []);
+
+  const setProjectionSearchDocType = useCallback((projectionSearchDocType: string) => {
+    setState((s) => ({ ...s, projectionSearchDocType }));
+  }, []);
+
+  const setProjectionSearchClusterId = useCallback((projectionSearchClusterId: string) => {
+    setState((s) => ({ ...s, projectionSearchClusterId }));
+  }, []);
+
+  const runProjectionSearch = useCallback(async () => {
+    if (!collectionName) {
+      return;
+    }
+
+    if (state.projectionData?.stats?.source !== "solr") {
+      setState((s) => ({
+        ...s,
+        projectionSearchResults: null,
+        isProjectionSearchLoading: false,
+        projectionSearchError: "Projection filtering is available on Solr-cached projections.",
+      }));
+      return;
+    }
+
+    const query = state.projectionSearchText.trim();
+    const source = state.projectionSearchSource.trim();
+    const docType = state.projectionSearchDocType.trim();
+    const clusterId = state.projectionSearchClusterId.trim();
+    const hasFilters = query.length > 0 || source.length > 0 || docType.length > 0 || clusterId.length > 0;
+
+    if (!hasFilters) {
+      setState((s) => ({
+        ...s,
+        projectionSearchResults: null,
+        projectionSearchError: null,
+        isProjectionSearchLoading: false,
+      }));
+      return;
+    }
+
+    setState((s) => ({
+      ...s,
+      isProjectionSearchLoading: true,
+      projectionSearchError: null,
+    }));
+
+    try {
+      const projectionSearchResults = await searchProjectionPoints(collectionName, {
+        query: query || undefined,
+        source: source || undefined,
+        doc_type: docType || undefined,
+        cluster_id: clusterId.length > 0 ? Number(clusterId) : undefined,
+        limit: Math.min(10000, state.projectionData?.stats?.sampled ?? 5000),
+      });
+
+      setState((s) => ({
+        ...s,
+        projectionSearchResults,
+        isProjectionSearchLoading: false,
+      }));
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { error?: string } }; message?: string };
+      const projectionSearchError =
+        axiosErr?.response?.data?.error || axiosErr?.message || "Projection search failed.";
+      setState((s) => ({
+        ...s,
+        isProjectionSearchLoading: false,
+        projectionSearchError,
+      }));
+    }
+  }, [
+    collectionName,
+    state.projectionSearchText,
+    state.projectionSearchSource,
+    state.projectionSearchDocType,
+    state.projectionSearchClusterId,
+    state.projectionData?.stats?.sampled,
+    state.projectionData?.stats?.source,
+  ]);
+
+  const clearProjectionSearch = useCallback(() => {
+    setState((s) => ({
+      ...s,
+      projectionSearchText: "",
+      projectionSearchSource: "",
+      projectionSearchDocType: "",
+      projectionSearchClusterId: "",
+      projectionSearchResults: null,
+      projectionSearchError: null,
+      isProjectionSearchLoading: false,
+    }));
+  }, []);
+
+  const runQuery = useCallback(
+    async (nextQueryText?: string) => {
+      const queryText = (nextQueryText ?? state.queryText).trim();
+      if (!collectionName || queryText.length === 0) {
+        setState((s) => ({ ...s, queryResults: null, queryError: null }));
+        return;
+      }
+
+      setState((s) => ({
+        ...s,
+        queryText,
+        isQueryLoading: true,
+        queryError: null,
+      }));
+
+      try {
+        const queryResults = await queryCollection({
+          collectionName,
+          queryText,
+          nResults: 12,
+        });
+
+        setState((s) => ({
+          ...s,
+          queryText,
+          queryResults,
+          isQueryLoading: false,
+        }));
+      } catch (err: unknown) {
+        const axiosErr = err as { response?: { data?: { error?: string } }; message?: string };
+        const queryError =
+          axiosErr?.response?.data?.error || axiosErr?.message || "Semantic query failed.";
+
+        setState((s) => ({
+          ...s,
+          isQueryLoading: false,
+          queryError,
+          queryResults: null,
+        }));
+      }
+    },
+    [collectionName, state.queryText],
+  );
+
+  const setDimensions = useCallback(
+    (dimensions: 2 | 3) => {
+      if (dimensions === dimensionsRef.current) {
+        return;
+      }
+      dimensionsRef.current = dimensions;
+      setState((s) => ({
+        ...s,
+        dimensions,
+        projectionSearchResults: null,
+        projectionSearchError: null,
+      }));
+      loadProjectionWithOptions(sampleSizeRef.current, dimensions);
+    },
+    [loadProjectionWithOptions],
+  );
 
   const setExpanded = useCallback((expanded: boolean) => {
     setState((s) => ({ ...s, isExpanded: expanded }));
@@ -176,7 +550,7 @@ export function useVectorExplorer(collectionName: string | null) {
   }, []);
 
   const setHoveredPoint = useCallback((id: string | null) => {
-    setState((s) => ({ ...s, hoveredPoint: id }));
+    setState((s) => (s.hoveredPoint === id ? s : { ...s, hoveredPoint: id }));
   }, []);
 
   const toggleCluster = useCallback((clusterId: number) => {
@@ -195,14 +569,30 @@ export function useVectorExplorer(collectionName: string | null) {
   }, []);
 
   const refresh = useCallback(() => {
-    loadProjection(state.sampleSize);
-  }, [loadProjection, state.sampleSize]);
+    setState((s) => ({
+      ...s,
+      projectionSearchResults: null,
+      projectionSearchError: null,
+    }));
+    loadProjectionWithOptions(sampleSizeRef.current, dimensionsRef.current, {
+      forceRefresh: true,
+    });
+  }, [loadProjectionWithOptions]);
 
   return {
     ...state,
     setSampleSize,
     setMode,
     setColorField,
+    setProjectionSearchText,
+    setProjectionSearchSource,
+    setProjectionSearchDocType,
+    setProjectionSearchClusterId,
+    runProjectionSearch,
+    clearProjectionSearch,
+    setQueryText,
+    runQuery,
+    setDimensions,
     setExpanded,
     selectPoint,
     setHoveredPoint,

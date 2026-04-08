@@ -37,8 +37,16 @@ class QualityReport:
 
 
 @dataclass
+class ProjectionEdge:
+    source_id: str
+    target_id: str
+    similarity: float
+
+
+@dataclass
 class ProjectionResult:
     points: list[ProjectedPoint]
+    edges: list[ProjectionEdge]
     clusters: list[Cluster]
     quality: QualityReport
     stats: dict
@@ -50,8 +58,8 @@ _cache: dict[str, tuple[float, ProjectionResult]] = {}
 CACHE_TTL = 600  # 10 minutes
 
 
-def _cache_key(collection_name: str, sample_size: int, total_count: int) -> str:
-    return f"{collection_name}:{sample_size}:{total_count}"
+def _cache_key(collection_name: str, sample_size: int, total_count: int, dimensions: int) -> str:
+    return f"{collection_name}:{sample_size}:{total_count}:{dimensions}"
 
 
 def _get_cached(key: str) -> ProjectionResult | None:
@@ -63,15 +71,23 @@ def _get_cached(key: str) -> ProjectionResult | None:
     return None
 
 
-def cache_result(collection_name: str, sample_size: int, total_count: int, result: ProjectionResult) -> None:
+def cache_result(
+    collection_name: str,
+    sample_size: int,
+    total_count: int,
+    result: ProjectionResult,
+    dimensions: int,
+) -> None:
     """Store a projection result in the in-process cache."""
-    key = _cache_key(collection_name, sample_size, total_count)
+    key = _cache_key(collection_name, sample_size, total_count, dimensions)
     _cache[key] = (time.time(), result)
 
 
-def get_cached_projection(collection_name: str, sample_size: int, total_count: int) -> ProjectionResult | None:
+def get_cached_projection(
+    collection_name: str, sample_size: int, total_count: int, dimensions: int
+) -> ProjectionResult | None:
     """Retrieve a cached projection result, or None if expired/missing."""
-    key = _cache_key(collection_name, sample_size, total_count)
+    key = _cache_key(collection_name, sample_size, total_count, dimensions)
     return _get_cached(key)
 
 
@@ -117,6 +133,9 @@ def compute_projection(
     # Step 4: Quality detection
     quality = _detect_quality_issues(embeddings, projected, ids, clusters)
 
+    # Step 5: Exact k-NN graph in original embedding space
+    edges = _compute_knn_edges(embeddings, ids)
+
     # Assign cluster IDs to points
     if clusters:
         from sklearn.metrics import pairwise_distances_argmin
@@ -141,12 +160,15 @@ def compute_projection(
     elapsed = round((time.time() - start) * 1000)
     return ProjectionResult(
         points=points,
+        edges=edges,
         clusters=clusters,
         quality=quality,
         stats={
             "total_vectors": n_samples,
             "sampled": n_samples,
             "projection_time_ms": elapsed,
+            "knn_neighbors": min(5, max(0, n_samples - 1)),
+            "num_edges": len(edges),
         },
     )
 
@@ -239,7 +261,7 @@ def _detect_quality_issues(
 ) -> QualityReport:
     """Detect outliers, duplicates, and orphans."""
     from sklearn.ensemble import IsolationForest
-    from sklearn.metrics.pairwise import cosine_similarity
+    from sklearn.neighbors import NearestNeighbors
 
     n = len(ids)
 
@@ -250,21 +272,27 @@ def _detect_quality_issues(
         preds = iso.fit_predict(projected)
         outlier_ids = [ids[i] for i in range(n) if preds[i] == -1]
 
-    # Duplicates via cosine similarity > 0.98
+    # Duplicates via cosine similarity > 0.98 without materializing a full NxN matrix
     duplicate_pairs: list[tuple[str, str]] = []
     if n <= 5000:
-        sim_matrix = cosine_similarity(embeddings)
-        np.fill_diagonal(sim_matrix, 0)
+        nn = NearestNeighbors(metric="cosine", radius=0.02, algorithm="auto")
+        nn.fit(embeddings)
+        _, indices = nn.radius_neighbors(embeddings, return_distance=True)
         seen: set[tuple[str, str]] = set()
-        dup_indices = np.argwhere(sim_matrix > 0.98)
-        for i, j in dup_indices:
-            if i < j:
+        for i, neighbors in enumerate(indices):
+            for neighbor_index in neighbors:
+                j = int(neighbor_index)
+                if j <= i:
+                    continue
                 pair = (ids[i], ids[j])
-                if pair not in seen:
-                    seen.add(pair)
-                    duplicate_pairs.append(pair)
-                    if len(duplicate_pairs) >= 100:
-                        break
+                if pair in seen:
+                    continue
+                seen.add(pair)
+                duplicate_pairs.append(pair)
+                if len(duplicate_pairs) >= 100:
+                    break
+            if len(duplicate_pairs) >= 100:
+                break
 
     # Orphans: points > 2σ from nearest cluster centroid
     orphan_ids: list[str] = []
@@ -282,6 +310,54 @@ def _detect_quality_issues(
         duplicate_pairs=duplicate_pairs,
         orphan_ids=orphan_ids,
     )
+
+
+def _compute_knn_edges(
+    embeddings: NDArray[np.float32],
+    ids: list[str],
+    neighbors: int = 5,
+) -> list[ProjectionEdge]:
+    """Build a deduplicated exact k-NN graph in embedding space using cosine distance."""
+    n = len(ids)
+    if n < 2:
+        return []
+
+    k = min(neighbors, n - 1)
+    if k <= 0:
+        return []
+
+    from sklearn.neighbors import NearestNeighbors
+
+    nn = NearestNeighbors(
+        n_neighbors=min(k + 1, n),
+        metric="cosine",
+        algorithm="auto",
+    )
+    nn.fit(embeddings)
+    distances, indices = nn.kneighbors(embeddings, return_distance=True)
+
+    edges: list[ProjectionEdge] = []
+    seen: set[tuple[str, str]] = set()
+
+    for i in range(n):
+        for dist, neighbor_index in zip(distances[i][1:], indices[i][1:]):
+            if neighbor_index == i:
+                continue
+            a = ids[i]
+            b = ids[int(neighbor_index)]
+            key = (a, b) if a < b else (b, a)
+            if key in seen:
+                continue
+            seen.add(key)
+            edges.append(
+                ProjectionEdge(
+                    source_id=key[0],
+                    target_id=key[1],
+                    similarity=float(max(0.0, 1.0 - float(dist))),
+                )
+            )
+
+    return edges
 
 
 def sample_deterministic(

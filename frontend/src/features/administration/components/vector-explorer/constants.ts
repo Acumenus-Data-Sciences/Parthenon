@@ -18,6 +18,12 @@ export interface CollectionTheme {
   palette: readonly string[];
 }
 
+export interface SampleStep {
+  label: string;
+  value: number;
+  effectiveValue: number;
+}
+
 function buildPalette(primary: string, secondary: string[]): readonly string[] {
   const filtered = secondary.filter((color) => color !== primary);
   return [primary, ...filtered] as const;
@@ -106,7 +112,7 @@ export const CAMERA_LERP_DURATION = 300;
 
 // ── Sample Sizes ────────────────────────────────────────────────────────────
 
-export const SAMPLE_STEPS = [
+const FALLBACK_SAMPLE_STEPS = [
   { label: "1K", value: 1000 },
   { label: "5K", value: 5000 },
   { label: "15K", value: 15000 },
@@ -115,6 +121,71 @@ export const SAMPLE_STEPS = [
 
 export const DEFAULT_SAMPLE_SIZE = 5000;
 export const DEBOUNCE_MS = 500;
+export const LARGE_COLLECTION_ALL_THRESHOLD = 20000;
+
+function formatSampleLabel(value: number): string {
+  if (value >= 1000 && value % 1000 === 0) {
+    return `${value / 1000}K`;
+  }
+  return value.toLocaleString();
+}
+
+export function getAdaptiveSampleSteps(totalCount: number): SampleStep[] {
+  if (totalCount <= 0) {
+    return FALLBACK_SAMPLE_STEPS.map((step) => ({
+      ...step,
+      effectiveValue: step.value === 0 ? DEFAULT_SAMPLE_SIZE : step.value,
+    }));
+  }
+
+  const candidates =
+    totalCount <= 2000
+      ? [500, 1000, 2000]
+      : totalCount <= 10000
+        ? [500, 1000, 2000, 5000, 10000]
+        : totalCount <= 50000
+          ? [1000, 5000, 10000, 15000, 25000, 50000]
+          : [1000, 5000, 10000, 25000, 50000];
+
+  const steps = candidates
+    .filter((value) => value >= 500 && value < totalCount)
+    .map((value) => ({
+      label: formatSampleLabel(value),
+      value,
+      effectiveValue: value,
+    }));
+
+  return [
+    ...steps,
+    {
+      label: "All",
+      value: 0,
+      effectiveValue: totalCount,
+    },
+  ];
+}
+
+export function getRecommendedSampleSize(totalCount: number): number {
+  if (totalCount <= 0) {
+    return DEFAULT_SAMPLE_SIZE;
+  }
+
+  const target = Math.min(totalCount, DEFAULT_SAMPLE_SIZE);
+  const steps = getAdaptiveSampleSteps(totalCount);
+
+  let bestStep = steps[steps.length - 1]?.value ?? 0;
+  let bestDiff = Number.POSITIVE_INFINITY;
+
+  for (const step of steps) {
+    const diff = Math.abs(step.effectiveValue - target);
+    if (diff < bestDiff) {
+      bestDiff = diff;
+      bestStep = step.value;
+    }
+  }
+
+  return bestStep;
+}
 
 // ── Modes ───────────────────────────────────────────────────────────────────
 

@@ -176,25 +176,15 @@ class ChromaStudioController extends Controller
     }
 
     /**
-     * Get 3D projection for a collection's embeddings.
+     * Get 2D/3D projection for a collection's embeddings.
      *
      * Tries pre-computed Solr index first (<500ms), falls back to
      * live PCA→UMAP computation via AI service (~8-10s).
      */
     public function projectCollection(Request $request, string $name, VectorExplorerSearchService $solrSearch): JsonResponse
     {
-        $forceRefresh = $request->boolean('refresh');
-
-        // Try Solr first (pre-computed, fast)
-        if (! $forceRefresh && $solrSearch->isAvailable()) {
-            $solrResult = $solrSearch->getProjection($name);
-            if ($solrResult !== null) {
-                return response()->json($solrResult);
-            }
-        }
-
-        // Fall back to live computation via AI service
         $sampleSize = $request->integer('sample_size', 5000);
+        $forceRefresh = $request->boolean('refresh');
 
         if ($sampleSize !== 0 && ($sampleSize < 500 || $sampleSize > 100000)) {
             return response()->json(
@@ -206,8 +196,24 @@ class ChromaStudioController extends Controller
         $validated = $request->validate([
             'method' => 'required|string|in:pca-umap',
             'dimensions' => 'required|integer|in:2,3',
+            'refresh' => 'sometimes|boolean',
+            'color_field' => 'nullable|string|max:100',
         ]);
         $validated['sample_size'] = $sampleSize;
+        $validated['refresh'] = $forceRefresh;
+
+        // Try Solr first (pre-computed, fast)
+        if (! $forceRefresh && $solrSearch->isAvailable()) {
+            $solrResult = $solrSearch->getProjection(
+                $name,
+                $sampleSize,
+                (int) $validated['dimensions'],
+                $validated['color_field'] ?? null,
+            );
+            if ($solrResult !== null) {
+                return response()->json($solrResult);
+            }
+        }
 
         $response = Http::timeout(120)
             ->post("{$this->aiUrl()}/chroma/collections/{$name}/project", $validated);
@@ -220,5 +226,76 @@ class ChromaStudioController extends Controller
         }
 
         return response()->json($response->json());
+    }
+
+    /** Full-text and facet search within Solr-cached projection points. */
+    public function searchProjectionPoints(Request $request, string $name, VectorExplorerSearchService $solrSearch): JsonResponse
+    {
+        $validated = $request->validate([
+            'query' => 'nullable|string|max:1000',
+            'limit' => 'nullable|integer|min:1|max:10000',
+            'cluster_id' => 'nullable|integer|min:0',
+            'source' => 'nullable|string|max:255',
+            'doc_type' => 'nullable|string|max:255',
+            'is_outlier' => 'nullable|boolean',
+            'is_orphan' => 'nullable|boolean',
+        ]);
+
+        if (! $solrSearch->isAvailable()) {
+            return response()->json(
+                ['error' => 'Solr vector explorer cache is not available.'],
+                503,
+            );
+        }
+
+        $filters = array_filter([
+            'cluster_id' => $validated['cluster_id'] ?? null,
+            'source' => $validated['source'] ?? null,
+            'doc_type' => $validated['doc_type'] ?? null,
+            'is_outlier' => $validated['is_outlier'] ?? null,
+            'is_orphan' => $validated['is_orphan'] ?? null,
+        ], static fn ($value) => $value !== null && $value !== '');
+
+        $result = $solrSearch->searchPoints(
+            $name,
+            $validated['query'] ?? '',
+            $filters,
+            (int) ($validated['limit'] ?? 1000),
+        );
+
+        if ($result === null) {
+            return response()->json(
+                ['error' => 'Projection point search failed.'],
+                502,
+            );
+        }
+
+        return response()->json($result);
+    }
+
+    /** Fetch full metadata for a single point in a Solr-cached projection. */
+    public function projectionPoint(Request $request, string $name, VectorExplorerSearchService $solrSearch): JsonResponse
+    {
+        $validated = $request->validate([
+            'point_id' => 'required|string|max:1000',
+        ]);
+
+        if (! $solrSearch->isAvailable()) {
+            return response()->json(
+                ['error' => 'Solr vector explorer cache is not available.'],
+                503,
+            );
+        }
+
+        $result = $solrSearch->getPointDetails($name, $validated['point_id']);
+
+        if ($result === null) {
+            return response()->json(
+                ['error' => 'Projection point not found.'],
+                404,
+            );
+        }
+
+        return response()->json($result);
     }
 }

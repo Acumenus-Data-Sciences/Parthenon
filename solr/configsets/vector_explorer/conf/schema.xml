@@ -61,6 +61,7 @@
   <field name="num_outliers" type="pint" indexed="false" stored="true"/>
   <field name="num_duplicates" type="pint" indexed="false" stored="true"/>
   <field name="num_orphans" type="pint" indexed="false" stored="true"/>
+  <field name="num_edges" type="pint" indexed="false" stored="true"/>
   <field name="indexed_at" type="string" indexed="true" stored="true"/>
 
   <!-- Required by Solr -->

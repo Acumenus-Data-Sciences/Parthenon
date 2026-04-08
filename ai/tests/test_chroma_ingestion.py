@@ -127,6 +127,44 @@ def test_ingest_docs_directory_preserves_title_and_heading_metadata(tmp_path):
     assert any(meta.get("section") == "Practical distinction" for meta in upsert_kwargs["metadatas"])
 
 
+def test_ingest_docs_directory_skips_vendor_subtrees(tmp_path):
+    """Generated/vendor docs like docs/site/node_modules should not be embedded."""
+    docs_dir = tmp_path / "docs"
+    vendor_dir = docs_dir / "site" / "node_modules" / "pkg"
+    vendor_dir.mkdir(parents=True)
+    (vendor_dir / "README.md").write_text("# Vendor package\n\nIgnore me.\n", encoding="utf-8")
+
+    mock_collection = MagicMock()
+
+    with patch("app.chroma.ingestion.get_docs_collection", return_value=mock_collection):
+        from app.chroma.ingestion import ingest_docs_directory
+
+        stats = ingest_docs_directory(str(docs_dir))
+
+    assert stats["skipped"] == 1
+    mock_collection.upsert.assert_not_called()
+
+
+def test_load_harvester_metadata_falls_back_to_metadata_csv(tmp_path):
+    """Corpus metadata.csv should backfill paper metadata when state files are absent."""
+    corpus_dir = tmp_path / "corpus"
+    metadata_dir = corpus_dir / "metadata"
+    metadata_dir.mkdir(parents=True)
+    (corpus_dir / "metadata.csv").write_text(
+        "Filename,Title,PDF Title,DOI,Publication Year,Journal,Authors,First Author,PMID,PMCID\n"
+        "paper.pdf,Paper title,,10.1000/example,2024,JAMIA,Doe et al.,Doe,12345,PMC12345\n",
+        encoding="utf-8",
+    )
+
+    from app.chroma.ingestion import _load_harvester_metadata
+
+    metadata = _load_harvester_metadata(metadata_dir)
+
+    assert metadata["paper.pdf"]["title"] == "Paper title"
+    assert metadata["paper.pdf"]["doi"] == "10.1000/example"
+    assert metadata["paper.pdf"]["year"] == "2024"
+
+
 def test_chunk_markdown_records_prefers_frontmatter_title_and_skips_frontmatter_content():
     """Docusaurus frontmatter should inform provenance but not become a retrievable chunk."""
     from app.chroma.ingestion import chunk_markdown_records

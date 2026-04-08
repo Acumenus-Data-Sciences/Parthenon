@@ -14,6 +14,7 @@ import logging
 import httpx
 
 logger = logging.getLogger(__name__)
+_MAX_PAGE_SLUG_LENGTH = 120
 
 _THINK_RE = re.compile(r"<think>.*?</think>", re.DOTALL)
 # Qwen3 often omits the opening <think> tag but includes the closing one
@@ -780,7 +781,7 @@ class WikiEngine:
         primary_domain: str = "",
         slug_override: str | None = None,
     ) -> WikiPageSummary:
-        slug = slug_override or slugify(title)
+        slug = self._bounded_slug(slug_override or slugify(title), f"{page_type}:{source_slug or ''}:{title}")
         relative_dir = WORKSPACE_PAGE_DIRS[page_type]
         relative_path = f"{relative_dir}/{slug}.md"
         absolute_path = workspace_dir / relative_path
@@ -884,6 +885,8 @@ class WikiEngine:
         *,
         filename: str | None,
     ) -> str:
+        fingerprint_source = metadata["doi"] or metadata["pmid"] or metadata["pmcid"] or filename or preferred_slug
+        preferred_slug = self._bounded_slug(preferred_slug, fingerprint_source)
         entries = read_index(workspace_dir)
         matched_existing = next(
             (
@@ -911,7 +914,10 @@ class WikiEngine:
         source_slug: str,
         metadata: dict[str, str],
     ) -> str:
-        preferred_slug = slugify(title)
+        preferred_slug = self._bounded_slug(
+            slugify(title),
+            f"{source_slug}:{page_type}:{metadata['doi'] or metadata['pmid'] or metadata['pmcid'] or title}",
+        )
         entries = read_index(workspace_dir)
         matched_existing = next(
             (
@@ -952,6 +958,16 @@ class WikiEngine:
     def _slug_fingerprint(metadata: dict[str, str], fallback: str) -> str:
         source = metadata["doi"] or metadata["pmid"] or metadata["pmcid"] or fallback
         return hashlib.sha1(source.encode("utf-8")).hexdigest()[:8]
+
+    @staticmethod
+    def _bounded_slug(candidate: str, fingerprint_source: str) -> str:
+        normalized = slugify(candidate)
+        if len(normalized) <= _MAX_PAGE_SLUG_LENGTH:
+            return normalized
+        suffix = hashlib.sha1(fingerprint_source.encode("utf-8")).hexdigest()[:8]
+        prefix_length = _MAX_PAGE_SLUG_LENGTH - len(suffix) - 1
+        truncated = normalized[:prefix_length].rstrip("-")
+        return f"{truncated}-{suffix}"
 
     def _source_filename_map(self, workspace_dir: Path) -> dict[str, str]:
         sources_dir = workspace_dir / "sources"

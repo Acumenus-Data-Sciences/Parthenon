@@ -7,6 +7,8 @@ interface PointInspectorProps {
   outlierIds?: Set<string>;
   duplicateIds?: Set<string>;
   orphanIds?: Set<string>;
+  loadingIds?: Set<string>;
+  error?: string | null;
 }
 
 export default function PointInspector({
@@ -16,6 +18,8 @@ export default function PointInspector({
   outlierIds,
   duplicateIds,
   orphanIds,
+  loadingIds,
+  error,
 }: PointInspectorProps) {
   const selected = points.filter((p) => selectedIds.has(p.id));
 
@@ -27,11 +31,17 @@ export default function PointInspector({
 
   return (
     <div className="space-y-3">
+      {error && (
+        <div className="rounded border border-[#E85A6B]/30 bg-[#E85A6B]/10 px-3 py-2 text-xs text-[#E85A6B]">
+          {error}
+        </div>
+      )}
       {selected.map((point) => {
         const flags: string[] = [];
         if (outlierIds?.has(point.id)) flags.push("Outlier");
         if (duplicateIds?.has(point.id)) flags.push("Duplicate");
         if (orphanIds?.has(point.id)) flags.push("Orphan");
+        const isLoading = loadingIds?.has(point.id) ?? false;
 
         return (
           <div key={point.id} className="rounded border border-[#232328] bg-[#0E0E11] p-3">
@@ -63,6 +73,9 @@ export default function PointInspector({
                   </div>
                 ))}
               </div>
+            )}
+            {isLoading && (
+              <div className="mt-2 text-xs text-[#5A5650]">Loading full details...</div>
             )}
             <div className="mt-2 font-['IBM_Plex_Mono',monospace] text-xs text-[#5A5650]">
               ({point.x.toFixed(3)}, {point.y.toFixed(3)}, {point.z.toFixed(3)})

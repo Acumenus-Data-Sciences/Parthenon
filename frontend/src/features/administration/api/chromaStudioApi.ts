@@ -89,6 +89,12 @@ export interface ClusterInfo {
   size: number;
 }
 
+export interface ProjectionEdge {
+  source_id: string;
+  target_id: string;
+  similarity: number;
+}
+
 export interface QualityReport {
   outlier_ids: string[];
   duplicate_pairs: [string, string][];
@@ -100,20 +106,52 @@ export interface ProjectionStats {
   sampled: number;
   projection_time_ms: number;
   source?: "solr" | "live" | string;
+  dimensions?: number;
+  knn_neighbors?: number;
+  num_edges?: number;
   indexed_at?: string | null;
+}
+
+export interface ProjectionSearchFilters {
+  cluster_id?: number;
+  source?: string;
+  doc_type?: string;
+  is_outlier?: boolean;
+  is_orphan?: boolean;
+}
+
+export interface ProjectionSearchResponse {
+  points: Array<{
+    id: string;
+    x: number;
+    y: number;
+    z: number;
+    cluster_id: number;
+    cluster_label?: string;
+    is_outlier?: boolean;
+    is_orphan?: boolean;
+    metadata?: Record<string, unknown>;
+  }>;
+  total: number;
+  facets: Record<string, Record<string, number>>;
 }
 
 export interface ProjectionResponse {
   points: ProjectedPoint3D[];
+  edges: ProjectionEdge[];
   clusters: ClusterInfo[];
   quality: QualityReport;
   stats: ProjectionStats;
 }
 
+export interface ProjectionPointDetailsResponse extends ProjectedPoint3D {}
+
 export interface ProjectionRequest {
   sample_size: number;
   method: "pca-umap";
   dimensions: 2 | 3;
+  refresh?: boolean;
+  color_field?: string;
 }
 
 // ── API Functions ────────────────────────────────────────────────────────────
@@ -163,7 +201,7 @@ export const aggregateConversations = () =>
 
 export const fetchProjection = (
   name: string,
-  request: ProjectionRequest & { refresh?: boolean },
+  request: ProjectionRequest,
   signal?: AbortSignal,
 ) =>
   apiClient
@@ -171,4 +209,26 @@ export const fetchProjection = (
       signal,
       timeout: 130_000,
     })
+    .then((r) => r.data);
+
+export const searchProjectionPoints = (
+  name: string,
+  params?: ProjectionSearchFilters & { query?: string; limit?: number },
+) =>
+  apiClient
+    .get<ProjectionSearchResponse>(
+      `/admin/chroma-studio/collections/${encodeURIComponent(name)}/projection-search`,
+      { params },
+    )
+    .then((r) => r.data);
+
+export const fetchProjectionPointDetails = (
+  name: string,
+  pointId: string,
+) =>
+  apiClient
+    .get<ProjectionPointDetailsResponse>(
+      `/admin/chroma-studio/collections/${encodeURIComponent(name)}/projection-point`,
+      { params: { point_id: pointId } },
+    )
     .then((r) => r.data);
