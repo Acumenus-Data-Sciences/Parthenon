@@ -24,6 +24,14 @@ class WikiPageSummary(BaseModel):
     source_slug: str | None = None
     source_type: str | None = None
     ingested_at: str | None = None
+    doi: str | None = None
+    authors: str | None = None
+    first_author: str | None = None
+    journal: str | None = None
+    publication_year: str | None = None
+    pmid: str | None = None
+    pmcid: str | None = None
+    primary_domain: str | None = None
 
 
 class WikiPageDetail(WikiPageSummary):
@@ -57,6 +65,11 @@ class WikiQueryRequest(BaseModel):
     question: str = Field(..., min_length=3, max_length=4000)
     page_slug: str | None = Field(default=None, max_length=255)
     source_slug: str | None = Field(default=None, max_length=255)
+    primary_domain: str | None = Field(default=None, max_length=255)
+    journal: str | None = Field(default=None, max_length=255)
+    publication_year_min: str | None = Field(default=None, max_length=4)
+    publication_year_max: str | None = Field(default=None, max_length=4)
+    first_author: str | None = Field(default=None, max_length=255)
 
 
 class WikiQueryResponse(BaseModel):

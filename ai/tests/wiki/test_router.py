@@ -71,6 +71,11 @@ async def test_query_endpoint(monkeypatch):
         "What?",
         page_slug="paper-a-findings",
         source_slug="paper-a",
+        primary_domain=None,
+        journal=None,
+        publication_year_min=None,
+        publication_year_max=None,
+        first_author=None,
     )
 
 

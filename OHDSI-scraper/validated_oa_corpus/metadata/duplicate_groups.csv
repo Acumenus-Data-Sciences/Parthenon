@@ -1,0 +1,250 @@
+Group ID,Source File,Source Row Number,PMID,PMCID,DOI,Title
+paper-0001,csv-OHDSI-set.csv,2,38175665,PMC10873827,10.1093/jamia/ocad247,OHDSI Standardized Vocabularies-a large-scale centralized reference ontology for international data harmonization
+paper-0001,csv-ohdsiomop-set.csv,4,38175665,PMC10873827,10.1093/jamia/ocad247,OHDSI Standardized Vocabularies-a large-scale centralized reference ontology for international data harmonization
+paper-0001,csv-omop-set.csv,146,38175665,PMC10873827,10.1093/jamia/ocad247,OHDSI Standardized Vocabularies-a large-scale centralized reference ontology for international data harmonization
+paper-0002,csv-OHDSI-set.csv,12,37361151,PMC10287979,10.3389/fpubh.2023.1116682,Enabling data sharing and utilization for African population health data using OHDSI tools with an OMOP-common data model
+paper-0002,csv-ohdsiomop-set.csv,2,37361151,PMC10287979,10.3389/fpubh.2023.1116682,Enabling data sharing and utilization for African population health data using OHDSI tools with an OMOP-common data model
+paper-0002,csv-omop-set.csv,54,37361151,PMC10287979,10.3389/fpubh.2023.1116682,Enabling data sharing and utilization for African population health data using OHDSI tools with an OMOP-common data model
+paper-0003,csv-OHDSI-set.csv,35,36233137,PMC9569469,10.3390/ijms231911834,OMOP CDM Can Facilitate Data-Driven Studies for Cancer Prediction: A Systematic Review
+paper-0003,csv-ohdsiomop-set.csv,8,36233137,PMC9569469,10.3390/ijms231911834,OMOP CDM Can Facilitate Data-Driven Studies for Cancer Prediction: A Systematic Review
+paper-0003,csv-omop-set.csv,2,36233137,PMC9569469,10.3390/ijms231911834,OMOP CDM Can Facilitate Data-Driven Studies for Cancer Prediction: A Systematic Review
+paper-0005,csv-OHDSI-set.csv,16,30306935,PMC7847179,,Biomedical Informatics Investigator
+paper-0005,csv-ohdsiomop-set.csv,3,30306935,PMC7847179,,Biomedical Informatics Investigator
+paper-0005,csv-omop-set.csv,50,30306935,PMC7847179,,Biomedical Informatics Investigator
+paper-0007,csv-OHDSI-set.csv,39,38408983,PMC10895818,10.1186/s12911-024-02458-7,Conceptual design of a generic data harmonization process for OMOP common data model
+paper-0007,csv-ohdsiomop-set.csv,7,38408983,PMC10895818,10.1186/s12911-024-02458-7,Conceptual design of a generic data harmonization process for OMOP common data model
+paper-0007,csv-omop-set.csv,4,38408983,PMC10895818,10.1186/s12911-024-02458-7,Conceptual design of a generic data harmonization process for OMOP common data model
+paper-0008,csv-OHDSI-set.csv,5,38818399,PMC11137233,10.3389/fmed.2024.1378866,OHDSI-compliance: a set of document templates facilitating the implementation and operation of a software stack for real-world evidence generation
+paper-0008,csv-ohdsiomop-set.csv,9,38818399,PMC11137233,10.3389/fmed.2024.1378866,OHDSI-compliance: a set of document templates facilitating the implementation and operation of a software stack for real-world evidence generation
+paper-0008,csv-omop-set.csv,315,38818399,PMC11137233,10.3389/fmed.2024.1378866,OHDSI-compliance: a set of document templates facilitating the implementation and operation of a software stack for real-world evidence generation
+paper-0009,csv-OHDSI-set.csv,62,29365340,PMC5801887,10.1055/s-0037-1617452,Towards Implementation of OMOP in a German University Hospital Consortium
+paper-0009,csv-ohdsiomop-set.csv,5,29365340,PMC5801887,10.1055/s-0037-1617452,Towards Implementation of OMOP in a German University Hospital Consortium
+paper-0009,csv-omop-set.csv,30,29365340,PMC5801887,10.1055/s-0037-1617452,Towards Implementation of OMOP in a German University Hospital Consortium
+paper-0011,csv-OHDSI-set.csv,7,38347885,PMC10859396,10.3389/fdgth.2024.1329630,INSPIRE datahub: a pan-African integrated suite of services for harmonising longitudinal population health data using OHDSI tools
+paper-0011,csv-ohdsiomop-set.csv,6,38347885,PMC10859396,10.3389/fdgth.2024.1329630,INSPIRE datahub: a pan-African integrated suite of services for harmonising longitudinal population health data using OHDSI tools
+paper-0011,csv-omop-set.csv,135,38347885,PMC10859396,10.3389/fdgth.2024.1329630,INSPIRE datahub: a pan-African integrated suite of services for harmonising longitudinal population health data using OHDSI tools
+paper-0014,csv-OHDSI-set.csv,124,38635655,PMC11025850,10.1371/journal.pone.0301557,The OMOP common data model in Australian primary care data: Building a quality research ready harmonised dataset
+paper-0014,csv-ohdsiomop-set.csv,14,38635655,PMC11025850,10.1371/journal.pone.0301557,The OMOP common data model in Australian primary care data: Building a quality research ready harmonised dataset
+paper-0014,csv-omop-set.csv,9,38635655,PMC11025850,10.1371/journal.pone.0301557,The OMOP common data model in Australian primary care data: Building a quality research ready harmonised dataset
+paper-0015,csv-OHDSI-set.csv,10,36935011,PMC10428170,10.1016/j.jbi.2023.104343,Representing and utilizing clinical textual data for real world studies: An OHDSI approach
+paper-0015,csv-ohdsiomop-set.csv,12,36935011,PMC10428170,10.1016/j.jbi.2023.104343,Representing and utilizing clinical textual data for real world studies: An OHDSI approach
+paper-0015,csv-omop-set.csv,139,36935011,PMC10428170,10.1016/j.jbi.2023.104343,Representing and utilizing clinical textual data for real world studies: An OHDSI approach
+paper-0016,csv-OHDSI-set.csv,57,38046363,PMC10688258,10.1016/j.imu.2023.101407,Conversion of CPRD AURUM Data into the OMOP Common Data Model
+paper-0016,csv-ohdsiomop-set.csv,10,38046363,PMC10688258,10.1016/j.imu.2023.101407,Conversion of CPRD AURUM Data into the OMOP Common Data Model
+paper-0016,csv-omop-set.csv,18,38046363,PMC10688258,10.1016/j.imu.2023.101407,Conversion of CPRD AURUM Data into the OMOP Common Data Model
+paper-0018,csv-OHDSI-set.csv,94,36395615,,10.1016/j.ijmedinf.2022.104925,An ETL-process design for data harmonization to participate in international research with German real-world data based on FHIR and OMOP CDM
+paper-0018,csv-ohdsiomop-set.csv,11,36395615,,10.1016/j.ijmedinf.2022.104925,An ETL-process design for data harmonization to participate in international research with German real-world data based on FHIR and OMOP CDM
+paper-0018,csv-omop-set.csv,35,36395615,,10.1016/j.ijmedinf.2022.104925,An ETL-process design for data harmonization to participate in international research with German real-world data based on FHIR and OMOP CDM
+paper-0019,csv-OHDSI-set.csv,13,38412331,PMC11031239,10.1093/jamia/ocae028,Towards global model generalizability: independent cross-site feature evaluation for patient-level risk prediction models using the OHDSI network
+paper-0019,csv-ohdsiomop-set.csv,15,38412331,PMC11031239,10.1093/jamia/ocae028,Towards global model generalizability: independent cross-site feature evaluation for patient-level risk prediction models using the OHDSI network
+paper-0019,csv-omop-set.csv,201,38412331,PMC11031239,10.1093/jamia/ocae028,Towards global model generalizability: independent cross-site feature evaluation for patient-level risk prediction models using the OHDSI network
+paper-0020,csv-OHDSI-set.csv,30,37034358,PMC10072853,10.1016/j.eclinm.2023.101932,Contextualising adverse events of special interest to characterise the baseline incidence rates in 24 million patients with COVID-19 across 26 databases: a multinational retrospective cohort study
+paper-0020,csv-ohdsiomop-set.csv,13,37034358,PMC10072853,10.1016/j.eclinm.2023.101932,Contextualising adverse events of special interest to characterise the baseline incidence rates in 24 million patients with COVID-19 across 26 databases: a multinational retrospective cohort study
+paper-0020,csv-omop-set.csv,104,37034358,PMC10072853,10.1016/j.eclinm.2023.101932,Contextualising adverse events of special interest to characterise the baseline incidence rates in 24 million patients with COVID-19 across 26 databases: a multinational retrospective cohort study
+paper-0023,csv-OHDSI-set.csv,79,39228725,PMC11370549,10.1101/2024.08.23.24311950,Adoption of the OMOP CDM for Cancer Research using Real-world Data: Current Status and Opportunities
+paper-0023,csv-ohdsiomop-set.csv,19,39228725,PMC11370549,10.1101/2024.08.23.24311950,Adoption of the OMOP CDM for Cancer Research using Real-world Data: Current Status and Opportunities
+paper-0023,csv-omop-set.csv,15,39228725,PMC11370549,10.1101/2024.08.23.24311950,Adoption of the OMOP CDM for Cancer Research using Real-world Data: Current Status and Opportunities
+paper-0024,csv-OHDSI-set.csv,104,39140273,PMC11337138,10.2196/49542,Transforming Primary Care Data Into the Observational Medical Outcomes Partnership Common Data Model: Development and Usability Study
+paper-0024,csv-ohdsiomop-set.csv,16,39140273,PMC11337138,10.2196/49542,Transforming Primary Care Data Into the Observational Medical Outcomes Partnership Common Data Model: Development and Usability Study
+paper-0024,csv-omop-set.csv,187,39140273,PMC11337138,10.2196/49542,Transforming Primary Care Data Into the Observational Medical Outcomes Partnership Common Data Model: Development and Usability Study
+paper-0026,csv-OHDSI-set.csv,37,34714250,PMC8590192,10.2196/29259,Transforming Anesthesia Data Into the Observational Medical Outcomes Partnership Common Data Model: Development and Usability Study
+paper-0026,csv-ohdsiomop-set.csv,17,34714250,PMC8590192,10.2196/29259,Transforming Anesthesia Data Into the Observational Medical Outcomes Partnership Common Data Model: Development and Usability Study
+paper-0026,csv-omop-set.csv,214,34714250,PMC8590192,10.2196/29259,Transforming Anesthesia Data Into the Observational Medical Outcomes Partnership Common Data Model: Development and Usability Study
+paper-0027,csv-OHDSI-set.csv,18,32477694,PMC7233056,,Integrating Electronic Health Record Data into the ADEpedia-on-OHDSI Platform for Improved Signal Detection: A Case Study of Immune-related Adverse Events
+paper-0027,csv-ohdsiomop-set.csv,20,32477694,PMC7233056,,Integrating Electronic Health Record Data into the ADEpedia-on-OHDSI Platform for Improved Signal Detection: A Case Study of Immune-related Adverse Events
+paper-0027,csv-omop-set.csv,327,32477694,PMC7233056,,Integrating Electronic Health Record Data into the ADEpedia-on-OHDSI Platform for Improved Signal Detection: A Case Study of Immune-related Adverse Events
+paper-0028,csv-OHDSI-set.csv,81,36029954,PMC9940475,10.1016/j.jbi.2022.104162,Towards quality improvement of vaccine concept mappings in the OMOP vocabulary with a semi-automated method
+paper-0028,csv-ohdsiomop-set.csv,18,36029954,PMC9940475,10.1016/j.jbi.2022.104162,Towards quality improvement of vaccine concept mappings in the OMOP vocabulary with a semi-automated method
+paper-0028,csv-omop-set.csv,27,36029954,PMC9940475,10.1016/j.jbi.2022.104162,Towards quality improvement of vaccine concept mappings in the OMOP vocabulary with a semi-automated method
+paper-0032,csv-OHDSI-set.csv,28,38593431,PMC11040436,10.2196/55779,Converge or Collide? Making Sense of a Plethora of Open Data Standards in Health Care
+paper-0032,csv-ohdsiomop-set.csv,21,38593431,PMC11040436,10.2196/55779,Converge or Collide? Making Sense of a Plethora of Open Data Standards in Health Care
+paper-0032,csv-omop-set.csv,99,38593431,PMC11040436,10.2196/55779,Converge or Collide? Making Sense of a Plethora of Open Data Standards in Health Care
+paper-0034,csv-OHDSI-set.csv,49,35115001,PMC8812213,10.1186/s12911-022-01765-1,Evaluating the performance of temporal pattern discovery: new application using statins and rhabdomyolysis in OMOP databases
+paper-0034,csv-ohdsiomop-set.csv,22,35115001,PMC8812213,10.1186/s12911-022-01765-1,Evaluating the performance of temporal pattern discovery: new application using statins and rhabdomyolysis in OMOP databases
+paper-0034,csv-omop-set.csv,60,35115001,PMC8812213,10.1186/s12911-022-01765-1,Evaluating the performance of temporal pattern discovery: new application using statins and rhabdomyolysis in OMOP databases
+paper-0036,csv-OHDSI-set.csv,108,41726461,PMC12919598,,LEVERAGING EPIC'S NATIVE ETL INFRASTRUCTURE FOR OMOP CDM IMPLEMENTATION: A COLLABORATIVE EXPERIENCE
+paper-0036,csv-ohdsiomop-set.csv,23,41726461,PMC12919598,,LEVERAGING EPIC'S NATIVE ETL INFRASTRUCTURE FOR OMOP CDM IMPLEMENTATION: A COLLABORATIVE EXPERIENCE
+paper-0036,csv-omop-set.csv,73,41726461,PMC12919598,,LEVERAGING EPIC'S NATIVE ETL INFRASTRUCTURE FOR OMOP CDM IMPLEMENTATION: A COLLABORATIVE EXPERIENCE
+paper-0038,csv-OHDSI-set.csv,69,31238109,PMC6697579,10.1016/j.jbi.2019.103239,HemOnc: A new standard vocabulary for chemotherapy regimen representation in the OMOP common data model
+paper-0038,csv-ohdsiomop-set.csv,24,31238109,PMC6697579,10.1016/j.jbi.2019.103239,HemOnc: A new standard vocabulary for chemotherapy regimen representation in the OMOP common data model
+paper-0038,csv-omop-set.csv,63,31238109,PMC6697579,10.1016/j.jbi.2019.103239,HemOnc: A new standard vocabulary for chemotherapy regimen representation in the OMOP common data model
+paper-0040,csv-OHDSI-set.csv,140,30421323,PMC6244882,10.1007/s10916-018-1076-5,Analysis of treatment pathways for three chronic diseases using OMOP CDM
+paper-0040,csv-ohdsiomop-set.csv,25,30421323,PMC6244882,10.1007/s10916-018-1076-5,Analysis of treatment pathways for three chronic diseases using OMOP CDM
+paper-0040,csv-omop-set.csv,79,30421323,PMC6244882,10.1007/s10916-018-1076-5,Analysis of treatment pathways for three chronic diseases using OMOP CDM
+paper-0041,csv-OHDSI-set.csv,26,31910437,PMC6946584,10.1371/journal.pone.0226718,Development and validation of a prognostic model predicting symptomatic hemorrhagic transformation in acute ischemic stroke at scale in the OHDSI network
+paper-0041,csv-ohdsiomop-set.csv,45,31910437,PMC6946584,10.1371/journal.pone.0226718,Development and validation of a prognostic model predicting symptomatic hemorrhagic transformation in acute ischemic stroke at scale in the OHDSI network
+paper-0041,csv-omop-set.csv,299,31910437,PMC6946584,10.1371/journal.pone.0226718,Development and validation of a prognostic model predicting symptomatic hemorrhagic transformation in acute ischemic stroke at scale in the OHDSI network
+paper-0042,csv-OHDSI-set.csv,34,36478647,PMC9742390,10.4070/kcj.2022.0294,Establishment of an International Evidence Sharing Network Through Common Data Model for Cardiovascular Research
+paper-0042,csv-ohdsiomop-set.csv,26,36478647,PMC9742390,10.4070/kcj.2022.0294,Establishment of an International Evidence Sharing Network Through Common Data Model for Cardiovascular Research
+paper-0042,csv-omop-set.csv,132,36478647,PMC9742390,10.4070/kcj.2022.0294,Establishment of an International Evidence Sharing Network Through Common Data Model for Cardiovascular Research
+paper-0044,csv-OHDSI-set.csv,111,38025162,PMC10630664,10.1016/j.xops.2023.100391,Advancing Toward a Common Data Model in Ophthalmology: Gap Analysis of General Eye Examination Concepts to Standard Observational Medical Outcomes Partnership (OMOP) Concepts
+paper-0044,csv-ohdsiomop-set.csv,27,38025162,PMC10630664,10.1016/j.xops.2023.100391,Advancing Toward a Common Data Model in Ophthalmology: Gap Analysis of General Eye Examination Concepts to Standard Observational Medical Outcomes Partnership (OMOP) Concepts
+paper-0044,csv-omop-set.csv,42,38025162,PMC10630664,10.1016/j.xops.2023.100391,Advancing Toward a Common Data Model in Ophthalmology: Gap Analysis of General Eye Examination Concepts to Standard Observational Medical Outcomes Partnership (OMOP) Concepts
+paper-0045,csv-OHDSI-set.csv,120,38893186,PMC11171220,10.3390/cancers16112069,Transforming a Large-Scale Prostate Cancer Outcomes Dataset to the OMOP Common Data Model-Experiences from a Scientific Data Holder's Perspective
+paper-0045,csv-ohdsiomop-set.csv,28,38893186,PMC11171220,10.3390/cancers16112069,Transforming a Large-Scale Prostate Cancer Outcomes Dataset to the OMOP Common Data Model-Experiences from a Scientific Data Holder's Perspective
+paper-0045,csv-omop-set.csv,78,38893186,PMC11171220,10.3390/cancers16112069,Transforming a Large-Scale Prostate Cancer Outcomes Dataset to the OMOP Common Data Model-Experiences from a Scientific Data Holder's Perspective
+paper-0047,csv-OHDSI-set.csv,53,39552716,PMC11564986,10.1016/j.eclinm.2024.102903,Incidence of post-acute COVID-19 symptoms across healthcare settings in seven countries: an international retrospective cohort study using routinely-collected data
+paper-0047,csv-ohdsiomop-set.csv,29,39552716,PMC11564986,10.1016/j.eclinm.2024.102903,Incidence of post-acute COVID-19 symptoms across healthcare settings in seven countries: an international retrospective cohort study using routinely-collected data
+paper-0047,csv-omop-set.csv,123,39552716,PMC11564986,10.1016/j.eclinm.2024.102903,Incidence of post-acute COVID-19 symptoms across healthcare settings in seven countries: an international retrospective cohort study using routinely-collected data
+paper-0048,csv-OHDSI-set.csv,45,31325501,PMC6697565,10.1016/j.jbi.2019.103253,Facilitating phenotype transfer using a common data model
+paper-0048,csv-ohdsiomop-set.csv,30,31325501,PMC6697565,10.1016/j.jbi.2019.103253,Facilitating phenotype transfer using a common data model
+paper-0048,csv-omop-set.csv,126,31325501,PMC6697565,10.1016/j.jbi.2019.103253,Facilitating phenotype transfer using a common data model
+paper-0050,csv-OHDSI-set.csv,42,37459703,PMC10528160,10.1016/j.ijmedinf.2023.105144,ReDWINE: A clinical datamart with text analytical capabilities to facilitate rehabilitation research
+paper-0050,csv-ohdsiomop-set.csv,31,37459703,PMC10528160,10.1016/j.ijmedinf.2023.105144,ReDWINE: A clinical datamart with text analytical capabilities to facilitate rehabilitation research
+paper-0050,csv-omop-set.csv,147,37459703,PMC10528160,10.1016/j.ijmedinf.2023.105144,ReDWINE: A clinical datamart with text analytical capabilities to facilitate rehabilitation research
+paper-0052,csv-OHDSI-set.csv,96,37442314,,10.1016/j.jbi.2023.104437,Eos and OMOCL: Towards a seamless integration of openEHR records into the OMOP Common Data Model
+paper-0052,csv-ohdsiomop-set.csv,32,37442314,,10.1016/j.jbi.2023.104437,Eos and OMOCL: Towards a seamless integration of openEHR records into the OMOP Common Data Model
+paper-0052,csv-omop-set.csv,53,37442314,,10.1016/j.jbi.2023.104437,Eos and OMOCL: Towards a seamless integration of openEHR records into the OMOP Common Data Model
+paper-0054,csv-OHDSI-set.csv,82,38280887,PMC10821926,10.1038/s41598-024-52723-y,A comparative patient-level prediction study in OMOP CDM: applicative potential and insights from synthetic data
+paper-0054,csv-ohdsiomop-set.csv,33,38280887,PMC10821926,10.1038/s41598-024-52723-y,A comparative patient-level prediction study in OMOP CDM: applicative potential and insights from synthetic data
+paper-0054,csv-omop-set.csv,71,38280887,PMC10821926,10.1038/s41598-024-52723-y,A comparative patient-level prediction study in OMOP CDM: applicative potential and insights from synthetic data
+paper-0055,csv-OHDSI-set.csv,51,30943974,PMC6448187,10.1186/s12911-019-0786-z,Developing a portable natural language processing based phenotyping system
+paper-0055,csv-ohdsiomop-set.csv,34,30943974,PMC6448187,10.1186/s12911-019-0786-z,Developing a portable natural language processing based phenotyping system
+paper-0055,csv-omop-set.csv,173,30943974,PMC6448187,10.1186/s12911-019-0786-z,Developing a portable natural language processing based phenotyping system
+paper-0056,csv-OHDSI-set.csv,99,39143600,PMC11325822,10.1186/s13023-024-03312-9,How to customize common data models for rare diseases: an OMOP-based implementation and lessons learned
+paper-0056,csv-ohdsiomop-set.csv,35,39143600,PMC11325822,10.1186/s13023-024-03312-9,How to customize common data models for rare diseases: an OMOP-based implementation and lessons learned
+paper-0056,csv-omop-set.csv,76,39143600,PMC11325822,10.1186/s13023-024-03312-9,How to customize common data models for rare diseases: an OMOP-based implementation and lessons learned
+paper-0058,csv-OHDSI-set.csv,43,38472144,PMC11031209,10.1093/jamia/ocae044,Markov modeling for cost-effectiveness using federated health data network
+paper-0058,csv-ohdsiomop-set.csv,36,38472144,PMC11031209,10.1093/jamia/ocae044,Markov modeling for cost-effectiveness using federated health data network
+paper-0058,csv-omop-set.csv,141,38472144,PMC11031209,10.1093/jamia/ocae044,Markov modeling for cost-effectiveness using federated health data network
+paper-0059,csv-OHDSI-set.csv,103,37942786,PMC10653283,10.2196/47959,Assessing the Use of German Claims Data Vocabularies for Research in the Observational Medical Outcomes Partnership Common Data Model: Development and Evaluation Study
+paper-0059,csv-ohdsiomop-set.csv,37,37942786,PMC10653283,10.2196/47959,Assessing the Use of German Claims Data Vocabularies for Research in the Observational Medical Outcomes Partnership Common Data Model: Development and Evaluation Study
+paper-0059,csv-omop-set.csv,164,37942786,PMC10653283,10.2196/47959,Assessing the Use of German Claims Data Vocabularies for Research in the Observational Medical Outcomes Partnership Common Data Model: Development and Evaluation Study
+paper-0061,csv-OHDSI-set.csv,47,38269952,PMC10868467,10.3233/SHTI231108,Health-Analytics Data to Evidence Suite (HADES): Open-Source Software for Observational Research
+paper-0061,csv-ohdsiomop-set.csv,38,38269952,PMC10868467,10.3233/SHTI231108,Health-Analytics Data to Evidence Suite (HADES): Open-Source Software for Observational Research
+paper-0061,csv-omop-set.csv,174,38269952,PMC10868467,10.3233/SHTI231108,Health-Analytics Data to Evidence Suite (HADES): Open-Source Software for Observational Research
+paper-0062,csv-OHDSI-set.csv,84,37267810,,10.1016/j.ijmedinf.2023.105104,Assessing the FAIRness of databases on the EHDEN portal: A case study on two Dutch ICU databases
+paper-0062,csv-ohdsiomop-set.csv,39,37267810,,10.1016/j.ijmedinf.2023.105104,Assessing the FAIRness of databases on the EHDEN portal: A case study on two Dutch ICU databases
+paper-0062,csv-omop-set.csv,186,37267810,,10.1016/j.ijmedinf.2023.105104,Assessing the FAIRness of databases on the EHDEN portal: A case study on two Dutch ICU databases
+paper-0064,csv-OHDSI-set.csv,66,35962355,PMC9372951,10.1186/s12911-022-01965-9,"Leveraging artificial intelligence and data science techniques in harmonizing, sharing, accessing and analyzing SARS-COV-2/COVID-19 data in Rwanda (LAISDAR Project): study design and rationale"
+paper-0064,csv-ohdsiomop-set.csv,40,35962355,PMC9372951,10.1186/s12911-022-01965-9,"Leveraging artificial intelligence and data science techniques in harmonizing, sharing, accessing and analyzing SARS-COV-2/COVID-19 data in Rwanda (LAISDAR Project): study design and rationale"
+paper-0064,csv-omop-set.csv,191,35962355,PMC9372951,10.1186/s12911-022-01965-9,"Leveraging artificial intelligence and data science techniques in harmonizing, sharing, accessing and analyzing SARS-COV-2/COVID-19 data in Rwanda (LAISDAR Project): study design and rationale"
+paper-0066,csv-OHDSI-set.csv,122,40791563,PMC12338626,10.1101/2025.07.15.664501,Mapping and Harmonization of CVX vaccine terms to the Vaccine Ontology
+paper-0066,csv-ohdsiomop-set.csv,41,40791563,PMC12338626,10.1101/2025.07.15.664501,Mapping and Harmonization of CVX vaccine terms to the Vaccine Ontology
+paper-0066,csv-omop-set.csv,249,40791563,PMC12338626,10.1101/2025.07.15.664501,Mapping and Harmonization of CVX vaccine terms to the Vaccine Ontology
+paper-0067,csv-OHDSI-set.csv,46,35780114,PMC9250712,10.1186/s12874-022-01652-3,Empirical assessment of alternative methods for identifying seasonality in observational healthcare data
+paper-0067,csv-ohdsiomop-set.csv,42,35780114,PMC9250712,10.1186/s12874-022-01652-3,Empirical assessment of alternative methods for identifying seasonality in observational healthcare data
+paper-0067,csv-omop-set.csv,167,35780114,PMC9250712,10.1186/s12874-022-01652-3,Empirical assessment of alternative methods for identifying seasonality in observational healthcare data
+paper-0068,csv-OHDSI-set.csv,153,37724311,PMC10505380,10.2147/CLEP.S419481,Transforming the Information System for Research in Primary Care (SIDIAP) in Catalonia to the OMOP Common Data Model and Its Use for COVID-19 Research
+paper-0068,csv-ohdsiomop-set.csv,43,37724311,PMC10505380,10.2147/CLEP.S419481,Transforming the Information System for Research in Primary Care (SIDIAP) in Catalonia to the OMOP Common Data Model and Its Use for COVID-19 Research
+paper-0068,csv-omop-set.csv,77,37724311,PMC10505380,10.2147/CLEP.S419481,Transforming the Information System for Research in Primary Care (SIDIAP) in Catalonia to the OMOP Common Data Model and Its Use for COVID-19 Research
+paper-0070,csv-OHDSI-set.csv,59,39043402,PMC11631081,10.1093/jamia/ocae198,allofus: an R package to facilitate use of the All of Us Researcher Workbench
+paper-0070,csv-ohdsiomop-set.csv,44,39043402,PMC11631081,10.1093/jamia/ocae198,allofus: an R package to facilitate use of the All of Us Researcher Workbench
+paper-0070,csv-omop-set.csv,168,39043402,PMC11631081,10.1093/jamia/ocae198,allofus: an R package to facilitate use of the All of Us Researcher Workbench
+paper-0071,csv-OHDSI-set.csv,106,35571357,PMC9097714,10.1093/jamiaopen/ooac021,Trajectories: a framework for detecting temporal clinical event sequences from health data standardized to the Observational Medical Outcomes Partnership (OMOP) Common Data Model
+paper-0071,csv-ohdsiomop-set.csv,46,35571357,PMC9097714,10.1093/jamiaopen/ooac021,Trajectories: a framework for detecting temporal clinical event sequences from health data standardized to the Observational Medical Outcomes Partnership (OMOP) Common Data Model
+paper-0071,csv-omop-set.csv,83,35571357,PMC9097714,10.1093/jamiaopen/ooac021,Trajectories: a framework for detecting temporal clinical event sequences from health data standardized to the Observational Medical Outcomes Partnership (OMOP) Common Data Model
+paper-0072,csv-OHDSI-set.csv,70,30395248,PMC6289550,10.1093/jamia/ocy124,Effect of vocabulary mapping for conditions on phenotype cohorts
+paper-0072,csv-ohdsiomop-set.csv,47,30395248,PMC6289550,10.1093/jamia/ocy124,Effect of vocabulary mapping for conditions on phenotype cohorts
+paper-0072,csv-omop-set.csv,202,30395248,PMC6289550,10.1093/jamia/ocy124,Effect of vocabulary mapping for conditions on phenotype cohorts
+paper-0074,csv-OHDSI-set.csv,173,39949611,PMC11822943,10.3389/fdgth.2025.1423621,Harmonizing population health data into OMOP common data model: a demonstration using COVID-19 sero-surveillance data from Nairobi Urban Health and Demographic Surveillance System
+paper-0074,csv-ohdsiomop-set.csv,48,39949611,PMC11822943,10.3389/fdgth.2025.1423621,Harmonizing population health data into OMOP common data model: a demonstration using COVID-19 sero-surveillance data from Nairobi Urban Health and Demographic Surveillance System
+paper-0074,csv-omop-set.csv,82,39949611,PMC11822943,10.3389/fdgth.2025.1423621,Harmonizing population health data into OMOP common data model: a demonstration using COVID-19 sero-surveillance data from Nairobi Urban Health and Demographic Surveillance System
+paper-0075,csv-OHDSI-set.csv,95,37860059,PMC10582239,10.1002/lrh2.10388,A computable biomedical knowledge object for calculating in-hospital mortality for patients admitted with acute myocardial infarction
+paper-0075,csv-ohdsiomop-set.csv,49,37860059,PMC10582239,10.1002/lrh2.10388,A computable biomedical knowledge object for calculating in-hospital mortality for patients admitted with acute myocardial infarction
+paper-0075,csv-omop-set.csv,163,37860059,PMC10582239,10.1002/lrh2.10388,A computable biomedical knowledge object for calculating in-hospital mortality for patients admitted with acute myocardial infarction
+paper-0077,csv-OHDSI-set.csv,132,37952118,PMC10746315,10.1093/jamia/ocad214,European Health Data & Evidence Network-learnings from building out a standardized international health data network
+paper-0077,csv-ohdsiomop-set.csv,50,37952118,PMC10746315,10.1093/jamia/ocad214,European Health Data & Evidence Network-learnings from building out a standardized international health data network
+paper-0077,csv-omop-set.csv,169,37952118,PMC10746315,10.1093/jamia/ocad214,European Health Data & Evidence Network-learnings from building out a standardized international health data network
+paper-0078,csv-OHDSI-set.csv,58,31445247,PMC6717538,10.1016/j.ijmedinf.2019.05.018,Automatic trial eligibility surveillance based on unstructured clinical data
+paper-0078,csv-ohdsiomop-set.csv,51,31445247,PMC6717538,10.1016/j.ijmedinf.2019.05.018,Automatic trial eligibility surveillance based on unstructured clinical data
+paper-0078,csv-omop-set.csv,193,31445247,PMC6717538,10.1016/j.ijmedinf.2019.05.018,Automatic trial eligibility surveillance based on unstructured clinical data
+paper-0080,csv-OHDSI-set.csv,115,41631168,PMC12861212,10.1016/j.lanepe.2025.101585,"Comorbidities, medication use, and overall survival in eight cancers: a multinational cohort study of 1.7 million patients across Europe"
+paper-0080,csv-ohdsiomop-set.csv,52,41631168,PMC12861212,10.1016/j.lanepe.2025.101585,"Comorbidities, medication use, and overall survival in eight cancers: a multinational cohort study of 1.7 million patients across Europe"
+paper-0080,csv-omop-set.csv,172,41631168,PMC12861212,10.1016/j.lanepe.2025.101585,"Comorbidities, medication use, and overall survival in eight cancers: a multinational cohort study of 1.7 million patients across Europe"
+paper-0081,csv-OHDSI-set.csv,63,35345821,PMC8957305,10.2147/CLEP.S323292,Unraveling COVID-19: A Large-Scale Characterization of 4.5 Million COVID-19 Cases Using CHARYBDIS
+paper-0081,csv-OHDSI-set.csv,90,33688639,PMC7941629,10.21203/rs.3.rs-279400/v1,Unraveling COVID-19: a large-scale characterization of 4.5 million COVID-19 cases using CHARYBDIS
+paper-0081,csv-ohdsiomop-set.csv,53,35345821,PMC8957305,10.2147/CLEP.S323292,Unraveling COVID-19: A Large-Scale Characterization of 4.5 Million COVID-19 Cases Using CHARYBDIS
+paper-0081,csv-omop-set.csv,256,35345821,PMC8957305,10.2147/CLEP.S323292,Unraveling COVID-19: A Large-Scale Characterization of 4.5 Million COVID-19 Cases Using CHARYBDIS
+paper-0083,csv-OHDSI-set.csv,101,37603402,PMC10477922,10.2196/42883,Prescribing Patterns of Oral Antibiotics and Isotretinoin for Acne in a Colorado Hospital System: Retrospective Cohort Study
+paper-0083,csv-ohdsiomop-set.csv,54,37603402,PMC10477922,10.2196/42883,Prescribing Patterns of Oral Antibiotics and Isotretinoin for Acne in a Colorado Hospital System: Retrospective Cohort Study
+paper-0083,csv-omop-set.csv,233,37603402,PMC10477922,10.2196/42883,Prescribing Patterns of Oral Antibiotics and Isotretinoin for Acne in a Colorado Hospital System: Retrospective Cohort Study
+paper-0085,csv-OHDSI-set.csv,131,39185338,PMC11342032,10.12688/openreseurope.18179.1,Getting ready for the European Health Data Space (EHDS): IDERHA's plan to align with the latest EHDS requirements for the secondary use of health data
+paper-0085,csv-ohdsiomop-set.csv,55,39185338,PMC11342032,10.12688/openreseurope.18179.1,Getting ready for the European Health Data Space (EHDS): IDERHA's plan to align with the latest EHDS requirements for the secondary use of health data
+paper-0085,csv-omop-set.csv,262,39185338,PMC11342032,10.12688/openreseurope.18179.1,Getting ready for the European Health Data Space (EHDS): IDERHA's plan to align with the latest EHDS requirements for the secondary use of health data
+paper-0087,csv-OHDSI-set.csv,166,41646216,PMC12836509,10.1016/j.esmorw.2025.100179,Establishing standards: harmonising coding principles for a minimal cancer dataset in the OMOP Common Data Model
+paper-0087,csv-ohdsiomop-set.csv,56,41646216,PMC12836509,10.1016/j.esmorw.2025.100179,Establishing standards: harmonising coding principles for a minimal cancer dataset in the OMOP Common Data Model
+paper-0087,csv-omop-set.csv,108,41646216,PMC12836509,10.1016/j.esmorw.2025.100179,Establishing standards: harmonising coding principles for a minimal cancer dataset in the OMOP Common Data Model
+paper-0088,csv-OHDSI-set.csv,68,37703800,,10.1016/j.ijmedinf.2023.105200,Determining and assessing characteristics of data element names impacting the performance of annotation using Usagi
+paper-0088,csv-ohdsiomop-set.csv,57,37703800,,10.1016/j.ijmedinf.2023.105200,Determining and assessing characteristics of data element names impacting the performance of annotation using Usagi
+paper-0088,csv-omop-set.csv,208,37703800,,10.1016/j.ijmedinf.2023.105200,Determining and assessing characteristics of data element names impacting the performance of annotation using Usagi
+paper-0089,csv-OHDSI-set.csv,165,41300987,PMC12650375,10.3390/cancers17223620,Association Between the Use of DPP4 Inhibitors and Metformin and the Risk of Cancer in Patients with Type 2 Diabetes: A Multicenter Retrospective Cohort Study Using the OMOP CDM Database
+paper-0089,csv-ohdsiomop-set.csv,58,41300987,PMC12650375,10.3390/cancers17223620,Association Between the Use of DPP4 Inhibitors and Metformin and the Risk of Cancer in Patients with Type 2 Diabetes: A Multicenter Retrospective Cohort Study Using the OMOP CDM Database
+paper-0089,csv-omop-set.csv,112,41300987,PMC12650375,10.3390/cancers17223620,Association Between the Use of DPP4 Inhibitors and Metformin and the Risk of Cancer in Patients with Type 2 Diabetes: A Multicenter Retrospective Cohort Study Using the OMOP CDM Database
+paper-0090,csv-OHDSI-set.csv,118,35631157,PMC9147678,10.3390/nu14102016,Opportunities of Digital Infrastructures for Disease Management-Exemplified on COVID-19-Related Change in Diagnosis Counts for Diabetes-Related Eye Diseases
+paper-0090,csv-ohdsiomop-set.csv,59,35631157,PMC9147678,10.3390/nu14102016,Opportunities of Digital Infrastructures for Disease Management-Exemplified on COVID-19-Related Change in Diagnosis Counts for Diabetes-Related Eye Diseases
+paper-0090,csv-omop-set.csv,241,35631157,PMC9147678,10.3390/nu14102016,Opportunities of Digital Infrastructures for Disease Management-Exemplified on COVID-19-Related Change in Diagnosis Counts for Diabetes-Related Eye Diseases
+paper-0092,csv-OHDSI-set.csv,126,35786634,PMC9400842,10.2196/37821,Methodological Issues in Using a Common Data Model of COVID-19 Vaccine Uptake and Important Adverse Events of Interest: Feasibility Study of Data and Connectivity COVID-19 Vaccines Pharmacovigilance in the United Kingdom
+paper-0092,csv-ohdsiomop-set.csv,60,35786634,PMC9400842,10.2196/37821,Methodological Issues in Using a Common Data Model of COVID-19 Vaccine Uptake and Important Adverse Events of Interest: Feasibility Study of Data and Connectivity COVID-19 Vaccines Pharmacovigilance in the United Kingdom
+paper-0092,csv-omop-set.csv,228,35786634,PMC9400842,10.2196/37821,Methodological Issues in Using a Common Data Model of COVID-19 Vaccine Uptake and Important Adverse Events of Interest: Feasibility Study of Data and Connectivity COVID-19 Vaccines Pharmacovigilance in the United Kingdom
+paper-0094,csv-OHDSI-set.csv,93,38433286,PMC10940053,10.1017/S2045796024000088,Incidence of mental health diagnoses during the COVID-19 pandemic: a multinational network study
+paper-0094,csv-ohdsiomop-set.csv,61,38433286,PMC10940053,10.1017/S2045796024000088,Incidence of mental health diagnoses during the COVID-19 pandemic: a multinational network study
+paper-0094,csv-omop-set.csv,221,38433286,PMC10940053,10.1017/S2045796024000088,Incidence of mental health diagnoses during the COVID-19 pandemic: a multinational network study
+paper-0095,csv-OHDSI-set.csv,147,41166331,PMC12574879,10.1371/journal.pone.0334848,Kineret: Israel's Largest Hospital Network Transformed into the OMOP common data model for collaborative research
+paper-0095,csv-ohdsiomop-set.csv,62,41166331,PMC12574879,10.1371/journal.pone.0334848,Kineret: Israel's Largest Hospital Network Transformed into the OMOP common data model for collaborative research
+paper-0095,csv-omop-set.csv,111,41166331,PMC12574879,10.1371/journal.pone.0334848,Kineret: Israel's Largest Hospital Network Transformed into the OMOP common data model for collaborative research
+paper-0096,csv-OHDSI-set.csv,98,40124300,PMC11926709,10.1016/j.dib.2025.111418,A dataset for mapping the Japanese drugs to RxNorm standard concepts
+paper-0096,csv-ohdsiomop-set.csv,63,40124300,PMC11926709,10.1016/j.dib.2025.111418,A dataset for mapping the Japanese drugs to RxNorm standard concepts
+paper-0096,csv-omop-set.csv,260,40124300,PMC11926709,10.1016/j.dib.2025.111418,A dataset for mapping the Japanese drugs to RxNorm standard concepts
+paper-0098,csv-OHDSI-set.csv,156,33975825,PMC8111167,10.1136/bmj.n1038,Use of repurposed and adjuvant drugs in hospital patients with covid-19: multinational network cohort study
+paper-0098,csv-ohdsiomop-set.csv,64,33975825,PMC8111167,10.1136/bmj.n1038,Use of repurposed and adjuvant drugs in hospital patients with covid-19: multinational network cohort study
+paper-0098,csv-omop-set.csv,270,33975825,PMC8111167,10.1136/bmj.n1038,Use of repurposed and adjuvant drugs in hospital patients with covid-19: multinational network cohort study
+paper-0100,csv-OHDSI-set.csv,152,39761272,PMC11703056,10.1371/journal.pone.0311511,ETL: From the German Health Data Lab data formats to the OMOP Common Data Model
+paper-0100,csv-ohdsiomop-set.csv,65,39761272,PMC11703056,10.1371/journal.pone.0311511,ETL: From the German Health Data Lab data formats to the OMOP Common Data Model
+paper-0100,csv-omop-set.csv,113,39761272,PMC11703056,10.1371/journal.pone.0311511,ETL: From the German Health Data Lab data formats to the OMOP Common Data Model
+paper-0101,csv-OHDSI-set.csv,105,34930903,PMC8688463,10.1038/s41398-021-01760-6,Predictors of diagnostic transition from major depressive disorder to bipolar disorder: a retrospective observational network study
+paper-0101,csv-ohdsiomop-set.csv,66,34930903,PMC8688463,10.1038/s41398-021-01760-6,Predictors of diagnostic transition from major depressive disorder to bipolar disorder: a retrospective observational network study
+paper-0101,csv-omop-set.csv,232,34930903,PMC8688463,10.1038/s41398-021-01760-6,Predictors of diagnostic transition from major depressive disorder to bipolar disorder: a retrospective observational network study
+paper-0103,csv-OHDSI-set.csv,180,40173432,PMC12004012,10.2196/60917,Conversion of Sensitive Data to the Observational Medical Outcomes Partnership Common Data Model: Protocol for the Development and Use of Carrot
+paper-0103,csv-ohdsiomop-set.csv,67,40173432,PMC12004012,10.2196/60917,Conversion of Sensitive Data to the Observational Medical Outcomes Partnership Common Data Model: Protocol for the Development and Use of Carrot
+paper-0103,csv-omop-set.csv,297,40173432,PMC12004012,10.2196/60917,Conversion of Sensitive Data to the Observational Medical Outcomes Partnership Common Data Model: Protocol for the Development and Use of Carrot
+paper-0104,csv-OHDSI-set.csv,190,34267326,PMC8281807,10.1038/s41366-021-00893-4,"Characteristics and outcomes of 627 044 COVID-19 patients living with and without obesity in the United States, Spain, and the United Kingdom"
+paper-0104,csv-ohdsiomop-set.csv,68,34267326,PMC8281807,10.1038/s41366-021-00893-4,"Characteristics and outcomes of 627 044 COVID-19 patients living with and without obesity in the United States, Spain, and the United Kingdom"
+paper-0104,csv-omop-set.csv,313,34267326,PMC8281807,10.1038/s41366-021-00893-4,"Characteristics and outcomes of 627 044 COVID-19 patients living with and without obesity in the United States, Spain, and the United Kingdom"
+paper-0105,csv-OHDSI-set.csv,134,33725121,PMC7989171,10.1093/rheumatology/keab250,COVID-19 in patients with autoimmune diseases: characteristics and outcomes in a multinational network of cohorts across three countries
+paper-0105,csv-ohdsiomop-set.csv,69,33725121,PMC7989171,10.1093/rheumatology/keab250,COVID-19 in patients with autoimmune diseases: characteristics and outcomes in a multinational network of cohorts across three countries
+paper-0105,csv-omop-set.csv,288,33725121,PMC7989171,10.1093/rheumatology/keab250,COVID-19 in patients with autoimmune diseases: characteristics and outcomes in a multinational network of cohorts across three countries
+paper-0106,csv-OHDSI-set.csv,128,38519026,PMC11298306,10.1016/j.oret.2024.03.014,"Similar Risk of Kidney Failure among Patients with Blinding Diseases Who Receive Ranibizumab, Aflibercept, and Bevacizumab: An Observational Health Data Sciences and Informatics Network Study"
+paper-0106,csv-ohdsiomop-set.csv,70,38519026,PMC11298306,10.1016/j.oret.2024.03.014,"Similar Risk of Kidney Failure among Patients with Blinding Diseases Who Receive Ranibizumab, Aflibercept, and Bevacizumab: An Observational Health Data Sciences and Informatics Network Study"
+paper-0106,csv-omop-set.csv,348,38519026,PMC11298306,10.1016/j.oret.2024.03.014,"Similar Risk of Kidney Failure among Patients with Blinding Diseases Who Receive Ranibizumab, Aflibercept, and Bevacizumab: An Observational Health Data Sciences and Informatics Network Study"
+paper-0108,csv-OHDSI-set.csv,205,27014709,PMC4780748,10.13063/2327-9214.1189,"Data Extraction and Management in Networks of Observational Health Care Databases for Scientific Research: A Comparison of EU-ADR, OMOP, Mini-Sentinel and MATRICE Strategies"
+paper-0108,csv-ohdsiomop-set.csv,71,27014709,PMC4780748,10.13063/2327-9214.1189,"Data Extraction and Management in Networks of Observational Health Care Databases for Scientific Research: A Comparison of EU-ADR, OMOP, Mini-Sentinel and MATRICE Strategies"
+paper-0108,csv-omop-set.csv,144,27014709,PMC4780748,10.13063/2327-9214.1189,"Data Extraction and Management in Networks of Observational Health Care Databases for Scientific Research: A Comparison of EU-ADR, OMOP, Mini-Sentinel and MATRICE Strategies"
+paper-0110,csv-OHDSI-set.csv,133,39973032,PMC11854637,10.4258/hir.2025.31.1.4,Utility of Treatment Pattern Analysis Using a Common Data Model: A Scoping Review
+paper-0110,csv-ohdsiomop-set.csv,72,39973032,PMC11854637,10.4258/hir.2025.31.1.4,Utility of Treatment Pattern Analysis Using a Common Data Model: A Scoping Review
+paper-0110,csv-omop-set.csv,300,39973032,PMC11854637,10.4258/hir.2025.31.1.4,Utility of Treatment Pattern Analysis Using a Common Data Model: A Scoping Review
+paper-0112,csv-OHDSI-set.csv,179,39896425,PMC11783105,10.1016/j.xops.2024.100666,Implementing a Common Data Model in Ophthalmology: Mapping Structured Electronic Health Record Ophthalmic Examination Data to Standard Vocabularies
+paper-0112,csv-ohdsiomop-set.csv,73,39896425,PMC11783105,10.1016/j.xops.2024.100666,Implementing a Common Data Model in Ophthalmology: Mapping Structured Electronic Health Record Ophthalmic Examination Data to Standard Vocabularies
+paper-0112,csv-omop-set.csv,273,39896425,PMC11783105,10.1016/j.xops.2024.100666,Implementing a Common Data Model in Ophthalmology: Mapping Structured Electronic Health Record Ophthalmic Examination Data to Standard Vocabularies
+paper-0114,csv-OHDSI-set.csv,196,40774333,PMC12331365,10.2196/74119,Advancing Real-World Evidence Through a Federated Health Data Network (EHDEN): Descriptive Study
+paper-0114,csv-ohdsiomop-set.csv,74,40774333,PMC12331365,10.2196/74119,Advancing Real-World Evidence Through a Federated Health Data Network (EHDEN): Descriptive Study
+paper-0114,csv-omop-set.csv,294,40774333,PMC12331365,10.2196/74119,Advancing Real-World Evidence Through a Federated Health Data Network (EHDEN): Descriptive Study
+paper-0116,csv-OHDSI-set.csv,208,41930302,PMC13040891,10.1016/j.esmorw.2025.100655,Evaluating the statistical utility and information loss in the transformation of a real-world oncology database from CDISC-SDTM to OMOP-CDM
+paper-0116,csv-ohdsiomop-set.csv,75,41930302,PMC13040891,10.1016/j.esmorw.2025.100655,Evaluating the statistical utility and information loss in the transformation of a real-world oncology database from CDISC-SDTM to OMOP-CDM
+paper-0116,csv-omop-set.csv,170,41930302,PMC13040891,10.1016/j.esmorw.2025.100655,Evaluating the statistical utility and information loss in the transformation of a real-world oncology database from CDISC-SDTM to OMOP-CDM
+paper-0118,csv-OHDSI-set.csv,185,39820599,PMC11737733,10.1371/journal.pone.0310634,CohortDiagnostics: Phenotype evaluation across a network of observational data sources using population-level characterization
+paper-0118,csv-ohdsiomop-set.csv,76,39820599,PMC11737733,10.1371/journal.pone.0310634,CohortDiagnostics: Phenotype evaluation across a network of observational data sources using population-level characterization
+paper-0118,csv-omop-set.csv,308,39820599,PMC11737733,10.1371/journal.pone.0310634,CohortDiagnostics: Phenotype evaluation across a network of observational data sources using population-level characterization
+paper-0120,csv-OHDSI-set.csv,200,41877886,PMC13006644,10.3389/fpsyt.2026.1751529,Migrating longitudinal African mental health data from staging to the OMOP common data model within the INSPIRE network datahub
+paper-0120,csv-ohdsiomop-set.csv,77,41877886,PMC13006644,10.3389/fpsyt.2026.1751529,Migrating longitudinal African mental health data from staging to the OMOP common data model within the INSPIRE network datahub
+paper-0120,csv-omop-set.csv,166,41877886,PMC13006644,10.3389/fpsyt.2026.1751529,Migrating longitudinal African mental health data from staging to the OMOP common data model within the INSPIRE network datahub
+paper-0122,csv-OHDSI-set.csv,159,30937326,PMC6437693,10.5334/egems.279,Learning to Share Health Care Data: A Brief Timeline of Influential Common Data Models and Distributed Health Data Networks in U.S. Health Care Research
+paper-0122,csv-ohdsiomop-set.csv,78,30937326,PMC6437693,10.5334/egems.279,Learning to Share Health Care Data: A Brief Timeline of Influential Common Data Models and Distributed Health Data Networks in U.S. Health Care Research
+paper-0122,csv-omop-set.csv,323,30937326,PMC6437693,10.5334/egems.279,Learning to Share Health Care Data: A Brief Timeline of Influential Common Data Models and Distributed Health Data Networks in U.S. Health Care Research
+paper-0123,csv-OHDSI-set.csv,167,31386904,,10.1016/j.jbi.2019.103264,Supplementing claims data analysis using self-reported data to develop a probabilistic phenotype model for current smoking status
+paper-0123,csv-ohdsiomop-set.csv,79,31386904,,10.1016/j.jbi.2019.103264,Supplementing claims data analysis using self-reported data to develop a probabilistic phenotype model for current smoking status
+paper-0123,csv-omop-set.csv,341,31386904,,10.1016/j.jbi.2019.103264,Supplementing claims data analysis using self-reported data to develop a probabilistic phenotype model for current smoking status
+paper-0125,csv-OHDSI-set.csv,174,32511443,PMC7239064,10.1101/2020.04.22.20074336,"Deep phenotyping of 34,128 patients hospitalised with COVID-19 and a comparison with 81,596 influenza patients in America, Europe and Asia: an international network study"
+paper-0125,csv-ohdsiomop-set.csv,80,32511443,PMC7239064,10.1101/2020.04.22.20074336,"Deep phenotyping of 34,128 patients hospitalised with COVID-19 and a comparison with 81,596 influenza patients in America, Europe and Asia: an international network study"
+paper-0125,csv-omop-set.csv,344,32511443,PMC7239064,10.1101/2020.04.22.20074336,"Deep phenotyping of 34,128 patients hospitalised with COVID-19 and a comparison with 81,596 influenza patients in America, Europe and Asia: an international network study"
+paper-0126,csv-OHDSI-set.csv,194,26893951,PMC4756059,10.4258/hir.2016.22.1.54,Conversion and Data Quality Assessment of Electronic Health Record Data at a Korean Tertiary Teaching Hospital to a Common Data Model for Distributed Network Research
+paper-0126,csv-ohdsiomop-set.csv,81,26893951,PMC4756059,10.4258/hir.2016.22.1.54,Conversion and Data Quality Assessment of Electronic Health Record Data at a Korean Tertiary Teaching Hospital to a Common Data Model for Distributed Network Research
+paper-0126,csv-omop-set.csv,356,26893951,PMC4756059,10.4258/hir.2016.22.1.54,Conversion and Data Quality Assessment of Electronic Health Record Data at a Korean Tertiary Teaching Hospital to a Common Data Model for Distributed Network Research
+paper-0149,csv-OHDSI-set.csv,125,35570298,PMC9107579,10.1186/s12985-022-01813-2,NSAID use and clinical outcomes in COVID-19 patients: a 38-center retrospective cohort study
+paper-0149,csv-OHDSI-set.csv,192,33907758,PMC8077581,10.1101/2021.04.13.21255438,NSAID use and clinical outcomes in COVID-19 patients: A 38-center retrospective cohort study
+paper-0220,csv-omop-set.csv,20,38045364,PMC10690355,10.1101/2023.08.09.23293900,MENDS-on-FHIR: Leveraging the OMOP common data model and FHIR standards for national chronic disease surveillance
+paper-0220,csv-omop-set.csv,23,38818114,PMC11137321,10.1093/jamiaopen/ooae045,MENDS-on-FHIR: leveraging the OMOP common data model and FHIR standards for national chronic disease surveillance
+paper-0277,csv-omop-set.csv,95,33674830,PMC7989301,10.1093/jamia/ocab015,COVID-19 SignSym: a fast adaptation of a general clinical NLP tool to identify and normalize COVID-19 signs and symptoms to OMOP common data model
+paper-0277,csv-omop-set.csv,150,32908948,PMC7480086,,COVID-19 SignSym: a fast adaptation of a general clinical NLP tool to identify and normalize COVID-19 signs and symptoms to OMOP common data model
+paper-0314,csv-omop-set.csv,145,39657951,PMC11709244,10.1093/bioinformatics/btae719,PheWAS analysis on large-scale biobank data with PheTK
+paper-0314,csv-omop-set.csv,152,38410487,PMC10896413,10.1101/2024.02.12.24302720,PheWAS analysis on large-scale biobank data with PheTK

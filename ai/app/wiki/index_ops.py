@@ -8,8 +8,8 @@ from pathlib import Path
 
 INDEX_HEADER = """# Wiki Index
 
-| type | title | slug | path | keywords | links | updated_at | source_slug | source_type | ingested_at |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| type | title | slug | path | keywords | links | updated_at | source_slug | source_type | ingested_at | doi | authors | first_author | journal | publication_year | pmid | pmcid | primary_domain |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 """
 
 
@@ -25,6 +25,14 @@ class IndexEntry:
     source_slug: str = ""
     source_type: str = ""
     ingested_at: str = ""
+    doi: str = ""
+    authors: str = ""
+    first_author: str = ""
+    journal: str = ""
+    publication_year: str = ""
+    pmid: str = ""
+    pmcid: str = ""
+    primary_domain: str = ""
 
 
 def ensure_index_file(workspace_dir: str | Path) -> Path:
@@ -58,6 +66,14 @@ def read_index(workspace_dir: str | Path) -> list[IndexEntry]:
                 source_slug=columns[7] if len(columns) > 7 else "",
                 source_type=columns[8] if len(columns) > 8 else "",
                 ingested_at=columns[9] if len(columns) > 9 else "",
+                doi=columns[10] if len(columns) > 10 else "",
+                authors=columns[11] if len(columns) > 11 else "",
+                first_author=columns[12] if len(columns) > 12 else "",
+                journal=columns[13] if len(columns) > 13 else "",
+                publication_year=columns[14] if len(columns) > 14 else "",
+                pmid=columns[15] if len(columns) > 15 else "",
+                pmcid=columns[16] if len(columns) > 16 else "",
+                primary_domain=columns[17] if len(columns) > 17 else "",
             )
         )
     return entries
@@ -81,6 +97,14 @@ def write_index(workspace_dir: str | Path, entries: list[IndexEntry]) -> Path:
                     _sanitize_cell(entry.source_slug),
                     _sanitize_cell(entry.source_type),
                     _sanitize_cell(entry.ingested_at),
+                    _sanitize_cell(entry.doi),
+                    _sanitize_cell(entry.authors),
+                    _sanitize_cell(entry.first_author),
+                    _sanitize_cell(entry.journal),
+                    _sanitize_cell(entry.publication_year),
+                    _sanitize_cell(entry.pmid),
+                    _sanitize_cell(entry.pmcid),
+                    _sanitize_cell(entry.primary_domain),
                 ]
             )
             + " |"
@@ -132,6 +156,14 @@ def search_index(
             entry.page_type.lower(),
             " ".join(keyword.lower() for keyword in entry.keywords),
             " ".join(link.lower() for link in entry.links),
+            entry.doi.lower(),
+            entry.authors.lower(),
+            entry.first_author.lower(),
+            entry.journal.lower(),
+            entry.publication_year.lower(),
+            entry.pmid.lower(),
+            entry.pmcid.lower(),
+            entry.primary_domain.lower(),
         ])
         score = sum(1 for token in tokens if token in haystack)
         if score:

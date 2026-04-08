@@ -7,6 +7,8 @@ interface SourceEntry {
   sourceType: string | null;
   updatedAt: string;
   ingestedAt: string;
+  firstAuthor: string | null;
+  publicationYear: string | null;
   childPages: WikiPageSummary[];
   hasIssues: boolean;
 }
@@ -28,6 +30,8 @@ function buildSourceList(pages: WikiPageSummary[], lintIssues: WikiLintIssue[]):
       // Use the earliest ingested_at for the source group
       const pageIngested = page.ingested_at ?? page.updated_at;
       if (pageIngested < existing.ingestedAt) existing.ingestedAt = pageIngested;
+      if (!existing.firstAuthor && page.first_author) existing.firstAuthor = page.first_author;
+      if (!existing.publicationYear && page.publication_year) existing.publicationYear = page.publication_year;
     } else {
       const displayTitle = page.title;
       sources.set(key, {
@@ -36,6 +40,8 @@ function buildSourceList(pages: WikiPageSummary[], lintIssues: WikiLintIssue[]):
         sourceType: page.source_type ?? null,
         updatedAt: page.updated_at,
         ingestedAt: page.ingested_at ?? page.updated_at,
+        firstAuthor: page.first_author ?? null,
+        publicationYear: page.publication_year ?? null,
         childPages: [page],
         hasIssues: issueSet.has(page.slug),
       });
@@ -121,6 +127,16 @@ export function WikiPageTree({
                 {source.sourceType && (
                   <span className="text-[10px] font-medium uppercase text-[#5A5650]">
                     {TYPE_ICONS[source.sourceType] ?? source.sourceType}
+                  </span>
+                )}
+                {source.firstAuthor && (
+                  <span className="truncate text-[10px] text-[#5A5650]">
+                    {source.firstAuthor}
+                  </span>
+                )}
+                {source.publicationYear && (
+                  <span className="text-[10px] text-[#5A5650]">
+                    {source.publicationYear}
                   </span>
                 )}
                 <span className="text-[10px] text-[#5A5650]">

@@ -6,6 +6,7 @@ import type {
   WikiLintResponse,
   WikiPageDetail,
   WikiPageListResponse,
+  WikiPageSummary,
   WikiQueryRequest,
   WikiQueryResponse,
   WikiWorkspace,
@@ -58,12 +59,28 @@ async function ingestWikiSource(payload: {
   workspace: string;
   title?: string;
   rawContent?: string;
+  doi?: string;
+  authors?: string;
+  firstAuthor?: string;
+  journal?: string;
+  publicationYear?: string;
+  pmid?: string;
+  pmcid?: string;
+  pdfKeywords?: string;
   file?: File | null;
 }): Promise<WikiIngestResponse> {
   const formData = new FormData();
   formData.append("workspace", payload.workspace);
   if (payload.title) formData.append("title", payload.title);
   if (payload.rawContent) formData.append("raw_content", payload.rawContent);
+  if (payload.doi) formData.append("doi", payload.doi);
+  if (payload.authors) formData.append("authors", payload.authors);
+  if (payload.firstAuthor) formData.append("first_author", payload.firstAuthor);
+  if (payload.journal) formData.append("journal", payload.journal);
+  if (payload.publicationYear) formData.append("publication_year", payload.publicationYear);
+  if (payload.pmid) formData.append("pmid", payload.pmid);
+  if (payload.pmcid) formData.append("pmcid", payload.pmcid);
+  if (payload.pdfKeywords) formData.append("pdf_keywords", payload.pdfKeywords);
   if (payload.file) formData.append("file", payload.file);
   const { data } = await apiClient.post<WikiIngestResponse>("/wiki/ingest", formData, {
     headers: { "Content-Type": "multipart/form-data" },
@@ -77,6 +94,11 @@ async function queryWiki(payload: WikiQueryRequest): Promise<WikiQueryResponse> 
     question: payload.question,
     page_slug: payload.pageSlug ?? undefined,
     source_slug: payload.sourceSlug ?? undefined,
+    primary_domain: payload.primaryDomain ?? undefined,
+    journal: payload.journal ?? undefined,
+    publication_year_min: payload.publicationYearMin ?? undefined,
+    publication_year_max: payload.publicationYearMax ?? undefined,
+    first_author: payload.firstAuthor ?? undefined,
   });
   return data;
 }
@@ -108,6 +130,11 @@ export async function streamWikiQuery(
       question: payload.question,
       page_slug: payload.pageSlug ?? undefined,
       source_slug: payload.sourceSlug ?? undefined,
+      primary_domain: payload.primaryDomain ?? undefined,
+      journal: payload.journal ?? undefined,
+      publication_year_min: payload.publicationYearMin ?? undefined,
+      publication_year_max: payload.publicationYearMax ?? undefined,
+      first_author: payload.firstAuthor ?? undefined,
     }),
     signal: handlers.signal,
   });

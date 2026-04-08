@@ -1,8 +1,31 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Loader2, Maximize2, Send, User } from "lucide-react";
+import { useAuthStore } from "@/stores/authStore";
 import type { WikiChatMessage } from "../../types/wiki";
 import { MarkdownRenderer } from "./MarkdownRenderer";
 import AbbyAvatar from "../abby/AbbyAvatar";
+
+function UserBubble() {
+  const user = useAuthStore((s) => s.user);
+  const avatarUrl = user?.avatar ? `/storage/${user.avatar}?v=${user.updated_at ?? ""}` : null;
+  const [err, setErr] = useState(false);
+
+  if (avatarUrl && !err) {
+    return (
+      <img
+        src={avatarUrl}
+        alt={user?.name ?? ""}
+        className="h-6 w-6 rounded-full object-cover"
+        onError={() => setErr(true)}
+      />
+    );
+  }
+  return (
+    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#1A1A1E]">
+      <User size={12} className="text-[#8A857D]" />
+    </div>
+  );
+}
 
 export function WikiChatPanel({
   messages, loading, onSend, onNavigate, onExpandChat, currentPageTitle,
@@ -71,8 +94,8 @@ export function WikiChatPanel({
               return (
                 <div key={msg.id} className="flex gap-2.5">
                   {msg.role === "user" ? (
-                    <div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[#1A1A1E]">
-                      <User size={12} className="text-[#8A857D]" />
+                    <div className="mt-0.5 flex-shrink-0">
+                      <UserBubble />
                     </div>
                   ) : isStreamingMsg ? (
                     <div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center">

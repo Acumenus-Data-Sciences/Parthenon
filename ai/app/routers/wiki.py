@@ -75,6 +75,14 @@ async def ingest(
     workspace: str = Form("platform"),
     title: str | None = Form(default=None),
     raw_content: str | None = Form(default=None),
+    doi: str | None = Form(default=None),
+    authors: str | None = Form(default=None),
+    first_author: str | None = Form(default=None),
+    journal: str | None = Form(default=None),
+    publication_year: str | None = Form(default=None),
+    pmid: str | None = Form(default=None),
+    pmcid: str | None = Form(default=None),
+    pdf_keywords: str | None = Form(default=None),
     file: UploadFile | None = File(default=None),
 ) -> WikiIngestResponse:
     normalized_content = raw_content.strip() if raw_content is not None else None
@@ -91,6 +99,14 @@ async def ingest(
         content_bytes=content_bytes,
         raw_content=normalized_content,
         title=title,
+        doi=doi,
+        authors=authors,
+        first_author=first_author,
+        journal=journal,
+        publication_year=publication_year,
+        pmid=pmid,
+        pmcid=pmcid,
+        pdf_keywords=pdf_keywords,
     )
 
 
@@ -101,6 +117,11 @@ async def query(request: WikiQueryRequest) -> WikiQueryResponse:
         request.question,
         page_slug=request.page_slug,
         source_slug=request.source_slug,
+        primary_domain=request.primary_domain,
+        journal=request.journal,
+        publication_year_min=request.publication_year_min,
+        publication_year_max=request.publication_year_max,
+        first_author=request.first_author,
     )
 
 

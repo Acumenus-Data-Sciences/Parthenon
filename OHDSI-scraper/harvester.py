@@ -27,14 +27,17 @@ import os
 import re
 import sys
 import time
+import io
 import hashlib
 import logging
 import argparse
+import tarfile
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Optional
 from dataclasses import dataclass, field, asdict
 from urllib.parse import quote
+from xml.etree import ElementTree
 
 import requests
 from bs4 import BeautifulSoup
@@ -96,6 +99,8 @@ class Paper:
     is_oa: bool = False
     oa_url: Optional[str] = None
     pdf_path: Optional[str] = None
+    download_source: Optional[str] = None
+    download_error: Optional[str] = None
     source: str = "ohdsi_bibliography"  # or "openalex_author_works"
 
 # --- Session Setup ------------------------------------------------------------
@@ -588,6 +593,46 @@ def unpaywall_lookup(doi: str) -> Optional[str]:
     return None
 
 
+def europepmc_lookup(pmcid: Optional[str] = None, doi: Optional[str] = None) -> Optional[str]:
+    """Look for a free PDF via Europe PMC metadata."""
+    if not pmcid and not doi:
+        return None
+
+    query = f"PMCID:{pmcid}" if pmcid else f'DOI:"{doi}"'
+    time.sleep(CONFIG["pubmed_delay"])
+    try:
+        resp = session.get(
+            "https://www.ebi.ac.uk/europepmc/webservices/rest/search",
+            params={
+                "query": query,
+                "format": "json",
+                "pageSize": 1,
+                "resultType": "core",
+            },
+            timeout=30,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        result = (data.get("resultList") or {}).get("result", [])
+        if not result:
+            return None
+
+        urls = (((result[0] or {}).get("fullTextUrlList") or {}).get("fullTextUrl") or [])
+        for url_info in urls:
+            availability = (url_info.get("availabilityCode") or "").upper()
+            style = (url_info.get("documentStyle") or "").lower()
+            url = (url_info.get("url") or "").strip()
+            if url and style == "pdf" and availability in {"F", "OA"}:
+                return url
+
+        has_pdf = str(result[0].get("hasPDF") or "").upper() == "Y"
+        if has_pdf and pmcid:
+            return f"https://europepmc.org/articles/{pmcid}?pdf=render"
+    except Exception as e:
+        log.debug(f"Europe PMC lookup failed for pmcid={pmcid} doi={doi}: {e}")
+    return None
+
+
 def phase4_unpaywall_enrichment(papers: list[Paper]) -> list[Paper]:
     """
     For papers that have DOIs but no OA URL yet, check Unpaywall.
@@ -596,10 +641,7 @@ def phase4_unpaywall_enrichment(papers: list[Paper]) -> list[Paper]:
     log.info("PHASE 4: Checking Unpaywall for legal OA copies")
     log.info("=" * 70)
 
-    papers_needing_oa = [
-        p for p in papers
-        if p.doi and not p.oa_url and not p.pmcid
-    ]
+    papers_needing_oa = [p for p in papers if not p.oa_url and (p.doi or p.pmcid)]
 
     log.info(f"Checking Unpaywall for {len(papers_needing_oa)} papers without OA access")
 
@@ -608,7 +650,9 @@ def phase4_unpaywall_enrichment(papers: list[Paper]) -> list[Paper]:
         if i > 0 and i % 100 == 0:
             log.info(f"  ... checked {i}/{len(papers_needing_oa)}, found {found} OA")
 
-        pdf_url = unpaywall_lookup(paper.doi)
+        pdf_url = unpaywall_lookup(paper.doi) if paper.doi else None
+        if not pdf_url:
+            pdf_url = europepmc_lookup(pmcid=paper.pmcid, doi=paper.doi)
         if pdf_url:
             paper.oa_url = pdf_url
             paper.is_oa = True
@@ -625,7 +669,7 @@ def phase4_unpaywall_enrichment(papers: list[Paper]) -> list[Paper]:
 
 # --- Phase 5: Download PDFs --------------------------------------------------
 
-def download_pdf(url: str, filepath: str) -> bool:
+def download_pdf_with_reason(url: str, filepath: str) -> tuple[bool, Optional[str]]:
     """Download a PDF from a URL to a local file.
 
     Validates the response is an actual PDF by checking both the Content-Type
@@ -647,7 +691,7 @@ def download_pdf(url: str, filepath: str) -> bool:
         # Reject HTML responses outright (login pages, cookie walls, error pages)
         if "html" in content_type or "xml" in content_type:
             log.debug(f"Rejected HTML/XML response from {url}: {content_type}")
-            return False
+            return False, "html_or_xml_response"
 
         # Accept if Content-Type says PDF or octet-stream
         type_ok = "pdf" in content_type or "octet-stream" in content_type
@@ -659,20 +703,104 @@ def download_pdf(url: str, filepath: str) -> bool:
             with open(filepath, "wb") as f:
                 f.write(resp.content)
             os.chmod(filepath, 0o644)
-            return True
+            return True, None
 
         if not is_pdf:
             log.debug(f"Not a valid PDF (bad magic bytes) from {url}: content_type={content_type}")
+            return False, "non_pdf_payload"
         else:
             log.debug(f"Unexpected content type from {url}: {content_type}")
+            return False, "unexpected_content_type"
     except Exception as e:
         log.debug(f"Download failed from {url}: {e}")
-    return False
+        return False, type(e).__name__
+
+
+def download_pdf(url: str, filepath: str) -> bool:
+    success, _ = download_pdf_with_reason(url, filepath)
+    return success
 
 
 def pmc_pdf_url(pmcid: str) -> str:
     """Construct a PMC PDF download URL."""
     return f"https://www.ncbi.nlm.nih.gov/pmc/articles/{pmcid}/pdf/"
+
+
+def pmc_oa_package_url(pmcid: str) -> Optional[str]:
+    """Resolve a PMCID to its PMC OA package URL when available."""
+    time.sleep(CONFIG["pubmed_delay"])
+    try:
+        resp = session.get(
+            "https://www.ncbi.nlm.nih.gov/pmc/utils/oa/oa.fcgi",
+            params={"id": pmcid},
+            timeout=30,
+        )
+        resp.raise_for_status()
+        root = ElementTree.fromstring(resp.text)
+        link = root.find(".//link[@format='tgz']")
+        if link is None:
+            return None
+
+        href = link.attrib.get("href", "").strip()
+        if not href:
+            return None
+        if href.startswith("ftp://ftp.ncbi.nlm.nih.gov/"):
+            return "https://ftp.ncbi.nlm.nih.gov/" + href[len("ftp://ftp.ncbi.nlm.nih.gov/"):]
+        if href.startswith("ftp://"):
+            return "https://" + href[len("ftp://"):]
+        return href
+    except Exception as e:
+        log.debug(f"PMC OA package lookup failed for {pmcid}: {e}")
+    return None
+
+
+def _pmc_pdf_member_key(name: str) -> tuple[int, int, str]:
+    filename = Path(name).name.lower()
+    return (
+        1 if any(token in filename for token in ("supp", "append", "author", "reviewer")) else 0,
+        len(filename),
+        filename,
+    )
+
+
+def download_pmc_pdf(pmcid: str, filepath: str) -> tuple[bool, Optional[str], Optional[str]]:
+    """Download a PMC-backed PDF, preferring the OA package API when available."""
+    package_url = pmc_oa_package_url(pmcid)
+    package_reason = None
+    if package_url:
+        try:
+            time.sleep(CONFIG["download_delay"])
+            resp = requests.get(
+                package_url,
+                timeout=90,
+                allow_redirects=True,
+                headers={"User-Agent": session.headers["User-Agent"]},
+            )
+            resp.raise_for_status()
+            with tarfile.open(fileobj=io.BytesIO(resp.content), mode="r:gz") as archive:
+                members = [
+                    member for member in archive.getmembers()
+                    if member.isfile() and member.name.lower().endswith(".pdf")
+                ]
+                if members:
+                    member = min(members, key=lambda item: _pmc_pdf_member_key(item.name))
+                    extracted = archive.extractfile(member)
+                    if extracted is not None:
+                        pdf_bytes = extracted.read()
+                        if pdf_bytes[:5] == b"%PDF-":
+                            with open(filepath, "wb") as f:
+                                f.write(pdf_bytes)
+                            os.chmod(filepath, 0o644)
+                            return True, "pmc_oa_package", None
+                package_reason = "pmc_package_without_pdf"
+        except Exception as e:
+            log.debug(f"PMC OA package download failed for {pmcid}: {e}")
+            package_reason = type(e).__name__
+
+    success, reason = download_pdf_with_reason(pmc_pdf_url(pmcid), filepath)
+    if success:
+        return True, "pmc_pdf_url", None
+    return False, None, package_reason or reason or "pmc_pdf_download_failed"
 
 
 def _paper_identity_key(paper: Paper) -> str:
@@ -708,18 +836,33 @@ def _download_one_paper(pdf_dir: Path, paper: Paper) -> tuple[Paper, bool]:
 
     if os.path.exists(filepath) and os.path.getsize(filepath) > 1000:
         paper.pdf_path = filepath
+        paper.download_source = "existing_file"
+        paper.download_error = None
         return paper, True
 
     success = False
+    last_error = None
 
     if paper.pmcid:
-        success = download_pdf(pmc_pdf_url(paper.pmcid), filepath)
+        success, source, last_error = download_pmc_pdf(paper.pmcid, filepath)
+        if success:
+            paper.download_source = source
 
     if not success and paper.oa_url:
-        success = download_pdf(paper.oa_url, filepath)
+        success, last_error = download_pdf_with_reason(paper.oa_url, filepath)
+        if success:
+            if "europepmc.org" in paper.oa_url:
+                paper.download_source = "europepmc_pdf"
+            elif "unpaywall" in paper.oa_url.lower():
+                paper.download_source = "unpaywall_pdf"
+            else:
+                paper.download_source = "oa_url"
 
     if success:
         paper.pdf_path = filepath
+        paper.download_error = None
+    else:
+        paper.download_error = last_error
 
     return paper, success
 

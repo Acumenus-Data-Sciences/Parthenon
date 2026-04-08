@@ -30,9 +30,26 @@ export function WikiPageView({
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
             <h2 className="text-xl font-bold text-[#F0EDE8]">{page.title}</h2>
+            <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#8A857D]">
+              {page.first_author && <span>{page.first_author}</span>}
+              {page.publication_year && <span>{page.publication_year}</span>}
+              {page.journal && <span className="truncate">{page.journal}</span>}
+              {page.primary_domain && (
+                <span className="rounded bg-[#2DD4BF]/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.08em] text-[#2DD4BF]">
+                  {page.primary_domain.replaceAll("-", " ")}
+                </span>
+              )}
+            </div>
             <p className="mt-1.5 text-xs text-[#5A5650]">
               Last updated {new Date(page.updated_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
             </p>
+            {(page.doi || page.pmid || page.pmcid) && (
+              <p className="mt-1 text-[11px] text-[#5A5650]">
+                {page.doi && <span>DOI {page.doi}</span>}
+                {page.pmid && <span>{page.doi ? " • " : ""}PMID {page.pmid}</span>}
+                {page.pmcid && <span>{page.doi || page.pmid ? " • " : ""}PMCID {page.pmcid}</span>}
+              </p>
+            )}
           </div>
 
           {canViewSource && onViewSource && (

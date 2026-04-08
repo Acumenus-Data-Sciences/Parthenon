@@ -82,6 +82,34 @@ ohdsi_corpus/
 └-- harvester.log                  # Full log
 ```
 
+## Validated CSV Downloader
+
+If you already have validated PubMed-style CSVs with free full text articles,
+use the dedicated downloader instead of re-scraping:
+
+```bash
+# Dedupe only, no network calls
+python OHDSI-scraper/download_validated_papers.py --manifest-only
+
+# Resolve PMC/Unpaywall and download PDFs
+python OHDSI-scraper/download_validated_papers.py \
+  --email sanjay@acumenus.net
+```
+
+Default inputs are `OHDSI-scraper/csv-*.csv`. The script writes:
+
+- `validated_oa_corpus/metadata/deduped_manifest.csv`
+- `validated_oa_corpus/metadata/duplicate_groups.csv`
+- `validated_oa_corpus/metadata/summary.json`
+- `validated_oa_corpus/metadata/downloaded_paper_metadata.csv`
+- `validated_oa_corpus/pdfs/*.pdf`
+
+To extract a CSV metadata inventory from the downloaded PDFs:
+
+```bash
+python OHDSI-scraper/extract_downloaded_metadata.py
+```
+
 ## Estimated Yield
 
 Based on the OHDSI community structure:

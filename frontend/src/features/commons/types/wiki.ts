@@ -17,6 +17,14 @@ export interface WikiPageSummary {
   source_slug?: string | null;
   source_type?: string | null;
   ingested_at?: string | null;
+  doi?: string | null;
+  authors?: string | null;
+  first_author?: string | null;
+  journal?: string | null;
+  publication_year?: string | null;
+  pmid?: string | null;
+  pmcid?: string | null;
+  primary_domain?: string | null;
 }
 
 export interface WikiPageDetail extends WikiPageSummary {
@@ -48,6 +56,11 @@ export interface WikiQueryRequest {
   question: string;
   pageSlug?: string | null;
   sourceSlug?: string | null;
+  primaryDomain?: string | null;
+  journal?: string | null;
+  publicationYearMin?: string | null;
+  publicationYearMax?: string | null;
+  firstAuthor?: string | null;
 }
 
 export interface WikiLintIssue {

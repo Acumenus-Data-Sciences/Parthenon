@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+import hashlib
 from collections.abc import AsyncGenerator
 from datetime import UTC, datetime
 from pathlib import Path
@@ -45,6 +46,7 @@ from app.wiki.models import (
     WikiWorkspace,
 )
 from app.wiki.prompts import build_ingest_prompt, build_query_prompt
+from app.wiki.tagging import assign_controlled_tags, clean_bibliographic_text
 
 
 SCHEMA_PATH = "SCHEMA.md"
@@ -98,7 +100,10 @@ class WikiEngine:
     def list_pages(self, workspace: str | None = None, query: str | None = None) -> list[WikiPageSummary]:
         workspace_dir = self._workspace_dir(workspace)
         entries = self._read_entries(workspace_dir)
-        entries = search_index(workspace_dir, query or "", entries=entries) if query else entries
+        if query:
+            entries = search_index(workspace_dir, query, entries=entries)
+        else:
+            entries = self._sort_entries_for_listing(entries)
         return [self._entry_to_summary(workspace_dir.name, entry) for entry in entries]
 
     def get_page(self, workspace: str | None, slug: str) -> WikiPageDetail:
@@ -129,36 +134,84 @@ class WikiEngine:
         content_bytes: bytes | None,
         raw_content: str | None,
         title: str | None,
+        doi: str | None = None,
+        authors: str | None = None,
+        first_author: str | None = None,
+        journal: str | None = None,
+        publication_year: str | None = None,
+        pmid: str | None = None,
+        pmcid: str | None = None,
+        pdf_keywords: str | None = None,
+        commit: bool = True,
     ) -> WikiIngestResponse:
         workspace_dir = self._workspace_dir(workspace)
+        source_metadata = self._normalize_source_metadata(
+            doi=doi,
+            authors=authors,
+            first_author=first_author,
+            journal=journal,
+            publication_year=publication_year,
+            pmid=pmid,
+            pmcid=pmcid,
+            pdf_keywords=pdf_keywords,
+        )
         source = self.adapter.prepare_source(
             filename=filename,
             content_bytes=content_bytes,
             raw_content=raw_content,
             title=title,
         )
+        source.title = clean_bibliographic_text(title or source.title)
+        source.slug = self._resolve_source_slug(
+            workspace_dir,
+            slugify(source.title),
+            source_metadata,
+            filename=filename,
+        )
+        source.stored_filename = f"{source.slug}{Path(source.stored_filename).suffix or '.txt'}"
         source_path = workspace_dir / "sources" / source.stored_filename
         source_path.write_bytes(content_bytes if content_bytes is not None else source.content.encode("utf-8"))
 
-        # Commit source file immediately so it persists even if LLM fails
-        wiki_commit(self.root_dir, f"wiki: store source {source.slug}")
+        if commit:
+            # Commit source file immediately so it persists even if LLM fails
+            wiki_commit(self.root_dir, f"wiki: store source {source.slug}")
 
         try:
-            pages = await self._generate_pages(workspace_dir.name, source.title, source.content)
+            pages = await self._generate_pages(workspace_dir.name, source.title, source.content, source_metadata)
         except Exception:
-            pages = self._fallback_pages(source.title, source.content)
+            pages = self._fallback_pages(source.title, source.content, source_metadata)
         created_pages: list[WikiPageSummary] = []
+
+        primary_domain = str(pages[0].get("primary_domain", "")).strip() if pages else ""
+        secondary_tags = [str(tag).strip() for tag in pages[0].get("keywords", []) if str(tag).strip()] if pages else []
+        source_keywords = ["source", source.source_type]
+        if primary_domain:
+            source_keywords.append(primary_domain)
+        source_keywords.extend(secondary_tags)
+        page_slug_map = {
+            id(page): self._resolve_page_slug(
+                workspace_dir,
+                title=str(page["title"]),
+                page_type=str(page["type"]),
+                source_slug=source.slug,
+                metadata=source_metadata,
+            )
+            for page in pages
+        }
 
         source_summary = self._write_page(
             workspace_dir=workspace_dir,
             page_type="source_summary",
             title=source.title,
-            body=self._source_summary_body(source),
-            keywords=["source", source.source_type],
-            links=[slugify(str(page["title"])) for page in pages],
+            body=self._source_summary_body(source, source_metadata, primary_domain=primary_domain, secondary_tags=secondary_tags),
+            keywords=source_keywords,
+            links=[page_slug_map[id(page)] for page in pages],
             source_title=source.title,
             source_slug=source.slug,
             source_type=source.source_type,
+            metadata=source_metadata,
+            primary_domain=primary_domain,
+            slug_override=f"source-summary-{source.slug}",
         )
         created_pages.append(source_summary)
 
@@ -176,6 +229,9 @@ class WikiEngine:
                     source_title=source.title,
                     source_slug=source.slug,
                     source_type=source.source_type,
+                    metadata=source_metadata,
+                    primary_domain=str(page.get("primary_domain", "")).strip(),
+                    slug_override=page_slug_map[id(page)],
                 )
             )
 
@@ -187,7 +243,8 @@ class WikiEngine:
             message=f"Ingested '{source.title}' and updated {len(created_pages)} wiki pages.",
         )
         append_log_entry(workspace_dir, log_entry)
-        wiki_commit(self.root_dir, f"wiki: ingest {source.slug}")
+        if commit:
+            wiki_commit(self.root_dir, f"wiki: ingest {source.slug}")
 
         return WikiIngestResponse(
             workspace=workspace_dir.name,
@@ -209,6 +266,11 @@ class WikiEngine:
         *,
         page_slug: str | None = None,
         source_slug: str | None = None,
+        primary_domain: str | None = None,
+        journal: str | None = None,
+        publication_year_min: str | None = None,
+        publication_year_max: str | None = None,
+        first_author: str | None = None,
     ) -> WikiQueryResponse:
         workspace_dir = self._workspace_dir(workspace)
         entries, entries_by_slug = self._entry_maps(workspace_dir)
@@ -219,6 +281,11 @@ class WikiEngine:
             entries_by_slug,
             page_slug=page_slug,
             source_slug=source_slug,
+            primary_domain=primary_domain,
+            journal=journal,
+            publication_year_min=publication_year_min,
+            publication_year_max=publication_year_max,
+            first_author=first_author,
         )
         focus_detail = next((detail for detail in details if detail.slug == page_slug), None) if page_slug else None
         focus_title = (focus_detail.source_title or focus_detail.title) if focus_detail else None
@@ -279,13 +346,28 @@ class WikiEngine:
         )
         return WikiLintResponse(workspace=workspace_dir.name, issues=issues)
 
-    async def _generate_pages(self, workspace: str, source_title: str, source_text: str) -> list[dict[str, str | list[str]]]:
+    async def _generate_pages(
+        self,
+        workspace: str,
+        source_title: str,
+        source_text: str,
+        source_metadata: dict[str, str],
+    ) -> list[dict[str, str | list[str]]]:
         schema = (self.root_dir / SCHEMA_PATH).read_text(encoding="utf-8")
-        prompt = build_ingest_prompt(schema, workspace, source_title, source_text)
+        prompt = build_ingest_prompt(
+            schema,
+            workspace,
+            source_title,
+            source_text,
+            doi=source_metadata["doi"],
+            authors=source_metadata["authors"],
+            journal=source_metadata["journal"],
+            publication_year=source_metadata["publication_year"],
+        )
         payload = await self._call_llm_json(prompt)
         pages = payload.get("pages") if isinstance(payload, dict) else None
         if not isinstance(pages, list):
-            return self._fallback_pages(source_title, source_text)
+            return self._fallback_pages(source_title, source_text, source_metadata)
 
         normalized: list[dict[str, str | list[str]]] = []
         for page in pages:
@@ -295,16 +377,25 @@ class WikiEngine:
             page_type = str(page.get("type", "concept")).strip().lower()
             if not title or page_type not in WORKSPACE_PAGE_DIRS:
                 continue
+            primary_domain, secondary_tags = assign_controlled_tags(
+                title=source_title,
+                body=str(page.get("body", "")).strip() or source_text,
+                journal=source_metadata["journal"],
+                pdf_keywords=source_metadata["pdf_keywords"],
+                candidate_primary_domain=str(page.get("primary_domain", "")),
+                candidate_secondary_tags=[str(item).strip() for item in page.get("keywords", []) if str(item).strip()],
+            )
             normalized.append(
                 {
-                    "title": title,
+                    "title": clean_bibliographic_text(title),
                     "type": page_type,
                     "body": str(page.get("body", "")).strip() or self._fallback_body(title, source_text),
-                    "keywords": [str(item).strip() for item in page.get("keywords", []) if str(item).strip()],
+                    "primary_domain": primary_domain,
+                    "keywords": secondary_tags,
                     "links": [str(item).strip() for item in page.get("links", []) if str(item).strip()],
                 }
             )
-        return normalized or self._fallback_pages(source_title, source_text)
+        return normalized or self._fallback_pages(source_title, source_text, source_metadata)
 
     async def _answer_question(
         self,
@@ -382,6 +473,11 @@ class WikiEngine:
         details = self._resolve_query_details(
             workspace_dir, question, entries, entries_by_slug,
             page_slug=page_slug, source_slug=source_slug,
+            primary_domain=None,
+            journal=None,
+            publication_year_min=None,
+            publication_year_max=None,
+            first_author=None,
         )
         focus_detail = next((d for d in details if d.slug == page_slug), None) if page_slug else None
         focus_title = (focus_detail.source_title or focus_detail.title) if focus_detail else None
@@ -594,7 +690,7 @@ class WikiEngine:
         return _strip_think_blocks(raw)
 
     @staticmethod
-    def _chunk_text(text: str, chunk_size: int = 500, overlap: int = 50) -> list[str]:
+    def _chunk_text(text: str, chunk_size: int = 800, overlap: int = 100) -> list[str]:
         """Split text into overlapping chunks."""
         if not text.strip():
             return []
@@ -619,6 +715,8 @@ class WikiEngine:
         keywords: list[str],
         source_slug: str,
         source_type: str,
+        metadata: dict[str, str],
+        primary_domain: str,
     ) -> None:
         """Chunk and upsert a wiki page into ChromaDB for semantic search."""
         from app.chroma.collections import get_wiki_collection
@@ -627,7 +725,7 @@ class WikiEngine:
         collection = get_wiki_collection()
 
         # Split body into chunks
-        chunks = self._chunk_text(body, chunk_size=500, overlap=50)
+        chunks = self._chunk_text(body, chunk_size=800, overlap=100)
         if not chunks:
             return
 
@@ -648,6 +746,12 @@ class WikiEngine:
                 "source_slug": source_slug or "",
                 "source_type": source_type or "",
                 "chunk_index": i,
+                "doi": metadata["doi"],
+                "authors": metadata["first_author"] or metadata["authors"],
+                "first_author": metadata["first_author"],
+                "journal": metadata["journal"],
+                "publication_year": metadata["publication_year"],
+                "primary_domain": primary_domain,
             })
 
         # Delete old chunks for this page (slug may have different chunk count now)
@@ -672,13 +776,17 @@ class WikiEngine:
         source_title: str | None,
         source_slug: str = "",
         source_type: str = "",
+        metadata: dict[str, str] | None = None,
+        primary_domain: str = "",
+        slug_override: str | None = None,
     ) -> WikiPageSummary:
-        slug = slugify(title)
+        slug = slug_override or slugify(title)
         relative_dir = WORKSPACE_PAGE_DIRS[page_type]
         relative_path = f"{relative_dir}/{slug}.md"
         absolute_path = workspace_dir / relative_path
         updated_at = _utc_now()
         normalized_links = sorted({link for link in links if link})
+        source_metadata = metadata or self._normalize_source_metadata()
 
         # Preserve ingested_at from existing entry; set on first ingest
         existing_entries = {e.slug: e for e in read_index(workspace_dir)}
@@ -694,6 +802,14 @@ class WikiEngine:
                 "links": normalized_links,
                 "updated_at": updated_at,
                 "source_title": source_title or "",
+                "doi": source_metadata["doi"],
+                "authors": source_metadata["authors"],
+                "first_author": source_metadata["first_author"],
+                "journal": source_metadata["journal"],
+                "publication_year": source_metadata["publication_year"],
+                "pmid": source_metadata["pmid"],
+                "pmcid": source_metadata["pmcid"],
+                "primary_domain": primary_domain,
             }
         )
         absolute_path.write_text(f"{frontmatter}\n\n{body.strip()}\n", encoding="utf-8")
@@ -708,6 +824,14 @@ class WikiEngine:
             source_slug=source_slug,
             source_type=source_type,
             ingested_at=ingested_at,
+            doi=source_metadata["doi"],
+            authors=source_metadata["authors"],
+            first_author=source_metadata["first_author"],
+            journal=source_metadata["journal"],
+            publication_year=source_metadata["publication_year"],
+            pmid=source_metadata["pmid"],
+            pmcid=source_metadata["pmcid"],
+            primary_domain=primary_domain,
         )
         upsert_index_entry(workspace_dir, entry)
 
@@ -722,6 +846,8 @@ class WikiEngine:
                 keywords=keywords,
                 source_slug=source_slug,
                 source_type=source_type,
+                metadata=source_metadata,
+                primary_domain=primary_domain,
             )
         except Exception:
             import logging
@@ -737,6 +863,95 @@ class WikiEngine:
     def _entry_maps(self, workspace_dir: Path) -> tuple[list[IndexEntry], dict[str, IndexEntry]]:
         entries = self._read_entries(workspace_dir)
         return entries, {entry.slug: entry for entry in entries}
+
+    @staticmethod
+    def _sort_entries_for_listing(entries: list[IndexEntry]) -> list[IndexEntry]:
+        return sorted(
+            entries,
+            key=lambda entry: (
+                entry.ingested_at or entry.updated_at,
+                1 if entry.page_type != "source_summary" else 0,
+                entry.title.lower(),
+            ),
+            reverse=True,
+        )
+
+    def _resolve_source_slug(
+        self,
+        workspace_dir: Path,
+        preferred_slug: str,
+        metadata: dict[str, str],
+        *,
+        filename: str | None,
+    ) -> str:
+        entries = read_index(workspace_dir)
+        matched_existing = next(
+            (
+                entry.source_slug
+                for entry in entries
+                if entry.source_slug and self._entry_matches_metadata(entry, metadata)
+            ),
+            "",
+        )
+        if matched_existing:
+            return matched_existing
+        related = [entry for entry in entries if entry.source_slug == preferred_slug]
+        if not related:
+            return preferred_slug
+        if all(self._entry_matches_source(entry, metadata, preferred_slug) for entry in related):
+            return preferred_slug
+        return f"{preferred_slug}-{self._slug_fingerprint(metadata, filename or preferred_slug)}"
+
+    def _resolve_page_slug(
+        self,
+        workspace_dir: Path,
+        *,
+        title: str,
+        page_type: str,
+        source_slug: str,
+        metadata: dict[str, str],
+    ) -> str:
+        preferred_slug = slugify(title)
+        entries = read_index(workspace_dir)
+        matched_existing = next(
+            (
+                entry.slug
+                for entry in entries
+                if entry.page_type == page_type and entry.title == title and self._entry_matches_source(entry, metadata, source_slug)
+            ),
+            "",
+        )
+        if matched_existing:
+            return matched_existing
+        related = [entry for entry in entries if entry.slug == preferred_slug]
+        if not related:
+            return preferred_slug
+        if all(entry.source_slug == source_slug or self._entry_matches_source(entry, metadata, source_slug) for entry in related):
+            return preferred_slug
+        return f"{preferred_slug}-{self._slug_fingerprint(metadata, source_slug)}"
+
+    @staticmethod
+    def _entry_matches_source(entry: IndexEntry, metadata: dict[str, str], source_slug: str) -> bool:
+        if WikiEngine._entry_matches_metadata(entry, metadata):
+            return True
+        if not (metadata["doi"] or metadata["pmid"] or metadata["pmcid"]) and entry.source_slug and entry.source_slug == source_slug:
+            return True
+        return False
+
+    @staticmethod
+    def _entry_matches_metadata(entry: IndexEntry, metadata: dict[str, str]) -> bool:
+        if metadata["doi"] and entry.doi == metadata["doi"]:
+            return True
+        if metadata["pmid"] and entry.pmid == metadata["pmid"]:
+            return True
+        if metadata["pmcid"] and entry.pmcid == metadata["pmcid"]:
+            return True
+        return False
+
+    @staticmethod
+    def _slug_fingerprint(metadata: dict[str, str], fallback: str) -> str:
+        source = metadata["doi"] or metadata["pmid"] or metadata["pmcid"] or fallback
+        return hashlib.sha1(source.encode("utf-8")).hexdigest()[:8]
 
     def _source_filename_map(self, workspace_dir: Path) -> dict[str, str]:
         sources_dir = workspace_dir / "sources"
@@ -791,6 +1006,14 @@ class WikiEngine:
             source_type=source_type,
             stored_filename=stored_filename,
             ingested_at=entry.ingested_at or None,
+            doi=str(metadata.get("doi", entry.doi)) or None,
+            authors=str(metadata.get("authors", entry.authors)) or None,
+            first_author=str(metadata.get("first_author", entry.first_author)) or None,
+            journal=str(metadata.get("journal", entry.journal)) or None,
+            publication_year=str(metadata.get("publication_year", entry.publication_year)) or None,
+            pmid=str(metadata.get("pmid", entry.pmid)) or None,
+            pmcid=str(metadata.get("pmcid", entry.pmcid)) or None,
+            primary_domain=str(metadata.get("primary_domain", entry.primary_domain)) or None,
         )
 
     def _build_query_context(
@@ -807,6 +1030,10 @@ class WikiEngine:
                         f"- Paper: {focus_detail.source_title or focus_detail.title}",
                         f"- Current page: {focus_detail.title}",
                         f"- Page type: {focus_detail.page_type}",
+                        f"- Authors: {focus_detail.authors or 'Unknown'}",
+                        f"- Journal: {focus_detail.journal or 'Unknown'}",
+                        f"- Year: {focus_detail.publication_year or 'Unknown'}",
+                        f"- Primary domain: {focus_detail.primary_domain or 'Unknown'}",
                     ]
                 )
             )
@@ -819,6 +1046,11 @@ class WikiEngine:
                         f"- Page type: {detail.page_type}",
                         f"- Source title: {detail.source_title or detail.title}",
                         f"- Source slug: {detail.source_slug or detail.slug}",
+                        f"- Authors: {detail.authors or 'Unknown'}",
+                        f"- Journal: {detail.journal or 'Unknown'}",
+                        f"- Year: {detail.publication_year or 'Unknown'}",
+                        f"- DOI: {detail.doi or 'Unknown'}",
+                        f"- Primary domain: {detail.primary_domain or 'Unknown'}",
                         "",
                         detail.body[:6000],
                     ]
@@ -835,6 +1067,11 @@ class WikiEngine:
         *,
         page_slug: str | None,
         source_slug: str | None,
+        primary_domain: str | None,
+        journal: str | None,
+        publication_year_min: str | None,
+        publication_year_max: str | None,
+        first_author: str | None,
     ) -> list[WikiPageDetail]:
         source_files = self._source_filename_map(workspace_dir)
         resolved_source_slug = source_slug
@@ -859,7 +1096,16 @@ class WikiEngine:
         for entry in selected_entries:
             detail_map[entry.slug] = self._page_detail_from_entry(workspace_dir, entry, source_files=source_files)
 
-        for slug in self._query_chroma_slugs(workspace_dir.name, question, source_slug=resolved_source_slug):
+        for slug in self._query_chroma_slugs(
+            workspace_dir.name,
+            question,
+            source_slug=resolved_source_slug,
+            primary_domain=primary_domain,
+            journal=journal,
+            publication_year_min=publication_year_min,
+            publication_year_max=publication_year_max,
+            first_author=first_author,
+        ):
             chroma_entry = entries_by_slug.get(slug)
             if chroma_entry and slug not in detail_map:
                 detail_map[slug] = self._page_detail_from_entry(workspace_dir, chroma_entry, source_files=source_files)
@@ -870,6 +1116,28 @@ class WikiEngine:
             search_pool = entries
             if resolved_source_slug:
                 scoped_pool = [entry for entry in entries if entry.source_slug == resolved_source_slug]
+                if scoped_pool:
+                    search_pool = scoped_pool
+            if primary_domain:
+                scoped_pool = [entry for entry in search_pool if entry.primary_domain == primary_domain]
+                if scoped_pool:
+                    search_pool = scoped_pool
+            if journal:
+                journal_query = clean_bibliographic_text(journal).lower()
+                scoped_pool = [entry for entry in search_pool if journal_query in entry.journal.lower()]
+                if scoped_pool:
+                    search_pool = scoped_pool
+            if first_author:
+                author_query = clean_bibliographic_text(first_author).lower()
+                scoped_pool = [entry for entry in search_pool if author_query in entry.first_author.lower() or author_query in entry.authors.lower()]
+                if scoped_pool:
+                    search_pool = scoped_pool
+            if publication_year_min or publication_year_max:
+                scoped_pool = [
+                    entry
+                    for entry in search_pool
+                    if self._year_in_range(entry.publication_year, publication_year_min, publication_year_max)
+                ]
                 if scoped_pool:
                     search_pool = scoped_pool
             matches = search_index(workspace_dir, question, entries=search_pool)
@@ -898,15 +1166,26 @@ class WikiEngine:
         question: str,
         *,
         source_slug: str | None = None,
+        primary_domain: str | None = None,
+        journal: str | None = None,
+        publication_year_min: str | None = None,
+        publication_year_max: str | None = None,
+        first_author: str | None = None,
     ) -> list[str]:
         try:
             from app.chroma.collections import get_wiki_collection
 
             collection = get_wiki_collection()
             slug_candidates: list[str] = []
-            where_filters: list[dict] = [{"workspace": workspace}]
-            if source_slug:
-                where_filters.insert(0, {"$and": [{"workspace": workspace}, {"source_slug": source_slug}]})
+            where_filters = self._build_query_filters(
+                workspace=workspace,
+                source_slug=source_slug,
+                primary_domain=primary_domain,
+                journal=journal,
+                publication_year_min=publication_year_min,
+                publication_year_max=publication_year_max,
+                first_author=first_author,
+            )
 
             for where_filter in where_filters:
                 results = collection.query(query_texts=[question], n_results=8, where=where_filter)  # type: ignore[arg-type]
@@ -925,6 +1204,51 @@ class WikiEngine:
                 "ChromaDB query failed, falling back to keyword search", exc_info=True
             )
             return []
+
+    def _build_query_filters(
+        self,
+        *,
+        workspace: str,
+        source_slug: str | None,
+        primary_domain: str | None,
+        journal: str | None,
+        publication_year_min: str | None,
+        publication_year_max: str | None,
+        first_author: str | None,
+    ) -> list[dict]:
+        base_and: list[dict[str, str | dict[str, str]]] = [{"workspace": workspace}]
+        if source_slug:
+            base_and.append({"source_slug": source_slug})
+        if primary_domain:
+            base_and.append({"primary_domain": primary_domain})
+        if journal:
+            base_and.append({"journal": clean_bibliographic_text(journal)})
+        if first_author:
+            base_and.append({"authors": clean_bibliographic_text(first_author)})
+
+        year_filter: dict[str, str] = {}
+        if publication_year_min:
+            year_filter["$gte"] = publication_year_min
+        if publication_year_max:
+            year_filter["$lte"] = publication_year_max
+        if year_filter:
+            base_and.append({"publication_year": year_filter})
+
+        exact_filter = {"$and": base_and} if len(base_and) > 1 else base_and[0]
+        filters = [exact_filter]
+        if len(base_and) > 1:
+            filters.append({"workspace": workspace})
+        return filters
+
+    @staticmethod
+    def _year_in_range(year: str, year_min: str | None, year_max: str | None) -> bool:
+        if not year:
+            return False
+        if year_min and year < year_min:
+            return False
+        if year_max and year > year_max:
+            return False
+        return True
 
     def _get_ollama_client(self) -> httpx.AsyncClient:
         if self._ollama_client is None:
@@ -947,13 +1271,25 @@ class WikiEngine:
         candidate = f"workspace/{workspace}"
         return candidate if candidate in branches else "main"
 
-    def _fallback_pages(self, source_title: str, source_text: str) -> list[dict[str, str | list[str]]]:
+    def _fallback_pages(
+        self,
+        source_title: str,
+        source_text: str,
+        source_metadata: dict[str, str],
+    ) -> list[dict[str, str | list[str]]]:
+        primary_domain, secondary_tags = assign_controlled_tags(
+            title=source_title,
+            body=source_text,
+            journal=source_metadata["journal"],
+            pdf_keywords=source_metadata["pdf_keywords"],
+        )
         return [
             {
                 "title": source_title,
                 "type": "concept",
                 "body": self._fallback_body(source_title, source_text),
-                "keywords": self._extract_keywords(source_text),
+                "primary_domain": primary_domain,
+                "keywords": secondary_tags,
                 "links": [],
             }
         ]
@@ -985,8 +1321,29 @@ class WikiEngine:
         cleaned = "\n".join(clean_lines).strip()[:2500]
         return f"{cleaned}\n" if cleaned else f"Content extracted from: {title}\n"
 
-    def _source_summary_body(self, source: PreparedSource) -> str:
-        return self._fallback_body(source.title, source.content)
+    def _source_summary_body(
+        self,
+        source: PreparedSource,
+        metadata: dict[str, str],
+        *,
+        primary_domain: str,
+        secondary_tags: list[str],
+    ) -> str:
+        lines = [
+            "## Citation",
+            f"- Authors: {metadata['authors'] or 'Unknown'}",
+            f"- Journal: {metadata['journal'] or 'Unknown'}",
+            f"- Publication Year: {metadata['publication_year'] or 'Unknown'}",
+            f"- DOI: {metadata['doi'] or 'Unknown'}",
+            f"- PMID: {metadata['pmid'] or 'Unknown'}",
+            f"- PMCID: {metadata['pmcid'] or 'Unknown'}",
+            f"- Primary Domain: {primary_domain or 'Unknown'}",
+            f"- Tags: {', '.join(secondary_tags) if secondary_tags else 'None'}",
+            "",
+            "## Extracted Source Text",
+            self._fallback_body(source.title, source.content).strip(),
+        ]
+        return "\n".join(lines).strip() + "\n"
 
     @staticmethod
     def _extract_keywords(text: str) -> list[str]:
@@ -1005,6 +1362,33 @@ class WikiEngine:
         found = [term for term in term_pool if term.lower() in lower_text]
         return found[:5] if found else ["research"]
 
+    @staticmethod
+    def _normalize_source_metadata(
+        *,
+        doi: str | None = None,
+        authors: str | None = None,
+        first_author: str | None = None,
+        journal: str | None = None,
+        publication_year: str | None = None,
+        pmid: str | None = None,
+        pmcid: str | None = None,
+        pdf_keywords: str | None = None,
+    ) -> dict[str, str]:
+        resolved_authors = clean_bibliographic_text(authors)
+        resolved_first_author = clean_bibliographic_text(first_author)
+        if not resolved_first_author and resolved_authors:
+            resolved_first_author = resolved_authors.split(",")[0].strip()
+        return {
+            "doi": clean_bibliographic_text(doi),
+            "authors": resolved_authors,
+            "first_author": resolved_first_author,
+            "journal": clean_bibliographic_text(journal),
+            "publication_year": clean_bibliographic_text(publication_year),
+            "pmid": clean_bibliographic_text(pmid),
+            "pmcid": clean_bibliographic_text(pmcid),
+            "pdf_keywords": clean_bibliographic_text(pdf_keywords),
+        }
+
     def _entry_to_summary(self, workspace: str, entry: IndexEntry) -> WikiPageSummary:
         return WikiPageSummary(
             workspace=workspace,
@@ -1018,6 +1402,14 @@ class WikiEngine:
             source_slug=entry.source_slug or None,
             source_type=entry.source_type or None,
             ingested_at=entry.ingested_at or None,
+            doi=entry.doi or None,
+            authors=entry.authors or None,
+            first_author=entry.first_author or None,
+            journal=entry.journal or None,
+            publication_year=entry.publication_year or None,
+            pmid=entry.pmid or None,
+            pmcid=entry.pmcid or None,
+            primary_domain=entry.primary_domain or None,
         )
 
     def _detail_to_summary(self, detail: WikiPageDetail) -> WikiPageSummary:
@@ -1033,6 +1425,14 @@ class WikiEngine:
             source_slug=detail.source_slug,
             source_type=detail.source_type,
             ingested_at=detail.ingested_at,
+            doi=detail.doi,
+            authors=detail.authors,
+            first_author=detail.first_author,
+            journal=detail.journal,
+            publication_year=detail.publication_year,
+            pmid=detail.pmid,
+            pmcid=detail.pmcid,
+            primary_domain=detail.primary_domain,
         )
 
 

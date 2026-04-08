@@ -2,8 +2,20 @@
 
 from __future__ import annotations
 
+from app.wiki.tagging import primary_domain_prompt_block, secondary_tags_prompt_block
 
-def build_ingest_prompt(schema: str, workspace: str, source_title: str, source_text: str) -> str:
+
+def build_ingest_prompt(
+    schema: str,
+    workspace: str,
+    source_title: str,
+    source_text: str,
+    *,
+    doi: str = "",
+    authors: str = "",
+    journal: str = "",
+    publication_year: str = "",
+) -> str:
     return f"""You are a wiki editor that creates clean, structured knowledge pages from research papers.
 
 Given the source text below, extract and return JSON with this shape:
@@ -13,7 +25,8 @@ Given the source text below, extract and return JSON with this shape:
       "type": "concept",
       "title": "The actual paper title (clean, properly capitalized)",
       "body": "Structured markdown (see rules below)",
-      "keywords": ["3-5 topical keywords like: OMOP, ETL, cohort, pharmacovigilance"],
+      "primary_domain": "one primary domain tag from the controlled vocabulary below",
+      "keywords": ["3-7 secondary tags from the controlled vocabulary below"],
       "links": []
     }}
   ]
@@ -21,19 +34,32 @@ Given the source text below, extract and return JSON with this shape:
 
 Rules for the body field:
 - Start with a **one-paragraph abstract/summary** of the paper's purpose and findings.
-- Then add a **## Authors** section listing author names ONLY (no affiliations, no superscripts, no department names).
+- Then add a **## Authors** section listing author names ONLY.
 - Then add a **## Key Findings** section with 3-5 bullet points of the main results or contributions.
 - Then add a **## Methods** section with 1-2 sentences about the approach.
+- Use the authoritative bibliographic metadata below over anything noisy or contradictory in the PDF text.
+- Use the authoritative title and author list from the metadata below instead of guessing from the PDF.
 - Do NOT include raw affiliation text, addresses, postal codes, department names, or institutional details.
 - Do NOT include editor names, review dates, DOIs, page numbers, or journal metadata.
 - Do NOT dump raw text. Synthesize and clean it.
 - Use proper markdown formatting.
+- Choose exactly one `primary_domain` from this controlled vocabulary:
+{primary_domain_prompt_block()}
+- Choose 3-7 `keywords` from this controlled vocabulary:
+{secondary_tags_prompt_block()}
+- Do not invent tags outside this vocabulary.
 
 Schema:
 {schema}
 
 Workspace: {workspace}
 Source title: {source_title}
+Bibliographic metadata (authoritative):
+- Title: {source_title}
+- Authors: {authors or "Unknown"}
+- Journal: {journal or "Unknown"}
+- Year: {publication_year or "Unknown"}
+- DOI: {doi or "Unknown"}
 
 Source text:
 {source_text[:12000]}

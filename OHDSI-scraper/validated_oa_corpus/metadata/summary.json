@@ -1,0 +1,11 @@
+{
+  "unique_papers": 488,
+  "duplicate_groups": 84,
+  "duplicate_rows_removed": 165,
+  "papers_with_pmcid": 442,
+  "papers_with_doi": 450,
+  "papers_marked_oa": 460,
+  "downloaded_pdfs": 345,
+  "failed_downloads": 107,
+  "removed_supplement_only": 8
+}

@@ -15,6 +15,10 @@ def test_upsert_and_search_index(tmp_path):
             keywords=["research", "trials"],
             links=["protocols"],
             updated_at="2026-04-06T00:00:00+00:00",
+            authors="Schuemie M, Hripcsak G",
+            journal="JAMIA",
+            publication_year="2024",
+            primary_domain="methods-statistics",
         ),
     )
 
@@ -22,6 +26,8 @@ def test_upsert_and_search_index(tmp_path):
     assert len(entries) == 1
     assert search_index(workspace_dir, "research")[0].slug == "clinical-trials"
     assert search_index(workspace_dir, "protocols")[0].slug == "clinical-trials"
+    assert search_index(workspace_dir, "Schuemie")[0].slug == "clinical-trials"
+    assert search_index(workspace_dir, "2024")[0].slug == "clinical-trials"
 
 
 def test_remove_index_entry(tmp_path):
@@ -56,6 +62,14 @@ def test_ingested_at_round_trip(tmp_path):
             path="wiki/concepts/round-trip.md",
             updated_at="2026-04-07T12:00:00+00:00",
             ingested_at="2026-04-01T08:00:00+00:00",
+            doi="10.1234/example",
+            authors="Smith J, Jones K",
+            first_author="Smith J",
+            journal="JAMIA",
+            publication_year="2024",
+            pmid="123",
+            pmcid="PMC123",
+            primary_domain="network-studies",
         ),
     )
 
@@ -63,6 +77,8 @@ def test_ingested_at_round_trip(tmp_path):
     assert len(entries) == 1
     assert entries[0].ingested_at == "2026-04-01T08:00:00+00:00"
     assert entries[0].updated_at == "2026-04-07T12:00:00+00:00"
+    assert entries[0].doi == "10.1234/example"
+    assert entries[0].primary_domain == "network-studies"
 
 
 def test_ingested_at_preserved_on_upsert(tmp_path):
@@ -120,4 +136,3 @@ def test_legacy_index_without_ingested_at(tmp_path):
     assert len(entries) == 1
     assert entries[0].slug == "old-paper"
     assert entries[0].ingested_at == ""  # graceful default
-
