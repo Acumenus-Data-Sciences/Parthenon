@@ -25,7 +25,6 @@ interface ThreeSceneProps {
   colorField: string | null;
   hoveredPoint: string | null;
   selectedPoints: Set<string>;
-  clusterVisibility: Map<number, boolean>;
   overlayVisibility: { hulls: boolean; topology: boolean; queryRays: boolean };
   qaLayers: { outliers: boolean; duplicates: boolean; orphans: boolean };
   outlierIds: Set<string>;
@@ -62,12 +61,9 @@ function getSimilarityColor(similarity: number): string {
 function TopologyLines({
   points,
   edges,
-  clusterVisibility,
   collectionTheme,
-}: Pick<ThreeSceneProps, "points" | "edges" | "clusterVisibility" | "collectionTheme">) {
+}: Pick<ThreeSceneProps, "points" | "edges" | "collectionTheme">) {
   const topology = useMemo(() => {
-    void clusterVisibility;
-
     if (points.length < 2) {
       return null;
     }
@@ -224,7 +220,6 @@ function PointCloud({
   colorField,
   hoveredPoint,
   selectedPoints,
-  clusterVisibility,
   qaLayers,
   outlierIds,
   duplicateIds,
@@ -234,7 +229,6 @@ function PointCloud({
   onSelect,
 }: Omit<ThreeSceneProps, "isExpanded">) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
-  const colorArray = useMemo(() => new Float32Array(points.length * 3), [points.length]);
   const colorAttrRef = useRef<THREE.InstancedBufferAttribute | null>(null);
   const pointIndexMap = useMemo(
     () => new Map(points.map((point, index) => [point.id, index])),
@@ -251,15 +245,19 @@ function PointCloud({
 
   // Suppress unused variable warning — clusters prop is available for future use
   void clusters;
-  void clusterVisibility;
 
   // Create color attribute once, recreate only when point count changes
   useEffect(() => {
-    if (!meshRef.current) return;
-    const attr = new THREE.InstancedBufferAttribute(colorArray, 3);
-    meshRef.current.geometry.setAttribute("color", attr);
+    const mesh = meshRef.current;
+    if (!mesh) return;
+    const attr = new THREE.InstancedBufferAttribute(new Float32Array(points.length * 3), 3);
+    mesh.geometry.setAttribute("color", attr);
     colorAttrRef.current = attr;
-  }, [colorArray]);
+    return () => {
+      mesh.geometry.deleteAttribute("color");
+      colorAttrRef.current = null;
+    };
+  }, [points.length]);
 
   const getPointColor = useCallback((point: ProjectedPoint3D) => {
     let color = "#5A5650";
@@ -317,6 +315,8 @@ function PointCloud({
   useEffect(() => {
     if (!meshRef.current || !colorAttrRef.current) return;
 
+    const nextColors = new Float32Array(points.length * 3);
+
     for (let i = 0; i < points.length; i++) {
       const p = points[i];
       const isSelected = selectedPoints.has(p.id);
@@ -327,17 +327,17 @@ function PointCloud({
       const color = getPointColor(p);
 
       tempColor.set(color);
-      colorArray[i * 3] = tempColor.r;
-      colorArray[i * 3 + 1] = tempColor.g;
-      colorArray[i * 3 + 2] = tempColor.b;
+      nextColors[i * 3] = tempColor.r;
+      nextColors[i * 3 + 1] = tempColor.g;
+      nextColors[i * 3 + 2] = tempColor.b;
     }
 
     meshRef.current.instanceMatrix.needsUpdate = true;
+    colorAttrRef.current.copyArray(nextColors);
     colorAttrRef.current.needsUpdate = true;
   }, [
     points,
     selectedPoints,
-    colorArray,
     getPointColor,
     setPointScaleAtIndex,
   ]);
@@ -439,14 +439,12 @@ export default function ThreeScene(props: ThreeSceneProps) {
           points={props.points}
           clusters={props.clusters}
           collectionTheme={props.collectionTheme}
-          clusterVisibility={props.clusterVisibility}
         />
       )}
       {props.activeMode === "clusters" && props.overlayVisibility.topology && (
         <TopologyLines
           points={props.points}
           edges={props.edges}
-          clusterVisibility={props.clusterVisibility}
           collectionTheme={props.collectionTheme}
         />
       )}

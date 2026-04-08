@@ -8,7 +8,6 @@ interface ClusterHullsProps {
   points: ProjectedPoint3D[];
   clusters: ClusterInfo[];
   collectionTheme: CollectionTheme;
-  clusterVisibility: Map<number, boolean>;
 }
 
 const MIN_POINTS_FOR_HULL = 8;
@@ -46,11 +45,8 @@ export default function ClusterHulls({
   points,
   clusters,
   collectionTheme,
-  clusterVisibility,
 }: ClusterHullsProps) {
   const hulls = useMemo(() => {
-    void clusterVisibility;
-
     const grouped = new Map<number, ProjectedPoint3D[]>();
 
     for (const point of points) {

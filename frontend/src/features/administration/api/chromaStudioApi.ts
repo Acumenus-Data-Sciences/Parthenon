@@ -160,7 +160,7 @@ export interface ProjectionResponse {
   stats: ProjectionStats;
 }
 
-export interface ProjectionPointDetailsResponse extends ProjectedPoint3D {}
+export type ProjectionPointDetailsResponse = ProjectedPoint3D;
 
 export interface ProjectionRequest {
   sample_size: number;

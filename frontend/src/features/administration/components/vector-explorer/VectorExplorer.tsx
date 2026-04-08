@@ -59,8 +59,8 @@ export default function VectorExplorer({
     explorer.runQuery();
   }
 
-  const allPoints = projectionData?.points ?? [];
-  const clusters = projectionData?.clusters ?? [];
+  const allPoints = useMemo(() => projectionData?.points ?? [], [projectionData?.points]);
+  const clusters = useMemo(() => projectionData?.clusters ?? [], [projectionData?.clusters]);
   const quality = projectionData?.quality ?? null;
   const stats = projectionData?.stats ?? null;
   const points = allPoints;
@@ -119,7 +119,6 @@ export default function VectorExplorer({
       colorField={explorer.colorField}
       hoveredPoint={explorer.hoveredPoint}
       selectedPoints={explorer.selectedPoints}
-      clusterVisibility={explorer.clusterVisibility}
       overlayVisibility={explorer.overlayVisibility}
       qaLayers={explorer.qaLayers}
       outlierIds={outlierIds}
