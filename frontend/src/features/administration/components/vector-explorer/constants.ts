@@ -105,7 +105,7 @@ export const SIMILARITY_GRADIENT = {
 // ── Scene ───────────────────────────────────────────────────────────────────
 
 export const SCENE_BG = "#0A0A0F";
-export const POINT_RADIUS = 0.02;
+export const POINT_RADIUS = 0.015;
 export const POINT_SEGMENTS = 8;
 export const HOVER_SCALE = 1.3;
 export const CAMERA_LERP_DURATION = 300;

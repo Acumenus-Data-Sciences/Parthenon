@@ -1,4 +1,4 @@
-import { useRef, useMemo, useCallback, useEffect } from "react";
+import { useRef, useMemo, useCallback, useEffect, useState } from "react";
 import { Canvas, type ThreeEvent } from "@react-three/fiber";
 import { OrbitControls, Html } from "@react-three/drei";
 import * as THREE from "three";
@@ -426,69 +426,76 @@ function PointCloud({
 
 export default function ThreeScene(props: ThreeSceneProps) {
   const { isExpanded, ...cloudProps } = props;
+  const [isPointerInside, setIsPointerInside] = useState(false);
 
   return (
-    <Canvas
-      camera={{ position: [2, 2, 2], fov: 50 }}
-      style={{ background: SCENE_BG }}
-      dpr={[1, 2]}
+    <div
+      className="h-full w-full"
+      onPointerEnter={() => setIsPointerInside(true)}
+      onPointerLeave={() => setIsPointerInside(false)}
     >
-      <ambientLight intensity={0.8} />
-      {props.activeMode === "clusters" && props.overlayVisibility.hulls && (
-        <ClusterHulls
-          points={props.points}
-          clusters={props.clusters}
-          collectionTheme={props.collectionTheme}
+      <Canvas
+        camera={{ position: [2, 2, 2], fov: 50 }}
+        style={{ background: SCENE_BG }}
+        dpr={[1, 2]}
+      >
+        <ambientLight intensity={0.8} />
+        {props.activeMode === "clusters" && props.overlayVisibility.hulls && (
+          <ClusterHulls
+            points={props.points}
+            clusters={props.clusters}
+            collectionTheme={props.collectionTheme}
+          />
+        )}
+        {props.activeMode === "clusters" && props.overlayVisibility.topology && (
+          <TopologyLines
+            points={props.points}
+            edges={props.edges}
+            collectionTheme={props.collectionTheme}
+          />
+        )}
+        {props.activeMode === "query" && props.overlayVisibility.queryRays && (
+          <QueryVisuals
+            points={props.points}
+            results={props.queryItems}
+            accentColor={props.collectionTheme.accent}
+          />
+        )}
+        <PointCloud {...cloudProps} />
+        <OrbitControls
+          autoRotate={!isExpanded && !isPointerInside}
+          autoRotateSpeed={0.5}
+          enablePan={isExpanded}
+          dampingFactor={0.1}
+          enableDamping
         />
-      )}
-      {props.activeMode === "clusters" && props.overlayVisibility.topology && (
-        <TopologyLines
-          points={props.points}
-          edges={props.edges}
-          collectionTheme={props.collectionTheme}
-        />
-      )}
-      {props.activeMode === "query" && props.overlayVisibility.queryRays && (
-        <QueryVisuals
-          points={props.points}
-          results={props.queryItems}
-          accentColor={props.collectionTheme.accent}
-        />
-      )}
-      <PointCloud {...cloudProps} />
-      <OrbitControls
-        autoRotate={!isExpanded}
-        autoRotateSpeed={0.5}
-        enablePan={isExpanded}
-        dampingFactor={0.1}
-        enableDamping
-      />
-      {props.hoveredPoint && (() => {
-        const point = props.points.find((p) => p.id === props.hoveredPoint);
-        if (!point) return null;
-        return (
-          <Html
-            position={[point.x, point.y + 0.15, point.z]}
-            center
-            zIndexRange={[100, 0]}
-            style={{ pointerEvents: "none" }}
-          >
-            <div
-              className="pointer-events-none whitespace-nowrap rounded bg-[#151518]/95 px-2 py-1 text-xs shadow-xl backdrop-blur"
-              style={{ border: `1px solid ${props.collectionTheme.border}` }}
+        {props.hoveredPoint && (() => {
+          const point = props.points.find((p) => p.id === props.hoveredPoint);
+          if (!point) return null;
+          return (
+            <Html
+              position={[point.x, point.y + 0.15, point.z]}
+              center
+              zIndexRange={[100, 0]}
+              style={{ pointerEvents: "none" }}
             >
-              <div className="font-['IBM_Plex_Mono',monospace]" style={{ color: props.collectionTheme.accent }}>
-                {point.id}
-              </div>
-              {Object.entries(point.metadata).slice(0, 3).map(([k, v]) => (
-                <div key={k} className="text-[#8A857D]">
-                  {k}: <span className="text-[#C5C0B8]">{String(v)}</span>
+              <div
+                className="pointer-events-none whitespace-nowrap rounded bg-[#151518]/95 px-2 py-1 text-xs shadow-xl backdrop-blur"
+                style={{ border: `1px solid ${props.collectionTheme.border}` }}
+              >
+                <div className="font-['IBM_Plex_Mono',monospace]" style={{ color: props.collectionTheme.accent }}>
+                  {point.id}
                 </div>
-              ))}
-            </div>
-          </Html>
-        );
-      })()}
-    </Canvas>
+                {Object.entries(point.metadata).slice(0, 3).map(([k, v]) => (
+                  <div key={k} className="text-[#8A857D]">
+                    {k}: <span className="text-[#C5C0B8]">{String(v)}</span>
+                  </div>
+                ))}
+              </div>
+            </Html>
+          );
+        })()}
+      </Canvas>
+    </div>
   );
 }
