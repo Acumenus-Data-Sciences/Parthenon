@@ -135,17 +135,19 @@ class ComputeEmbeddings extends Command
     {
         $this->info('Creating HNSW index (this may take several minutes)...');
 
-        // Drop existing index if present
+        // concept_embeddings lives in the per-CDM schema (omop), not in vocab.
+        // The create-table migration runs on the omop connection, so the table
+        // lands in omop.concept_embeddings.
         DB::connection('omop')->statement(
-            'DROP INDEX IF EXISTS vocab.concept_embeddings_hnsw'
+            'DROP INDEX IF EXISTS omop.concept_embeddings_hnsw'
         );
 
         // Create HNSW index for cosine similarity search
         DB::connection('omop')->statement(
-            'CREATE INDEX concept_embeddings_hnsw ON vocab.concept_embeddings USING hnsw (embedding vector_cosine_ops) WITH (m = 16, ef_construction = 200)'
+            'CREATE INDEX concept_embeddings_hnsw ON omop.concept_embeddings USING hnsw (embedding vector_cosine_ops) WITH (m = 16, ef_construction = 200)'
         );
 
-        DB::connection('omop')->statement('ANALYZE vocab.concept_embeddings');
+        DB::connection('omop')->statement('ANALYZE omop.concept_embeddings');
 
         $this->info('HNSW index created.');
     }

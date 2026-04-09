@@ -134,7 +134,7 @@ class PostLoadValidationService
      */
     private function runConformanceChecks(IngestionJob $job, array &$counts): void
     {
-        // concept_ids exist in vocab.concepts
+        // concept_ids exist in vocab.concept
         $conceptColumns = [
             ['table' => 'condition_occurrence', 'column' => 'condition_concept_id'],
             ['table' => 'drug_exposure', 'column' => 'drug_concept_id'],

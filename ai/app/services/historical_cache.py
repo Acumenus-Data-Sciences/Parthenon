@@ -55,7 +55,7 @@ class HistoricalCacheStrategy:
                             c.vocabulary_id,
                             c.standard_concept
                         FROM app.mapping_cache mc
-                        JOIN vocab.concepts c
+                        JOIN vocab.concept c
                             ON c.concept_id = mc.target_concept_id
                         WHERE LOWER(mc.source_code) = LOWER(:code)
                         ORDER BY mc.confidence DESC
@@ -98,7 +98,7 @@ class HistoricalCacheStrategy:
                                 c.standard_concept,
                                 similarity(mc.source_description, :desc) AS sim
                             FROM app.mapping_cache mc
-                            JOIN vocab.concepts c
+                            JOIN vocab.concept c
                                 ON c.concept_id = mc.target_concept_id
                             WHERE mc.source_description IS NOT NULL
                               AND similarity(mc.source_description, :desc) > 0.3

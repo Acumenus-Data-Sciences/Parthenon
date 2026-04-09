@@ -286,16 +286,17 @@ class LoadVocabularies extends Command
         $this->newLine();
         $this->info('Creating indexes (this may take several minutes)...');
 
+        // OMOP CDM v5.4 vocabulary tables are singular.
         $btreeIndexes = [
-            ['vocab.concepts', 'idx_concepts_vocabulary_id', 'vocabulary_id'],
-            ['vocab.concepts', 'idx_concepts_domain_id', 'domain_id'],
-            ['vocab.concepts', 'idx_concepts_concept_code', 'concept_code'],
-            ['vocab.concepts', 'idx_concepts_standard_concept', 'standard_concept'],
-            ['vocab.concept_relationships', 'idx_cr_concept_id_2', 'concept_id_2'],
-            ['vocab.concept_relationships', 'idx_cr_relationship_id', 'relationship_id'],
-            ['vocab.concept_ancestors', 'idx_ca_descendant', 'descendant_concept_id'],
-            ['vocab.concept_synonyms', 'idx_cs_concept_id', 'concept_id'],
-            ['vocab.drug_strengths', 'idx_ds_ingredient', 'ingredient_concept_id'],
+            ['vocab.concept', 'idx_concept_vocabulary_id', 'vocabulary_id'],
+            ['vocab.concept', 'idx_concept_domain_id', 'domain_id'],
+            ['vocab.concept', 'idx_concept_concept_code', 'concept_code'],
+            ['vocab.concept', 'idx_concept_standard_concept', 'standard_concept'],
+            ['vocab.concept_relationship', 'idx_cr_concept_id_2', 'concept_id_2'],
+            ['vocab.concept_relationship', 'idx_cr_relationship_id', 'relationship_id'],
+            ['vocab.concept_ancestor', 'idx_ca_descendant', 'descendant_concept_id'],
+            ['vocab.concept_synonym', 'idx_cs_concept_id', 'concept_id'],
+            ['vocab.drug_strength', 'idx_ds_ingredient', 'ingredient_concept_id'],
         ];
 
         foreach ($btreeIndexes as [$tableName, $indexName, $column]) {
@@ -307,9 +308,9 @@ class LoadVocabularies extends Command
         }
 
         // Trigram GIN index for fuzzy concept name search
-        $this->info('  GIN trigram: idx_concepts_name_trgm on concepts.concept_name');
+        $this->info('  GIN trigram: idx_concept_name_trgm on concept.concept_name');
         DB::connection('omop')->statement(
-            'CREATE INDEX IF NOT EXISTS idx_concepts_name_trgm ON vocab.concepts USING gin (concept_name gin_trgm_ops)'
+            'CREATE INDEX IF NOT EXISTS idx_concept_name_trgm ON vocab.concept USING gin (concept_name gin_trgm_ops)'
         );
 
         $this->info('Indexes created.');

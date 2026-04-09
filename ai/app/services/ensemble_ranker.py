@@ -133,7 +133,7 @@ class EnsembleRanker:
 
         Scans all strategies to find any candidate that carries the
         standard_concept attribute (typically from exact match or cache
-        queries that join to vocab.concepts).
+        queries that join to vocab.concept).
         """
         # ConceptCandidate doesn't carry standard_concept directly, but
         # the database-backed strategies populate it in the score.

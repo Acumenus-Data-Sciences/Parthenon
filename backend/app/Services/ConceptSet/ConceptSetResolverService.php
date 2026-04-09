@@ -107,7 +107,7 @@ class ConceptSetResolverService
 
         // Direct concept IDs
         $directIds = $items->pluck('concept_id')->implode(', ');
-        $parts[] = "SELECT concept_id FROM {$vocabSchema}.concepts WHERE concept_id IN ({$directIds})";
+        $parts[] = "SELECT concept_id FROM {$vocabSchema}.concept WHERE concept_id IN ({$directIds})";
 
         // Descendants
         $descendantIds = $items->where('include_descendants', true)
@@ -115,7 +115,7 @@ class ConceptSetResolverService
 
         if ($descendantIds->isNotEmpty()) {
             $ids = $descendantIds->implode(', ');
-            $parts[] = "SELECT descendant_concept_id AS concept_id FROM {$vocabSchema}.concept_ancestors WHERE ancestor_concept_id IN ({$ids})";
+            $parts[] = "SELECT descendant_concept_id AS concept_id FROM {$vocabSchema}.concept_ancestor WHERE ancestor_concept_id IN ({$ids})";
         }
 
         // Mapped
@@ -124,7 +124,7 @@ class ConceptSetResolverService
 
         if ($mappedIds->isNotEmpty()) {
             $ids = $mappedIds->implode(', ');
-            $parts[] = "SELECT cr.concept_id_2 AS concept_id FROM {$vocabSchema}.concept_relationships cr WHERE cr.concept_id_1 IN ({$ids}) AND cr.relationship_id = 'Maps to'";
+            $parts[] = "SELECT cr.concept_id_2 AS concept_id FROM {$vocabSchema}.concept_relationship cr WHERE cr.concept_id_1 IN ({$ids}) AND cr.relationship_id = 'Maps to'";
         }
 
         return implode(' UNION ALL ', $parts);

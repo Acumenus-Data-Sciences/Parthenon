@@ -1,7 +1,7 @@
 """Exact match strategy for concept mapping.
 
-Looks up source codes directly in vocab.concepts and
-vocab.source_to_concept_maps tables. Returns high-confidence results
+Looks up source codes directly in vocab.concept and
+vocab.source_to_concept_map tables. Returns high-confidence results
 for exact code matches.
 """
 
@@ -27,8 +27,8 @@ class ExactMatchStrategy:
     ) -> list[ConceptCandidate]:
         """Find concepts by exact code match.
 
-        Searches vocab.concepts for an exact concept_code match
-        (case-insensitive) and also checks vocab.source_to_concept_maps
+        Searches vocab.concept for an exact concept_code match
+        (case-insensitive) and also checks vocab.source_to_concept_map
         for mapped equivalents.
 
         Args:
@@ -53,7 +53,7 @@ class ExactMatchStrategy:
                     c.domain_id,
                     c.vocabulary_id,
                     c.standard_concept
-                FROM vocab.concepts c
+                FROM vocab.concept c
                 WHERE LOWER(c.concept_code) = LOWER(:code)
             """
             if source_vocabulary_id is not None:
@@ -86,8 +86,8 @@ class ExactMatchStrategy:
                     c.domain_id,
                     c.vocabulary_id,
                     c.standard_concept
-                FROM vocab.source_to_concept_maps stcm
-                JOIN vocab.concepts c ON c.concept_id = stcm.target_concept_id
+                FROM vocab.source_to_concept_map stcm
+                JOIN vocab.concept c ON c.concept_id = stcm.target_concept_id
                 WHERE LOWER(stcm.source_code) = LOWER(:code)
             """
             if source_vocabulary_id is not None:

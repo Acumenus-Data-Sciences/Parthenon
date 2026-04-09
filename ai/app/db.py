@@ -16,13 +16,14 @@ from app.config import settings
 
 logger = logging.getLogger(__name__)
 
-# Schema-qualified metadata for vocab schema
-vocab_metadata = MetaData(schema="vocab")
+# concept_embeddings lives in the per-CDM schema (e.g. `omop`), not in `vocab`.
+# The table is created by the migration on the `omop` connection.
+cdm_metadata = MetaData(schema="omop")
 
 # concept_embeddings table definition
 concept_embeddings_table = Table(
     "concept_embeddings",
-    vocab_metadata,
+    cdm_metadata,
     Column("concept_id", Integer, primary_key=True),
     Column("concept_name", String(255)),
     Column("embedding", Vector(768)),
@@ -94,8 +95,8 @@ def search_nearest(
                     c.domain_id,
                     c.vocabulary_id,
                     c.standard_concept
-                FROM vocab.concept_embeddings ce
-                JOIN vocab.concepts c ON c.concept_id = ce.concept_id
+                FROM omop.concept_embeddings ce
+                JOIN vocab.concept c ON c.concept_id = ce.concept_id
                 ORDER BY ce.embedding <=> :embedding::vector
                 LIMIT :top_k
             """),
