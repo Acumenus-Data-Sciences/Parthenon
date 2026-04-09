@@ -2,11 +2,16 @@
 
 namespace App\Models\App;
 
+use Database\Factories\App\ConceptSetItemFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ConceptSetItem extends Model
 {
+    /** @use HasFactory<ConceptSetItemFactory> */
+    use HasFactory;
+
     protected $fillable = [
         'concept_set_id',
         'concept_id',

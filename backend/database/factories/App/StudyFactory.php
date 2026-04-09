@@ -14,11 +14,14 @@ class StudyFactory extends Factory
     /** @return array<string, mixed> */
     public function definition(): array
     {
+        // Columns were renamed in 2026_03_04_200000_expand_studies_table:
+        //   name       → title
+        //   author_id  → created_by
         return [
-            'name' => fake()->sentence(4),
+            'title' => fake()->sentence(4),
             'description' => fake()->paragraph(),
             'study_type' => fake()->randomElement(['characterization', 'estimation', 'prediction']),
-            'author_id' => User::factory(),
+            'created_by' => User::factory(),
             'status' => 'draft',
             'metadata' => [],
         ];
