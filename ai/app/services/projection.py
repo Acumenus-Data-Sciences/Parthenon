@@ -10,6 +10,8 @@ from typing import Any
 import numpy as np
 from numpy.typing import NDArray
 
+from app.chroma.docs_taxonomy import derive_docs_taxonomy
+
 logger = logging.getLogger(__name__)
 
 PAGE_TYPE_LABELS = {
@@ -18,11 +20,31 @@ PAGE_TYPE_LABELS = {
     "concept": "Concept Pages",
     "comparison": "Comparisons",
     "analysis": "Analysis Pages",
+    "architecture": "Architecture",
+    "blog_post": "Blog Posts",
+    "component_reference": "Component References",
+    "design_spec": "Design Specs",
+    "evidence_log": "Evidence Logs",
+    "handoff": "Handoffs",
+    "module_note": "Module Notes",
+    "plan": "Plans",
+    "policy": "Policies",
+    "process_note": "Process Notes",
+    "project_note": "Project Notes",
+    "reference": "Reference",
+    "release_notes": "Release Notes",
+    "research_note": "Research Notes",
+    "roadmap_phase": "Roadmap Phases",
+    "runbook": "Runbooks",
+    "seed_content": "Seed Content",
+    "strategy_note": "Strategy Notes",
+    "workspace_spec": "Workspace Specs",
 }
 
 METADATA_KEY_LABELS = {
     "primary_domain": "Primary Domain",
     "page_type": "Page Type",
+    "package": "Package",
     "journal": "Journal",
     "publication_year": "Publication Year",
     "first_author": "First Author",
@@ -36,6 +58,7 @@ METADATA_KEY_LABELS = {
 LABEL_PRIORITY = {
     "primary_domain": 1.6,
     "page_type": 1.5,
+    "package": 1.35,
     "category": 1.25,
     "type": 1.15,
     "journal": 1.1,
@@ -63,6 +86,7 @@ NON_LABEL_KEYS = {
 SUMMARY_KEYS = (
     "primary_domain",
     "page_type",
+    "package",
     "category",
     "type",
     "journal",
@@ -73,7 +97,69 @@ SUMMARY_KEYS = (
     "workspace",
 )
 
-GENERIC_LABEL_VALUES = {"platform", "pdf", "markdown", "jsonl", "docs", "wiki"}
+GENERIC_LABEL_VALUES = {
+    "chat",
+    "clinical_concept",
+    "conversation_turn",
+    "platform",
+    "pdf",
+    "markdown",
+    "jsonl",
+    "docs",
+    "discussion",
+    "discussion_message",
+    "wiki",
+    "documentation",
+    "omop_concept",
+    "research_paper",
+    "book_chapter",
+    "vignette",
+    "forum_thread",
+    "textbook_excerpt",
+}
+
+METADATA_KEY_ALIASES = {
+    "year": "publication_year",
+    "doc_type": "type",
+}
+
+DERIVED_TYPE_BY_SOURCE = {
+    "ohdsi_corpus": "research_paper",
+    "book_of_ohdsi": "book_chapter",
+    "hades_vignette": "vignette",
+    "ohdsi_forums": "forum_thread",
+    "medical_textbook": "textbook_excerpt",
+}
+
+DERIVED_SOURCE_TYPE_BY_SOURCE = {
+    "ohdsi_corpus": "pdf",
+    "book_of_ohdsi": "markdown",
+    "hades_vignette": "markdown",
+    "ohdsi_forums": "markdown",
+    "medical_textbook": "jsonl",
+}
+
+SOURCE_LABELS = {
+    "abby_chat": "Abby Chat",
+    "ohdsi_corpus": "OHDSI Corpus",
+    "book_of_ohdsi": "Book of OHDSI",
+    "commons": "Commons",
+    "hades_vignette": "HADES Vignettes",
+    "ohdsi_forums": "OHDSI Forums",
+    "medical_textbook": "Medical Textbooks",
+}
+
+TYPE_LABELS = {
+    "research_paper": "Research Papers",
+    "book_chapter": "Book Chapters",
+    "vignette": "Vignettes",
+    "forum_thread": "Forum Threads",
+    "clinical_concept": "Clinical Concepts",
+    "conversation_turn": "Conversation Turns",
+    "documentation": "Documentation",
+    "discussion_message": "Discussion Messages",
+    "textbook_excerpt": "Textbook Excerpts",
+}
 
 # ── Types ────────────────────────────────────────────────────────────────────
 
@@ -311,7 +397,7 @@ def _compute_clusters(
 def _build_global_metadata_counters(metadatas: list[dict]) -> dict[str, Counter[str]]:
     counters: dict[str, Counter[str]] = {}
     for meta in metadatas:
-        for key, value in meta.items():
+        for key, value in _canonicalize_metadata(meta).items():
             normalized = _normalize_metadata_value(key, value)
             if normalized is None:
                 continue
@@ -332,13 +418,14 @@ def _build_cluster_summary(
     title_counter: Counter[str] = Counter()
 
     for meta in metadatas:
-        for key, value in meta.items():
+        canonical_meta = _canonicalize_metadata(meta)
+        for key, value in canonical_meta.items():
             normalized = _normalize_metadata_value(key, value)
             if normalized is None:
                 continue
             cluster_counters[key][normalized] += 1
 
-        title = _normalize_metadata_value("title", meta.get("title"), for_title=True)
+        title = _normalize_metadata_value("title", canonical_meta.get("title"), for_title=True)
         if title is not None:
             title_counter[title] += 1
 
@@ -367,7 +454,18 @@ def _build_cluster_summary(
 
     dominant_metadata.sort(key=lambda item: (-float(item["score"]), -float(item["percentage"]), str(item["key"])))
     representative_titles = [title for title, _ in title_counter.most_common(3)]
-    label, used_keys = _generate_cluster_label(dominant_metadata)
+    dominant_title = None
+    if title_counter:
+        title, count = title_counter.most_common(1)[0]
+        title_share = count / cluster_size
+        if title_share >= 0.6:
+            dominant_title = {
+                "key": "title",
+                "display_value": title,
+                "percentage": round(title_share * 100, 1),
+            }
+
+    label, used_keys = _generate_cluster_label(dominant_metadata, dominant_title)
 
     subtitle_parts: list[str] = []
     for item in dominant_metadata:
@@ -378,7 +476,7 @@ def _build_cluster_summary(
         display_value = str(item["display_value"])
         percentage = float(item["percentage"])
 
-        if key in {"journal", "first_author"}:
+        if key in {"journal", "first_author", "package"}:
             subtitle_parts.append(display_value)
         elif key == "publication_year":
             subtitle_parts.append(f"{display_value} cohort")
@@ -407,11 +505,15 @@ def _build_cluster_summary(
     return label, summary
 
 
-def _generate_cluster_label(dominant_metadata: list[dict[str, Any]]) -> tuple[str, set[str]]:
+def _generate_cluster_label(
+    dominant_metadata: list[dict[str, Any]],
+    dominant_title: dict[str, Any] | None = None,
+) -> tuple[str, set[str]]:
     by_key = {str(item["key"]): item for item in dominant_metadata}
 
     page_type = by_key.get("page_type")
     primary_domain = by_key.get("primary_domain")
+    package = by_key.get("package")
     category = by_key.get("category")
     doc_type = by_key.get("type")
 
@@ -421,11 +523,32 @@ def _generate_cluster_label(dominant_metadata: list[dict[str, Any]]) -> tuple[st
             {"page_type", "primary_domain"},
         )
 
+    if primary_domain and category and (doc_type is None or str(doc_type["value"]) == "research_paper"):
+        return (
+            f"{primary_domain['display_value']} · {category['display_value']}",
+            {"primary_domain", "category"},
+        )
+
+    if page_type and category and (doc_type is None or str(doc_type["value"]) == "documentation"):
+        return (
+            f"{page_type['display_value']} · {category['display_value']}",
+            {"page_type", "category"},
+        )
+
     if category and doc_type:
         return (
             f"{category['display_value']} · {doc_type['display_value']}",
             {"category", "type"},
         )
+
+    if package and doc_type:
+        return (
+            f"{package['display_value']} · {doc_type['display_value']}",
+            {"package", "type"},
+        )
+
+    if dominant_title is not None:
+        return str(dominant_title["display_value"]), {"title"}
 
     label_candidates = [
         item
@@ -475,12 +598,90 @@ def _normalize_metadata_value(key: str, value: Any, *, for_title: bool = False) 
     return normalized
 
 
+def _canonicalize_metadata(meta: dict[str, Any]) -> dict[str, Any]:
+    canonical: dict[str, Any] = {}
+
+    for key, value in meta.items():
+        canonical_key = METADATA_KEY_ALIASES.get(key, key)
+        if canonical_key in canonical and canonical[canonical_key] not in (None, ""):
+            continue
+        canonical[canonical_key] = value
+
+    source = _normalize_metadata_value("source", canonical.get("source"))
+    if source:
+        if canonical.get("type") in (None, ""):
+            derived_type = DERIVED_TYPE_BY_SOURCE.get(source)
+            if derived_type:
+                canonical["type"] = derived_type
+        if canonical.get("source_type") in (None, ""):
+            derived_source_type = DERIVED_SOURCE_TYPE_BY_SOURCE.get(source)
+            if derived_source_type:
+                canonical["source_type"] = derived_source_type
+
+    source_file = _normalize_metadata_value("source_file", canonical.get("source_file"))
+    source_path = source_file or source
+    if source_path and source_path.endswith(".md"):
+        if canonical.get("source_type") in (None, ""):
+            canonical["source_type"] = "markdown"
+        if canonical.get("type") in (None, ""):
+            canonical["type"] = "documentation"
+        for key, value in derive_docs_taxonomy(source_path).items():
+            if canonical.get(key) in (None, ""):
+                canonical[key] = value
+
+    if canonical.get("category") in (None, ""):
+        domain = _normalize_metadata_value("domain", canonical.get("domain"))
+        page_context = _normalize_metadata_value("page_context", canonical.get("page_context"))
+        channel = _normalize_metadata_value("channel", canonical.get("channel"))
+        if domain:
+            canonical["category"] = domain
+        elif page_context:
+            canonical["category"] = page_context
+        elif channel:
+            canonical["category"] = channel
+
+    if canonical.get("type") in (None, "") and (
+        canonical.get("concept_id") is not None or canonical.get("vocabulary_id")
+    ):
+        canonical["type"] = "clinical_concept"
+    if canonical.get("source_type") in (None, "") and (
+        canonical.get("concept_id") is not None or canonical.get("vocabulary_id")
+    ):
+        canonical["source_type"] = "omop_concept"
+
+    if canonical.get("type") in (None, ""):
+        if source == "abby_chat":
+            canonical["type"] = "conversation_turn"
+        elif source == "commons":
+            canonical["type"] = "discussion_message"
+
+    if canonical.get("source_type") in (None, ""):
+        if source == "abby_chat":
+            canonical["source_type"] = "chat"
+        elif source == "commons":
+            canonical["source_type"] = "discussion"
+
+    if canonical.get("workspace") in (None, ""):
+        if source == "abby_chat":
+            canonical["workspace"] = "abby"
+        elif source == "commons":
+            canonical["workspace"] = "commons"
+
+    return canonical
+
+
 def _format_metadata_value(key: str, value: str) -> str:
     if key == "page_type":
         return PAGE_TYPE_LABELS.get(value, _humanize_token(value))
     if key == "primary_domain":
         return _humanize_token(value)
-    if key in {"category", "type", "source_type", "source"}:
+    if key == "package":
+        return value
+    if key == "type":
+        return TYPE_LABELS.get(value, _humanize_token(value))
+    if key == "source":
+        return SOURCE_LABELS.get(value, _humanize_token(value))
+    if key in {"category", "source_type"}:
         return _humanize_token(value)
     return value
 

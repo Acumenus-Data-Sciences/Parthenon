@@ -19,6 +19,7 @@ from app.chroma.collections import (
     get_medical_textbooks_collection,
     get_ohdsi_papers_collection,
 )
+from app.chroma.docs_taxonomy import derive_docs_taxonomy, should_skip_docs_path
 from app.chroma.quality import audit_document
 
 logger = logging.getLogger(__name__)
@@ -29,13 +30,12 @@ MARKDOWN_HEADERS = [
     ("###", "h3"),
 ]
 _UPPERCASE_TITLE_WORDS = {"cdm", "dna", "faq", "fda", "hgvs", "hipaa", "ncbi", "ohdsi", "omop", "rna"}
-_IGNORED_DOC_PATH_PARTS = {
-    "node_modules",
-    ".docusaurus",
-    "build",
-    "dist",
-    ".next",
-    ".vitepress",
+SOURCE_DOCUMENT_TYPES = {
+    "book_of_ohdsi": "book_chapter",
+    "hades_vignette": "vignette",
+    "ohdsi_forums": "forum_thread",
+    "ohdsi_corpus": "research_paper",
+    "medical_textbook": "textbook_excerpt",
 }
 
 
@@ -199,12 +199,6 @@ def chunk_markdown(
     ]
 
 
-def _should_skip_docs_path(relative_path: str) -> bool:
-    """Skip generated/vendor docs that should never be embedded."""
-    parts = set(Path(relative_path).parts)
-    return any(part in parts for part in _IGNORED_DOC_PATH_PARTS)
-
-
 def _attach_audit_metadata(
     metadata: dict[str, str | int | float | bool],
     *,
@@ -221,6 +215,113 @@ def _attach_audit_metadata(
         metadata["ingest_source_quality_score"] = round(result.quality_score, 3)
 
 
+def _docs_metadata_requires_refresh(
+    existing_metadatas: list[dict[str, Any]] | None,
+    *,
+    relative_path: str,
+) -> bool:
+    """Return True when an unchanged docs file still needs metadata backfill."""
+    expected: dict[str, str] = {
+        "source_file": relative_path,
+        "source_type": "markdown",
+        "type": "documentation",
+        **derive_docs_taxonomy(relative_path),
+    }
+    if not expected:
+        return False
+
+    metadatas = existing_metadatas or []
+    if not metadatas:
+        return True
+
+    for meta in metadatas:
+        if not meta:
+            continue
+        if all(str(meta.get(key) or "") == str(value) for key, value in expected.items()):
+            return False
+    return True
+
+
+def _paper_metadata_requires_refresh(
+    existing_metadatas: list[dict[str, Any]] | None,
+    *,
+    paper_meta: dict[str, Any],
+) -> bool:
+    """Return True when an unchanged paper still needs topical metadata backfill."""
+    expected: dict[str, str] = {}
+    for source_key, meta_key in (
+        ("primary_domain", "primary_domain"),
+        ("category", "category"),
+        ("topic_signals", "topic_signals"),
+    ):
+        value = str(paper_meta.get(meta_key) or "").strip()
+        if value:
+            expected[source_key] = value
+
+    if not expected:
+        return False
+
+    metadatas = existing_metadatas or []
+    if not metadatas:
+        return True
+
+    for meta in metadatas:
+        if not meta:
+            continue
+        if all(str(meta.get(key) or "") == value for key, value in expected.items()):
+            return False
+    return True
+
+
+def _purge_missing_source_files(
+    collection: Any,
+    *,
+    current_source_files: set[str],
+    source_name: str | None = None,
+    source_type: str | None = None,
+    page_size: int = 5000,
+    delete_batch_size: int = 1000,
+) -> int:
+    """Delete collection rows whose source_file no longer exists in the current corpus snapshot."""
+    total = collection.count()
+    if total <= 0:
+        return 0
+
+    stale_ids: list[str] = []
+    for offset in range(0, total, page_size):
+        batch = collection.get(limit=page_size, offset=offset, include=["metadatas"])
+        batch_ids = batch.get("ids", [])
+        batch_metas = batch.get("metadatas") or []
+        for entry_id, meta in zip(batch_ids, batch_metas):
+            if not meta:
+                continue
+            if source_name is not None and meta.get("source") != source_name:
+                continue
+            if source_type is not None and meta.get("source_type") != source_type:
+                continue
+            source_file = str(meta.get("source_file") or "").strip()
+            if not source_file:
+                continue
+            if source_file in current_source_files:
+                continue
+            stale_ids.append(entry_id)
+
+    deleted = 0
+    for start in range(0, len(stale_ids), delete_batch_size):
+        chunk = stale_ids[start:start + delete_batch_size]
+        collection.delete(ids=chunk)
+        deleted += len(chunk)
+
+    if deleted:
+        logger.info(
+            "Purged %d stale collection rows for source=%s source_type=%s",
+            deleted,
+            source_name,
+            source_type,
+        )
+    return deleted
+
+
 def ingest_docs_directory(docs_dir: str) -> dict[str, int]:
     """Ingest all markdown files from a directory into the docs collection.
 
@@ -229,7 +330,7 @@ def ingest_docs_directory(docs_dir: str) -> dict[str, int]:
     """
     collection = get_docs_collection()
     docs_path = Path(docs_dir)
-    stats = {"ingested": 0, "skipped": 0, "chunks": 0, "rejected": 0, "review": 0}
+    stats = {"ingested": 0, "skipped": 0, "chunks": 0, "rejected": 0, "review": 0, "purged": 0}
 
     if not docs_path.exists():
         logger.warning("Docs directory not found: %s", docs_dir)
@@ -238,9 +339,10 @@ def ingest_docs_directory(docs_dir: str) -> dict[str, int]:
     md_files = sorted(docs_path.rglob("*.md"))
     logger.info("Found %d markdown files in %s", len(md_files), docs_dir)
 
+    current_source_files: set[str] = set()
     for filepath in md_files:
         relative_path = str(filepath.relative_to(docs_path))
-        if _should_skip_docs_path(relative_path):
+        if should_skip_docs_path(relative_path):
             stats["skipped"] += 1
             continue
 
@@ -266,14 +368,16 @@ def ingest_docs_directory(docs_dir: str) -> dict[str, int]:
             continue
         if audit_result.disposition == "review":
             stats["review"] += 1
+        current_source_files.add(relative_path)
 
         # Check if any existing chunk has this file hash (means unchanged)
-        existing = collection.get(
-            where={"source": relative_path},
-            include=[],
-        )
+        existing = collection.get(where={"source": relative_path}, include=["metadatas"])
         existing_ids = existing.get("ids", [])
-        if existing_ids and any(file_hash in eid for eid in existing_ids):
+        metadata_needs_refresh = _docs_metadata_requires_refresh(
+            existing.get("metadatas"),
+            relative_path=relative_path,
+        )
+        if existing_ids and any(file_hash in eid for eid in existing_ids) and not metadata_needs_refresh:
             stats["skipped"] += 1
             continue
 
@@ -287,10 +391,13 @@ def ingest_docs_directory(docs_dir: str) -> dict[str, int]:
             continue
 
         ids = [f"{relative_path}::{i}::{file_hash}" for i in range(len(chunks))]
+        doc_taxonomy = derive_docs_taxonomy(relative_path)
         metadatas: list[dict[str, str | int | float | bool]] = [
             dict({
                 "source": relative_path,
                 "source_file": relative_path,
+                "source_type": "markdown",
+                "type": "documentation",
                 "title": chunk["title"],
                 "section": chunk["section"],
                 "subsection": chunk["subsection"],
@@ -298,6 +405,7 @@ def ingest_docs_directory(docs_dir: str) -> dict[str, int]:
                 "chunk_index": i,
                 "total_chunks": len(chunks),
                 "version": file_hash[:8],
+                **doc_taxonomy,
             })
             for i, chunk in enumerate(chunks)
         ]
@@ -316,6 +424,10 @@ def ingest_docs_directory(docs_dir: str) -> dict[str, int]:
         stats["chunks"] += len(chunks)
         logger.info("Ingested %s: %d chunks", relative_path, len(chunks))
 
+    stats["purged"] = _purge_missing_source_files(
+        collection,
+        current_source_files=current_source_files,
+    )
     logger.info("Ingestion complete: %s", stats)
     return stats
 
@@ -364,7 +476,7 @@ def ingest_ohdsi_corpus(
     collection = get_ohdsi_papers_collection()
     corpus_path = Path(corpus_dir)
     pdf_dir = corpus_path / "pdfs"
-    stats = {"ingested": 0, "skipped": 0, "chunks": 0, "errors": 0, "rejected": 0, "review": 0}
+    stats = {"ingested": 0, "skipped": 0, "chunks": 0, "errors": 0, "rejected": 0, "review": 0, "purged": 0}
 
     if not pdf_dir.exists():
         logger.warning("PDF directory not found: %s", pdf_dir)
@@ -375,6 +487,11 @@ def ingest_ohdsi_corpus(
 
     pdf_files = sorted(pdf_dir.glob("*.pdf"))
     logger.info("Found %d PDF files in %s", len(pdf_files), pdf_dir)
+    stats["purged"] = _purge_missing_source_files(
+        collection,
+        current_source_files={path.name for path in pdf_files},
+        source_name="ohdsi_corpus",
+    )
 
     # Batch upsert buffers
     batch_ids: list[str] = []
@@ -403,10 +520,14 @@ def ingest_ohdsi_corpus(
             # Check if already ingested via hash in ID
             existing = collection.get(
                 where={"source_file": pdf_path.name},
-                include=[],
+                include=["metadatas"],
             )
             existing_ids = existing.get("ids", [])
-            if existing_ids and any(file_hash in eid for eid in existing_ids):
+            metadata_needs_refresh = _paper_metadata_requires_refresh(
+                existing.get("metadatas"),
+                paper_meta=paper_metadata.get(pdf_path.name, {}),
+            )
+            if existing_ids and any(file_hash in eid for eid in existing_ids) and not metadata_needs_refresh:
                 stats["skipped"] += 1
                 continue
 
@@ -431,6 +552,15 @@ def ingest_ohdsi_corpus(
                     "authors": meta.get("authors"),
                 },
             )
+            if meta.get("gate_status") in {"quarantine", "reject"}:
+                logger.info(
+                    "Skipping gated OHDSI PDF %s (%s): %s",
+                    pdf_path.name,
+                    meta.get("gate_status"),
+                    meta.get("gate_reasons") or "no gate reason recorded",
+                )
+                stats["rejected"] += 1
+                continue
             if audit_result.disposition == "reject":
                 logger.info("Skipping rejected OHDSI PDF %s: %s", pdf_path.name, audit_result.reasons)
                 stats["rejected"] += 1
@@ -448,6 +578,8 @@ def ingest_ohdsi_corpus(
                 chunk_meta: dict[str, str | int | float | bool] = {
                     "source_file": pdf_path.name,
                     "source": "ohdsi_corpus",
+                    "source_type": "pdf",
+                    "type": SOURCE_DOCUMENT_TYPES["ohdsi_corpus"],
                     "chunk_index": j,
                     "total_chunks": len(chunks),
                     "version": file_hash[:8],
@@ -458,6 +590,35 @@ def ingest_ohdsi_corpus(
                     chunk_meta["doi"] = str(meta["doi"])
                 if meta.get("year"):
                     chunk_meta["year"] = int(meta["year"])
+                    chunk_meta["publication_year"] = int(meta["year"])
+                if meta.get("journal"):
+                    chunk_meta["journal"] = str(meta["journal"])[:200]
+                if meta.get("authors"):
+                    chunk_meta["authors"] = str(meta["authors"])[:500]
+                if meta.get("first_author"):
+                    chunk_meta["first_author"] = str(meta["first_author"])[:200]
+                if meta.get("pmid"):
+                    chunk_meta["pmid"] = str(meta["pmid"])
+                if meta.get("pmcid"):
+                    chunk_meta["pmcid"] = str(meta["pmcid"])
+                if meta.get("source"):
+                    chunk_meta["source_origin"] = str(meta["source"])[:200]
+                if meta.get("source_provenance"):
+                    chunk_meta["source_provenance"] = str(meta["source_provenance"])[:200]
+                if meta.get("metadata_source"):
+                    chunk_meta["metadata_source"] = str(meta["metadata_source"])[:100]
+                if meta.get("trust_tier"):
+                    chunk_meta["trust_tier"] = str(meta["trust_tier"])[:50]
+                if meta.get("gate_status"):
+                    chunk_meta["gate_status"] = str(meta["gate_status"])[:50]
+                if meta.get("gate_reasons"):
+                    chunk_meta["gate_reasons"] = str(meta["gate_reasons"])[:500]
+                if meta.get("primary_domain"):
+                    chunk_meta["primary_domain"] = str(meta["primary_domain"])[:120]
+                if meta.get("category"):
+                    chunk_meta["category"] = str(meta["category"])[:120]
+                if meta.get("topic_signals"):
+                    chunk_meta["topic_signals"] = str(meta["topic_signals"])[:500]
                 _attach_audit_metadata(chunk_meta, result=audit_result)
 
                 batch_ids.append(chunk_id)
@@ -629,6 +790,8 @@ def _ingest_markdown_source(
             chunk_meta: dict[str, str | int | float | bool] = {
                 "source_file": relative_path,
                 "source": source_tag,
+                "source_type": "markdown",
+                "type": SOURCE_DOCUMENT_TYPES.get(source_tag, "documentation"),
                 "title": chunk.get("title", "") or _humanize_path_stem(relative_path),
                 "section": chunk.get("section", ""),
                 "subsection": chunk.get("subsection", ""),
@@ -644,6 +807,7 @@ def _ingest_markdown_source(
                 chunk_meta["package"] = str(file_meta["package"])
             if file_meta.get("year"):
                 chunk_meta["year"] = int(file_meta["year"])
+                chunk_meta["publication_year"] = int(file_meta["year"])
             if file_meta.get("quality_score"):
                 chunk_meta["quality_score"] = float(file_meta["quality_score"])
             _attach_audit_metadata(chunk_meta, result=audit_result)
@@ -781,6 +945,8 @@ def ingest_medical_textbooks(
                 chunk_meta: dict[str, str | int | float | bool] = {
                     "source_file": source_key,
                     "source": "medical_textbook",
+                    "source_type": "jsonl",
+                    "type": SOURCE_DOCUMENT_TYPES["medical_textbook"],
                     "chunk_index": meta.get("chunk_index", chunk_count),
                     "total_chunks": meta.get("total_chunks", len(lines)),
                     "version": file_hash[:8],
@@ -883,6 +1049,15 @@ def _load_harvester_metadata(metadata_dir: Path) -> dict[str, dict]:
                         "first_author": row.get("First Author") or "",
                         "pmid": row.get("PMID") or "",
                         "pmcid": row.get("PMCID") or "",
+                        "source": row.get("Source") or "",
+                        "metadata_source": row.get("Metadata Source") or "",
+                        "source_provenance": row.get("Source Provenance") or "",
+                        "trust_tier": row.get("Trust Tier") or "",
+                        "gate_status": row.get("Gate Status") or "",
+                        "gate_reasons": row.get("Gate Reasons") or "",
+                        "primary_domain": row.get("Primary Domain") or "",
+                        "category": row.get("Category") or "",
+                        "topic_signals": row.get("Topic Signals") or "",
                     }
             logger.info("Loaded metadata from %s: %d papers", metadata_csv, len(papers_by_filename))
         except Exception as e:

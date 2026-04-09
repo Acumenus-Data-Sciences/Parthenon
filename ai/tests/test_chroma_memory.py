@@ -22,6 +22,11 @@ def test_store_conversation_turn():
         call_kwargs = mock_coll.upsert.call_args
         assert len(call_kwargs.kwargs["documents"]) == 1
         assert "cohort" in call_kwargs.kwargs["documents"][0].lower()
+        metadata = call_kwargs.kwargs["metadatas"][0]
+        assert metadata["category"] == "cohort_builder"
+        assert metadata["source_type"] == "chat"
+        assert metadata["type"] == "conversation_turn"
+        assert metadata["workspace"] == "abby"
 
 
 def test_store_conversation_combines_qa():
@@ -64,6 +69,30 @@ def test_store_conversation_skips_exact_duplicate():
         )
 
         mock_coll.upsert.assert_not_called()
+
+
+def test_store_commons_message_adds_cluster_metadata():
+    """Commons messages should carry channel/type metadata for projection labels."""
+    with patch("app.chroma.memory._get_unified_collection") as mock_coll_fn:
+        mock_coll = MagicMock()
+        mock_coll_fn.return_value = mock_coll
+
+        from app.chroma.memory import store_commons_message
+
+        store_commons_message(
+            user_id=7,
+            user_name="abby",
+            channel_name="ask-abby",
+            message_id=99,
+            body="How do I map this code set?",
+        )
+
+        metadata = mock_coll.upsert.call_args.kwargs["metadatas"][0]
+        assert metadata["category"] == "ask-abby"
+        assert metadata["source"] == "commons"
+        assert metadata["source_type"] == "discussion"
+        assert metadata["type"] == "discussion_message"
+        assert metadata["workspace"] == "commons"
 
 
 def test_prune_old_conversations():
@@ -115,4 +144,8 @@ def test_aggregate_conversations_backfills_legacy_per_user_collections():
         assert upsert_kwargs["ids"] == ["conv_42_abc"]
         assert upsert_kwargs["metadatas"][0]["user_id"] == 42
         assert upsert_kwargs["metadatas"][0]["source"] == "abby_chat"
+        assert upsert_kwargs["metadatas"][0]["category"] == "general"
+        assert upsert_kwargs["metadatas"][0]["source_type"] == "chat"
+        assert upsert_kwargs["metadatas"][0]["type"] == "conversation_turn"
+        assert upsert_kwargs["metadatas"][0]["workspace"] == "abby"
         assert stats == {"users": 1, "total": 1, "upserted": 1}

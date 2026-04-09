@@ -11,7 +11,7 @@ _LONG_TOKEN_RE = re.compile(r"\b\S{35,}\b")
 _REPEATED_PUNCT_RE = re.compile(r"([^\w\s])\1{3,}")
 _NON_WORD_DENSE_RE = re.compile(r"[^a-zA-Z0-9\s]{8,}")
 
-_BOILERPLATE_MARKERS = [
+_GENERAL_BOILERPLATE_MARKERS = [
     "all rights reserved",
     "copyright",
     "permissions",
@@ -28,6 +28,19 @@ _BOILERPLATE_MARKERS = [
     "index",
     "references",
     "bibliography",
+]
+
+_OHDSI_PDF_BOILERPLATE_MARKERS = [
+    "all rights reserved",
+    "copyright",
+    "permissions",
+    "license",
+    "received for review",
+    "accepted for publication",
+    "correspondence to",
+    "supplementary material",
+    "table of contents",
+    "index",
 ]
 
 _OHDSI_RELEVANCE_TERMS = [
@@ -142,7 +155,7 @@ def audit_document(
     metrics = _compute_metrics(normalized)
     missing_metadata, metadata_score = _metadata_check(target_collection, source_kind, metadata)
     relevance_score = _compute_relevance_score(target_collection, normalized, metadata)
-    boilerplate_score = _compute_boilerplate_score(normalized)
+    boilerplate_score = _compute_boilerplate_score(target_collection, source_kind, normalized)
     noise_score = _compute_noise_score(normalized, metrics)
     quality_score = _coerce_float(metadata.get("quality_score"))
 
@@ -169,10 +182,10 @@ def audit_document(
         severity += 2
     if boilerplate_score >= 0.45:
         reasons.append(f"boilerplate:{boilerplate_score:.2f}")
-        severity += 3
+        severity += _boilerplate_penalty(target_collection, source_kind, relevance_score)
     elif boilerplate_score >= 0.25:
         reasons.append(f"possible_boilerplate:{boilerplate_score:.2f}")
-        severity += 1
+        severity += _possible_boilerplate_penalty(target_collection, source_kind, relevance_score)
     if missing_metadata:
         reasons.append(f"missing_metadata:{','.join(missing_metadata)}")
         severity += 4 if _requires_strict_metadata(target_collection, source_kind) else 2
@@ -317,17 +330,49 @@ def _relevance_terms_for(target_collection: str) -> list[str]:
     return []
 
 
-def _compute_boilerplate_score(text: str) -> float:
+def _boilerplate_markers_for(target_collection: str, source_kind: str) -> list[str]:
+    if target_collection == "ohdsi_papers" and source_kind == "pdf":
+        return _OHDSI_PDF_BOILERPLATE_MARKERS
+    return _GENERAL_BOILERPLATE_MARKERS
+
+
+def _boilerplate_heading_markers_for(target_collection: str, source_kind: str) -> list[str]:
+    if target_collection == "ohdsi_papers" and source_kind == "pdf":
+        return ["table of contents", "index"]
+    return ["references", "bibliography", "acknowledgements", "table of contents", "index"]
+
+
+def _compute_boilerplate_score(target_collection: str, source_kind: str, text: str) -> float:
     lowered = text.lower()
-    hits = sum(1 for marker in _BOILERPLATE_MARKERS if marker in lowered)
+    hits = sum(1 for marker in _boilerplate_markers_for(target_collection, source_kind) if marker in lowered)
 
     heading_hits = 0
-    for heading in ["references", "bibliography", "acknowledgements", "table of contents", "index"]:
+    for heading in _boilerplate_heading_markers_for(target_collection, source_kind):
         heading_hits += lowered.count(f"\n{heading}\n")
         heading_hits += lowered.count(f"\n## {heading}\n")
 
     score = (hits + (heading_hits * 1.5)) / 8.0
     return max(0.0, min(1.0, score))
+
+
+def _boilerplate_penalty(target_collection: str, source_kind: str, relevance_score: float) -> int:
+    if (
+        target_collection == "ohdsi_papers"
+        and source_kind == "pdf"
+        and relevance_score >= _accept_relevance_floor(target_collection)
+    ):
+        return 0
+    return 3
+
+
+def _possible_boilerplate_penalty(target_collection: str, source_kind: str, relevance_score: float) -> int:
+    if (
+        target_collection == "ohdsi_papers"
+        and source_kind == "pdf"
+        and relevance_score >= _accept_relevance_floor(target_collection)
+    ):
+        return 0
+    return 1
 
 
 def _compute_noise_score(text: str, metrics: AuditMetrics) -> float:

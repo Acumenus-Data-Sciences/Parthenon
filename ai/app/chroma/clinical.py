@@ -11,12 +11,54 @@ from typing import Any
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
 
+from app.chroma.client import get_chroma_client
 from app.chroma.collections import get_clinical_collection
+from app.chroma.collections import clear_cached_collection
 from app.config import settings
 
 logger = logging.getLogger(__name__)
 
 TARGET_DOMAINS = ("Condition", "Drug", "Procedure", "Measurement")
+
+
+def _upsert_clinical_batch_resilient(
+    collection: Any,
+    ids: list[str],
+    documents: list[str],
+    metadatas: list[dict[str, Any]],
+) -> None:
+    """Retry large clinical upserts with smaller sub-batches on transient failures."""
+    if not ids:
+        return
+
+    try:
+        collection.upsert(
+            ids=ids,
+            documents=documents,
+            metadatas=metadatas,  # type: ignore[arg-type]
+        )
+        return
+    except Exception as exc:
+        if len(ids) <= 1:
+            raise
+        midpoint = max(1, len(ids) // 2)
+        logger.warning(
+            "Clinical upsert failed for batch size %d; retrying in smaller chunks: %s",
+            len(ids),
+            exc,
+        )
+        _upsert_clinical_batch_resilient(
+            collection,
+            ids[:midpoint],
+            documents[:midpoint],
+            metadatas[:midpoint],
+        )
+        _upsert_clinical_batch_resilient(
+            collection,
+            ids[midpoint:],
+            documents[midpoint:],
+            metadatas[midpoint:],
+        )
 
 
 def _get_vocab_engine() -> Engine:
@@ -32,6 +74,7 @@ def _get_vocab_engine() -> Engine:
 def ingest_clinical_concepts(
     batch_size: int = 500,
     limit: int | None = None,
+    start_offset: int = 0,
 ) -> dict[str, int]:
     """Ingest standard OMOP concepts into the clinical reference collection.
 
@@ -49,7 +92,7 @@ def ingest_clinical_concepts(
     # and Abby doesn't need NDC-level granularity for cohort expression translation.
     # RxNorm core (153K ingredients/clinical drugs/branded drugs) is sufficient.
     base_query = f"""
-        SELECT concept_id, concept_name, domain_id, vocabulary_id
+        SELECT concept_id, concept_name, domain_id, vocabulary_id, concept_class_id
         FROM {schema}.concept
         WHERE standard_concept = 'S'
         AND domain_id IN :domains
@@ -68,6 +111,8 @@ def ingest_clinical_concepts(
             params["limit"] = limit
         rows = conn.execute(text(base_query), params).fetchall()
 
+    if start_offset > 0:
+        rows = rows[start_offset:]
     logger.info("Found %d concepts to ingest", len(rows))
 
     for i in range(0, len(rows), batch_size):
@@ -79,14 +124,20 @@ def ingest_clinical_concepts(
                 "concept_id": row[0],
                 "domain": row[2],
                 "vocabulary_id": row[3],
+                "concept_class_id": row[4],
+                "category": row[2],
+                "source": "clinical_reference",
+                "source_type": "omop_concept",
+                "type": "clinical_concept",
             }
             for row in batch
         ]
 
-        collection.upsert(
-            ids=ids,
-            documents=documents,
-            metadatas=metadatas,  # type: ignore[arg-type]
+        _upsert_clinical_batch_resilient(
+            collection,
+            ids,
+            documents,
+            metadatas,
         )
 
         stats["batches"] += 1
@@ -95,3 +146,19 @@ def ingest_clinical_concepts(
 
     logger.info("Clinical ingestion complete: %s", stats)
     return stats
+
+
+def rebuild_clinical_concepts(
+    batch_size: int = 500,
+    limit: int | None = None,
+    start_offset: int = 0,
+) -> dict[str, int]:
+    """Recreate the clinical_reference collection from the current OMOP source of truth."""
+    if start_offset <= 0:
+        client = get_chroma_client()
+        try:
+            client.delete_collection("clinical_reference")
+        except Exception:
+            pass
+        clear_cached_collection("clinical_reference")
+    return ingest_clinical_concepts(batch_size=batch_size, limit=limit, start_offset=start_offset)

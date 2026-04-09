@@ -52,6 +52,38 @@ def test_audit_document_rejects_boilerplate_noise():
     assert any(reason.startswith("boilerplate") or reason.startswith("possible_boilerplate") for reason in result.reasons)
 
 
+def test_audit_document_accepts_relevant_paper_with_references_and_acknowledgements():
+    result = audit_document(
+        target_collection="ohdsi_papers",
+        source_kind="pdf",
+        source_id="paper-with-refs.pdf",
+        path="/tmp/paper-with-refs.pdf",
+        text=(
+            "The OHDSI network used the OMOP common data model for cohort definition and phenotype "
+            "transportability across EHR and claims databases. This observational study evaluated "
+            "patient-level outcome phenotypes, vocabulary harmonization, and real-world evidence "
+            "generation across sites. Investigators compared concept sets, study diagnostics, "
+            "cohort transportability, and measurement consistency across participating health systems. "
+            "The manuscript describes standardized analytics, phenotype review workflows, and "
+            "observational healthcare methods used for reproducible evidence generation in OMOP networks.\n\n"
+            "Acknowledgements\n"
+            "We thank the OHDSI community.\n\n"
+            "References\n"
+            "1. Prior OMOP paper.\n"
+        ),
+        metadata={
+            "title": "OMOP phenotype transportability",
+            "year": "2024",
+            "doi": "10.1000/omop",
+            "authors": "Doe et al.",
+            "journal": "JAMIA",
+        },
+    )
+
+    assert result.disposition == "accept"
+    assert all(not reason.startswith("boilerplate") for reason in result.reasons)
+
+
 def test_audit_document_rejects_wiki_source_missing_required_metadata():
     result = audit_document(
         target_collection="wiki_pages",

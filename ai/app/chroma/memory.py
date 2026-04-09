@@ -48,9 +48,13 @@ def store_conversation_turn(
     metadata: dict[str, Any] = {
         "user_id": user_id,
         "page_context": page_context,
+        "category": page_context,
         "timestamp": now,
         "question_preview": question[:100],
         "source": "abby_chat",
+        "source_type": "chat",
+        "type": "conversation_turn",
+        "workspace": "abby",
     }
 
     conversation_memory = get_conversation_memory_collection()
@@ -96,9 +100,13 @@ def store_commons_message(
         "user_id": user_id,
         "user_name": user_name,
         "channel": channel_name,
+        "category": channel_name,
         "message_id": message_id,
         "timestamp": now,
         "source": "commons",
+        "source_type": "discussion",
+        "type": "discussion_message",
+        "workspace": "commons",
         "question_preview": body[:100],
     }
     if parent_id:
@@ -190,6 +198,14 @@ def aggregate_conversations() -> dict[str, int]:
             m["user_id"] = user_id
             if "source" not in m:
                 m["source"] = "abby_chat"
+            if "category" not in m and m.get("page_context"):
+                m["category"] = m["page_context"]
+            if "source_type" not in m:
+                m["source_type"] = "chat"
+            if "type" not in m:
+                m["type"] = "conversation_turn"
+            if "workspace" not in m:
+                m["workspace"] = "abby"
             agg_metas.append(m)
 
         batch_size = 500
