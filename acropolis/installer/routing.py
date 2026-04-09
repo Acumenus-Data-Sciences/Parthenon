@@ -188,7 +188,7 @@ def generate_traefik_static(tls_mode: str, acme_email: str) -> str:
         "  docker:",
         "    endpoint: unix:///var/run/docker.sock",
         "    exposedByDefault: false",
-        "    network: acropolis_network",
+        "    network: acumenus",
         "    watch: true",
         "",
         "  file:",

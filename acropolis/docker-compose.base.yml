@@ -44,7 +44,7 @@ services:
 
 networks:
   acropolis:
-    name: acropolis_network
+    name: acumenus
     driver: bridge
   parthenon:
     external: true

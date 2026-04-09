@@ -53,7 +53,7 @@ PARTHENON_MODE="{topology_mode}"
 PARTHENON_PATH="{parthenon_path or ""}"
 PARTHENON_URL="{parthenon_url or ""}"
 PARTHENON_NETWORK="{parthenon_network or "parthenon"}"
-NETWORK_NAME="acropolis_network"
+NETWORK_NAME="acumenus"
 COMPOSE_FILES=({compose_files})
 SERVICES=({service_list})
 

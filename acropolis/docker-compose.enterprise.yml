@@ -740,4 +740,4 @@ volumes:
 networks:
   acropolis:
     external: true
-    name: acropolis_network
+    name: acumenus

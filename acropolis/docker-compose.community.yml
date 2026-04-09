@@ -98,7 +98,7 @@ services:
       - parthenon
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=acropolis_network"
+      - "traefik.docker.network=acumenus"
       - "traefik.http.routers.grafana.rule=Host(`grafana.${DOMAIN:-acumenus.net}`)"
       - "traefik.http.routers.grafana.entrypoints=web"
       - "traefik.http.routers.grafana.middlewares=authentik@docker"
@@ -124,7 +124,7 @@ volumes:
 networks:
   acropolis:
     external: true
-    name: acropolis_network
+    name: acumenus
   parthenon:
     external: true
     name: parthenon

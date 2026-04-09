@@ -14,7 +14,7 @@ from acropolis.installer.utils import (
     remove_network,
 )
 
-ACROPOLIS_NETWORK = "acropolis_network"
+ACROPOLIS_NETWORK = "acumenus"
 
 
 def setup_network(
@@ -31,7 +31,7 @@ def setup_network(
 
     connections: list[str] = []
 
-    # Create acropolis_network if needed
+    # Create the Acropolis network if needed
     if not network_exists(ACROPOLIS_NETWORK):
         console.print(f"[cyan]Creating network: {ACROPOLIS_NETWORK}[/]")
         if not create_network(ACROPOLIS_NETWORK):
@@ -62,7 +62,7 @@ def setup_network(
         console.print("[dim]Remote mode — Traefik routes via external URL.[/]")
         return connections
 
-    # Local mode: connect Parthenon containers to acropolis_network
+    # Local mode: connect Parthenon containers to the Acropolis network
     exposed = [s for s in services if s.expose]
     if not exposed:
         console.print("[dim]No services to expose — skipping network linking.[/]")
@@ -96,7 +96,7 @@ def rollback_network(connections: list[str], console: Console) -> None:
         else:
             console.print("[yellow]failed (may already be disconnected)[/]")
 
-    # Remove acropolis_network if we created it and it's now empty
+    # Remove the Acropolis network if we created it and it's now empty
     if network_exists(ACROPOLIS_NETWORK):
         console.print(f"  Removing {ACROPOLIS_NETWORK}...", end=" ")
         if remove_network(ACROPOLIS_NETWORK):

@@ -11,7 +11,7 @@ Flow:
   Phase 4: Service discovery (enumerate Parthenon containers)
   Phase 5: Configuration (domain, TLS, credentials)
   Phase 5.5: Run Parthenon installer if not already installed
-  Phase 6: Network setup (acropolis_network + bridge)
+  Phase 6: Network setup (acumenus + parthenon bridges)
   Phase 7: Deploy infrastructure services
   Phase 8: Traefik routing configuration
   Phase 9: Verification + generate day-2 CLI

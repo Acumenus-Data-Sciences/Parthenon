@@ -1140,7 +1140,7 @@ networks:
     name: parthenon
     driver: bridge
   acropolis:
-    name: acropolis_network
+    name: acumenus
     external: true
   jupyter_users:
     name: parthenon_jupyter_users
