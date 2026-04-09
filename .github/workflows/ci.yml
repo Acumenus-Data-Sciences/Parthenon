@@ -377,6 +377,28 @@ jobs:
         working-directory: frontend
         run: npm run generate:api-types
 
+      - name: Detect OpenAPI type drift
+        run: |
+          # Fail if the freshly-regenerated api.generated.ts differs from
+          # what's committed. Contributors must run ./deploy.sh --openapi
+          # whenever backend routes/requests/responses change.
+          if ! git diff --exit-code -- frontend/src/types/api.generated.ts; then
+            echo ""
+            echo "::error::OpenAPI type drift detected — frontend/src/types/api.generated.ts is out of sync with the backend OpenAPI spec."
+            echo ""
+            echo "The committed TypeScript types do not match what would be generated from the current backend routes."
+            echo "This means a backend route/request/response was changed without regenerating the frontend types."
+            echo ""
+            echo "To fix locally:"
+            echo "  ./deploy.sh --openapi"
+            echo "  git add frontend/src/types/api.generated.ts backend/api.json"
+            echo "  git commit -m 'chore: regenerate OpenAPI types'"
+            echo ""
+            echo "Unified diff of the drift is shown above."
+            exit 1
+          fi
+          echo "OpenAPI types are in sync with the backend spec."
+
       - name: Verify TypeScript types compile
         working-directory: frontend
         run: npx tsc --noEmit
