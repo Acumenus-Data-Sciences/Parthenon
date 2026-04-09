@@ -9,6 +9,7 @@ import json
 import logging
 import re
 import csv
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
@@ -216,7 +217,7 @@ def _attach_audit_metadata(
 
 
 def _docs_metadata_requires_refresh(
-    existing_metadatas: list[dict[str, Any]] | None,
+    existing_metadatas: Sequence[Mapping[str, Any] | None] | None,
     *,
     relative_path: str,
 ) -> bool:
@@ -243,7 +244,7 @@ def _docs_metadata_requires_refresh(
 
 
 def _paper_metadata_requires_refresh(
-    existing_metadatas: list[dict[str, Any]] | None,
+    existing_metadatas: Sequence[Mapping[str, Any] | None] | None,
     *,
     paper_meta: dict[str, Any],
 ) -> bool:
