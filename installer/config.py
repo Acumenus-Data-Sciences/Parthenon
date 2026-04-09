@@ -217,6 +217,7 @@ def build_config_defaults(overrides: dict[str, Any] | None = None) -> dict[str, 
         "app_url": app_url,
         "env": _validated_choice(seed.get("env"), choices=ENV_CHOICES, default="local"),
         "db_password": seed.get("db_password") or _generate_password(24),
+        "abby_analyst_password": seed.get("abby_analyst_password") or _generate_password(24),
         "admin_email": (seed.get("admin_email") or "admin@example.com").strip(),
         "admin_name": (seed.get("admin_name") or "Admin").strip(),
         "admin_password": seed.get("admin_password") or _generate_password(16),
@@ -707,6 +708,7 @@ def collect(resume_data: dict[str, Any] | None = None, *, non_interactive: bool 
         "app_url":           app_url,
         "env":               env,
         "db_password":       db_password,
+        "abby_analyst_password": defaults.get("abby_analyst_password") or _generate_password(24),
         "admin_email":       admin_email,
         "admin_name":        admin_name,
         "admin_password":    admin_password,
@@ -772,9 +774,24 @@ def build_root_env(cfg: dict[str, Any]) -> str:
         f"",
         f"# Ollama",
         f"OLLAMA_BASE_URL={cfg['ollama_url'] or 'http://host.docker.internal:11434'}",
-        f"OLLAMA_MODEL=MedAIBase/MedGemma1.5:4b",
+        f"OLLAMA_MODEL=MedGemma:27b",
+        f"OLLAMA_EMBED_BASE_URL={cfg['ollama_url'] or 'http://host.docker.internal:11434'}",
         f"ABBY_OLLAMA_BASE_URL=http://host.docker.internal:11435",
         f"ABBY_OLLAMA_MODEL=gemma4:26b",
+        f"ABBY_OLLAMA_KEEP_ALIVE=3600",
+        f"",
+        f"# AI service credentials (abby_analyst is a read-only Postgres role)",
+        f"ABBY_ANALYST_PASSWORD={cfg['abby_analyst_password']}",
+        f"HF_TOKEN=",
+        f"",
+        f"# Anthropic Claude (cloud LLM; leave API key blank to disable)",
+        f"CLAUDE_API_KEY=",
+        f"CLAUDE_MODEL=claude-sonnet-4-6",
+        f"CLAUDE_TIMEOUT=60",
+        f"",
+        f"# AI safety & budget guardrails",
+        f"PHI_DETECTION_ENABLED=true",
+        f"CLOUD_MONTHLY_BUDGET_USD=500",
     ]
 
     # Optional sidecar service ports
@@ -846,6 +863,9 @@ def build_backend_env(cfg: dict[str, Any]) -> str:
         f"DB_DATABASE=parthenon\n"
         f"DB_USERNAME=parthenon\n"
         f"DB_PASSWORD={cfg['db_password']}\n"
+        f"\n"
+        f"# abby_analyst (read-only Postgres role for AI data interrogation)\n"
+        f"ABBY_ANALYST_PASSWORD={cfg['abby_analyst_password']}\n"
         f"\n"
         f"SESSION_DRIVER=redis\n"
         f"SESSION_LIFETIME=120\n"

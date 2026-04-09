@@ -39,7 +39,7 @@ def run_laravel_bootstrap() -> None:
     # The PHP Dockerfile installs vendor/ into the image, but docker-compose bind-mounts
     # ./backend:/var/www/html at runtime, which shadows the image's vendor/. On a fresh
     # clone the host backend/vendor/ doesn't exist, so artisan fails immediately.
-    console.print("[bold]Step 1/6:[/bold] Installing PHP dependencies (composer install)…")
+    console.print("[bold]Step 1/7:[/bold] Installing PHP dependencies (composer install)…")
     rc = utils.run_stream(
         ["docker", "compose", "exec", "-T", "php",
          "composer", "install", "--no-dev", "--optimize-autoloader", "--no-interaction"]
@@ -49,7 +49,7 @@ def run_laravel_bootstrap() -> None:
         sys.exit(1)
 
     # Step 2 — key:generate
-    console.print("[bold]Step 2/6:[/bold] Generating application key…")
+    console.print("[bold]Step 2/7:[/bold] Generating application key…")
     result = utils.run(
         ["docker", "compose", "exec", "-T", "php",
          "php", "artisan", "key:generate", "--force"],
@@ -63,7 +63,7 @@ def run_laravel_bootstrap() -> None:
     # docker compose restart does NOT reload env_file. Container recreation (up -d)
     # re-reads backend/.env so the new APP_KEY is in the process environment.
     # Without this, db:seed fails with "No application encryption key has been specified."
-    console.print("[bold]Step 3/6:[/bold] Reloading PHP container (picks up new APP_KEY)…")
+    console.print("[bold]Step 3/7:[/bold] Reloading PHP container (picks up new APP_KEY)…")
     rc = utils.run_stream(["docker", "compose", "up", "-d", "php"])
     if rc != 0:
         console.print("[red]Failed to recreate php container.[/red]")
@@ -81,7 +81,7 @@ def run_laravel_bootstrap() -> None:
     )
 
     # Step 4 — migrate
-    console.print("[bold]Step 4/6:[/bold] Running database migrations…")
+    console.print("[bold]Step 4/7:[/bold] Running database migrations…")
     rc = utils.run_stream(
         ["docker", "compose", "exec", "-T", "php",
          "php", "artisan", "migrate", "--force"]
@@ -91,7 +91,7 @@ def run_laravel_bootstrap() -> None:
         sys.exit(1)
 
     # Step 5 — seed
-    console.print("[bold]Step 5/6:[/bold] Seeding database (roles, providers, bundles)…")
+    console.print("[bold]Step 5/7:[/bold] Seeding database (roles, providers, bundles)…")
     rc = utils.run_stream(
         ["docker", "compose", "exec", "-T", "php",
          "php", "artisan", "db:seed", "--class=DatabaseSeeder", "--force"]
@@ -103,7 +103,7 @@ def run_laravel_bootstrap() -> None:
     # Step 6 — fix storage permissions
     # PHP-FPM runs as www-data. On fresh installs, storage/ and bootstrap/cache/ may be
     # owned by root or the host user, causing HTTP 500 on all API calls.
-    console.print("[bold]Step 6/6:[/bold] Setting storage permissions…")
+    console.print("[bold]Step 6/7:[/bold] Setting storage permissions…")
     utils.run(
         ["docker", "compose", "exec", "-T", "php",
          "chown", "-R", "www-data:www-data", "storage", "bootstrap/cache"],
@@ -128,6 +128,22 @@ def run_laravel_bootstrap() -> None:
         console.print(f"[green]v{postgis_version}[/green]")
     else:
         console.print("[yellow]not found (GIS features will be unavailable)[/yellow]")
+
+    # Step 7 — abby_analyst role setup (non-fatal: requires omop schema)
+    console.print("[bold]Step 7/7:[/bold] Setting up abby_analyst read-only role…", end=" ")
+    abby_result = utils.run(
+        ["docker", "compose", "exec", "-T", "php",
+         "php", "artisan", "abby:setup-analyst"],
+        capture=True, check=False, cwd=utils.REPO_ROOT,
+    )
+    if abby_result.returncode == 0:
+        console.print("[green]done[/green]")
+    else:
+        console.print("[yellow]skipped (non-fatal)[/yellow]")
+        console.print(
+            "  [dim]Re-run after loading OMOP vocabulary: "
+            "docker compose exec php php artisan abby:setup-analyst[/dim]"
+        )
 
     console.print("[green]✓ Laravel bootstrap complete.[/green]\n")
 
