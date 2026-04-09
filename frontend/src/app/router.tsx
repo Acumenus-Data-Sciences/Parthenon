@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
@@ -763,9 +764,4 @@ export const router = createBrowserRouter(
     ],
   },
   ],
-  {
-    future: {
-      v7_relativeSplatPath: true,
-    },
-  }
 );
