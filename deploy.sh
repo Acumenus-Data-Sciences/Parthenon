@@ -445,7 +445,9 @@ if $DO_DOCS; then
   fi
   echo ""
   echo "── Docs: clearing build cache ──"
-  rm -rf docs/site/build docs/site/.docusaurus docs/site/node_modules/.cache
+  # Preserve docs/site/build/ directory inode so nginx bind mount stays valid
+  find docs/site/build -mindepth 1 -delete 2>/dev/null || true
+  rm -rf docs/site/.docusaurus docs/site/node_modules/.cache
   ok "Docs build cache cleared"
 
   echo "── Docs: building Docusaurus site ──"
