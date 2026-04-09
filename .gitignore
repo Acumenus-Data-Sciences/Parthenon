@@ -123,6 +123,12 @@ OHDSI-scraper/ohdsi_forums/
 OHDSI-scraper/medical_textbooks_extracted/
 OHDSI-scraper/harvester.log
 OHDSI-scraper/*.env
+OHDSI-scraper/.cache/
+
+# Acumenus internal services — not part of Parthenon
+alfresco/
+openproject/
+scripts/openproject/
 
 # AI models (large, downloaded locally)
 ai/models/
