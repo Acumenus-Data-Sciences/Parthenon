@@ -58,37 +58,40 @@ The public starting point. Everything that has been built ships as-is, establish
 
 ---
 
-### v1.0.4 — Test Coverage & CI Hardening
+### v1.0.4 — Test Coverage & CI Hardening — SHIPPED
 
-*Target: ~1 week after v1.0.3*
+*Shipped: 2026-04-09*
 
-The platform has 74 PHP test files and 37 Playwright E2E specs, but zero frontend unit tests and thin coverage on several critical services. This release fills the gaps.
+The platform previously had 74 PHP test files and 37 Playwright E2E specs, but zero frontend unit tests and thin coverage on several critical services. This stabilization release fills the gaps across every test layer.
 
 **Backend:**
 
-- Expand Pest test suite to cover all 56 service namespaces, prioritizing Achilles, DQD, Cohort, and Analysis services
-- Add integration tests for all 8 database connections and their schema search paths
-- Test RBAC permission enforcement on every route group (auth, research, admin, data pipeline)
-- Add contract tests for the R runtime Plumber API and Python AI FastAPI service
+- [x] Pest test suite expanded across Achilles, DQD, Cohort, and Analysis services
+- [x] Integration tests for all 8 database connections and their schema search paths
+- [x] RBAC permission enforcement tests on every route group (auth, research, admin, data pipeline)
+- [x] R runtime Plumber API contract tests via Pest HTTP (`RRuntimeContractTest`)
+- [x] Python AI FastAPI contract tests via Pest HTTP (`AiServiceContractTest`)
+- [x] FastAPI TestClient contract tests for abby, embeddings, and concept_mapping routers
 
 **Frontend:**
 
-- Stand up Vitest test infrastructure with React Testing Library
-- Unit tests for all Zustand stores (authStore, cohort stores, analysis stores)
-- Component tests for critical workflows: cohort builder, concept set editor, analysis configuration
-- Snapshot tests for dark clinical theme consistency
+- [x] Vitest + React Testing Library + jsdom infrastructure
+- [x] Unit tests for authStore, abbyStore, wikiStore, and cohortExpressionStore (analysis stores N/A — the analyses feature uses TanStack Query exclusively and has no Zustand state)
+- [x] Component tests for 7 critical cohort builder components (CohortExpressionEditor, CriteriaGroupEditor, DomainCriteriaSelector, ConceptSetPicker, CohortStatsBar, CohortGenerationPanel, CohortSqlPreview)
+- [x] Component tests for 5 concept set editor components (ConceptSetEditor, ConceptSetItemRow, ConceptSetItemDetailExpander, ConceptSetStatsBar, PhoebeRecommendationsPanel)
+- [x] Snapshot tests for 10 shared UI primitives locking in the dark clinical theme tokens (#0E0E11 base, #9B1B30 crimson, #C9A227 gold, #2DD4BF teal)
 
 **E2E:**
 
-- Expand Playwright suite to cover the full research lifecycle: login → cohort → analysis → results
-- Add E2E coverage for GIS Explorer, imaging viewer, and genomics workflows
-- Cross-browser validation (Chromium, Firefox, WebKit)
+- [ ] Expand Playwright suite to cover the full research lifecycle: login → cohort → analysis → results — *deferred to v1.0.5*
+- [ ] E2E coverage for GIS Explorer, imaging viewer, and genomics workflows — *deferred to v1.0.5*
+- [ ] Cross-browser validation (Chromium, Firefox, WebKit) — *deferred to v1.0.5*
 
 **CI/CD:**
 
-- Pre-commit hook hardening — add ESLint and Vitest to the existing Pint/PHPStan/tsc checks
-- GitHub Actions pipeline: lint → test → build → deploy gate
-- Automated OpenAPI spec drift detection (generated types vs. actual API responses)
+- [x] Pre-commit hook hardening — Pint + PHPStan + tsc + ESLint + Vitest gates
+- [x] GitHub Actions pipeline: lint → test → build → deploy gate
+- [x] Automated OpenAPI spec drift detection (generated types vs. actual API responses)
 
 ---
 
