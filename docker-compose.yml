@@ -184,7 +184,7 @@ services:
       - HF_HOME=/models/huggingface
       - HF_TOKEN=${HF_TOKEN:-}
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11435}
-      - OLLAMA_MODEL=${OLLAMA_MODEL:-ii-medical:8b-q8}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-MedGemma:27b}
       - OLLAMA_EMBED_BASE_URL=${OLLAMA_EMBED_BASE_URL:-http://host.docker.internal:11434}
       - ABBY_OLLAMA_BASE_URL=${ABBY_OLLAMA_BASE_URL:-http://host.docker.internal:11435}
       - ABBY_OLLAMA_MODEL=${ABBY_OLLAMA_MODEL:-gemma4:26b}
