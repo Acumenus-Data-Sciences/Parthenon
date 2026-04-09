@@ -122,6 +122,13 @@ abstract class DesignAuditObserver
 
     private function exportFixture(Model $model): void
     {
+        // Skip filesystem writes during tests. Pest's RefreshDatabase rolls back
+        // the DB transaction, but observer-driven file_put_contents() would
+        // otherwise leak faker/test cohort fixtures into backend/database/fixtures/designs.
+        if (app()->runningUnitTests()) {
+            return;
+        }
+
         try {
             app(DesignFixtureExporter::class)->exportEntity($this->entityType(), (int) $model->getKey());
         } catch (\Throwable $e) {
@@ -135,6 +142,10 @@ abstract class DesignAuditObserver
 
     private function deleteFixture(Model $model): void
     {
+        if (app()->runningUnitTests()) {
+            return;
+        }
+
         try {
             app(DesignFixtureExporter::class)->deleteEntityFile($this->entityType(), (int) $model->getKey());
         } catch (\Throwable $e) {

@@ -81,6 +81,8 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Interfaces\ImageManagerInterface;
+use Pest\TestSuite;
+use PHPUnit\Framework\TestCase as PhpUnitTestCase;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -249,7 +251,10 @@ class AppServiceProvider extends ServiceProvider
     private function configureTestingDatabaseConnection(): void
     {
         $requestedConnection = (string) env('DB_CONNECTION', '');
-        $isTestingRuntime = app()->environment('testing') || $requestedConnection === 'pgsql_testing';
+        $runningUnderPhpunit = $this->isRunningUnderPhpunit();
+        $isTestingRuntime = app()->environment('testing')
+            || $requestedConnection === 'pgsql_testing'
+            || $runningUnderPhpunit;
 
         if (! $isTestingRuntime) {
             return;
@@ -279,6 +284,73 @@ class AppServiceProvider extends ServiceProvider
             ]),
             'database.default' => 'pgsql_testing',
         ]);
+
+        // When Pest/PHPUnit is detected but phpunit.xml's `<env force="true">`
+        // directives did not reach Laravel's env repository (a known issue when
+        // `backend/.env.testing` also hard-codes these keys), force the rest of
+        // the testing runtime so downstream services (Spatie permission cache,
+        // session store, queues, mail, app->environment()) don't leak into the
+        // production Redis / queue / cache from the dev `.env`.
+        if ($runningUnderPhpunit && ! app()->environment('testing')) {
+            // Rebind the Laravel application environment to 'testing' without
+            // touching the env file loader (which has already run). This makes
+            // app()->environment('testing') and runningUnitTests() return true.
+            $this->app->detectEnvironment(fn () => 'testing');
+
+            config([
+                'app.env' => 'testing',
+                'cache.default' => 'array',
+                'session.driver' => 'array',
+                'queue.default' => 'sync',
+                'mail.default' => 'array',
+                'permission.cache.store' => 'array',
+            ]);
+        }
+    }
+
+    /**
+     * Detect whether the current PHP process is a PHPUnit/Pest test run.
+     *
+     * phpunit.xml's `<env force="true">` directives do not reliably reach
+     * Laravel's env() repository when `backend/.env.testing` also sets
+     * `DB_CONNECTION=pgsql`, so we fall back to process-level signals that
+     * cannot be overridden by dotenv files.
+     *
+     * IMPORTANT: `\PHPUnit\Runner\Version` is NOT a reliable signal — Laravel's
+     * dev tooling (Telescope, Tinker, Pail, etc.) transitively autoloads it
+     * during normal `artisan` runs and would cause false positives that
+     * re-route artisan tinker / jobs / queue workers into the testing DB.
+     * `\PHPUnit\Framework\TestCase` is only loaded when a real test class is
+     * parsed, which is what we want.
+     */
+    private function isRunningUnderPhpunit(): bool
+    {
+        // PHPUnit's Composer bootstrap defines this constant for any phpunit/pest run.
+        if (defined('PHPUNIT_COMPOSER_INSTALL')) {
+            return true;
+        }
+
+        // Loaded only when a real test class (which extends it) is parsed.
+        if (class_exists(PhpUnitTestCase::class, false)) {
+            return true;
+        }
+
+        // Pest-specific runner class — also a strong positive.
+        if (class_exists(TestSuite::class, false)) {
+            return true;
+        }
+
+        // Final safety net: inspect argv for a pest/phpunit invocation. Matches
+        // both `vendor/bin/pest` and `vendor/bin/phpunit` entry points. Scoped
+        // narrowly to avoid matching artisan commands that happen to embed the
+        // word "pest" or "phpunit" in their arguments.
+        $argv = (array) ($_SERVER['argv'] ?? []);
+        $entryScript = isset($argv[0]) && is_string($argv[0]) ? strtolower(basename($argv[0])) : '';
+        if ($entryScript === 'pest' || $entryScript === 'phpunit') {
+            return true;
+        }
+
+        return false;
     }
 
     private function guardDangerousConsoleCommands(string $command): void
