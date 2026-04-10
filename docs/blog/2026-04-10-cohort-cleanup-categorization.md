@@ -6,6 +6,8 @@ tags: [cohort-definitions, ux, data-quality, categorization, omop, phenotyping, 
 date: 2026-04-10
 ---
 
+![A dense crowd of people — finding the right cohort in an unorganized list feels just like this.](./img/cohort-crowd.jpg)
+
 Every research platform hits the same inflection point. You build a powerful cohort builder. Researchers love it. They create cohorts for Study 1, Study 2, the rare disease project, the pancreatic cancer corpus. Each study gets its own "All-Cause Death" outcome. Each gets its own "MACE" composite endpoint. Before long, you're staring at 89 cohort definitions in a flat, unsorted list where a meticulous seven-concept-set new-user design sits next to an auto-generated stub with one concept and no generations. A Rett syndrome genotype-stratified trial cohort is sandwiched between a SynPUF cardiometabolic triad and a never-run hypertension bundle. The list is technically complete and practically useless.
 
 Today, Parthenon ships a cohort categorization system that solves this. We audited every cohort definition in the database, identified and consolidated 9 duplicates and orphans, assigned 80 surviving cohorts to 8 clinical domains, computed a quality tier for each one, and rebuilt the Cohort Definitions page with collapsible domain-grouped sections and quality filter pills. Researchers can now browse by clinical domain, filter to study-ready phenotypes, and find what they need in seconds instead of scrolling through a flat table.
