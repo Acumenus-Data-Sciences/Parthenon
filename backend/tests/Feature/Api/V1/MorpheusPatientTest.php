@@ -11,24 +11,10 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     $this->seed(RolePermissionSeeder::class);
 
-    // See MorpheusDashboardTest for the rationale: the `inpatient` connection
-    // targets the real `parthenon` DB in tests (Dotenv loader quirk), so this
-    // beforeEach is self-sufficient — CREATE IF NOT EXISTS with the full
-    // production column shape, insertOrIgnore an active fixture, no DROP.
-    DB::connection('inpatient')->unprepared('CREATE SCHEMA IF NOT EXISTS inpatient_ext');
-    DB::connection('inpatient')->unprepared(<<<'SQL'
-        CREATE TABLE IF NOT EXISTS inpatient_ext.morpheus_dataset (
-            dataset_id    BIGSERIAL PRIMARY KEY,
-            name          TEXT NOT NULL,
-            schema_name   TEXT NOT NULL UNIQUE,
-            description   TEXT,
-            source_type   TEXT,
-            patient_count INTEGER NOT NULL DEFAULT 0,
-            status        TEXT NOT NULL DEFAULT 'active',
-            created_at    TIMESTAMP NOT NULL DEFAULT NOW()
-        )
-    SQL);
-    DB::connection('inpatient')->table('inpatient_ext.morpheus_dataset')->insertOrIgnore([
+    // Migration 2026_04_10_000001 creates inpatient_ext.morpheus_dataset in
+    // parthenon_testing at suite start; Morpheus code reads via
+    // 'inpatient_testing' connection (same database). Just seed the fixture.
+    DB::connection('inpatient_testing')->table('inpatient_ext.morpheus_dataset')->insertOrIgnore([
         'name' => 'MIMIC-IV Demo',
         'schema_name' => 'mimiciv',
         'status' => 'active',

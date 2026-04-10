@@ -11,28 +11,12 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     $this->seed(RolePermissionSeeder::class);
 
-    // NOTE: The `inpatient` Laravel connection is wired to the real `parthenon`
-    // database in the test environment (the Dotenv loader does not overwrite
-    // OS-level DB_DATABASE), so RefreshDatabase — which operates on the default
-    // `pgsql_testing` connection — cannot manage this table. The test is
-    // therefore self-sufficient: ensure the schema + table exist with the full
-    // production column shape (matching migration 2026_04_10_000001), then
-    // insertOrIgnore an active fixture row. No DROP SCHEMA cleanup — that
-    // would wipe the production registry that real Morpheus API calls depend on.
-    DB::connection('inpatient')->unprepared('CREATE SCHEMA IF NOT EXISTS inpatient_ext');
-    DB::connection('inpatient')->unprepared(<<<'SQL'
-        CREATE TABLE IF NOT EXISTS inpatient_ext.morpheus_dataset (
-            dataset_id    BIGSERIAL PRIMARY KEY,
-            name          TEXT NOT NULL,
-            schema_name   TEXT NOT NULL UNIQUE,
-            description   TEXT,
-            source_type   TEXT,
-            patient_count INTEGER NOT NULL DEFAULT 0,
-            status        TEXT NOT NULL DEFAULT 'active',
-            created_at    TIMESTAMP NOT NULL DEFAULT NOW()
-        )
-    SQL);
-    DB::connection('inpatient')->table('inpatient_ext.morpheus_dataset')->insertOrIgnore([
+    // The inpatient_ext schema + morpheus_dataset table are created by
+    // migration 2026_04_10_000001 against the default testing connection
+    // (pgsql_testing → parthenon_testing), and Morpheus services + controllers
+    // read the registry via the 'inpatient_testing' connection which also
+    // targets parthenon_testing. We just need to seed an active fixture row.
+    DB::connection('inpatient_testing')->table('inpatient_ext.morpheus_dataset')->insertOrIgnore([
         'name' => 'MIMIC-IV Demo',
         'schema_name' => 'mimiciv',
         'status' => 'active',

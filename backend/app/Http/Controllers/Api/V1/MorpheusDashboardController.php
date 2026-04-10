@@ -21,12 +21,15 @@ class MorpheusDashboardController extends Controller
      * Resolve and validate the dataset schema name from the request.
      * Looks up the schema_name in the morpheus_dataset registry to ensure
      * it exists and is active. Falls back to 'mimiciv' if not provided.
+     *
+     * Connection resolved via config('morpheus.connection') so tests can
+     * target parthenon_testing without leaking writes to production.
      */
     private function resolveSchema(Request $request): string
     {
         $schemaName = $request->input('dataset', 'mimiciv');
 
-        $dataset = DB::connection('inpatient')->selectOne("
+        $dataset = DB::connection(config('morpheus.connection'))->selectOne("
             SELECT schema_name FROM inpatient_ext.morpheus_dataset
             WHERE schema_name = ? AND status = 'active'
         ", [$schemaName]);

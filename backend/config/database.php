@@ -221,6 +221,36 @@ return [
             'sslmode' => 'prefer',
         ],
 
+        // Morpheus inpatient CDM — TEST-ONLY variant.
+        //
+        // The Dotenv loader does not overwrite OS-level DB_DATABASE (set by
+        // Docker env_file at container creation), so in the testing environment
+        // the 'inpatient' connection above resolves to the REAL `parthenon`
+        // database instead of `parthenon_testing`. Before this connection
+        // existed, Morpheus tests that wrote to `inpatient_ext.morpheus_dataset`
+        // or ran `DROP SCHEMA inpatient_ext CASCADE` in afterEach were silently
+        // corrupting the production registry.
+        //
+        // This connection mirrors 'inpatient' but uses DB_TEST_* env vars so it
+        // targets `parthenon_testing` during test runs. Morpheus services and
+        // controllers pick their connection via config('morpheus.connection'),
+        // which resolves to 'inpatient_testing' in the testing environment via
+        // MORPHEUS_DB_CONNECTION in phpunit.xml.
+        'inpatient_testing' => [
+            'driver' => 'pgsql',
+            'url' => env('DB_TEST_URL'),
+            'host' => env('DB_TEST_HOST', env('DB_HOST', '127.0.0.1')),
+            'port' => env('DB_TEST_PORT', env('DB_PORT', '5432')),
+            'database' => env('DB_TEST_DATABASE', 'parthenon_testing'),
+            'username' => env('DB_TEST_USERNAME', env('DB_USERNAME', 'parthenon')),
+            'password' => env('DB_TEST_PASSWORD', env('DB_PASSWORD', '')),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => 'inpatient,inpatient_ext,vocab',
+            'sslmode' => 'prefer',
+        ],
+
         // Pancreatic Cancer Corpus CDM — schema-isolated OMOP CDM for
         // multimodal pancreatic cancer research dataset. Shared vocabulary
         // from vocab schema.

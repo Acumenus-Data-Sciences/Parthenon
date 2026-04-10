@@ -13,16 +13,18 @@ use Illuminate\Support\Facades\DB;
 class MorpheusDatasetController extends Controller
 {
     /**
-     * The Morpheus registry lives at a fixed location (inpatient_ext schema
-     * on the 'inpatient' connection) and is independent of the user's
-     * currently-selected CDM source. This mirrors how MorpheusDashboardController
-     * and MorpheusPatientController read from 'inpatient' directly — the earlier
-     * SourceAware migration was incorrect for this controller because the
-     * /morpheus/datasets route is not wrapped in ResolveSourceContext middleware.
+     * The Morpheus registry lives at a fixed location (inpatient_ext schema).
+     * Connection is resolved via config('morpheus.connection') — 'inpatient'
+     * in production, 'inpatient_testing' in the test env — so the registry
+     * reads and writes stay on the right database.
+     *
+     * The earlier SourceAware-based implementation was incorrect because the
+     * /morpheus/datasets route is not wrapped in ResolveSourceContext
+     * middleware, so $this->cdm() always threw "Source context required".
      */
     private function registry(): Connection
     {
-        return DB::connection('inpatient');
+        return DB::connection(config('morpheus.connection'));
     }
 
     public function index(): JsonResponse

@@ -7,13 +7,21 @@ use Illuminate\Support\Facades\DB;
 
 class MorpheusDashboardService
 {
-    private string $conn = 'inpatient';
+    /**
+     * Connection name resolved at boot from config('morpheus.connection').
+     * Defaults to 'inpatient' in production; phpunit.xml overrides to
+     * 'inpatient_testing' so tests target parthenon_testing, not parthenon.
+     * See docs/superpowers/specs for the Morpheus isolation rationale.
+     */
+    private readonly string $conn;
 
     private const CACHE_TTL = 600; // 10 minutes
 
     public function __construct(
         private readonly SchemaIntrospector $introspector,
-    ) {}
+    ) {
+        $this->conn = (string) config('morpheus.connection', 'inpatient');
+    }
 
     /**
      * Validate schema name format (alphanumeric + underscore only).

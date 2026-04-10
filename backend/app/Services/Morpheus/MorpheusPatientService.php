@@ -6,11 +6,18 @@ use Illuminate\Support\Facades\DB;
 
 class MorpheusPatientService
 {
-    private string $conn = 'inpatient';
+    /**
+     * Connection name resolved at boot from config('morpheus.connection').
+     * 'inpatient' in production; 'inpatient_testing' during Pest runs to
+     * keep test writes inside parthenon_testing.
+     */
+    private readonly string $conn;
 
     public function __construct(
         private readonly SchemaIntrospector $introspector,
-    ) {}
+    ) {
+        $this->conn = (string) config('morpheus.connection', 'inpatient');
+    }
 
     /**
      * Validate schema name format (alphanumeric + underscore only).

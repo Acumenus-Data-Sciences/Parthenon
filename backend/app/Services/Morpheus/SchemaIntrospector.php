@@ -14,9 +14,18 @@ use Illuminate\Support\Facades\DB;
  */
 class SchemaIntrospector
 {
-    private string $conn = 'inpatient';
+    /**
+     * Connection name resolved from config('morpheus.connection') — 'inpatient'
+     * in production, 'inpatient_testing' in Pest (targets parthenon_testing).
+     */
+    private readonly string $conn;
 
     private const CACHE_TTL = 3600; // 1 hour
+
+    public function __construct()
+    {
+        $this->conn = (string) config('morpheus.connection', 'inpatient');
+    }
 
     /**
      * Check if a table exists in the given schema.
