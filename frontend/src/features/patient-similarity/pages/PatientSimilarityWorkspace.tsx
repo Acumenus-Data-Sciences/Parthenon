@@ -1,7 +1,12 @@
 import { type ReactNode, useState, useCallback, useMemo } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { usePipeline } from '../hooks/usePipeline';
-import { useCompareCohorts, usePropensityMatch } from '../hooks/usePatientSimilarity';
+import {
+  useCompareCohorts,
+  usePropensityMatch,
+  useCohortProfile,
+  useCohortSimilaritySearch,
+} from '../hooks/usePatientSimilarity';
 import { projectPatientLandscape } from '../api/patientSimilarityApi';
 import { useCohortDefinitions } from '@/features/cohort-definitions/hooks/useCohortDefinitions';
 import { useSourceStore } from '@/stores/sourceStore';
@@ -13,8 +18,12 @@ import { CovariateBalancePanel } from '../components/CovariateBalancePanel';
 import { PsmPanel } from '../components/PsmPanel';
 import { LandscapePanel } from '../components/LandscapePanel';
 import { HeadToHeadDrawer } from '../components/HeadToHeadDrawer';
+import { CentroidProfilePanel } from '../components/CentroidProfilePanel';
+import { SimilarPatientsPanel } from '../components/SimilarPatientsPanel';
 import type {
   CohortComparisonResult,
+  CohortProfileResult,
+  SimilaritySearchResult,
   CovariateBalanceRow,
   PropensityMatchResult,
   LandscapeResult,
@@ -54,6 +63,11 @@ export default function PatientSimilarityWorkspace() {
   const pipeline = usePipeline();
   const compareMutation = useCompareCohorts();
   const psmMutation = usePropensityMatch();
+  const cohortProfileQuery = useCohortProfile(
+    pipeline.mode === 'expand' ? (targetCohortId ?? undefined) : undefined,
+    sourceId ?? 0,
+  );
+  const cohortSimilarityMutation = useCohortSimilaritySearch();
   const landscapeMutation = useMutation({
     mutationFn: (params: LandscapeParams) => projectPatientLandscape(params),
   });
@@ -109,7 +123,72 @@ export default function PatientSimilarityWorkspace() {
   const handleCompare = useCallback(() => {
     if (sourceId == null || targetCohortId == null) return;
 
-    if (pipeline.mode === 'compare' && comparatorCohortId == null) return;
+    // ── Expand mode ───────────────────────────────────────────────
+    if (pipeline.mode === 'expand') {
+      pipeline.resetPipeline();
+
+      // Step 1: cohort profile — use cached query data if already available,
+      // otherwise wait for the query (enabled when mode === 'expand' and IDs are set).
+      const profileData = cohortProfileQuery.data;
+      if (profileData) {
+        pipeline.markCompleted('centroid', {
+          data: profileData,
+          summary: `${profileData.member_count} members · ${Object.keys(profileData.dimensions).length} dimensions`,
+          executionTimeMs: 0,
+          completedAt: new Date(),
+        });
+      } else {
+        pipeline.markLoading('centroid');
+        // The query is already running via useCohortProfile; we re-use its result
+        // by observing in renderStepContent once available. We mark centroid completed
+        // here optimistically only when data is cached; otherwise the user sees the
+        // loading state via AnalysisPipeline until the query resolves.
+        // Re-trigger by polling would complicate things — instead surface the query
+        // status through the pipeline once it resolves (handled via useEffect-free
+        // imperative path: mark complete when mutation chain runs).
+      }
+
+      // Step 2: cohort similarity search
+      pipeline.markLoading('similar');
+      const startMs = performance.now();
+      cohortSimilarityMutation.mutate(
+        {
+          cohort_definition_id: targetCohortId,
+          source_id: sourceId,
+          weights,
+        },
+        {
+          onSuccess: (searchResult: SimilaritySearchResult) => {
+            const elapsedMs = Math.round(performance.now() - startMs);
+
+            // Resolve centroid step if the query data is now available
+            const freshProfile = cohortProfileQuery.data;
+            if (freshProfile && pipeline.getStepStatus('centroid') !== 'completed') {
+              pipeline.markCompleted('centroid', {
+                data: freshProfile,
+                summary: `${freshProfile.member_count} members · ${Object.keys(freshProfile.dimensions).length} dimensions`,
+                executionTimeMs: 0,
+                completedAt: new Date(),
+              });
+            }
+
+            pipeline.markCompleted('similar', {
+              data: searchResult,
+              summary: `${searchResult.similar_patients.length} similar patients found`,
+              executionTimeMs: elapsedMs,
+              completedAt: new Date(),
+            });
+          },
+          onError: () => {
+            pipeline.markError('similar');
+          },
+        },
+      );
+      return;
+    }
+
+    // ── Compare mode ──────────────────────────────────────────────
+    if (comparatorCohortId == null) return;
 
     pipeline.resetPipeline();
     pipeline.markLoading('profile');
@@ -119,7 +198,7 @@ export default function PatientSimilarityWorkspace() {
     compareMutation.mutate(
       {
         source_cohort_id: targetCohortId,
-        target_cohort_id: pipeline.mode === 'compare' ? comparatorCohortId! : targetCohortId,
+        target_cohort_id: comparatorCohortId,
         source_id: sourceId,
       },
       {
@@ -148,7 +227,7 @@ export default function PatientSimilarityWorkspace() {
         },
       },
     );
-  }, [sourceId, targetCohortId, comparatorCohortId, pipeline, compareMutation]);
+  }, [sourceId, targetCohortId, comparatorCohortId, pipeline, compareMutation, cohortProfileQuery, cohortSimilarityMutation, weights]);
 
   const handleRunStep = useCallback(
     (stepId: string) => {
@@ -208,6 +287,31 @@ export default function PatientSimilarityWorkspace() {
       const data = result?.data as CohortComparisonResult | undefined;
 
       switch (stepId) {
+        // ── Expand mode steps ──────────────────────────────────────
+        case 'centroid': {
+          const profileData = result?.data as CohortProfileResult | undefined;
+          if (!profileData) return null;
+          return (
+            <CentroidProfilePanel
+              profile={profileData}
+              onContinue={() => pipeline.expandStep('similar')}
+            />
+          );
+        }
+
+        case 'similar': {
+          const searchResult = result?.data as SimilaritySearchResult | undefined;
+          if (!searchResult) return null;
+          return (
+            <SimilarPatientsPanel
+              result={searchResult}
+              sourceId={sourceId ?? 0}
+              onContinue={() => pipeline.expandStep('landscape')}
+            />
+          );
+        }
+
+        // ── Compare mode steps ─────────────────────────────────────
         case 'profile':
           if (!data) return null;
           return (
@@ -261,7 +365,7 @@ export default function PatientSimilarityWorkspace() {
           );
       }
     },
-    [pipeline, targetCohortId, comparatorCohortId, getCohortName, handleRunStep],
+    [pipeline, sourceId, targetCohortId, comparatorCohortId, getCohortName, handleRunStep],
   );
 
   // ── Render ────────────────────────────────────────────────────────
