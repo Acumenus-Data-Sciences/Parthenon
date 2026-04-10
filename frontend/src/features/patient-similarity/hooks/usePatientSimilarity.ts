@@ -12,7 +12,7 @@ import {
   compareCohorts,
   crossCohortSearch,
   propensityMatch,
-  discoverPhenotypes,
+  networkFusion,
 } from "../api/patientSimilarityApi";
 import type {
   SimilaritySearchParams,
@@ -22,7 +22,7 @@ import type {
   CohortComparisonParams,
   CrossCohortSearchParams,
   PropensityMatchParams,
-  PhenotypeDiscoveryParams,
+  NetworkFusionParams,
 } from "../types/patientSimilarity";
 
 export const SIMILARITY_KEYS = {
@@ -157,11 +157,10 @@ export function usePropensityMatch() {
   });
 }
 
-// ── Phenotype Discovery ────────────────────────────────────────
+// ── Network Fusion (SNF) ────────────────────────────────────────
 
-export function usePhenotypeDiscovery() {
+export function useNetworkFusion() {
   return useMutation({
-    mutationFn: (params: PhenotypeDiscoveryParams) =>
-      discoverPhenotypes(params),
+    mutationFn: (params: NetworkFusionParams) => networkFusion(params),
   });
 }

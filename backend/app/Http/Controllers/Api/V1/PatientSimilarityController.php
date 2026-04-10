@@ -1094,84 +1094,6 @@ class PatientSimilarityController extends Controller
      * Run propensity score matching between two cohorts.
      * Resolves cohort members, proxies to Python AI service.
      */
-    /**
-     * POST /v1/patient-similarity/discover-phenotypes
-     *
-     * Proxy to Python AI phenotype discovery (consensus clustering) endpoint.
-     */
-    public function discoverPhenotypes(Request $request): JsonResponse
-    {
-        $validated = $request->validate([
-            'source_id' => ['required', 'integer', 'exists:sources,id'],
-            'cohort_definition_id' => ['required', 'integer'],
-            'k' => ['sometimes', 'integer', 'min:2', 'max:10'],
-            'method' => ['sometimes', 'string', 'in:consensus,kmeans,spectral'],
-        ]);
-
-        try {
-            $source = Source::with('daimons')->findOrFail($validated['source_id']);
-            SourceContext::forSource($source);
-
-            // Resolve cohort person_ids
-            $cohortPersonIds = $this->results()
-                ->table('cohort')
-                ->where('cohort_definition_id', $validated['cohort_definition_id'])
-                ->pluck('subject_id')
-                ->map(fn ($id) => (int) $id)
-                ->unique()
-                ->values()
-                ->all();
-
-            if (count($cohortPersonIds) < 3) {
-                return response()->json([
-                    'error' => 'Cohort has fewer than 3 members ('.count($cohortPersonIds).'). Need at least 3 for clustering.',
-                ], 422);
-            }
-
-            // Cap at 5000 patients
-            $capped = false;
-            if (count($cohortPersonIds) > 5000) {
-                $cohortPersonIds = array_slice($cohortPersonIds, 0, 5000);
-                $capped = true;
-            }
-
-            $payload = [
-                'source_id' => $source->id,
-                'cohort_person_ids' => $cohortPersonIds,
-            ];
-
-            if (isset($validated['k'])) {
-                $payload['k'] = $validated['k'];
-            }
-            if (isset($validated['method'])) {
-                $payload['method'] = $validated['method'];
-            }
-
-            $aiUrl = rtrim((string) config('services.ai.url', 'http://python-ai:8000'), '/');
-
-            /** @var Response $response */
-            $response = Http::timeout(180)->post("{$aiUrl}/patient-similarity/discover-phenotypes", $payload);
-
-            if ($response->failed()) {
-                $body = $response->json();
-                $detail = $body['detail'] ?? 'Phenotype discovery failed in AI service.';
-
-                return response()->json(['error' => $detail], $response->status());
-            }
-
-            $data = $response->json();
-            if ($capped) {
-                $data['capped_at'] = 5000;
-            }
-
-            return response()->json(['data' => $data]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Phenotype discovery failed: '.$e->getMessage(),
-            ], 500);
-        }
-    }
-
     public function propensityMatch(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -1240,6 +1162,83 @@ class PatientSimilarityController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Propensity score matching failed: '.$e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * POST /v1/patient-similarity/network-fusion
+     *
+     * Run Similarity Network Fusion across clinical modalities.
+     * Resolves cohort members, proxies to Python AI service.
+     */
+    public function networkFusion(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'source_id' => ['required', 'integer', 'exists:sources,id'],
+            'cohort_definition_id' => ['required', 'integer'],
+            'n_neighbors' => ['sometimes', 'integer', 'min:5', 'max:50'],
+            'n_iterations' => ['sometimes', 'integer', 'min:5', 'max:50'],
+            'top_k_edges' => ['sometimes', 'integer', 'min:3', 'max:50'],
+        ]);
+
+        try {
+            $source = Source::with('daimons')->findOrFail($validated['source_id']);
+            SourceContext::forSource($source);
+
+            // Resolve cohort members
+            $personIds = $this->results()
+                ->table('cohort')
+                ->where('cohort_definition_id', $validated['cohort_definition_id'])
+                ->pluck('subject_id')
+                ->map(fn ($id) => (int) $id)
+                ->unique()
+                ->values()
+                ->all();
+
+            if (count($personIds) < 10) {
+                return response()->json([
+                    'error' => 'Cohort has fewer than 10 members ('.count($personIds).'). Generate it first or choose a larger cohort.',
+                ], 422);
+            }
+
+            $capped = false;
+            if (count($personIds) > 2000) {
+                $personIds = array_slice($personIds, 0, 2000);
+                $capped = true;
+            }
+
+            $aiUrl = rtrim((string) config('services.ai.url', 'http://python-ai:8000'), '/');
+
+            $payload = [
+                'source_id' => $source->id,
+                'cohort_person_ids' => $personIds,
+            ];
+
+            if (isset($validated['n_neighbors'])) {
+                $payload['n_neighbors'] = $validated['n_neighbors'];
+            }
+            if (isset($validated['n_iterations'])) {
+                $payload['n_iterations'] = $validated['n_iterations'];
+            }
+            if (isset($validated['top_k_edges'])) {
+                $payload['top_k_edges'] = $validated['top_k_edges'];
+            }
+
+            /** @var Response $response */
+            $response = Http::timeout(300)->post("{$aiUrl}/patient-similarity/network-fusion", $payload);
+
+            if ($response->failed()) {
+                $body = $response->json();
+                $detail = $body['detail'] ?? 'Network fusion failed in AI service.';
+
+                return response()->json(['error' => $detail], $response->status());
+            }
+
+            return response()->json(['data' => $response->json()]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Network fusion failed: '.$e->getMessage(),
             ], 500);
         }
     }
