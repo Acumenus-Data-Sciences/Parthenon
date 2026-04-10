@@ -9,12 +9,16 @@ class CohortDefinitionObserver
 {
     public function created(CohortDefinition $cohort): void
     {
-        $this->dispatch($cohort);
+        $cohort->recomputeQualityTier();
+        $this->dispatchSolr($cohort);
     }
 
     public function updated(CohortDefinition $cohort): void
     {
-        $this->dispatch($cohort);
+        if ($cohort->wasChanged(['expression_json', 'name', 'description', 'is_public', 'tags', 'domain'])) {
+            $cohort->recomputeQualityTier();
+        }
+        $this->dispatchSolr($cohort);
     }
 
     public function deleted(CohortDefinition $cohort): void
@@ -24,7 +28,7 @@ class CohortDefinitionObserver
         }
     }
 
-    private function dispatch(CohortDefinition $cohort): void
+    private function dispatchSolr(CohortDefinition $cohort): void
     {
         if (config('solr.enabled')) {
             SolrUpdateCohortJob::dispatch('cohort', $cohort->id, false)->delay(5);
