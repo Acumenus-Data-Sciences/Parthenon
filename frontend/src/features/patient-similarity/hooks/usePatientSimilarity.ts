@@ -11,7 +11,7 @@ import {
   expandCohort,
   compareCohorts,
   crossCohortSearch,
-  projectLandscape,
+  propensityMatch,
 } from "../api/patientSimilarityApi";
 import type {
   SimilaritySearchParams,
@@ -20,7 +20,7 @@ import type {
   ExpandCohortParams,
   CohortComparisonParams,
   CrossCohortSearchParams,
-  LandscapeParams,
+  PropensityMatchParams,
 } from "../types/patientSimilarity";
 
 export const SIMILARITY_KEYS = {
@@ -147,10 +147,10 @@ export function useCrossCohortSearch() {
   });
 }
 
-// ── Landscape Projection ────────────────────────────────────────────
+// ── Propensity Score Matching ────────────────────────────────────
 
-export function usePatientLandscape() {
+export function usePropensityMatch() {
   return useMutation({
-    mutationFn: (params: LandscapeParams) => projectLandscape(params),
+    mutationFn: (params: PropensityMatchParams) => propensityMatch(params),
   });
 }

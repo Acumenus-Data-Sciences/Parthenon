@@ -1,142 +1,215 @@
-import { useState } from "react";
 import {
-  BarChart,
-  Bar,
+  ScatterChart,
+  Scatter,
   XAxis,
   YAxis,
-  ReferenceLine,
+  CartesianGrid,
   Tooltip,
+  ReferenceLine,
   ResponsiveContainer,
-  Cell,
+  Legend,
 } from "recharts";
 import type { CovariateBalanceRow } from "../types/patientSimilarity";
 
-interface LovePlotProps {
-  covariates: CovariateBalanceRow[];
-}
-
-const THRESHOLD = 0.1;
-const DEFAULT_SHOW = 20;
-const ROW_HEIGHT = 22;
-const MIN_HEIGHT = 200;
-const MAX_HEIGHT = 600;
 const TEAL = "#2DD4BF";
 const CRIMSON = "#9B1B30";
 
-export function LovePlot({ covariates }: LovePlotProps) {
-  const [showAll, setShowAll] = useState(false);
+interface LovePlotProps {
+  covariates: CovariateBalanceRow[];
+  beforeCovariates?: CovariateBalanceRow[];
+  maxDisplay?: number;
+}
 
-  const sorted = [...covariates].sort(
-    (a, b) => Math.abs(b.smd) - Math.abs(a.smd),
+interface DotDatum {
+  covariate: string;
+  absSmd: number;
+  idx: number;
+}
+
+function truncateLabel(label: string, maxLen: number = 28): string {
+  if (label.length <= maxLen) return label;
+  return label.slice(0, maxLen - 1) + "\u2026";
+}
+
+export function LovePlot({
+  covariates,
+  beforeCovariates,
+  maxDisplay = 30,
+}: LovePlotProps) {
+  const hasBeforeAfter = beforeCovariates !== undefined && beforeCovariates.length > 0;
+
+  if (hasBeforeAfter) {
+    return (
+      <BeforeAfterLovePlot
+        after={covariates}
+        before={beforeCovariates}
+        maxDisplay={maxDisplay}
+      />
+    );
+  }
+
+  // Single-state bar chart (backward compatible)
+  return (
+    <SingleLovePlot covariates={covariates} maxDisplay={maxDisplay} />
   );
+}
 
-  const displayed = showAll ? sorted : sorted.slice(0, DEFAULT_SHOW);
-  const chartData = displayed.map((row) => ({
-    covariate:
-      row.covariate.length > 30
-        ? row.covariate.slice(0, 28) + "..."
-        : row.covariate,
-    fullName: row.covariate,
+// ── Single-state Love Plot (SMD bars) ────────────────────────────
+
+function SingleLovePlot({
+  covariates,
+  maxDisplay,
+}: {
+  covariates: CovariateBalanceRow[];
+  maxDisplay: number;
+}) {
+  const sorted = [...covariates]
+    .sort((a, b) => Math.abs(b.smd) - Math.abs(a.smd))
+    .slice(0, maxDisplay);
+
+  const data: DotDatum[] = sorted.map((row, i) => ({
+    covariate: truncateLabel(row.covariate),
     absSmd: Math.abs(row.smd),
-    smd: row.smd,
-    domain: row.domain,
-    type: row.type,
+    idx: i,
   }));
-
-  // Reverse so highest SMD is at top (BarChart vertical renders bottom-up)
-  const reversedData = [...chartData].reverse();
-
-  const chartHeight = Math.min(
-    MAX_HEIGHT,
-    Math.max(MIN_HEIGHT, reversedData.length * ROW_HEIGHT + 40),
-  );
 
   return (
     <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-      <h3 className="mb-3 text-sm font-semibold text-[#F0EDE8]">
-        Covariate Balance (Love Plot)
+      <h3 className="text-sm font-semibold text-[#F0EDE8] mb-1">
+        Covariate Balance (|SMD|)
       </h3>
-      <p className="mb-3 text-xs text-[#8A857D]">
-        Standardized Mean Difference (|SMD|) per covariate. Covariates below 0.1
-        (teal) are considered balanced.
+      <p className="text-xs text-[#5A5650] mb-3">
+        Covariates below 0.1 are considered well-balanced
       </p>
-
-      <ResponsiveContainer width="100%" height={chartHeight}>
-        <BarChart
-          data={reversedData}
+      <ResponsiveContainer width="100%" height={Math.max(300, data.length * 22)}>
+        <ScatterChart
           layout="vertical"
-          margin={{ top: 5, right: 20, bottom: 5, left: 10 }}
+          margin={{ top: 5, right: 20, bottom: 5, left: 140 }}
         >
+          <CartesianGrid strokeDasharray="3 3" stroke="#232328" horizontal={false} />
           <XAxis
             type="number"
             domain={[0, "auto"]}
-            tick={{ fill: "#8A857D", fontSize: 10 }}
-            axisLine={{ stroke: "#323238" }}
-            tickLine={{ stroke: "#323238" }}
-            label={{
-              value: "|SMD|",
-              position: "insideBottomRight",
-              offset: -5,
-              fill: "#5A5650",
-              fontSize: 10,
-            }}
+            tick={{ fill: "#5A5650", fontSize: 10 }}
+            label={{ value: "|SMD|", position: "bottom", fill: "#5A5650", fontSize: 11 }}
           />
           <YAxis
             type="category"
             dataKey="covariate"
-            width={180}
+            width={135}
             tick={{ fill: "#8A857D", fontSize: 10 }}
-            axisLine={{ stroke: "#323238" }}
-            tickLine={false}
+            data={data}
           />
-          <ReferenceLine
-            x={THRESHOLD}
-            stroke="#5A5650"
-            strokeDasharray="4 4"
-            label={{
-              value: "0.1",
-              position: "top",
-              fill: "#5A5650",
-              fontSize: 10,
-            }}
-          />
+          <ReferenceLine x={0.1} stroke="#C9A227" strokeDasharray="5 5" label={{ value: "0.1", fill: "#C9A227", fontSize: 10 }} />
           <Tooltip
             contentStyle={{
               backgroundColor: "#1A1A1F",
               border: "1px solid #323238",
               borderRadius: 6,
-              fontSize: 12,
+              fontSize: 11,
             }}
-            labelStyle={{ color: "#F0EDE8" }}
-            formatter={
-              ((value: number, _name: string, entry: { payload: { fullName: string; domain: string; type: string } }) => [
-                `|SMD|: ${value.toFixed(4)} (${entry.payload.domain}, ${entry.payload.type})`,
-                entry.payload.fullName,
-              ]) as never
-            }
+            formatter={((value: number) => [value.toFixed(4), "|SMD|"]) as never}
           />
-          <Bar dataKey="absSmd" radius={[0, 3, 3, 0]} barSize={14}>
-            {reversedData.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={entry.absSmd < THRESHOLD ? TEAL : CRIMSON}
-              />
-            ))}
-          </Bar>
-        </BarChart>
+          <Scatter
+            data={data}
+            fill={TEAL}
+            name="SMD"
+          />
+        </ScatterChart>
       </ResponsiveContainer>
+    </div>
+  );
+}
 
-      {sorted.length > DEFAULT_SHOW && (
-        <button
-          type="button"
-          onClick={() => setShowAll((prev) => !prev)}
-          className="mt-2 text-xs text-[#2DD4BF] hover:text-[#2DD4BF]/80 transition-colors"
+// ── Before/After Love Plot (dot comparison) ────────────────────
+
+function BeforeAfterLovePlot({
+  before,
+  after,
+  maxDisplay,
+}: {
+  before: CovariateBalanceRow[];
+  after: CovariateBalanceRow[];
+  maxDisplay: number;
+}) {
+  // Build lookup by covariate name
+  const beforeMap = new Map(before.map((r) => [r.covariate, Math.abs(r.smd)]));
+  const afterMap = new Map(after.map((r) => [r.covariate, Math.abs(r.smd)]));
+
+  // Union of covariates, sorted by before SMD descending
+  const allCovariates = [...new Set([...before.map((r) => r.covariate), ...after.map((r) => r.covariate)])];
+  allCovariates.sort((a, b) => (beforeMap.get(b) ?? 0) - (beforeMap.get(a) ?? 0));
+  const displayed = allCovariates.slice(0, maxDisplay);
+
+  const beforeData: DotDatum[] = displayed.map((cov, i) => ({
+    covariate: truncateLabel(cov),
+    absSmd: beforeMap.get(cov) ?? 0,
+    idx: i,
+  }));
+
+  const afterData: DotDatum[] = displayed.map((cov, i) => ({
+    covariate: truncateLabel(cov),
+    absSmd: afterMap.get(cov) ?? 0,
+    idx: i,
+  }));
+
+  return (
+    <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+      <h3 className="text-sm font-semibold text-[#F0EDE8] mb-1">
+        Love Plot: Before vs After Matching
+      </h3>
+      <p className="text-xs text-[#5A5650] mb-3">
+        After-matching dots (teal) should be closer to zero than before-matching dots (crimson)
+      </p>
+      <ResponsiveContainer width="100%" height={Math.max(300, displayed.length * 22)}>
+        <ScatterChart
+          layout="vertical"
+          margin={{ top: 5, right: 20, bottom: 5, left: 140 }}
         >
-          {showAll
-            ? `Show top ${DEFAULT_SHOW}`
-            : `Show all (${sorted.length})`}
-        </button>
-      )}
+          <CartesianGrid strokeDasharray="3 3" stroke="#232328" horizontal={false} />
+          <XAxis
+            type="number"
+            domain={[0, "auto"]}
+            tick={{ fill: "#5A5650", fontSize: 10 }}
+            label={{ value: "|SMD|", position: "bottom", fill: "#5A5650", fontSize: 11 }}
+          />
+          <YAxis
+            type="category"
+            dataKey="covariate"
+            width={135}
+            tick={{ fill: "#8A857D", fontSize: 10 }}
+            data={beforeData}
+          />
+          <ReferenceLine x={0.1} stroke="#C9A227" strokeDasharray="5 5" label={{ value: "0.1", fill: "#C9A227", fontSize: 10 }} />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: "#1A1A1F",
+              border: "1px solid #323238",
+              borderRadius: 6,
+              fontSize: 11,
+            }}
+            formatter={((value: number, name: string) => [
+              value.toFixed(4),
+              name === "Before" ? "Before |SMD|" : "After |SMD|",
+            ]) as never}
+          />
+          <Legend
+            wrapperStyle={{ fontSize: 11, color: "#C5C0B8" }}
+          />
+          <Scatter
+            data={beforeData}
+            fill={CRIMSON}
+            name="Before"
+            shape="circle"
+          />
+          <Scatter
+            data={afterData}
+            fill={TEAL}
+            name="After"
+            shape="circle"
+          />
+        </ScatterChart>
+      </ResponsiveContainer>
     </div>
   );
 }

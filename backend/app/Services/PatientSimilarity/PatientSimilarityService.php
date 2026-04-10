@@ -14,7 +14,6 @@ use App\Services\PatientSimilarity\Scorers\DrugScorer;
 use App\Services\PatientSimilarity\Scorers\GenomicScorer;
 use App\Services\PatientSimilarity\Scorers\MeasurementScorer;
 use App\Services\PatientSimilarity\Scorers\ProcedureScorer;
-use App\Services\PatientSimilarity\Scorers\TemporalScorer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -45,7 +44,6 @@ final class PatientSimilarityService
             'drugs' => new DrugScorer,
             'procedures' => new ProcedureScorer,
             'genomics' => new GenomicScorer,
-            'temporal' => new TemporalScorer,
         ];
     }
 

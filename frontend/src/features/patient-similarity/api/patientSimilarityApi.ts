@@ -14,9 +14,8 @@ import type {
   CohortComparisonParams,
   CohortComparisonResult,
   CrossCohortSearchParams,
-  LandscapeParams,
-  LandscapeResult,
-  TemporalSimilarityResult,
+  PropensityMatchParams,
+  PropensityMatchResult,
 } from "../types/patientSimilarity";
 
 export async function searchSimilarPatients(
@@ -135,28 +134,13 @@ export async function crossCohortSearch(
   return data.data ?? data;
 }
 
-// ── Temporal Similarity ────────────────────────────────────────────
+// ── Propensity Score Matching ────────────────────────────────────
 
-export async function fetchTemporalSimilarity(
-  sourceId: number,
-  personAId: number,
-  personBId: number,
-): Promise<TemporalSimilarityResult> {
-  const { data } = await apiClient.post("/patient-similarity/temporal-compare", {
-    source_id: sourceId,
-    person_a_id: personAId,
-    person_b_id: personBId,
-  });
-  return data.data ?? data;
-}
-
-// ── Landscape Projection ────────────────────────────────────────────
-
-export async function projectLandscape(
-  params: LandscapeParams,
-): Promise<LandscapeResult> {
+export async function propensityMatch(
+  params: PropensityMatchParams,
+): Promise<PropensityMatchResult> {
   const { data } = await apiClient.post(
-    "/patient-similarity/landscape",
+    "/patient-similarity/propensity-match",
     params,
   );
   return data.data ?? data;
