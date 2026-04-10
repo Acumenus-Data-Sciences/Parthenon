@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Console\Commands;
 
 use App\Enums\DaimonType;
@@ -77,12 +75,6 @@ class ComputeReferenceRangesCommand extends Command
             return;
         }
 
-        if (! preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $cdmSchema)) {
-            $this->error("Invalid schema name '{$cdmSchema}' for source {$source->source_key} — skipping");
-
-            return;
-        }
-
         $this->info("Processing source [{$source->source_key}] (schema: {$cdmSchema})...");
 
         $sql = "
@@ -125,26 +117,20 @@ class ComputeReferenceRangesCommand extends Command
         }
 
         foreach ($rows as $row) {
-            DB::statement(
-                'INSERT INTO lab_reference_range_population
-                    (source_id, measurement_concept_id, unit_concept_id, range_low, range_high, median, n_observations, computed_at, created_at, updated_at)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
-                 ON CONFLICT (source_id, measurement_concept_id, unit_concept_id) DO UPDATE SET
-                    range_low = EXCLUDED.range_low,
-                    range_high = EXCLUDED.range_high,
-                    median = EXCLUDED.median,
-                    n_observations = EXCLUDED.n_observations,
-                    computed_at = EXCLUDED.computed_at,
-                    updated_at = EXCLUDED.updated_at',
+            DB::table('lab_reference_range_population')->updateOrInsert(
                 [
-                    $source->id,
-                    (int) $row->measurement_concept_id,
-                    (int) $row->unit_concept_id,
-                    (float) $row->p025,
-                    (float) $row->p975,
-                    (float) $row->p500,
-                    (int) $row->n,
-                    now(),
+                    'source_id' => $source->id,
+                    'measurement_concept_id' => (int) $row->measurement_concept_id,
+                    'unit_concept_id' => (int) $row->unit_concept_id,
+                ],
+                [
+                    'range_low' => $row->p025,
+                    'range_high' => $row->p975,
+                    'median' => $row->p500,
+                    'n_observations' => (int) $row->n,
+                    'computed_at' => now(),
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ],
             );
         }

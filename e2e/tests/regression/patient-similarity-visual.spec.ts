@@ -69,6 +69,11 @@ async function discoverSweepData(page: Parameters<typeof test>[0]["page"]) {
       continue;
     }
 
+    const cohortsWithMembers: Array<{
+      cohort: CohortItem;
+      members: CohortMember[];
+    }> = [];
+
     for (const cohort of generatedCohorts) {
       const membersResp = await apiJson(
         page,
@@ -76,12 +81,16 @@ async function discoverSweepData(page: Parameters<typeof test>[0]["page"]) {
       );
       const members: CohortMember[] = membersResp.data ?? [];
       if (Array.isArray(members) && members.length > 0) {
+        cohortsWithMembers.push({ cohort, members });
+      }
+
+      if (cohortsWithMembers.length >= 2) {
         return {
           source,
-          singlePatientId: members[0].subject_id,
-          searchCohort: cohort,
-          compareSourceCohort: generatedCohorts[0],
-          compareTargetCohort: generatedCohorts[1],
+          singlePatientId: cohortsWithMembers[0].members[0].subject_id,
+          searchCohort: cohortsWithMembers[0].cohort,
+          compareSourceCohort: cohortsWithMembers[0].cohort,
+          compareTargetCohort: cohortsWithMembers[1].cohort,
         };
       }
     }

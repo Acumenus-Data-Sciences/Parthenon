@@ -2,4 +2,4 @@
 
 use Tests\TestCase;
 
-pest()->extend(TestCase::class)->in('Feature', 'Integration', 'Unit/Services', 'Unit/Seeders');
+pest()->extend(TestCase::class)->in('Feature', 'Integration', 'Unit/Services');
