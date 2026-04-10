@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 
 class DatabaseSeeder extends Seeder
 {
@@ -40,6 +41,10 @@ class DatabaseSeeder extends Seeder
         $this->call(AuthProviderSeeder::class);
         $this->call(AiProviderSeeder::class);
         $this->call(AchillesAnalysisSeeder::class);
+
+        if (Schema::hasTable('lab_reference_range_curated')) {
+            $this->call(LabReferenceRangeSeeder::class);
+        }
 
         // ── Super-admin account ──────────────────────────────────────────────
         // Credentials: admin@acumenus.net / superuser
