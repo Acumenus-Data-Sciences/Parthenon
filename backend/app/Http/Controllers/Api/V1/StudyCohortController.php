@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\App\CohortDefinition;
 use App\Models\App\Study;
 use App\Models\App\StudyCohort;
 use Illuminate\Http\JsonResponse;
@@ -51,6 +52,17 @@ class StudyCohortController extends Controller
         ]);
 
         try {
+            /** @var CohortDefinition $cohortDef */
+            $cohortDef = CohortDefinition::findOrFail($validated['cohort_definition_id']);
+            if ($cohortDef->isDeprecated()) {
+                $message = 'Cannot add a deprecated cohort to a study.';
+                if ($cohortDef->supersededByCohort) {
+                    $message .= " Use \"{$cohortDef->supersededByCohort->name}\" (ID: {$cohortDef->superseded_by}) instead.";
+                }
+
+                return response()->json(['message' => $message], 422);
+            }
+
             $cohort = StudyCohort::create([
                 ...$validated,
                 'study_id' => $study->id,
