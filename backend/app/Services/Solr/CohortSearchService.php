@@ -32,13 +32,13 @@ class CohortSearchService
             'pf' => 'name^5',
             'start' => $offset,
             'rows' => $limit,
-            'fl' => 'id,type,name,description,tags,author_name,author_id,status,is_public,created_at,updated_at,person_count,generation_count,version,study_type,study_design,phase,priority,pi_name',
+            'fl' => 'id,type,name,description,tags,author_name,author_id,status,is_public,created_at,updated_at,person_count,generation_count,version,study_type,study_design,phase,priority,pi_name,domain_s,quality_tier_s',
             'hl' => 'true',
             'hl.fl' => 'name,description',
             'hl.simple.pre' => '<mark>',
             'hl.simple.post' => '</mark>',
             'facet' => 'true',
-            'facet.field' => ['type', 'status', 'tags', 'author_name', 'study_type', 'phase', 'priority'],
+            'facet.field' => ['type', 'status', 'tags', 'author_name', 'study_type', 'phase', 'priority', 'domain_s', 'quality_tier_s'],
             'facet.mincount' => 1,
             'facet.limit' => 50,
             'sort' => 'updated_at desc',
@@ -79,6 +79,14 @@ class CohortSearchService
 
         if (! empty($filters['priority'])) {
             $fq[] = 'priority:'.self::escapeValue($filters['priority']);
+        }
+
+        if (! empty($filters['domain'])) {
+            $fq[] = 'domain_s:'.self::escapeValue($filters['domain']);
+        }
+
+        if (! empty($filters['quality_tier'])) {
+            $fq[] = 'quality_tier_s:'.self::escapeValue($filters['quality_tier']);
         }
 
         if (isset($filters['is_public'])) {

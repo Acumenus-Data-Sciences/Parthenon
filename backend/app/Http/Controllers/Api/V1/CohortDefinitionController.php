@@ -58,6 +58,8 @@ class CohortDefinitionController extends Controller
                 $solrResult = $this->cohortSearch->search($search, [
                     'type' => 'cohort',
                     'tags' => $tags ?: null,
+                    'domain' => $filterDomain ?: null,
+                    'quality_tier' => $filterTier ?: null,
                 ], $perPage, $offset);
 
                 if ($solrResult !== null) {
