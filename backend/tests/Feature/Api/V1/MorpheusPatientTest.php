@@ -11,24 +11,28 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     $this->seed(RolePermissionSeeder::class);
 
-    // Create the inpatient_ext schema and morpheus_dataset table in the test DB
-    // so the controller's resolveSchema() can find an active dataset.
+    // See MorpheusDashboardTest for the rationale: the `inpatient` connection
+    // targets the real `parthenon` DB in tests (Dotenv loader quirk), so this
+    // beforeEach is self-sufficient — CREATE IF NOT EXISTS with the full
+    // production column shape, insertOrIgnore an active fixture, no DROP.
     DB::connection('inpatient')->unprepared('CREATE SCHEMA IF NOT EXISTS inpatient_ext');
-    DB::connection('inpatient')->unprepared("
+    DB::connection('inpatient')->unprepared(<<<'SQL'
         CREATE TABLE IF NOT EXISTS inpatient_ext.morpheus_dataset (
-            id SERIAL PRIMARY KEY,
-            schema_name VARCHAR(100) NOT NULL,
-            status VARCHAR(20) NOT NULL DEFAULT 'active'
+            dataset_id    BIGSERIAL PRIMARY KEY,
+            name          TEXT NOT NULL,
+            schema_name   TEXT NOT NULL UNIQUE,
+            description   TEXT,
+            source_type   TEXT,
+            patient_count INTEGER NOT NULL DEFAULT 0,
+            status        TEXT NOT NULL DEFAULT 'active',
+            created_at    TIMESTAMP NOT NULL DEFAULT NOW()
         )
-    ");
+    SQL);
     DB::connection('inpatient')->table('inpatient_ext.morpheus_dataset')->insertOrIgnore([
+        'name' => 'MIMIC-IV Demo',
         'schema_name' => 'mimiciv',
         'status' => 'active',
     ]);
-});
-
-afterEach(function () {
-    DB::connection('inpatient')->unprepared('DROP SCHEMA IF EXISTS inpatient_ext CASCADE');
 });
 
 test('unauthenticated user cannot list patients', function () {

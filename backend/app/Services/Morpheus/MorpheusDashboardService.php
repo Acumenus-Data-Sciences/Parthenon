@@ -194,8 +194,10 @@ class MorpheusDashboardService
                 $gender[$row->gender] = $row->count;
             }
 
-            // Age groups — adapt to available columns
-            $ageBucket = $this->introspector->ageBucketExpression($schema);
+            // Age groups — adapt to available columns. Use the sanitized
+            // schema name ($s), because $schema is not captured in this
+            // closure's `use` clause.
+            $ageBucket = $this->introspector->ageBucketExpression($s);
             $ageGroups = DB::connection($this->conn)->select("
                 SELECT {$ageBucket} as range, count(*)::int as count
                 FROM {$s}.patients p GROUP BY range ORDER BY range

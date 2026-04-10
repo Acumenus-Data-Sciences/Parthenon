@@ -29,6 +29,11 @@ parameters:
 			path: app/Http/Controllers/Api/V1/MorpheusPatientController.php
 
 		-
+			message: '#^Direct DB\:\:connection\(''inpatient''\) is banned\. Use the SourceAware trait\: \$this\-\>cdm\(\), \$this\-\>results\(\), or \$this\-\>vocab\(\)\. See docs/superpowers/specs/2026\-03\-26\-cdm\-source\-isolation\-design\.md$#'
+			count: 1
+			path: app/Http/Controllers/Api/V1/MorpheusDatasetController.php
+
+		-
 			message: '#^Method App\\Models\\Commons\\Call\:\:scopeActive\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
