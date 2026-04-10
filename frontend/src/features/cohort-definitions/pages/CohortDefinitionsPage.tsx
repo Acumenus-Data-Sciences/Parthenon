@@ -145,8 +145,8 @@ export default function CohortDefinitionsPage() {
 
       {/* Search bar + View toggle + Tier filter */}
       <div className="flex items-center gap-4">
-        {/* Search */}
-        <div className="relative w-64">
+        {/* Search (left) */}
+        <div className="relative w-64 mr-auto">
           <Search
             size={16}
             className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
