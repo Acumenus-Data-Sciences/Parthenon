@@ -157,10 +157,13 @@ USER svcuser
 Sensitive files MUST be `chmod 600` (owner read/write only):
 
 ```
-backend/.env          — 600
+.env                  — 600  (root; used by docker compose interpolation)
+backend/.env          — 600  (used by Laravel and php/horizon/reverb containers)
 .resendapikey         — 600
 .claudeapikey         — 600 (if present)
 ```
+
+**NOTE:** The root `.env` (at the repo top level, next to `docker-compose.yml`) is read by `docker compose` for `${VAR}` interpolation into the compose file and contains live secrets (Orthanc auth, Jupyter crypt keys, Hecate DB password, Claude API key, etc.). It is NOT the same file as `backend/.env` — both must exist and both must be mode 600.
 
 **NEVER** commit secrets to git. The following patterns are in `.gitignore` and MUST remain:
 - `*.env` (except `.env.example`)

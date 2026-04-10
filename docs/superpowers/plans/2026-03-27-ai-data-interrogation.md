@@ -155,12 +155,17 @@ Add after the `inpatient` connection block (after approximately line 190):
 
 - [ ] **Step 3: Add env vars to `backend/.env`**
 
-Append:
+Append (generate a strong random password — never use a literal example):
 
 ```
 ABBY_ANALYST_USERNAME=abby_analyst
-ABBY_ANALYST_PASSWORD=abby_analyst_parthenon
+ABBY_ANALYST_PASSWORD=<32-char-random-alphanumeric>
 ```
+
+> **Note:** The installer (`install.py`) generates this automatically. Only
+> edit `backend/.env` manually on pre-installer setups, and generate the
+> password with `LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c 32`.
+> Do not reuse any value from git history or documentation.
 
 - [ ] **Step 4: Run the setup command and verify**
 
