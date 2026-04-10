@@ -15,6 +15,7 @@ use App\Models\App\PatientSimilarityCache;
 use App\Models\App\SimilarityDimension;
 use App\Models\App\Source;
 use App\Services\PatientSimilarity\CohortCentroidBuilder;
+use App\Services\PatientSimilarity\CohortComparisonService;
 use App\Services\PatientSimilarity\PatientSimilarityService;
 use App\Services\PatientSimilarity\SearchResultDiagnosticsService;
 use App\Services\PatientSimilarity\SimilarityExplainer;
@@ -37,6 +38,7 @@ class PatientSimilarityController extends Controller
         private readonly CohortCentroidBuilder $centroidBuilder,
         private readonly SearchResultDiagnosticsService $diagnosticsService,
         private readonly SimilarityExplainer $explainer,
+        private readonly CohortComparisonService $comparisonService,
     ) {}
 
     /**
@@ -946,6 +948,27 @@ class PatientSimilarityController extends Controller
             $sourceCohortDef = CohortDefinition::find($validated['source_cohort_id']);
             $targetCohortDef = CohortDefinition::find($validated['target_cohort_id']);
 
+            // Load individual feature vectors for covariate balance + distributional divergence
+            $sourceVectors = PatientFeatureVector::where('source_id', $source->id)
+                ->whereIn('person_id', $sourceMemberIds)
+                ->get()
+                ->map(fn ($v) => $v->features)
+                ->all();
+
+            $targetVectors = PatientFeatureVector::where('source_id', $source->id)
+                ->whereIn('person_id', $targetMemberIds)
+                ->get()
+                ->map(fn ($v) => $v->features)
+                ->all();
+
+            $covariates = $this->comparisonService->computeCovariateBalance($sourceVectors, $targetVectors);
+            $distributional = $this->comparisonService->computeDistributionalDivergence(
+                $sourceCentroid,
+                $targetCentroid,
+                $sourceVectors,
+                $targetVectors,
+            );
+
             return response()->json([
                 'data' => [
                     'source_cohort' => [
@@ -962,6 +985,8 @@ class PatientSimilarityController extends Controller
                     ],
                     'divergence' => $comparison['divergence'],
                     'overall_divergence' => $comparison['overall_divergence'],
+                    'covariates' => $covariates,
+                    'distributional_divergence' => $distributional,
                 ],
             ]);
         } catch (\Throwable $e) {

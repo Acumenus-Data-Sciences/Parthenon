@@ -1,4 +1,4 @@
-import { type ReactNode, useState, useCallback, useMemo } from 'react';
+import { type ReactNode, useState, useCallback, useMemo, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { usePipeline } from '../hooks/usePipeline';
 import {
@@ -71,6 +71,23 @@ export default function PatientSimilarityWorkspace() {
   const landscapeMutation = useMutation({
     mutationFn: (params: LandscapeParams) => projectPatientLandscape(params),
   });
+
+  // Resolve centroid step when profile query completes (fixes race condition in expand mode)
+  useEffect(() => {
+    if (
+      pipeline.mode === 'expand' &&
+      cohortProfileQuery.data &&
+      pipeline.getStepStatus('centroid') === 'loading'
+    ) {
+      const profile = cohortProfileQuery.data;
+      pipeline.markCompleted('centroid', {
+        data: profile,
+        summary: `${profile.member_count} members · ${Object.keys(profile.dimensions).length} dimensions`,
+        executionTimeMs: 0,
+        completedAt: new Date(),
+      });
+    }
+  }, [pipeline, cohortProfileQuery.data]);
 
   const { data: cohortsData } = useCohortDefinitions({ limit: 500 });
   const cohorts = useMemo(() => cohortsData?.items ?? [], [cohortsData]);
@@ -213,8 +230,7 @@ export default function PatientSimilarityWorkspace() {
             completedAt: new Date(),
           });
 
-          // Balance step uses the same response for now (covariates may be empty)
-          const covariates = (data as CohortComparisonResult & { covariates?: CovariateBalanceRow[] }).covariates ?? [];
+          const covariates = data.covariates ?? [];
           pipeline.markCompleted('balance', {
             data,
             summary: buildBalanceSummary(covariates),
@@ -254,11 +270,28 @@ export default function PatientSimilarityWorkspace() {
       if (stepId === 'landscape' && sourceId && targetCohortId) {
         pipeline.markLoading('landscape');
         const start = Date.now();
-        // Collect person IDs from PSM matched pairs if available, otherwise use cohort IDs
-        const psmResult = pipeline.getStepResult('psm')?.data as PropensityMatchResult | undefined;
-        const cohortPersonIds = psmResult
-          ? [...psmResult.matched_pairs.map((p) => p.target_id), ...psmResult.matched_pairs.map((p) => p.comparator_id)]
-          : undefined;
+
+        // Determine which patient IDs to project
+        let cohortPersonIds: number[] | undefined;
+        if (pipeline.mode === 'compare') {
+          // In compare mode, use PSM matched pairs if available
+          const psmResult = pipeline.getStepResult('psm')?.data as PropensityMatchResult | undefined;
+          if (psmResult) {
+            cohortPersonIds = [
+              ...psmResult.matched_pairs.map((p) => p.target_id),
+              ...psmResult.matched_pairs.map((p) => p.comparator_id),
+            ];
+          }
+        } else {
+          // In expand mode, use similar patients from step 2
+          const similarResult = pipeline.getStepResult('similar')?.data as SimilaritySearchResult | undefined;
+          if (similarResult) {
+            cohortPersonIds = similarResult.similar_patients
+              .map((p) => p.person_id)
+              .filter((id): id is number => id != null);
+          }
+        }
+
         landscapeMutation.mutate(
           { source_id: sourceId, cohort_person_ids: cohortPersonIds },
           {
@@ -328,9 +361,10 @@ export default function PatientSimilarityWorkspace() {
           return (
             <CovariateBalancePanel
               result={data}
-              covariates={(data as CohortComparisonResult & { covariates?: CovariateBalanceRow[] }).covariates}
+              covariates={data.covariates}
+              distributionalRows={data.distributional_divergence}
               onRunPsm={() => handleRunStep('psm')}
-              onContinue={() => pipeline.expandStep('landscape')}
+              onContinue={() => handleRunStep('landscape')}
             />
           );
 
@@ -386,7 +420,7 @@ export default function PatientSimilarityWorkspace() {
         onComparatorChange={handleComparatorChange}
         onCompare={handleCompare}
         onOpenSettings={() => setSettingsOpen(!settingsOpen)}
-        isRunning={compareMutation.isPending}
+        isRunning={compareMutation.isPending || cohortSimilarityMutation.isPending}
       />
 
       <div className="flex-1 overflow-y-auto">

@@ -2,6 +2,9 @@ import type { ReactNode } from 'react';
 import type { StepDefinition, StepStatus, StepResult } from '../types/pipeline';
 import { PipelineStep } from './PipelineStep';
 
+/** Steps that have a working implementation behind handleRunStep */
+const RUNNABLE_STEPS = new Set(['profile', 'balance', 'psm', 'landscape', 'centroid', 'similar']);
+
 interface AnalysisPipelineProps {
   steps: StepDefinition[];
   expandedSteps: Set<string>;
@@ -39,7 +42,7 @@ export function AnalysisPipeline({
             summary={result?.summary}
             executionTimeMs={result?.executionTimeMs}
             onToggle={() => onToggleStep(step.id)}
-            onRun={status === 'future' ? () => onRunStep(step.id) : undefined}
+            onRun={status === 'future' && RUNNABLE_STEPS.has(step.id) ? () => onRunStep(step.id) : undefined}
           >
             {renderStepContent(step.id)}
           </PipelineStep>

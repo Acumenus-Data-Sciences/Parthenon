@@ -261,6 +261,8 @@ export interface CohortComparisonResult {
   target_cohort: CohortComparisonCohort;
   divergence: Record<string, CohortDivergence>;
   overall_divergence: number;
+  covariates?: CovariateBalanceRow[];
+  distributional_divergence?: DistributionalDivergenceRow[];
 }
 
 export interface CrossCohortSearchParams {
