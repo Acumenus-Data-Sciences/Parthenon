@@ -19,6 +19,7 @@ import {
   Shield,
   Award,
   FileText,
+  AlertTriangle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/authStore";
@@ -120,6 +121,15 @@ function TierBadge({ tier }: { tier?: string | null }) {
     >
       <c.Icon size={10} />
       {c.label}
+    </span>
+  );
+}
+
+function DeprecatedBadge() {
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-amber-500/15 text-amber-500">
+      <AlertTriangle size={10} />
+      Deprecated
     </span>
   );
 }
@@ -298,6 +308,7 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
                             className={cn(
                               "border-t border-[#1C1C20] transition-colors hover:bg-[#1C1C20] cursor-pointer",
                               i % 2 === 0 ? "bg-[#151518]" : "bg-[#1A1A1E]",
+                              def.deprecated_at && "opacity-60",
                             )}
                           >
                             <td className="px-4 py-2.5">
@@ -307,9 +318,13 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
                                 ) : (
                                   <Lock size={11} className="text-[#5A5650] shrink-0" />
                                 )}
-                                <p className="text-sm font-medium text-[#F0EDE8] truncate max-w-[300px]">
+                                <p className={cn(
+                                  "text-sm font-medium text-[#F0EDE8] truncate max-w-[300px]",
+                                  def.deprecated_at && "line-through",
+                                )}>
                                   {def.name}
                                 </p>
+                                {def.deprecated_at && <DeprecatedBadge />}
                               </div>
                             </td>
                             <td className="px-4 py-2.5">
@@ -479,6 +494,7 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
                 className={cn(
                   "border-t border-[#1C1C20] transition-colors hover:bg-[#1C1C20] cursor-pointer",
                   i % 2 === 0 ? "bg-[#151518]" : "bg-[#1A1A1E]",
+                  def.deprecated_at && "opacity-60",
                 )}
               >
                 <td className="px-4 py-3">
@@ -489,7 +505,10 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
                       <Lock size={12} className="text-[#5A5650] shrink-0" />
                     )}
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-[#F0EDE8] truncate">
+                      <p className={cn(
+                        "text-sm font-medium text-[#F0EDE8] truncate",
+                        def.deprecated_at && "line-through",
+                      )}>
                         {def.name}
                       </p>
                       {def.description && (
@@ -498,6 +517,7 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
                         </p>
                       )}
                     </div>
+                    {def.deprecated_at && <DeprecatedBadge />}
                   </div>
                 </td>
                 <td className="px-4 py-3">
