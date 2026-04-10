@@ -42,6 +42,13 @@ vi.mock("../../hooks/usePatientSimilarity", () => ({
   useCompareCohorts: () => compareMutationState,
   useCrossCohortSearch: () => crossSearchMutationState,
   useComputeStatus: () => ({ data: undefined }),
+  usePropensityMatch: () => ({
+    data: undefined,
+    isPending: false,
+    isError: false,
+    error: null,
+    mutate: vi.fn(),
+  }),
 }));
 
 vi.mock("../../components/SimilaritySearchForm", () => ({
@@ -90,6 +97,14 @@ vi.mock("../../components/CohortExportDialog", () => ({
 
 vi.mock("../../components/CohortExpandDialog", () => ({
   CohortExpandDialog: () => null,
+}));
+
+vi.mock("../../components/PropensityMatchResults", () => ({
+  PropensityMatchResults: () => <div>psm-results</div>,
+}));
+
+vi.mock("../../components/NetworkFusionResults", () => ({
+  NetworkFusionResults: () => <div>network-fusion</div>,
 }));
 
 describe("PatientSimilarityPage", () => {

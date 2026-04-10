@@ -372,17 +372,7 @@ export default function PatientSimilarityPage() {
         {/* Compare Cohorts visualization */}
         {searchMode === "compare" && compareMutation.data && (
           <div className="space-y-4">
-            <CohortComparisonRadar
-              divergence={compareMutation.data.divergence}
-              sourceName={compareMutation.data.source_cohort.name}
-              targetName={compareMutation.data.target_cohort.name}
-            />
-            <DivergenceScores
-              divergence={compareMutation.data.divergence}
-              overallDivergence={compareMutation.data.overall_divergence}
-            />
-
-            {/* Propensity Score Matching */}
+            {/* Propensity Score Matching — top of comparison results */}
             <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -427,6 +417,16 @@ export default function PatientSimilarityPage() {
             {psmMutation.data && (
               <PropensityMatchResults result={psmMutation.data} />
             )}
+
+            <CohortComparisonRadar
+              divergence={compareMutation.data.divergence}
+              sourceName={compareMutation.data.source_cohort.name}
+              targetName={compareMutation.data.target_cohort.name}
+            />
+            <DivergenceScores
+              divergence={compareMutation.data.divergence}
+              overallDivergence={compareMutation.data.overall_divergence}
+            />
           </div>
         )}
 
