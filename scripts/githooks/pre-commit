@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+# =============================================================================
+# Parthenon — Pre-Commit Hook
+# =============================================================================
+# Runs CI-equivalent checks before allowing commits.
+# Skips checks for docs-only commits (no PHP/TS/Python changes).
+#
+# This file is the canonical source. It is activated via:
+#   git config core.hooksPath scripts/githooks
+# which deploy.sh sets automatically on first run.
+#
+# To bypass in emergencies: git commit --no-verify
+# =============================================================================
+
+set -e
+
+REPO_ROOT=$(git rev-parse --show-toplevel)
+cd "$REPO_ROOT"
+
+# Determine what's being committed
+STAGED=$(git diff --cached --name-only --diff-filter=ACMR)
+
+HAS_PHP=$(echo "$STAGED" | grep -c '\.php$' || true)
+HAS_TS=$(echo "$STAGED" | grep -c '\.\(ts\|tsx\)$' || true)
+HAS_PY=$(echo "$STAGED" | grep -c '\.py$' || true)
+
+# Skip all checks for docs-only commits
+if [ "$HAS_PHP" -eq 0 ] && [ "$HAS_TS" -eq 0 ] && [ "$HAS_PY" -eq 0 ]; then
+    exit 0
+fi
+
+ERRORS=0
+
+# ── PHP: Pint (code style) ──────────────────────────────────────────────────
+if [ "$HAS_PHP" -gt 0 ]; then
+    echo "Pre-commit: Pint..."
+    if docker compose exec -T php sh -c "cd /var/www/html && vendor/bin/pint --test" > /dev/null 2>&1; then
+        echo "  ✓ Pint"
+    else
+        echo "  ✗ Pint — run: docker compose exec php sh -c 'cd /var/www/html && vendor/bin/pint'"
+        ERRORS=$((ERRORS + 1))
+    fi
+fi
+
+# ── PHP: PHPStan (static analysis) ──────────────────────────────────────────
+if [ "$HAS_PHP" -gt 0 ]; then
+    echo "Pre-commit: PHPStan..."
+    if cd "$REPO_ROOT/backend" && vendor/bin/phpstan analyse --memory-limit=512M --no-progress > /dev/null 2>&1; then
+        echo "  ✓ PHPStan"
+    else
+        echo "  ✗ PHPStan — run: cd backend && vendor/bin/phpstan analyse"
+        ERRORS=$((ERRORS + 1))
+    fi
+    cd "$REPO_ROOT"
+fi
+
+# ── TypeScript: tsc --noEmit ────────────────────────────────────────────────
+if [ "$HAS_TS" -gt 0 ]; then
+    echo "Pre-commit: TypeScript..."
+    if docker compose exec -T node sh -c "cd /app && npx tsc --noEmit" > /dev/null 2>&1; then
+        echo "  ✓ TypeScript"
+    else
+        echo "  ✗ TypeScript — run: docker compose exec node sh -c 'cd /app && npx tsc --noEmit'"
+        ERRORS=$((ERRORS + 1))
+    fi
+fi
+
+# ── TypeScript: ESLint (staged frontend files only) ────────────────────────
+# Collect staged files into a single space-separated line so `sh -c` treats them
+# as multiple arguments to eslint rather than separate shell commands.
+STAGED_FRONTEND_TS=$(echo "$STAGED" | grep '^frontend/.*\.\(ts\|tsx\)$' | sed 's|^frontend/||' | tr '\n' ' ' || true)
+if [ -n "$STAGED_FRONTEND_TS" ]; then
+    echo "Pre-commit: ESLint..."
+    if docker compose exec -T node sh -c "cd /app && npx eslint --max-warnings=0 $STAGED_FRONTEND_TS" > /dev/null 2>&1; then
+        echo "  ✓ ESLint"
+    else
+        echo "  ✗ ESLint — run: docker compose exec node sh -c 'cd /app && npx eslint $STAGED_FRONTEND_TS'"
+        ERRORS=$((ERRORS + 1))
+    fi
+fi
+
+# ── TypeScript: Vitest (tests related to changed files) ───────────────────
+if [ -n "$STAGED_FRONTEND_TS" ]; then
+    echo "Pre-commit: Vitest..."
+    # Run locally because Docker container lacks .git for --changed detection
+    if cd "$REPO_ROOT/frontend" && npx vitest run --changed > /dev/null 2>&1; then
+        echo "  ✓ Vitest"
+    else
+        echo "  ✗ Vitest — run: cd frontend && npx vitest run --changed"
+        ERRORS=$((ERRORS + 1))
+    fi
+    cd "$REPO_ROOT"
+fi
+
+# ── Python: syntax check ───────────────────────────────────────────────────
+if [ "$HAS_PY" -gt 0 ]; then
+    echo "Pre-commit: Python syntax..."
+    PY_FAIL=0
+    for f in $(echo "$STAGED" | grep '\.py$'); do
+        if [ -f "$f" ]; then
+            python3 -c "import py_compile; py_compile.compile('$f', doraise=True)" 2>/dev/null || PY_FAIL=$((PY_FAIL + 1))
+        fi
+    done
+    if [ "$PY_FAIL" -eq 0 ]; then
+        echo "  ✓ Python syntax"
+    else
+        echo "  ✗ Python syntax — $PY_FAIL file(s) with errors"
+        ERRORS=$((ERRORS + 1))
+    fi
+fi
+
+# ── Result ──────────────────────────────────────────────────────────────────
+if [ "$ERRORS" -gt 0 ]; then
+    echo ""
+    echo "Pre-commit: $ERRORS check(s) failed. Fix errors before committing."
+    echo "To bypass: git commit --no-verify"
+    exit 1
+fi
+
+echo "Pre-commit: all checks passed."

@@ -237,12 +237,16 @@ After any frontend change, the production build must be rebuilt via `deploy.sh -
 
 ## Pre-Commit Hook
 
-A pre-commit hook runs Pint, PHPStan, and TypeScript checks before every commit. It auto-skips for docs-only commits (no PHP/TS/Python files staged).
+A pre-commit hook runs CI-equivalent checks before every commit: Pint, PHPStan, TypeScript (`tsc --noEmit`), ESLint (staged frontend files only), Vitest (`--changed`), and Python syntax. It auto-skips for docs-only commits (no PHP/TS/Python files staged).
+
+The canonical source lives at `scripts/githooks/pre-commit` (tracked). It is activated via `git config core.hooksPath scripts/githooks`, which `deploy.sh` sets automatically on first run. On a fresh clone, run `./deploy.sh` once to bootstrap, or set it manually.
 
 ```
 Pre-commit: Pint...        ✓ Pint
 Pre-commit: PHPStan...     ✓ PHPStan
 Pre-commit: TypeScript...  ✓ TypeScript
+Pre-commit: ESLint...      ✓ ESLint
+Pre-commit: Vitest...      ✓ Vitest
 Pre-commit: all checks passed.
 ```
 

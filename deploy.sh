@@ -32,6 +32,14 @@ fail() { echo -e "  ${RED}✗${NC} $1"; }
 
 ERRORS=0
 
+# ── Git hooks: ensure core.hooksPath points at tracked scripts/githooks ──
+# Idempotent. Runs once per clone. Keeps the pre-commit hook in lockstep with
+# the tracked source so a fix doesn't rot to one machine. See scripts/githooks/.
+if [ "$(git config --get core.hooksPath 2>/dev/null)" != "scripts/githooks" ]; then
+  git config core.hooksPath scripts/githooks
+  ok "git core.hooksPath → scripts/githooks (first-time bootstrap)"
+fi
+
 PHP_ONLY=false
 FRONTEND_ONLY=false
 DB_ONLY=false
