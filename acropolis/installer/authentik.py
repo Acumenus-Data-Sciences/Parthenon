@@ -464,9 +464,13 @@ def _bootstrap_oidc_provider(
     """
     console.print(f"  {sso_def.display_name}...", end=" ")
 
-    redirect_uris = "\n".join(
-        uri.replace("{domain}", domain) for uri in sso_def.redirect_uris
-    )
+    redirect_uris = [
+        {
+            "matching_mode": "strict",
+            "url": uri.replace("{domain}", domain),
+        }
+        for uri in sso_def.redirect_uris
+    ]
 
     # Check if provider already exists (use pre-fetched list if available)
     provider = existing_oauth2.get(sso_def.display_name)
