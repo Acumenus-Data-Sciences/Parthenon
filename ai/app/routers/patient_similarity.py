@@ -18,8 +18,8 @@ from app.services.patient_embeddings import (
     compute_patient_embedding,
     compute_patient_embeddings_batch,
 )
-from app.services.phenotype_discovery import discover_phenotypes
 from app.services.propensity_score import PropensityScoreService
+from app.services.similarity_network_fusion import fuse_patient_network
 
 logger = logging.getLogger(__name__)
 
@@ -370,73 +370,78 @@ async def propensity_match(request: PropensityMatchRequest) -> PropensityMatchRe
 
 
 # ---------------------------------------------------------------------------
-# Phenotype Discovery (Consensus Clustering)
+# Similarity Network Fusion (SNF)
 # ---------------------------------------------------------------------------
 
-class PhenotypeDiscoveryRequest(BaseModel):
+
+class NetworkFusionRequest(BaseModel):
     source_id: int
     cohort_person_ids: list[int]
-    k: int | None = None
-    method: str = "consensus"
+    n_neighbors: int = Field(default=20, ge=5, le=50)
+    n_iterations: int = Field(default=20, ge=5, le=50)
+    top_k_edges: int = Field(default=10, ge=3, le=50)
 
 
-class ClusterFeature(BaseModel):
-    concept_id: int
-    name: str
-    prevalence: float
-    overall_prevalence: float
+class FusedEdge(BaseModel):
+    person_a: int
+    person_b: int
+    similarity: float
 
 
-class ClusterDemographics(BaseModel):
-    mean_age_bucket: float
-    gender_distribution: dict[str, float]
+class FusedCommunity(BaseModel):
+    id: int
+    member_ids: list[int]
     size: int
 
 
-class ClusterProfile(BaseModel):
-    cluster_id: int
-    size: int
-    top_conditions: list[ClusterFeature]
-    top_drugs: list[ClusterFeature]
-    lab_profile: list[dict[str, Any]]
-    demographics: ClusterDemographics
+class ModalityContribution(BaseModel):
+    modality: str
+    weight: float
 
 
-class PatientAssignment(BaseModel):
-    person_id: int
-    cluster_id: int
+class ConvergenceInfo(BaseModel):
+    iterations: int
+    final_delta: float
 
 
-class PhenotypeDiscoveryResponse(BaseModel):
-    clusters: list[ClusterProfile]
-    assignments: list[PatientAssignment]
-    quality: dict[str, Any]
-    feature_matrix_info: dict[str, int]
-    heatmap: list[dict[str, Any]]
+class NetworkFusionResponse(BaseModel):
+    edges: list[FusedEdge]
+    communities: list[FusedCommunity]
+    modality_contributions: list[ModalityContribution]
+    convergence: ConvergenceInfo
+    n_patients: int
+    capped_at: int | None = None
 
 
-@router.post("/discover-phenotypes", response_model=PhenotypeDiscoveryResponse)
-async def discover_phenotypes_endpoint(
-    request: PhenotypeDiscoveryRequest,
-) -> PhenotypeDiscoveryResponse:
-    """Discover latent patient phenotypes via consensus clustering."""
-    if len(request.cohort_person_ids) < 3:
+@router.post("/network-fusion", response_model=NetworkFusionResponse)
+async def network_fusion_endpoint(request: NetworkFusionRequest) -> NetworkFusionResponse:
+    """Run Similarity Network Fusion across clinical modalities.
+
+    Builds per-modality similarity matrices (conditions, drugs, procedures, labs),
+    iteratively fuses them via network diffusion, then detects communities on the
+    fused network using spectral clustering.
+    """
+    if len(request.cohort_person_ids) < 10:
         raise HTTPException(
             status_code=422,
-            detail=f"Cohort too small ({len(request.cohort_person_ids)} patients). Need at least 3.",
+            detail=f"Cohort too small ({len(request.cohort_person_ids)} patients). Need at least 10 for SNF.",
         )
+
     try:
         pool = await _get_pool()
-        result = await discover_phenotypes(
+        result = await fuse_patient_network(
             pool=pool,
             source_id=request.source_id,
             person_ids=request.cohort_person_ids,
-            k=request.k,
-            method=request.method,
+            n_neighbors=request.n_neighbors,
+            n_iterations=request.n_iterations,
+            top_k_edges=request.top_k_edges,
         )
-        return PhenotypeDiscoveryResponse(**result)
+        return NetworkFusionResponse(**result)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
     except HTTPException:
         raise
     except Exception as exc:
-        logger.exception("Phenotype discovery failed")
+        logger.exception("SNF network fusion failed")
         raise HTTPException(status_code=500, detail=str(exc)) from exc
