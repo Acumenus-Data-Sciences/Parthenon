@@ -26,7 +26,11 @@ services:
       - N8N_EDITOR_BASE_URL=https://n8n.${DOMAIN:-acumenus.net}/
       - WEBHOOK_URL=https://n8n.${DOMAIN:-acumenus.net}/
       - N8N_PROXY_HOPS=1
-      - N8N_RESTRICT_ENVIRONMENT_VARIABLES_ACCESS=false
+      # n8n v2 blocks process.env / $env access in Code/Expression nodes by default.
+      # The real gate is N8N_BLOCK_ENV_ACCESS_IN_NODE — N8N_RESTRICT_ENVIRONMENT_VARIABLES_ACCESS
+      # is a phantom var that n8n does not read.
+      # Ref: https://docs.n8n.io/2-0-breaking-changes/#block-environment-variable-access-from-code-node-by-default
+      - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
       - N8N_PUBLIC_API_DISABLED=false
       # Database connection for workflows
       - PGHOST=${DB_HOST:-pgsql.acumenus.net}
@@ -69,7 +73,7 @@ services:
     volumes:
       - superset_db_data:/var/lib/postgresql/data
     networks:
-      - acropolis
+      - backend
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U superset"]
       interval: 10s
@@ -83,7 +87,7 @@ services:
     volumes:
       - superset_cache_data:/data
     networks:
-      - acropolis
+      - backend
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -123,6 +127,7 @@ services:
       - "host.docker.internal:host-gateway"
     networks:
       - acropolis
+      - backend
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.superset.rule=Host(`superset.${DOMAIN:-acumenus.net}`)"
@@ -165,7 +170,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
-      - acropolis
+      - backend
     healthcheck:
       test: ["CMD-SHELL", "celery -A superset.tasks.celery_app:app inspect ping -d celery@$$HOSTNAME"]
       interval: 30s
@@ -200,7 +205,7 @@ services:
       superset-cache:
         condition: service_healthy
     networks:
-      - acropolis
+      - backend
     healthcheck:
       test: ["CMD-SHELL", "test -f /tmp/celerybeat.pid && kill -0 $(cat /tmp/celerybeat.pid)"]
       interval: 30s
@@ -222,7 +227,7 @@ services:
     volumes:
       - datahub_mysql_data:/var/lib/mysql
     networks:
-      - acropolis
+      - backend
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "datahub", "--password=${DATAHUB_MYSQL_PASSWORD:-datahub}"]
       interval: 10s
@@ -242,7 +247,7 @@ services:
     volumes:
       - datahub_opensearch_data:/usr/share/opensearch/data
     networks:
-      - acropolis
+      - backend
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
       interval: 15s
@@ -267,7 +272,7 @@ services:
     volumes:
       - datahub_broker_data:/var/lib/kafka/data
     networks:
-      - acropolis
+      - backend
     healthcheck:
       test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:29092 > /dev/null 2>&1"]
       interval: 15s
@@ -287,7 +292,7 @@ services:
       datahub-broker:
         condition: service_healthy
     networks:
-      - acropolis
+      - backend
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8081/subjects || exit 1"]
       interval: 15s
@@ -331,7 +336,7 @@ services:
       datahub-schema-registry:
         condition: service_healthy
     networks:
-      - acropolis
+      - backend
 
   datahub-gms:
     container_name: acropolis-datahub-gms
@@ -372,7 +377,7 @@ services:
       datahub-schema-registry:
         condition: service_healthy
     networks:
-      - acropolis
+      - backend
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
       interval: 15s
@@ -404,7 +409,7 @@ services:
       datahub-gms:
         condition: service_healthy
     networks:
-      - acropolis
+      - backend
 
   datahub-frontend:
     container_name: acropolis-datahub-frontend
@@ -446,6 +451,7 @@ services:
         condition: service_healthy
     networks:
       - acropolis
+      - backend
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.datahub.rule=Host(`datahub.${DOMAIN:-acumenus.net}`)"
@@ -471,7 +477,7 @@ services:
     volumes:
       - authentik_db_data:/var/lib/postgresql/data
     networks:
-      - acropolis
+      - backend
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U authentik"]
       interval: 10s
@@ -486,7 +492,7 @@ services:
     volumes:
       - authentik_redis_data:/data
     networks:
-      - acropolis
+      - backend
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -523,6 +529,7 @@ services:
       - "9000:9000"
     networks:
       - acropolis
+      - backend
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.authentik.rule=Host(`auth.${DOMAIN:-acumenus.net}`)"
@@ -565,7 +572,7 @@ services:
       authentik-redis:
         condition: service_healthy
     networks:
-      - acropolis
+      - backend
 
   # ── Wazuh — Security Monitoring / SIEM / XDR ────────────────────────────
   wazuh-manager:
@@ -619,7 +626,7 @@ services:
       wazuh-indexer:
         condition: service_healthy
     networks:
-      acropolis:
+      backend:
         aliases:
           - wazuh.manager
     healthcheck:
@@ -656,7 +663,7 @@ services:
       - ./config/wazuh/wazuh_indexer/roles_mapping.yml:/usr/share/wazuh-indexer/config/opensearch-security/roles_mapping.yml:ro
       - ./config/wazuh/wazuh_indexer/idp-metadata.xml:/usr/share/wazuh-indexer/config/opensearch-security/idp-metadata.xml:ro
     networks:
-      acropolis:
+      backend:
         aliases:
           - wazuh.indexer
     healthcheck:
@@ -694,6 +701,9 @@ services:
         condition: service_healthy
     networks:
       acropolis:
+        aliases:
+          - wazuh.dashboard
+      backend:
         aliases:
           - wazuh.dashboard
     labels:

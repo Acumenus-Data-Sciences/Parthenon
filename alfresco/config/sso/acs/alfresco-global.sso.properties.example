@@ -1,0 +1,27 @@
+# Apply only during the ACS/Share cutover.
+# This file is a staging template and is not mounted by default.
+#
+# Values are based on the Alfresco SSO guide for ACS 7.3+ and assume:
+# - ids.acumenus.net is the Keycloak-compatible identity service endpoint
+# - Authentik remains the source of truth for users
+# - an Authentik LDAP outpost is used for LDAP synchronization
+
+authentication.chain=identity-service1:identity-service,alfrescoNtlm1:alfrescoNtlm
+identity-service.auth-server-url=https://ids.acumenus.net
+identity-service.enable-basic-auth=true
+identity-service.realm=alfresco
+identity-service.resource=alfresco
+identity-service.public-client=false
+identity-service.credentials.secret=CHANGE_ME
+
+ldap.authentication.active=false
+ldap.synchronization.active=true
+ldap.synchronization.java.naming.security.authentication=simple
+ldap.synchronization.java.naming.provider.url=ldap://alfresco-authentik-ldap:3389
+ldap.synchronization.java.naming.security.principal=cn=alfresco-sync,ou=users,ou=alfresco,dc=ldap,dc=goauthentik,dc=io
+ldap.synchronization.java.naming.security.credentials=CHANGE_ME
+ldap.synchronization.userSearchBase=ou=users,ou=alfresco,dc=ldap,dc=goauthentik,dc=io
+ldap.synchronization.groupSearchBase=ou=groups,ou=alfresco,dc=ldap,dc=goauthentik,dc=io
+
+csrf.filter.referer=https://docs.acumenus.net
+csrf.filter.origin=https://docs.acumenus.net/*

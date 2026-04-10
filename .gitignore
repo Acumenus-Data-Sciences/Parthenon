@@ -125,8 +125,10 @@ OHDSI-scraper/harvester.log
 OHDSI-scraper/*.env
 OHDSI-scraper/.cache/
 
-# Acumenus internal services — not part of Parthenon
-alfresco/
+# Acumenus internal services — not part of Parthenon product installers
+# alfresco/ is tracked (for v1.2 Keycloak migration reference + Authentik SSO
+# working configuration), but the live .env with credentials stays out.
+alfresco/.env
 openproject/
 scripts/openproject/
 

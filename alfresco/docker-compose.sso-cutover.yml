@@ -1,0 +1,77 @@
+services:
+  alfresco:
+    extra_hosts:
+      - "ids.${DOMAIN:-acumenus.net}:host-gateway"
+    environment:
+      JAVA_OPTS: >-
+        -Ddb.driver=org.postgresql.Driver
+        -Ddb.username=alfresco
+        -Ddb.password=${ALFRESCO_DB_PASSWORD:-alfresco}
+        -Ddb.url=jdbc:postgresql://alfresco-postgres:5432/alfresco
+        -Dsolr.host=alfresco-solr6
+        -Dsolr.port=8983
+        -Dsolr.http.connection.timeout=1000
+        -Dsolr.secureComms=secret
+        -Dsolr.sharedSecret=${ALFRESCO_SOLR_SHARED_SECRET:-secret}
+        -Dsolr.base.url=/solr
+        -Dindex.subsystem.name=solr6
+        -Dshare.host=docs.${DOMAIN:-acumenus.net}
+        -Dshare.port=443
+        -Dalfresco.host=docs.${DOMAIN:-acumenus.net}
+        -Dalfresco.port=443
+        -Dcsrf.filter.enabled=true
+        -Dcsrf.filter.referer=https://docs.${DOMAIN:-acumenus.net}
+        -Dcsrf.filter.origin=https://docs.${DOMAIN:-acumenus.net}/*
+        -Daos.baseUrlOverwrite=https://docs.${DOMAIN:-acumenus.net}/alfresco/aos
+        -Dmessaging.broker.url="failover:(nio://alfresco-activemq:61616)?timeout=3000&jms.useCompression=true"
+        -Dmessaging.broker.username=${ALFRESCO_AMQ_USER:-admin}
+        -Dmessaging.broker.password=${ALFRESCO_AMQ_PASSWORD:-admin}
+        -Ddeployment.method=DOCKER_COMPOSE
+        -DlocalTransform.core-aio.url=http://alfresco-transform-core-aio:8090/
+        -Dauthentication.chain=identity-service1:identity-service,alfrescoNtlm1:alfrescoNtlm
+        -Didentity-service.auth-server-url=https://ids.${DOMAIN:-acumenus.net}
+        -Didentity-service.enable-basic-auth=true
+        -Didentity-service.realm=${ALFRESCO_IDENTITY_REALM:-alfresco}
+        -Didentity-service.resource=${ALFRESCO_IDENTITY_RESOURCE:-alfresco}
+        -Didentity-service.public-client=false
+        -Didentity-service.credentials.secret=${ALFRESCO_IDENTITY_CLIENT_SECRET}
+        -Dldap.authentication.active=false
+        -Dldap.synchronization.active=true
+        -Dldap.synchronization.java.naming.provider.url=${ALFRESCO_LDAP_SYNC_URL}
+        -Dldap.synchronization.java.naming.security.authentication=simple
+        -Dldap.synchronization.java.naming.security.principal=${ALFRESCO_LDAP_SYNC_BIND_DN}
+        -Dldap.synchronization.java.naming.security.credentials=${ALFRESCO_LDAP_SYNC_BIND_PASSWORD}
+        -Dldap.synchronization.userSearchBase=${ALFRESCO_LDAP_USER_SEARCH_BASE}
+        -Dldap.synchronization.groupSearchBase=${ALFRESCO_LDAP_GROUP_SEARCH_BASE}
+        -Dldap.synchronization.userIdAttributeName=cn
+        -Dldap.synchronization.userFirstNameAttributeName=givenName
+        -Dldap.synchronization.userLastNameAttributeName=sn
+        -Dldap.synchronization.userEmailAttributeName=mail
+        -Dldap.synchronization.groupIdAttributeName=cn
+        -Dldap.synchronization.groupType=groupOfNames
+        -Dldap.synchronization.groupMemberAttributeName=member
+        -Dldap.synchronization.queryBatchSize=1000
+        -XX:MinRAMPercentage=50
+        -XX:MaxRAMPercentage=80
+
+  alfresco-share:
+    extra_hosts:
+      - "ids.${DOMAIN:-acumenus.net}:host-gateway"
+    environment:
+      JAVA_OPTS: >-
+        -XX:MinRAMPercentage=50
+        -XX:MaxRAMPercentage=80
+        -Dalfresco.host=docs.${DOMAIN:-acumenus.net}
+        -Dalfresco.port=443
+        -Dalfresco.context=alfresco
+        -Dalfresco.protocol=https
+        -Daims.enabled=true
+        -Daims.realm=${ALFRESCO_IDENTITY_REALM:-alfresco}
+        -Daims.resource=share
+        -Daims.authServerUrl=https://ids.${DOMAIN:-acumenus.net}
+        -Daims.publicClient=true
+        -Daims.principalAttribute=preferred_username
+        -Daims.redirectURI=https://docs.${DOMAIN:-acumenus.net}/share/page/
+        -Daims.logoutUri=/protocol/openid-connect/logout
+        -Daims.postLogoutUrl=https://docs.${DOMAIN:-acumenus.net}/share/page/
+        -Daims.shareContext.value=/share

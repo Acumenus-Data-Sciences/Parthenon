@@ -1,0 +1,89 @@
+{
+  "realm": "alfresco",
+  "enabled": true,
+  "displayName": "Alfresco",
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": false,
+  "identityProviders": [
+    {
+      "alias": "authentik",
+      "displayName": "Authentik",
+      "providerId": "saml",
+      "enabled": true,
+      "trustEmail": true,
+      "storeToken": false,
+      "addReadTokenRoleOnCreate": false,
+      "firstBrokerLoginFlowAlias": "first broker login",
+      "config": {
+        "validateSignature": "true",
+        "signingCertificate": "MIIFUzCCAzugAwIBAgIRAKvSPOjoF0QEj4cbIAA7GUQwDQYJKoZIhvcNAQELBQAwHTEbMBkGA1UEAwwSYXV0aGVudGlrIDIwMjYuMi4xMB4XDTI2MDQwMTIwNTUwMFoXDTI3MDQwMjIwNTUwMFowVjEqMCgGA1UEAwwhYXV0aGVudGlrIFNlbGYtc2lnbmVkIENlcnRpZmljYXRlMRIwEAYDVQQKDAlhdXRoZW50aWsxFDASBgNVBAsMC1NlbGYtc2lnbmVkMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAsT4ejmh5a2Xk4DVU4EXL+JDso0opj49epMFE7t+HX8/x/K3t+Ik5ErLNZz2/krCD6BiT4nha1+KPG7p0+Vvq/W1VtljrI69Kt9hL3y98Qp5J95SEY3Y8+7OaovCw13B2rVeuMG3esE/pz3JZNVDbIIdKQPgNucu1/RCCDU3NDn4Q98UZyKhYHc0VL7Rxotl3MmEK8Whx1vaGH9NlJR0745g61AImznClq7RmsbxJdD0Fv9bLtKNLzVffnlOCjYKyaaLmR5m8MVVdBWUXCEGp6963cFHvZ+LddW4ibfwn0Rq/R0CQ/A6nBDpc/j0+NxJMpc0zFPDHC7Bi/tbDhfOCuCzpjBkxX6Cd3n4xFfocmQsI0jvpgY0IX0JD/04pnNd+F9bbLx7Sok+s2QtCsUR9kgGXgKilHc4MijHK8cPnVPcNWiwefOMNMtIasBnk36nN2goOrPARTTgGEc5Er2PWUpc83cKaiWN17VyWFOjJKMcdfDT2MO735KNoNNc9epJwo875iZCheH3azPXmAdaHc1LczkGWW8uH91A/SM0bWJ/VSSeIWTCDY/EEa7jfTq+DepJXV83zAY7HIdMWY1ubDJAQqlTE9Du1nQLGxvz+tUen14zJe8nj9jP7OZjmVAc8D2xw+bA8zCf8gsHvOX0urEZGISqY9yAzoSb1T7jQjlcCAwEAAaNVMFMwUQYDVR0RAQH/BEcwRYJDbkFQMUkwOGZsc2VVSVh5SmxpSGFsN1d4V2Jqb01KZUd1bEJnSXNDWC5zZWxmLXNpZ25lZC5nb2F1dGhlbnRpay5pbzANBgkqhkiG9w0BAQsFAAOCAgEAdoaOlMFuWVMa2nGQvOJWRwOS9MeEd5iX4YNNSJgb/d21sULBl5wwEpRr462DKwcl5aP59tEXXYdWXviyr4o8FATDDUn+M2b6RjtUf1zkVwwKjrh82zV32sEKxWCi5RcvUZ2qNbJ8/LCjmtrv3Zt2YhbLF+L8JuA4+GNYQa3eXVqzKHVRwvGgK+aocdJpA9erzZXA9JZoFBtVojphZq9ZJzAw3Xe3zeduEWjQlMiBw0URaCleXHtv8fF7xAf4+mnzxViZEg9tHNVMC6ONMlfVA+je4KUPNCv5UMDNYu9lLfDsX8Ayx/YFdXrwoROnymoQ6O0UcbU2WrsioHdJh/IghAbM9hx0Yt5L0o8iVrSXzrOAKCz5E3UC+6jEHjxYxBWVRTzysfyCtpaHjBFcydWUGKA3XONs2VNZOa+WcIjgSVlsq29Bcvek0Wi97e0C2ftUr+CplWjBaTyZoBvO2X3KLYeTUg9binRP48gup9X6aZrdPQ+k2Gjp4fOHgNvL95K9pkEWylR/hwM2hEv2ATMboKmyQioE43RO6uOgokZylkugK13NfnbH5RdF73+4tC88D4xn3kqxba3scNdq6xkc7SlnqFRQ6Yx8EtlvAtRi13Os24eBBR8QvhPfEdcTJb+iFfGBvScXCL3QxklGPdFkdvORsLcl35gDuc4CEXuA20w=",
+        "postBindingLogout": "true",
+        "nameIDPolicyFormat": "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
+        "postBindingResponse": "true",
+        "singleLogoutServiceUrl": "https://auth.acumenus.net/application/saml/alfresco-keycloak-saml/slo/binding/post/",
+        "idpEntityId": "https://auth.acumenus.net",
+        "loginHint": "false",
+        "metadataDescriptorUrl": "https://auth.acumenus.net/application/saml/alfresco-keycloak-saml/metadata/",
+        "enabledFromMetadata": "true",
+        "postBindingAuthnRequest": "true",
+        "singleSignOnServiceUrl": "https://auth.acumenus.net/application/saml/alfresco-keycloak-saml/sso/binding/post/",
+        "wantAuthnRequestsSigned": "true",
+        "addExtensionsElementWithKeyInfo": "false",
+        "artifactBindingResponse": "false"
+      }
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "alfresco",
+      "name": "Alfresco Content Services",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "${ALFRESCO_IDENTITY_CLIENT_SECRET}",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "rootUrl": "https://docs.acumenus.net",
+      "baseUrl": "https://docs.acumenus.net/alfresco",
+      "adminUrl": "https://docs.acumenus.net/alfresco",
+      "redirectUris": [
+        "https://docs.acumenus.net/*"
+      ],
+      "webOrigins": [
+        "https://docs.acumenus.net"
+      ],
+      "attributes": {
+        "post.logout.redirect.uris": "+"
+      }
+    },
+    {
+      "clientId": "share",
+      "name": "Alfresco Share",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "rootUrl": "https://docs.acumenus.net",
+      "baseUrl": "https://docs.acumenus.net/share",
+      "adminUrl": "https://docs.acumenus.net/share",
+      "redirectUris": [
+        "https://docs.acumenus.net/share/*",
+        "https://docs.acumenus.net/*"
+      ],
+      "webOrigins": [
+        "https://docs.acumenus.net"
+      ],
+      "attributes": {
+        "post.logout.redirect.uris": "+"
+      }
+    }
+  ]
+}

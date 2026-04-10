@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Alfresco Share — External auth via Authentik forward-auth
+
+  Trusts the X-authentik-username header injected by the acropolis-traefik
+  `authentik@docker` forwardAuth middleware. Alfresco Share must NEVER be
+  reached by a client that can set this header directly — the Apache vhost
+  for docs.acumenus.net MUST route through acropolis-traefik so that the
+  forward-auth outpost can scrub spoofed headers before setting a trusted
+  value.
+
+  Reference: https://docs.alfresco.com/content-services/community/admin/auth-sync/
+-->
+<alfresco-config>
+
+  <!--
+    Remote section: tell Share to use header-based auth against the repository.
+    The `alfrescoHeader` connector is Share's built-in header-based connector;
+    setting `external-auth` true on the endpoint switches Share from local
+    form login to trusting the inbound userHeader.
+  -->
+  <config evaluator="string-compare" condition="Remote">
+    <remote>
+      <connector>
+        <id>alfrescoHeader</id>
+        <name>Alfresco Connector</name>
+        <description>Connects to Alfresco using header-based authentication</description>
+        <class>org.alfresco.web.site.servlet.SlingshotAlfrescoConnector</class>
+        <userHeader>X-authentik-username</userHeader>
+      </connector>
+
+      <endpoint>
+        <id>alfresco</id>
+        <name>Alfresco - user access</name>
+        <description>Access to Alfresco Repository with user authentication</description>
+        <connector-id>alfrescoHeader</connector-id>
+        <endpoint-url>http://alfresco:8080/alfresco/wcs</endpoint-url>
+        <identity>user</identity>
+        <external-auth>true</external-auth>
+      </endpoint>
+
+      <endpoint>
+        <id>alfresco-feed</id>
+        <parent-id>alfresco</parent-id>
+        <name>Alfresco Feed</name>
+        <description>Alfresco feed - basic HTTP authentication for RSS/Atom</description>
+        <connector-id>alfrescoHeader</connector-id>
+        <endpoint-url>http://alfresco:8080/alfresco/wcs</endpoint-url>
+        <basic-auth>true</basic-auth>
+        <identity>user</identity>
+      </endpoint>
+
+      <endpoint>
+        <id>alfresco-noauth</id>
+        <name>Alfresco - public access</name>
+        <description>Access to Alfresco Repository without authentication</description>
+        <connector-id>alfresco</connector-id>
+        <endpoint-url>http://alfresco:8080/alfresco/s</endpoint-url>
+        <identity>none</identity>
+      </endpoint>
+    </remote>
+  </config>
+
+  <!--
+    Logout wiring: Share's own logout only drops JSESSIONID, which means the
+    Authentik forward-auth cookie keeps the user signed in silently. Point
+    Share's logout button at the Authentik outpost sign-out endpoint, which
+    kills both the Authentik session and the Share session and then redirects
+    back to the Share landing page.
+  -->
+  <config evaluator="string-compare" condition="SsoLogout" replace="true">
+    <logout>
+      <default-url>/outpost.goauthentik.io/sign_out?rd=https://docs.acumenus.net/share/page/</default-url>
+    </logout>
+  </config>
+
+  <!--
+    CSRFPolicy markers for the Share Docker image's substituter.sh entrypoint
+    script. At container start it does:
+      sed -i s|<config ... CSRFPolicy replace="false">|<config ... replace="true">|
+      sed -i s|<referer></referer>|<referer>$CSRF_FILTER_REFERER</referer>|
+      sed -i s|<origin></origin>|<origin>$CSRF_FILTER_ORIGIN</origin>|
+    Leave the inner tags empty so substituter.sh fills them from env.
+  -->
+  <config evaluator="string-compare" condition="CSRFPolicy" replace="false">
+    <filter>
+      <rule>
+        <request>
+          <method>POST</method>
+          <header name="Referer">
+            <value type="regex">https?://REPO_HOST:REPO_PORT/.*</value>
+            <value type="regex" scope="uri">(.*)</value>
+          </header>
+          <header name="Origin">
+            <value type="regex">https?://REPO_HOST:REPO_PORT</value>
+          </header>
+        </request>
+        <action name="assertReferer">
+          <param name="referer">
+            <value></value>
+          </param>
+        </action>
+        <action name="assertOrigin">
+          <param name="origin">
+            <value></value>
+          </param>
+        </action>
+      </rule>
+      <properties>
+        <referer></referer>
+        <origin></origin>
+      </properties>
+    </filter>
+  </config>
+
+</alfresco-config>

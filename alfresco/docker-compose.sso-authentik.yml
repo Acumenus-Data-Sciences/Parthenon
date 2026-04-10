@@ -1,0 +1,129 @@
+# =============================================================================
+# Alfresco — Authentik SSO overlay (replaces docker-compose.sso-cutover.yml)
+# =============================================================================
+# Delivers Authentik SSO for Alfresco Community 26.1 via:
+#   1. Traefik routers on each Alfresco service for docs.acumenus.net
+#   2. acropolis-traefik forward-auth middleware (authentik@docker)
+#      - trusts the outpost-injected X-authentik-username header
+#   3. Alfresco `external` auth subsystem trusting that header
+#   4. Auto-create users on first login (no pre-provisioning)
+#
+# Keycloak is NOT in this path. This overlay completely replaces the old
+# identity-service / AIMS / LDAP wiring from docker-compose.sso-cutover.yml.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.sso-authentik.yml up -d
+#
+# Rollback:
+#   docker compose -f docker-compose.yml up -d    # reverts to NTLM-only
+#
+# Security:
+#   Alfresco Share MUST only be reachable via acropolis-traefik on the acumenus
+#   network. The Apache vhost for docs.acumenus.net must ProxyPass into Traefik
+#   (port 8081), NOT directly into Alfresco on :18082/:18081. Direct access
+#   would let clients set X-authentik-username and impersonate any user.
+# =============================================================================
+
+services:
+
+  # ── Alfresco Repository ──────────────────────────────────────────────────
+  alfresco:
+    environment:
+      # JAVA_OPTS is REPLACED (not merged) by compose overlay — must include
+      # all base flags PLUS the external auth additions.
+      JAVA_OPTS: >-
+        -Ddb.driver=org.postgresql.Driver
+        -Ddb.username=alfresco
+        -Ddb.password=${ALFRESCO_DB_PASSWORD:-alfresco}
+        -Ddb.url=jdbc:postgresql://alfresco-postgres:5432/alfresco
+        -Dsolr.host=alfresco-solr6
+        -Dsolr.port=8983
+        -Dsolr.http.connection.timeout=1000
+        -Dsolr.secureComms=secret
+        -Dsolr.sharedSecret=${ALFRESCO_SOLR_SHARED_SECRET:-secret}
+        -Dsolr.base.url=/solr
+        -Dindex.subsystem.name=solr6
+        -Dshare.host=docs.${DOMAIN:-acumenus.net}
+        -Dshare.port=443
+        -Dalfresco.host=docs.${DOMAIN:-acumenus.net}
+        -Dalfresco.port=443
+        -Dcsrf.filter.enabled=true
+        -Dcsrf.filter.referer=https://docs.${DOMAIN:-acumenus.net}/.*
+        -Dcsrf.filter.origin=https://docs.${DOMAIN:-acumenus.net}
+        -Daos.baseUrlOverwrite=https://docs.${DOMAIN:-acumenus.net}/alfresco/aos
+        -Dmessaging.broker.url="failover:(nio://alfresco-activemq:61616)?timeout=3000&jms.useCompression=true"
+        -Dmessaging.broker.username=${ALFRESCO_AMQ_USER:-admin}
+        -Dmessaging.broker.password=${ALFRESCO_AMQ_PASSWORD:-admin}
+        -Ddeployment.method=DOCKER_COMPOSE
+        -DlocalTransform.core-aio.url=http://alfresco-transform-core-aio:8090/
+        -Dauthentication.chain=external1:external,alfrescoNtlm1:alfrescoNtlm
+        -Dexternal.authentication.enabled=true
+        -Dexternal.authentication.proxyUserName=
+        -Dexternal.authentication.proxyHeader=X-authentik-username
+        -Dexternal.authentication.defaultAdministratorUserNames=admin
+        -Dsynchronization.autoCreatePeopleOnLogin=true
+        -Dsynchronization.syncOnStartup=false
+        -Dsynchronization.syncWhenMissingPeopleLogOnly=true
+        -Dalfresco.authentication.allowGuestLogin=false
+        -XX:MinRAMPercentage=50
+        -XX:MaxRAMPercentage=80
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=acumenus"
+      # Default router: docs.acumenus.net → Alfresco Repo on :8080
+      # Catches /, /alfresco/*, and anything not matched by longer rules.
+      - "traefik.http.routers.alfresco-repo.rule=Host(`docs.${DOMAIN:-acumenus.net}`)"
+      - "traefik.http.routers.alfresco-repo.entrypoints=web"
+      - "traefik.http.routers.alfresco-repo.middlewares=authentik@docker,alfresco-root-redirect@docker"
+      - "traefik.http.routers.alfresco-repo.priority=1"
+      - "traefik.http.services.alfresco-repo.loadbalancer.server.port=8080"
+      # Redirect bare / to /share/ (preserves current Apache RedirectMatch behavior)
+      - "traefik.http.middlewares.alfresco-root-redirect.redirectregex.regex=^https?://docs\\.${DOMAIN:-acumenus.net}/?$$"
+      - "traefik.http.middlewares.alfresco-root-redirect.redirectregex.replacement=https://docs.${DOMAIN:-acumenus.net}/share/"
+      - "traefik.http.middlewares.alfresco-root-redirect.redirectregex.permanent=true"
+
+  # ── Alfresco Share (user-facing UI) ──────────────────────────────────────
+  alfresco-share:
+    volumes:
+      # Mount the custom share-config-custom.xml into a STAGING location.
+      # The entrypoint below copies it into the real web-extension path
+      # BEFORE substituter.sh runs its sed -i REPO_HOST / CSRFPolicy edits.
+      # A direct bind-mount of a single file breaks substituter.sh because
+      # sed -i can't rename-over a bind-mount target (EBUSY).
+      - ./config/sso/share/share-config-custom.xml:/config/share-config-custom.xml:ro
+    entrypoint:
+      - sh
+      - -c
+      - 'cp /config/share-config-custom.xml /usr/local/tomcat/shared/classes/alfresco/web-extension/share-config-custom.xml && exec /usr/local/tomcat/shared/classes/alfresco/substituter.sh "catalina.sh run"'
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=acumenus"
+      - "traefik.http.routers.alfresco-share.rule=Host(`docs.${DOMAIN:-acumenus.net}`) && PathPrefix(`/share`)"
+      - "traefik.http.routers.alfresco-share.entrypoints=web"
+      - "traefik.http.routers.alfresco-share.middlewares=authentik@docker"
+      - "traefik.http.routers.alfresco-share.priority=10"
+      - "traefik.http.services.alfresco-share.loadbalancer.server.port=8080"
+
+  # ── Alfresco Content App (Angular SPA) ───────────────────────────────────
+  alfresco-content-app:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=acumenus"
+      - "traefik.http.routers.alfresco-content-app.rule=Host(`docs.${DOMAIN:-acumenus.net}`) && PathPrefix(`/content-app`)"
+      - "traefik.http.routers.alfresco-content-app.entrypoints=web"
+      - "traefik.http.routers.alfresco-content-app.middlewares=authentik@docker,alfresco-content-app-strip@docker"
+      - "traefik.http.routers.alfresco-content-app.priority=10"
+      - "traefik.http.services.alfresco-content-app.loadbalancer.server.port=8080"
+      - "traefik.http.middlewares.alfresco-content-app-strip.stripprefix.prefixes=/content-app"
+
+  # ── Alfresco Control Center ──────────────────────────────────────────────
+  alfresco-control-center:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=acumenus"
+      - "traefik.http.routers.alfresco-control-center.rule=Host(`docs.${DOMAIN:-acumenus.net}`) && PathPrefix(`/control-center`)"
+      - "traefik.http.routers.alfresco-control-center.entrypoints=web"
+      - "traefik.http.routers.alfresco-control-center.middlewares=authentik@docker,alfresco-control-center-strip@docker"
+      - "traefik.http.routers.alfresco-control-center.priority=10"
+      - "traefik.http.services.alfresco-control-center.loadbalancer.server.port=8080"
+      - "traefik.http.middlewares.alfresco-control-center-strip.stripprefix.prefixes=/control-center"

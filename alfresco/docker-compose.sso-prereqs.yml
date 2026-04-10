@@ -1,0 +1,94 @@
+services:
+  # Optional identity layer for Alfresco SSO.
+  #
+  # This overlay does NOT change ACS/Share authentication by itself.
+  # It only brings up the Keycloak-compatible identity service and DB so
+  # realm/client/federation work can be prepared before cutover.
+  alfresco-keycloak-db:
+    container_name: alfresco-keycloak-db
+    image: postgres:17.9
+    restart: unless-stopped
+    mem_limit: 512m
+    environment:
+      POSTGRES_DB: ${ALFRESCO_KEYCLOAK_DB_NAME:-keycloak}
+      POSTGRES_USER: ${ALFRESCO_KEYCLOAK_DB_USER:-keycloak}
+      POSTGRES_PASSWORD: ${ALFRESCO_KEYCLOAK_DB_PASSWORD:-CHANGE_ME}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $$POSTGRES_DB -U $$POSTGRES_USER"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    volumes:
+      - alfresco_keycloak_db_data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:15433:5432"
+    networks:
+      - acumenus
+
+  alfresco-authentik-ldap:
+    container_name: alfresco-authentik-ldap
+    image: ghcr.io/goauthentik/ldap:${ALFRESCO_AUTHENTIK_LDAP_TAG:-2026.2.1}
+    restart: unless-stopped
+    mem_limit: 512m
+    environment:
+      AUTHENTIK_HOST: ${AUTHENTIK_OUTPOST_HOST:-https://auth.${DOMAIN:-acumenus.net}}
+      AUTHENTIK_INSECURE: "false"
+      AUTHENTIK_TOKEN: ${AUTHENTIK_LDAP_OUTPOST_TOKEN:-CHANGE_ME}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:9300/outpost.goauthentik.io/ping"]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    ports:
+      - "127.0.0.1:13389:3389"
+      - "127.0.0.1:16636:6636"
+      - "127.0.0.1:19300:9300"
+    networks:
+      - acumenus
+
+  alfresco-keycloak:
+    container_name: alfresco-keycloak
+    image: quay.io/keycloak/keycloak:${ALFRESCO_KEYCLOAK_TAG:-26.5.5}
+    restart: unless-stopped
+    mem_limit: 1g
+    command:
+      - start
+      - --http-enabled=true
+      - --proxy-headers=xforwarded
+      - --hostname-strict=false
+      - --hostname=https://ids.${DOMAIN:-acumenus.net}
+      - --hostname-admin=https://ids.${DOMAIN:-acumenus.net}
+      - --import-realm
+    environment:
+      KC_DB: postgres
+      KC_DB_URL_HOST: alfresco-keycloak-db
+      KC_DB_URL_PORT: "5432"
+      KC_DB_URL_DATABASE: ${ALFRESCO_KEYCLOAK_DB_NAME:-keycloak}
+      KC_DB_USERNAME: ${ALFRESCO_KEYCLOAK_DB_USER:-keycloak}
+      KC_DB_PASSWORD: ${ALFRESCO_KEYCLOAK_DB_PASSWORD:-CHANGE_ME}
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${ALFRESCO_KEYCLOAK_ADMIN_USER:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${ALFRESCO_KEYCLOAK_ADMIN_PASSWORD:-CHANGE_ME}
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+    depends_on:
+      alfresco-keycloak-db:
+        condition: service_healthy
+      alfresco-authentik-ldap:
+        condition: service_healthy
+    volumes:
+      - ./config/sso/keycloak/realm-import:/opt/keycloak/data/import:ro
+    ports:
+      - "127.0.0.1:18086:8080"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=acumenus"
+      - "traefik.http.routers.alfresco-keycloak.rule=Host(`ids.${DOMAIN:-acumenus.net}`)"
+      - "traefik.http.routers.alfresco-keycloak.entrypoints=web"
+      - "traefik.http.services.alfresco-keycloak.loadbalancer.server.port=8080"
+    networks:
+      - acumenus
+
+volumes:
+  alfresco_keycloak_db_data:

@@ -43,9 +43,20 @@ services:
       - "traefik.enable=true"
 
 networks:
+  # Ingress network — shared with Alfresco, OpenProject, parthenon-php.
+  # Declared external because the acumenus network is created by Acumenus
+  # internal compose projects (alfresco stack), not by Acropolis.
   acropolis:
+    external: true
     name: acumenus
+  # Backend tier — DB, Redis, Kafka, OpenSearch, Celery workers live here
+  # and are NOT reachable from acumenus. internal: true disables NAT.
+  # Only ingress services (authentik-server, superset, datahub-frontend,
+  # wazuh-dashboard) sit on both acumenus and backend.
+  backend:
+    name: acropolis-backend
     driver: bridge
+    internal: true
   parthenon:
     external: true
     name: parthenon

@@ -1,0 +1,10 @@
+# Apply only during the ACS/Share cutover.
+# This file is a staging template and is not mounted by default.
+
+aims.enabled=true
+aims.realm=alfresco
+aims.resource=share
+aims.authServerUrl=https://ids.acumenus.net
+aims.publicClient=true
+aims.redirectURI=https://docs.acumenus.net/share/page/
+aims.postLogoutUrl=https://docs.acumenus.net/share/page/
