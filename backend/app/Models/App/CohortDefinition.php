@@ -21,6 +21,8 @@ class CohortDefinition extends Model
         'is_public',
         'version',
         'tags',
+        'domain',
+        'quality_tier',
         'share_token',
         'share_expires_at',
     ];
@@ -52,5 +54,41 @@ class CohortDefinition extends Model
     public function generations(): HasMany
     {
         return $this->hasMany(CohortGeneration::class);
+    }
+
+    /**
+     * @return HasMany<StudyCohort, $this>
+     */
+    public function studyCohorts(): HasMany
+    {
+        return $this->hasMany(StudyCohort::class);
+    }
+
+    /**
+     * Recompute quality_tier based on generation history, study usage, and expression complexity.
+     * Uses updateQuietly to avoid recursive observer calls.
+     */
+    public function recomputeQualityTier(): void
+    {
+        $completedGens = $this->generations()->where('status', 'completed')->count();
+        $studyUses = $this->studyCohorts()->count();
+
+        $expression = $this->expression_json ?? [];
+        $conceptSetCount = count($expression['ConceptSets'] ?? []);
+        $inclusionRules = count($expression['AdditionalCriteria']['CriteriaList'] ?? []);
+        $hasEndStrategy = isset($expression['EndStrategy']);
+        $hasComplexity = $conceptSetCount > 0 || $inclusionRules > 0 || $hasEndStrategy;
+
+        if ($completedGens > 0 && $studyUses > 0 && $hasComplexity) {
+            $tier = 'study-ready';
+        } elseif ($completedGens > 0) {
+            $tier = 'validated';
+        } else {
+            $tier = 'draft';
+        }
+
+        if ($this->quality_tier !== $tier) {
+            $this->updateQuietly(['quality_tier' => $tier]);
+        }
     }
 }
