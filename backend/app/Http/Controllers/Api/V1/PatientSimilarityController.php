@@ -23,6 +23,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 /**
  * @group Patient Similarity Engine
@@ -1097,6 +1098,65 @@ class PatientSimilarityController extends Controller
         }
 
         return response()->json($response, 500);
+    }
+
+    /**
+     * POST /v1/patient-similarity/landscape
+     *
+     * Project all patient embeddings for a source into 2D/3D UMAP space.
+     */
+    public function landscape(Request $request): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'source_id' => ['required', 'integer', 'exists:sources,id'],
+                'cohort_definition_id' => ['sometimes', 'integer'],
+                'dimensions' => ['sometimes', 'integer', 'in:2,3'],
+                'max_points' => ['sometimes', 'integer', 'min:10', 'max:50000'],
+            ]);
+
+            $payload = [
+                'source_id' => $validated['source_id'],
+                'dimensions' => $validated['dimensions'] ?? 3,
+                'max_points' => $validated['max_points'] ?? 5000,
+            ];
+
+            // Resolve cohort member person_ids if cohort_definition_id provided
+            if (! empty($validated['cohort_definition_id'])) {
+                $source = Source::with('daimons')->findOrFail($validated['source_id']);
+                SourceContext::forSource($source);
+
+                $cohortPersonIds = $this->results()
+                    ->table('cohort')
+                    ->where('cohort_definition_id', $validated['cohort_definition_id'])
+                    ->pluck('subject_id')
+                    ->map(fn ($id) => (int) $id)
+                    ->unique()
+                    ->values()
+                    ->all();
+
+                $payload['cohort_person_ids'] = $cohortPersonIds;
+            }
+
+            $aiUrl = rtrim((string) config('services.ai.url', 'http://python-ai:8000'), '/');
+
+            /** @var \Illuminate\Http\Client\Response $aiResponse */
+            $aiResponse = Http::timeout(120)
+                ->post("{$aiUrl}/patient-similarity/project", $payload);
+
+            if (! $aiResponse->successful()) {
+                return response()->json([
+                    'error' => 'AI service returned an error',
+                    'detail' => $aiResponse->json('detail', 'Unknown error'),
+                ], $aiResponse->status());
+            }
+
+            return response()->json($aiResponse->json());
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['error' => 'Validation failed', 'errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Landscape projection failed: '.$e->getMessage()], 500);
+        }
     }
 
     /**
