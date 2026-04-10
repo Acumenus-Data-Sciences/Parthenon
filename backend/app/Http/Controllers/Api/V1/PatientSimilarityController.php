@@ -1140,10 +1140,21 @@ class PatientSimilarityController extends Controller
                 ], 422);
             }
 
+            // Sample large cohorts to avoid OOM in Python AI service
+            $maxPerArm = 5000;
+            $targetFull = count($targetIds);
+            $comparatorFull = count($comparatorIds);
+            if (count($targetIds) > $maxPerArm) {
+                $targetIds = collect($targetIds)->shuffle()->take($maxPerArm)->values()->all();
+            }
+            if (count($comparatorIds) > $maxPerArm) {
+                $comparatorIds = collect($comparatorIds)->shuffle()->take($maxPerArm)->values()->all();
+            }
+
             $aiUrl = rtrim((string) config('services.ai.url', 'http://python-ai:8000'), '/');
 
             /** @var Response $response */
-            $response = Http::timeout(180)->post("{$aiUrl}/patient-similarity/propensity-match", [
+            $response = Http::timeout(300)->post("{$aiUrl}/patient-similarity/propensity-match", [
                 'source_id' => $source->id,
                 'target_cohort_ids' => $targetIds,
                 'comparator_cohort_ids' => $comparatorIds,
