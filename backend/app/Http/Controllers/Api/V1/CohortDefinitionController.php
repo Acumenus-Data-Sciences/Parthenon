@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Enums\CohortDomain;
 use App\Enums\ExecutionStatus;
 use App\Http\Controllers\Controller;
 use App\Jobs\Cohort\GenerateCohortJob;
@@ -18,6 +19,7 @@ use App\Services\Solr\CohortSearchService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 /**
  * @group Cohort Definitions
@@ -161,16 +163,9 @@ class CohortDefinitionController extends Controller
 
             // Grouped response by domain
             if ($groupBy === 'domain') {
-                $domainLabels = [
-                    'cardiovascular' => 'Cardiovascular',
-                    'metabolic' => 'Metabolic',
-                    'renal' => 'Renal',
-                    'oncology' => 'Oncology',
-                    'rare-disease' => 'Rare Disease',
-                    'pain-substance-use' => 'Pain & Substance Use',
-                    'pediatric' => 'Pediatric',
-                    'general' => 'General',
-                ];
+                $domainLabels = collect(CohortDomain::cases())
+                    ->mapWithKeys(fn (CohortDomain $d) => [$d->value => $d->label()])
+                    ->all();
 
                 $allCohorts = $query->get();
 
@@ -292,6 +287,7 @@ class CohortDefinitionController extends Controller
             'description' => 'nullable|string',
             'expression_json' => 'required|array',
             'is_public' => 'boolean',
+            'domain' => ['nullable', 'string', Rule::in(array_column(CohortDomain::cases(), 'value'))],
         ]);
 
         try {
@@ -381,6 +377,7 @@ class CohortDefinitionController extends Controller
             'is_public' => 'boolean',
             'tags' => 'sometimes|array',
             'tags.*' => 'string|max:50',
+            'domain' => ['sometimes', 'nullable', 'string', Rule::in(array_column(CohortDomain::cases(), 'value'))],
         ]);
 
         try {
@@ -814,26 +811,15 @@ class CohortDefinitionController extends Controller
     public function domains(): JsonResponse
     {
         try {
-            $domainLabels = [
-                'cardiovascular' => 'Cardiovascular',
-                'metabolic' => 'Metabolic',
-                'renal' => 'Renal',
-                'oncology' => 'Oncology',
-                'rare-disease' => 'Rare Disease',
-                'pain-substance-use' => 'Pain & Substance Use',
-                'pediatric' => 'Pediatric',
-                'general' => 'General',
-            ];
-
             $counts = CohortDefinition::whereNotNull('domain')
                 ->selectRaw('domain, count(*) as count')
                 ->groupBy('domain')
                 ->pluck('count', 'domain');
 
-            $result = collect($domainLabels)->map(fn (string $label, string $key) => [
-                'key' => $key,
-                'label' => $label,
-                'count' => (int) ($counts[$key] ?? 0),
+            $result = collect(CohortDomain::cases())->map(fn (CohortDomain $d) => [
+                'key' => $d->value,
+                'label' => $d->label(),
+                'count' => (int) ($counts[$d->value] ?? 0),
             ])->sortByDesc('count')->values();
 
             return response()->json($result);

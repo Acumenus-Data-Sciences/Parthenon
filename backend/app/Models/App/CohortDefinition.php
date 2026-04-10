@@ -2,6 +2,7 @@
 
 namespace App\Models\App;
 
+use App\Enums\CohortDomain;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -37,6 +38,7 @@ class CohortDefinition extends Model
             'is_public' => 'boolean',
             'tags' => 'array',
             'share_expires_at' => 'datetime',
+            'domain' => CohortDomain::class,
         ];
     }
 

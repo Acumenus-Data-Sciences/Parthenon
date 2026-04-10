@@ -74,7 +74,7 @@ class SolrUpdateCohortJob implements ShouldQueue
             'person_count' => $latestGen?->person_count ?? 0,
             'generation_count' => $cohort->generations_count,
             'version' => $cohort->version ?? 1,
-            'domain_s' => $cohort->domain,
+            'domain_s' => $cohort->domain?->value,
             'quality_tier_s' => $cohort->quality_tier,
         ];
 
