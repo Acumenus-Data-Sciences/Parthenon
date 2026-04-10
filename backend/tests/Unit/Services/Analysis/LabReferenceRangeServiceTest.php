@@ -204,3 +204,55 @@ test('null age matches only rows with both age bounds null', function () {
 
     expect($result->sourceRef)->toBe('unbanded');
 });
+
+test('lookupMany resolves multiple groups in one call', function () {
+    DB::table('lab_reference_range_curated')->insert([
+        [
+            'measurement_concept_id' => HGB_CONCEPT, 'unit_concept_id' => GDL_UNIT,
+            'sex' => 'M', 'age_low' => 18, 'age_high' => null,
+            'range_low' => 13.5, 'range_high' => 17.5,
+            'source_ref' => 'Mayo', 'created_at' => now(), 'updated_at' => now(),
+        ],
+        [
+            'measurement_concept_id' => 3004501, 'unit_concept_id' => 8840,   // Glucose, mg/dL
+            'sex' => 'A', 'age_low' => 18, 'age_high' => null,
+            'range_low' => 70.0, 'range_high' => 99.0,
+            'source_ref' => 'Mayo', 'created_at' => now(), 'updated_at' => now(),
+        ],
+    ]);
+
+    $service = app(LabReferenceRangeService::class);
+    $results = $service->lookupMany(SOURCE_ID, [
+        ['concept_id' => HGB_CONCEPT, 'unit_concept_id' => GDL_UNIT],
+        ['concept_id' => 3004501, 'unit_concept_id' => 8840],
+        ['concept_id' => 99999, 'unit_concept_id' => 8840],  // no match
+    ], 'M', 40);
+
+    expect($results)->toHaveCount(3);
+    expect($results[HGB_CONCEPT.':'.GDL_UNIT])->toBeInstanceOf(LabRangeDto::class);
+    expect($results['3004501:8840'])->toBeInstanceOf(LabRangeDto::class);
+    expect($results['99999:8840'])->toBeNull();
+});
+
+test('memoization returns cached result on repeat calls', function () {
+    DB::table('lab_reference_range_curated')->insert([
+        'measurement_concept_id' => HGB_CONCEPT, 'unit_concept_id' => GDL_UNIT,
+        'sex' => 'M', 'age_low' => 18, 'age_high' => null,
+        'range_low' => 13.5, 'range_high' => 17.5,
+        'source_ref' => 'Mayo', 'created_at' => now(), 'updated_at' => now(),
+    ]);
+
+    $service = app(LabReferenceRangeService::class);
+
+    DB::enableQueryLog();
+    $first = $service->lookup(SOURCE_ID, HGB_CONCEPT, GDL_UNIT, 'M', 40);
+    $countAfterFirst = count(DB::getQueryLog());
+
+    $second = $service->lookup(SOURCE_ID, HGB_CONCEPT, GDL_UNIT, 'M', 40);
+    $countAfterSecond = count(DB::getQueryLog());
+
+    DB::disableQueryLog();
+
+    expect($first)->toEqual($second);
+    expect($countAfterSecond)->toBe($countAfterFirst);  // no new queries
+});

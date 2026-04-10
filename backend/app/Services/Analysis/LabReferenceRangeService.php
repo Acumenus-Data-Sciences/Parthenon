@@ -73,6 +73,40 @@ final class LabReferenceRangeService
     }
 
     /**
+     * Bulk variant — resolve ranges for a whole lab panel in one call.
+     *
+     * Delegates to `lookup()` per group to preserve memoization and the
+     * full lookup-order precedence rules. DB roundtrips are bounded by
+     * the number of distinct (concept, unit) tuples, not by calls.
+     *
+     * @param  list<array{concept_id:int, unit_concept_id:int|null}>  $groups
+     * @return array<string, ?LabRangeDto> keyed by "{conceptId}:{unitConceptId}"
+     */
+    public function lookupMany(
+        int $sourceId,
+        array $groups,
+        ?string $personSex,
+        ?int $personAgeYears,
+    ): array {
+        $result = [];
+        foreach ($groups as $group) {
+            $conceptId = $group['concept_id'];
+            $unitId = $group['unit_concept_id'];
+            $key = sprintf('%d:%s', $conceptId, $unitId !== null ? (string) $unitId : 'null');
+
+            $result[$key] = $this->lookup(
+                $sourceId,
+                $conceptId,
+                $unitId,
+                $personSex,
+                $personAgeYears,
+            );
+        }
+
+        return $result;
+    }
+
+    /**
      * Query the curated table for the narrowest matching row.
      *
      * Narrowness = (COALESCE(age_high, 65535) - COALESCE(age_low, 0)) ASC.
