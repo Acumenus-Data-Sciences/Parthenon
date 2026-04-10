@@ -1094,6 +1094,84 @@ class PatientSimilarityController extends Controller
      * Run propensity score matching between two cohorts.
      * Resolves cohort members, proxies to Python AI service.
      */
+    /**
+     * POST /v1/patient-similarity/discover-phenotypes
+     *
+     * Proxy to Python AI phenotype discovery (consensus clustering) endpoint.
+     */
+    public function discoverPhenotypes(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'source_id' => ['required', 'integer', 'exists:sources,id'],
+            'cohort_definition_id' => ['required', 'integer'],
+            'k' => ['sometimes', 'integer', 'min:2', 'max:10'],
+            'method' => ['sometimes', 'string', 'in:consensus,kmeans,spectral'],
+        ]);
+
+        try {
+            $source = Source::with('daimons')->findOrFail($validated['source_id']);
+            SourceContext::forSource($source);
+
+            // Resolve cohort person_ids
+            $cohortPersonIds = $this->results()
+                ->table('cohort')
+                ->where('cohort_definition_id', $validated['cohort_definition_id'])
+                ->pluck('subject_id')
+                ->map(fn ($id) => (int) $id)
+                ->unique()
+                ->values()
+                ->all();
+
+            if (count($cohortPersonIds) < 3) {
+                return response()->json([
+                    'error' => 'Cohort has fewer than 3 members ('.count($cohortPersonIds).'). Need at least 3 for clustering.',
+                ], 422);
+            }
+
+            // Cap at 5000 patients
+            $capped = false;
+            if (count($cohortPersonIds) > 5000) {
+                $cohortPersonIds = array_slice($cohortPersonIds, 0, 5000);
+                $capped = true;
+            }
+
+            $payload = [
+                'source_id' => $source->id,
+                'cohort_person_ids' => $cohortPersonIds,
+            ];
+
+            if (isset($validated['k'])) {
+                $payload['k'] = $validated['k'];
+            }
+            if (isset($validated['method'])) {
+                $payload['method'] = $validated['method'];
+            }
+
+            $aiUrl = rtrim((string) config('services.ai.url', 'http://python-ai:8000'), '/');
+
+            /** @var \Illuminate\Http\Client\Response $response */
+            $response = Http::timeout(180)->post("{$aiUrl}/patient-similarity/discover-phenotypes", $payload);
+
+            if ($response->failed()) {
+                $body = $response->json();
+                $detail = $body['detail'] ?? 'Phenotype discovery failed in AI service.';
+
+                return response()->json(['error' => $detail], $response->status());
+            }
+
+            $data = $response->json();
+            if ($capped) {
+                $data['capped_at'] = 5000;
+            }
+
+            return response()->json(['data' => $data]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Phenotype discovery failed: '.$e->getMessage(),
+            ], 500);
+        }
+    }
+
     public function propensityMatch(Request $request): JsonResponse
     {
         $validated = $request->validate([
