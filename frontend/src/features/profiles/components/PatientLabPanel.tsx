@@ -1,30 +1,12 @@
 import { useState, useMemo } from "react";
 import { ChevronDown, ChevronRight, FlaskConical, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { ClinicalEvent } from "../types/profile";
+import type { LabGroup } from "../types/profile";
+import { LabTrendChart } from "./LabTrendChart";
+import { LabValuesTable } from "./LabValuesTable";
 
 interface PatientLabPanelProps {
-  events: ClinicalEvent[];
-}
-
-interface LabGroup {
-  concept_id: number;
-  concept_name: string;
-  unit: string;
-  values: { date: string; value: number }[];
-  range_low: number | null;
-  range_high: number | null;
-  latest: number;
-  count: number;
-  vocabulary: string;
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  labGroups: LabGroup[];
 }
 
 function Sparkline({
@@ -133,17 +115,13 @@ function RangeIndicator({
 
 function LabRow({ group }: { group: LabGroup }) {
   const [expanded, setExpanded] = useState(false);
-  const sparkValues = group.values.map((v) => v.value);
+  const [showValues, setShowValues] = useState(false);
 
-  // Trend: compare latest vs second-to-last
-  const trend =
-    group.values.length >= 2
-      ? group.latest > group.values[group.values.length - 2].value
-        ? "up"
-        : group.latest < group.values[group.values.length - 2].value
-          ? "down"
-          : "flat"
-      : "flat";
+  const sparkValues = group.values
+    .filter((v) => v.value != null)
+    .map((v) => v.value as number);
+
+  const trend = group.trend;
 
   return (
     <div className="border-b border-[#1C1C20] last:border-0">
@@ -164,40 +142,39 @@ function LabRow({ group }: { group: LabGroup }) {
         {/* Concept name */}
         <div className="flex-1 min-w-0">
           <p className="text-xs font-medium text-[#F0EDE8] truncate">
-            {group.concept_name}
+            {group.conceptName}
           </p>
-          {group.vocabulary && (
-            <p className="text-[10px] text-[#5A5650]">{group.vocabulary}</p>
-          )}
         </div>
 
         {/* Count */}
         <span className="text-[10px] text-[#5A5650] shrink-0 w-8 text-right">
-          ×{group.count}
+          ×{group.n}
         </span>
 
         {/* Sparkline */}
         <div className="shrink-0">
           <Sparkline
             values={sparkValues}
-            rangeLow={group.range_low}
-            rangeHigh={group.range_high}
+            rangeLow={group.range?.low ?? null}
+            rangeHigh={group.range?.high ?? null}
           />
         </div>
 
         {/* Latest value */}
         <div className="shrink-0 w-28 text-right">
           <p className="text-sm font-bold text-[#F0EDE8]">
-            {group.latest.toLocaleString(undefined, { maximumFractionDigits: 3 })}
-            {group.unit ? (
+            {group.latestValue != null
+              ? group.latestValue.toLocaleString(undefined, { maximumFractionDigits: 3 })
+              : "—"}
+            {group.unitName ? (
               <span className="text-[10px] font-normal text-[#8A857D] ml-1">
-                {group.unit}
+                {group.unitName}
               </span>
             ) : null}
           </p>
-          {group.range_low != null && group.range_high != null && (
+          {group.range != null && (
             <p className="text-[9px] text-[#5A5650]">
-              ref: {group.range_low}–{group.range_high}
+              ref: {group.range.low}–{group.range.high}
             </p>
           )}
         </div>
@@ -216,142 +193,56 @@ function LabRow({ group }: { group: LabGroup }) {
         {/* Range indicator */}
         <div className="shrink-0 w-14">
           <RangeIndicator
-            value={group.latest}
-            rangeLow={group.range_low}
-            rangeHigh={group.range_high}
+            value={group.latestValue ?? 0}
+            rangeLow={group.range?.low ?? null}
+            rangeHigh={group.range?.high ?? null}
           />
         </div>
       </button>
 
-      {/* Expanded: value history table */}
+      {/* Expanded: trend chart + optional values table */}
       {expanded && (
-        <div className="px-4 pb-3 bg-[#0E0E11]">
-          <table className="w-full">
-            <thead>
-              <tr>
-                <th className="py-1.5 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
-                  Date
-                </th>
-                <th className="py-1.5 text-right text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
-                  Value
-                </th>
-                <th className="py-1.5 text-right text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
-                  Range
-                </th>
-                <th className="py-1.5 text-right text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
-                  Status
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {[...group.values]
-                .sort(
-                  (a, b) =>
-                    new Date(b.date).getTime() - new Date(a.date).getTime(),
-                )
-                .map((v, i) => (
-                  <tr key={i} className="border-t border-[#1C1C20]">
-                    <td className="py-1.5 text-[11px] text-[#8A857D]">
-                      {formatDate(v.date)}
-                    </td>
-                    <td className="py-1.5 text-right text-[11px] font-medium text-[#F0EDE8]">
-                      {v.value.toLocaleString(undefined, {
-                        maximumFractionDigits: 3,
-                      })}
-                      {group.unit && (
-                        <span className="text-[#5A5650] ml-1">{group.unit}</span>
-                      )}
-                    </td>
-                    <td className="py-1.5 text-right text-[10px] text-[#5A5650]">
-                      {group.range_low != null && group.range_high != null
-                        ? `${group.range_low}–${group.range_high}`
-                        : "—"}
-                    </td>
-                    <td className="py-1.5 text-right">
-                      <RangeIndicator
-                        value={v.value}
-                        rangeLow={group.range_low}
-                        rangeHigh={group.range_high}
-                      />
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
+        <div className="space-y-2 rounded-md bg-zinc-900/40 p-3">
+          <LabTrendChart
+            conceptName={group.conceptName}
+            unitName={group.unitName}
+            values={group.values}
+            range={group.range}
+          />
+
+          <button
+            type="button"
+            onClick={() => setShowValues((p) => !p)}
+            className="flex items-center gap-1 text-xs text-zinc-400 hover:text-zinc-200"
+          >
+            <ChevronRight
+              className={cn(
+                "h-3 w-3 transition-transform",
+                showValues && "rotate-90",
+              )}
+            />
+            {showValues ? "Hide values" : "Show values"}
+          </button>
+
+          {showValues && (
+            <LabValuesTable values={group.values} unitName={group.unitName} range={group.range} />
+          )}
         </div>
       )}
     </div>
   );
 }
 
-export function PatientLabPanel({ events }: PatientLabPanelProps) {
+export function PatientLabPanel({ labGroups }: PatientLabPanelProps) {
   const [search, setSearch] = useState("");
-
-  // Group measurements by concept
-  const labGroups = useMemo<LabGroup[]>(() => {
-    const measurements = events.filter((e) => e.domain === "measurement");
-    const grouped = new Map<number, LabGroup>();
-
-    for (const m of measurements) {
-      const raw = m.value;
-      const numVal = typeof raw === "number" ? raw : typeof raw === "string" ? Number(raw) : null;
-      if (numVal == null || isNaN(numVal)) continue; // skip non-numeric measurements
-
-      const existing = grouped.get(m.concept_id);
-      if (existing) {
-        existing.values.push({ date: m.start_date, value: numVal });
-        existing.count++;
-        // Keep the latest range/unit from most recent entry
-        if (
-          !existing.range_low &&
-          m.range_low != null
-        ) {
-          existing.range_low = typeof m.range_low === "string" ? Number(m.range_low) : m.range_low;
-          existing.range_high = m.range_high != null ? (typeof m.range_high === "string" ? Number(m.range_high) : m.range_high) : null;
-        }
-        if (!existing.unit && m.unit) {
-          existing.unit = m.unit;
-        }
-      } else {
-        grouped.set(m.concept_id, {
-          concept_id: m.concept_id,
-          concept_name: m.concept_name,
-          unit: m.unit ?? "",
-          values: [{ date: m.start_date, value: numVal }],
-          range_low: m.range_low != null ? (typeof m.range_low === "string" ? Number(m.range_low) : m.range_low) : null,
-          range_high: m.range_high != null ? (typeof m.range_high === "string" ? Number(m.range_high) : m.range_high) : null,
-          latest: numVal,
-          count: 1,
-          vocabulary: m.vocabulary ?? "",
-        });
-      }
-    }
-
-    // Sort values by date, set latest
-    const groups = Array.from(grouped.values()).map((g) => {
-      const sorted = [...g.values].sort(
-        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-      );
-      return {
-        ...g,
-        values: sorted,
-        latest: sorted[sorted.length - 1].value,
-      };
-    });
-
-    // Sort groups by concept_name
-    return groups.sort((a, b) => a.concept_name.localeCompare(b.concept_name));
-  }, [events]);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return labGroups;
     const q = search.toLowerCase();
-    return labGroups.filter((g) => g.concept_name.toLowerCase().includes(q));
+    return labGroups.filter((g) => g.conceptName.toLowerCase().includes(q));
   }, [labGroups, search]);
 
-  const numericMeasurements = labGroups.reduce((s, g) => s + g.count, 0);
-  const totalMeasurements = events.filter((e) => e.domain === "measurement").length;
-  const nonNumeric = totalMeasurements - numericMeasurements;
+  const numericMeasurements = labGroups.reduce((s, g) => s + g.n, 0);
 
   if (labGroups.length === 0) {
     return (
@@ -372,8 +263,7 @@ export function PatientLabPanel({ events }: PatientLabPanelProps) {
             Lab Panel
           </span>
           <span className="text-[10px] text-[#5A5650]">
-            {labGroups.length} tests · {numericMeasurements} numeric values
-            {nonNumeric > 0 ? ` · ${nonNumeric} non-numeric` : ""}
+            {labGroups.length} tests · {numericMeasurements} values
           </span>
         </div>
         <input
@@ -413,10 +303,10 @@ export function PatientLabPanel({ events }: PatientLabPanelProps) {
       {/* Lab rows */}
       {filtered.length === 0 ? (
         <div className="flex items-center justify-center h-24">
-          <p className="text-sm text-[#8A857D]">No tests match "{search}"</p>
+          <p className="text-sm text-[#8A857D]">No tests match &quot;{search}&quot;</p>
         </div>
       ) : (
-        filtered.map((group) => <LabRow key={group.concept_id} group={group} />)
+        filtered.map((group) => <LabRow key={group.conceptId} group={group} />)
       )}
     </div>
   );

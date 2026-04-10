@@ -551,7 +551,7 @@ export default function PatientProfilePage() {
 
           {/* Labs view */}
           {viewMode === "labs" && (
-            <PatientLabPanel events={allEvents} />
+            <PatientLabPanel labGroups={profile.labGroups ?? []} />
           )}
 
           {/* Imaging view */}
