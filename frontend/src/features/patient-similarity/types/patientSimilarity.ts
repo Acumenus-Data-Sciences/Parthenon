@@ -358,6 +358,57 @@ export interface PropensityBalanceResult {
   after: CovariateBalanceRow[];
 }
 
+// ── Phenotype Discovery ────────────────────────────────────────
+
+export interface PhenotypeClusterFeature {
+  concept_id: number;
+  name: string;
+  prevalence: number;
+  overall_prevalence: number;
+}
+
+export interface PhenotypeClusterDemographics {
+  mean_age_bucket: number;
+  gender_distribution: Record<string, number>;
+  size: number;
+}
+
+export interface PhenotypeClusterProfile {
+  cluster_id: number;
+  size: number;
+  top_conditions: PhenotypeClusterFeature[];
+  top_drugs: PhenotypeClusterFeature[];
+  lab_profile: Array<{ concept_id: number; name: string; mean: number; std: number }>;
+  demographics: PhenotypeClusterDemographics;
+}
+
+export interface PhenotypeAssignment {
+  person_id: number;
+  cluster_id: number;
+}
+
+export interface PhenotypeHeatmapRow {
+  feature_name: string;
+  concept_id: number;
+  cluster_prevalences: number[];
+}
+
+export interface PhenotypeDiscoveryResult {
+  clusters: PhenotypeClusterProfile[];
+  assignments: PhenotypeAssignment[];
+  quality: { silhouette_score: number; optimal_k: number; k_used: number; method: string };
+  feature_matrix_info: { n_patients: number; n_features: number };
+  heatmap: PhenotypeHeatmapRow[];
+  capped_at?: number;
+}
+
+export interface PhenotypeDiscoveryParams {
+  source_id: number;
+  cohort_definition_id: number;
+  k?: number;
+  method?: "consensus" | "kmeans" | "spectral";
+}
+
 export interface PropensityMatchResult {
   propensity_scores: PropensityScore[];
   matched_pairs: MatchedPair[];

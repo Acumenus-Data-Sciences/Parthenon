@@ -16,6 +16,8 @@ import type {
   CrossCohortSearchParams,
   PropensityMatchParams,
   PropensityMatchResult,
+  PhenotypeDiscoveryParams,
+  PhenotypeDiscoveryResult,
 } from "../types/patientSimilarity";
 
 export async function searchSimilarPatients(
@@ -141,6 +143,18 @@ export async function propensityMatch(
 ): Promise<PropensityMatchResult> {
   const { data } = await apiClient.post(
     "/patient-similarity/propensity-match",
+    params,
+  );
+  return data.data ?? data;
+}
+
+// ── Phenotype Discovery ────────────────────────────────────────
+
+export async function discoverPhenotypes(
+  params: PhenotypeDiscoveryParams,
+): Promise<PhenotypeDiscoveryResult> {
+  const { data } = await apiClient.post(
+    "/patient-similarity/discover-phenotypes",
     params,
   );
   return data.data ?? data;

@@ -17,6 +17,7 @@ import { CohortCompareForm } from "../components/CohortCompareForm";
 import { CohortComparisonRadar } from "../components/CohortComparisonRadar";
 import { DivergenceScores } from "../components/DivergenceScores";
 import { PropensityMatchResults } from "../components/PropensityMatchResults";
+import { PhenotypeDiscovery } from "../components/PhenotypeDiscovery";
 import {
   useSimilaritySearch,
   useCohortSimilaritySearch,
@@ -440,6 +441,14 @@ export default function PatientSimilarityPage() {
               <ResultCohortDiagnosticsPanel diagnostics={metadata.diagnostics} />
             )}
           </div>
+        )}
+
+        {/* Phenotype Discovery — available when a cohort has results */}
+        {searchMode === "cohort" && cohortDefinitionId > 0 && sourceId > 0 && (
+          <PhenotypeDiscovery
+            sourceId={sourceId}
+            cohortDefinitionId={cohortDefinitionId}
+          />
         )}
 
         {/* Results table */}

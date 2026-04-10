@@ -12,6 +12,7 @@ import {
   compareCohorts,
   crossCohortSearch,
   propensityMatch,
+  discoverPhenotypes,
 } from "../api/patientSimilarityApi";
 import type {
   SimilaritySearchParams,
@@ -21,6 +22,7 @@ import type {
   CohortComparisonParams,
   CrossCohortSearchParams,
   PropensityMatchParams,
+  PhenotypeDiscoveryParams,
 } from "../types/patientSimilarity";
 
 export const SIMILARITY_KEYS = {
@@ -152,5 +154,14 @@ export function useCrossCohortSearch() {
 export function usePropensityMatch() {
   return useMutation({
     mutationFn: (params: PropensityMatchParams) => propensityMatch(params),
+  });
+}
+
+// ── Phenotype Discovery ────────────────────────────────────────
+
+export function usePhenotypeDiscovery() {
+  return useMutation({
+    mutationFn: (params: PhenotypeDiscoveryParams) =>
+      discoverPhenotypes(params),
   });
 }
