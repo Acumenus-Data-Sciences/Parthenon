@@ -21,14 +21,16 @@ it('returns unavailable when condition history is absent in both patients', func
 it('blends lifetime and recent condition overlap', function () {
     $scorer = new ConditionScorer;
 
+    // All concepts at level 0 (leaf/exact match) — hierarchical Jaccard
+    // with all weights = 1.0 produces the same result as flat Jaccard
     $score = $scorer->score(
         [
-            'condition_concepts' => [1, 2, 3],
-            'recent_condition_concepts' => [1, 3],
+            'condition_concepts' => [1 => 0, 2 => 0, 3 => 0],
+            'recent_condition_concepts' => [1 => 0, 3 => 0],
         ],
         [
-            'condition_concepts' => [1, 2, 4],
-            'recent_condition_concepts' => [1, 5],
+            'condition_concepts' => [1 => 0, 2 => 0, 4 => 0],
+            'recent_condition_concepts' => [1 => 0, 5 => 0],
         ],
     );
 
@@ -39,8 +41,8 @@ it('falls back to lifetime drug overlap when recent histories are absent', funct
     $scorer = new DrugScorer;
 
     $score = $scorer->score(
-        ['drug_concepts' => [11, 12], 'recent_drug_concepts' => []],
-        ['drug_concepts' => [11, 13], 'recent_drug_concepts' => []],
+        ['drug_concepts' => [11 => 0, 12 => 0], 'recent_drug_concepts' => []],
+        ['drug_concepts' => [11 => 0, 13 => 0], 'recent_drug_concepts' => []],
     );
 
     expect($score)->toEqualWithDelta(1 / 3, 0.00001);
@@ -51,11 +53,11 @@ it('penalizes temporal divergence in procedures even when lifetime history match
 
     $score = $scorer->score(
         [
-            'procedure_concepts' => [21, 22],
-            'recent_procedure_concepts' => [21],
+            'procedure_concepts' => [21 => 0, 22 => 0],
+            'recent_procedure_concepts' => [21 => 0],
         ],
         [
-            'procedure_concepts' => [21, 22],
+            'procedure_concepts' => [21 => 0, 22 => 0],
             'recent_procedure_concepts' => [],
         ],
     );
@@ -120,7 +122,7 @@ it('scores higher for level-1 ancestor match than level-3', function () {
 });
 
 it('preserves existing blendedJaccard behavior unchanged', function () {
-    // Exact same test as the existing condition overlap test but called directly
+    // blendedJaccard still works with flat int arrays (backward compat)
     $score = ConceptSetSimilarity::blendedJaccard(
         [1, 2, 3],
         [1, 2, 4],
@@ -129,4 +131,30 @@ it('preserves existing blendedJaccard behavior unchanged', function () {
     );
 
     expect($score)->toEqualWithDelta(0.45, 0.00001);
+});
+
+it('gives partial credit via scorer when concepts share ancestors at different depths', function () {
+    $scorer = new ConditionScorer;
+
+    // Patient A has concept 100 as leaf (level 0) and concept 200 as ancestor at level 2
+    // Patient B has concept 100 as leaf (level 0) and concept 300 as leaf (level 0)
+    // Shared: concept 100 (both level 0, weight 1.0)
+    // Unique to A: concept 200 at level 2 (weight 0.25)
+    // Unique to B: concept 300 at level 0 (weight 1.0)
+    // weighted intersection = 1.0, weighted union = 1.0 + 0.25 + 1.0 = 2.25
+    // score = 1.0 / 2.25 ≈ 0.4444
+    $score = $scorer->score(
+        [
+            'condition_concepts' => [100 => 0, 200 => 2],
+            'recent_condition_concepts' => [],
+        ],
+        [
+            'condition_concepts' => [100 => 0, 300 => 0],
+            'recent_condition_concepts' => [],
+        ],
+    );
+
+    expect($score)->toBeGreaterThan(0.0);
+    expect($score)->toBeLessThan(1.0);
+    expect($score)->toEqualWithDelta(1.0 / 2.25, 0.00001);
 });

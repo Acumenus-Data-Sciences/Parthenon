@@ -12,22 +12,22 @@ final class DrugScorer implements DimensionScorerInterface
     }
 
     /**
-     * Jaccard similarity on drug_concepts arrays.
+     * Hierarchical weighted Jaccard similarity on drug_concepts arrays.
      *
      * @param  array<string, mixed>  $patientA
      * @param  array<string, mixed>  $patientB
      */
     public function score(array $patientA, array $patientB): float
     {
-        /** @var array<int> $lifetimeA */
+        /** @var array<int, int> $lifetimeA */
         $lifetimeA = $patientA['drug_concepts'] ?? [];
-        /** @var array<int> $lifetimeB */
+        /** @var array<int, int> $lifetimeB */
         $lifetimeB = $patientB['drug_concepts'] ?? [];
-        /** @var array<int> $recentA */
+        /** @var array<int, int> $recentA */
         $recentA = $patientA['recent_drug_concepts'] ?? [];
-        /** @var array<int> $recentB */
+        /** @var array<int, int> $recentB */
         $recentB = $patientB['recent_drug_concepts'] ?? [];
 
-        return ConceptSetSimilarity::blendedJaccard($lifetimeA, $lifetimeB, $recentA, $recentB);
+        return ConceptSetSimilarity::hierarchicalBlendedJaccard($lifetimeA, $lifetimeB, $recentA, $recentB);
     }
 }

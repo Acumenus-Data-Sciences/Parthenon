@@ -12,22 +12,22 @@ final class ConditionScorer implements DimensionScorerInterface
     }
 
     /**
-     * Jaccard similarity on condition_concepts arrays.
+     * Hierarchical weighted Jaccard similarity on condition_concepts arrays.
      *
      * @param  array<string, mixed>  $patientA
      * @param  array<string, mixed>  $patientB
      */
     public function score(array $patientA, array $patientB): float
     {
-        /** @var array<int> $lifetimeA */
+        /** @var array<int, int> $lifetimeA */
         $lifetimeA = $patientA['condition_concepts'] ?? [];
-        /** @var array<int> $lifetimeB */
+        /** @var array<int, int> $lifetimeB */
         $lifetimeB = $patientB['condition_concepts'] ?? [];
-        /** @var array<int> $recentA */
+        /** @var array<int, int> $recentA */
         $recentA = $patientA['recent_condition_concepts'] ?? [];
-        /** @var array<int> $recentB */
+        /** @var array<int, int> $recentB */
         $recentB = $patientB['recent_condition_concepts'] ?? [];
 
-        return ConceptSetSimilarity::blendedJaccard($lifetimeA, $lifetimeB, $recentA, $recentB);
+        return ConceptSetSimilarity::hierarchicalBlendedJaccard($lifetimeA, $lifetimeB, $recentA, $recentB);
     }
 }
