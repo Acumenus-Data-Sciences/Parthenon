@@ -1,13 +1,23 @@
 import { type ReactNode, useState, useCallback, useMemo } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { usePipeline } from '../hooks/usePipeline';
-import { useCompareCohorts } from '../hooks/usePatientSimilarity';
+import { useCompareCohorts, usePropensityMatch } from '../hooks/usePatientSimilarity';
+import { projectPatientLandscape } from '../api/patientSimilarityApi';
 import { useCohortDefinitions } from '@/features/cohort-definitions/hooks/useCohortDefinitions';
 import { useSourceStore } from '@/stores/sourceStore';
 import { CohortSelectorBar } from '../components/CohortSelectorBar';
 import { AnalysisPipeline } from '../components/AnalysisPipeline';
 import { ProfileComparisonPanel } from '../components/ProfileComparisonPanel';
 import { CovariateBalancePanel } from '../components/CovariateBalancePanel';
-import type { CohortComparisonResult, CovariateBalanceRow } from '../types/patientSimilarity';
+import { PsmPanel } from '../components/PsmPanel';
+import { LandscapePanel } from '../components/LandscapePanel';
+import type {
+  CohortComparisonResult,
+  CovariateBalanceRow,
+  PropensityMatchResult,
+  LandscapeResult,
+  LandscapeParams,
+} from '../types/patientSimilarity';
 import type { PipelineMode } from '../types/pipeline';
 
 function buildBalanceSummary(covariates: CovariateBalanceRow[]): string {
@@ -33,6 +43,10 @@ export default function PatientSimilarityWorkspace() {
 
   const pipeline = usePipeline();
   const compareMutation = useCompareCohorts();
+  const psmMutation = usePropensityMatch();
+  const landscapeMutation = useMutation({
+    mutationFn: (params: LandscapeParams) => projectPatientLandscape(params),
+  });
 
   const { data: cohortsData } = useCohortDefinitions({ limit: 500 });
   const cohorts = useMemo(() => cohortsData?.items ?? [], [cohortsData]);
@@ -128,10 +142,52 @@ export default function PatientSimilarityWorkspace() {
 
   const handleRunStep = useCallback(
     (stepId: string) => {
-      // PSM and Landscape will be wired in Tasks 7-8
-      void stepId;
+      if (stepId === 'psm' && sourceId && targetCohortId && comparatorCohortId) {
+        pipeline.markLoading('psm');
+        const start = Date.now();
+        psmMutation.mutate(
+          { source_id: sourceId, target_cohort_id: targetCohortId, comparator_cohort_id: comparatorCohortId },
+          {
+            onSuccess: (data) => {
+              pipeline.markCompleted('psm', {
+                data,
+                summary: `AUC ${data.model_metrics.auc.toFixed(2)} · ${data.matched_pairs.length} matched pairs`,
+                executionTimeMs: Date.now() - start,
+                completedAt: new Date(),
+              });
+            },
+            onError: () => pipeline.markError('psm'),
+          },
+        );
+        return;
+      }
+
+      if (stepId === 'landscape' && sourceId && targetCohortId) {
+        pipeline.markLoading('landscape');
+        const start = Date.now();
+        // Collect person IDs from PSM matched pairs if available, otherwise use cohort IDs
+        const psmResult = pipeline.getStepResult('psm')?.data as PropensityMatchResult | undefined;
+        const cohortPersonIds = psmResult
+          ? [...psmResult.matched_pairs.map((p) => p.target_id), ...psmResult.matched_pairs.map((p) => p.comparator_id)]
+          : undefined;
+        landscapeMutation.mutate(
+          { source_id: sourceId, cohort_person_ids: cohortPersonIds },
+          {
+            onSuccess: (data) => {
+              pipeline.markCompleted('landscape', {
+                data,
+                summary: `${data.n_patients.toLocaleString()} patients projected · ${data.n_clusters} clusters`,
+                executionTimeMs: Date.now() - start,
+                completedAt: new Date(),
+              });
+            },
+            onError: () => pipeline.markError('landscape'),
+          },
+        );
+        return;
+      }
     },
-    [],
+    [sourceId, targetCohortId, comparatorCohortId, pipeline, psmMutation, landscapeMutation],
   );
 
   // ── Step Content Renderer ─────────────────────────────────────────
@@ -163,6 +219,29 @@ export default function PatientSimilarityWorkspace() {
               onContinue={() => pipeline.expandStep('landscape')}
             />
           );
+
+        case 'psm': {
+          const psmData = result?.data as PropensityMatchResult | undefined;
+          if (!psmData) return null;
+          return (
+            <PsmPanel
+              result={psmData}
+              onExportMatched={() => { /* TODO: export matched cohort */ }}
+              onContinue={() => pipeline.expandStep('landscape')}
+            />
+          );
+        }
+
+        case 'landscape': {
+          const landscapeData = result?.data as LandscapeResult | undefined;
+          if (!landscapeData) return null;
+          return (
+            <LandscapePanel
+              result={landscapeData}
+              onContinue={() => pipeline.expandStep('phenotypes')}
+            />
+          );
+        }
 
         default:
           return (
