@@ -55,6 +55,8 @@
   <field name="person_count" type="pint" indexed="true" stored="true"/>
   <field name="generation_count" type="pint" indexed="true" stored="true"/>
   <field name="version" type="pint" indexed="true" stored="true"/>
+  <field name="domain_s" type="string" indexed="true" stored="true"/>
+  <field name="quality_tier_s" type="string" indexed="true" stored="true"/>
 
   <!-- Study-specific fields -->
   <field name="study_type" type="string" indexed="true" stored="true"/>
