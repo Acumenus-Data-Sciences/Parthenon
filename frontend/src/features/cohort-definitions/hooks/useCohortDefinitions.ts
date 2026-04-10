@@ -11,11 +11,14 @@ import {
   compareCohorts,
   getCohortStats,
   createCohortFromBundle,
+  getCohortDomains,
+  getGroupedCohortDefinitions,
 } from "../api/cohortApi";
 import type {
   CohortDefinitionListParams,
   CreateCohortDefinitionPayload,
   UpdateCohortDefinitionPayload,
+  CohortDefinitionGroupedParams,
 } from "../types/cohortExpression";
 
 // ---------------------------------------------------------------------------
@@ -26,6 +29,21 @@ export function useCohortDefinitions(params?: CohortDefinitionListParams) {
   return useQuery({
     queryKey: ["cohort-definitions", params],
     queryFn: () => getCohortDefinitions(params),
+  });
+}
+
+export function useCohortDomains() {
+  return useQuery({
+    queryKey: ["cohort-definitions", "domains"],
+    queryFn: getCohortDomains,
+    staleTime: 60_000,
+  });
+}
+
+export function useGroupedCohortDefinitions(params: CohortDefinitionGroupedParams) {
+  return useQuery({
+    queryKey: ["cohort-definitions", "grouped", params],
+    queryFn: () => getGroupedCohortDefinitions(params),
   });
 }
 
