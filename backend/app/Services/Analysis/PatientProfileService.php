@@ -292,6 +292,11 @@ class PatientProfileService
         $result['labGroups'] = $labGroupsResult['labGroups'];
         $result['measurements'] = $labGroupsResult['measurements'];
 
+        // Remove internal OMOP concept ID from the API response now that
+        // sex lookup is complete — clients should use the human-readable
+        // 'gender' field, not the raw concept ID.
+        unset($result['demographics']['gender_concept_id']);
+
         return $result;
     }
 
