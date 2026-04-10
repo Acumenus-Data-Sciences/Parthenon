@@ -3,36 +3,44 @@ import { renderWithProviders } from "@/test/test-utils";
 import { useSourceStore } from "@/stores/sourceStore";
 import PatientSimilarityPage from "../PatientSimilarityPage";
 
+const compareMutationState = {
+  data: {
+    source_cohort: { name: "Alpha", dimensions: {} },
+    target_cohort: { name: "Beta", dimensions: {} },
+    divergence: {},
+    overall_divergence: 0.2,
+  },
+  isPending: false,
+  isError: false,
+  error: null as unknown,
+  mutate: vi.fn(),
+};
+
+const crossSearchMutationState = {
+  data: undefined,
+  isPending: false,
+  isError: false,
+  error: null as unknown,
+  mutate: vi.fn(),
+};
+
 vi.mock("../../hooks/usePatientSimilarity", () => ({
   useSimilaritySearch: () => ({
     data: undefined,
     isPending: false,
     isError: false,
+    error: null,
     mutate: vi.fn(),
   }),
   useCohortSimilaritySearch: () => ({
     data: undefined,
     isPending: false,
     isError: false,
+    error: null,
     mutate: vi.fn(),
   }),
-  useCompareCohorts: () => ({
-    data: {
-      source_cohort: { name: "Alpha", dimensions: {} },
-      target_cohort: { name: "Beta", dimensions: {} },
-      divergence: {},
-      overall_divergence: 0.2,
-    },
-    isPending: false,
-    isError: false,
-    mutate: vi.fn(),
-  }),
-  useCrossCohortSearch: () => ({
-    data: undefined,
-    isPending: false,
-    isError: false,
-    mutate: vi.fn(),
-  }),
+  useCompareCohorts: () => compareMutationState,
+  useCrossCohortSearch: () => crossSearchMutationState,
   useComputeStatus: () => ({ data: undefined }),
 }));
 
@@ -86,6 +94,23 @@ vi.mock("../../components/CohortExpandDialog", () => ({
 
 describe("PatientSimilarityPage", () => {
   beforeEach(() => {
+    compareMutationState.data = {
+      source_cohort: { name: "Alpha", dimensions: {} },
+      target_cohort: { name: "Beta", dimensions: {} },
+      divergence: {},
+      overall_divergence: 0.2,
+    };
+    compareMutationState.isPending = false;
+    compareMutationState.isError = false;
+    compareMutationState.error = null;
+    compareMutationState.mutate = vi.fn();
+
+    crossSearchMutationState.data = undefined;
+    crossSearchMutationState.isPending = false;
+    crossSearchMutationState.isError = false;
+    crossSearchMutationState.error = null;
+    crossSearchMutationState.mutate = vi.fn();
+
     useSourceStore.setState({
       activeSourceId: 1,
       defaultSourceId: 1,
@@ -104,5 +129,26 @@ describe("PatientSimilarityPage", () => {
     expect(
       screen.queryByRole("heading", { name: "Find Similar Patients" }),
     ).not.toBeInTheDocument();
+  });
+
+  it("shows compare request errors instead of only the empty state", () => {
+    compareMutationState.data = undefined;
+    compareMutationState.isError = true;
+    compareMutationState.error = {
+      response: {
+        data: {
+          error: "The source cohort has no members. Generate it first.",
+        },
+      },
+    };
+
+    renderWithProviders(<PatientSimilarityPage />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Compare Cohorts" }));
+
+    expect(
+      screen.getByText("The source cohort has no members. Generate it first."),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Find Similar Patients" })).toBeInTheDocument();
   });
 });

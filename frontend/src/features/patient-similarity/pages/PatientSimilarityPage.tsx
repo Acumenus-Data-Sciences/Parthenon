@@ -33,6 +33,32 @@ import type {
 type SimilarityMode = "auto" | "interpretable" | "embedding";
 type SearchMode = "single" | "cohort" | "compare";
 
+function getMutationErrorMessage(error: unknown): string | null {
+  if (typeof error !== "object" || error === null) {
+    return null;
+  }
+
+  const response = "response" in error ? error.response : undefined;
+  if (typeof response !== "object" || response === null) {
+    return null;
+  }
+
+  const data = "data" in response ? response.data : undefined;
+  if (typeof data !== "object" || data === null) {
+    return null;
+  }
+
+  if ("error" in data && typeof data.error === "string" && data.error.trim() !== "") {
+    return data.error;
+  }
+
+  if ("message" in data && typeof data.message === "string" && data.message.trim() !== "") {
+    return data.message;
+  }
+
+  return null;
+}
+
 export default function PatientSimilarityPage() {
   const [searchParams] = useSearchParams();
   const { hasPermission } = useAuthStore();
@@ -72,21 +98,12 @@ export default function PatientSimilarityPage() {
   const crossSearchMutation = useCrossCohortSearch();
 
   useEffect(() => {
-    const nextSourceId =
-      initialSourceId ?? activeSourceId ?? defaultSourceId ?? 0;
-
-    if (nextSourceId > 0 && selectedSourceId !== nextSourceId) {
-      setSelectedSourceId(nextSourceId);
-    }
-
-    if (nextSourceId > 0 && activeSourceId !== nextSourceId) {
-      setActiveSource(nextSourceId);
+    if (initialSourceId != null && initialSourceId > 0 && activeSourceId !== initialSourceId) {
+      setActiveSource(initialSourceId);
     }
   }, [
     activeSourceId,
-    defaultSourceId,
     initialSourceId,
-    selectedSourceId,
     setActiveSource,
   ]);
 
@@ -98,7 +115,10 @@ export default function PatientSimilarityPage() {
     }
   };
 
-  const sourceId = selectedSourceId;
+  const sourceId =
+    selectedSourceId > 0
+      ? selectedSourceId
+      : initialSourceId ?? activeSourceId ?? defaultSourceId ?? 0;
 
   const { data: computeStatus } = useComputeStatus(sourceId);
 
@@ -143,8 +163,19 @@ export default function PatientSimilarityPage() {
         ? cohortSearchMutation
         : searchMutation;
   const rawResult = activeMutation.data;
-  const isLoading = activeMutation.isPending;
-  const isError = activeMutation.isError;
+  const isLoading =
+    searchMode === "compare"
+      ? compareMutation.isPending || crossSearchMutation.isPending
+      : activeMutation.isPending;
+  const isError =
+    searchMode === "compare"
+      ? compareMutation.isError || crossSearchMutation.isError
+      : activeMutation.isError;
+  const errorMessage =
+    searchMode === "compare"
+      ? getMutationErrorMessage(compareMutation.error) ??
+        getMutationErrorMessage(crossSearchMutation.error)
+      : getMutationErrorMessage(activeMutation.error);
 
   // Normalize result: API may return [] for empty cohorts or an object with similar_patients
   const result =
@@ -324,11 +355,12 @@ export default function PatientSimilarityPage() {
         {isError && (
           <div className="rounded-lg border border-[#E85A6B]/20 bg-[#E85A6B]/5 px-4 py-3">
             <p className="text-sm text-[#E85A6B]">
-              Search failed. Please verify the{" "}
-              {searchMode === "single"
-                ? "patient ID exists in this data source"
-                : "cohort has been generated for this source"}{" "}
-              and try again.
+              {errorMessage ??
+                (searchMode === "single"
+                  ? "Search failed. Please verify the patient ID exists in this data source and try again."
+                  : searchMode === "compare"
+                    ? "Comparison failed. Please verify both cohorts are generated for this source and try again."
+                    : "Search failed. Please verify the cohort has been generated for this source and try again.")}
             </p>
           </div>
         )}
