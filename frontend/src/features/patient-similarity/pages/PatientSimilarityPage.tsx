@@ -17,7 +17,7 @@ import { CohortCompareForm } from "../components/CohortCompareForm";
 import { CohortComparisonRadar } from "../components/CohortComparisonRadar";
 import { DivergenceScores } from "../components/DivergenceScores";
 import { PropensityMatchResults } from "../components/PropensityMatchResults";
-import { PhenotypeDiscovery } from "../components/PhenotypeDiscovery";
+import { NetworkFusionResults } from "../components/NetworkFusionResults";
 import {
   useSimilaritySearch,
   useCohortSimilaritySearch,
@@ -430,6 +430,16 @@ export default function PatientSimilarityPage() {
           </div>
         )}
 
+        {/* Network Fusion (cohort mode) */}
+        {searchMode === "cohort" && cohortDefinitionId > 0 && sourceId > 0 && (
+          <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+            <NetworkFusionResults
+              sourceId={sourceId}
+              cohortDefinitionId={cohortDefinitionId}
+            />
+          </div>
+        )}
+
         {result && (
           <div className="space-y-3">
             <SearchDiagnosticsPanel
@@ -441,14 +451,6 @@ export default function PatientSimilarityPage() {
               <ResultCohortDiagnosticsPanel diagnostics={metadata.diagnostics} />
             )}
           </div>
-        )}
-
-        {/* Phenotype Discovery — available when a cohort has results */}
-        {searchMode === "cohort" && cohortDefinitionId > 0 && sourceId > 0 && (
-          <PhenotypeDiscovery
-            sourceId={sourceId}
-            cohortDefinitionId={cohortDefinitionId}
-          />
         )}
 
         {/* Results table */}
