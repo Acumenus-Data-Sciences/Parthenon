@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -22,7 +23,7 @@ return new class extends Migration
             $table->decimal('range_high', 12, 4);         // P97.5
             $table->decimal('median', 12, 4)->nullable(); // P50, informational
             $table->unsignedBigInteger('n_observations');
-            $table->timestamp('computed_at');
+            $table->timestamp('computed_at')->useCurrent();
             $table->timestamps();
 
             $table->unique(
@@ -31,6 +32,24 @@ return new class extends Migration
             );
             $table->index(['measurement_concept_id', 'unit_concept_id'], 'lrr_pop_concept_unit_idx');
         });
+
+        // Data-integrity guards. The compute command (labs:compute-reference-ranges)
+        // should never insert a row that fails any of these, but DB-level checks
+        // are cheap insurance against a miscoded SQL percentile or a direct insert
+        // that bypasses the command.
+        DB::statement(
+            'ALTER TABLE lab_reference_range_population
+             ADD CONSTRAINT lrr_pop_n_obs_positive CHECK (n_observations > 0)'
+        );
+        DB::statement(
+            'ALTER TABLE lab_reference_range_population
+             ADD CONSTRAINT lrr_pop_range_order CHECK (range_low <= range_high)'
+        );
+        DB::statement(
+            'ALTER TABLE lab_reference_range_population
+             ADD CONSTRAINT lrr_pop_median_in_range
+             CHECK (median IS NULL OR (median >= range_low AND median <= range_high))'
+        );
     }
 
     public function down(): void
