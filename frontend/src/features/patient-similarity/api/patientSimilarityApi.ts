@@ -16,6 +16,7 @@ import type {
   CrossCohortSearchParams,
   LandscapeParams,
   LandscapeResult,
+  TemporalSimilarityResult,
 } from "../types/patientSimilarity";
 
 export async function searchSimilarPatients(
@@ -131,6 +132,21 @@ export async function crossCohortSearch(
     "/patient-similarity/cross-cohort-search",
     params,
   );
+  return data.data ?? data;
+}
+
+// ── Temporal Similarity ────────────────────────────────────────────
+
+export async function fetchTemporalSimilarity(
+  sourceId: number,
+  personAId: number,
+  personBId: number,
+): Promise<TemporalSimilarityResult> {
+  const { data } = await apiClient.post("/patient-similarity/temporal-compare", {
+    source_id: sourceId,
+    person_a_id: personAId,
+    person_b_id: personBId,
+  });
   return data.data ?? data;
 }
 

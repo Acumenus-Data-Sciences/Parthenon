@@ -15,6 +15,22 @@ export interface DimensionScores {
   drugs: number | null;
   procedures: number | null;
   genomics: number | null;
+  temporal: number | null;
+}
+
+export interface TemporalMeasurementComparison {
+  concept_id: number;
+  concept_name: string;
+  dtw_distance: number;
+  similarity: number;
+  series_a: Array<{ date: string; value: number }>;
+  series_b: Array<{ date: string; value: number }>;
+  alignment: Array<[number, number]>;
+}
+
+export interface TemporalSimilarityResult {
+  overall_similarity: number;
+  per_measurement: TemporalMeasurementComparison[];
 }
 
 export interface ResolvedConcept {
