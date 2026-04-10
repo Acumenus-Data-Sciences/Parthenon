@@ -16,8 +16,8 @@ import type {
   CrossCohortSearchParams,
   PropensityMatchParams,
   PropensityMatchResult,
-  PhenotypeDiscoveryParams,
-  PhenotypeDiscoveryResult,
+  NetworkFusionParams,
+  NetworkFusionResult,
 } from "../types/patientSimilarity";
 
 export async function searchSimilarPatients(
@@ -148,13 +148,13 @@ export async function propensityMatch(
   return data.data ?? data;
 }
 
-// ── Phenotype Discovery ────────────────────────────────────────
+// ── Network Fusion (SNF) ────────────────────────────────────────
 
-export async function discoverPhenotypes(
-  params: PhenotypeDiscoveryParams,
-): Promise<PhenotypeDiscoveryResult> {
+export async function networkFusion(
+  params: NetworkFusionParams,
+): Promise<NetworkFusionResult> {
   const { data } = await apiClient.post(
-    "/patient-similarity/discover-phenotypes",
+    "/patient-similarity/network-fusion",
     params,
   );
   return data.data ?? data;
