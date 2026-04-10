@@ -415,7 +415,7 @@ export const router = createBrowserRouter(
         path: "patient-similarity",
         lazy: () =>
           import(
-            "@/features/patient-similarity/pages/PatientSimilarityPage"
+            "@/features/patient-similarity/pages/PatientSimilarityWorkspace"
           ).then((m) => ({ Component: m.default })),
       },
       {
