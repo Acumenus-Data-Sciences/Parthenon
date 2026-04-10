@@ -256,11 +256,27 @@ export interface CohortComparisonCohort {
   dimensions: Record<string, CohortDimensionProfile>;
 }
 
+export interface CovariateBalanceRow {
+  covariate: string;
+  smd: number;
+  type: 'binary' | 'continuous';
+  domain: string;
+}
+
+export interface DistributionalDivergenceRow {
+  dimension: string;
+  metric: 'jsd' | 'wasserstein';
+  value: number;
+  interpretation: string;
+}
+
 export interface CohortComparisonResult {
   source_cohort: CohortComparisonCohort;
   target_cohort: CohortComparisonCohort;
   divergence: Record<string, CohortDivergence>;
   overall_divergence: number;
+  covariate_balance?: CovariateBalanceRow[];
+  distributional_divergence?: DistributionalDivergenceRow[];
 }
 
 export interface CrossCohortSearchParams {
