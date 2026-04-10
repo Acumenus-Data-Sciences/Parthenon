@@ -13,6 +13,8 @@ import {
   createCohortFromBundle,
   getCohortDomains,
   getGroupedCohortDefinitions,
+  deprecateCohort,
+  restoreActiveCohort,
 } from "../api/cohortApi";
 import type {
   CohortDefinitionListParams,
@@ -162,6 +164,39 @@ export function useCreateCohortFromBundle() {
   return useMutation({
     mutationFn: createCohortFromBundle,
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cohort-definitions"] });
+    },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Lifecycle — Deprecate / Restore
+// ---------------------------------------------------------------------------
+
+export function useDeprecateCohort() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, supersededBy }: { id: number; supersededBy?: number }) =>
+      deprecateCohort(id, supersededBy),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["cohort-definitions", variables.id],
+      });
+      queryClient.invalidateQueries({ queryKey: ["cohort-definitions"] });
+    },
+  });
+}
+
+export function useRestoreActiveCohort() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => restoreActiveCohort(id),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["cohort-definitions", variables],
+      });
       queryClient.invalidateQueries({ queryKey: ["cohort-definitions"] });
     },
   });

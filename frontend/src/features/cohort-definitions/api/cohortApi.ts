@@ -281,3 +281,26 @@ export async function createCohortFromBundle(payload: {
   const { data } = await apiClient.post(`${BASE}/from-bundle`, payload);
   return data.data ?? data;
 }
+
+// ---------------------------------------------------------------------------
+// Lifecycle — Deprecate / Restore
+// ---------------------------------------------------------------------------
+
+export async function deprecateCohort(
+  id: number,
+  supersededBy?: number,
+): Promise<CohortDefinition> {
+  const { data } = await apiClient.post(`${BASE}/${id}/deprecate`, {
+    superseded_by: supersededBy ?? null,
+  });
+  return data.data;
+}
+
+export async function restoreActiveCohort(
+  id: number,
+): Promise<CohortDefinition> {
+  const { data } = await apiClient.post(
+    `${BASE}/${id}/restore-active`,
+  );
+  return data.data;
+}
