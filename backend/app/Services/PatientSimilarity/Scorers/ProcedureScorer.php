@@ -12,22 +12,22 @@ final class ProcedureScorer implements DimensionScorerInterface
     }
 
     /**
-     * Hierarchical weighted Jaccard similarity on procedure_concepts arrays.
+     * Jaccard similarity on procedure_concepts arrays.
      *
      * @param  array<string, mixed>  $patientA
      * @param  array<string, mixed>  $patientB
      */
     public function score(array $patientA, array $patientB): float
     {
-        /** @var array<int, int> $lifetimeA */
+        /** @var array<int> $lifetimeA */
         $lifetimeA = $patientA['procedure_concepts'] ?? [];
-        /** @var array<int, int> $lifetimeB */
+        /** @var array<int> $lifetimeB */
         $lifetimeB = $patientB['procedure_concepts'] ?? [];
-        /** @var array<int, int> $recentA */
+        /** @var array<int> $recentA */
         $recentA = $patientA['recent_procedure_concepts'] ?? [];
-        /** @var array<int, int> $recentB */
+        /** @var array<int> $recentB */
         $recentB = $patientB['recent_procedure_concepts'] ?? [];
 
-        return ConceptSetSimilarity::hierarchicalBlendedJaccard($lifetimeA, $lifetimeB, $recentA, $recentB);
+        return ConceptSetSimilarity::blendedJaccard($lifetimeA, $lifetimeB, $recentA, $recentB);
     }
 }

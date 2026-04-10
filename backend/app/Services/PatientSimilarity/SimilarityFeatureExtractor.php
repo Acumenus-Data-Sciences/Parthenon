@@ -35,8 +35,8 @@ class SimilarityFeatureExtractor
         $this->extractMeasurements($patients, $connection, $cdmSchema, $source->id, $personIdList);
         $this->extractDrugs($patients, $connection, $cdmSchema, $vocabSchema, $personIdList);
         $this->extractRecentDrugs($patients, $connection, $cdmSchema, $vocabSchema, $personIdList);
-        $this->extractProcedures($patients, $connection, $cdmSchema, $vocabSchema, $personIdList);
-        $this->extractRecentProcedures($patients, $connection, $cdmSchema, $vocabSchema, $personIdList);
+        $this->extractProcedures($patients, $connection, $cdmSchema, $personIdList);
+        $this->extractRecentProcedures($patients, $connection, $cdmSchema, $personIdList);
         $this->extractGenomics($patients, $personIds, $source->id);
 
         // Set dimensions_available for each patient
@@ -122,28 +122,27 @@ class SimilarityFeatureExtractor
         }
 
         $rows = DB::connection($connection)->select(
-            "SELECT co.person_id, ca.ancestor_concept_id, MIN(ca.min_levels_of_separation) AS min_level
+            "SELECT DISTINCT co.person_id, ca.ancestor_concept_id
              FROM {$cdmSchema}.condition_occurrence co
              JOIN {$vocabSchema}.concept_ancestor ca
                ON ca.descendant_concept_id = co.condition_concept_id
               AND ca.min_levels_of_separation BETWEEN 0 AND 3
              WHERE co.person_id = ANY(?::bigint[])
-               AND co.condition_concept_id > 0
-             GROUP BY co.person_id, ca.ancestor_concept_id",
+               AND co.condition_concept_id > 0",
             [$personIdList]
         );
 
         foreach ($rows as $row) {
             $pid = (int) $row->person_id;
-            $conceptId = (int) $row->ancestor_concept_id;
-            $level = (int) $row->min_level;
             if (isset($patients[$pid])) {
-                if (! isset($patients[$pid]['condition_concepts'][$conceptId])
-                    || $patients[$pid]['condition_concepts'][$conceptId] > $level) {
-                    $patients[$pid]['condition_concepts'][$conceptId] = $level;
-                }
+                $patients[$pid]['condition_concepts'][] = (int) $row->ancestor_concept_id;
             }
         }
+
+        foreach ($patients as $pid => &$p) {
+            $p['condition_concepts'] = array_values(array_unique($p['condition_concepts']));
+        }
+        unset($p);
     }
 
     private function extractRecentConditions(array &$patients, string $connection, string $cdmSchema, string $vocabSchema, string $personIdList): void
@@ -155,7 +154,7 @@ class SimilarityFeatureExtractor
         $anchorSubquery = $this->anchorDateSubquery($cdmSchema);
 
         $rows = DB::connection($connection)->select(
-            "SELECT co.person_id, ca.ancestor_concept_id, MIN(ca.min_levels_of_separation) AS min_level
+            "SELECT DISTINCT co.person_id, ca.ancestor_concept_id
              FROM {$cdmSchema}.condition_occurrence co
              JOIN {$vocabSchema}.concept_ancestor ca
                ON ca.descendant_concept_id = co.condition_concept_id
@@ -165,22 +164,21 @@ class SimilarityFeatureExtractor
              WHERE co.person_id = ANY(?::bigint[])
                AND co.condition_concept_id > 0
                AND co.condition_start_date IS NOT NULL
-               AND co.condition_start_date BETWEEN anchor.anchor_date - INTERVAL '".self::RECENT_WINDOW_DAYS." days' AND anchor.anchor_date
-             GROUP BY co.person_id, ca.ancestor_concept_id",
+               AND co.condition_start_date BETWEEN anchor.anchor_date - INTERVAL '".self::RECENT_WINDOW_DAYS." days' AND anchor.anchor_date",
             [$personIdList, $personIdList]
         );
 
         foreach ($rows as $row) {
             $pid = (int) $row->person_id;
-            $conceptId = (int) $row->ancestor_concept_id;
-            $level = (int) $row->min_level;
             if (isset($patients[$pid])) {
-                if (! isset($patients[$pid]['recent_condition_concepts'][$conceptId])
-                    || $patients[$pid]['recent_condition_concepts'][$conceptId] > $level) {
-                    $patients[$pid]['recent_condition_concepts'][$conceptId] = $level;
-                }
+                $patients[$pid]['recent_condition_concepts'][] = (int) $row->ancestor_concept_id;
             }
         }
+
+        foreach ($patients as &$patient) {
+            $patient['recent_condition_concepts'] = array_values(array_unique($patient['recent_condition_concepts']));
+        }
+        unset($patient);
     }
 
     private function extractMeasurements(array &$patients, string $connection, string $cdmSchema, int $sourceId, string $personIdList): void
@@ -232,7 +230,7 @@ class SimilarityFeatureExtractor
         }
 
         $rows = DB::connection($connection)->select(
-            "SELECT de.person_id, ca.ancestor_concept_id, MIN(ca.min_levels_of_separation) AS min_level
+            "SELECT DISTINCT de.person_id, ca.ancestor_concept_id
              FROM {$cdmSchema}.drug_exposure de
              JOIN {$vocabSchema}.concept_ancestor ca
                ON ca.descendant_concept_id = de.drug_concept_id
@@ -240,22 +238,21 @@ class SimilarityFeatureExtractor
                ON c.concept_id = ca.ancestor_concept_id
               AND c.concept_class_id = 'Ingredient'
              WHERE de.person_id = ANY(?::bigint[])
-               AND de.drug_concept_id > 0
-             GROUP BY de.person_id, ca.ancestor_concept_id",
+               AND de.drug_concept_id > 0",
             [$personIdList]
         );
 
         foreach ($rows as $row) {
             $pid = (int) $row->person_id;
-            $conceptId = (int) $row->ancestor_concept_id;
-            $level = (int) $row->min_level;
             if (isset($patients[$pid])) {
-                if (! isset($patients[$pid]['drug_concepts'][$conceptId])
-                    || $patients[$pid]['drug_concepts'][$conceptId] > $level) {
-                    $patients[$pid]['drug_concepts'][$conceptId] = $level;
-                }
+                $patients[$pid]['drug_concepts'][] = (int) $row->ancestor_concept_id;
             }
         }
+
+        foreach ($patients as $pid => &$p) {
+            $p['drug_concepts'] = array_values(array_unique($p['drug_concepts']));
+        }
+        unset($p);
     }
 
     private function extractRecentDrugs(array &$patients, string $connection, string $cdmSchema, string $vocabSchema, string $personIdList): void
@@ -267,7 +264,7 @@ class SimilarityFeatureExtractor
         $anchorSubquery = $this->anchorDateSubquery($cdmSchema);
 
         $rows = DB::connection($connection)->select(
-            "SELECT de.person_id, ca.ancestor_concept_id, MIN(ca.min_levels_of_separation) AS min_level
+            "SELECT DISTINCT de.person_id, ca.ancestor_concept_id
              FROM {$cdmSchema}.drug_exposure de
              JOIN {$vocabSchema}.concept_ancestor ca
                ON ca.descendant_concept_id = de.drug_concept_id
@@ -279,56 +276,51 @@ class SimilarityFeatureExtractor
              WHERE de.person_id = ANY(?::bigint[])
                AND de.drug_concept_id > 0
                AND de.drug_exposure_start_date IS NOT NULL
-               AND de.drug_exposure_start_date BETWEEN anchor.anchor_date - INTERVAL '".self::RECENT_WINDOW_DAYS." days' AND anchor.anchor_date
-             GROUP BY de.person_id, ca.ancestor_concept_id",
+               AND de.drug_exposure_start_date BETWEEN anchor.anchor_date - INTERVAL '".self::RECENT_WINDOW_DAYS." days' AND anchor.anchor_date",
             [$personIdList, $personIdList]
         );
 
         foreach ($rows as $row) {
             $pid = (int) $row->person_id;
-            $conceptId = (int) $row->ancestor_concept_id;
-            $level = (int) $row->min_level;
             if (isset($patients[$pid])) {
-                if (! isset($patients[$pid]['recent_drug_concepts'][$conceptId])
-                    || $patients[$pid]['recent_drug_concepts'][$conceptId] > $level) {
-                    $patients[$pid]['recent_drug_concepts'][$conceptId] = $level;
-                }
+                $patients[$pid]['recent_drug_concepts'][] = (int) $row->ancestor_concept_id;
             }
         }
+
+        foreach ($patients as &$patient) {
+            $patient['recent_drug_concepts'] = array_values(array_unique($patient['recent_drug_concepts']));
+        }
+        unset($patient);
     }
 
-    private function extractProcedures(array &$patients, string $connection, string $cdmSchema, string $vocabSchema, string $personIdList): void
+    private function extractProcedures(array &$patients, string $connection, string $cdmSchema, string $personIdList): void
     {
         if (empty($patients)) {
             return;
         }
 
         $rows = DB::connection($connection)->select(
-            "SELECT po.person_id, ca.ancestor_concept_id, MIN(ca.min_levels_of_separation) AS min_level
+            "SELECT DISTINCT po.person_id, po.procedure_concept_id
              FROM {$cdmSchema}.procedure_occurrence po
-             JOIN {$vocabSchema}.concept_ancestor ca
-               ON ca.descendant_concept_id = po.procedure_concept_id
-              AND ca.min_levels_of_separation BETWEEN 0 AND 3
              WHERE po.person_id = ANY(?::bigint[])
-               AND po.procedure_concept_id > 0
-             GROUP BY po.person_id, ca.ancestor_concept_id",
+               AND po.procedure_concept_id > 0",
             [$personIdList]
         );
 
         foreach ($rows as $row) {
             $pid = (int) $row->person_id;
-            $conceptId = (int) $row->ancestor_concept_id;
-            $level = (int) $row->min_level;
             if (isset($patients[$pid])) {
-                if (! isset($patients[$pid]['procedure_concepts'][$conceptId])
-                    || $patients[$pid]['procedure_concepts'][$conceptId] > $level) {
-                    $patients[$pid]['procedure_concepts'][$conceptId] = $level;
-                }
+                $patients[$pid]['procedure_concepts'][] = (int) $row->procedure_concept_id;
             }
         }
+
+        foreach ($patients as $pid => &$p) {
+            $p['procedure_concepts'] = array_values(array_unique($p['procedure_concepts']));
+        }
+        unset($p);
     }
 
-    private function extractRecentProcedures(array &$patients, string $connection, string $cdmSchema, string $vocabSchema, string $personIdList): void
+    private function extractRecentProcedures(array &$patients, string $connection, string $cdmSchema, string $personIdList): void
     {
         if (empty($patients)) {
             return;
@@ -337,32 +329,28 @@ class SimilarityFeatureExtractor
         $anchorSubquery = $this->anchorDateSubquery($cdmSchema);
 
         $rows = DB::connection($connection)->select(
-            "SELECT po.person_id, ca.ancestor_concept_id, MIN(ca.min_levels_of_separation) AS min_level
+            "SELECT DISTINCT po.person_id, po.procedure_concept_id
              FROM {$cdmSchema}.procedure_occurrence po
-             JOIN {$vocabSchema}.concept_ancestor ca
-               ON ca.descendant_concept_id = po.procedure_concept_id
-              AND ca.min_levels_of_separation BETWEEN 0 AND 3
              JOIN ({$anchorSubquery}) anchor
                ON anchor.person_id = po.person_id
              WHERE po.person_id = ANY(?::bigint[])
                AND po.procedure_concept_id > 0
                AND po.procedure_date IS NOT NULL
-               AND po.procedure_date BETWEEN anchor.anchor_date - INTERVAL '".self::RECENT_WINDOW_DAYS." days' AND anchor.anchor_date
-             GROUP BY po.person_id, ca.ancestor_concept_id",
+               AND po.procedure_date BETWEEN anchor.anchor_date - INTERVAL '".self::RECENT_WINDOW_DAYS." days' AND anchor.anchor_date",
             [$personIdList, $personIdList]
         );
 
         foreach ($rows as $row) {
             $pid = (int) $row->person_id;
-            $conceptId = (int) $row->ancestor_concept_id;
-            $level = (int) $row->min_level;
             if (isset($patients[$pid])) {
-                if (! isset($patients[$pid]['recent_procedure_concepts'][$conceptId])
-                    || $patients[$pid]['recent_procedure_concepts'][$conceptId] > $level) {
-                    $patients[$pid]['recent_procedure_concepts'][$conceptId] = $level;
-                }
+                $patients[$pid]['recent_procedure_concepts'][] = (int) $row->procedure_concept_id;
             }
         }
+
+        foreach ($patients as &$patient) {
+            $patient['recent_procedure_concepts'] = array_values(array_unique($patient['recent_procedure_concepts']));
+        }
+        unset($patient);
     }
 
     private function extractGenomics(array &$patients, array $personIds, int $sourceId): void
