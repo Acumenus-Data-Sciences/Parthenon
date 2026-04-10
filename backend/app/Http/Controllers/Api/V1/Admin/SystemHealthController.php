@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\App\PacsConnection;
 use App\Models\App\SystemSetting;
+use Illuminate\Database\Connection;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
@@ -58,6 +59,7 @@ class SystemHealthController extends Controller
             // Clinical Services
             'orthanc' => fn () => $this->checkOrthanc(),
             'blackrabbit' => fn () => $this->checkBlackRabbit(),
+            'morpheus' => fn () => $this->checkMorpheusRegistry(),
             // Monitoring & Communications
             'grafana' => fn () => $this->checkGrafana(),
             'livekit' => fn () => $this->checkLiveKit(),
@@ -84,6 +86,7 @@ class SystemHealthController extends Controller
             'poseidon' => self::TIER_COMPUTE,
             'orthanc' => self::TIER_CLINICAL,
             'blackrabbit' => self::TIER_CLINICAL,
+            'morpheus' => self::TIER_CLINICAL,
             'grafana' => self::TIER_ACROPOLIS,
             'livekit' => self::TIER_OPS,
             'authentik' => self::TIER_ACROPOLIS,
@@ -146,6 +149,7 @@ class SystemHealthController extends Controller
             'study-agent' => [],
             'grafana' => [],
             'blackrabbit' => $this->getServiceHttpLogs('blackrabbit'),
+            'morpheus' => [],
             'livekit' => [],
             'poseidon' => $this->getServiceHttpLogs('poseidon'),
             'authentik', 'wazuh', 'n8n', 'superset', 'datahub', 'portainer', 'pgadmin' => [],
@@ -170,6 +174,7 @@ class SystemHealthController extends Controller
             'study-agent' => [],
             'grafana' => $this->getGrafanaMetrics(),
             'blackrabbit' => $this->getBlackRabbitMetrics(),
+            'morpheus' => $this->getMorpheusRegistryMetrics(),
             'livekit' => $this->getLiveKitMetrics(),
             'poseidon' => $this->getPoseidonMetrics(),
             'authentik', 'wazuh', 'n8n', 'superset', 'datahub', 'portainer', 'pgadmin' => [],
@@ -1373,6 +1378,142 @@ class SystemHealthController extends Controller
             return $metrics;
         } catch (\Throwable) {
             return [];
+        }
+    }
+
+    /**
+     * Morpheus workbench is driven by an `inpatient_ext.morpheus_dataset`
+     * registry table. When that table is missing or empty, every Morpheus
+     * API call 404s on dataset resolution — which is precisely the
+     * regression mechanism that hid the 2026-03-26 data-loss incident for
+     * weeks. This check surfaces the condition proactively so the workbench
+     * cannot silently break again.
+     *
+     * Connection is resolved via config('morpheus.connection') so the
+     * check targets `parthenon_testing` in Pest and `parthenon` in prod.
+     *
+     * Status contract:
+     *   healthy  — registry table exists, 1+ rows with status='active'
+     *   down     — registry table is missing, query fails, or all rows
+     *              are empty/inactive (same user-visible effect: no
+     *              datasets resolvable, entire workbench unreachable)
+     */
+    private function checkMorpheusRegistry(): array
+    {
+        try {
+            $connection = DB::connection(config('morpheus.connection'));
+
+            $row = $connection->selectOne(
+                "SELECT
+                    count(*) FILTER (WHERE status = 'active')::int AS active_count,
+                    count(*)::int AS total_count
+                 FROM inpatient_ext.morpheus_dataset"
+            );
+            $active = (int) ($row->active_count ?? 0);
+            $total = (int) ($row->total_count ?? 0);
+
+            if ($active === 0) {
+                return [
+                    'name' => 'Morpheus Workbench',
+                    'key' => 'morpheus',
+                    'status' => 'down',
+                    'message' => $total === 0
+                        ? 'Dataset registry is empty — Morpheus workbench will 404 on every request. Re-run migration 2026_04_10_000001_create_morpheus_dataset_registry.'
+                        : "Registry has {$total} row(s) but none are active. Workbench unreachable.",
+                ];
+            }
+
+            return [
+                'name' => 'Morpheus Workbench',
+                'key' => 'morpheus',
+                'status' => 'healthy',
+                'message' => $active === 1
+                    ? '1 dataset registered and active.'
+                    : "{$active} datasets registered and active.",
+            ];
+        } catch (\Throwable $e) {
+            // Typical cases: inpatient_ext schema missing, morpheus_dataset
+            // table missing, connection config invalid. All of these mean
+            // the workbench is unreachable.
+            return [
+                'name' => 'Morpheus Workbench',
+                'key' => 'morpheus',
+                'status' => 'down',
+                'message' => 'Registry unreachable: '.$e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getMorpheusRegistryMetrics(): array
+    {
+        try {
+            $connection = DB::connection(config('morpheus.connection'));
+
+            $rows = $connection->select(
+                'SELECT dataset_id, name, schema_name, source_type,
+                        patient_count, status, created_at
+                 FROM inpatient_ext.morpheus_dataset
+                 ORDER BY dataset_id'
+            );
+
+            $datasets = [];
+            $totalPatients = 0;
+            $activeCount = 0;
+            foreach ($rows as $r) {
+                // Verify the underlying per-dataset schema + patients table
+                // actually exist. If the registry claims a dataset but the
+                // schema is gone, surface it as schema_ready=false — another
+                // class of silent breakage the workbench should make visible.
+                $schemaReady = $this->morpheusSchemaReady($connection, (string) $r->schema_name);
+                $patientCount = (int) ($r->patient_count ?? 0);
+                $totalPatients += $patientCount;
+                if ($r->status === 'active') {
+                    $activeCount++;
+                }
+                $datasets[] = [
+                    'dataset_id' => (int) $r->dataset_id,
+                    'name' => $r->name,
+                    'schema_name' => $r->schema_name,
+                    'source_type' => $r->source_type,
+                    'patient_count' => $patientCount,
+                    'status' => $r->status,
+                    'schema_ready' => $schemaReady,
+                    'created_at' => $r->created_at,
+                ];
+            }
+
+            return [
+                'datasets_total' => count($datasets),
+                'datasets_active' => $activeCount,
+                'total_patient_count' => $totalPatients,
+                'datasets' => $datasets,
+            ];
+        } catch (\Throwable $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Check whether a per-dataset schema has a `patients` table — the
+     * minimum shape the Morpheus services require.
+     */
+    private function morpheusSchemaReady(Connection $connection, string $schema): bool
+    {
+        try {
+            $row = $connection->selectOne(
+                'SELECT EXISTS (
+                    SELECT 1 FROM information_schema.tables
+                    WHERE table_schema = ? AND table_name = ?
+                ) AS exists',
+                [$schema, 'patients']
+            );
+
+            return (bool) ($row->exists ?? false);
+        } catch (\Throwable) {
+            return false;
         }
     }
 }
