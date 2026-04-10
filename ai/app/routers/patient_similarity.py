@@ -3,33 +3,37 @@
 Endpoints for computing patient embeddings used by the Patient Similarity Engine.
 """
 
-from __future__ import annotations
-
-import hashlib
+import json
 import logging
-import time
+import os
+from typing import Any
 
 import asyncpg
 import numpy as np
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
-from app.config import settings
 from app.services.patient_embeddings import (
     PATIENT_EMBEDDING_DIM,
     compute_patient_embedding,
     compute_patient_embeddings_batch,
 )
-from app.services.projection import (
-    ProjectionResult,
-    cache_result,
-    compute_projection,
-    get_cached_projection,
-)
+from app.services.propensity_score import PropensityScoreService
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/patient-similarity")
+
+_pool: asyncpg.Pool | None = None
+
+
+async def _get_pool() -> asyncpg.Pool:
+    """Lazily create asyncpg connection pool."""
+    global _pool  # noqa: PLW0603
+    if _pool is None:
+        db_url = os.getenv("DATABASE_URL", "")
+        _pool = await asyncpg.create_pool(db_url, min_size=1, max_size=5)
+    return _pool
 
 
 # ---------------------------------------------------------------------------
@@ -121,259 +125,244 @@ async def embed_patients_batch(request: BatchEmbeddingRequest) -> BatchEmbedding
 
 
 # ---------------------------------------------------------------------------
-# Landscape projection models
+# Propensity Score Matching
 # ---------------------------------------------------------------------------
 
-class LandscapeRequest(BaseModel):
-    """Request model for projecting patient embeddings into 2D/3D space."""
+class PropensityMatchRequest(BaseModel):
+    """Request for propensity score matching between two cohorts."""
 
     source_id: int
-    person_ids: list[int] | None = None
-    dimensions: int = Field(default=3, ge=2, le=3)
-    cohort_person_ids: list[int] | None = None
-    max_points: int = Field(default=5000, ge=10, le=50000)
+    target_cohort_ids: list[int]
+    comparator_cohort_ids: list[int]
+    max_ratio: int = Field(default=4, ge=1, le=10)
+    caliper_scale: float = Field(default=0.2, ge=0.05, le=1.0)
 
 
-class LandscapePoint(BaseModel):
-    """A single projected patient point."""
-
+class PropensityScoreItem(BaseModel):
     person_id: int
-    x: float
-    y: float
-    z: float | None = None
-    cluster_id: int = 0
-    is_cohort_member: bool = False
-    age_bucket: int = 0
-    gender_concept_id: int = 0
+    ps: float
+    preference_score: float
+    cohort: str
 
 
-class LandscapeResponse(BaseModel):
-    """Response model for landscape projection."""
-
-    points: list[LandscapePoint]
-    clusters: list[dict]
-    quality: dict
-    stats: dict
+class MatchedPairItem(BaseModel):
+    target_id: int
+    comparator_id: int
+    distance: float
 
 
-# ---------------------------------------------------------------------------
-# Connection pool management
-# ---------------------------------------------------------------------------
-
-_pool: asyncpg.Pool | None = None
-
-
-async def _get_pool() -> asyncpg.Pool:
-    """Lazily create and return a connection pool for patient_feature_vectors queries."""
-    global _pool  # noqa: PLW0603
-    if _pool is None or _pool._closed:
-        dsn = settings.database_url
-        if not dsn:
-            raise HTTPException(
-                status_code=500,
-                detail="DATABASE_URL not configured for AI service",
-            )
-        # asyncpg needs postgresql:// not postgres://
-        if dsn.startswith("postgres://"):
-            dsn = "postgresql://" + dsn[len("postgres://"):]
-        _pool = await asyncpg.create_pool(dsn, min_size=1, max_size=5)
-    return _pool
+class CovariateBalanceItem(BaseModel):
+    covariate: str
+    smd: float
+    type: str
+    domain: str
 
 
-# ---------------------------------------------------------------------------
-# Landscape endpoint
-# ---------------------------------------------------------------------------
+class PreferenceDistributionItem(BaseModel):
+    bins: list[float]
+    target_density: list[float]
+    comparator_density: list[float]
 
-@router.post("/project", response_model=LandscapeResponse)
-async def project_landscape(request: LandscapeRequest) -> LandscapeResponse:
-    """Project patient embeddings into 2D/3D space via PCA->UMAP pipeline."""
-    start = time.time()
+
+class ModelMetricsItem(BaseModel):
+    auc: float
+    n_covariates: int
+    n_target: int
+    n_comparator: int
+    caliper: float
+
+
+class PropensityMatchResponse(BaseModel):
+    propensity_scores: list[PropensityScoreItem]
+    matched_pairs: list[MatchedPairItem]
+    balance: dict[str, list[CovariateBalanceItem]]
+    model_metrics: ModelMetricsItem
+    unmatched: dict[str, list[int]]
+    preference_distribution: PreferenceDistributionItem
+
+
+async def _fetch_feature_vectors(
+    pool: asyncpg.Pool,
+    source_id: int,
+    person_ids: list[int],
+) -> list[dict[str, Any]]:
+    """Fetch patient feature vectors from app.patient_feature_vectors."""
+    rows = await pool.fetch(
+        """
+        SELECT person_id, age_bucket, gender_concept_id,
+               condition_concepts, drug_concepts, procedure_concepts, lab_vector
+        FROM app.patient_feature_vectors
+        WHERE source_id = $1 AND person_id = ANY($2::bigint[])
+        """,
+        source_id,
+        person_ids,
+    )
+    results: list[dict[str, Any]] = []
+    for row in rows:
+        feat: dict[str, Any] = {
+            "person_id": row["person_id"],
+            "age_bucket": row["age_bucket"] or 0,
+            "gender_concept_id": row["gender_concept_id"] or 0,
+        }
+        # Parse JSONB columns (asyncpg returns str for jsonb)
+        for col in ("condition_concepts", "drug_concepts", "procedure_concepts", "lab_vector"):
+            raw = row[col]
+            if raw is None:
+                feat[col] = {}
+            elif isinstance(raw, str):
+                try:
+                    feat[col] = json.loads(raw)
+                except (json.JSONDecodeError, TypeError):
+                    feat[col] = {}
+            else:
+                feat[col] = raw
+        results.append(feat)
+    return results
+
+
+@router.post("/propensity-match", response_model=PropensityMatchResponse)
+async def propensity_match(request: PropensityMatchRequest) -> PropensityMatchResponse:
+    """Run propensity score matching between two cohorts.
+
+    Fits L1-regularized logistic regression on OMOP covariates, matches
+    patients within caliper, returns PS distribution and balance diagnostics.
+    """
+    if len(request.target_cohort_ids) < 10:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Target cohort too small ({len(request.target_cohort_ids)} patients). Need at least 10.",
+        )
+    if len(request.comparator_cohort_ids) < 10:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Comparator cohort too small ({len(request.comparator_cohort_ids)} patients). Need at least 10.",
+        )
 
     try:
-        # Check cache first
-        cache_key_str = f"landscape:{request.source_id}:{request.dimensions}:{request.max_points}"
-        if request.person_ids:
-            pid_hash = hashlib.sha256(
-                ",".join(str(p) for p in sorted(request.person_ids)).encode()
-            ).hexdigest()[:12]
-            cache_key_str += f":{pid_hash}"
-
-        cached = get_cached_projection(
-            cache_key_str, request.max_points, 0, request.dimensions
-        )
-        if cached is not None:
-            return _build_landscape_response(cached, request, time.time() - start)
-
-        # Query patient_feature_vectors from PostgreSQL
         pool = await _get_pool()
-        async with pool.acquire() as conn:
-            if request.person_ids:
-                rows = await conn.fetch(
-                    """
-                    SELECT person_id, embedding::text, age_bucket, gender_concept_id
-                    FROM app.patient_feature_vectors
-                    WHERE source_id = $1
-                      AND embedding IS NOT NULL
-                      AND person_id = ANY($2::bigint[])
-                    """,
-                    request.source_id,
-                    request.person_ids,
-                )
-            else:
-                rows = await conn.fetch(
-                    """
-                    SELECT person_id, embedding::text, age_bucket, gender_concept_id
-                    FROM app.patient_feature_vectors
-                    WHERE source_id = $1
-                      AND embedding IS NOT NULL
-                    """,
-                    request.source_id,
-                )
 
-        if not rows:
-            return LandscapeResponse(
-                points=[],
-                clusters=[],
-                quality={"outlier_count": 0, "duplicate_count": 0, "orphan_count": 0},
-                stats={
-                    "total_vectors": 0,
-                    "projection_time_ms": 0,
-                    "sampled": 0,
-                },
+        # Fetch feature vectors for both cohorts
+        target_features = await _fetch_feature_vectors(
+            pool, request.source_id, request.target_cohort_ids,
+        )
+        comparator_features = await _fetch_feature_vectors(
+            pool, request.source_id, request.comparator_cohort_ids,
+        )
+
+        if len(target_features) < 10:
+            raise HTTPException(
+                status_code=422,
+                detail=f"Only {len(target_features)} target patients have feature vectors. Need at least 10.",
+            )
+        if len(comparator_features) < 10:
+            raise HTTPException(
+                status_code=422,
+                detail=f"Only {len(comparator_features)} comparator patients have feature vectors. Need at least 10.",
             )
 
-        # Deterministic sampling if too many points
-        total_fetched = len(rows)
-        sampled = False
-        if total_fetched > request.max_points:
-            seed = int(
-                hashlib.sha256(str(request.source_id).encode()).hexdigest()[:8], 16
-            )
-            rng = np.random.RandomState(seed)
-            indices = sorted(
-                rng.choice(total_fetched, size=request.max_points, replace=False).tolist()
-            )
-            rows = [rows[i] for i in indices]
-            sampled = True
+        svc = PropensityScoreService()
 
-        # Build cohort membership set
-        cohort_set: set[int] = set()
-        if request.cohort_person_ids:
-            cohort_set = set(request.cohort_person_ids)
+        # Build feature matrix
+        feature_matrix, labels, feature_names = svc.build_feature_matrix(
+            target_features, comparator_features,
+        )
 
-        # Parse embeddings and build metadata
-        ids: list[str] = []
-        embeddings_list: list[np.ndarray] = []
-        metadatas: list[dict] = []
+        # Fit model
+        ps_scores, auc = svc.fit_propensity_model(feature_matrix, labels)
 
-        for row in rows:
-            pid = int(row["person_id"])
-            emb_str = row["embedding"]
-            age_bucket = int(row["age_bucket"]) if row["age_bucket"] is not None else 0
-            gender_cid = int(row["gender_concept_id"]) if row["gender_concept_id"] is not None else 0
+        n_target = len(target_features)
+        n_comparator = len(comparator_features)
+        prevalence = n_target / (n_target + n_comparator)
 
-            # Parse pgvector text format: [0.1,0.2,...]
-            emb = np.fromstring(emb_str.strip("[]"), sep=",", dtype=np.float32)
-            if emb.size == 0:
-                continue
+        # Preference scores
+        pref_scores = svc.compute_preference_scores(ps_scores, prevalence)
 
-            ids.append(str(pid))
-            embeddings_list.append(emb)
-            metadatas.append({
-                "person_id": pid,
-                "age_bucket": age_bucket,
-                "gender_concept_id": gender_cid,
-                "is_cohort": pid in cohort_set,
-            })
+        # Split PS/pref by group
+        target_ps = ps_scores[:n_target]
+        comparator_ps = ps_scores[n_target:]
+        target_pref = pref_scores[:n_target]
+        comparator_pref = pref_scores[n_target:]
 
-        if len(ids) < 3:
-            return LandscapeResponse(
-                points=[
-                    LandscapePoint(
-                        person_id=int(mid["person_id"]),
-                        x=0.0,
-                        y=0.0,
-                        z=0.0 if request.dimensions == 3 else None,
-                        cluster_id=0,
-                        is_cohort_member=bool(mid["is_cohort"]),
-                        age_bucket=int(mid["age_bucket"]),
-                        gender_concept_id=int(mid["gender_concept_id"]),
-                    )
-                    for mid in metadatas
-                ],
-                clusters=[],
-                quality={"outlier_count": 0, "duplicate_count": 0, "orphan_count": 0},
-                stats={
-                    "total_vectors": total_fetched,
-                    "projection_time_ms": round((time.time() - start) * 1000),
-                    "sampled": len(ids),
-                },
-            )
+        target_ids = np.array([f["person_id"] for f in target_features], dtype=np.int64)
+        comparator_ids = np.array([f["person_id"] for f in comparator_features], dtype=np.int64)
 
-        embeddings_arr = np.vstack(embeddings_list)
+        # Match patients
+        matched_pairs, unmatched_target, unmatched_comparator = svc.match_patients(
+            target_indices=target_ids,
+            target_ps=target_ps,
+            comparator_indices=comparator_ids,
+            comparator_ps=comparator_ps,
+            caliper_scale=request.caliper_scale,
+            max_ratio=request.max_ratio,
+        )
 
-        # Run projection pipeline
-        result = compute_projection(ids, embeddings_arr, metadatas, request.dimensions)
+        # Compute caliper for reporting
+        eps = 0.001
+        all_ps_clipped = np.clip(ps_scores, eps, 1.0 - eps)
+        all_logit = np.log(all_ps_clipped / (1.0 - all_ps_clipped))
+        caliper = request.caliper_scale * float(np.std(all_logit)) if float(np.std(all_logit)) > 0 else 0.2
 
-        # Cache for 10 minutes
-        cache_result(cache_key_str, request.max_points, 0, result, request.dimensions)
+        # Build matched row indices for balance computation
+        target_id_to_row = {int(tid): i for i, tid in enumerate(target_ids)}
+        comp_id_to_row = {int(cid): i + n_target for i, cid in enumerate(comparator_ids)}
 
-        elapsed_ms = round((time.time() - start) * 1000)
-        result.stats["total_vectors"] = total_fetched
-        result.stats["projection_time_ms"] = elapsed_ms
-        if sampled:
-            result.stats["sampled"] = len(ids)
+        matched_t_rows = np.array(
+            [target_id_to_row[p["target_id"]] for p in matched_pairs if p["target_id"] in target_id_to_row],
+            dtype=np.int64,
+        )
+        matched_c_rows = np.array(
+            [comp_id_to_row[p["comparator_id"]] for p in matched_pairs if p["comparator_id"] in comp_id_to_row],
+            dtype=np.int64,
+        )
 
-        return _build_landscape_response(result, request, time.time() - start)
+        # Balance diagnostics
+        balance = svc.compute_balance(
+            feature_matrix, labels, matched_t_rows, matched_c_rows, feature_names,
+        )
+
+        # Preference distribution
+        pref_dist = svc.compute_preference_distribution(target_pref, comparator_pref)
+
+        # Build propensity score items
+        ps_items: list[PropensityScoreItem] = []
+        for i, feat in enumerate(target_features):
+            ps_items.append(PropensityScoreItem(
+                person_id=feat["person_id"],
+                ps=round(float(target_ps[i]), 6),
+                preference_score=round(float(target_pref[i]), 6),
+                cohort="target",
+            ))
+        for i, feat in enumerate(comparator_features):
+            ps_items.append(PropensityScoreItem(
+                person_id=feat["person_id"],
+                ps=round(float(comparator_ps[i]), 6),
+                preference_score=round(float(comparator_pref[i]), 6),
+                cohort="comparator",
+            ))
+
+        return PropensityMatchResponse(
+            propensity_scores=ps_items,
+            matched_pairs=[MatchedPairItem(**p) for p in matched_pairs],
+            balance={
+                "before": [CovariateBalanceItem(**b) for b in balance["before"]],
+                "after": [CovariateBalanceItem(**b) for b in balance["after"]],
+            },
+            model_metrics=ModelMetricsItem(
+                auc=round(auc, 4),
+                n_covariates=len(feature_names),
+                n_target=n_target,
+                n_comparator=n_comparator,
+                caliper=round(caliper, 6),
+            ),
+            unmatched={
+                "target_ids": unmatched_target,
+                "comparator_ids": unmatched_comparator,
+            },
+            preference_distribution=PreferenceDistributionItem(**pref_dist),
+        )
 
     except HTTPException:
         raise
     except Exception as exc:
-        logger.exception("Failed to project patient landscape for source_id=%d", request.source_id)
+        logger.exception("Propensity score matching failed")
         raise HTTPException(status_code=500, detail=str(exc)) from exc
-
-
-def _build_landscape_response(
-    result: ProjectionResult,
-    request: LandscapeRequest,
-    elapsed_seconds: float,
-) -> LandscapeResponse:
-    """Convert a ProjectionResult into a LandscapeResponse."""
-    cohort_set: set[int] = set(request.cohort_person_ids or [])
-
-    points = [
-        LandscapePoint(
-            person_id=int(p.id),
-            x=p.x,
-            y=p.y,
-            z=p.z if request.dimensions == 3 else None,
-            cluster_id=p.cluster_id,
-            is_cohort_member=int(p.id) in cohort_set or bool(p.metadata.get("is_cohort", False)),
-            age_bucket=int(p.metadata.get("age_bucket", 0)),
-            gender_concept_id=int(p.metadata.get("gender_concept_id", 0)),
-        )
-        for p in result.points
-    ]
-
-    clusters = [
-        {
-            "id": c.id,
-            "label": c.label,
-            "centroid": c.centroid,
-            "size": c.size,
-        }
-        for c in result.clusters
-    ]
-
-    quality = {
-        "outlier_count": len(result.quality.outlier_ids),
-        "duplicate_count": len(result.quality.duplicate_pairs),
-        "orphan_count": len(result.quality.orphan_ids),
-    }
-
-    return LandscapeResponse(
-        points=points,
-        clusters=clusters,
-        quality=quality,
-        stats=result.stats,
-    )
