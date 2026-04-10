@@ -34,7 +34,18 @@ import {
   useCopyCohortDefinition,
 } from "../hooks/useCohortDefinitions";
 import { useCohortExpressionStore } from "../stores/cohortExpressionStore";
-import type { CohortExpression } from "../types/cohortExpression";
+import type { CohortExpression, CohortDomain } from "../types/cohortExpression";
+
+const DOMAIN_OPTIONS: Array<{ value: CohortDomain; label: string }> = [
+  { value: "cardiovascular", label: "Cardiovascular" },
+  { value: "metabolic", label: "Metabolic / Endocrine" },
+  { value: "renal", label: "Renal" },
+  { value: "oncology", label: "Oncology" },
+  { value: "rare-disease", label: "Rare Disease" },
+  { value: "pain-substance-use", label: "Pain & Substance Use" },
+  { value: "pediatric", label: "Pediatric" },
+  { value: "general", label: "General" },
+];
 
 type Tab = "editor" | "results" | "diagnostics" | "overlap" | "patients";
 
@@ -62,6 +73,7 @@ export default function CohortDefinitionDetailPage() {
   const [isAddingTag, setIsAddingTag] = useState(false);
 
   // Load expression from API into store
+  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     if (definition) {
       setName(definition.name);
@@ -72,8 +84,10 @@ export default function CohortDefinitionDetailPage() {
       reset();
     };
   }, [definition]);
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   // Ctrl+S / Cmd+S keyboard shortcut
+  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "s") {
@@ -89,6 +103,7 @@ export default function CohortDefinitionDetailPage() {
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
   }, [isDirty, cohortId, expression]);
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   const handleSaveName = () => {
     if (!cohortId || !name.trim()) return;
@@ -176,6 +191,14 @@ export default function CohortDefinitionDetailPage() {
     updateMutation.mutate({
       id: cohortId,
       payload: { tags: currentTags.filter((t) => t !== tagToRemove) },
+    });
+  };
+
+  const handleDomainChange = (newDomain: string) => {
+    if (!cohortId) return;
+    updateMutation.mutate({
+      id: cohortId,
+      payload: { domain: (newDomain || null) as CohortDomain | null },
     });
   };
 
@@ -387,6 +410,27 @@ export default function CohortDefinitionDetailPage() {
                 tag
               </button>
             )}
+          </div>
+
+          {/* Domain */}
+          <div className="flex items-center gap-2 mt-2">
+            <select
+              value={definition.domain ?? ""}
+              onChange={(e) => handleDomainChange(e.target.value)}
+              className={cn(
+                "rounded-md px-2 py-1 text-xs border transition-colors",
+                "bg-[#1A1A1F] border-[#2A2A30] text-[#C5C0B8]",
+                "hover:border-[#3A3A42] focus:border-[#2DD4BF] focus:outline-none",
+                !definition.domain && "text-[#5A5650]",
+              )}
+            >
+              <option value="">Assign a domain</option>
+              {DOMAIN_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
