@@ -18,8 +18,10 @@ from app.services.patient_embeddings import (
     compute_patient_embedding,
     compute_patient_embeddings_batch,
 )
+from app.services.phenotype_discovery import discover_phenotypes
 from app.services.propensity_score import PropensityScoreService
 from app.services.similarity_network_fusion import fuse_patient_network
+from app.services.temporal_similarity import compute_temporal_similarity
 
 logger = logging.getLogger(__name__)
 
@@ -444,4 +446,211 @@ async def network_fusion_endpoint(request: NetworkFusionRequest) -> NetworkFusio
         raise
     except Exception as exc:
         logger.exception("SNF network fusion failed")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+# ---------------------------------------------------------------------------
+# Temporal Similarity (DTW)
+# ---------------------------------------------------------------------------
+
+
+class TemporalSimilarityRequest(BaseModel):
+    source_id: int
+    person_a_id: int
+    person_b_id: int
+    source_schema: str = "omop"
+    vocab_schema: str = "vocab"
+    measurement_concept_ids: list[int] | None = None
+
+
+@router.post("/temporal-similarity")
+async def temporal_similarity_endpoint(request: TemporalSimilarityRequest) -> dict:
+    """Compute DTW-based temporal trajectory similarity between two patients."""
+    try:
+        pool = await _get_pool()
+        result = await compute_temporal_similarity(
+            pool=pool,
+            person_a_id=request.person_a_id,
+            person_b_id=request.person_b_id,
+            source_schema=request.source_schema,
+            vocab_schema=request.vocab_schema,
+            measurement_concept_ids=request.measurement_concept_ids,
+        )
+        return result
+    except Exception as exc:
+        logger.exception("Temporal similarity computation failed")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+# ---------------------------------------------------------------------------
+# Phenotype Discovery (Consensus Clustering)
+# ---------------------------------------------------------------------------
+
+
+class PhenotypeDiscoveryRequest(BaseModel):
+    source_id: int
+    cohort_person_ids: list[int]
+    k: int | None = None
+    method: str = Field(default="consensus", pattern="^(consensus|kmeans|spectral)$")
+
+
+@router.post("/discover-phenotypes")
+async def discover_phenotypes_endpoint(request: PhenotypeDiscoveryRequest) -> dict:
+    """Discover latent patient subphenotypes via consensus clustering."""
+    if len(request.cohort_person_ids) < 10:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Cohort too small ({len(request.cohort_person_ids)} patients). Need at least 10.",
+        )
+
+    try:
+        pool = await _get_pool()
+        result = await discover_phenotypes(
+            pool=pool,
+            source_id=request.source_id,
+            person_ids=request.cohort_person_ids,
+            k=request.k,
+            method=request.method,
+        )
+        return result
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("Phenotype discovery failed")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+# ---------------------------------------------------------------------------
+# UMAP Patient Landscape Projection
+# ---------------------------------------------------------------------------
+
+
+class PatientProjectionRequest(BaseModel):
+    source_id: int
+    person_ids: list[int] | None = None
+    cohort_person_ids: list[int] | None = None
+    dimensions: int = Field(default=3, ge=2, le=3)
+    max_patients: int = Field(default=5000, ge=100, le=10000)
+
+
+@router.post("/project")
+async def project_patients_endpoint(request: PatientProjectionRequest) -> dict:
+    """Project patient feature vectors to 2D/3D via PCA + UMAP."""
+    try:
+        pool = await _get_pool()
+
+        # Determine which patients to project
+        if request.person_ids:
+            pids = request.person_ids
+        else:
+            # Sample from source
+            rows = await pool.fetch(
+                "SELECT person_id FROM app.patient_feature_vectors WHERE source_id = $1 ORDER BY random() LIMIT $2",
+                request.source_id,
+                request.max_patients,
+            )
+            pids = [r["person_id"] for r in rows]
+
+        if len(pids) > request.max_patients:
+            rng = np.random.RandomState(42)
+            idx = rng.choice(len(pids), size=request.max_patients, replace=False)
+            pids = [pids[i] for i in sorted(idx)]
+
+        cohort_set = set(request.cohort_person_ids or [])
+
+        # Fetch embeddings
+        rows = await pool.fetch(
+            """
+            SELECT person_id, embedding, age_bucket, gender_concept_id
+            FROM app.patient_feature_vectors
+            WHERE source_id = $1 AND person_id = ANY($2::bigint[])
+              AND embedding IS NOT NULL
+            """,
+            request.source_id,
+            pids,
+        )
+
+        if len(rows) < 10:
+            raise HTTPException(status_code=422, detail=f"Only {len(rows)} patients have embeddings. Need at least 10.")
+
+        person_ids_ordered = []
+        embeddings = []
+        metadata = []
+        for row in rows:
+            pid = row["person_id"]
+            person_ids_ordered.append(pid)
+            emb_raw = row["embedding"]
+            if isinstance(emb_raw, str):
+                emb = [float(x) for x in emb_raw.strip("[]").split(",")]
+            elif isinstance(emb_raw, (list, np.ndarray)):
+                emb = [float(x) for x in emb_raw]
+            else:
+                emb = list(emb_raw)
+            embeddings.append(emb)
+            metadata.append({
+                "person_id": pid,
+                "age_bucket": row["age_bucket"] or 0,
+                "gender_concept_id": row["gender_concept_id"] or 0,
+                "is_cohort_member": pid in cohort_set,
+            })
+
+        emb_matrix = np.array(embeddings, dtype=np.float32)
+
+        # PCA -> UMAP
+        from sklearn.decomposition import PCA
+
+        n_components_pca = min(50, emb_matrix.shape[1], emb_matrix.shape[0] - 1)
+        pca = PCA(n_components=n_components_pca)
+        reduced = pca.fit_transform(emb_matrix)
+
+        import umap
+
+        reducer = umap.UMAP(
+            n_components=request.dimensions,
+            n_neighbors=min(15, len(rows) - 1),
+            min_dist=0.1,
+            metric="cosine",
+            random_state=42,
+        )
+        projected = reducer.fit_transform(reduced)
+
+        # Normalize to [-1, 1]
+        for dim in range(projected.shape[1]):
+            col = projected[:, dim]
+            p5, p95 = np.percentile(col, [5, 95])
+            span = p95 - p5
+            if span > 0:
+                projected[:, dim] = np.clip((col - p5) / span * 2 - 1, -1, 1)
+
+        # K-means clustering
+        from sklearn.cluster import KMeans
+
+        n_clusters = min(8, len(rows) // 10) if len(rows) > 30 else 2
+        km = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
+        cluster_ids = km.fit_predict(reduced)
+
+        points = []
+        for i, pid in enumerate(person_ids_ordered):
+            pt = {
+                "person_id": pid,
+                "x": round(float(projected[i, 0]), 4),
+                "y": round(float(projected[i, 1]), 4),
+                "cluster_id": int(cluster_ids[i]),
+                **metadata[i],
+            }
+            if request.dimensions == 3:
+                pt["z"] = round(float(projected[i, 2]), 4)
+            points.append(pt)
+
+        return {
+            "points": points,
+            "n_patients": len(points),
+            "dimensions": request.dimensions,
+            "n_clusters": n_clusters,
+        }
+
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.exception("Patient projection failed")
         raise HTTPException(status_code=500, detail=str(exc)) from exc
