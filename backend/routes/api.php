@@ -752,6 +752,8 @@ Route::prefix('v1')->group(function () {
                 ->middleware(['permission:patient-similarity.view', 'throttle:30,1']);
             Route::post('/landscape', [PatientSimilarityController::class, 'landscape'])
                 ->middleware(['permission:patient-similarity.view', 'throttle:10,1']);
+            Route::post('/temporal-compare', [PatientSimilarityController::class, 'temporalCompare'])
+                ->middleware(['permission:patient-similarity.view', 'permission:profiles.view', 'throttle:10,1']);
         });
 
         // Negative Control Outcomes

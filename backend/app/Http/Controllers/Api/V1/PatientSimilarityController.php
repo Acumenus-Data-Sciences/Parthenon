@@ -1162,6 +1162,43 @@ class PatientSimilarityController extends Controller
     }
 
     /**
+     * POST /v1/patient-similarity/temporal-compare
+     *
+     * Proxy to Python AI temporal similarity (DTW) endpoint.
+     */
+    public function temporalCompare(Request $request): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'source_id' => ['required', 'integer', 'exists:sources,id'],
+                'person_a_id' => ['required', 'integer'],
+                'person_b_id' => ['required', 'integer'],
+                'measurement_concept_ids' => ['sometimes', 'array'],
+                'measurement_concept_ids.*' => ['integer'],
+            ]);
+
+            $aiUrl = rtrim((string) config('services.ai.url', 'http://python-ai:8000'), '/');
+
+            /** @var Response $aiResponse */
+            $aiResponse = Http::timeout(30)
+                ->post("{$aiUrl}/patient-similarity/temporal-similarity", $validated);
+
+            if (! $aiResponse->successful()) {
+                return response()->json([
+                    'error' => 'AI service returned an error',
+                    'detail' => $aiResponse->json('detail', 'Unknown error'),
+                ], $aiResponse->status());
+            }
+
+            return response()->json(['data' => $aiResponse->json()]);
+        } catch (ValidationException $e) {
+            return response()->json(['error' => 'Validation failed', 'errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Temporal comparison failed: '.$e->getMessage()], 500);
+        }
+    }
+
+    /**
      * Merge controller-level metadata into the canonical data.metadata payload.
      *
      * @param  array<string, mixed>  $results
