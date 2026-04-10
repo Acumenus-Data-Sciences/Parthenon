@@ -18,6 +18,8 @@ import { CohortComparisonRadar } from "../components/CohortComparisonRadar";
 import { DivergenceScores } from "../components/DivergenceScores";
 import { PropensityMatchResults } from "../components/PropensityMatchResults";
 import { NetworkFusionResults } from "../components/NetworkFusionResults";
+import { PatientLandscape } from "../components/PatientLandscape";
+import { TrajectoryComparison } from "../components/TrajectoryComparison";
 import {
   useSimilaritySearch,
   useCohortSimilaritySearch,
@@ -25,16 +27,19 @@ import {
   useCompareCohorts,
   useCrossCohortSearch,
   usePropensityMatch,
+  useComparePatients,
 } from "../hooks/usePatientSimilarity";
+import { projectPatientLandscape } from "../api/patientSimilarityApi";
 import type {
   SimilaritySearchParams,
   CohortSimilaritySearchParams,
   CohortComparisonParams,
   CrossCohortSearchParams,
+  LandscapeResult,
 } from "../types/patientSimilarity";
 
 type SimilarityMode = "auto" | "interpretable" | "embedding";
-type SearchMode = "single" | "cohort" | "compare";
+type SearchMode = "single" | "cohort" | "compare" | "landscape" | "headtohead";
 
 function getMutationErrorMessage(error: unknown): string | null {
   if (typeof error !== "object" || error === null) {
@@ -60,6 +65,102 @@ function getMutationErrorMessage(error: unknown): string | null {
   }
 
   return null;
+}
+
+function HeadToHeadPanel({ personA, personB, sourceId }: { personA: number; personB: number; sourceId: number }) {
+  const canCompare = personA > 0 && personB > 0 && personA !== personB && sourceId > 0;
+  const { data: comparison, isLoading, isError, error } = useComparePatients(
+    canCompare ? personA : 0,
+    canCompare ? personB : 0,
+    canCompare ? sourceId : 0,
+  );
+
+  if (!canCompare) {
+    return (
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-24">
+        <Users size={36} className="text-[#323238] mb-4" />
+        <h3 className="text-lg font-semibold text-[#F0EDE8]">Head-to-Head Comparison</h3>
+        <p className="mt-2 text-sm text-[#8A857D] max-w-md text-center">
+          Enter two different patient IDs to compare them across all clinical dimensions with trajectory overlay.
+        </p>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center rounded-lg border border-[#232328] bg-[#151518] py-16">
+        <div className="text-sm text-[#5A5650]">Comparing patients...</div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="rounded-lg border border-[#E85A6B]/20 bg-[#E85A6B]/5 px-4 py-3">
+        <p className="text-sm text-[#E85A6B]">
+          {error instanceof Error ? error.message : "Comparison failed."}
+        </p>
+      </div>
+    );
+  }
+
+  if (!comparison) return null;
+
+  const scores = comparison.scores ?? {};
+  const dimScores = (typeof scores.dimension_scores === "object" && scores.dimension_scores !== null)
+    ? scores.dimension_scores as Record<string, number | null>
+    : {};
+  const overallScore = typeof scores.overall_score === "number" ? scores.overall_score : 0;
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-semibold text-[#F0EDE8]">
+            Patient {personA} vs Patient {personB}
+          </h3>
+          <div className="text-lg font-bold" style={{ color: overallScore >= 0.8 ? "#2DD4BF" : overallScore >= 0.5 ? "#C9A227" : "#8A857D" }}>
+            {overallScore.toFixed(3)}
+          </div>
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          {Object.entries(dimScores).map(([dim, score]) => (
+            <div key={dim} className="rounded border border-[#232328] bg-[#0E0E11] p-2.5">
+              <div className="text-[10px] text-[#5A5650] uppercase tracking-wider mb-1">{dim}</div>
+              <div className="text-sm font-medium" style={{ color: score != null && score >= 0.5 ? "#2DD4BF" : "#8A857D" }}>
+                {score != null ? score.toFixed(3) : "N/A"}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Shared features */}
+      {comparison.shared_features && (
+        <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+          <h3 className="text-sm font-semibold text-[#F0EDE8] mb-3">Shared Features</h3>
+          <div className="grid grid-cols-3 gap-4 text-xs">
+            {["conditions", "drugs", "procedures"].map((domain) => {
+              const items = comparison.shared_features?.[domain];
+              const count = Array.isArray(items) ? items.length : 0;
+              return (
+                <div key={domain}>
+                  <span className="text-[#5A5650] uppercase tracking-wider">{domain}</span>
+                  <span className="ml-2 text-[#C5C0B8] font-medium">{count} shared</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Trajectory comparison */}
+      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+        <TrajectoryComparison personAId={personA} personBId={personB} sourceId={sourceId} />
+      </div>
+    </div>
+  );
 }
 
 export default function PatientSimilarityPage() {
@@ -94,6 +195,15 @@ export default function PatientSimilarityPage() {
     useState<SimilaritySearchParams | null>(null);
   const [exportOpen, setExportOpen] = useState(false);
   const [expandOpen, setExpandOpen] = useState(false);
+
+  // Landscape state
+  const [landscapeResult, setLandscapeResult] = useState<LandscapeResult | null>(null);
+  const [landscapeLoading, setLandscapeLoading] = useState(false);
+  const [landscapeError, setLandscapeError] = useState<string | null>(null);
+
+  // Head-to-head state
+  const [h2hPersonA, setH2hPersonA] = useState<number>(0);
+  const [h2hPersonB, setH2hPersonB] = useState<number>(0);
 
   const searchMutation = useSimilaritySearch();
   const cohortSearchMutation = useCohortSimilaritySearch();
@@ -212,23 +322,27 @@ export default function PatientSimilarityPage() {
         <div className="sticky top-0 space-y-4">
           {/* Search Mode Toggle */}
           <div className="flex rounded-lg border border-[#232328] overflow-hidden">
-            {(["single", "cohort", "compare"] as const).map((m) => (
+            {(["single", "cohort", "compare", "landscape", "headtohead"] as const).map((m) => (
               <button
                 key={m}
                 type="button"
                 onClick={() => setSearchMode(m)}
                 className={cn(
-                  "flex-1 px-3 py-2 text-xs font-medium transition-colors",
+                  "flex-1 px-2 py-2 text-[10px] font-medium transition-colors",
                   searchMode === m
                     ? "bg-[#9B1B30]/10 text-[#9B1B30]"
                     : "bg-[#0E0E11] text-[#5A5650] hover:text-[#C5C0B8]",
                 )}
               >
                 {m === "single"
-                  ? "Single Patient"
+                  ? "Patient"
                   : m === "cohort"
-                    ? "From Cohort"
-                    : "Compare Cohorts"}
+                    ? "Cohort"
+                    : m === "compare"
+                      ? "Compare"
+                      : m === "landscape"
+                        ? "Landscape"
+                        : "Head to Head"}
               </button>
             ))}
           </div>
@@ -254,7 +368,7 @@ export default function PatientSimilarityPage() {
                 sourceId={sourceId}
                 onSourceChange={handleSourceChange}
               />
-            ) : (
+            ) : searchMode === "compare" ? (
               <CohortCompareForm
                 onCompare={handleCompare}
                 onCrossSearch={handleCrossSearch}
@@ -264,6 +378,61 @@ export default function PatientSimilarityPage() {
                 sourceId={sourceId}
                 onSourceChange={handleSourceChange}
               />
+            ) : searchMode === "landscape" ? (
+              <div className="space-y-3">
+                <p className="text-xs text-[#8A857D]">
+                  Project all patients into a 2D/3D scatter plot using UMAP. Proximity reflects multi-dimensional similarity.
+                </p>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setLandscapeLoading(true);
+                    setLandscapeError(null);
+                    try {
+                      const res = await projectPatientLandscape({
+                        source_id: sourceId,
+                        dimensions: 3,
+                        max_patients: 2000,
+                      });
+                      setLandscapeResult(res);
+                    } catch (err: unknown) {
+                      const msg = err instanceof Error ? err.message : "Projection failed";
+                      setLandscapeError(msg);
+                    } finally {
+                      setLandscapeLoading(false);
+                    }
+                  }}
+                  disabled={landscapeLoading || sourceId === 0}
+                  className={cn(
+                    "w-full px-3 py-2 text-xs font-medium rounded border transition-colors",
+                    landscapeLoading
+                      ? "text-[#5A5650] border-[#232328] cursor-wait"
+                      : "text-[#2DD4BF] border-[#2DD4BF]/30 hover:bg-[#2DD4BF]/10",
+                  )}
+                >
+                  {landscapeLoading ? "Projecting..." : "Generate Landscape"}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <p className="text-xs text-[#8A857D]">
+                  Compare two patients head-to-head across all dimensions with trajectory overlay.
+                </p>
+                <input
+                  type="number"
+                  placeholder="Person A ID"
+                  value={h2hPersonA || ""}
+                  onChange={(e) => setH2hPersonA(parseInt(e.target.value, 10) || 0)}
+                  className="w-full rounded border border-[#232328] bg-[#0E0E11] px-3 py-2 text-xs text-[#F0EDE8] placeholder-[#5A5650]"
+                />
+                <input
+                  type="number"
+                  placeholder="Person B ID"
+                  value={h2hPersonB || ""}
+                  onChange={(e) => setH2hPersonB(parseInt(e.target.value, 10) || 0)}
+                  className="w-full rounded border border-[#232328] bg-[#0E0E11] px-3 py-2 text-xs text-[#F0EDE8] placeholder-[#5A5650]"
+                />
+              </div>
             )}
           </div>
         </div>
@@ -428,6 +597,40 @@ export default function PatientSimilarityPage() {
               overallDivergence={compareMutation.data.overall_divergence}
             />
           </div>
+        )}
+
+        {/* Landscape mode */}
+        {searchMode === "landscape" && (
+          <div className="space-y-4">
+            {landscapeError && (
+              <div className="rounded-lg border border-[#E85A6B]/20 bg-[#E85A6B]/5 px-4 py-3">
+                <p className="text-sm text-[#E85A6B]">{landscapeError}</p>
+              </div>
+            )}
+            {landscapeResult && (
+              <div className="rounded-lg border border-[#232328] bg-[#0E0E11]" style={{ height: 600 }}>
+                <PatientLandscape
+                  points={landscapeResult.points}
+                  clusters={landscapeResult.clusters ?? []}
+                  stats={landscapeResult.stats ?? { n_patients: landscapeResult.points.length, dimensions: 3, n_clusters: 0 }}
+                />
+              </div>
+            )}
+            {!landscapeResult && !landscapeLoading && !landscapeError && (
+              <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-24">
+                <Users size={36} className="text-[#323238] mb-4" />
+                <h3 className="text-lg font-semibold text-[#F0EDE8]">Patient Landscape</h3>
+                <p className="mt-2 text-sm text-[#8A857D] max-w-md text-center">
+                  Click &quot;Generate Landscape&quot; to project patients into a 3D scatter plot using UMAP dimensionality reduction.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Head-to-head mode */}
+        {searchMode === "headtohead" && (
+          <HeadToHeadPanel personA={h2hPersonA} personB={h2hPersonB} sourceId={sourceId} />
         )}
 
         {/* Network Fusion (cohort mode) */}

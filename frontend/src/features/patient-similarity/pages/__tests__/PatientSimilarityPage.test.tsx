@@ -136,7 +136,7 @@ describe("PatientSimilarityPage", () => {
   it("shows compare guidance instead of the generic empty state after a cohort comparison", () => {
     renderWithProviders(<PatientSimilarityPage />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Compare Cohorts" }));
+    fireEvent.click(screen.getByRole("button", { name: "Compare" }));
 
     expect(screen.getByText("comparison-radar")).toBeInTheDocument();
     expect(screen.getByText("divergence-scores")).toBeInTheDocument();
@@ -159,7 +159,7 @@ describe("PatientSimilarityPage", () => {
 
     renderWithProviders(<PatientSimilarityPage />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Compare Cohorts" }));
+    fireEvent.click(screen.getByRole("button", { name: "Compare" }));
 
     expect(
       screen.getByText("The source cohort has no members. Generate it first."),

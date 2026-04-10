@@ -18,6 +18,9 @@ import type {
   PropensityMatchResult,
   NetworkFusionParams,
   NetworkFusionResult,
+  LandscapeParams,
+  LandscapeResult,
+  TemporalSimilarityResult,
 } from "../types/patientSimilarity";
 
 export async function searchSimilarPatients(
@@ -156,6 +159,32 @@ export async function networkFusion(
   const { data } = await apiClient.post(
     "/patient-similarity/network-fusion",
     params,
+  );
+  return data.data ?? data;
+}
+
+// ── Patient Landscape (UMAP Projection) ─────────────────────────
+
+export async function projectPatientLandscape(
+  params: LandscapeParams,
+): Promise<LandscapeResult> {
+  const { data } = await apiClient.post(
+    "/patient-similarity/landscape",
+    params,
+  );
+  return data.data ?? data;
+}
+
+// ── Temporal Similarity (DTW) ───────────────────────────────────
+
+export async function fetchTemporalSimilarity(
+  personAId: number,
+  personBId: number,
+  sourceId: number,
+): Promise<TemporalSimilarityResult> {
+  const { data } = await apiClient.post(
+    "/patient-similarity/temporal-compare",
+    { person_a_id: personAId, person_b_id: personBId, source_id: sourceId },
   );
   return data.data ?? data;
 }

@@ -407,3 +407,69 @@ export interface NetworkFusionParams {
   n_iterations?: number;
   top_k_edges?: number;
 }
+
+// ── Landscape (UMAP Projection) ──────────────────────────────────
+
+export interface LandscapePoint {
+  person_id: number;
+  x: number;
+  y: number;
+  z?: number;
+  cluster_id: number;
+  is_cohort_member: boolean;
+  age_bucket: number;
+  gender_concept_id: number;
+}
+
+export interface LandscapeCluster {
+  id: number;
+  size: number;
+  color?: string;
+}
+
+export interface LandscapeResult {
+  points: LandscapePoint[];
+  n_patients: number;
+  dimensions: number;
+  n_clusters: number;
+  clusters?: LandscapeCluster[];
+  stats?: { n_patients: number; dimensions: number; n_clusters: number };
+}
+
+export interface LandscapeParams {
+  source_id: number;
+  person_ids?: number[];
+  cohort_person_ids?: number[];
+  dimensions?: number;
+  max_patients?: number;
+}
+
+// ── Temporal Similarity (DTW) ────────────────────────────────────
+
+export interface TemporalSeriesPoint {
+  date: string;
+  value: number;
+}
+
+export interface TemporalMeasurementComparison {
+  concept_id: number;
+  concept_name: string;
+  dtw_distance: number;
+  similarity: number;
+  series_a: TemporalSeriesPoint[];
+  series_b: TemporalSeriesPoint[];
+}
+
+export interface TemporalSimilarityResult {
+  overall_similarity: number;
+  per_measurement: TemporalMeasurementComparison[];
+}
+
+export interface TemporalSimilarityParams {
+  source_id: number;
+  person_a_id: number;
+  person_b_id: number;
+  source_schema?: string;
+  vocab_schema?: string;
+  measurement_concept_ids?: number[];
+}
