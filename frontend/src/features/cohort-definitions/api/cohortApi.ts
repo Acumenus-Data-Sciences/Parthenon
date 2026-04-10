@@ -12,6 +12,9 @@ import type {
   CohortDiagnosticsResult,
   RDiagnosticsResponse,
   RunCohortDiagnosticsPayload,
+  DomainInfo,
+  GroupedCohortResponse,
+  CohortDefinitionGroupedParams,
 } from "../types/cohortExpression";
 
 const BASE = "/cohort-definitions";
@@ -29,6 +32,18 @@ export async function getCohortDefinitions(
     facets: data.facets ?? undefined,
     engine: data.engine ?? undefined,
   };
+}
+
+export async function getCohortDomains(): Promise<DomainInfo[]> {
+  const { data } = await apiClient.get(`${BASE}/domains`);
+  return data;
+}
+
+export async function getGroupedCohortDefinitions(
+  params: CohortDefinitionGroupedParams,
+): Promise<GroupedCohortResponse> {
+  const { data } = await apiClient.get(BASE, { params });
+  return data;
 }
 
 export async function getCohortDefinition(
