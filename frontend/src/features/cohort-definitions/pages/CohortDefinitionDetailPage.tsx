@@ -13,6 +13,8 @@ import {
   Share2,
   Plus,
   X,
+  AlertTriangle,
+  RotateCcw,
 } from "lucide-react";
 import { AbbyAiPanel } from "@/features/abby-ai/components/AbbyAiPanel";
 import { ShareCohortModal } from "../components/ShareCohortModal";
@@ -32,6 +34,8 @@ import {
   useUpdateCohortDefinition,
   useDeleteCohortDefinition,
   useCopyCohortDefinition,
+  useDeprecateCohort,
+  useRestoreActiveCohort,
 } from "../hooks/useCohortDefinitions";
 import { useCohortExpressionStore } from "../stores/cohortExpressionStore";
 import type { CohortExpression, CohortDomain } from "../types/cohortExpression";
@@ -58,6 +62,9 @@ export default function CohortDefinitionDetailPage() {
   const updateMutation = useUpdateCohortDefinition();
   const deleteMutation = useDeleteCohortDefinition();
   const copyMutation = useCopyCohortDefinition();
+
+  const deprecateMutation = useDeprecateCohort();
+  const restoreMutation = useRestoreActiveCohort();
 
   const { expression, isDirty, loadExpression, reset } =
     useCohortExpressionStore();
@@ -202,6 +209,22 @@ export default function CohortDefinitionDetailPage() {
     });
   };
 
+  const handleDeprecate = () => {
+    if (!cohortId) return;
+    if (
+      window.confirm(
+        "Deprecate this cohort? It will remain visible but cannot be added to new studies.",
+      )
+    ) {
+      deprecateMutation.mutate({ id: cohortId });
+    }
+  };
+
+  const handleRestoreActive = () => {
+    if (!cohortId) return;
+    restoreMutation.mutate(cohortId);
+  };
+
   const handleExport = async () => {
     if (!cohortId) return;
     const exported = await exportCohortDefinition(cohortId);
@@ -243,6 +266,52 @@ export default function CohortDefinitionDetailPage() {
 
   return (
     <div className="space-y-6">
+      {/* Deprecation banner */}
+      {definition.deprecated_at && (
+        <div className="flex items-center gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3">
+          <AlertTriangle size={16} className="text-amber-500 shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-amber-400">
+              Deprecated on{" "}
+              {new Date(definition.deprecated_at).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </p>
+            {definition.superseded_by_cohort && (
+              <p className="text-xs text-amber-400/70 mt-0.5">
+                Superseded by{" "}
+                <button
+                  type="button"
+                  onClick={() =>
+                    navigate(
+                      `/cohort-definitions/${definition.superseded_by_cohort!.id}`,
+                    )
+                  }
+                  className="underline hover:text-amber-300 transition-colors"
+                >
+                  {definition.superseded_by_cohort.name}
+                </button>
+              </p>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={handleRestoreActive}
+            disabled={restoreMutation.isPending}
+            className="inline-flex items-center gap-1.5 rounded-md border border-amber-500/30 px-3 py-1.5 text-xs font-medium text-amber-400 hover:bg-amber-500/20 transition-colors"
+          >
+            {restoreMutation.isPending ? (
+              <Loader2 size={12} className="animate-spin" />
+            ) : (
+              <RotateCcw size={12} />
+            )}
+            Restore
+          </button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
@@ -523,6 +592,23 @@ export default function CohortDefinitionDetailPage() {
             )}
             Copy
           </button>
+
+          {/* Deprecate */}
+          {!definition.deprecated_at && (
+            <button
+              type="button"
+              onClick={handleDeprecate}
+              disabled={deprecateMutation.isPending}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#8A857D] hover:text-amber-400 hover:border-amber-500/30 transition-colors disabled:opacity-50"
+            >
+              {deprecateMutation.isPending ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                <AlertTriangle size={14} />
+              )}
+              Deprecate
+            </button>
+          )}
 
           {/* Delete */}
           <button
