@@ -15,6 +15,22 @@ export interface DimensionScores {
   drugs: number | null;
   procedures: number | null;
   genomics: number | null;
+  temporal: number | null;
+}
+
+export interface TemporalMeasurementComparison {
+  concept_id: number;
+  concept_name: string;
+  dtw_distance: number;
+  similarity: number;
+  series_a: Array<{ date: string; value: number }>;
+  series_b: Array<{ date: string; value: number }>;
+  alignment: Array<[number, number]>;
+}
+
+export interface TemporalSimilarityResult {
+  overall_similarity: number;
+  per_measurement: TemporalMeasurementComparison[];
 }
 
 export interface ResolvedConcept {
@@ -256,11 +272,27 @@ export interface CohortComparisonCohort {
   dimensions: Record<string, CohortDimensionProfile>;
 }
 
+export interface CovariateBalanceRow {
+  covariate: string;
+  smd: number;
+  type: 'binary' | 'continuous';
+  domain: string;
+}
+
+export interface DistributionalDivergenceRow {
+  dimension: string;
+  metric: 'jsd' | 'wasserstein';
+  value: number;
+  interpretation: string;
+}
+
 export interface CohortComparisonResult {
   source_cohort: CohortComparisonCohort;
   target_cohort: CohortComparisonCohort;
   divergence: Record<string, CohortDivergence>;
   overall_divergence: number;
+  covariate_balance?: CovariateBalanceRow[];
+  distributional_divergence?: DistributionalDivergenceRow[];
 }
 
 export interface CrossCohortSearchParams {
@@ -269,6 +301,48 @@ export interface CrossCohortSearchParams {
   source_id: number;
   limit?: number;
   min_score?: number;
+}
+
+// ── Landscape Projection ────────────────────────────────────────────
+
+export interface LandscapePoint {
+  person_id: number;
+  x: number;
+  y: number;
+  z: number | null;
+  cluster_id: number;
+  is_cohort_member: boolean;
+  age_bucket: number;
+  gender_concept_id: number;
+}
+
+export interface LandscapeCluster {
+  id: number;
+  label: string;
+  centroid: number[];
+  size: number;
+}
+
+export interface LandscapeResult {
+  points: LandscapePoint[];
+  clusters: LandscapeCluster[];
+  quality: {
+    outlier_count: number;
+    duplicate_count: number;
+    orphan_count: number;
+  };
+  stats: {
+    total_vectors: number;
+    projection_time_ms: number;
+    sampled: number;
+  };
+}
+
+export interface LandscapeParams {
+  source_id: number;
+  cohort_definition_id?: number;
+  dimensions?: 2 | 3;
+  max_points?: number;
 }
 
 // ── Patient Comparison ────────────────────────────────────────────
@@ -305,64 +379,4 @@ export interface PatientComparisonResult {
     drug_names?: ResolvedConcept[];
     procedure_names?: ResolvedConcept[];
   };
-}
-
-// ── Covariate Balance ────────────────────────────────────────────
-
-export interface CovariateBalanceRow {
-  covariate: string;
-  smd: number;
-  type: 'binary' | 'continuous';
-  domain: string;
-}
-
-// ── Propensity Score Matching ────────────────────────────────────
-
-export interface PropensityMatchParams {
-  source_id: number;
-  target_cohort_id: number;
-  comparator_cohort_id: number;
-  max_ratio?: number;
-  caliper_scale?: number;
-}
-
-export interface PropensityScore {
-  person_id: number;
-  ps: number;
-  preference_score: number;
-  cohort: 'target' | 'comparator';
-}
-
-export interface MatchedPair {
-  target_id: number;
-  comparator_id: number;
-  distance: number;
-}
-
-export interface PropensityModelMetrics {
-  auc: number;
-  n_covariates: number;
-  n_target: number;
-  n_comparator: number;
-  caliper: number;
-}
-
-export interface PreferenceDistribution {
-  bins: number[];
-  target_density: number[];
-  comparator_density: number[];
-}
-
-export interface PropensityBalanceResult {
-  before: CovariateBalanceRow[];
-  after: CovariateBalanceRow[];
-}
-
-export interface PropensityMatchResult {
-  propensity_scores: PropensityScore[];
-  matched_pairs: MatchedPair[];
-  balance: PropensityBalanceResult;
-  model_metrics: PropensityModelMetrics;
-  unmatched: { target_ids: number[]; comparator_ids: number[] };
-  preference_distribution: PreferenceDistribution;
 }

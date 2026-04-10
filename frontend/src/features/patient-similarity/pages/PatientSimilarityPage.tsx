@@ -1,5 +1,5 @@
-import { useSearchParams } from "react-router-dom";
-import { Users, Clock, Target, Download, UserPlus } from "lucide-react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { Users, Clock, Target, Download, UserPlus, Layers } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/authStore";
@@ -16,24 +16,27 @@ import { SearchDiagnosticsPanel } from "../components/SearchDiagnosticsPanel";
 import { CohortCompareForm } from "../components/CohortCompareForm";
 import { CohortComparisonRadar } from "../components/CohortComparisonRadar";
 import { DivergenceScores } from "../components/DivergenceScores";
-import { PropensityMatchResults } from "../components/PropensityMatchResults";
+import { LovePlot } from "../components/LovePlot";
+import { DistributionalDivergence } from "../components/DistributionalDivergence";
+import { PatientLandscape } from "../components/PatientLandscape";
 import {
   useSimilaritySearch,
   useCohortSimilaritySearch,
   useComputeStatus,
   useCompareCohorts,
   useCrossCohortSearch,
-  usePropensityMatch,
+  usePatientLandscape,
 } from "../hooks/usePatientSimilarity";
 import type {
   SimilaritySearchParams,
   CohortSimilaritySearchParams,
   CohortComparisonParams,
   CrossCohortSearchParams,
+  LandscapeParams,
 } from "../types/patientSimilarity";
 
 type SimilarityMode = "auto" | "interpretable" | "embedding";
-type SearchMode = "single" | "cohort" | "compare";
+type SearchMode = "single" | "cohort" | "compare" | "landscape";
 
 function getMutationErrorMessage(error: unknown): string | null {
   if (typeof error !== "object" || error === null) {
@@ -59,6 +62,141 @@ function getMutationErrorMessage(error: unknown): string | null {
   }
 
   return null;
+}
+
+// ── Landscape Form ────────────────────────────────────────────────
+
+interface LandscapeFormProps {
+  sourceId: number;
+  onSourceChange: (sourceId: number) => void;
+  onProject: (params: LandscapeParams) => void;
+  isLoading: boolean;
+  cohortDefinitionId: number | undefined;
+  onCohortChange: (id: number | undefined) => void;
+}
+
+function LandscapeForm({
+  sourceId,
+  onSourceChange,
+  onProject,
+  isLoading,
+  cohortDefinitionId,
+  onCohortChange,
+}: LandscapeFormProps) {
+  const { activeSourceId, defaultSourceId, sources } = useSourceStore();
+  const currentSourceId = sourceId > 0 ? sourceId : (activeSourceId ?? defaultSourceId ?? 0);
+  const [dimensions, setDimensions] = useState<2 | 3>(3);
+  const [maxPoints, setMaxPoints] = useState(5000);
+
+  return (
+    <div className="space-y-4">
+      {/* Source selector */}
+      <div>
+        <label className="block text-xs font-medium text-[#8A857D] mb-1">
+          Data Source
+        </label>
+        <select
+          value={currentSourceId}
+          onChange={(e) => onSourceChange(parseInt(e.target.value, 10))}
+          className="w-full rounded border border-[#2A2A2E] bg-[#0E0E11] px-3 py-2 text-sm text-[#C5C0B8]"
+        >
+          <option value={0}>Select source...</option>
+          {sources.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.source_name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Cohort overlay (optional) */}
+      <div>
+        <label className="block text-xs font-medium text-[#8A857D] mb-1">
+          Highlight Cohort (optional)
+        </label>
+        <input
+          type="number"
+          placeholder="Cohort Definition ID"
+          value={cohortDefinitionId ?? ""}
+          onChange={(e) =>
+            onCohortChange(e.target.value ? parseInt(e.target.value, 10) : undefined)
+          }
+          className="w-full rounded border border-[#2A2A2E] bg-[#0E0E11] px-3 py-2 text-sm text-[#C5C0B8] placeholder-[#5A5650]"
+        />
+      </div>
+
+      {/* Dimensions toggle */}
+      <div>
+        <label className="block text-xs font-medium text-[#8A857D] mb-1">
+          Dimensions
+        </label>
+        <div className="flex gap-2">
+          {([2, 3] as const).map((d) => (
+            <button
+              key={d}
+              type="button"
+              onClick={() => setDimensions(d)}
+              className={cn(
+                "flex-1 rounded border px-3 py-1.5 text-xs font-medium transition-colors",
+                dimensions === d
+                  ? "border-[#2DD4BF]/30 bg-[#2DD4BF]/10 text-[#2DD4BF]"
+                  : "border-[#2A2A2E] text-[#5A5650] hover:text-[#C5C0B8]",
+              )}
+            >
+              {d}D
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Max points */}
+      <div>
+        <label className="block text-xs font-medium text-[#8A857D] mb-1">
+          Max Points
+        </label>
+        <input
+          type="number"
+          min={100}
+          max={50000}
+          value={maxPoints}
+          onChange={(e) => setMaxPoints(parseInt(e.target.value, 10) || 5000)}
+          className="w-full rounded border border-[#2A2A2E] bg-[#0E0E11] px-3 py-2 text-sm text-[#C5C0B8]"
+        />
+      </div>
+
+      {/* Project button */}
+      <button
+        type="button"
+        disabled={currentSourceId <= 0 || isLoading}
+        onClick={() =>
+          onProject({
+            source_id: currentSourceId,
+            cohort_definition_id: cohortDefinitionId,
+            dimensions,
+            max_points: maxPoints,
+          })
+        }
+        className={cn(
+          "w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors",
+          currentSourceId > 0 && !isLoading
+            ? "bg-[#2DD4BF] text-[#0E0E11] hover:bg-[#2DD4BF]/90"
+            : "bg-[#232328] text-[#5A5650] cursor-not-allowed",
+        )}
+      >
+        {isLoading ? (
+          <span className="flex items-center justify-center gap-2">
+            <Layers size={14} className="animate-spin" />
+            Projecting...
+          </span>
+        ) : (
+          <span className="flex items-center justify-center gap-2">
+            <Layers size={14} />
+            Project Landscape
+          </span>
+        )}
+      </button>
+    </div>
+  );
 }
 
 export default function PatientSimilarityPage() {
@@ -94,11 +232,14 @@ export default function PatientSimilarityPage() {
   const [exportOpen, setExportOpen] = useState(false);
   const [expandOpen, setExpandOpen] = useState(false);
 
+  const navigate = useNavigate();
+
   const searchMutation = useSimilaritySearch();
   const cohortSearchMutation = useCohortSimilaritySearch();
   const compareMutation = useCompareCohorts();
   const crossSearchMutation = useCrossCohortSearch();
-  const psmMutation = usePropensityMatch();
+  const landscapeMutation = usePatientLandscape();
+  const [landscapeCohortId, setLandscapeCohortId] = useState<number | undefined>(undefined);
 
   useEffect(() => {
     if (initialSourceId != null && initialSourceId > 0 && activeSourceId !== initialSourceId) {
@@ -158,6 +299,12 @@ export default function PatientSimilarityPage() {
     });
   };
 
+  const handleLandscapeProject = (params: LandscapeParams) => {
+    handleSourceChange(params.source_id);
+    setLandscapeCohortId(params.cohort_definition_id);
+    landscapeMutation.mutate(params);
+  };
+
   // Use whichever mutation has data
   const activeMutation =
     searchMode === "compare"
@@ -167,18 +314,24 @@ export default function PatientSimilarityPage() {
         : searchMutation;
   const rawResult = activeMutation.data;
   const isLoading =
-    searchMode === "compare"
-      ? compareMutation.isPending || crossSearchMutation.isPending
-      : activeMutation.isPending;
+    searchMode === "landscape"
+      ? landscapeMutation.isPending
+      : searchMode === "compare"
+        ? compareMutation.isPending || crossSearchMutation.isPending
+        : activeMutation.isPending;
   const isError =
-    searchMode === "compare"
-      ? compareMutation.isError || crossSearchMutation.isError
-      : activeMutation.isError;
+    searchMode === "landscape"
+      ? landscapeMutation.isError
+      : searchMode === "compare"
+        ? compareMutation.isError || crossSearchMutation.isError
+        : activeMutation.isError;
   const errorMessage =
-    searchMode === "compare"
-      ? getMutationErrorMessage(compareMutation.error) ??
-        getMutationErrorMessage(crossSearchMutation.error)
-      : getMutationErrorMessage(activeMutation.error);
+    searchMode === "landscape"
+      ? getMutationErrorMessage(landscapeMutation.error)
+      : searchMode === "compare"
+        ? getMutationErrorMessage(compareMutation.error) ??
+          getMutationErrorMessage(crossSearchMutation.error)
+        : getMutationErrorMessage(activeMutation.error);
 
   // Normalize result: API may return [] for empty cohorts or an object with similar_patients
   const result =
@@ -201,7 +354,8 @@ export default function PatientSimilarityPage() {
   const cohortMemberCount = typeof metadata.cohort_member_count === "number" ? metadata.cohort_member_count : 0;
   const cohortDefinitionId = typeof metadata.cohort_definition_id === "number" ? metadata.cohort_definition_id : 0;
   const hasCompareInsights = searchMode === "compare" && compareMutation.data != null;
-  const shouldShowEmptyState = !result && !isLoading && !hasCompareInsights;
+  const hasLandscapeData = searchMode === "landscape" && landscapeMutation.data != null && landscapeMutation.data.points.length > 0;
+  const shouldShowEmptyState = !result && !isLoading && !hasCompareInsights && !hasLandscapeData;
   const canExport = patients.length > 0 && cacheId > 0;
 
   return (
@@ -211,7 +365,7 @@ export default function PatientSimilarityPage() {
         <div className="sticky top-0 space-y-4">
           {/* Search Mode Toggle */}
           <div className="flex rounded-lg border border-[#232328] overflow-hidden">
-            {(["single", "cohort", "compare"] as const).map((m) => (
+            {(["single", "cohort", "compare", "landscape"] as const).map((m) => (
               <button
                 key={m}
                 type="button"
@@ -227,7 +381,9 @@ export default function PatientSimilarityPage() {
                   ? "Single Patient"
                   : m === "cohort"
                     ? "From Cohort"
-                    : "Compare Cohorts"}
+                    : m === "compare"
+                      ? "Compare Cohorts"
+                      : "Landscape"}
               </button>
             ))}
           </div>
@@ -253,7 +409,7 @@ export default function PatientSimilarityPage() {
                 sourceId={sourceId}
                 onSourceChange={handleSourceChange}
               />
-            ) : (
+            ) : searchMode === "compare" ? (
               <CohortCompareForm
                 onCompare={handleCompare}
                 onCrossSearch={handleCrossSearch}
@@ -262,6 +418,15 @@ export default function PatientSimilarityPage() {
                 hasComparisonResult={compareMutation.data != null}
                 sourceId={sourceId}
                 onSourceChange={handleSourceChange}
+              />
+            ) : (
+              <LandscapeForm
+                sourceId={sourceId}
+                onSourceChange={handleSourceChange}
+                onProject={handleLandscapeProject}
+                isLoading={landscapeMutation.isPending}
+                cohortDefinitionId={landscapeCohortId}
+                onCohortChange={setLandscapeCohortId}
               />
             )}
           </div>
@@ -380,51 +545,11 @@ export default function PatientSimilarityPage() {
               divergence={compareMutation.data.divergence}
               overallDivergence={compareMutation.data.overall_divergence}
             />
-
-            {/* Propensity Score Matching */}
-            <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-semibold text-[#F0EDE8]">
-                    Propensity Score Matching
-                  </h3>
-                  <p className="text-xs text-[#5A5650] mt-0.5">
-                    Match patients between cohorts on estimated treatment probability for causal inference
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (!compareMutation.data) return;
-                    psmMutation.mutate({
-                      source_id: sourceId,
-                      target_cohort_id: compareMutation.data.source_cohort.cohort_definition_id,
-                      comparator_cohort_id: compareMutation.data.target_cohort.cohort_definition_id,
-                    });
-                  }}
-                  disabled={psmMutation.isPending}
-                  className={cn(
-                    "px-3 py-1.5 text-xs font-medium rounded border transition-colors",
-                    psmMutation.isPending
-                      ? "text-[#5A5650] border-[#232328] cursor-wait"
-                      : "text-[#2DD4BF] border-[#2DD4BF]/30 hover:bg-[#2DD4BF]/10 cursor-pointer",
-                  )}
-                >
-                  {psmMutation.isPending ? "Computing..." : "Run PSM"}
-                </button>
-              </div>
-            </div>
-
-            {psmMutation.isError && (
-              <div className="rounded-lg border border-[#E85A6B]/20 bg-[#E85A6B]/5 px-4 py-3">
-                <p className="text-sm text-[#E85A6B]">
-                  {getMutationErrorMessage(psmMutation.error) ?? "Propensity score matching failed."}
-                </p>
-              </div>
+            {compareMutation.data.covariate_balance && compareMutation.data.covariate_balance.length > 0 && (
+              <LovePlot covariates={compareMutation.data.covariate_balance} />
             )}
-
-            {psmMutation.data && (
-              <PropensityMatchResults result={psmMutation.data} />
+            {compareMutation.data.distributional_divergence && compareMutation.data.distributional_divergence.length > 0 && (
+              <DistributionalDivergence rows={compareMutation.data.distributional_divergence} />
             )}
           </div>
         )}
@@ -440,6 +565,20 @@ export default function PatientSimilarityPage() {
               <ResultCohortDiagnosticsPanel diagnostics={metadata.diagnostics} />
             )}
           </div>
+        )}
+
+        {/* Landscape visualization */}
+        {hasLandscapeData && landscapeMutation.data && (
+          <PatientLandscape
+            points={landscapeMutation.data.points}
+            clusters={landscapeMutation.data.clusters}
+            stats={landscapeMutation.data.stats}
+            onPatientClick={(pid) => {
+              if (hasPermission("profiles.view")) {
+                navigate(`/profiles/${pid}?source_id=${sourceId}`);
+              }
+            }}
+          />
         )}
 
         {/* Results table */}
@@ -474,7 +613,9 @@ export default function PatientSimilarityPage() {
                   ? "Enter a seed patient ID and configure dimension weights to discover clinically similar patients across the OMOP CDM."
                   : searchMode === "cohort"
                     ? "Select an existing cohort to find patients similar to the cohort profile across the OMOP CDM."
-                    : "Select two cohorts to compare their clinical profiles and identify divergence across OMOP dimensions."}
+                    : searchMode === "compare"
+                      ? "Select two cohorts to compare their clinical profiles and identify divergence across OMOP dimensions."
+                      : "Project all patients in a source into a UMAP scatter plot to visualize clinical similarity clusters."}
               </p>
             </div>
           )

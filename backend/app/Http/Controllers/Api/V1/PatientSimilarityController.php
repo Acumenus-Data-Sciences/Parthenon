@@ -15,6 +15,7 @@ use App\Models\App\PatientSimilarityCache;
 use App\Models\App\SimilarityDimension;
 use App\Models\App\Source;
 use App\Services\PatientSimilarity\CohortCentroidBuilder;
+use App\Services\PatientSimilarity\CohortComparisonService;
 use App\Services\PatientSimilarity\PatientSimilarityService;
 use App\Services\PatientSimilarity\SearchResultDiagnosticsService;
 use App\Services\PatientSimilarity\SimilarityExplainer;
@@ -24,6 +25,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Validation\ValidationException;
 
 /**
  * @group Patient Similarity Engine
@@ -37,6 +39,7 @@ class PatientSimilarityController extends Controller
         private readonly CohortCentroidBuilder $centroidBuilder,
         private readonly SearchResultDiagnosticsService $diagnosticsService,
         private readonly SimilarityExplainer $explainer,
+        private readonly CohortComparisonService $comparisonService,
     ) {}
 
     /**
@@ -943,6 +946,29 @@ class PatientSimilarityController extends Controller
             $targetProfile = $this->buildDimensionProfileFromSql($targetMemberIds, $source->id, $targetCentroid);
             $comparison = $this->service->compareProfiles($sourceCentroid, $targetCentroid);
 
+            // Load raw member vectors for covariate balance and distributional divergence
+            $sourceVectors = PatientFeatureVector::query()
+                ->forSource($source->id)
+                ->whereIn('person_id', $sourceMemberIds)
+                ->get()
+                ->map(fn (PatientFeatureVector $v): array => $v->toArray())
+                ->all();
+
+            $targetVectors = PatientFeatureVector::query()
+                ->forSource($source->id)
+                ->whereIn('person_id', $targetMemberIds)
+                ->get()
+                ->map(fn (PatientFeatureVector $v): array => $v->toArray())
+                ->all();
+
+            $covariateBalance = $this->comparisonService->computeCovariateBalance($sourceVectors, $targetVectors);
+            $distributionalDivergence = $this->comparisonService->computeDistributionalDivergence(
+                $sourceCentroid,
+                $targetCentroid,
+                $sourceVectors,
+                $targetVectors,
+            );
+
             $sourceCohortDef = CohortDefinition::find($validated['source_cohort_id']);
             $targetCohortDef = CohortDefinition::find($validated['target_cohort_id']);
 
@@ -962,6 +988,8 @@ class PatientSimilarityController extends Controller
                     ],
                     'divergence' => $comparison['divergence'],
                     'overall_divergence' => $comparison['overall_divergence'],
+                    'covariate_balance' => $covariateBalance,
+                    'distributional_divergence' => $distributionalDivergence,
                 ],
             ]);
         } catch (\Throwable $e) {
@@ -1075,6 +1103,102 @@ class PatientSimilarityController extends Controller
     }
 
     /**
+     * POST /v1/patient-similarity/landscape
+     *
+     * Project all patient embeddings for a source into 2D/3D UMAP space.
+     */
+    public function landscape(Request $request): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'source_id' => ['required', 'integer', 'exists:sources,id'],
+                'cohort_definition_id' => ['sometimes', 'integer'],
+                'dimensions' => ['sometimes', 'integer', 'in:2,3'],
+                'max_points' => ['sometimes', 'integer', 'min:10', 'max:50000'],
+            ]);
+
+            $payload = [
+                'source_id' => $validated['source_id'],
+                'dimensions' => $validated['dimensions'] ?? 3,
+                'max_points' => $validated['max_points'] ?? 5000,
+            ];
+
+            // Resolve cohort member person_ids if cohort_definition_id provided
+            if (! empty($validated['cohort_definition_id'])) {
+                $source = Source::with('daimons')->findOrFail($validated['source_id']);
+                SourceContext::forSource($source);
+
+                $cohortPersonIds = $this->results()
+                    ->table('cohort')
+                    ->where('cohort_definition_id', $validated['cohort_definition_id'])
+                    ->pluck('subject_id')
+                    ->map(fn ($id) => (int) $id)
+                    ->unique()
+                    ->values()
+                    ->all();
+
+                $payload['cohort_person_ids'] = $cohortPersonIds;
+            }
+
+            $aiUrl = rtrim((string) config('services.ai.url', 'http://python-ai:8000'), '/');
+
+            /** @var Response $aiResponse */
+            $aiResponse = Http::timeout(120)
+                ->post("{$aiUrl}/patient-similarity/project", $payload);
+
+            if (! $aiResponse->successful()) {
+                return response()->json([
+                    'error' => 'AI service returned an error',
+                    'detail' => $aiResponse->json('detail', 'Unknown error'),
+                ], $aiResponse->status());
+            }
+
+            return response()->json($aiResponse->json());
+        } catch (ValidationException $e) {
+            return response()->json(['error' => 'Validation failed', 'errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Landscape projection failed: '.$e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * POST /v1/patient-similarity/temporal-compare
+     *
+     * Proxy to Python AI temporal similarity (DTW) endpoint.
+     */
+    public function temporalCompare(Request $request): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'source_id' => ['required', 'integer', 'exists:sources,id'],
+                'person_a_id' => ['required', 'integer'],
+                'person_b_id' => ['required', 'integer'],
+                'measurement_concept_ids' => ['sometimes', 'array'],
+                'measurement_concept_ids.*' => ['integer'],
+            ]);
+
+            $aiUrl = rtrim((string) config('services.ai.url', 'http://python-ai:8000'), '/');
+
+            /** @var Response $aiResponse */
+            $aiResponse = Http::timeout(30)
+                ->post("{$aiUrl}/patient-similarity/temporal-similarity", $validated);
+
+            if (! $aiResponse->successful()) {
+                return response()->json([
+                    'error' => 'AI service returned an error',
+                    'detail' => $aiResponse->json('detail', 'Unknown error'),
+                ], $aiResponse->status());
+            }
+
+            return response()->json(['data' => $aiResponse->json()]);
+        } catch (ValidationException $e) {
+            return response()->json(['error' => 'Validation failed', 'errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Temporal comparison failed: '.$e->getMessage()], 500);
+        }
+    }
+
+    /**
      * Merge controller-level metadata into the canonical data.metadata payload.
      *
      * @param  array<string, mixed>  $results
@@ -1086,83 +1210,5 @@ class PatientSimilarityController extends Controller
         $results['metadata'] = array_merge($results['metadata'] ?? [], $metadata);
 
         return $results;
-    }
-
-    /**
-     * POST /v1/patient-similarity/propensity-match
-     *
-     * Run propensity score matching between two cohorts.
-     * Resolves cohort members, proxies to Python AI service.
-     */
-    public function propensityMatch(Request $request): JsonResponse
-    {
-        $validated = $request->validate([
-            'source_id' => ['required', 'integer', 'exists:sources,id'],
-            'target_cohort_id' => ['required', 'integer'],
-            'comparator_cohort_id' => ['required', 'integer'],
-            'max_ratio' => ['sometimes', 'integer', 'min:1', 'max:10'],
-            'caliper_scale' => ['sometimes', 'numeric', 'min:0.05', 'max:1.0'],
-        ]);
-
-        try {
-            $source = Source::with('daimons')->findOrFail($validated['source_id']);
-            SourceContext::forSource($source);
-
-            // Resolve target cohort members
-            $targetIds = $this->results()
-                ->table('cohort')
-                ->where('cohort_definition_id', $validated['target_cohort_id'])
-                ->pluck('subject_id')
-                ->map(fn ($id) => (int) $id)
-                ->unique()
-                ->values()
-                ->all();
-
-            // Resolve comparator cohort members
-            $comparatorIds = $this->results()
-                ->table('cohort')
-                ->where('cohort_definition_id', $validated['comparator_cohort_id'])
-                ->pluck('subject_id')
-                ->map(fn ($id) => (int) $id)
-                ->unique()
-                ->values()
-                ->all();
-
-            if (count($targetIds) < 10) {
-                return response()->json([
-                    'error' => 'Target cohort has fewer than 10 members ('.count($targetIds).'). Generate it first or choose a larger cohort.',
-                ], 422);
-            }
-
-            if (count($comparatorIds) < 10) {
-                return response()->json([
-                    'error' => 'Comparator cohort has fewer than 10 members ('.count($comparatorIds).'). Generate it first or choose a larger cohort.',
-                ], 422);
-            }
-
-            $aiUrl = rtrim((string) config('services.ai.url', 'http://python-ai:8000'), '/');
-
-            /** @var Response $response */
-            $response = Http::timeout(180)->post("{$aiUrl}/patient-similarity/propensity-match", [
-                'source_id' => $source->id,
-                'target_cohort_ids' => $targetIds,
-                'comparator_cohort_ids' => $comparatorIds,
-                'max_ratio' => $validated['max_ratio'] ?? 4,
-                'caliper_scale' => (float) ($validated['caliper_scale'] ?? 0.2),
-            ]);
-
-            if ($response->failed()) {
-                $body = $response->json();
-                $detail = $body['detail'] ?? 'Propensity score matching failed in AI service.';
-
-                return response()->json(['error' => $detail], $response->status());
-            }
-
-            return response()->json(['data' => $response->json()]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Propensity score matching failed: '.$e->getMessage(),
-            ], 500);
-        }
     }
 }

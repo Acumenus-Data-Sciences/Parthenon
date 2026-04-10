@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DimensionScoreBar } from "../components/DimensionScoreBar";
+import { TrajectoryComparison } from "../components/TrajectoryComparison";
 import { useComparePatients } from "../hooks/usePatientSimilarity";
 import type {
   PatientComparisonResult,
@@ -169,6 +170,12 @@ const DIMENSIONS: DimensionInfo[] = [
     label: "Genomics",
     icon: <Dna size={14} />,
     color: "#E85A6B",
+  },
+  {
+    key: "temporal",
+    label: "Temporal",
+    icon: <Activity size={14} />,
+    color: "#60A5FA",
   },
 ];
 
@@ -595,6 +602,16 @@ export default function PatientComparisonPage() {
               totalShared={comparison.shared_features.procedure_count}
             />
           </div>
+
+          {/* Temporal trajectory comparison */}
+          {comparison.scores.dimension_scores.temporal !== null &&
+            comparison.scores.dimension_scores.temporal !== -1 && (
+              <TrajectoryComparison
+                sourceId={sourceId}
+                personAId={personA}
+                personBId={personB}
+              />
+            )}
         </>
       )}
     </div>
