@@ -1,13 +1,11 @@
 <?php
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 
-beforeEach(function () {
-    // Clean up any prior test data
-    DB::table('lab_reference_range_population')->where('source_id', 99999)->delete();
-    DB::table('source_daimons')->where('source_id', 99999)->delete();
-    DB::table('sources')->where('id', 99999)->delete();
+uses(RefreshDatabase::class);
 
+beforeEach(function () {
     // Seed a source with a CDM daimon pointing at testcdm schema
     DB::table('sources')->insert([
         'id' => 99999,
@@ -52,10 +50,11 @@ beforeEach(function () {
 });
 
 afterEach(function () {
-    DB::table('lab_reference_range_population')->where('source_id', 99999)->delete();
-    DB::table('source_daimons')->where('source_id', 99999)->delete();
-    DB::table('sources')->where('id', 99999)->delete();
-    DB::statement('DROP SCHEMA IF EXISTS testcdm CASCADE');
+    try {
+        DB::statement('DROP SCHEMA IF EXISTS testcdm CASCADE');
+    } catch (Throwable) {
+        // Schema may already be rolled back by RefreshDatabase
+    }
 });
 
 test('computes percentiles and writes to population table', function () {

@@ -96,6 +96,17 @@ parameters:
 			path: app/Services/Imaging/DicomFileService.php
 
 		-
+			message: '#^Direct DB\:\:connection\(''omop''\) is banned\. Use the SourceAware trait\: \$this\-\>cdm\(\), \$this\-\>results\(\), or \$this\-\>vocab\(\)\. See docs/superpowers/specs/2026\-03\-26\-cdm\-source\-isolation\-design\.md$#'
+			count: 1
+			path: app/Services/PatientSimilarity/CohortComparisonService.php
+
+		-
+			message: '#^Parameter &\$covariates by\-ref type of method App\\Services\\PatientSimilarity\\CohortComparisonService\:\:addBinaryLevels\(\) expects array\<int, array\{covariate\: string, smd\: float, type\: string, domain\: string\}\>, non\-empty\-array\<int, array\{covariate\: mixed, smd\: float, type\: string, domain\: string\}\> given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: app/Services/PatientSimilarity/CohortComparisonService.php
+
+		-
 			message: '#^Parameter \#1 \$array \(list\<array\{key\: mixed, label\: mixed, type\: string, default\: string, description\: mixed\}\>\) of array_values is already a list, call has no effect\.$#'
 			identifier: arrayValues.list
 			count: 1

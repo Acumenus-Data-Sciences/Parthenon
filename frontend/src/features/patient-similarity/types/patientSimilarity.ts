@@ -256,11 +256,27 @@ export interface CohortComparisonCohort {
   dimensions: Record<string, CohortDimensionProfile>;
 }
 
+export interface CovariateBalanceRow {
+  covariate: string;
+  smd: number;
+  type: 'binary' | 'continuous';
+  domain: string;
+}
+
+export interface DistributionalDivergenceRow {
+  dimension: string;
+  metric: 'jsd' | 'wasserstein';
+  value: number;
+  interpretation: string;
+}
+
 export interface CohortComparisonResult {
   source_cohort: CohortComparisonCohort;
   target_cohort: CohortComparisonCohort;
   divergence: Record<string, CohortDivergence>;
   overall_divergence: number;
+  covariate_balance?: CovariateBalanceRow[];
+  distributional_divergence?: DistributionalDivergenceRow[];
 }
 
 export interface CrossCohortSearchParams {
@@ -269,6 +285,48 @@ export interface CrossCohortSearchParams {
   source_id: number;
   limit?: number;
   min_score?: number;
+}
+
+// ── Landscape Projection ────────────────────────────────────────────
+
+export interface LandscapePoint {
+  person_id: number;
+  x: number;
+  y: number;
+  z: number | null;
+  cluster_id: number;
+  is_cohort_member: boolean;
+  age_bucket: number;
+  gender_concept_id: number;
+}
+
+export interface LandscapeCluster {
+  id: number;
+  label: string;
+  centroid: number[];
+  size: number;
+}
+
+export interface LandscapeResult {
+  points: LandscapePoint[];
+  clusters: LandscapeCluster[];
+  quality: {
+    outlier_count: number;
+    duplicate_count: number;
+    orphan_count: number;
+  };
+  stats: {
+    total_vectors: number;
+    projection_time_ms: number;
+    sampled: number;
+  };
+}
+
+export interface LandscapeParams {
+  source_id: number;
+  cohort_definition_id?: number;
+  dimensions?: 2 | 3;
+  max_points?: number;
 }
 
 // ── Patient Comparison ────────────────────────────────────────────

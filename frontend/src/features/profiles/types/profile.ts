@@ -45,9 +45,15 @@ export interface ClinicalEvent {
   value_as_string?: string | null;
   unit?: string | null;
 
-  // Measurement reference range
+  // Measurement reference range (from OMOP measurement table — often empty)
   range_low?: number | null;
   range_high?: number | null;
+
+  // Enriched by LabReferenceRangeService (populated when range data exists)
+  unit_concept_id?: number | null;
+  loinc_code?: string | null;
+  status?: LabStatus | null;
+  range?: LabRange | null;
 
   // Drug-specific
   route?: string | null;
@@ -111,6 +117,42 @@ export interface PatientProfile {
   visits: ClinicalEvent[];
   condition_eras?: ConditionEra[];
   drug_eras?: DrugEra[];
+  labGroups?: LabGroup[];
+}
+
+// ---------------------------------------------------------------------------
+// Lab Reference Range Types (for Patient Labs Trend Chart)
+// ---------------------------------------------------------------------------
+
+export type LabStatus = "low" | "normal" | "high" | "critical" | "unknown";
+
+export interface LabRange {
+  low: number;
+  high: number;
+  source: "curated" | "population";
+  sourceLabel: string;
+  sourceRef?: string | null;
+  nObservations?: number | null;
+}
+
+export interface LabValue {
+  date: string;
+  value: number | null;
+  status: LabStatus;
+}
+
+export interface LabGroup {
+  conceptId: number;
+  conceptName: string;
+  loincCode: string | null;
+  unitConceptId: number | null;
+  unitName: string;
+  n: number;
+  latestValue: number | null;
+  latestDate: string | null;
+  trend: "up" | "down" | "flat";
+  values: LabValue[];
+  range: LabRange | null;
 }
 
 export interface CohortMember {

@@ -3,15 +3,28 @@
 Endpoints for computing patient embeddings used by the Patient Similarity Engine.
 """
 
-import logging
+from __future__ import annotations
 
+import hashlib
+import logging
+import time
+
+import asyncpg
+import numpy as np
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
+from app.config import settings
 from app.services.patient_embeddings import (
     PATIENT_EMBEDDING_DIM,
     compute_patient_embedding,
     compute_patient_embeddings_batch,
+)
+from app.services.projection import (
+    ProjectionResult,
+    cache_result,
+    compute_projection,
+    get_cached_projection,
 )
 
 logger = logging.getLogger(__name__)
@@ -105,3 +118,262 @@ async def embed_patients_batch(request: BatchEmbeddingRequest) -> BatchEmbedding
     except Exception as exc:
         logger.exception("Failed to compute batch embeddings")
         raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+# ---------------------------------------------------------------------------
+# Landscape projection models
+# ---------------------------------------------------------------------------
+
+class LandscapeRequest(BaseModel):
+    """Request model for projecting patient embeddings into 2D/3D space."""
+
+    source_id: int
+    person_ids: list[int] | None = None
+    dimensions: int = Field(default=3, ge=2, le=3)
+    cohort_person_ids: list[int] | None = None
+    max_points: int = Field(default=5000, ge=10, le=50000)
+
+
+class LandscapePoint(BaseModel):
+    """A single projected patient point."""
+
+    person_id: int
+    x: float
+    y: float
+    z: float | None = None
+    cluster_id: int = 0
+    is_cohort_member: bool = False
+    age_bucket: int = 0
+    gender_concept_id: int = 0
+
+
+class LandscapeResponse(BaseModel):
+    """Response model for landscape projection."""
+
+    points: list[LandscapePoint]
+    clusters: list[dict]
+    quality: dict
+    stats: dict
+
+
+# ---------------------------------------------------------------------------
+# Connection pool management
+# ---------------------------------------------------------------------------
+
+_pool: asyncpg.Pool | None = None
+
+
+async def _get_pool() -> asyncpg.Pool:
+    """Lazily create and return a connection pool for patient_feature_vectors queries."""
+    global _pool  # noqa: PLW0603
+    if _pool is None or _pool._closed:
+        dsn = settings.database_url
+        if not dsn:
+            raise HTTPException(
+                status_code=500,
+                detail="DATABASE_URL not configured for AI service",
+            )
+        # asyncpg needs postgresql:// not postgres://
+        if dsn.startswith("postgres://"):
+            dsn = "postgresql://" + dsn[len("postgres://"):]
+        _pool = await asyncpg.create_pool(dsn, min_size=1, max_size=5)
+    return _pool
+
+
+# ---------------------------------------------------------------------------
+# Landscape endpoint
+# ---------------------------------------------------------------------------
+
+@router.post("/project", response_model=LandscapeResponse)
+async def project_landscape(request: LandscapeRequest) -> LandscapeResponse:
+    """Project patient embeddings into 2D/3D space via PCA->UMAP pipeline."""
+    start = time.time()
+
+    try:
+        # Check cache first
+        cache_key_str = f"landscape:{request.source_id}:{request.dimensions}:{request.max_points}"
+        if request.person_ids:
+            pid_hash = hashlib.sha256(
+                ",".join(str(p) for p in sorted(request.person_ids)).encode()
+            ).hexdigest()[:12]
+            cache_key_str += f":{pid_hash}"
+
+        cached = get_cached_projection(
+            cache_key_str, request.max_points, 0, request.dimensions
+        )
+        if cached is not None:
+            return _build_landscape_response(cached, request, time.time() - start)
+
+        # Query patient_feature_vectors from PostgreSQL
+        pool = await _get_pool()
+        async with pool.acquire() as conn:
+            if request.person_ids:
+                rows = await conn.fetch(
+                    """
+                    SELECT person_id, embedding::text, age_bucket, gender_concept_id
+                    FROM app.patient_feature_vectors
+                    WHERE source_id = $1
+                      AND embedding IS NOT NULL
+                      AND person_id = ANY($2::bigint[])
+                    """,
+                    request.source_id,
+                    request.person_ids,
+                )
+            else:
+                rows = await conn.fetch(
+                    """
+                    SELECT person_id, embedding::text, age_bucket, gender_concept_id
+                    FROM app.patient_feature_vectors
+                    WHERE source_id = $1
+                      AND embedding IS NOT NULL
+                    """,
+                    request.source_id,
+                )
+
+        if not rows:
+            return LandscapeResponse(
+                points=[],
+                clusters=[],
+                quality={"outlier_count": 0, "duplicate_count": 0, "orphan_count": 0},
+                stats={
+                    "total_vectors": 0,
+                    "projection_time_ms": 0,
+                    "sampled": 0,
+                },
+            )
+
+        # Deterministic sampling if too many points
+        total_fetched = len(rows)
+        sampled = False
+        if total_fetched > request.max_points:
+            seed = int(
+                hashlib.sha256(str(request.source_id).encode()).hexdigest()[:8], 16
+            )
+            rng = np.random.RandomState(seed)
+            indices = sorted(
+                rng.choice(total_fetched, size=request.max_points, replace=False).tolist()
+            )
+            rows = [rows[i] for i in indices]
+            sampled = True
+
+        # Build cohort membership set
+        cohort_set: set[int] = set()
+        if request.cohort_person_ids:
+            cohort_set = set(request.cohort_person_ids)
+
+        # Parse embeddings and build metadata
+        ids: list[str] = []
+        embeddings_list: list[np.ndarray] = []
+        metadatas: list[dict] = []
+
+        for row in rows:
+            pid = int(row["person_id"])
+            emb_str = row["embedding"]
+            age_bucket = int(row["age_bucket"]) if row["age_bucket"] is not None else 0
+            gender_cid = int(row["gender_concept_id"]) if row["gender_concept_id"] is not None else 0
+
+            # Parse pgvector text format: [0.1,0.2,...]
+            emb = np.fromstring(emb_str.strip("[]"), sep=",", dtype=np.float32)
+            if emb.size == 0:
+                continue
+
+            ids.append(str(pid))
+            embeddings_list.append(emb)
+            metadatas.append({
+                "person_id": pid,
+                "age_bucket": age_bucket,
+                "gender_concept_id": gender_cid,
+                "is_cohort": pid in cohort_set,
+            })
+
+        if len(ids) < 3:
+            return LandscapeResponse(
+                points=[
+                    LandscapePoint(
+                        person_id=int(mid["person_id"]),
+                        x=0.0,
+                        y=0.0,
+                        z=0.0 if request.dimensions == 3 else None,
+                        cluster_id=0,
+                        is_cohort_member=bool(mid["is_cohort"]),
+                        age_bucket=int(mid["age_bucket"]),
+                        gender_concept_id=int(mid["gender_concept_id"]),
+                    )
+                    for mid in metadatas
+                ],
+                clusters=[],
+                quality={"outlier_count": 0, "duplicate_count": 0, "orphan_count": 0},
+                stats={
+                    "total_vectors": total_fetched,
+                    "projection_time_ms": round((time.time() - start) * 1000),
+                    "sampled": len(ids),
+                },
+            )
+
+        embeddings_arr = np.vstack(embeddings_list)
+
+        # Run projection pipeline
+        result = compute_projection(ids, embeddings_arr, metadatas, request.dimensions)
+
+        # Cache for 10 minutes
+        cache_result(cache_key_str, request.max_points, 0, result, request.dimensions)
+
+        elapsed_ms = round((time.time() - start) * 1000)
+        result.stats["total_vectors"] = total_fetched
+        result.stats["projection_time_ms"] = elapsed_ms
+        if sampled:
+            result.stats["sampled"] = len(ids)
+
+        return _build_landscape_response(result, request, time.time() - start)
+
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.exception("Failed to project patient landscape for source_id=%d", request.source_id)
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+def _build_landscape_response(
+    result: ProjectionResult,
+    request: LandscapeRequest,
+    elapsed_seconds: float,
+) -> LandscapeResponse:
+    """Convert a ProjectionResult into a LandscapeResponse."""
+    cohort_set: set[int] = set(request.cohort_person_ids or [])
+
+    points = [
+        LandscapePoint(
+            person_id=int(p.id),
+            x=p.x,
+            y=p.y,
+            z=p.z if request.dimensions == 3 else None,
+            cluster_id=p.cluster_id,
+            is_cohort_member=int(p.id) in cohort_set or bool(p.metadata.get("is_cohort", False)),
+            age_bucket=int(p.metadata.get("age_bucket", 0)),
+            gender_concept_id=int(p.metadata.get("gender_concept_id", 0)),
+        )
+        for p in result.points
+    ]
+
+    clusters = [
+        {
+            "id": c.id,
+            "label": c.label,
+            "centroid": c.centroid,
+            "size": c.size,
+        }
+        for c in result.clusters
+    ]
+
+    quality = {
+        "outlier_count": len(result.quality.outlier_ids),
+        "duplicate_count": len(result.quality.duplicate_pairs),
+        "orphan_count": len(result.quality.orphan_ids),
+    }
+
+    return LandscapeResponse(
+        points=points,
+        clusters=clusters,
+        quality=quality,
+        stats=result.stats,
+    )

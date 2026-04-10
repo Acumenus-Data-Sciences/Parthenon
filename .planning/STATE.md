@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-03-26)
 Phase: 7-10 parallel (Medications, Conditions, Measurements, Observations)
 Plan: 09-01 completed (growth measurements), phases 7-10 in parallel
 Status: Executing Phases 07-10 in parallel
-Last activity: 2026-04-07 - Wiki UX cleanup: paginated list (15 default), debounced search, chat drawer wiring
+Last activity: 2026-04-10 - Added hierarchical concept similarity (depth-weighted Jaccard) to patient similarity scorers
 
 Progress: [█████████░] 92%
 
@@ -179,6 +179,7 @@ None yet.
 | 16 | Rebuild cross-domain SNOMED hierarchy + clinical groupings navigation | 2026-04-05 | 4b0f8af45 | [16-rebuild-concept-hierarchy-cross-domain-s](./quick/16-rebuild-concept-hierarchy-cross-domain-s/) |
 | 17 | Refactor wiki engine to use ChromaDB for semantic search | 2026-04-06 | 8b5341775 | [17-refactor-wiki-engine-to-use-chromadb-for](./quick/17-refactor-wiki-engine-to-use-chromadb-for/) |
 | 19 | Wiki UX cleanup: paginated list, debounced search, chat drawer | 2026-04-07 | pending | [19-wiki-ux-cleanup-paginated-list-keyword-s](./quick/19-wiki-ux-cleanup-paginated-list-keyword-s/) |
+| 260410-4kk | Add hierarchical concept similarity using concept_ancestor to replace flat Jaccard in patient similarity dimension scorers | 2026-04-10 | 407be6241 | [260410-4kk-add-hierarchical-concept-similarity-usin](./quick/260410-4kk-add-hierarchical-concept-similarity-usin/) |
 
 ## Session Continuity
 
