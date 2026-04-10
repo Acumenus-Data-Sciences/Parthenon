@@ -2,7 +2,7 @@
 
 **A unified OHDSI outcomes research platform replacing Atlas, WebAPI, Achilles, DQD, and 15+ disconnected tools with a single application built on OMOP CDM v5.4.**
 
-*Last updated: March 29, 2026*
+*Last updated: April 9, 2026*
 
 ---
 
@@ -301,9 +301,13 @@ The Studies module gets real multi-site orchestration. Researchers can design a 
 - Arachne DataNode integration for OHDSI network studies
 - Strategus large-scale analytics orchestration across federated sites
 
-### v1.2 — Advanced AI & Natural Language Research
+**Identity & SSO:** Authentik 2026.x remains the SSO provider for Acropolis throughout v1.1. A detailed Keycloak migration implementation plan is authored as a pre-v1.2 deliverable (see v1.2 below) so the switchover can execute cleanly in v1.2.
 
-Abby evolves from an assistant into a research co-pilot.
+### v1.2 — Advanced AI & Enterprise Identity
+
+v1.2 runs two parallel workstreams: evolving Abby from assistant to research co-pilot, and migrating the Acropolis SSO gateway from Authentik to Keycloak in preparation for the v2.0 Enterprise edition.
+
+**Advanced AI & Natural Language Research (Abby co-pilot):**
 
 - MedGemma model fine-tuning on OHDSI-specific research patterns
 - Multi-turn research conversations with persistent context and memory
@@ -311,6 +315,36 @@ Abby evolves from an assistant into a research co-pilot.
 - AI-powered data quality recommendations based on DQD results
 - Automated concept mapping suggestions with confidence scoring
 - Study protocol generation from natural language descriptions
+
+**Acropolis SSO migration: Authentik → Keycloak:**
+
+The Enterprise edition of Parthenon (v2.0) requires FIPS 140-2 validated crypto, multi-vendor CNCF governance, a real LTS support window, and a first-class Kubernetes operator story — none of which Authentik offers in its open-source tier. Keycloak (CNCF Incubating, Red Hat Build of Keycloak LTS) is the required path. v1.2 performs the switchover so the Enterprise edition can ship on a hardened identity foundation.
+
+Prerequisite — authored before v1.2 starts:
+
+- **Detailed implementation plan** covering: Keycloak Operator vs codecentric/keycloakx Helm chart selection; realm and client schema design; migration of all 7 Acropolis forward-auth services (Grafana, Superset, DataHub, pgAdmin, Portainer, n8n, Wazuh) to `oauth2-proxy` sidecars with per-service Traefik middleware; rewrite of the 1,008-line `acropolis/installer/authentik.py` as `keycloak.py` against the Keycloak Admin REST API and `terraform-provider-keycloak`; user/group export from Authentik with password reset strategy; Wazuh/OpenSearch SAML metadata re-minting; staged cutover runbook with rollback plan; smoke test coverage; devlog and docs rewrites.
+
+v1.2 execution scope:
+
+- Deploy Keycloak 26.x via the official Keycloak Operator (K8s) or codecentric/keycloakx (Compose) behind Traefik at `auth.acumenus.net`
+- Stand up `oauth2-proxy` sidecars for all forward-auth-gated services; replace `authentik@docker` middleware with per-service `oauth2-proxy@docker` middleware in Traefik labels
+- Rewrite `acropolis/installer/keycloak.py` (replacing `authentik.py`) — automated provisioning of realms, clients, client scopes, protocol mappers, roles, and groups via KC Admin REST + Terraform provider
+- Reconfigure native OIDC for Grafana, Superset, DataHub, pgAdmin, Portainer — mostly URL rewrites against new Keycloak issuer/token/authorize endpoints
+- Re-mint Wazuh/OpenSearch SAML metadata from Keycloak; update `acropolis/config/wazuh/wazuh_indexer/idp-metadata.xml`
+- Export Authentik users and groups; import into Keycloak with forced password reset flow on first login
+- Enable FIPS 140-2 mode in Keycloak using BouncyCastle FIPS provider (free in RHBK upstream)
+- Update `docker-compose.enterprise.yml`, `.env.example`, `acropolis/k8s/helm/acropolis/`, smoke tests, and all Authentik-referencing devlogs
+- Decommission Authentik containers (`authentik-server`, `authentik-worker`, `authentik-db`, `authentik-redis`) and archive the DB backup
+- Parallel-run Authentik and Keycloak during cutover with a documented rollback window; retire Authentik only after smoke tests pass on Keycloak across all 7 services
+
+Success criteria:
+
+- All 7 Acropolis services authenticate via Keycloak with both forward-auth and native OIDC/SAML flows working
+- `acropolis/installer/keycloak.py` provisions the complete identity configuration idempotently on a fresh install
+- Smoke tests cover Keycloak container health and at least one end-to-end OIDC login flow per service
+- FIPS 140-2 mode verified via Keycloak startup logs
+- Zero Authentik references remain in active code, compose files, or configs (docs/devlogs preserve the history)
+- Rollback runbook tested on staging before prod cutover
 
 ### v1.3 — Real-World Evidence & Regulatory
 
@@ -412,8 +446,8 @@ Parthenon is an open platform built for the research community. Whether you're a
 | v1.0.8 | TBD | Documentation & Onboarding |
 | v1.0.9 | TBD | Security Audit & Hardening |
 | v1.0.10 | May 11, 2026 | Release Candidate — stabilization complete |
-| v1.1 | TBD | Federation & Multi-Site Studies |
-| v1.2 | TBD | Advanced AI & Natural Language Research |
+| v1.1 | TBD | Federation & Multi-Site Studies (Authentik SSO remains) |
+| v1.2 | TBD | Advanced AI & Enterprise Identity (Keycloak SSO migration) |
 | v1.3 | TBD | Real-World Evidence & Regulatory |
 | v1.4 | TBD | Advanced Analytics & Visualization |
 | v1.5 | TBD | Ecosystem & Interoperability |
