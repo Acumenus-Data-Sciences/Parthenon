@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildCohortComparisonRadarModel } from "../CohortComparisonRadar";
+import { buildCohortComparisonRadarModel } from "../CohortComparisonRadar.model";
 
 describe("buildCohortComparisonRadarModel", () => {
   it("uses divergence scores rather than cohort coverage", () => {
