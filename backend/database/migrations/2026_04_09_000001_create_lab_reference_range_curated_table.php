@@ -11,7 +11,10 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::connection('pgsql')->create('lab_reference_range_curated', function (Blueprint $table) {
+        // Use the default connection (pgsql in prod, pgsql_testing in Pest).
+        // Hardcoding ->connection('pgsql') bypasses the testing override and
+        // causes migrate:fresh to hit the real parthenon database during tests.
+        Schema::create('lab_reference_range_curated', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('measurement_concept_id');
             $table->unsignedInteger('unit_concept_id');
@@ -26,27 +29,32 @@ return new class extends Migration
 
             $table->index('measurement_concept_id');
             $table->index('unit_concept_id');
-            // Partial unique: NULL age bounds collide by default in Postgres,
-            // so we use COALESCE via a raw index in a follow-up statement.
+            // Unique index on (concept, unit, sex, age_low, age_high) is
+            // created as a raw statement below so we can apply the PG 15+
+            // NULLS NOT DISTINCT clause (not yet exposed by Laravel's Blueprint).
         });
 
-        // Postgres treats NULLs as distinct in unique indexes, which would
-        // allow duplicate (concept, unit, sex, NULL, NULL) rows. Use COALESCE
-        // sentinels to ensure uniqueness across null bounds.
-        DB::connection('pgsql')->statement(<<<'SQL'
+        // Postgres 15+ supports NULLS NOT DISTINCT on unique indexes, which
+        // treats NULL values as equal for uniqueness purposes. This lets us
+        // keep age_low/age_high nullable while still catching duplicate
+        // (concept, unit, sex, age_low, age_high) rows where one or both
+        // age bounds are NULL — without the sentinel-collision bug a
+        // COALESCE approach would introduce (NULL and 0 would collide).
+        DB::statement(<<<'SQL'
             CREATE UNIQUE INDEX lrr_curated_uniq
             ON lab_reference_range_curated (
                 measurement_concept_id,
                 unit_concept_id,
                 sex,
-                COALESCE(age_low, 0),
-                COALESCE(age_high, 65535)
+                age_low,
+                age_high
             )
+            NULLS NOT DISTINCT
         SQL);
     }
 
     public function down(): void
     {
-        Schema::connection('pgsql')->dropIfExists('lab_reference_range_curated');
+        Schema::dropIfExists('lab_reference_range_curated');
     }
 };
