@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Loader2, Upload, X, Search, Stethoscope } from "lucide-react";
+import { Plus, Loader2, Upload, X, Search, Stethoscope, LayoutGrid, List } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CohortDefinitionList } from "../components/CohortDefinitionList";
 import { CohortStatsBar } from "../components/CohortStatsBar";
@@ -35,6 +35,8 @@ export default function CohortDefinitionsPage() {
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const [searchInput, setSearchInput] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [viewMode, setViewMode] = useState<"domain" | "flat">("domain");
+  const [tierFilter, setTierFilter] = useState<string | null>(null);
 
   // Debounce search input
   useEffect(() => {
@@ -165,6 +167,64 @@ export default function CohortDefinitionsPage() {
         )}
       </div>
 
+      {/* View toggle + Tier filter */}
+      <div className="flex items-center justify-between">
+        {/* View toggle */}
+        <div className="flex items-center gap-1 rounded-lg bg-[#1C1C20] p-0.5">
+          <button
+            type="button"
+            onClick={() => setViewMode("domain")}
+            className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+              viewMode === "domain"
+                ? "bg-[#232328] text-[#F0EDE8] shadow-sm"
+                : "text-[#8A857D] hover:text-[#C5C0B8]"
+            }`}
+          >
+            <LayoutGrid size={12} />
+            By Domain
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode("flat")}
+            className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+              viewMode === "flat"
+                ? "bg-[#232328] text-[#F0EDE8] shadow-sm"
+                : "text-[#8A857D] hover:text-[#C5C0B8]"
+            }`}
+          >
+            <List size={12} />
+            Flat List
+          </button>
+        </div>
+
+        {/* Tier filter pills */}
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-[#5A5650]">Tier:</span>
+          {[
+            { value: null, label: "All" },
+            { value: "study-ready", label: "Study-Ready" },
+            { value: "validated", label: "Validated" },
+            { value: "draft", label: "Draft" },
+          ].map((opt) => {
+            const isActive = tierFilter === opt.value;
+            return (
+              <button
+                key={opt.label}
+                type="button"
+                onClick={() => setTierFilter(opt.value)}
+                className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
+                  isActive
+                    ? "border-[#2DD4BF] bg-[#2DD4BF]/10 text-[#2DD4BF]"
+                    : "border-[#2A2A30] bg-[#1A1A1F] text-[#8A857D] hover:border-[#3A3A42]"
+                }`}
+              >
+                {opt.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Tag filter chips */}
       {tags && tags.length > 0 && (
         <TagFilterBar
@@ -216,6 +276,8 @@ export default function CohortDefinitionsPage() {
         isPublic={statFilter === "public" || undefined}
         withGenerations={statFilter === "generated" || undefined}
         onCreateFromBundle={() => setShowFromBundle(true)}
+        groupBy={viewMode === "domain" ? "domain" : null}
+        tierFilter={tierFilter}
       />
 
       {/* Import modal */}
