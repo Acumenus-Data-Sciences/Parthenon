@@ -16,6 +16,8 @@ import { SearchDiagnosticsPanel } from "../components/SearchDiagnosticsPanel";
 import { CohortCompareForm } from "../components/CohortCompareForm";
 import { CohortComparisonRadar } from "../components/CohortComparisonRadar";
 import { DivergenceScores } from "../components/DivergenceScores";
+import { LovePlot } from "../components/LovePlot";
+import { DistributionalDivergence } from "../components/DistributionalDivergence";
 import {
   useSimilaritySearch,
   useCohortSimilaritySearch,
@@ -377,6 +379,12 @@ export default function PatientSimilarityPage() {
               divergence={compareMutation.data.divergence}
               overallDivergence={compareMutation.data.overall_divergence}
             />
+            {compareMutation.data.covariate_balance && compareMutation.data.covariate_balance.length > 0 && (
+              <LovePlot covariates={compareMutation.data.covariate_balance} />
+            )}
+            {compareMutation.data.distributional_divergence && compareMutation.data.distributional_divergence.length > 0 && (
+              <DistributionalDivergence rows={compareMutation.data.distributional_divergence} />
+            )}
           </div>
         )}
 

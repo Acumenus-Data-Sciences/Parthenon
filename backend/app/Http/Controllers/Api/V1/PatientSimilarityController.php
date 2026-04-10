@@ -15,6 +15,7 @@ use App\Models\App\PatientSimilarityCache;
 use App\Models\App\SimilarityDimension;
 use App\Models\App\Source;
 use App\Services\PatientSimilarity\CohortCentroidBuilder;
+use App\Services\PatientSimilarity\CohortComparisonService;
 use App\Services\PatientSimilarity\PatientSimilarityService;
 use App\Services\PatientSimilarity\SearchResultDiagnosticsService;
 use App\Services\PatientSimilarity\SimilarityExplainer;
@@ -35,6 +36,7 @@ class PatientSimilarityController extends Controller
         private readonly CohortCentroidBuilder $centroidBuilder,
         private readonly SearchResultDiagnosticsService $diagnosticsService,
         private readonly SimilarityExplainer $explainer,
+        private readonly CohortComparisonService $comparisonService,
     ) {}
 
     /**
@@ -941,6 +943,29 @@ class PatientSimilarityController extends Controller
             $targetProfile = $this->buildDimensionProfileFromSql($targetMemberIds, $source->id, $targetCentroid);
             $comparison = $this->service->compareProfiles($sourceCentroid, $targetCentroid);
 
+            // Load raw member vectors for covariate balance and distributional divergence
+            $sourceVectors = PatientFeatureVector::query()
+                ->forSource($source->id)
+                ->whereIn('person_id', $sourceMemberIds)
+                ->get()
+                ->map(fn (PatientFeatureVector $v): array => $v->toArray())
+                ->all();
+
+            $targetVectors = PatientFeatureVector::query()
+                ->forSource($source->id)
+                ->whereIn('person_id', $targetMemberIds)
+                ->get()
+                ->map(fn (PatientFeatureVector $v): array => $v->toArray())
+                ->all();
+
+            $covariateBalance = $this->comparisonService->computeCovariateBalance($sourceVectors, $targetVectors);
+            $distributionalDivergence = $this->comparisonService->computeDistributionalDivergence(
+                $sourceCentroid,
+                $targetCentroid,
+                $sourceVectors,
+                $targetVectors,
+            );
+
             $sourceCohortDef = CohortDefinition::find($validated['source_cohort_id']);
             $targetCohortDef = CohortDefinition::find($validated['target_cohort_id']);
 
@@ -960,6 +985,8 @@ class PatientSimilarityController extends Controller
                     ],
                     'divergence' => $comparison['divergence'],
                     'overall_divergence' => $comparison['overall_divergence'],
+                    'covariate_balance' => $covariateBalance,
+                    'distributional_divergence' => $distributionalDivergence,
                 ],
             ]);
         } catch (\Throwable $e) {
