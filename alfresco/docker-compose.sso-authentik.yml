@@ -60,7 +60,7 @@ services:
         -Dexternal.authentication.enabled=true
         -Dexternal.authentication.proxyUserName=
         -Dexternal.authentication.proxyHeader=X-authentik-username
-        -Dexternal.authentication.defaultAdministratorUserNames=admin
+        -Dexternal.authentication.defaultAdministratorUserNames=admin,sudoshi,dmuraco,jdawe
         -Dsynchronization.autoCreatePeopleOnLogin=true
         -Dsynchronization.syncOnStartup=false
         -Dsynchronization.syncWhenMissingPeopleLogOnly=true
