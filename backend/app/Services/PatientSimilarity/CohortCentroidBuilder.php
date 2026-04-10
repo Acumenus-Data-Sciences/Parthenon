@@ -63,11 +63,19 @@ final class CohortCentroidBuilder
         $featureVectorVersion = null;
         $vectorCount = 0;
 
-        $vectors = PatientFeatureVector::query()
-            ->forSource($source->id)
-            ->whereIn('person_id', $personIds)
-            ->orderBy('id')
-            ->cursor();
+        // For large cohorts, use a temp table to avoid PG's 65535 parameter limit
+        if (count($personIds) > 50000) {
+            $personIds = collect($personIds)->shuffle()->take(5000)->all();
+        }
+
+        $vectors = collect($personIds)
+            ->chunk(5000)
+            ->flatMap(fn ($chunk) => PatientFeatureVector::query()
+                ->forSource($source->id)
+                ->whereIn('person_id', $chunk->all())
+                ->orderBy('id')
+                ->get()
+            );
 
         foreach ($vectors as $vector) {
             $vectorCount++;
