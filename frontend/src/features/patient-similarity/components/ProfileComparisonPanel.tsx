@@ -1,0 +1,135 @@
+import { CohortComparisonRadar } from "./CohortComparisonRadar";
+import type { CohortComparisonResult } from "../types/patientSimilarity";
+
+interface ProfileComparisonPanelProps {
+  result: CohortComparisonResult;
+  sourceName: string;
+  targetName: string;
+  onContinue: () => void;
+}
+
+function getDivergenceLabel(pct: number): string {
+  if (pct < 30) return "Low divergence — cohorts are broadly similar";
+  if (pct < 50) return "Moderate divergence — notable differences across dimensions";
+  return "High divergence — cohorts differ substantially";
+}
+
+function getDivergenceColor(pct: number): string {
+  if (pct < 30) return "#2DD4BF";
+  if (pct < 50) return "#C9A227";
+  return "#9B1B30";
+}
+
+function getDimensionColor(score: number): string {
+  if (score > 0.5) return "#9B1B30";
+  if (score >= 0.3) return "#C9A227";
+  return "#2DD4BF";
+}
+
+export function ProfileComparisonPanel({
+  result,
+  sourceName,
+  targetName,
+  onContinue,
+}: ProfileComparisonPanelProps) {
+  const overallPct = Math.round(result.overall_divergence * 100);
+  const divergenceColor = getDivergenceColor(overallPct);
+  const interpretationText = getDivergenceLabel(overallPct);
+
+  // Sort dimensions by score descending, skip any with missing labels
+  const sortedDimensions = Object.entries(result.divergence)
+    .filter(([, d]) => d.score !== null && d.score !== undefined)
+    .sort(([, a], [, b]) => b.score - a.score);
+
+  return (
+    <div className="space-y-4">
+      {/* Overall divergence banner */}
+      <div className="rounded-lg border border-[#232328] bg-[#131316] p-4">
+        <div className="mb-3 flex items-center justify-between">
+          <span className="text-xs font-medium uppercase tracking-wider text-[#5A5650]">
+            Overall Divergence
+          </span>
+          <span
+            className="text-3xl font-bold tabular-nums"
+            style={{ color: divergenceColor }}
+          >
+            {overallPct}%
+          </span>
+        </div>
+        {/* Gradient bar */}
+        <div className="h-2 overflow-hidden rounded-full bg-[#232328]">
+          <div
+            className="h-full rounded-full transition-all duration-500"
+            style={{
+              width: `${overallPct}%`,
+              background:
+                "linear-gradient(90deg, #2DD4BF 0%, #C9A227 50%, #9B1B30 100%)",
+            }}
+          />
+        </div>
+        <p className="mt-2 text-xs text-[#8A857D]">{interpretationText}</p>
+      </div>
+
+      {/* Two-column chart grid */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        {/* Left: Radar */}
+        <CohortComparisonRadar
+          divergence={result.divergence}
+          sourceName={sourceName}
+          targetName={targetName}
+        />
+
+        {/* Right: Per-dimension bars */}
+        <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+          <h3 className="mb-3 text-sm font-semibold text-[#F0EDE8]">
+            Per-Dimension Divergence
+          </h3>
+          {sortedDimensions.length > 0 ? (
+            <div className="space-y-3">
+              {sortedDimensions.map(([key, dim]) => {
+                const pct = Math.round(dim.score * 100);
+                const color = getDimensionColor(dim.score);
+                return (
+                  <div key={key}>
+                    <div className="mb-1 flex items-center justify-between">
+                      <span className="text-xs capitalize text-[#C5C0B8]">
+                        {dim.label || key}
+                      </span>
+                      <span
+                        className="text-xs font-semibold tabular-nums"
+                        style={{ color }}
+                      >
+                        {pct}%
+                      </span>
+                    </div>
+                    <div className="h-1.5 overflow-hidden rounded-full bg-[#232328]">
+                      <div
+                        className="h-full rounded-full transition-all duration-300"
+                        style={{ width: `${pct}%`, backgroundColor: color }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-sm text-[#8A857D]">
+              No per-dimension scores available.
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Action bar */}
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={onContinue}
+          className="rounded-md bg-[#2DD4BF]/10 px-4 py-2 text-sm font-medium text-[#2DD4BF] transition-colors hover:bg-[#2DD4BF]/20"
+        >
+          View Covariate Balance →
+        </button>
+      </div>
+    </div>
+  );
+}

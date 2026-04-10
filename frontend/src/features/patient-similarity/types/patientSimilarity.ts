@@ -316,6 +316,13 @@ export interface CovariateBalanceRow {
   domain: string;
 }
 
+export interface DistributionalDivergenceRow {
+  dimension: string;
+  metric: 'jsd' | 'wasserstein';
+  value: number;
+  interpretation: string;
+}
+
 // ── Propensity Score Matching ────────────────────────────────────
 
 export interface PropensityMatchParams {
