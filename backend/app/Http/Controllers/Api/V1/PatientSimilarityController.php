@@ -19,11 +19,13 @@ use App\Services\PatientSimilarity\CohortComparisonService;
 use App\Services\PatientSimilarity\PatientSimilarityService;
 use App\Services\PatientSimilarity\SearchResultDiagnosticsService;
 use App\Services\PatientSimilarity\SimilarityExplainer;
+use Illuminate\Http\Client\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Validation\ValidationException;
 
 /**
  * @group Patient Similarity Engine
@@ -1140,7 +1142,7 @@ class PatientSimilarityController extends Controller
 
             $aiUrl = rtrim((string) config('services.ai.url', 'http://python-ai:8000'), '/');
 
-            /** @var \Illuminate\Http\Client\Response $aiResponse */
+            /** @var Response $aiResponse */
             $aiResponse = Http::timeout(120)
                 ->post("{$aiUrl}/patient-similarity/project", $payload);
 
@@ -1152,7 +1154,7 @@ class PatientSimilarityController extends Controller
             }
 
             return response()->json($aiResponse->json());
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             return response()->json(['error' => 'Validation failed', 'errors' => $e->errors()], 422);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Landscape projection failed: '.$e->getMessage()], 500);

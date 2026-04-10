@@ -1,0 +1,303 @@
+# Lab reference ranges for Parthenon Patient Profiles.
+#
+# Source: see source_ref on each entry. Most values from the Mayo Clinical
+# Laboratory Test Catalog (https://www.mayocliniclabs.com/test-catalog) and
+# LOINC (https://loinc.org). Clinical disclaimer per spec §4 — research
+# tool, not EMR, not FDA-cleared.
+#
+# Sex codes: M, F, A (any)
+# Age bounds: inclusive integers in years; null = unbounded
+# Units: UCUM codes resolved to OMOP unit_concept_id at seed time
+
+# ============================================================
+# Complete Blood Count (CBC)
+# ============================================================
+
+- loinc: "6690-2"
+  unit_ucum: "10*3/uL"
+  ranges:
+    - { sex: A, age_low: 18, age_high: null, low: 4.5,  high: 11.0 }
+    - { sex: A, age_low:  2, age_high:  17,  low: 5.0,  high: 14.5 }
+  source_ref: "Mayo"
+
+- loinc: "789-8"
+  unit_ucum: "10*6/uL"
+  ranges:
+    - { sex: M, age_low: 18, age_high: null, low: 4.35, high: 5.65 }
+    - { sex: F, age_low: 18, age_high: null, low: 3.92, high: 5.13 }
+  source_ref: "Mayo"
+
+- loinc: "718-7"
+  unit_ucum: "g/dL"
+  ranges:
+    - { sex: M, age_low: 18, age_high: null, low: 13.5, high: 17.5 }
+    - { sex: F, age_low: 18, age_high: null, low: 12.0, high: 15.5 }
+    - { sex: A, age_low:  1, age_high:  17,  low: 11.0, high: 16.0 }
+  source_ref: "Mayo"
+
+- loinc: "4544-3"
+  unit_ucum: "%"
+  ranges:
+    - { sex: M, age_low: 18, age_high: null, low: 41.0, high: 53.0 }
+    - { sex: F, age_low: 18, age_high: null, low: 36.0, high: 46.0 }
+  source_ref: "Mayo"
+
+- loinc: "787-2"
+  unit_ucum: "fL"
+  ranges:
+    - { sex: A, age_low: 18, age_high: null, low: 80.0, high: 100.0 }
+  source_ref: "Mayo"
+
+- loinc: "785-6"
+  unit_ucum: "pg"
+  ranges:
+    - { sex: A, age_low: 18, age_high: null, low: 27.0, high: 33.0 }
+  source_ref: "Mayo"
+
+- loinc: "786-4"
+  unit_ucum: "g/dL"
+  ranges:
+    - { sex: A, age_low: 18, age_high: null, low: 32.0, high: 36.0 }
+  source_ref: "Mayo"
+
+- loinc: "788-0"
+  unit_ucum: "%"
+  ranges:
+    - { sex: A, age_low: 18, age_high: null, low: 11.5, high: 14.5 }
+  source_ref: "Mayo"
+
+- loinc: "777-3"
+  unit_ucum: "10*3/uL"
+  ranges:
+    - { sex: A, age_low: 18, age_high: null, low: 150.0, high: 450.0 }
+  source_ref: "Mayo"
+
+# ============================================================
+# Basic / Comprehensive Metabolic Panel (BMP/CMP)
+# ============================================================
+
+- loinc: "2951-2"
+  unit_ucum: "mmol/L"
+  ranges:
+    - { sex: A, age_low: 18, age_high: null, low: 135.0, high: 145.0 }
+  source_ref: "Mayo"
+
+- loinc: "2823-3"
+  unit_ucum: "mmol/L"
+  ranges:
+    - { sex: A, age_low: 18, age_high: null, low: 3.5, high: 5.0 }
+  source_ref: "Mayo"
+
+- loinc: "2075-0"
+  unit_ucum: "mmol/L"
+  ranges:
+    - { sex: A, age_low: 18, age_high: null, low: 98.0, high: 107.0 }
+  source_ref: "Mayo"
+
+- loinc: "2028-9"
+  unit_ucum: "mmol/L"
+  ranges:
+    - { sex: A, age_low: 18, age_high: null, low: 22.0, high: 29.0 }
+  source_ref: "Mayo"
+
+- loinc: "3094-0"
+  unit_ucum: "mg/dL"
+  ranges:
+    - { sex: A, age_low: 18, age_high: null, low: 7.0, high: 20.0 }
+  source_ref: "Mayo"
+
+- loinc: "2160-0"
+  unit_ucum: "mg/dL"
+  ranges:
+    - { sex: M, age_low: 18, age_high: null, low: 0.74, high: 1.35 }
+    - { sex: F, age_low: 18, age_high: null, low: 0.59, high: 1.04 }
+  source_ref: "Mayo"
+
+- loinc: "2345-7"
+  unit_ucum: "mg/dL"
+  ranges:
+    - { sex: A, age_low: 18, age_high: null, low: 70.0, high: 99.0 }
+  source_ref: "Mayo"
+  notes: "Fasting reference. Postprandial values intentionally excluded."
+
+- loinc: "17861-6"
+  unit_ucum: "mg/dL"
+  ranges:
+    - { sex: A, age_low: 18, age_high: null, low: 8.6, high: 10.2 }
+  source_ref: "Mayo"
+
+- loinc: "1751-7"
+  unit_ucum: "g/dL"
+  ranges:
+    - { sex: A, age_low: 18, age_high: null, low: 3.5, high: 5.0 }
+  source_ref: "Mayo"
+
+- loinc: "2885-2"
+  unit_ucum: "g/dL"
+  ranges:
+    - { sex: A, age_low: 18, age_high: null, low: 6.3, high: 7.9 }
+  source_ref: "Mayo"
+
+- loinc: "1975-2"
+  unit_ucum: "mg/dL"
+  ranges:
+    - { sex: A, age_low: 18, age_high: null, low: 0.1, high: 1.2 }
+  source_ref: "Mayo"
+
+- loinc: "1968-7"
+  unit_ucum: "mg/dL"
+  ranges:
+    - { sex: A, age_low: 18, age_high: null, low: 0.0, high: 0.3 }
+  source_ref: "Mayo"
+
+- loinc: "1920-8"
+  unit_ucum: "[U]/L"
+  ranges:
+    - { sex: M, age_low: 18, age_high: null, low: 10.0, high: 40.0 }
+    - { sex: F, age_low: 18, age_high: null, low: 9.0,  high: 32.0 }
+  source_ref: "Mayo"
+
+- loinc: "1742-6"
+  unit_ucum: "[U]/L"
+  ranges:
+    - { sex: M, age_low: 18, age_high: null, low: 7.0, high: 55.0 }
+    - { sex: F, age_low: 18, age_high: null, low: 7.0, high: 45.0 }
+  source_ref: "Mayo"
+
+- loinc: "6768-6"
+  unit_ucum: "[U]/L"
+  ranges:
+    - { sex: A, age_low: 18, age_high: null, low: 44.0,  high: 147.0 }
+    - { sex: A, age_low:  1, age_high:  17,  low: 54.0,  high: 369.0 }
+  source_ref: "Mayo"
+  notes: "Pediatric range intentionally wider; bone growth."
+
+- loinc: "2324-2"
+  unit_ucum: "[U]/L"
+  ranges:
+    - { sex: M, age_low: 18, age_high: null, low: 8.0, high: 61.0 }
+    - { sex: F, age_low: 18, age_high: null, low: 5.0, high: 36.0 }
+  source_ref: "Mayo"
+
+# ============================================================
+# Lipid Panel
+# ============================================================
+
+- loinc: "2093-3"
+  unit_ucum: "mg/dL"
+  ranges:
+    - { sex: A, age_low: 18, age_high: null, low: 0.0, high: 200.0 }
+  source_ref: "NCEP ATP III"
+  notes: "Desirable <200; range low set to 0 since no clinical lower bound."
+
+- loinc: "2085-9"
+  unit_ucum: "mg/dL"
+  ranges:
+    - { sex: M, age_low: 18, age_high: null, low: 40.0, high: 999.0 }
+    - { sex: F, age_low: 18, age_high: null, low: 50.0, high: 999.0 }
+  source_ref: "NCEP ATP III"
+
+- loinc: "13457-7"
+  unit_ucum: "mg/dL"
+  ranges:
+    - { sex: A, age_low: 18, age_high: null, low: 0.0, high: 100.0 }
+  source_ref: "NCEP ATP III"
+  notes: "Optimal <100. Pathological high only for primary prevention."
+
+- loinc: "2571-8"
+  unit_ucum: "mg/dL"
+  ranges:
+    - { sex: A, age_low: 18, age_high: null, low: 0.0, high: 150.0 }
+  source_ref: "NCEP ATP III"
+
+# ============================================================
+# Diabetes
+# ============================================================
+
+- loinc: "4548-4"
+  unit_ucum: "%"
+  ranges:
+    - { sex: A, age_low: 18, age_high: null, low: 4.0, high: 5.6 }
+  source_ref: "ADA"
+  notes: "Non-diabetic range. 5.7-6.4 prediabetes, >=6.5 diabetes."
+
+# ============================================================
+# Thyroid
+# ============================================================
+
+- loinc: "3016-3"
+  unit_ucum: "10*-3.[iU]/L"
+  ranges:
+    - { sex: A, age_low: 18, age_high: null, low: 0.4, high: 4.5 }
+  source_ref: "Mayo"
+
+- loinc: "3024-7"
+  unit_ucum: "ng/dL"
+  ranges:
+    - { sex: A, age_low: 18, age_high: null, low: 0.8, high: 1.8 }
+  source_ref: "Mayo"
+
+# ============================================================
+# Coagulation
+# ============================================================
+
+- loinc: "5902-2"
+  unit_ucum: "s"
+  ranges:
+    - { sex: A, age_low: 18, age_high: null, low: 11.0, high: 13.5 }
+  source_ref: "Mayo"
+
+- loinc: "6301-6"
+  unit_ucum: "{ratio}"
+  ranges:
+    - { sex: A, age_low: 18, age_high: null, low: 0.8, high: 1.2 }
+  source_ref: "Mayo"
+  notes: "Off anticoagulation. Therapeutic warfarin range is 2.0-3.0."
+
+- loinc: "14979-9"
+  unit_ucum: "s"
+  ranges:
+    - { sex: A, age_low: 18, age_high: null, low: 25.0, high: 35.0 }
+  source_ref: "Mayo"
+
+# ============================================================
+# Cardiac Markers
+# ============================================================
+
+- loinc: "33762-6"
+  unit_ucum: "pg/mL"
+  ranges:
+    - { sex: A, age_low: 18, age_high:  74, low: 0.0, high: 125.0 }
+    - { sex: A, age_low: 75, age_high: null, low: 0.0, high: 450.0 }
+  source_ref: "Roche"
+  notes: "Age-adjusted; higher cutoff in elderly."
+
+- loinc: "10839-9"
+  unit_ucum: "ng/mL"
+  ranges:
+    - { sex: A, age_low: 18, age_high: null, low: 0.0, high: 0.04 }
+  source_ref: "Mayo"
+
+# ============================================================
+# Iron Studies
+# ============================================================
+
+- loinc: "2498-4"
+  unit_ucum: "ug/dL"
+  ranges:
+    - { sex: M, age_low: 18, age_high: null, low: 65.0, high: 175.0 }
+    - { sex: F, age_low: 18, age_high: null, low: 50.0, high: 170.0 }
+  source_ref: "Mayo"
+
+- loinc: "2276-4"
+  unit_ucum: "ng/mL"
+  ranges:
+    - { sex: M, age_low: 18, age_high: null, low: 24.0, high: 336.0 }
+    - { sex: F, age_low: 18, age_high: null, low: 11.0, high: 307.0 }
+  source_ref: "Mayo"
+
+- loinc: "2500-7"
+  unit_ucum: "ug/dL"
+  ranges:
+    - { sex: A, age_low: 18, age_high: null, low: 250.0, high: 450.0 }
+  source_ref: "Mayo"
