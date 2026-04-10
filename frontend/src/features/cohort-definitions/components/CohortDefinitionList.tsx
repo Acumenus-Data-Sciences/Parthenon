@@ -152,12 +152,15 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
     });
   };
 
+  const isGrouped = groupBy === "domain";
+
   const { data: groupedData, isLoading: groupedLoading } = useGroupedCohortDefinitions({
     group_by: "domain",
     quality_tier: (tierFilter as QualityTier) ?? undefined,
     search: search || undefined,
     tags: tags && tags.length > 0 ? tags : undefined,
     author_id: myOnly && currentUser ? currentUser.id : undefined,
+    enabled: isGrouped,
   });
 
   // Auto-expand first 3 groups on initial load
@@ -182,73 +185,13 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
     is_public: isPublic || undefined,
     with_generations: withGenerations || undefined,
     author_id: myOnly && currentUser ? currentUser.id : undefined,
+    enabled: !isGrouped,
   });
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 size={24} className="animate-spin text-[#8A857D]" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <p className="text-[#E85A6B]">Failed to load cohort definitions</p>
-      </div>
-    );
-  }
-
-  const items = data?.items ?? [];
-  const total = data?.total ?? 0;
-  const totalPages = Math.max(1, Math.ceil(total / limit));
-  const engine = data?.engine;
-
-  if (items.length === 0 && page === 1) {
-    return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
-        <div className="flex items-center justify-center w-14 h-14 rounded-full bg-[#1C1C20] mb-4">
-          <Layers size={24} className="text-[#8A857D]" />
-        </div>
-        <h3 className="text-lg font-semibold text-[#F0EDE8]">
-          {search ? "No matching cohort definitions" : "No cohort definitions"}
-        </h3>
-        <p className="mt-2 text-sm text-[#8A857D] max-w-md text-center">
-          {search
-            ? `No results for "${search}". Try a different search term.`
-            : "Cohort definitions let you define inclusion and exclusion criteria to identify patient populations for research studies."}
-        </p>
-        {!search && (
-          <div className="flex items-center gap-3 mt-6">
-            <button
-              type="button"
-              onClick={() => navigate("/cohort-definitions")}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2.5 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors"
-            >
-              <Plus size={16} />
-              New Cohort Definition
-            </button>
-            {onCreateFromBundle && (
-              <button
-                type="button"
-                onClick={onCreateFromBundle}
-                className="inline-flex items-center gap-2 rounded-lg border border-[#2A2A30] bg-[#151518] px-4 py-2.5 text-sm font-medium text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#3A3A42] transition-colors"
-              >
-                <Stethoscope size={16} />
-                Create from Care Bundle
-              </button>
-            )}
-          </div>
-        )}
-      </div>
-    );
-  }
-
   // -----------------------------------------------------------------------
-  // Grouped domain view
+  // Grouped domain view — checked BEFORE flat loading/error/empty states
   // -----------------------------------------------------------------------
-  if (groupBy === "domain") {
+  if (isGrouped) {
     if (groupedLoading) {
       return (
         <div className="flex items-center justify-center h-64">
@@ -396,6 +339,70 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
                 </div>
               );
             })}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // -----------------------------------------------------------------------
+  // Flat view — loading / error / empty states
+  // -----------------------------------------------------------------------
+  const items = data?.items ?? [];
+  const total = data?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / limit));
+  const engine = data?.engine;
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-[#E85A6B]">Failed to load cohort definitions</p>
+      </div>
+    );
+  }
+
+  if (items.length === 0 && page === 1) {
+    return (
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
+        <div className="flex items-center justify-center w-14 h-14 rounded-full bg-[#1C1C20] mb-4">
+          <Layers size={24} className="text-[#8A857D]" />
+        </div>
+        <h3 className="text-lg font-semibold text-[#F0EDE8]">
+          {search ? "No matching cohort definitions" : "No cohort definitions"}
+        </h3>
+        <p className="mt-2 text-sm text-[#8A857D] max-w-md text-center">
+          {search
+            ? `No results for "${search}". Try a different search term.`
+            : "Cohort definitions let you define inclusion and exclusion criteria to identify patient populations for research studies."}
+        </p>
+        {!search && (
+          <div className="flex items-center gap-3 mt-6">
+            <button
+              type="button"
+              onClick={() => navigate("/cohort-definitions")}
+              className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2.5 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors"
+            >
+              <Plus size={16} />
+              New Cohort Definition
+            </button>
+            {onCreateFromBundle && (
+              <button
+                type="button"
+                onClick={onCreateFromBundle}
+                className="inline-flex items-center gap-2 rounded-lg border border-[#2A2A30] bg-[#151518] px-4 py-2.5 text-sm font-medium text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#3A3A42] transition-colors"
+              >
+                <Stethoscope size={16} />
+                Create from Care Bundle
+              </button>
+            )}
           </div>
         )}
       </div>

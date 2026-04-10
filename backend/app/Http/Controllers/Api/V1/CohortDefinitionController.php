@@ -42,16 +42,19 @@ class CohortDefinitionController extends Controller
     {
         try {
             $search = $request->input('search', '');
-            $perPage = $request->integer('per_page', 20);
+            $perPage = $request->integer('per_page', 0) ?: $request->integer('limit', 20);
             $page = $request->integer('page', 1);
             $offset = ($page - 1) * $perPage;
             $tags = $request->filled('tags') ? (array) $request->input('tags') : [];
             $filterIsPublic = $request->boolean('is_public');
             $filterWithGenerations = $request->boolean('with_generations');
             $filterAuthorId = $request->integer('author_id') ?: null;
+            $filterDomain = $request->input('domain');
+            $filterTier = $request->input('quality_tier');
+            $groupBy = $request->input('group_by');
 
-            // Try Solr when search is active
-            if ($search && $this->cohortSearch->isAvailable()) {
+            // Try Solr when search is active (skip for grouped responses — Solr returns flat)
+            if ($search && ! $groupBy && $this->cohortSearch->isAvailable()) {
                 $solrResult = $this->cohortSearch->search($search, [
                     'type' => 'cohort',
                     'tags' => $tags ?: null,
@@ -144,6 +147,88 @@ class CohortDefinitionController extends Controller
 
             if ($filterAuthorId) {
                 $query->where('author_id', $filterAuthorId);
+            }
+
+            if ($filterDomain) {
+                $query->where('domain', $filterDomain);
+            }
+
+            if ($filterTier) {
+                $query->where('quality_tier', $filterTier);
+            }
+
+            // Grouped response by domain
+            if ($groupBy === 'domain') {
+                $domainLabels = [
+                    'cardiovascular' => 'Cardiovascular',
+                    'metabolic' => 'Metabolic',
+                    'renal' => 'Renal',
+                    'oncology' => 'Oncology',
+                    'rare-disease' => 'Rare Disease',
+                    'pain-substance-use' => 'Pain & Substance Use',
+                    'pediatric' => 'Pediatric',
+                    'general' => 'General',
+                ];
+
+                $allCohorts = $query->get();
+
+                // Transform each cohort with generation metadata
+                $allCohorts->transform(function (CohortDefinition $def) {
+                    $latestGeneration = $def->generations()
+                        ->where('status', 'completed')
+                        ->orderByDesc('completed_at')
+                        ->first(['id', 'status', 'person_count', 'completed_at', 'source_id']);
+
+                    if (! $latestGeneration) {
+                        $latestGeneration = $def->generations()
+                            ->orderByDesc('created_at')
+                            ->first(['id', 'status', 'person_count', 'completed_at', 'source_id']);
+                    }
+
+                    $def->setAttribute('latest_generation', $latestGeneration);
+
+                    $generationSources = $def->generations()
+                        ->where('status', 'completed')
+                        ->with('source:id,source_name,source_key')
+                        ->orderByDesc('completed_at')
+                        ->get(['id', 'source_id', 'person_count', 'completed_at'])
+                        ->unique('source_id')
+                        ->map(fn (CohortGeneration $gen) => [
+                            'source_id' => $gen->source_id,
+                            'source_name' => $gen->source?->source_name,
+                            'source_key' => $gen->source?->source_key,
+                            'person_count' => $gen->person_count,
+                            'completed_at' => $gen->completed_at,
+                        ])
+                        ->values();
+
+                    $def->setAttribute('generation_sources', $generationSources);
+
+                    return $def;
+                });
+
+                $grouped = $allCohorts->groupBy('domain');
+
+                $groups = collect($domainLabels)->map(fn (string $label, string $key) => [
+                    'key' => $key,
+                    'label' => $label,
+                    'count' => $grouped->has($key) ? $grouped->get($key)->count() : 0,
+                    'cohorts' => $grouped->has($key) ? $grouped->get($key)->values() : [],
+                ])->filter(fn (array $g) => $g['count'] > 0)->values();
+
+                $tierCounts = [
+                    'study-ready' => $allCohorts->where('quality_tier', 'study-ready')->count(),
+                    'validated' => $allCohorts->where('quality_tier', 'validated')->count(),
+                    'draft' => $allCohorts->where('quality_tier', 'draft')->count(),
+                ];
+
+                return response()->json([
+                    'data' => [
+                        'groups' => $groups,
+                        'tier_counts' => $tierCounts,
+                    ],
+                    'engine' => 'postgresql',
+                ]);
             }
 
             $cohortDefinitions = $query->paginate($perPage);
@@ -708,9 +793,50 @@ class CohortDefinitionController extends Controller
                 'total' => CohortDefinition::count(),
                 'with_generations' => CohortDefinition::whereHas('generations', fn ($q) => $q->where('status', 'completed'))->count(),
                 'public' => CohortDefinition::where('is_public', true)->count(),
+                'tier_counts' => [
+                    'study-ready' => CohortDefinition::where('quality_tier', 'study-ready')->count(),
+                    'validated' => CohortDefinition::where('quality_tier', 'validated')->count(),
+                    'draft' => CohortDefinition::where('quality_tier', 'draft')->count(),
+                ],
             ]);
         } catch (\Throwable $e) {
             return $this->errorResponse('Failed to retrieve stats', $e);
+        }
+    }
+
+    /**
+     * GET /v1/cohort-definitions/domains
+     *
+     * Return domain vocabulary with cohort counts per domain.
+     */
+    public function domains(): JsonResponse
+    {
+        try {
+            $domainLabels = [
+                'cardiovascular' => 'Cardiovascular',
+                'metabolic' => 'Metabolic',
+                'renal' => 'Renal',
+                'oncology' => 'Oncology',
+                'rare-disease' => 'Rare Disease',
+                'pain-substance-use' => 'Pain & Substance Use',
+                'pediatric' => 'Pediatric',
+                'general' => 'General',
+            ];
+
+            $counts = CohortDefinition::whereNotNull('domain')
+                ->selectRaw('domain, count(*) as count')
+                ->groupBy('domain')
+                ->pluck('count', 'domain');
+
+            $result = collect($domainLabels)->map(fn (string $label, string $key) => [
+                'key' => $key,
+                'label' => $label,
+                'count' => (int) ($counts[$key] ?? 0),
+            ])->sortByDesc('count')->values();
+
+            return response()->json($result);
+        } catch (\Throwable $e) {
+            return $this->errorResponse('Failed to retrieve domains', $e);
         }
     }
 

@@ -25,10 +25,12 @@ import type {
 // Query hooks
 // ---------------------------------------------------------------------------
 
-export function useCohortDefinitions(params?: CohortDefinitionListParams) {
+export function useCohortDefinitions(params?: CohortDefinitionListParams & { enabled?: boolean }) {
+  const { enabled, ...queryParams } = params ?? {};
   return useQuery({
-    queryKey: ["cohort-definitions", params],
-    queryFn: () => getCohortDefinitions(params),
+    queryKey: ["cohort-definitions", queryParams],
+    queryFn: () => getCohortDefinitions(queryParams),
+    enabled: enabled ?? true,
   });
 }
 
@@ -40,10 +42,12 @@ export function useCohortDomains() {
   });
 }
 
-export function useGroupedCohortDefinitions(params: CohortDefinitionGroupedParams) {
+export function useGroupedCohortDefinitions(params: CohortDefinitionGroupedParams & { enabled?: boolean }) {
+  const { enabled, ...queryParams } = params;
   return useQuery({
-    queryKey: ["cohort-definitions", "grouped", params],
-    queryFn: () => getGroupedCohortDefinitions(params),
+    queryKey: ["cohort-definitions", "grouped", queryParams],
+    queryFn: () => getGroupedCohortDefinitions(queryParams),
+    enabled: enabled ?? true,
   });
 }
 
