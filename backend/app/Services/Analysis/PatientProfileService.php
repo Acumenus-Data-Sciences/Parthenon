@@ -2,7 +2,9 @@
 
 namespace App\Services\Analysis;
 
+use App\DataTransferObjects\LabRangeDto;
 use App\Enums\DaimonType;
+use App\Enums\LabStatus;
 use App\Models\App\Source;
 use App\Services\SqlRenderer\SqlRendererService;
 use Illuminate\Support\Facades\DB;
@@ -11,6 +13,7 @@ class PatientProfileService
 {
     public function __construct(
         private readonly SqlRendererService $sqlRenderer,
+        private readonly LabReferenceRangeService $labRangeService,
     ) {}
 
     /**
@@ -272,6 +275,22 @@ class PatientProfileService
             } catch (\Throwable) {
             }
         }
+
+        // Build lab groups with reference ranges and status classification.
+        // Done outside the try/finally so a failure here doesn't mask CDM errors,
+        // and outside safeQuery so partial measurements still yield an empty labGroups.
+        $demographics = $result['demographics'];
+        $personSex = $this->personSexFromGenderConceptId($demographics['gender_concept_id'] ?? null);
+        $personAgeYears = $this->personAgeYears($demographics['year_of_birth'] ?? null);
+
+        $labGroupsResult = $this->buildLabGroups(
+            $result['measurements'],
+            $source->id,
+            $personSex,
+            $personAgeYears,
+        );
+        $result['labGroups'] = $labGroupsResult['labGroups'];
+        $result['measurements'] = $labGroupsResult['measurements'];
 
         return $result;
     }
@@ -537,8 +556,8 @@ class PatientProfileService
             );
         }
 
-        // Remove internal fields from response
-        unset($demo['gender_concept_id'], $demo['person_source_value']);
+        // Remove internal fields from response (keep gender_concept_id for lab range sex lookup)
+        unset($demo['person_source_value']);
 
         return $demo;
     }
@@ -771,7 +790,9 @@ class PatientProfileService
                 COALESCE(vc.concept_name, '') AS value_as_concept,
                 COALESCE(uc.concept_name, '') AS unit,
                 m.range_low,
-                m.range_high
+                m.range_high,
+                m.unit_concept_id,
+                COALESCE(c.concept_code, '') AS loinc_code
             FROM {@cdmSchema}.measurement m
             LEFT JOIN {@vocabSchema}.concept c
                 ON m.measurement_concept_id = c.concept_id
@@ -974,5 +995,170 @@ class PatientProfileService
         $rows = DB::connection($connectionName)->select($renderedSql);
 
         return array_map(fn ($row) => (array) $row, $rows);
+    }
+
+    /**
+     * Build labGroups from flat measurement rows and enrich each row with status/range.
+     *
+     * @param  list<array<string, mixed>>  $measurements
+     * @return array{labGroups: list<array<string, mixed>>, measurements: list<array<string, mixed>>}
+     */
+    private function buildLabGroups(
+        array $measurements,
+        int $sourceId,
+        ?string $personSex,
+        ?int $personAgeYears,
+    ): array {
+        if ($measurements === []) {
+            return ['labGroups' => [], 'measurements' => []];
+        }
+
+        // Group by (concept_id, unit_concept_id)
+        /** @var array<string, array{conceptId: int, conceptName: string, loincCode: ?string, unitConceptId: ?int, unitName: string, rows: list<array<string, mixed>>}> $groups */
+        $groups = [];
+        foreach ($measurements as $row) {
+            $conceptId = (int) ($row['concept_id'] ?? 0);
+            $unitConceptId = isset($row['unit_concept_id'])
+                ? (int) $row['unit_concept_id']
+                : null;
+            $key = $conceptId.':'.($unitConceptId !== null ? (string) $unitConceptId : 'null');
+
+            if (! isset($groups[$key])) {
+                $groups[$key] = [
+                    'conceptId' => $conceptId,
+                    'conceptName' => (string) ($row['concept_name'] ?? 'Unknown'),
+                    'loincCode' => ($row['loinc_code'] ?? '') !== '' ? (string) $row['loinc_code'] : null,
+                    'unitConceptId' => $unitConceptId,
+                    'unitName' => (string) ($row['unit'] ?? ''),
+                    'rows' => [],
+                ];
+            }
+            $groups[$key]['rows'][] = $row;
+        }
+
+        // Bulk-lookup ranges
+        $lookupGroups = array_map(
+            fn (array $g): array => ['concept_id' => $g['conceptId'], 'unit_concept_id' => $g['unitConceptId']],
+            array_values($groups),
+        );
+        $ranges = $this->labRangeService->lookupMany($sourceId, $lookupGroups, $personSex, $personAgeYears);
+
+        // Assemble labGroups
+        /** @var list<array<string, mixed>> $labGroups */
+        $labGroups = [];
+        foreach ($groups as $key => $g) {
+            $range = $ranges[$key] ?? null;
+            $rangeArray = $range?->toArray();
+
+            /** @var list<array{date: mixed, value: ?float, status: string}> $values */
+            $values = [];
+            foreach ($g['rows'] as $row) {
+                $value = $row['value'] !== null ? (float) $row['value'] : null;
+                $status = $value !== null
+                    ? LabStatusClassifier::classify($value, $range)->value
+                    : LabStatus::Unknown->value;
+
+                $values[] = [
+                    'date' => $row['start_date'] ?? null,
+                    'value' => $value,
+                    'status' => $status,
+                ];
+            }
+
+            // Sort descending by date for latest/trend extraction
+            usort($values, fn (array $a, array $b): int => strcmp((string) ($b['date'] ?? ''), (string) ($a['date'] ?? '')));
+
+            $latest = $values[0] ?? null;
+            $trend = $this->computeTrend($values);
+
+            // Reverse for chronological order (charts render left-to-right)
+            $labGroups[] = [
+                'conceptId' => $g['conceptId'],
+                'conceptName' => $g['conceptName'],
+                'loincCode' => $g['loincCode'],
+                'unitConceptId' => $g['unitConceptId'],
+                'unitName' => $g['unitName'],
+                'n' => count($values),
+                'latestValue' => $latest['value'] ?? null,
+                'latestDate' => $latest['date'] ?? null,
+                'trend' => $trend,
+                'values' => array_reverse($values),
+                'range' => $rangeArray,
+            ];
+        }
+
+        // Enrich flat measurements with status and range (immutable map, no mutation)
+        /** @var array<string, ?LabRangeDto> $rangeByKey */
+        $rangeByKey = [];
+        foreach ($groups as $key => $_) {
+            $rangeByKey[$key] = $ranges[$key] ?? null;
+        }
+
+        $enrichedMeasurements = array_map(function (array $row) use ($rangeByKey): array {
+            $conceptId = (int) ($row['concept_id'] ?? 0);
+            $unitConceptId = isset($row['unit_concept_id'])
+                ? (int) $row['unit_concept_id']
+                : null;
+            $key = $conceptId.':'.($unitConceptId !== null ? (string) $unitConceptId : 'null');
+            $range = $rangeByKey[$key] ?? null;
+            $value = $row['value'] !== null ? (float) $row['value'] : null;
+            $row['status'] = $value !== null
+                ? LabStatusClassifier::classify($value, $range)->value
+                : LabStatus::Unknown->value;
+            $row['range'] = $range?->toArray();
+
+            return $row;
+        }, $measurements);
+
+        return ['labGroups' => $labGroups, 'measurements' => $enrichedMeasurements];
+    }
+
+    /**
+     * Compute trend direction from the two most recent values (descending order).
+     *
+     * @param  list<array{date: mixed, value: ?float, status: string}>  $valuesDesc
+     */
+    private function computeTrend(array $valuesDesc): string
+    {
+        if (count($valuesDesc) < 2) {
+            return 'flat';
+        }
+        $latest = $valuesDesc[0]['value'] ?? null;
+        $prior = $valuesDesc[1]['value'] ?? null;
+        if ($latest === null || $prior === null) {
+            return 'flat';
+        }
+        $delta = $latest - $prior;
+        if (abs($delta) < 0.001) {
+            return 'flat';
+        }
+
+        return $delta > 0 ? 'up' : 'down';
+    }
+
+    /**
+     * Map OMOP gender_concept_id to sex code for reference range lookup.
+     */
+    private function personSexFromGenderConceptId(mixed $genderConceptId): ?string
+    {
+        $id = $genderConceptId !== null ? (int) $genderConceptId : null;
+
+        return match ($id) {
+            8507 => 'M',  // MALE
+            8532 => 'F',  // FEMALE
+            default => null,
+        };
+    }
+
+    /**
+     * Compute approximate current age from year_of_birth.
+     */
+    private function personAgeYears(mixed $yearOfBirth): ?int
+    {
+        if ($yearOfBirth === null) {
+            return null;
+        }
+
+        return (int) date('Y') - (int) $yearOfBirth;
     }
 }
