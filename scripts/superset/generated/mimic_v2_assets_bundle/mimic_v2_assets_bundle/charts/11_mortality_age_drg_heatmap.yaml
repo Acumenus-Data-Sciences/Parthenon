@@ -1,0 +1,23 @@
+slice_name: 'MIMIC v2: Mortality by Age Group and DRG Severity'
+description: null
+certified_by: null
+certification_details: null
+viz_type: heatmap_v2
+params:
+  viz_type: heatmap
+  all_columns_x: age_group
+  all_columns_y: drg_severity
+  metric:
+    expressionType: SQL
+    sqlExpression: ROUND(100.0 * SUM(died_in_hospital) / NULLIF(COUNT(*), 0), 1)
+    label: Mortality %
+  linear_color_scheme: superset_seq_1
+  show_legend: true
+  show_values: true
+  normalize_across: heatmap
+  row_limit: 200
+query_context: null
+cache_timeout: null
+uuid: 49e43fbb-371c-5923-bd4d-57fa6a66d151
+version: 1.0.0
+dataset_uuid: 3cecacd3-63d3-5a05-98e3-c5c2b905deb1

@@ -1,0 +1,18 @@
+slice_name: 'MIMIC v2: ICU Admissions'
+description: null
+certified_by: null
+certification_details: null
+viz_type: big_number_total
+params:
+  viz_type: big_number_total
+  metric:
+    expressionType: SQL
+    sqlExpression: COUNT(*)
+    label: ICU Admissions
+  subheader: ICU stays
+  y_axis_format: ',d'
+query_context: null
+cache_timeout: null
+uuid: e520df12-66b5-5f7b-a9df-69b310b8aca3
+version: 1.0.0
+dataset_uuid: 3cecacd3-63d3-5a05-98e3-c5c2b905deb1

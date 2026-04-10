@@ -1,0 +1,21 @@
+slice_name: 'MIMIC v2: Daily ICU Census by Unit'
+description: null
+certified_by: null
+certification_details: null
+viz_type: echarts_timeseries_line
+params:
+  viz_type: echarts_timeseries_line
+  color_scheme: supersetColors
+  groupby:
+  - icu_unit
+  metrics:
+  - expressionType: SQL
+    sqlExpression: SUM(active_stays)
+    label: Active Stays
+  row_limit: 10000
+  x_axis: calendar_day
+query_context: null
+cache_timeout: null
+uuid: d67ca9b6-1a81-5d71-a955-a00b199bc10b
+version: 1.0.0
+dataset_uuid: b854e2ff-c197-5209-9f71-8e59677942ba

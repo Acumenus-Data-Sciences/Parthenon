@@ -1,0 +1,28 @@
+slice_name: 'MIMIC v2: Lactate Daily Trend'
+description: null
+certified_by: null
+certification_details: null
+viz_type: echarts_timeseries_line
+params:
+  viz_type: echarts_timeseries_line
+  color_scheme: supersetColors
+  groupby: []
+  metrics:
+  - expressionType: SIMPLE
+    column:
+      column_name: median_value
+    aggregate: AVG
+    label: Avg Daily Median Value
+  row_limit: 10000
+  x_axis: calendar_day
+  adhoc_filters:
+  - clause: WHERE
+    comparator: Lactate
+    expressionType: SIMPLE
+    operator: ==
+    subject: lab_test
+query_context: null
+cache_timeout: null
+uuid: 5cf66930-cb91-5b30-ae66-a747ceb89bfd
+version: 1.0.0
+dataset_uuid: 41c09e96-faaf-551e-a207-5efc95f2c227

@@ -1,0 +1,23 @@
+slice_name: 'MIMIC v2: Vital Signs Daily Trend'
+description: null
+certified_by: null
+certification_details: null
+viz_type: echarts_timeseries_line
+params:
+  viz_type: echarts_timeseries_line
+  color_scheme: supersetColors
+  groupby:
+  - vital_sign
+  metrics:
+  - expressionType: SIMPLE
+    column:
+      column_name: median_value
+    aggregate: AVG
+    label: Avg Daily Median Value
+  row_limit: 10000
+  x_axis: calendar_day
+query_context: null
+cache_timeout: null
+uuid: e188bd16-3dce-511b-8061-f71b87de881d
+version: 1.0.0
+dataset_uuid: bc4b9f6f-60eb-52b5-8ca9-677cb260e2bc

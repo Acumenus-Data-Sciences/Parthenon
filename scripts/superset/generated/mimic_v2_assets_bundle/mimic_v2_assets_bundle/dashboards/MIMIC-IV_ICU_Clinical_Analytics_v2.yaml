@@ -1,0 +1,840 @@
+dashboard_title: MIMIC-IV ICU Clinical Analytics v2
+description: Encounter-grain ICU analytics built from the superset_mimic semantic
+  layer.
+css: ''
+slug: mimic-iv-icu-clinical-analytics-v2
+uuid: c066e2a4-e8a5-53ad-85ad-57e827e5ec53
+position:
+  DASHBOARD_VERSION_KEY: v2
+  ROOT_ID:
+    id: ROOT_ID
+    type: ROOT
+    children:
+    - GRID_ID
+  GRID_ID:
+    id: GRID_ID
+    type: GRID
+    parents:
+    - ROOT_ID
+    children:
+    - ROW-v2-0
+    - ROW-v2-1
+    - ROW-v2-2
+    - ROW-v2-3
+    - ROW-v2-4
+    - ROW-v2-5
+    - ROW-v2-6
+    - ROW-v2-7
+    - ROW-v2-8
+    - ROW-v2-9
+    - ROW-v2-10
+    - ROW-v2-11
+    - ROW-v2-12
+  ROW-v2-0:
+    type: ROW
+    id: ROW-v2-0
+    children:
+    - CHART-v2-1001
+    - CHART-v2-1002
+    - CHART-v2-1003
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    meta:
+      background: BACKGROUND_TRANSPARENT
+  ROW-v2-1:
+    type: ROW
+    id: ROW-v2-1
+    children:
+    - CHART-v2-1004
+    - CHART-v2-1005
+    - CHART-v2-1006
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    meta:
+      background: BACKGROUND_TRANSPARENT
+  ROW-v2-2:
+    type: ROW
+    id: ROW-v2-2
+    children:
+    - CHART-v2-1007
+    - CHART-v2-1008
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    meta:
+      background: BACKGROUND_TRANSPARENT
+  ROW-v2-3:
+    type: ROW
+    id: ROW-v2-3
+    children:
+    - CHART-v2-1009
+    - CHART-v2-1010
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    meta:
+      background: BACKGROUND_TRANSPARENT
+  ROW-v2-4:
+    type: ROW
+    id: ROW-v2-4
+    children:
+    - CHART-v2-1011
+    - CHART-v2-1012
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    meta:
+      background: BACKGROUND_TRANSPARENT
+  ROW-v2-5:
+    type: ROW
+    id: ROW-v2-5
+    children:
+    - CHART-v2-1013
+    - CHART-v2-1014
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    meta:
+      background: BACKGROUND_TRANSPARENT
+  ROW-v2-6:
+    type: ROW
+    id: ROW-v2-6
+    children:
+    - CHART-v2-1015
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    meta:
+      background: BACKGROUND_TRANSPARENT
+  ROW-v2-7:
+    type: ROW
+    id: ROW-v2-7
+    children:
+    - CHART-v2-1016
+    - CHART-v2-1017
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    meta:
+      background: BACKGROUND_TRANSPARENT
+  ROW-v2-8:
+    type: ROW
+    id: ROW-v2-8
+    children:
+    - CHART-v2-1018
+    - CHART-v2-1019
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    meta:
+      background: BACKGROUND_TRANSPARENT
+  ROW-v2-9:
+    type: ROW
+    id: ROW-v2-9
+    children:
+    - CHART-v2-1020
+    - CHART-v2-1021
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    meta:
+      background: BACKGROUND_TRANSPARENT
+  ROW-v2-10:
+    type: ROW
+    id: ROW-v2-10
+    children:
+    - CHART-v2-1022
+    - CHART-v2-1023
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    meta:
+      background: BACKGROUND_TRANSPARENT
+  ROW-v2-11:
+    type: ROW
+    id: ROW-v2-11
+    children:
+    - CHART-v2-1024
+    - CHART-v2-1025
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    meta:
+      background: BACKGROUND_TRANSPARENT
+  ROW-v2-12:
+    type: ROW
+    id: ROW-v2-12
+    children:
+    - CHART-v2-1026
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    meta:
+      background: BACKGROUND_TRANSPARENT
+  CHART-v2-1001:
+    type: CHART
+    id: CHART-v2-1001
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-v2-0
+    meta:
+      chartId: 1001
+      height: 22
+      sliceName: 'MIMIC v2: ICU Admissions'
+      uuid: e520df12-66b5-5f7b-a9df-69b310b8aca3
+      width: 4
+  CHART-v2-1002:
+    type: CHART
+    id: CHART-v2-1002
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-v2-0
+    meta:
+      chartId: 1002
+      height: 22
+      sliceName: 'MIMIC v2: Unique ICU Patients'
+      uuid: adb98ad2-a014-5409-89f4-785600946a4b
+      width: 4
+  CHART-v2-1003:
+    type: CHART
+    id: CHART-v2-1003
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-v2-0
+    meta:
+      chartId: 1003
+      height: 22
+      sliceName: 'MIMIC v2: In-Hospital Mortality %'
+      uuid: 87dd3589-29de-53c4-aca8-2d5ad648d8c4
+      width: 4
+  CHART-v2-1004:
+    type: CHART
+    id: CHART-v2-1004
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-v2-1
+    meta:
+      chartId: 1004
+      height: 22
+      sliceName: 'MIMIC v2: Median ICU LOS'
+      uuid: a9dd7ff3-1416-562f-935d-02b6bc407e55
+      width: 4
+  CHART-v2-1005:
+    type: CHART
+    id: CHART-v2-1005
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-v2-1
+    meta:
+      chartId: 1005
+      height: 22
+      sliceName: 'MIMIC v2: 7-Day Readmission %'
+      uuid: 92ac8056-aa28-56fe-b4f2-5c29d95681ea
+      width: 4
+  CHART-v2-1006:
+    type: CHART
+    id: CHART-v2-1006
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-v2-1
+    meta:
+      chartId: 1006
+      height: 22
+      sliceName: 'MIMIC v2: 30-Day Readmission %'
+      uuid: 577ab6c7-f005-5dd8-b943-31dd77fee867
+      width: 4
+  CHART-v2-1007:
+    type: CHART
+    id: CHART-v2-1007
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-v2-2
+    meta:
+      chartId: 1007
+      height: 48
+      sliceName: 'MIMIC v2: Daily ICU Census by Unit'
+      uuid: d67ca9b6-1a81-5d71-a955-a00b199bc10b
+      width: 6
+  CHART-v2-1008:
+    type: CHART
+    id: CHART-v2-1008
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-v2-2
+    meta:
+      chartId: 1008
+      height: 48
+      sliceName: 'MIMIC v2: Daily New ICU Stays'
+      uuid: f0c1dc6b-bf92-56ba-9b39-0e177e59ef68
+      width: 6
+  CHART-v2-1009:
+    type: CHART
+    id: CHART-v2-1009
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-v2-3
+    meta:
+      chartId: 1009
+      height: 48
+      sliceName: 'MIMIC v2: ICU LOS by Unit'
+      uuid: 44f65fbe-df01-5796-a629-5f9499b2c6e0
+      width: 6
+  CHART-v2-1010:
+    type: CHART
+    id: CHART-v2-1010
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-v2-3
+    meta:
+      chartId: 1010
+      height: 48
+      sliceName: 'MIMIC v2: Mortality by ICU Unit'
+      uuid: dfea5d1c-84fb-5c40-a1fb-a9c0081b78f3
+      width: 6
+  CHART-v2-1011:
+    type: CHART
+    id: CHART-v2-1011
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-v2-4
+    meta:
+      chartId: 1011
+      height: 48
+      sliceName: 'MIMIC v2: Mortality by Age Group and DRG Severity'
+      uuid: 49e43fbb-371c-5923-bd4d-57fa6a66d151
+      width: 6
+  CHART-v2-1012:
+    type: CHART
+    id: CHART-v2-1012
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-v2-4
+    meta:
+      chartId: 1012
+      height: 48
+      sliceName: 'MIMIC v2: Top Primary Diagnoses'
+      uuid: 318a709c-1a1c-5e0f-ad2a-b37229631527
+      width: 6
+  CHART-v2-1013:
+    type: CHART
+    id: CHART-v2-1013
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-v2-5
+    meta:
+      chartId: 1013
+      height: 48
+      sliceName: 'MIMIC v2: Mortality by Primary Diagnosis'
+      uuid: f0b24a83-65e3-5381-9e42-957e145afa4c
+      width: 6
+  CHART-v2-1014:
+    type: CHART
+    id: CHART-v2-1014
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-v2-5
+    meta:
+      chartId: 1014
+      height: 48
+      sliceName: 'MIMIC v2: Top Services by ICU Admissions'
+      uuid: 4973374d-946c-5448-b896-399446cb8fb7
+      width: 6
+  CHART-v2-1015:
+    type: CHART
+    id: CHART-v2-1015
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-v2-6
+    meta:
+      chartId: 1015
+      height: 52
+      sliceName: 'MIMIC v2: Discharge Outcome Table'
+      uuid: 81ae7a42-81f3-578d-ae3b-0d38ae402a9d
+      width: 12
+  CHART-v2-1016:
+    type: CHART
+    id: CHART-v2-1016
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-v2-7
+    meta:
+      chartId: 1016
+      height: 48
+      sliceName: 'MIMIC v2: Readmission by Discharge Location'
+      uuid: 171dc4fd-ddf7-59b5-83d1-b24e3ff239d3
+      width: 6
+  CHART-v2-1017:
+    type: CHART
+    id: CHART-v2-1017
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-v2-7
+    meta:
+      chartId: 1017
+      height: 48
+      sliceName: 'MIMIC v2: Readmission Status Distribution'
+      uuid: 58688ca4-6402-5619-8d10-4f0ec4e804e9
+      width: 6
+  CHART-v2-1018:
+    type: CHART
+    id: CHART-v2-1018
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-v2-8
+    meta:
+      chartId: 1018
+      height: 48
+      sliceName: 'MIMIC v2: Infusion Category Event Count'
+      uuid: bc9b4671-8aa2-510c-8128-fd3a6ead6331
+      width: 6
+  CHART-v2-1019:
+    type: CHART
+    id: CHART-v2-1019
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-v2-8
+    meta:
+      chartId: 1019
+      height: 48
+      sliceName: 'MIMIC v2: Infusion Category Total Amount'
+      uuid: 3b7b95fa-4db4-541f-812b-905e8f09216a
+      width: 6
+  CHART-v2-1020:
+    type: CHART
+    id: CHART-v2-1020
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-v2-9
+    meta:
+      chartId: 1020
+      height: 48
+      sliceName: 'MIMIC v2: Antibiotic Resistance Heatmap'
+      uuid: 37c71cde-f9fb-50b6-84c7-061101249d21
+      width: 6
+  CHART-v2-1021:
+    type: CHART
+    id: CHART-v2-1021
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-v2-9
+    meta:
+      chartId: 1021
+      height: 48
+      sliceName: 'MIMIC v2: Antibiotic Resistance Table'
+      uuid: d891117c-58d4-5647-a726-f0f67f0e2b3c
+      width: 6
+  CHART-v2-1022:
+    type: CHART
+    id: CHART-v2-1022
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-v2-10
+    meta:
+      chartId: 1022
+      height: 48
+      sliceName: 'MIMIC v2: Creatinine Daily Trend'
+      uuid: 3ce1368a-ac46-5bca-a635-6d8e477441f6
+      width: 6
+  CHART-v2-1023:
+    type: CHART
+    id: CHART-v2-1023
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-v2-10
+    meta:
+      chartId: 1023
+      height: 48
+      sliceName: 'MIMIC v2: Lactate Daily Trend'
+      uuid: 5cf66930-cb91-5b30-ae66-a747ceb89bfd
+      width: 6
+  CHART-v2-1024:
+    type: CHART
+    id: CHART-v2-1024
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-v2-11
+    meta:
+      chartId: 1024
+      height: 48
+      sliceName: 'MIMIC v2: White Blood Cells Daily Trend'
+      uuid: be5a96cf-8a48-5ad0-9379-d99f46daddf3
+      width: 6
+  CHART-v2-1025:
+    type: CHART
+    id: CHART-v2-1025
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-v2-11
+    meta:
+      chartId: 1025
+      height: 48
+      sliceName: 'MIMIC v2: Vital Signs Daily Trend'
+      uuid: e188bd16-3dce-511b-8061-f71b87de881d
+      width: 6
+  CHART-v2-1026:
+    type: CHART
+    id: CHART-v2-1026
+    children: []
+    parents:
+    - ROOT_ID
+    - GRID_ID
+    - ROW-v2-12
+    meta:
+      chartId: 1026
+      height: 52
+      sliceName: 'MIMIC v2: Semantic Layer Data Quality'
+      uuid: 0b4c7817-9975-5c72-81a6-b3d11a796525
+      width: 12
+metadata:
+  timed_refresh_immune_slices: []
+  expanded_slices: {}
+  refresh_frequency: 0
+  color_scheme: supersetColors
+  label_colors: {}
+  shared_label_colors: {}
+  cross_filters_enabled: true
+  native_filter_configuration:
+  - id: NATIVE_FILTER-928d3cb1-8e6f-50c5
+    name: ICU Unit
+    filterType: filter_select
+    targets:
+    - column:
+        name: icu_unit
+      datasetUuid: 3cecacd3-63d3-5a05-98e3-c5c2b905deb1
+    - column:
+        name: icu_unit
+      datasetUuid: 1a5ba3e4-beaa-5a0e-a18d-813c12dab0c4
+    - column:
+        name: icu_unit
+      datasetUuid: b854e2ff-c197-5209-9f71-8e59677942ba
+    - column:
+        name: icu_unit
+      datasetUuid: 81a9c4cf-1d74-5d3f-89f1-1e26c6e45444
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    cascadeParentIds: []
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    type: NATIVE_FILTER
+    description: ''
+    controlValues:
+      enableEmptyFilter: false
+      defaultToFirstItem: false
+      multiSelect: true
+      searchAllOptions: false
+      inverseSelection: false
+    chartsInScope:
+    - 1001
+    - 1002
+    - 1003
+    - 1004
+    - 1007
+    - 1008
+    - 1009
+    - 1010
+    - 1011
+    - 1014
+    - 1015
+    - 1016
+    - 1018
+    - 1019
+  - id: NATIVE_FILTER-f3753c18-62f7-5161
+    name: Service
+    filterType: filter_select
+    targets:
+    - column:
+        name: service
+      datasetUuid: 3cecacd3-63d3-5a05-98e3-c5c2b905deb1
+    - column:
+        name: service
+      datasetUuid: 50984a15-f48f-58de-8476-88799b390a17
+    - column:
+        name: service
+      datasetUuid: 81a9c4cf-1d74-5d3f-89f1-1e26c6e45444
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    cascadeParentIds: []
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    type: NATIVE_FILTER
+    description: ''
+    controlValues:
+      enableEmptyFilter: false
+      defaultToFirstItem: false
+      multiSelect: true
+      searchAllOptions: false
+      inverseSelection: false
+    chartsInScope:
+    - 1001
+    - 1002
+    - 1003
+    - 1004
+    - 1009
+    - 1010
+    - 1011
+    - 1012
+    - 1013
+    - 1014
+    - 1015
+    - 1016
+  - id: NATIVE_FILTER-c6ed75f2-1365-52a1
+    name: Age Group
+    filterType: filter_select
+    targets:
+    - column:
+        name: age_group
+      datasetUuid: 3cecacd3-63d3-5a05-98e3-c5c2b905deb1
+    - column:
+        name: age_group
+      datasetUuid: 32f12524-ad08-5a0d-8921-7eb18abcad15
+    - column:
+        name: age_group
+      datasetUuid: 50984a15-f48f-58de-8476-88799b390a17
+    - column:
+        name: age_group
+      datasetUuid: 81a9c4cf-1d74-5d3f-89f1-1e26c6e45444
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    cascadeParentIds: []
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    type: NATIVE_FILTER
+    description: ''
+    controlValues:
+      enableEmptyFilter: false
+      defaultToFirstItem: false
+      multiSelect: true
+      searchAllOptions: false
+      inverseSelection: false
+    chartsInScope:
+    - 1001
+    - 1002
+    - 1003
+    - 1004
+    - 1005
+    - 1006
+    - 1009
+    - 1010
+    - 1011
+    - 1012
+    - 1013
+    - 1014
+    - 1015
+    - 1016
+    - 1017
+  - id: NATIVE_FILTER-ca41d605-15f7-5622
+    name: Outcome Group
+    filterType: filter_select
+    targets:
+    - column:
+        name: outcome_group
+      datasetUuid: 3cecacd3-63d3-5a05-98e3-c5c2b905deb1
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    cascadeParentIds: []
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    type: NATIVE_FILTER
+    description: ''
+    controlValues:
+      enableEmptyFilter: false
+      defaultToFirstItem: false
+      multiSelect: true
+      searchAllOptions: false
+      inverseSelection: false
+    chartsInScope:
+    - 1001
+    - 1002
+    - 1003
+    - 1004
+    - 1009
+    - 1010
+    - 1011
+    - 1014
+  - id: NATIVE_FILTER-6682b334-e02d-5253
+    name: Discharge Location
+    filterType: filter_select
+    targets:
+    - column:
+        name: discharge_location
+      datasetUuid: 32f12524-ad08-5a0d-8921-7eb18abcad15
+    - column:
+        name: discharge_location
+      datasetUuid: 81a9c4cf-1d74-5d3f-89f1-1e26c6e45444
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    cascadeParentIds: []
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    type: NATIVE_FILTER
+    description: ''
+    controlValues:
+      enableEmptyFilter: false
+      defaultToFirstItem: false
+      multiSelect: true
+      searchAllOptions: false
+      inverseSelection: false
+    chartsInScope:
+    - 1005
+    - 1006
+    - 1015
+    - 1016
+    - 1017
+  - id: NATIVE_FILTER-a5e2d323-2f65-524e
+    name: Lab Test
+    filterType: filter_select
+    targets:
+    - column:
+        name: lab_test
+      datasetUuid: 41c09e96-faaf-551e-a207-5efc95f2c227
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    cascadeParentIds: []
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    type: NATIVE_FILTER
+    description: ''
+    controlValues:
+      enableEmptyFilter: false
+      defaultToFirstItem: false
+      multiSelect: true
+      searchAllOptions: false
+      inverseSelection: false
+    chartsInScope:
+    - 1022
+    - 1023
+    - 1024
+  - id: NATIVE_FILTER-b85c4f74-2ca3-5cff
+    name: Organism
+    filterType: filter_select
+    targets:
+    - column:
+        name: organism
+      datasetUuid: fad09a5d-7ac5-5522-ba8f-1e90db680b0a
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    cascadeParentIds: []
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    type: NATIVE_FILTER
+    description: ''
+    controlValues:
+      enableEmptyFilter: false
+      defaultToFirstItem: false
+      multiSelect: true
+      searchAllOptions: false
+      inverseSelection: false
+    chartsInScope:
+    - 1020
+    - 1021
+  - id: NATIVE_FILTER-1335bcef-2329-58f2
+    name: Infusion Category
+    filterType: filter_select
+    targets:
+    - column:
+        name: category
+      datasetUuid: 1a5ba3e4-beaa-5a0e-a18d-813c12dab0c4
+    defaultDataMask:
+      extraFormData: {}
+      filterState: {}
+      ownState: {}
+    cascadeParentIds: []
+    scope:
+      rootPath:
+      - ROOT_ID
+      excluded: []
+    type: NATIVE_FILTER
+    description: ''
+    controlValues:
+      enableEmptyFilter: false
+      defaultToFirstItem: false
+      multiSelect: true
+      searchAllOptions: false
+      inverseSelection: false
+    chartsInScope:
+    - 1018
+    - 1019
+version: 1.0.0
+published: true
+certified_by: null
+certification_details: null

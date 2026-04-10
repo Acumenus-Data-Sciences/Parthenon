@@ -1,0 +1,21 @@
+slice_name: 'MIMIC v2: Antibiotic Resistance Table'
+description: null
+certified_by: null
+certification_details: null
+viz_type: table
+params:
+  viz_type: table
+  all_columns:
+  - organism
+  - antibiotic
+  - test_count
+  - resistant_count
+  - susceptible_count
+  - resistance_pct
+  - patient_count
+  row_limit: 200
+query_context: null
+cache_timeout: null
+uuid: d891117c-58d4-5647-a726-f0f67f0e2b3c
+version: 1.0.0
+dataset_uuid: fad09a5d-7ac5-5522-ba8f-1e90db680b0a

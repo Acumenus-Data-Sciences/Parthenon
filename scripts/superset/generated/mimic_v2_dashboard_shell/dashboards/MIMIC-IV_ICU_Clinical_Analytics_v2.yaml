@@ -1,0 +1,31 @@
+dashboard_title: MIMIC-IV ICU Clinical Analytics v2
+description: Encounter-grain ICU analytics built from the superset_mimic semantic layer.
+css: ''
+slug: mimic-iv-icu-clinical-analytics-v2
+uuid: c066e2a4-e8a5-53ad-85ad-57e827e5ec53
+position:
+  DASHBOARD_VERSION_KEY: v2
+  ROOT_ID:
+    id: ROOT_ID
+    type: ROOT
+    children:
+    - GRID_ID
+  GRID_ID:
+    id: GRID_ID
+    type: GRID
+    parents:
+    - ROOT_ID
+    children: []
+metadata:
+  timed_refresh_immune_slices: []
+  expanded_slices: {}
+  refresh_frequency: 0
+  color_scheme: supersetColors
+  label_colors: {}
+  shared_label_colors: {}
+  cross_filters_enabled: true
+  native_filter_configuration: []
+version: 1.0.0
+published: false
+certified_by: null
+certification_details: null

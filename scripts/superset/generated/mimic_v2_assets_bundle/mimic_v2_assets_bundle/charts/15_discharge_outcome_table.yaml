@@ -1,0 +1,21 @@
+slice_name: 'MIMIC v2: Discharge Outcome Table'
+description: null
+certified_by: null
+certification_details: null
+viz_type: table
+params:
+  viz_type: table
+  all_columns:
+  - discharge_location
+  - service
+  - icu_unit
+  - admission_count
+  - death_count
+  - mortality_pct
+  - readmit_30d_pct
+  row_limit: 200
+query_context: null
+cache_timeout: null
+uuid: 81ae7a42-81f3-578d-ae3b-0d38ae402a9d
+version: 1.0.0
+dataset_uuid: 81a9c4cf-1d74-5d3f-89f1-1e26c6e45444

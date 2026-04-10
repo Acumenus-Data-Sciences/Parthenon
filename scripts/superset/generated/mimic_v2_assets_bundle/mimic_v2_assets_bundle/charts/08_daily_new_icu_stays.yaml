@@ -1,0 +1,20 @@
+slice_name: 'MIMIC v2: Daily New ICU Stays'
+description: null
+certified_by: null
+certification_details: null
+viz_type: echarts_timeseries_line
+params:
+  viz_type: echarts_timeseries_line
+  color_scheme: supersetColors
+  groupby: []
+  metrics:
+  - expressionType: SQL
+    sqlExpression: SUM(new_stays)
+    label: New Stays
+  row_limit: 10000
+  x_axis: calendar_day
+query_context: null
+cache_timeout: null
+uuid: f0c1dc6b-bf92-56ba-9b39-0e177e59ef68
+version: 1.0.0
+dataset_uuid: b854e2ff-c197-5209-9f71-8e59677942ba

@@ -1,0 +1,19 @@
+slice_name: 'MIMIC v2: Median ICU LOS'
+description: null
+certified_by: null
+certification_details: null
+viz_type: big_number_total
+params:
+  viz_type: big_number_total
+  metric:
+    expressionType: SQL
+    sqlExpression: ROUND(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY icu_los_days)::numeric,
+      1)
+    label: Median ICU LOS (days)
+  subheader: Median stay length
+  y_axis_format: ',.1f'
+query_context: null
+cache_timeout: null
+uuid: a9dd7ff3-1416-562f-935d-02b6bc407e55
+version: 1.0.0
+dataset_uuid: 3cecacd3-63d3-5a05-98e3-c5c2b905deb1

@@ -1,0 +1,18 @@
+slice_name: 'MIMIC v2: 30-Day Readmission %'
+description: null
+certified_by: null
+certification_details: null
+viz_type: big_number_total
+params:
+  viz_type: big_number_total
+  metric:
+    expressionType: SQL
+    sqlExpression: ROUND(100.0 * SUM(readmit_30d) / NULLIF(COUNT(*), 0), 1)
+    label: 30-Day Readmission %
+  subheader: Admission-level denominator
+  y_axis_format: ',.1f'
+query_context: null
+cache_timeout: null
+uuid: 577ab6c7-f005-5dd8-b943-31dd77fee867
+version: 1.0.0
+dataset_uuid: 32f12524-ad08-5a0d-8921-7eb18abcad15

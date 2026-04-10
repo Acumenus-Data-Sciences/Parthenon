@@ -1,0 +1,22 @@
+slice_name: 'MIMIC v2: ICU LOS by Unit'
+description: null
+certified_by: null
+certification_details: null
+viz_type: box_plot
+params:
+  viz_type: box_plot
+  columns:
+  - icu_unit
+  metrics:
+  - expressionType: SIMPLE
+    column:
+      column_name: icu_los_days
+    aggregate: AVG
+  groupby: []
+  color_scheme: supersetColors
+  whisker_options: Tukey
+query_context: null
+cache_timeout: null
+uuid: 44f65fbe-df01-5796-a629-5f9499b2c6e0
+version: 1.0.0
+dataset_uuid: 3cecacd3-63d3-5a05-98e3-c5c2b905deb1

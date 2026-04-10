@@ -1,0 +1,24 @@
+slice_name: 'MIMIC v2: Infusion Category Event Count'
+description: null
+certified_by: null
+certification_details: null
+viz_type: dist_bar
+params:
+  viz_type: dist_bar
+  color_scheme: supersetColors
+  groupby:
+  - category
+  metrics:
+  - expressionType: SQL
+    sqlExpression: SUM(event_count)
+    label: Events
+  row_limit: 20
+  show_bar_value: true
+  x_axis_label: Infusion Category
+  y_axis_label: Events
+  order_desc: true
+query_context: null
+cache_timeout: null
+uuid: bc9b4671-8aa2-510c-8128-fd3a6ead6331
+version: 1.0.0
+dataset_uuid: 1a5ba3e4-beaa-5a0e-a18d-813c12dab0c4

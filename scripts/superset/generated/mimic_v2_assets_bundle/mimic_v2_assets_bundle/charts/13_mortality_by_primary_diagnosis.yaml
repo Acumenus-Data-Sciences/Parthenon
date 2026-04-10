@@ -1,0 +1,25 @@
+slice_name: 'MIMIC v2: Mortality by Primary Diagnosis'
+description: null
+certified_by: null
+certification_details: null
+viz_type: dist_bar
+params:
+  viz_type: dist_bar
+  color_scheme: supersetColors
+  groupby:
+  - primary_diagnosis
+  metrics:
+  - expressionType: SQL
+    sqlExpression: ROUND(100.0 * SUM(died_in_hospital) / NULLIF(COUNT(*), 0), 1)
+    label: Mortality %
+  row_limit: 20
+  show_bar_value: true
+  x_axis_label: Primary Diagnosis
+  y_axis_label: Mortality (%)
+  y_axis_format: ',.1f'
+  order_desc: true
+query_context: null
+cache_timeout: null
+uuid: f0b24a83-65e3-5381-9e42-957e145afa4c
+version: 1.0.0
+dataset_uuid: 50984a15-f48f-58de-8476-88799b390a17

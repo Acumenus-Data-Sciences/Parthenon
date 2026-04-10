@@ -1,0 +1,24 @@
+slice_name: 'MIMIC v2: Readmission Status Distribution'
+description: null
+certified_by: null
+certification_details: null
+viz_type: dist_bar
+params:
+  viz_type: dist_bar
+  color_scheme: supersetColors
+  groupby:
+  - readmission_status
+  metrics:
+  - expressionType: SQL
+    sqlExpression: COUNT(*)
+    label: Admissions
+  row_limit: 10
+  show_bar_value: true
+  x_axis_label: Readmission Status
+  y_axis_label: Admissions
+  order_desc: true
+query_context: null
+cache_timeout: null
+uuid: 58688ca4-6402-5619-8d10-4f0ec4e804e9
+version: 1.0.0
+dataset_uuid: 32f12524-ad08-5a0d-8921-7eb18abcad15

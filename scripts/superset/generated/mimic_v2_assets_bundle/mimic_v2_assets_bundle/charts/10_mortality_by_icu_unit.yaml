@@ -1,0 +1,25 @@
+slice_name: 'MIMIC v2: Mortality by ICU Unit'
+description: null
+certified_by: null
+certification_details: null
+viz_type: dist_bar
+params:
+  viz_type: dist_bar
+  color_scheme: supersetColors
+  groupby:
+  - icu_unit
+  metrics:
+  - expressionType: SQL
+    sqlExpression: ROUND(100.0 * SUM(died_in_hospital) / NULLIF(COUNT(*), 0), 1)
+    label: Mortality Rate %
+  row_limit: 20
+  show_bar_value: true
+  x_axis_label: ICU Unit
+  y_axis_label: Mortality Rate (%)
+  y_axis_format: ',.1f'
+  order_desc: true
+query_context: null
+cache_timeout: null
+uuid: dfea5d1c-84fb-5c40-a1fb-a9c0081b78f3
+version: 1.0.0
+dataset_uuid: 3cecacd3-63d3-5a05-98e3-c5c2b905deb1

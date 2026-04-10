@@ -1,0 +1,313 @@
+dashboard:
+  title: MIMIC-IV ICU Clinical Analytics v2
+  superset_database: Parthenon
+  schema: superset_mimic
+  source_schema: mimiciv
+  native_filters:
+    - name: admission_time
+      type: time_range
+      targets:
+        - icu_episode_fact.admit_time
+        - admission_readmission_fact.admit_time
+    - name: icu_unit
+      type: select
+      targets:
+        - icu_episode_fact.icu_unit
+        - infusion_category_summary.icu_unit
+        - unit_daily_census.icu_unit
+        - discharge_outcome_summary.icu_unit
+    - name: service
+      type: select
+      targets:
+        - icu_episode_fact.service
+        - admission_diagnosis_summary.service
+        - discharge_outcome_summary.service
+    - name: gender
+      type: select
+      targets:
+        - icu_episode_fact.gender
+        - admission_readmission_fact.gender
+        - admission_diagnosis_summary.gender
+        - discharge_outcome_summary.gender
+    - name: age_group
+      type: select
+      targets:
+        - icu_episode_fact.age_group
+        - admission_readmission_fact.age_group
+        - admission_diagnosis_summary.age_group
+        - discharge_outcome_summary.age_group
+    - name: outcome_group
+      type: select
+      targets:
+        - icu_episode_fact.outcome_group
+    - name: primary_diagnosis
+      type: select
+      targets:
+        - admission_diagnosis_summary.primary_diagnosis
+    - name: discharge_location
+      type: select
+      targets:
+        - admission_readmission_fact.discharge_location
+        - discharge_outcome_summary.discharge_location
+    - name: lab_test
+      type: select
+      targets:
+        - lab_daily_summary.lab_test
+    - name: vital_sign
+      type: select
+      targets:
+        - vital_daily_summary.vital_sign
+    - name: organism
+      type: select
+      targets:
+        - micro_resistance_summary.organism
+    - name: antibiotic
+      type: select
+      targets:
+        - micro_resistance_summary.antibiotic
+    - name: infusion_category
+      type: select
+      targets:
+        - infusion_category_summary.category
+
+sections:
+  - name: ICU Overview
+    charts:
+      - title: ICU Admissions
+        dataset: icu_episode_fact
+        viz_type: big_number_total
+        metric: count(*)
+        note: Stay-level denominator.
+      - title: Unique ICU Patients
+        dataset: icu_episode_fact
+        viz_type: big_number_total
+        metric: count(distinct subject_id)
+      - title: In-Hospital Mortality %
+        dataset: icu_episode_fact
+        viz_type: big_number_total
+        metric: round(100.0 * sum(died_in_hospital) / nullif(count(*), 0), 1)
+      - title: Median ICU LOS
+        dataset: icu_episode_fact
+        viz_type: big_number_total
+        metric: round(percentile_cont(0.5) within group (order by icu_los_days)::numeric, 1)
+      - title: 7-Day Readmission %
+        dataset: admission_readmission_fact
+        viz_type: big_number_total
+        metric: round(100.0 * sum(readmit_7d) / nullif(count(*), 0), 1)
+      - title: 30-Day Readmission %
+        dataset: admission_readmission_fact
+        viz_type: big_number_total
+        metric: round(100.0 * sum(readmit_30d) / nullif(count(*), 0), 1)
+      - title: Monthly ICU Admissions and Mortality
+        dataset: icu_episode_fact
+        viz_type: mixed_timeseries
+        x_axis: admit_time
+        dimensions: []
+        metrics:
+          - count(*)
+          - round(100.0 * sum(died_in_hospital) / nullif(count(*), 0), 1)
+      - title: Daily ICU Census by Unit
+        dataset: unit_daily_census
+        viz_type: area
+        x_axis: calendar_day
+        dimensions:
+          - icu_unit
+        metrics:
+          - sum(active_stays)
+      - title: ICU LOS by Unit
+        dataset: icu_episode_fact
+        viz_type: box_plot
+        groupby:
+          - icu_unit
+        metric_column: icu_los_days
+      - title: Mortality by ICU Unit
+        dataset: icu_episode_fact
+        viz_type: bar
+        groupby:
+          - icu_unit
+        metrics:
+          - round(100.0 * sum(died_in_hospital) / nullif(count(*), 0), 1)
+      - title: ICU Unit Benchmark Table
+        dataset: icu_episode_fact
+        viz_type: pivot_table_v2
+        groupby:
+          - icu_unit
+        metrics:
+          - count(*)
+          - count(distinct subject_id)
+          - round(avg(icu_los_days)::numeric, 2)
+          - round(100.0 * sum(died_in_hospital) / nullif(count(*), 0), 1)
+
+  - name: Outcomes and Severity
+    charts:
+      - title: Mortality by Age Group and DRG Severity
+        dataset: icu_episode_fact
+        viz_type: heatmap_v2
+        x_axis: age_group
+        y_axis: drg_severity
+        metric: round(100.0 * sum(died_in_hospital) / nullif(count(*), 0), 1)
+      - title: Mortality Risk by DRG and Discharge Location
+        dataset: discharge_outcome_summary
+        viz_type: heatmap_v2
+        x_axis: discharge_location
+        y_axis: age_group
+        metric: mortality_pct
+      - title: ICU LOS vs Hospital LOS
+        dataset: icu_episode_fact
+        viz_type: scatter
+        entity: stay_id
+        series: outcome_group
+        x: icu_los_days
+        y: hospital_los_days
+      - title: Top Primary Diagnoses
+        dataset: admission_diagnosis_summary
+        viz_type: bar
+        groupby:
+          - primary_diagnosis
+        metrics:
+          - count(*)
+      - title: Mortality by Primary Diagnosis
+        dataset: admission_diagnosis_summary
+        viz_type: bar
+        groupby:
+          - primary_diagnosis
+        metrics:
+          - round(100.0 * sum(died_in_hospital) / nullif(count(*), 0), 1)
+      - title: Diagnosis Burden vs LOS
+        dataset: admission_diagnosis_summary
+        viz_type: scatter
+        entity: hadm_id
+        series: gender
+        x: diagnosis_count
+        y: hospital_los_days
+      - title: Discharge Outcome Table
+        dataset: discharge_outcome_summary
+        viz_type: table
+        columns:
+          - discharge_location
+          - service
+          - icu_unit
+          - admission_count
+          - death_count
+          - mortality_pct
+          - readmit_30d_pct
+
+  - name: Labs Vitals Infection
+    charts:
+      - title: Creatinine by ICU Day
+        dataset: lab_daily_summary
+        viz_type: line
+        filters:
+          - lab_test = Creatinine
+        x_axis: icu_day
+        dimensions:
+          - died_in_hospital
+        metrics:
+          - median_value
+      - title: Lactate by ICU Day
+        dataset: lab_daily_summary
+        viz_type: line
+        filters:
+          - lab_test = Lactate
+        x_axis: icu_day
+        dimensions:
+          - died_in_hospital
+        metrics:
+          - median_value
+      - title: White Blood Cells by ICU Day
+        dataset: lab_daily_summary
+        viz_type: line
+        filters:
+          - lab_test = White Blood Cells
+        x_axis: icu_day
+        dimensions:
+          - died_in_hospital
+        metrics:
+          - median_value
+      - title: Lab Daily Summary Table
+        dataset: lab_daily_summary
+        viz_type: table
+        columns:
+          - lab_test
+          - icu_day
+          - sample_count
+          - median_value
+          - min_value
+          - max_value
+      - title: Vital Signs by ICU Day
+        dataset: vital_daily_summary
+        viz_type: line
+        x_axis: icu_day
+        dimensions:
+          - vital_sign
+        metrics:
+          - median_value
+      - title: Antibiotic Resistance Heatmap
+        dataset: micro_resistance_summary
+        viz_type: heatmap_v2
+        x_axis: antibiotic
+        y_axis: organism
+        metric: resistance_pct
+      - title: Antibiotic Resistance Table
+        dataset: micro_resistance_summary
+        viz_type: table
+        columns:
+          - organism
+          - antibiotic
+          - test_count
+          - resistant_count
+          - susceptible_count
+          - resistance_pct
+
+  - name: Utilization and Readmission
+    charts:
+      - title: Readmission by Discharge Location
+        dataset: discharge_outcome_summary
+        viz_type: bar
+        groupby:
+          - discharge_location
+        metrics:
+          - readmit_30d_pct
+      - title: Readmission by Service
+        dataset: discharge_outcome_summary
+        viz_type: bar
+        groupby:
+          - service
+        metrics:
+          - readmit_30d_pct
+      - title: Readmission Frequency Distribution
+        dataset: admission_readmission_fact
+        viz_type: bar
+        groupby:
+          - total_admissions_for_patient
+        metrics:
+          - count(distinct subject_id)
+      - title: Infusion Categories by Events
+        dataset: infusion_category_summary
+        viz_type: bar
+        groupby:
+          - category
+        metrics:
+          - sum(event_count)
+      - title: Infusion Categories by Mortality
+        dataset: infusion_category_summary
+        viz_type: bar
+        groupby:
+          - category
+        metrics:
+          - round(100.0 * sum(died_in_hospital) / nullif(count(*), 0), 1)
+
+  - name: Data Quality and Provenance
+    charts:
+      - title: Source Object Summary
+        dataset: data_quality_summary
+        viz_type: table
+        columns:
+          - source_object
+          - row_count
+          - null_subject_id_count
+          - null_hadm_id_count
+          - min_time
+          - max_time
+          - orphan_rate_pct
+          - notes

@@ -1,0 +1,24 @@
+slice_name: 'MIMIC v2: Top Primary Diagnoses'
+description: null
+certified_by: null
+certification_details: null
+viz_type: dist_bar
+params:
+  viz_type: dist_bar
+  color_scheme: supersetColors
+  groupby:
+  - primary_diagnosis
+  metrics:
+  - expressionType: SQL
+    sqlExpression: COUNT(*)
+    label: Admissions
+  row_limit: 20
+  show_bar_value: true
+  x_axis_label: Primary Diagnosis
+  y_axis_label: Admissions
+  order_desc: true
+query_context: null
+cache_timeout: null
+uuid: 318a709c-1a1c-5e0f-ad2a-b37229631527
+version: 1.0.0
+dataset_uuid: 50984a15-f48f-58de-8476-88799b390a17

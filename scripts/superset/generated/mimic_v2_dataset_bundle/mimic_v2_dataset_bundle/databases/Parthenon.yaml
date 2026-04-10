@@ -1,0 +1,15 @@
+database_name: Parthenon
+sqlalchemy_uri: postgresql://placeholder:placeholder@host.docker.internal:5432/parthenon
+cache_timeout: null
+expose_in_sqllab: true
+allow_run_async: true
+allow_ctas: false
+allow_cvas: false
+allow_dml: false
+allow_file_upload: false
+extra:
+  allows_virtual_table_explore: true
+  schemas_allowed_for_file_upload: []
+impersonate_user: false
+uuid: 8ee6dcf9-6db7-4b96-b4f9-de1e0d2b84b2
+version: 1.0.0

@@ -1,0 +1,22 @@
+slice_name: 'MIMIC v2: Semantic Layer Data Quality'
+description: null
+certified_by: null
+certification_details: null
+viz_type: table
+params:
+  viz_type: table
+  all_columns:
+  - source_object
+  - row_count
+  - null_subject_id_count
+  - null_hadm_id_count
+  - min_time
+  - max_time
+  - orphan_rate_pct
+  - notes
+  row_limit: 50
+query_context: null
+cache_timeout: null
+uuid: 0b4c7817-9975-5c72-81a6-b3d11a796525
+version: 1.0.0
+dataset_uuid: 7e1ff966-c9b7-541d-a191-1fe22ffc64f6

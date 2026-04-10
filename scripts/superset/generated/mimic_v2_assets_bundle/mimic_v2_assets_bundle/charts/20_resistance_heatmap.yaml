@@ -1,0 +1,23 @@
+slice_name: 'MIMIC v2: Antibiotic Resistance Heatmap'
+description: null
+certified_by: null
+certification_details: null
+viz_type: heatmap_v2
+params:
+  viz_type: heatmap
+  all_columns_x: antibiotic
+  all_columns_y: organism
+  metric:
+    expressionType: SQL
+    sqlExpression: MAX(resistance_pct)
+    label: Resistance %
+  linear_color_scheme: superset_seq_1
+  show_legend: true
+  show_values: true
+  normalize_across: heatmap
+  row_limit: 500
+query_context: null
+cache_timeout: null
+uuid: 37c71cde-f9fb-50b6-84c7-061101249d21
+version: 1.0.0
+dataset_uuid: fad09a5d-7ac5-5522-ba8f-1e90db680b0a
