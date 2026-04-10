@@ -328,7 +328,7 @@ class SystemHealthController extends Controller
         $port = config('solr.endpoint.default.port', 8983);
 
         try {
-            $response = Http::timeout(3)->get("http://{$host}:{$port}/solr/admin/cores?action=STATUS&wt=json");
+            $response = Http::timeout(10)->get("http://{$host}:{$port}/solr/admin/cores?action=STATUS&wt=json");
 
             if ($response->successful()) {
                 $cores = $response->json('status') ?? [];

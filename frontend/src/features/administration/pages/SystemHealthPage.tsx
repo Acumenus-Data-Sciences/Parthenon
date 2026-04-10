@@ -195,10 +195,11 @@ function TierSection({ tier, services }: { tier: string; services: SystemHealthS
 export default function SystemHealthPage() {
   const { data, isLoading, isFetching, refetch, dataUpdatedAt } = useSystemHealth();
 
+  const services = data?.services;
   const tiers = useMemo(() => {
-    if (!data?.services) return [];
+    if (!services) return [];
     const grouped = new Map<string, SystemHealthService[]>();
-    for (const service of data.services) {
+    for (const service of services) {
       const tier = service.tier ?? "Monitoring & Communications";
       const list = grouped.get(tier) ?? [];
       list.push(service);
@@ -207,7 +208,7 @@ export default function SystemHealthPage() {
     return TIER_ORDER
       .filter((t) => grouped.has(t))
       .map((t) => ({ tier: t, services: grouped.get(t)! }));
-  }, [data?.services]);
+  }, [services]);
 
   const overallStatus =
     data?.services.find((s) => s.status === "down")
@@ -261,17 +262,11 @@ export default function SystemHealthPage() {
 
       {/* Tiered service groups */}
       {isLoading ? (
-        <div className="space-y-6">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i}>
-              <div className="mb-3 h-6 w-40 animate-pulse rounded bg-muted" />
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {Array.from({ length: i === 0 ? 3 : 2 }).map((_, j) => (
-                  <div key={j} className="h-24 animate-pulse rounded-lg border border-border bg-muted" />
-                ))}
-              </div>
-            </div>
-          ))}
+        <div className="flex flex-col items-center justify-center py-24">
+          <div className="h-10 w-10 rounded-full border-2 border-muted border-t-teal-400 animate-spin" />
+          <p className="mt-4 text-sm text-muted-foreground">
+            Polling services...
+          </p>
         </div>
       ) : (
         <div className="space-y-6">

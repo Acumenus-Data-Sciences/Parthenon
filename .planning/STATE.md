@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-03-26)
 Phase: 7-10 parallel (Medications, Conditions, Measurements, Observations)
 Plan: 09-01 completed (growth measurements), phases 7-10 in parallel
 Status: Executing Phases 07-10 in parallel
-Last activity: 2026-04-10 - Added hierarchical concept similarity (depth-weighted Jaccard) to patient similarity scorers
+Last activity: 2026-04-10 - Added clustering-based phenotype discovery (consensus clustering + feature prevalence heatmap)
 
 Progress: [█████████░] 92%
 
@@ -179,7 +179,12 @@ None yet.
 | 16 | Rebuild cross-domain SNOMED hierarchy + clinical groupings navigation | 2026-04-05 | 4b0f8af45 | [16-rebuild-concept-hierarchy-cross-domain-s](./quick/16-rebuild-concept-hierarchy-cross-domain-s/) |
 | 17 | Refactor wiki engine to use ChromaDB for semantic search | 2026-04-06 | 8b5341775 | [17-refactor-wiki-engine-to-use-chromadb-for](./quick/17-refactor-wiki-engine-to-use-chromadb-for/) |
 | 19 | Wiki UX cleanup: paginated list, debounced search, chat drawer | 2026-04-07 | pending | [19-wiki-ux-cleanup-paginated-list-keyword-s](./quick/19-wiki-ux-cleanup-paginated-list-keyword-s/) |
-| 260410-4kk | Add hierarchical concept similarity using concept_ancestor to replace flat Jaccard in patient similarity dimension scorers | 2026-04-10 | 407be6241 | [260410-4kk-add-hierarchical-concept-similarity-usin](./quick/260410-4kk-add-hierarchical-concept-similarity-usin/) |
+| 260410-4kk | Add hierarchical concept similarity (depth-weighted Jaccard via concept_ancestor) | 2026-04-10 | 407be6241 | [260410-4kk-add-hierarchical-concept-similarity-usin](./quick/260410-4kk-add-hierarchical-concept-similarity-usin/) |
+| 260410-50r | Add Love Plot SMD visualization and JSD/Wasserstein distributional comparison | 2026-04-10 | 23dea1869 | [260410-50r-add-love-plot-smd-visualization-and-jsd-](./quick/260410-50r-add-love-plot-smd-visualization-and-jsd-/) |
+| 260410-5vf | Add UMAP patient landscape visualization (Python AI + R3F scatter) | 2026-04-10 | 2a297fd78 | [260410-5vf-add-umap-patient-landscape-visualization](./quick/260410-5vf-add-umap-patient-landscape-visualization/) |
+| 260410-6ep | Add propensity score matching (L1 logistic regression, PS matching) | 2026-04-10 | bad7b4845 | [260410-6ep-add-propensity-score-matching-python-ai-](./quick/260410-6ep-add-propensity-score-matching-python-ai-/) |
+| 260410-73h | Add temporal similarity via DTW on lab trajectories | 2026-04-10 | 9a5194a7b | [260410-73h-add-temporal-similarity-via-dynamic-time](./quick/260410-73h-add-temporal-similarity-via-dynamic-time/) |
+| 260410-7g0 | Add clustering-based phenotype discovery (consensus clustering + heatmap) | 2026-04-10 | 7eab94e24 | [260410-7g0-add-clustering-based-phenotype-discovery](./quick/260410-7g0-add-clustering-based-phenotype-discovery/) |
 
 ## Session Continuity
 
