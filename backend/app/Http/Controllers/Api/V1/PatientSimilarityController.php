@@ -939,27 +939,7 @@ class PatientSimilarityController extends Controller
 
             $sourceProfile = $this->buildDimensionProfileFromSql($sourceMemberIds, $source->id, $sourceCentroid);
             $targetProfile = $this->buildDimensionProfileFromSql($targetMemberIds, $source->id, $targetCentroid);
-
-            $divergence = [];
-            foreach ($sourceProfile as $dimKey => $sourceDim) {
-                $targetDim = $targetProfile[$dimKey] ?? null;
-                if ($targetDim === null) {
-                    $divergence[$dimKey] = ['score' => 1.0, 'label' => 'No data'];
-
-                    continue;
-                }
-
-                $sourceCov = $sourceDim['coverage'];
-                $targetCov = $targetDim['coverage'];
-                $score = abs($sourceCov - $targetCov);
-                $divergence[$dimKey] = [
-                    'score' => round($score, 4),
-                    'label' => $score < 0.3 ? 'Similar' : ($score < 0.6 ? 'Moderate' : 'Divergent'),
-                ];
-            }
-
-            $divScores = array_column($divergence, 'score');
-            $overallDivergence = count($divScores) > 0 ? round(array_sum($divScores) / count($divScores), 4) : 0;
+            $comparison = $this->service->compareProfiles($sourceCentroid, $targetCentroid);
 
             $sourceCohortDef = CohortDefinition::find($validated['source_cohort_id']);
             $targetCohortDef = CohortDefinition::find($validated['target_cohort_id']);
@@ -978,8 +958,8 @@ class PatientSimilarityController extends Controller
                         'member_count' => count($targetMemberIds),
                         'dimensions' => $targetProfile,
                     ],
-                    'divergence' => $divergence,
-                    'overall_divergence' => $overallDivergence,
+                    'divergence' => $comparison['divergence'],
+                    'overall_divergence' => $comparison['overall_divergence'],
                 ],
             ]);
         } catch (\Throwable $e) {

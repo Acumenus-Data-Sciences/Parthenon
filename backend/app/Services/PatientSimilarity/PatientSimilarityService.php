@@ -631,6 +631,65 @@ final class PatientSimilarityService
     }
 
     /**
+     * Compare two feature profiles and return per-dimension divergence.
+     *
+     * Divergence is defined as 1 - similarity for dimensions with available data.
+     * Dimensions that are unavailable for both profiles are marked as "No data"
+     * and excluded from the overall divergence average.
+     *
+     * @param  array<string, mixed>  $sourceData
+     * @param  array<string, mixed>  $targetData
+     * @return array{
+     *     overall_similarity: float,
+     *     overall_divergence: float,
+     *     similarity: array<string, float|null>,
+     *     divergence: array<string, array{score: float, label: string}>
+     * }
+     */
+    public function compareProfiles(array $sourceData, array $targetData): array
+    {
+        $weights = [];
+        foreach (array_keys($this->scorers) as $dimensionKey) {
+            $weights[$dimensionKey] = 1.0;
+        }
+
+        $comparison = $this->scorePatientPair($sourceData, $targetData, $weights);
+        $dimensionSimilarities = $comparison['dimension_scores'];
+
+        $divergence = [];
+        $divergenceScores = [];
+
+        foreach ($dimensionSimilarities as $dimensionKey => $similarityScore) {
+            if ($similarityScore === null) {
+                $divergence[$dimensionKey] = [
+                    'score' => 0.0,
+                    'label' => 'No data',
+                ];
+
+                continue;
+            }
+
+            $score = round(1.0 - $similarityScore, 4);
+            $divergence[$dimensionKey] = [
+                'score' => $score,
+                'label' => $score < 0.3 ? 'Similar' : ($score < 0.6 ? 'Moderate' : 'Divergent'),
+            ];
+            $divergenceScores[] = $score;
+        }
+
+        $overallDivergence = count($divergenceScores) > 0
+            ? round(array_sum($divergenceScores) / count($divergenceScores), 4)
+            : 0.0;
+
+        return [
+            'overall_similarity' => $comparison['overall_score'],
+            'overall_divergence' => $overallDivergence,
+            'similarity' => $dimensionSimilarities,
+            'divergence' => $divergence,
+        ];
+    }
+
+    /**
      * Get feature vector computation status for a source.
      *
      * @return array<string, mixed>
