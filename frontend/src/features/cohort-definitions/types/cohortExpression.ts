@@ -233,6 +233,9 @@ export interface CohortDefinition {
   generations?: CohortGeneration[];
   latest_generation?: CohortGeneration | null;
   generation_sources?: GenerationSource[];
+  deprecated_at?: string | null;
+  superseded_by?: number | null;
+  superseded_by_cohort?: Pick<CohortDefinition, 'id' | 'name'> | null;
 }
 
 export interface CohortGeneration {
@@ -336,6 +339,7 @@ export interface UpdateCohortDefinitionPayload {
   expression_json?: CohortExpression;
   is_public?: boolean;
   tags?: string[];
+  domain?: CohortDomain | null;
 }
 
 // ---------------------------------------------------------------------------
