@@ -1,6 +1,6 @@
 ---
 slug: cohort-cleanup-categorization
-title: "Taming the Cohort Zoo: How We Cut 89 Definitions to 80, Added Clinical Domain Categorization, and Built a Quality-Tiered Browse Experience"
+title: "Taming the Cohort Zoo: Clinical Domain Categorization and a Quality-Tiered Browse Experience"
 authors: [mudoshi, claude]
 tags: [cohort-definitions, ux, data-quality, categorization, omop, phenotyping, architecture, frontend, backend]
 date: 2026-04-10
