@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -23,7 +24,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement('CREATE SCHEMA IF NOT EXISTS inpatient_ext');
+        $this->ensureSchemaExists('inpatient_ext');
 
         // Registry table — column shape matches the SELECTs in
         // MorpheusDatasetController::index/show and the minimal
@@ -78,6 +79,52 @@ return new class extends Migration
         DB::statement('DROP TABLE IF EXISTS inpatient_ext.morpheus_dataset');
         // Intentionally not dropping inpatient_ext — other extension tables
         // may live alongside the registry in future.
+    }
+
+    /**
+     * Create a schema only if it does not already exist.
+     *
+     * Postgres evaluates the CREATE privilege check before the IF NOT EXISTS
+     * existence check, so `CREATE SCHEMA IF NOT EXISTS inpatient_ext` still
+     * fails with "permission denied for database" when the role lacks
+     * CREATE on the database — even on upgrade paths where the schema is
+     * already present. Checking first with information_schema keeps the
+     * common "upgrade over existing install" path out of that privilege
+     * check entirely, and produces an actionable error for genuine fresh
+     * installs that are missing the grant.
+     */
+    private function ensureSchemaExists(string $schema): void
+    {
+        $exists = (bool) (DB::selectOne(
+            'SELECT EXISTS (
+                SELECT 1 FROM information_schema.schemata WHERE schema_name = ?
+            ) AS exists',
+            [$schema]
+        )->exists ?? false);
+
+        if ($exists) {
+            return;
+        }
+
+        try {
+            DB::statement("CREATE SCHEMA {$schema}");
+        } catch (QueryException $e) {
+            $dbName = DB::connection()->getDatabaseName();
+            $username = DB::connection()->getConfig('username');
+
+            throw new RuntimeException(
+                "Cannot create schema '{$schema}' in database '{$dbName}': the "
+                ."role '{$username}' lacks CREATE privilege on the database. "
+                .'As a Postgres superuser, run: '
+                ."GRANT CREATE ON DATABASE {$dbName} TO {$username};  "
+                .'(Docker-only installs get this grant automatically from '
+                .'docker/postgres/init.sql. Host-Postgres installs require a '
+                .'one-time manual grant by the DB admin before running '
+                .'migrations.) Original PG error: '.$e->getMessage(),
+                0,
+                $e
+            );
+        }
     }
 
     /**

@@ -18,3 +18,12 @@ CREATE SCHEMA IF NOT EXISTS webapi;        -- Legacy OHDSI WebAPI (Atlas migrati
 
 -- Grants
 GRANT ALL ON SCHEMA app, omop, results, gis, eunomia, eunomia_results, php, webapi TO parthenon;
+
+-- CREATE on the database lets Laravel migrations run CREATE SCHEMA for
+-- optional/extension schemas that are not pre-created here (e.g. inpatient_ext
+-- for the Morpheus dataset registry). Without this, migrations that call
+-- `CREATE SCHEMA IF NOT EXISTS <name>` fail with "permission denied for
+-- database parthenon" on fresh installs — even when the IF NOT EXISTS guard
+-- would otherwise be a no-op, because Postgres evaluates the privilege before
+-- the existence check.
+GRANT CREATE ON DATABASE parthenon TO parthenon;
