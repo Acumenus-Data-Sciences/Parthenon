@@ -151,21 +151,21 @@
   source_ref: "Mayo"
 
 - loinc: "1920-8"
-  unit_ucum: "U/L"
+  unit_ucum: "[U]/L"
   ranges:
     - { sex: M, age_low: 18, age_high: null, low: 10.0, high: 40.0 }
     - { sex: F, age_low: 18, age_high: null, low: 9.0,  high: 32.0 }
   source_ref: "Mayo"
 
 - loinc: "1742-6"
-  unit_ucum: "U/L"
+  unit_ucum: "[U]/L"
   ranges:
     - { sex: M, age_low: 18, age_high: null, low: 7.0, high: 55.0 }
     - { sex: F, age_low: 18, age_high: null, low: 7.0, high: 45.0 }
   source_ref: "Mayo"
 
 - loinc: "6768-6"
-  unit_ucum: "U/L"
+  unit_ucum: "[U]/L"
   ranges:
     - { sex: A, age_low: 18, age_high: null, low: 44.0,  high: 147.0 }
     - { sex: A, age_low:  1, age_high:  17,  low: 54.0,  high: 369.0 }
@@ -173,7 +173,7 @@
   notes: "Pediatric range intentionally wider; bone growth."
 
 - loinc: "2324-2"
-  unit_ucum: "U/L"
+  unit_ucum: "[U]/L"
   ranges:
     - { sex: M, age_low: 18, age_high: null, low: 8.0, high: 61.0 }
     - { sex: F, age_low: 18, age_high: null, low: 5.0, high: 36.0 }
@@ -226,7 +226,7 @@
 # ============================================================
 
 - loinc: "3016-3"
-  unit_ucum: "mIU/L"
+  unit_ucum: "10*-3.[iU]/L"
   ranges:
     - { sex: A, age_low: 18, age_high: null, low: 0.4, high: 4.5 }
   source_ref: "Mayo"
