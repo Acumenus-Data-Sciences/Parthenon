@@ -551,6 +551,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/cohort-definitions/import', [CohortDefinitionController::class, 'import']);
         Route::get('/cohort-definitions/tags', [CohortDefinitionController::class, 'tags']);
         Route::get('/cohort-definitions/stats', [CohortDefinitionController::class, 'stats']);
+        Route::get('/cohort-definitions/domains', [CohortDefinitionController::class, 'domains']);
         Route::post('/cohort-definitions/from-bundle', [CohortDefinitionController::class, 'createFromBundle']);
         Route::post('/cohort-definitions/compare', [CohortDefinitionController::class, 'compare']);
         Route::apiResource('cohort-definitions', CohortDefinitionController::class);
@@ -562,6 +563,8 @@ Route::prefix('v1')->group(function () {
         Route::get('/cohort-definitions/{cohortDefinition}/sql', [CohortDefinitionController::class, 'previewSql']);
         Route::post('/cohort-definitions/{cohortDefinition}/copy', [CohortDefinitionController::class, 'copy']);
         Route::post('/cohort-definitions/{cohortDefinition}/diagnostics', [CohortDefinitionController::class, 'diagnostics']);
+        Route::post('/cohort-definitions/{cohortDefinition}/deprecate', [CohortDefinitionController::class, 'deprecate']);
+        Route::post('/cohort-definitions/{cohortDefinition}/restore-active', [CohortDefinitionController::class, 'restoreActive']);
 
         // Analysis Stats (must be before resource routes)
         Route::get('analyses/stats', AnalysisStatsController::class);

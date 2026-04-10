@@ -325,6 +325,7 @@ class CohortDefinitionController extends Controller
         try {
             $cohortDefinition->load([
                 'author:id,name,email',
+                'supersededByCohort:id,name',
                 'generations' => fn ($q) => $q->orderByDesc('created_at')->limit(10),
                 'generations.source:id,source_name,source_key',
             ]);
@@ -1004,6 +1005,65 @@ class CohortDefinitionController extends Controller
             'condition' => 'Condition',
             default => 'Observation',
         };
+    }
+
+    /**
+     * POST /v1/cohort-definitions/{cohortDefinition}/deprecate
+     *
+     * Mark a cohort definition as deprecated, optionally pointing to a replacement.
+     */
+    public function deprecate(Request $request, CohortDefinition $cohortDefinition): JsonResponse
+    {
+        $validated = $request->validate([
+            'superseded_by' => 'nullable|integer|exists:cohort_definitions,id',
+        ]);
+
+        if ($cohortDefinition->isDeprecated()) {
+            return response()->json(['message' => 'Cohort is already deprecated.'], 422);
+        }
+
+        // Validate replacement is not itself deprecated
+        if (! empty($validated['superseded_by'])) {
+            /** @var CohortDefinition $replacement */
+            $replacement = CohortDefinition::findOrFail($validated['superseded_by']);
+            if ($replacement->isDeprecated()) {
+                return response()->json([
+                    'message' => 'Cannot supersede with a deprecated cohort.',
+                ], 422);
+            }
+        }
+
+        $cohortDefinition->update([
+            'deprecated_at' => now(),
+            'superseded_by' => $validated['superseded_by'] ?? null,
+        ]);
+
+        return response()->json([
+            'data' => $cohortDefinition->fresh(['author:id,name,email', 'supersededByCohort:id,name']),
+            'message' => 'Cohort deprecated.',
+        ]);
+    }
+
+    /**
+     * POST /v1/cohort-definitions/{cohortDefinition}/restore-active
+     *
+     * Restore a deprecated cohort definition to active status.
+     */
+    public function restoreActive(CohortDefinition $cohortDefinition): JsonResponse
+    {
+        if (! $cohortDefinition->isDeprecated()) {
+            return response()->json(['message' => 'Cohort is not deprecated.'], 422);
+        }
+
+        $cohortDefinition->update([
+            'deprecated_at' => null,
+            'superseded_by' => null,
+        ]);
+
+        return response()->json([
+            'data' => $cohortDefinition->fresh('author:id,name,email'),
+            'message' => 'Cohort restored to active.',
+        ]);
     }
 
     /**
