@@ -143,32 +143,32 @@ export default function CohortDefinitionsPage() {
       {/* Stats bar */}
       <CohortStatsBar onStatClick={handleStatClick} activeKey={statFilter ?? undefined} />
 
-      {/* Search bar */}
-      <div className="relative max-w-md">
-        <Search
-          size={16}
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
-        />
-        <input
-          type="text"
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          placeholder="Search cohort definitions..."
-          className="w-full rounded-lg pl-10 pr-3 py-2.5 text-sm bg-[#151518] border border-[#232328] text-[#F0EDE8] placeholder:text-[#5A5650] focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors"
-        />
-        {searchInput && (
-          <button
-            type="button"
-            onClick={() => setSearchInput("")}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5A5650] hover:text-[#8A857D]"
-          >
-            <X size={14} />
-          </button>
-        )}
-      </div>
+      {/* Search bar + View toggle + Tier filter */}
+      <div className="flex items-center gap-4">
+        {/* Search */}
+        <div className="relative w-64">
+          <Search
+            size={16}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+          />
+          <input
+            type="text"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder="Search cohort definitions..."
+            className="w-full rounded-lg pl-10 pr-8 py-2 text-sm bg-[#151518] border border-[#232328] text-[#F0EDE8] placeholder:text-[#5A5650] focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors"
+          />
+          {searchInput && (
+            <button
+              type="button"
+              onClick={() => setSearchInput("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5A5650] hover:text-[#8A857D]"
+            >
+              <X size={14} />
+            </button>
+          )}
+        </div>
 
-      {/* View toggle + Tier filter */}
-      <div className="flex items-center justify-between">
         {/* View toggle */}
         <div className="flex items-center gap-1 rounded-lg bg-[#1C1C20] p-0.5">
           <button
