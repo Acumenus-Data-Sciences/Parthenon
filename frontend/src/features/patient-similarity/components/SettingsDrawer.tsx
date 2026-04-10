@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { RotateCcw } from 'lucide-react';
 import { Drawer } from '@/components/ui/Drawer';
 import { useSimilarityDimensions } from '../hooks/usePatientSimilarity';
+import type { SimilarityDimension } from '../types/patientSimilarity';
 
 export interface SettingsDrawerProps {
   open: boolean;
@@ -17,8 +18,13 @@ export interface SettingsDrawerProps {
   onApply: () => void;
 }
 
-export function SettingsDrawer({
-  open,
+// ── Inner form — only mounted while drawer is open so useState re-initializes each open ──
+
+interface SettingsFormProps extends SettingsDrawerProps {
+  dimensions: SimilarityDimension[];
+}
+
+function SettingsForm({
   onClose,
   weights,
   onWeightsChange,
@@ -29,19 +35,19 @@ export function SettingsDrawer({
   gender,
   onGenderChange,
   onApply,
-}: SettingsDrawerProps) {
-  const { data: dimensions = [] } = useSimilarityDimensions();
-  const [localWeights, setLocalWeights] = useState<Record<string, number>>(weights);
-
-  // Sync local weights when dimensions load or external weights change
-  useEffect(() => {
-    if (dimensions.length === 0) return;
+  dimensions,
+}: SettingsFormProps) {
+  // Initialize from merged defaults on every mount (i.e., every drawer open)
+  const initialWeights = useMemo(() => {
     const merged: Record<string, number> = {};
     for (const dim of dimensions) {
       merged[dim.key] = weights[dim.key] ?? dim.default_weight;
     }
-    setLocalWeights(merged);
-  }, [dimensions, weights]);
+    return merged;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // intentionally empty — snapshot on mount only
+
+  const [localWeights, setLocalWeights] = useState<Record<string, number>>(initialWeights);
 
   function handleWeightChange(key: string, value: number) {
     setLocalWeights((prev) => ({ ...prev, [key]: value }));
@@ -78,7 +84,7 @@ export function SettingsDrawer({
   );
 
   return (
-    <Drawer open={open} onClose={onClose} title="Analysis Settings" size="md" footer={footer}>
+    <Drawer open onClose={onClose} title="Analysis Settings" size="md" footer={footer}>
       <div className="space-y-8">
         {/* ── Dimension Weights ──────────────────────────────────── */}
         <section>
@@ -106,13 +112,10 @@ export function SettingsDrawer({
               return (
                 <div key={dim.key}>
                   <div className="mb-1 flex items-center justify-between">
-                    <label
-                      htmlFor={`weight-${dim.key}`}
-                      className="text-sm text-[#B0A898]"
-                    >
+                    <label htmlFor={`weight-${dim.key}`} className="text-sm text-[#B0A898]">
                       {dim.name}
                     </label>
-                    <span className={`text-sm font-mono font-semibold ${weightColor(val)}`}>
+                    <span className={`font-mono text-sm font-semibold ${weightColor(val)}`}>
                       {val.toFixed(1)}
                     </span>
                   </div>
@@ -153,7 +156,9 @@ export function SettingsDrawer({
                     min={0}
                     max={ageMax}
                     value={ageMin}
-                    onChange={(e) => onAgeMinChange(Math.max(0, parseInt(e.target.value, 10) || 0))}
+                    onChange={(e) =>
+                      onAgeMinChange(Math.max(0, parseInt(e.target.value, 10) || 0))
+                    }
                     className="w-full rounded border border-[#2A2A2F] bg-[#16161A] px-3 py-1.5 text-sm text-[#E8E3DC] focus:border-[#C9A227] focus:outline-none"
                   />
                 </div>
@@ -168,7 +173,9 @@ export function SettingsDrawer({
                     min={ageMin}
                     max={150}
                     value={ageMax}
-                    onChange={(e) => onAgeMaxChange(Math.min(150, parseInt(e.target.value, 10) || 150))}
+                    onChange={(e) =>
+                      onAgeMaxChange(Math.min(150, parseInt(e.target.value, 10) || 150))
+                    }
                     className="w-full rounded border border-[#2A2A2F] bg-[#16161A] px-3 py-1.5 text-sm text-[#E8E3DC] focus:border-[#C9A227] focus:outline-none"
                   />
                 </div>
@@ -196,4 +203,14 @@ export function SettingsDrawer({
       </div>
     </Drawer>
   );
+}
+
+// ── Public export — mounts SettingsForm only while open so state resets each open ──
+
+export function SettingsDrawer(props: SettingsDrawerProps) {
+  const { data: dimensions = [] } = useSimilarityDimensions();
+
+  if (!props.open) return null;
+
+  return <SettingsForm {...props} dimensions={dimensions} />;
 }
