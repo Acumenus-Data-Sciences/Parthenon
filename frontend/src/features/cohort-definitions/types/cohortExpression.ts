@@ -225,6 +225,8 @@ export interface CohortDefinition {
   is_public: boolean;
   version: number;
   tags?: string[];
+  domain?: string | null;
+  quality_tier?: "study-ready" | "validated" | "draft" | null;
   author?: { id: number; name: string; email: string };
   created_at: string;
   updated_at: string;
@@ -270,6 +272,48 @@ export interface CohortDefinitionListParams {
   tags?: string[];
   is_public?: boolean;
   with_generations?: boolean;
+  author_id?: number;
+}
+
+export type CohortDomain =
+  | "cardiovascular"
+  | "metabolic"
+  | "renal"
+  | "oncology"
+  | "rare-disease"
+  | "pain-substance-use"
+  | "pediatric"
+  | "general";
+
+export type QualityTier = "study-ready" | "validated" | "draft";
+
+export interface DomainInfo {
+  key: CohortDomain;
+  label: string;
+  count: number;
+}
+
+export interface CohortGroup {
+  key: string;
+  label: string;
+  count: number;
+  cohorts: CohortDefinition[];
+}
+
+export interface GroupedCohortResponse {
+  data: {
+    groups: CohortGroup[];
+    tier_counts: Record<QualityTier, number>;
+  };
+  engine?: string;
+}
+
+export interface CohortDefinitionGroupedParams {
+  group_by: "domain" | "source";
+  domain?: CohortDomain;
+  quality_tier?: QualityTier;
+  search?: string;
+  tags?: string[];
   author_id?: number;
 }
 
