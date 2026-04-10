@@ -1149,7 +1149,7 @@ class PatientSimilarityController extends Controller
 
             $aiUrl = rtrim((string) config('services.ai.url', 'http://python-ai:8000'), '/');
 
-            /** @var \Illuminate\Http\Client\Response $response */
+            /** @var Response $response */
             $response = Http::timeout(180)->post("{$aiUrl}/patient-similarity/discover-phenotypes", $payload);
 
             if ($response->failed()) {
