@@ -7,10 +7,12 @@ import { useCohortDefinitions } from '@/features/cohort-definitions/hooks/useCoh
 import { useSourceStore } from '@/stores/sourceStore';
 import { CohortSelectorBar } from '../components/CohortSelectorBar';
 import { AnalysisPipeline } from '../components/AnalysisPipeline';
+import { SettingsDrawer } from '../components/SettingsDrawer';
 import { ProfileComparisonPanel } from '../components/ProfileComparisonPanel';
 import { CovariateBalancePanel } from '../components/CovariateBalancePanel';
 import { PsmPanel } from '../components/PsmPanel';
 import { LandscapePanel } from '../components/LandscapePanel';
+import { HeadToHeadDrawer } from '../components/HeadToHeadDrawer';
 import type {
   CohortComparisonResult,
   CovariateBalanceRow,
@@ -40,6 +42,14 @@ export default function PatientSimilarityWorkspace() {
   const [targetCohortId, setTargetCohortId] = useState<number | null>(null);
   const [comparatorCohortId, setComparatorCohortId] = useState<number | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [h2hOpen, setH2hOpen] = useState(false);
+  const [h2hPersonA, _setH2hPersonA] = useState<number | null>(null);
+  const [h2hPersonB, _setH2hPersonB] = useState<number | null>(null);
+  // Settings drawer state
+  const [weights, setWeights] = useState<Record<string, number>>({});
+  const [ageMin, setAgeMin] = useState(0);
+  const [ageMax, setAgeMax] = useState(150);
+  const [gender, setGender] = useState('');
 
   const pipeline = usePipeline();
   const compareMutation = useCompareCohorts();
@@ -286,6 +296,28 @@ export default function PatientSimilarityWorkspace() {
           renderStepContent={renderStepContent}
         />
       </div>
+
+      <SettingsDrawer
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        weights={weights}
+        onWeightsChange={setWeights}
+        ageMin={ageMin}
+        ageMax={ageMax}
+        onAgeMinChange={setAgeMin}
+        onAgeMaxChange={setAgeMax}
+        gender={gender}
+        onGenderChange={setGender}
+        onApply={handleCompare}
+      />
+
+      <HeadToHeadDrawer
+        open={h2hOpen}
+        onClose={() => setH2hOpen(false)}
+        personAId={h2hPersonA}
+        personBId={h2hPersonB}
+        sourceId={sourceId ?? 0}
+      />
     </div>
   );
 }
