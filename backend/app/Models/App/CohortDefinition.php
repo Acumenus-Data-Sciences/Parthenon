@@ -4,6 +4,7 @@ namespace App\Models\App;
 
 use App\Enums\CohortDomain;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -26,6 +27,8 @@ class CohortDefinition extends Model
         'quality_tier',
         'share_token',
         'share_expires_at',
+        'deprecated_at',
+        'superseded_by',
     ];
 
     /**
@@ -38,6 +41,7 @@ class CohortDefinition extends Model
             'is_public' => 'boolean',
             'tags' => 'array',
             'share_expires_at' => 'datetime',
+            'deprecated_at' => 'datetime',
             'domain' => CohortDomain::class,
         ];
     }
@@ -64,6 +68,42 @@ class CohortDefinition extends Model
     public function studyCohorts(): HasMany
     {
         return $this->hasMany(StudyCohort::class);
+    }
+
+    /**
+     * The cohort that replaces this one.
+     *
+     * @return BelongsTo<self, $this>
+     */
+    public function supersededByCohort(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'superseded_by');
+    }
+
+    /**
+     * Cohorts that this one supersedes (replaces).
+     *
+     * @return HasMany<self, $this>
+     */
+    public function supersedes(): HasMany
+    {
+        return $this->hasMany(self::class, 'superseded_by');
+    }
+
+    /**
+     * Scope to active (non-deprecated) cohorts.
+     *
+     * @param  Builder<self>  $query
+     * @return Builder<self>
+     */
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->whereNull('deprecated_at');
+    }
+
+    public function isDeprecated(): bool
+    {
+        return $this->deprecated_at !== null;
     }
 
     /**
