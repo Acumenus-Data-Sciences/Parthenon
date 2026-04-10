@@ -287,6 +287,48 @@ export interface CrossCohortSearchParams {
   min_score?: number;
 }
 
+// ── Landscape Projection ────────────────────────────────────────────
+
+export interface LandscapePoint {
+  person_id: number;
+  x: number;
+  y: number;
+  z: number | null;
+  cluster_id: number;
+  is_cohort_member: boolean;
+  age_bucket: number;
+  gender_concept_id: number;
+}
+
+export interface LandscapeCluster {
+  id: number;
+  label: string;
+  centroid: number[];
+  size: number;
+}
+
+export interface LandscapeResult {
+  points: LandscapePoint[];
+  clusters: LandscapeCluster[];
+  quality: {
+    outlier_count: number;
+    duplicate_count: number;
+    orphan_count: number;
+  };
+  stats: {
+    total_vectors: number;
+    projection_time_ms: number;
+    sampled: number;
+  };
+}
+
+export interface LandscapeParams {
+  source_id: number;
+  cohort_definition_id?: number;
+  dimensions?: 2 | 3;
+  max_points?: number;
+}
+
 // ── Patient Comparison ────────────────────────────────────────────
 
 export interface PatientComparisonResult {

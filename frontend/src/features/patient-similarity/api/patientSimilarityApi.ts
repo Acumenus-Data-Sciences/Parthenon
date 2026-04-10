@@ -14,6 +14,8 @@ import type {
   CohortComparisonParams,
   CohortComparisonResult,
   CrossCohortSearchParams,
+  LandscapeParams,
+  LandscapeResult,
 } from "../types/patientSimilarity";
 
 export async function searchSimilarPatients(
@@ -127,6 +129,18 @@ export async function crossCohortSearch(
 ): Promise<SimilaritySearchResult> {
   const { data } = await apiClient.post(
     "/patient-similarity/cross-cohort-search",
+    params,
+  );
+  return data.data ?? data;
+}
+
+// ── Landscape Projection ────────────────────────────────────────────
+
+export async function projectLandscape(
+  params: LandscapeParams,
+): Promise<LandscapeResult> {
+  const { data } = await apiClient.post(
+    "/patient-similarity/landscape",
     params,
   );
   return data.data ?? data;
