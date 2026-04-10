@@ -369,8 +369,7 @@ export default function PatientSimilarityPage() {
         {searchMode === "compare" && compareMutation.data && (
           <div className="space-y-4">
             <CohortComparisonRadar
-              sourceDimensions={compareMutation.data.source_cohort.dimensions}
-              targetDimensions={compareMutation.data.target_cohort.dimensions}
+              divergence={compareMutation.data.divergence}
               sourceName={compareMutation.data.source_cohort.name}
               targetName={compareMutation.data.target_cohort.name}
             />
