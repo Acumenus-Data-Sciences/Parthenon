@@ -32,7 +32,7 @@ export function CohortCompareForm({
   const [comparedSelectionKey, setComparedSelectionKey] = useState<string | null>(null);
 
   const { data: cohortsData, isLoading: cohortsLoading } =
-    useCohortDefinitions({ limit: 100 });
+    useCohortDefinitions({ limit: 500 });
   const cohorts = cohortsData?.items ?? [];
 
   const { data: sourceProfile, isLoading: sourceProfileLoading } =
@@ -47,6 +47,7 @@ export function CohortCompareForm({
     );
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSourceCohortId(0);
     setTargetCohortId(0);
     setComparedSelectionKey(null);
@@ -59,6 +60,7 @@ export function CohortCompareForm({
 
   useEffect(() => {
     if (comparedSelectionKey !== null && comparedSelectionKey !== currentSelectionKey) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setComparedSelectionKey(null);
     }
   }, [comparedSelectionKey, currentSelectionKey]);

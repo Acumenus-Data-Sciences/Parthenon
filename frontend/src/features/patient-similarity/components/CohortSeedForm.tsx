@@ -34,7 +34,7 @@ export function CohortSeedForm({
   const [gender, setGender] = useState("");
 
   const { data: cohortsData, isLoading: cohortsLoading } =
-    useCohortDefinitions({ limit: 100 });
+    useCohortDefinitions({ limit: 500 });
   const cohorts = cohortsData?.items ?? [];
 
   const {
@@ -51,10 +51,12 @@ export function CohortSeedForm({
     for (const dim of dimensions) {
       defaults[dim.key] = dim.default_weight;
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setWeights(defaults);
   }, [dimensions]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelectedCohortId(0);
   }, [sourceId]);
 
