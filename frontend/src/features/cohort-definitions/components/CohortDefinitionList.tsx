@@ -4,6 +4,7 @@ import {
   Loader2,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Users,
   CheckCircle2,
   XCircle,
@@ -15,11 +16,14 @@ import {
   Plus,
   Database,
   User,
+  Shield,
+  Award,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/authStore";
-import { useCohortDefinitions } from "../hooks/useCohortDefinitions";
-import type { CohortGeneration, GenerationSource } from "../types/cohortExpression";
+import { useCohortDefinitions, useGroupedCohortDefinitions } from "../hooks/useCohortDefinitions";
+import type { CohortGeneration, GenerationSource, QualityTier } from "../types/cohortExpression";
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -100,20 +104,70 @@ function SourceBadges({ sources }: { sources?: GenerationSource[] }) {
   );
 }
 
+function TierBadge({ tier }: { tier?: string | null }) {
+  if (!tier) return <span className="text-xs text-[#5A5650]">--</span>;
+  const config: Record<string, { color: string; label: string; Icon: typeof Shield }> = {
+    "study-ready": { color: "#2DD4BF", label: "Study-Ready", Icon: Shield },
+    validated: { color: "#C9A227", label: "Validated", Icon: Award },
+    draft: { color: "#6B7280", label: "Draft", Icon: FileText },
+  };
+  const c = config[tier];
+  if (!c) return <span className="text-xs text-[#5A5650]">{tier}</span>;
+  return (
+    <span
+      className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
+      style={{ backgroundColor: `${c.color}15`, color: c.color }}
+    >
+      <c.Icon size={10} />
+      {c.label}
+    </span>
+  );
+}
+
 interface Props {
   tags?: string[];
   search?: string;
   isPublic?: boolean;
   withGenerations?: boolean;
   onCreateFromBundle?: () => void;
+  groupBy?: "domain" | null;
+  tierFilter?: string | null;
 }
 
-export function CohortDefinitionList({ tags, search, isPublic, withGenerations, onCreateFromBundle }: Props) {
+export function CohortDefinitionList({ tags, search, isPublic, withGenerations, onCreateFromBundle, groupBy, tierFilter }: Props) {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [myOnly, setMyOnly] = useState(true);
   const currentUser = useAuthStore((s) => s.user);
   const limit = 20;
+
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+
+  const toggleGroup = (key: string) => {
+    setExpandedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
+
+  const { data: groupedData, isLoading: groupedLoading } = useGroupedCohortDefinitions({
+    group_by: "domain",
+    quality_tier: (tierFilter as QualityTier) ?? undefined,
+    search: search || undefined,
+    tags: tags && tags.length > 0 ? tags : undefined,
+    author_id: myOnly && currentUser ? currentUser.id : undefined,
+  });
+
+  // Auto-expand first 3 groups on initial load
+  useEffect(() => {
+    if (groupedData?.data?.groups && expandedGroups.size === 0) {
+      const firstThree = groupedData.data.groups.slice(0, 3).map((g) => g.key);
+      setExpandedGroups(new Set(firstThree));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [groupedData?.data?.groups]);
 
   // Reset page when filters change
   useEffect(() => {
@@ -191,6 +245,163 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
     );
   }
 
+  // -----------------------------------------------------------------------
+  // Grouped domain view
+  // -----------------------------------------------------------------------
+  if (groupBy === "domain") {
+    if (groupedLoading) {
+      return (
+        <div className="flex items-center justify-center h-64">
+          <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+        </div>
+      );
+    }
+
+    const groups = groupedData?.data?.groups ?? [];
+
+    return (
+      <div className="space-y-4">
+        {/* My / All toggle */}
+        <div className="flex items-center gap-1 rounded-lg bg-[#1C1C20] p-0.5 w-fit">
+          <button
+            type="button"
+            onClick={() => setMyOnly(true)}
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+              myOnly
+                ? "bg-[#232328] text-[#F0EDE8] shadow-sm"
+                : "text-[#8A857D] hover:text-[#C5C0B8]",
+            )}
+          >
+            <User size={12} />
+            My Definitions
+          </button>
+          <button
+            type="button"
+            onClick={() => setMyOnly(false)}
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+              !myOnly
+                ? "bg-[#232328] text-[#F0EDE8] shadow-sm"
+                : "text-[#8A857D] hover:text-[#C5C0B8]",
+            )}
+          >
+            <Globe size={12} />
+            All Definitions
+          </button>
+        </div>
+
+        {groups.length === 0 ? (
+          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
+            <Layers size={24} className="text-[#8A857D] mb-4" />
+            <h3 className="text-lg font-semibold text-[#F0EDE8]">No cohort definitions</h3>
+            <p className="mt-2 text-sm text-[#8A857D]">No definitions match the current filters.</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {groups.map((group) => {
+              const isExpanded = expandedGroups.has(group.key);
+              return (
+                <div
+                  key={group.key}
+                  className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden"
+                >
+                  {/* Group header */}
+                  <button
+                    type="button"
+                    onClick={() => toggleGroup(group.key)}
+                    className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-[#1C1C20] transition-colors"
+                  >
+                    {isExpanded ? (
+                      <ChevronDown size={14} className="text-[#8A857D] shrink-0" />
+                    ) : (
+                      <ChevronRight size={14} className="text-[#8A857D] shrink-0" />
+                    )}
+                    <span className="text-xs font-semibold uppercase tracking-wider text-[#C5C0B8]">
+                      {group.label}
+                    </span>
+                    <span className="rounded-full bg-[#232328] px-2 py-0.5 text-[10px] font-medium text-[#8A857D]">
+                      {group.count}
+                    </span>
+                  </button>
+
+                  {/* Expanded table */}
+                  {isExpanded && group.cohorts.length > 0 && (
+                    <table className="w-full">
+                      <thead>
+                        <tr className="bg-[#1C1C20]">
+                          <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
+                            Name
+                          </th>
+                          <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
+                            Tier
+                          </th>
+                          <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
+                            N
+                          </th>
+                          <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
+                            Sources
+                          </th>
+                          <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
+                            Updated
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {group.cohorts.map((def, i) => (
+                          <tr
+                            key={def.id}
+                            onClick={() => navigate(`/cohort-definitions/${def.id}`)}
+                            className={cn(
+                              "border-t border-[#1C1C20] transition-colors hover:bg-[#1C1C20] cursor-pointer",
+                              i % 2 === 0 ? "bg-[#151518]" : "bg-[#1A1A1E]",
+                            )}
+                          >
+                            <td className="px-4 py-2.5">
+                              <div className="flex items-center gap-2">
+                                {def.is_public ? (
+                                  <Globe size={11} className="text-[#60A5FA] shrink-0" />
+                                ) : (
+                                  <Lock size={11} className="text-[#5A5650] shrink-0" />
+                                )}
+                                <p className="text-sm font-medium text-[#F0EDE8] truncate max-w-[300px]">
+                                  {def.name}
+                                </p>
+                              </div>
+                            </td>
+                            <td className="px-4 py-2.5">
+                              <TierBadge tier={def.quality_tier} />
+                            </td>
+                            <td className="px-4 py-2.5">
+                              {def.latest_generation?.person_count != null ? (
+                                <span className="inline-flex items-center gap-1 font-['IBM_Plex_Mono',monospace] text-xs text-[#2DD4BF]">
+                                  <Users size={10} />
+                                  {def.latest_generation.person_count.toLocaleString()}
+                                </span>
+                              ) : (
+                                <span className="text-xs text-[#5A5650]">--</span>
+                              )}
+                            </td>
+                            <td className="px-4 py-2.5">
+                              <SourceBadges sources={def.generation_sources} />
+                            </td>
+                            <td className="px-4 py-2.5 text-xs text-[#8A857D]">
+                              {formatDate(def.updated_at)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       {/* My / All toggle */}
@@ -230,6 +441,9 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
             <tr className="bg-[#1C1C20]">
               <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                 Name
+              </th>
+              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                Tier
               </th>
               {!myOnly && (
                 <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
@@ -278,6 +492,9 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
                       )}
                     </div>
                   </div>
+                </td>
+                <td className="px-4 py-3">
+                  <TierBadge tier={def.quality_tier} />
                 </td>
                 {!myOnly && (
                   <td className="px-4 py-3">
