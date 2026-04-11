@@ -1,21 +1,21 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { Wand2, Upload, X, Search, Stethoscope, LayoutGrid, List } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CohortDefinitionList } from "../components/CohortDefinitionList";
 import { CohortStatsBar } from "../components/CohortStatsBar";
 import { ImportCohortModal } from "../components/ImportCohortModal";
 import { CreateFromBundleModal } from "../components/CreateFromBundleModal";
+import { CohortWizardModal } from "../components/wizard/CohortWizardModal";
 import { useCohortDefinitions } from "../hooks/useCohortDefinitions";
 import { getCohortTags } from "../api/cohortApi";
 import { HelpButton } from "@/features/help";
 import TagFilterBar from "@/components/ui/TagFilterBar";
 
 export default function CohortDefinitionsPage() {
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showImport, setShowImport] = useState(false);
   const [showFromBundle, setShowFromBundle] = useState(false);
+  const [wizardOpen, setWizardOpen] = useState(false);
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const [searchInput, setSearchInput] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -44,7 +44,7 @@ export default function CohortDefinitionsPage() {
   const facets = listData?.facets;
 
   const handleCreate = () => {
-    navigate("/cohort-definitions/new");
+    setWizardOpen(true);
   };
 
   const toggleTag = (tag: string) => {
@@ -261,6 +261,9 @@ export default function CohortDefinitionsPage() {
         open={showFromBundle}
         onClose={() => setShowFromBundle(false)}
       />
+
+      {/* Cohort Wizard modal */}
+      {wizardOpen && <CohortWizardModal onClose={() => setWizardOpen(false)} />}
     </div>
   );
 }
