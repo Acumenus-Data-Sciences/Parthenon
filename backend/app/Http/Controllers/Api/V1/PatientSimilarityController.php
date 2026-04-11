@@ -963,7 +963,7 @@ class PatientSimilarityController extends Controller
                 ->flatMap(fn ($chunk) => PatientFeatureVector::where('source_id', $source->id)
                     ->whereIn('person_id', $chunk->all())
                     ->get()
-                    ->map(fn ($v) => $v->features))
+                    ->map(fn ($v) => $v->toArray()))
                 ->all();
 
             $targetVectors = collect($targetSample)
@@ -971,7 +971,7 @@ class PatientSimilarityController extends Controller
                 ->flatMap(fn ($chunk) => PatientFeatureVector::where('source_id', $source->id)
                     ->whereIn('person_id', $chunk->all())
                     ->get()
-                    ->map(fn ($v) => $v->features))
+                    ->map(fn ($v) => $v->toArray()))
                 ->all();
 
             $covariates = $this->comparisonService->computeCovariateBalance($sourceVectors, $targetVectors);
