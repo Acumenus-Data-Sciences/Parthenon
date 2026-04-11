@@ -8,7 +8,6 @@ use App\Models\App\AbbyUserProfile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Knuckles\Scribe\Attributes\Group;
 
 /**
  * @group AI Assistant (Abby)

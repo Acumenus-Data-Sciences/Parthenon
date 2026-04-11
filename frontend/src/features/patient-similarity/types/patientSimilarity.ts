@@ -433,6 +433,7 @@ export interface LandscapePoint {
 export interface LandscapeCluster {
   id: number;
   size: number;
+  label?: string;
   color?: string;
 }
 
@@ -442,7 +443,7 @@ export interface LandscapeResult {
   dimensions: number;
   n_clusters: number;
   clusters?: LandscapeCluster[];
-  stats?: { n_patients: number; dimensions: number; n_clusters: number };
+  stats?: { n_patients: number; dimensions: number; n_clusters: number; projection_time_ms?: number };
 }
 
 export interface LandscapeParams {
@@ -481,4 +482,50 @@ export interface TemporalSimilarityParams {
   source_schema?: string;
   vocab_schema?: string;
   measurement_concept_ids?: number[];
+}
+
+// ── Phenotype Discovery ────────────────────────────────────────────
+
+export interface PhenotypeClusterFeature {
+  concept_id: number;
+  name: string;
+  prevalence: number;
+}
+
+export interface PhenotypeClusterProfile {
+  cluster_id: number;
+  size: number;
+  demographics: {
+    mean_age_bucket: number;
+    gender_distribution: Record<string, number>;
+  };
+  top_conditions: PhenotypeClusterFeature[];
+  top_drugs: PhenotypeClusterFeature[];
+}
+
+export interface PhenotypeHeatmapRow {
+  feature_name: string;
+  cluster_prevalences: number[];
+}
+
+export interface PhenotypeDiscoveryResult {
+  clusters: PhenotypeClusterProfile[];
+  heatmap: PhenotypeHeatmapRow[];
+  quality: {
+    silhouette_score: number;
+    k_used: number;
+    method: string;
+  };
+  feature_matrix_info: {
+    n_patients: number;
+    n_features: number;
+  };
+  capped_at?: number;
+}
+
+export interface PhenotypeDiscoveryParams {
+  source_id: number;
+  cohort_definition_id: number;
+  method?: string;
+  k?: number;
 }

@@ -3,7 +3,6 @@
 namespace App\Services\Genomics;
 
 use App\Concerns\SourceAware;
-use App\Models\App\Source;
 use Illuminate\Database\Connection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;

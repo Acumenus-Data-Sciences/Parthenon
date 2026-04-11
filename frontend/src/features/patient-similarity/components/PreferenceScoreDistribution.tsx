@@ -72,7 +72,7 @@ export function PreferenceScoreDistribution({
               Math.abs(value).toFixed(4),
               name === "target" ? "Target" : "Comparator",
             ]) as never}
-            labelFormatter={(label: number) => `Preference: ${label.toFixed(2)}`}
+            labelFormatter={((label: number) => `Preference: ${label.toFixed(2)}`) as never}
           />
           <Area
             type="monotone"

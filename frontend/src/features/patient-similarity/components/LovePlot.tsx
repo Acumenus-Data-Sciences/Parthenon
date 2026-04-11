@@ -98,7 +98,6 @@ function SingleLovePlot({
             dataKey="covariate"
             width={135}
             tick={{ fill: "#8A857D", fontSize: 10 }}
-            data={data}
           />
           <ReferenceLine x={0.1} stroke="#C9A227" strokeDasharray="5 5" label={{ value: "0.1", fill: "#C9A227", fontSize: 10 }} />
           <Tooltip
@@ -178,7 +177,6 @@ function BeforeAfterLovePlot({
             dataKey="covariate"
             width={135}
             tick={{ fill: "#8A857D", fontSize: 10 }}
-            data={beforeData}
           />
           <ReferenceLine x={0.1} stroke="#C9A227" strokeDasharray="5 5" label={{ value: "0.1", fill: "#C9A227", fontSize: 10 }} />
           <Tooltip

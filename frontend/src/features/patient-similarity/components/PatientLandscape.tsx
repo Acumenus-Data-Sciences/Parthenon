@@ -1,4 +1,4 @@
-import { useRef, useMemo, useCallback, useState } from "react";
+import { useRef, useMemo, useCallback, useState, useEffect } from "react";
 import { Canvas, type ThreeEvent } from "@react-three/fiber";
 import { OrbitControls, Html } from "@react-three/drei";
 import * as THREE from "three";
@@ -11,8 +11,6 @@ import type { LandscapePoint, LandscapeCluster, LandscapeResult } from "../types
 const SCENE_BG = "#0E0E11";
 const TEAL = "#2DD4BF";
 const GRAY = "#4B5563";
-const CRIMSON = "#9B1B30";
-
 const CLUSTER_PALETTE = [
   "#2DD4BF", "#C9A227", "#9B1B30", "#6366F1", "#EC4899",
   "#22D3EE", "#A78BFA", "#F97316", "#84CC16", "#F43F5E",
@@ -67,7 +65,7 @@ function PointCloud({ points, colorByCluster, is2D, onHover, onClick }: PointClo
     return { colorArray: colors };
   }, [points, colorByCluster, count]);
 
-  useMemo(() => {
+  useEffect(() => {
     if (!meshRef.current) return;
     const mesh = meshRef.current;
     for (let i = 0; i < count; i++) {
@@ -161,7 +159,7 @@ function PointTooltip({ point, clusters, is2D }: TooltipProps) {
           </div>
           {cluster && (
             <div>
-              Cluster: <span className="text-[#C5C0B8]">{cluster.label}</span>
+              Cluster: <span className="text-[#C5C0B8]">{cluster.label ?? `#${cluster.id}`}</span>
             </div>
           )}
           {point.is_cohort_member && (
@@ -259,7 +257,7 @@ export function PatientLandscape({
             </span>{" "}
             patients projected
           </span>
-          {stats.projection_time_ms > 0 && (
+          {stats?.projection_time_ms != null && stats.projection_time_ms > 0 && (
             <span>
               in{" "}
               <span className="text-[#C5C0B8]">
@@ -339,7 +337,7 @@ export function PatientLandscape({
                   background: CLUSTER_PALETTE[c.id % CLUSTER_PALETTE.length],
                 }}
               />
-              {c.label} ({c.size})
+              {c.label ?? `Cluster ${c.id}`} ({c.size})
             </div>
           ))
         )}

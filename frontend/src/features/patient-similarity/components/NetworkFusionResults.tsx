@@ -36,7 +36,7 @@ interface NodePosition {
 function computeMdsLayout(
   edges: NetworkFusionEdge[],
   communities: NetworkFusionCommunity[],
-  nPatients: number,
+  _nPatients: number,
 ): NodePosition[] {
   // Build person list and community lookup
   const personSet = new Set<number>();

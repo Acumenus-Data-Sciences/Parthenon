@@ -75,8 +75,8 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
     };
   });
 
-  function handleOperationComplete(result: CohortOperationResult) {
-    console.log("[CohortBuilder] operation complete:", result);
+  function handleOperationComplete(_result: CohortOperationResult) {
+    // TODO: surface operation result in UI
   }
 
   function handleAtlasParse() {

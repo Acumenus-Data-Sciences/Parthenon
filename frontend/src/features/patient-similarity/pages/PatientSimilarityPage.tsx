@@ -109,7 +109,7 @@ function HeadToHeadPanel({ personA, personB, sourceId }: { personA: number; pers
 
   const scores = comparison.scores ?? {};
   const dimScores = (typeof scores.dimension_scores === "object" && scores.dimension_scores !== null)
-    ? scores.dimension_scores as Record<string, number | null>
+    ? scores.dimension_scores as unknown as Record<string, number | null>
     : {};
   const overallScore = typeof scores.overall_score === "number" ? scores.overall_score : 0;
 
@@ -142,7 +142,7 @@ function HeadToHeadPanel({ personA, personB, sourceId }: { personA: number; pers
           <h3 className="text-sm font-semibold text-[#F0EDE8] mb-3">Shared Features</h3>
           <div className="grid grid-cols-3 gap-4 text-xs">
             {["conditions", "drugs", "procedures"].map((domain) => {
-              const items = comparison.shared_features?.[domain];
+              const items = (comparison.shared_features as Record<string, unknown>)?.[domain];
               const count = Array.isArray(items) ? items.length : 0;
               return (
                 <div key={domain}>

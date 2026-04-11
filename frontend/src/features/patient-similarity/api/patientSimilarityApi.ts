@@ -21,6 +21,8 @@ import type {
   LandscapeParams,
   LandscapeResult,
   TemporalSimilarityResult,
+  PhenotypeDiscoveryParams,
+  PhenotypeDiscoveryResult,
 } from "../types/patientSimilarity";
 
 export async function searchSimilarPatients(
@@ -185,6 +187,18 @@ export async function fetchTemporalSimilarity(
   const { data } = await apiClient.post(
     "/patient-similarity/temporal-compare",
     { person_a_id: personAId, person_b_id: personBId, source_id: sourceId },
+  );
+  return data.data ?? data;
+}
+
+// ── Phenotype Discovery ────────────────────────────────────────────
+
+export async function phenotypeDiscovery(
+  params: PhenotypeDiscoveryParams,
+): Promise<PhenotypeDiscoveryResult> {
+  const { data } = await apiClient.post(
+    "/patient-similarity/phenotype-discovery",
+    params,
   );
   return data.data ?? data;
 }
