@@ -105,7 +105,7 @@ export function CohortCompareForm({
             "w-full rounded-lg px-3 py-2 text-sm",
             "bg-[#0E0E11] border border-[#232328]",
             "text-[#F0EDE8]",
-            "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+            "focus:outline-none focus:border-[#C9A227] focus:ring-1 focus:ring-[#C9A227]/15",
           )}
         >
           <option value={0}>Select source...</option>
@@ -137,7 +137,7 @@ export function CohortCompareForm({
               "w-full rounded-lg px-3 py-2 text-sm",
               "bg-[#0E0E11] border border-[#232328]",
               "text-[#F0EDE8]",
-              "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+              "focus:outline-none focus:border-[#C9A227] focus:ring-1 focus:ring-[#C9A227]/15",
             )}
           >
             <option value={0}>Select source cohort...</option>
@@ -178,7 +178,7 @@ export function CohortCompareForm({
               "w-full rounded-lg px-3 py-2 text-sm",
               "bg-[#0E0E11] border border-[#232328]",
               "text-[#F0EDE8]",
-              "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+              "focus:outline-none focus:border-[#C9A227] focus:ring-1 focus:ring-[#C9A227]/15",
             )}
           >
             <option value={0}>Select target cohort...</option>

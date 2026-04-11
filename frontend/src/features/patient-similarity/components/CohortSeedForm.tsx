@@ -93,7 +93,7 @@ export function CohortSeedForm({
             "w-full rounded-lg px-3 py-2 text-sm",
             "bg-[#0E0E11] border border-[#232328]",
             "text-[#F0EDE8]",
-            "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+            "focus:outline-none focus:border-[#C9A227] focus:ring-1 focus:ring-[#C9A227]/15",
           )}
         >
           <option value={0}>Select source...</option>
@@ -125,7 +125,7 @@ export function CohortSeedForm({
               "w-full rounded-lg px-3 py-2 text-sm",
               "bg-[#0E0E11] border border-[#232328]",
               "text-[#F0EDE8]",
-              "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+              "focus:outline-none focus:border-[#C9A227] focus:ring-1 focus:ring-[#C9A227]/15",
             )}
           >
             <option value={0}>Select a cohort...</option>
@@ -202,7 +202,7 @@ export function CohortSeedForm({
               "w-1/2 rounded-lg px-3 py-1.5 text-xs",
               "bg-[#0E0E11] border border-[#232328]",
               "text-[#F0EDE8] placeholder:text-[#5A5650]",
-              "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+              "focus:outline-none focus:border-[#C9A227] focus:ring-1 focus:ring-[#C9A227]/15",
             )}
           />
           <span className="text-[#5A5650] text-xs">-</span>
@@ -215,7 +215,7 @@ export function CohortSeedForm({
               "w-1/2 rounded-lg px-3 py-1.5 text-xs",
               "bg-[#0E0E11] border border-[#232328]",
               "text-[#F0EDE8] placeholder:text-[#5A5650]",
-              "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+              "focus:outline-none focus:border-[#C9A227] focus:ring-1 focus:ring-[#C9A227]/15",
             )}
           />
         </div>
@@ -226,7 +226,7 @@ export function CohortSeedForm({
             "w-full rounded-lg px-3 py-1.5 text-xs",
             "bg-[#0E0E11] border border-[#232328]",
             "text-[#F0EDE8]",
-            "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+            "focus:outline-none focus:border-[#C9A227] focus:ring-1 focus:ring-[#C9A227]/15",
           )}
         >
           <option value="">Any gender</option>

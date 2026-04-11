@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { Search, Loader2, User, Hash, CreditCard, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSourceStore } from "@/stores/sourceStore";
@@ -33,7 +33,20 @@ export function SimilaritySearchForm({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [weights, setWeights] = useState<Record<string, number>>({});
+  const defaultWeights = useMemo(() => {
+    if (!dimensions) return {};
+    const defaults: Record<string, number> = {};
+    for (const dim of dimensions) {
+      defaults[dim.key] = initialWeights?.[dim.key] ?? dim.default_weight;
+    }
+    return defaults;
+  }, [dimensions, initialWeights]);
+
+  const [weightOverrides, setWeightOverrides] = useState<Record<string, number>>({});
+  const weights = useMemo(
+    () => ({ ...defaultWeights, ...weightOverrides }),
+    [defaultWeights, weightOverrides],
+  );
   const [ageMin, setAgeMin] = useState("");
   const [ageMax, setAgeMax] = useState("");
   const [gender, setGender] = useState("");
@@ -43,16 +56,6 @@ export function SimilaritySearchForm({
     isLoading: searchLoading,
     isFetching: searchFetching,
   } = usePersonSearch(sourceId > 0 ? sourceId : null, searchQuery);
-
-  // Initialize weights from dimensions when they load
-  useEffect(() => {
-    if (!dimensions) return;
-    const defaults: Record<string, number> = {};
-    for (const dim of dimensions) {
-      defaults[dim.key] = initialWeights?.[dim.key] ?? dim.default_weight;
-    }
-    setWeights(defaults);
-  }, [dimensions, initialWeights]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -83,7 +86,7 @@ export function SimilaritySearchForm({
     (searchLoading || searchFetching || hasResults || (searchResults && searchResults.length === 0));
 
   const handleWeightChange = useCallback((key: string, value: number) => {
-    setWeights((prev) => ({ ...prev, [key]: value }));
+    setWeightOverrides((prev) => ({ ...prev, [key]: value }));
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -114,7 +117,7 @@ export function SimilaritySearchForm({
             "w-full rounded-lg px-3 py-2 text-sm",
             "bg-[#0E0E11] border border-[#232328]",
             "text-[#F0EDE8]",
-            "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+            "focus:outline-none focus:border-[#C9A227] focus:ring-1 focus:ring-[#C9A227]/15",
           )}
         >
           <option value={0}>Select source...</option>
@@ -161,7 +164,7 @@ export function SimilaritySearchForm({
                 "text-[#F0EDE8] placeholder:text-[#5A5650]",
                 sourceId <= 0
                   ? "opacity-50 cursor-not-allowed"
-                  : "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+                  : "focus:outline-none focus:border-[#C9A227] focus:ring-1 focus:ring-[#C9A227]/15",
               )}
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -308,7 +311,7 @@ export function SimilaritySearchForm({
               "w-1/2 rounded-lg px-3 py-1.5 text-xs",
               "bg-[#0E0E11] border border-[#232328]",
               "text-[#F0EDE8] placeholder:text-[#5A5650]",
-              "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+              "focus:outline-none focus:border-[#C9A227] focus:ring-1 focus:ring-[#C9A227]/15",
             )}
           />
           <span className="text-[#5A5650] text-xs">-</span>
@@ -321,7 +324,7 @@ export function SimilaritySearchForm({
               "w-1/2 rounded-lg px-3 py-1.5 text-xs",
               "bg-[#0E0E11] border border-[#232328]",
               "text-[#F0EDE8] placeholder:text-[#5A5650]",
-              "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+              "focus:outline-none focus:border-[#C9A227] focus:ring-1 focus:ring-[#C9A227]/15",
             )}
           />
         </div>
@@ -334,7 +337,7 @@ export function SimilaritySearchForm({
             "w-full rounded-lg px-3 py-1.5 text-xs",
             "bg-[#0E0E11] border border-[#232328]",
             "text-[#F0EDE8]",
-            "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+            "focus:outline-none focus:border-[#C9A227] focus:ring-1 focus:ring-[#C9A227]/15",
           )}
         >
           <option value="">Any gender</option>
