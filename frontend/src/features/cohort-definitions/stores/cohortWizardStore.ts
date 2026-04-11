@@ -21,8 +21,8 @@ export type ChapterStatus = "pending" | "in-progress" | "complete" | "warning";
 
 interface CohortWizardStore {
   // Navigation
-  currentChapter: number;
   currentStep: number;
+  slideDir: "forward" | "back";
 
   // Metadata
   name: string;
@@ -51,10 +51,10 @@ interface CohortWizardStore {
   imagingCriteria: ImagingCriterion[];
 
   // Navigation actions
-  setChapter: (chapter: number) => void;
   setStep: (step: number) => void;
   goNext: () => void;
   goBack: () => void;
+  canProceed: () => boolean;
 
   // Metadata actions
   setName: (name: string) => void;
@@ -129,18 +129,9 @@ interface CohortWizardStore {
   reset: () => void;
 }
 
-const CHAPTER_STEPS: Record<number, number> = {
-  1: 1, // Basics: 1 step
-  2: 3, // Define Population: Entry events, Observation window, Qualifying events
-  3: 3, // Refine: Inclusion rules, Demographics, Risk scores
-  4: 2, // Follow-up: End strategy, Censoring
-  5: 1, // Specialized: opt-in gate
-  6: 3, // Review: Summary, Generate, Handoff
-};
-
 const initialState = {
-  currentChapter: 1,
-  currentStep: 1,
+  currentStep: 0,
+  slideDir: "forward" as const,
   name: "",
   description: "",
   domain: "",
@@ -164,29 +155,35 @@ export const useCohortWizardStore = create<CohortWizardStore>((set, get) => ({
   ...initialState,
 
   // --- Navigation ---
-  setChapter: (chapter) => set({ currentChapter: chapter, currentStep: 1 }),
-  setStep: (step) => set({ currentStep: step }),
+  setStep: (step) => {
+    const { currentStep } = get();
+    set({ currentStep: step, slideDir: step > currentStep ? "forward" : "back" });
+  },
 
   goNext: () => {
-    const { currentChapter, currentStep } = get();
-    const maxSteps = CHAPTER_STEPS[currentChapter] ?? 1;
-    if (currentStep < maxSteps) {
-      set({ currentStep: currentStep + 1 });
-    } else if (currentChapter < 6) {
-      set({ currentChapter: currentChapter + 1, currentStep: 1 });
+    const { currentStep } = get();
+    if (currentStep < 5) {
+      set({ currentStep: currentStep + 1, slideDir: "forward" });
     }
   },
 
   goBack: () => {
-    const { currentChapter, currentStep } = get();
-    if (currentStep > 1) {
-      set({ currentStep: currentStep - 1 });
-    } else if (currentChapter > 1) {
-      const prevChapter = currentChapter - 1;
-      set({
-        currentChapter: prevChapter,
-        currentStep: CHAPTER_STEPS[prevChapter] ?? 1,
-      });
+    const { currentStep } = get();
+    if (currentStep > 0) {
+      set({ currentStep: currentStep - 1, slideDir: "back" });
+    }
+  },
+
+  canProceed: () => {
+    const s = get();
+    switch (s.currentStep) {
+      case 0: return s.name.trim() !== "";
+      case 1: return s.entryConcepts.length > 0;
+      case 2: return true;
+      case 3: return true;
+      case 4: return true;
+      case 5: return true;
+      default: return false;
     }
   },
 
@@ -358,23 +355,23 @@ export const useCohortWizardStore = create<CohortWizardStore>((set, get) => ({
   getChapterStatus: (chapter) => {
     const s = get();
     switch (chapter) {
-      case 1:
+      case 0:
         if (!s.name) return "pending";
         return "complete";
-      case 2:
+      case 1:
         if (s.entryConcepts.length === 0) return "pending";
         return "complete";
-      case 3:
+      case 2:
         return s.inclusionRules.length > 0 ||
           s.demographics ||
           s.riskScores.length > 0
           ? "complete"
           : "pending";
-      case 4:
+      case 3:
         return "complete"; // Always valid (observation period is default)
-      case 5:
+      case 4:
         return "complete"; // Always valid (optional)
-      case 6:
+      case 5:
         return "pending";
       default:
         return "pending";
