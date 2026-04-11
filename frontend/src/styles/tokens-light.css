@@ -1,0 +1,118 @@
+/* ============================================================
+   Light Mode — Warm Parchment + Deeper Brand Colors
+   ============================================================ */
+
+html.light {
+  /* 2.1 Primary — Deeper Crimson for light backgrounds */
+  --primary:          #7A1526;
+  --primary-light:    #9B1B30;
+  --primary-dark:     #5A1020;
+  --primary-lighter:  #B82D42;
+  --primary-glow:     rgba(122, 21, 38, 0.25);
+  --primary-bg:       rgba(122, 21, 38, 0.10);
+  --primary-border:   rgba(155, 27, 48, 0.30);
+
+  /* 2.2 Accent — Deeper Gold */
+  --accent:           #8B7018;
+  --accent-dark:      #6B5510;
+  --accent-light:     #A68B1F;
+  --accent-lighter:   #C9A227;
+  --accent-muted:     #6B5510;
+  --accent-pale:      rgba(139, 112, 24, 0.12);
+  --accent-bg:        rgba(139, 112, 24, 0.08);
+  --accent-glow:      rgba(139, 112, 24, 0.20);
+  --focus-ring:       0 0 0 3px var(--accent-pale);
+
+  /* 2.3 Surfaces — Warm Parchment Stack */
+  --surface-darkest:   #E0DCD6;
+  --surface-base:      #F5F3EF;
+  --surface-raised:    #FFFFFF;
+  --surface-overlay:   #F0EDE7;
+  --surface-elevated:  #E8E4DD;
+  --surface-accent:    #DDD8D0;
+  --surface-highlight: #D0CAC0;
+
+  --sidebar-bg:        #EAE6DF;
+  --sidebar-bg-light:  #F0EDE7;
+
+  /* 2.4 Text — Dark Scale */
+  --text-primary:   #1A1816;
+  --text-secondary: #4A4540;
+  --text-muted:     #7A756D;
+  --text-ghost:     #B0A89E;
+  --text-disabled:  #C5C0B8;
+
+  /* 2.5 Semantic — Richer for light backgrounds */
+  --critical:        #C93545;
+  --critical-dark:   #A82A38;
+  --critical-light:  #E85A6B;
+  --critical-bg:     rgba(201, 53, 69, 0.12);
+  --critical-border: rgba(201, 53, 69, 0.25);
+  --critical-glow:   rgba(201, 53, 69, 0.15);
+
+  --warning:         #B88530;
+  --warning-dark:    #966B20;
+  --warning-light:   #D4A040;
+  --warning-bg:      rgba(184, 133, 48, 0.12);
+  --warning-border:  rgba(184, 133, 48, 0.25);
+  --warning-glow:    rgba(184, 133, 48, 0.15);
+
+  --success:         #1A9985;
+  --success-dark:    #148070;
+  --success-light:   #20B8A5;
+  --success-bg:      rgba(26, 153, 133, 0.12);
+  --success-border:  rgba(26, 153, 133, 0.25);
+  --success-glow:    rgba(26, 153, 133, 0.15);
+
+  --info:            #2563EB;
+  --info-dark:       #1D4FBF;
+  --info-light:      #3B82F6;
+  --info-bg:         rgba(37, 99, 235, 0.10);
+  --info-border:     rgba(37, 99, 235, 0.25);
+  --info-glow:       rgba(37, 99, 235, 0.15);
+
+  /* 2.7 Borders */
+  --border-default: #D0CAC0;
+  --border-subtle:  rgba(208, 202, 192, 0.60);
+  --border-hover:   #8B7018;
+  --border-focus:   #8B7018;
+  --border-active:  #7A1526;
+
+  /* 2.8 Glassmorphism — inverted for light */
+  --glass-00: rgba(0, 0, 0, 0.02);
+  --glass-01: rgba(0, 0, 0, 0.04);
+  --glass-02: rgba(0, 0, 0, 0.06);
+  --glass-03: rgba(0, 0, 0, 0.08);
+  --glass-04: rgba(0, 0, 0, 0.10);
+  --glass-05: rgba(0, 0, 0, 0.14);
+  --glass-dark-00: rgba(0, 0, 0, 0.04);
+  --glass-dark-01: rgba(0, 0, 0, 0.08);
+  --glass-dark-02: rgba(0, 0, 0, 0.12);
+
+  /* 2.9 Gradients — light variants */
+  --gradient-panel:        linear-gradient(135deg, rgba(0,0,0,0.03) 0%, rgba(0,0,0,0.01) 100%);
+  --gradient-panel-raised: linear-gradient(135deg, rgba(0,0,0,0.04) 0%, rgba(0,0,0,0.01) 100%);
+  --gradient-panel-inset:  linear-gradient(135deg, rgba(0,0,0,0.06) 0%, rgba(0,0,0,0.02) 100%);
+  --gradient-crimson:      linear-gradient(135deg, var(--primary), var(--primary-dark));
+  --gradient-gold:         linear-gradient(135deg, var(--accent-light), var(--accent-dark));
+
+  /* OMOP Domain Colors — deeper for light backgrounds */
+  --domain-condition:    #7A1526;
+  --domain-drug:         #2563EB;
+  --domain-measurement:  #1A9985;
+  --domain-visit:        #8B7018;
+  --domain-observation:  #7C3AED;
+  --domain-procedure:    #DB2777;
+  --domain-device:       #EA580C;
+  --domain-death:        #C93545;
+
+  /* Chart Categorical */
+  --chart-1: var(--primary);
+  --chart-2: var(--info);
+  --chart-3: var(--success);
+  --chart-4: var(--warning);
+  --chart-5: var(--accent);
+  --chart-6: #7C3AED;
+  --chart-7: #DB2777;
+  --chart-8: var(--text-muted);
+}
