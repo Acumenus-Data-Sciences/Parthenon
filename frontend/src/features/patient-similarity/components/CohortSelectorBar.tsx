@@ -84,7 +84,7 @@ export function CohortSelectorBar({
   return (
     <div className="sticky top-0 z-10 rounded-xl border border-[#2A2A30] bg-[#151518] px-4 py-3 space-y-2">
       {/* Row 1 — controls */}
-      <div className="flex items-center gap-3 flex-wrap">
+      <div className="flex items-start gap-3 flex-wrap">
         {/* Data source dropdown */}
         <select
           value={sourceId ?? ""}
@@ -153,16 +153,18 @@ export function CohortSelectorBar({
             ))}
           </select>
           {showTargetBanner && (
-            <div className="mt-1.5 flex items-center gap-1.5">
-              <span className="text-[10px] font-medium text-[#9B1B30]">
-                {isCompareMode ? "Target:" : "Seed:"}
-              </span>
-              <GenerationStatusBanner
-                cohortDefinitionId={targetCohortId!}
-                sourceId={sourceId!}
-                profile={targetProfile}
-                isLoading={targetProfileLoading}
-              />
+            <div className="mt-1">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-medium text-[#9B1B30]">
+                  {isCompareMode ? "Target:" : "Seed:"}
+                </span>
+                <GenerationStatusBanner
+                  cohortDefinitionId={targetCohortId!}
+                  sourceId={sourceId!}
+                  profile={targetProfile}
+                  isLoading={targetProfileLoading}
+                />
+              </div>
             </div>
           )}
         </div>
