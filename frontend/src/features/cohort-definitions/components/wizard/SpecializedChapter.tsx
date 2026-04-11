@@ -85,7 +85,7 @@ export function SpecializedChapter() {
           <h4 className="mb-3 text-[13px] font-medium text-[#A78BFA]">Genomic Criteria</h4>
           {genomicCriteria.map((gc, i) => (
             <div
-              key={i}
+              key={gc._key ?? `gc-${i}`}
               className="mb-2 flex items-center justify-between rounded-md border border-[#2a2a3a] bg-[#1a1a2e] px-3 py-2"
             >
               <span className="text-[12px] text-[#ccc]">{gc.label}</span>
@@ -98,7 +98,10 @@ export function SpecializedChapter() {
               </button>
             </div>
           ))}
-          <GenomicCriteriaPanel onAdd={addGenomicCriterion} onCancel={() => {}} />
+          <GenomicCriteriaPanel
+            onAdd={addGenomicCriterion}
+            onCancel={() => setSelectedSpecialized(selectedSpecialized.filter((s) => s !== "genomic"))}
+          />
         </div>
       )}
 
@@ -108,7 +111,7 @@ export function SpecializedChapter() {
           <h4 className="mb-3 text-[13px] font-medium text-[#60A5FA]">Imaging Criteria</h4>
           {imagingCriteria.map((ic, i) => (
             <div
-              key={i}
+              key={ic._key ?? `ic-${i}`}
               className="mb-2 flex items-center justify-between rounded-md border border-[#2a2a3a] bg-[#1a1a2e] px-3 py-2"
             >
               <span className="text-[12px] text-[#ccc]">{ic.label}</span>
@@ -121,7 +124,10 @@ export function SpecializedChapter() {
               </button>
             </div>
           ))}
-          <ImagingCriteriaPanel onAdd={addImagingCriterion} onCancel={() => {}} />
+          <ImagingCriteriaPanel
+            onAdd={addImagingCriterion}
+            onCancel={() => setSelectedSpecialized(selectedSpecialized.filter((s) => s !== "imaging"))}
+          />
         </div>
       )}
 

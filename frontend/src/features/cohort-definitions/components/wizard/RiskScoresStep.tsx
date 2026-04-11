@@ -20,7 +20,7 @@ export function RiskScoresStep() {
         <div className="flex flex-col gap-2">
           {riskScores.map((rs, i) => (
             <div
-              key={i}
+              key={rs._key ?? rs.id}
               className="flex items-center justify-between rounded-md border border-[#2a2a3a] bg-[#0E0E11] px-3 py-2"
             >
               <span className="text-[13px] text-[#ccc]">
@@ -36,6 +36,19 @@ export function RiskScoresStep() {
               </button>
             </div>
           ))}
+        </div>
+      )}
+
+      {riskScores.length === 0 && (
+        <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-[#333] py-6 text-center">
+          <span className="text-[13px] text-[#666]">
+            No risk score criteria added yet.
+          </span>
+          <span className="text-[12px] text-[#555]">
+            Risk score criteria can be added via the{" "}
+            <strong className="text-[#C9A227]">Advanced Editor</strong> after generating
+            the cohort definition.
+          </span>
         </div>
       )}
 

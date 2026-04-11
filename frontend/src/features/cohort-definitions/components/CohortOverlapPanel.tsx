@@ -42,7 +42,7 @@ export function CohortOverlapPanel({
     enabled: completedSources.length === 0,
   });
 
-  const { data: cohortList } = useCohortDefinitions({ limit: 100 });
+  const { data: cohortList } = useCohortDefinitions({ limit: 500 });
   const {
     data: overlap,
     isLoading,

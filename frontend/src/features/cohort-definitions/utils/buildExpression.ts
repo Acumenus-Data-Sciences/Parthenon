@@ -25,6 +25,7 @@ export interface WizardEntryConcept {
 }
 
 export interface WizardInclusionRule {
+  _key: string;
   domain: DomainCriterionType;
   concepts: WizardEntryConcept[];
   occurrenceType: 0 | 1 | 2; // exactly, at most, at least

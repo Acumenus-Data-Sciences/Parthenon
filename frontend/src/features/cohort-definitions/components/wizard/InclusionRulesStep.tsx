@@ -54,7 +54,7 @@ export function InclusionRulesStep() {
       <div className="flex flex-col gap-3">
         {inclusionRules.map((rule, index) => (
           <InclusionRuleSentence
-            key={index}
+            key={rule._key}
             rule={rule}
             index={index}
             onUpdate={updateInclusionRule}

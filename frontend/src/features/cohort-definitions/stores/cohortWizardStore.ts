@@ -236,6 +236,7 @@ export const useCohortWizardStore = create<CohortWizardStore>((set, get) => ({
       inclusionRules: [
         ...s.inclusionRules,
         {
+          _key: crypto.randomUUID(),
           domain: "ConditionOccurrence" as DomainCriterionType,
           concepts: [],
           occurrenceType: 2 as const, // at least
@@ -298,7 +299,7 @@ export const useCohortWizardStore = create<CohortWizardStore>((set, get) => ({
   setDemographics: (demographics) => set({ demographics }),
 
   addRiskScore: (criterion) =>
-    set((s) => ({ riskScores: [...s.riskScores, criterion] })),
+    set((s) => ({ riskScores: [...s.riskScores, { ...criterion, _key: crypto.randomUUID() }] })),
 
   removeRiskScore: (index) =>
     set((s) => ({
@@ -335,7 +336,7 @@ export const useCohortWizardStore = create<CohortWizardStore>((set, get) => ({
 
   addGenomicCriterion: (criterion) =>
     set((s) => ({
-      genomicCriteria: [...s.genomicCriteria, criterion],
+      genomicCriteria: [...s.genomicCriteria, { ...criterion, _key: crypto.randomUUID() }],
     })),
 
   removeGenomicCriterion: (index) =>
@@ -345,7 +346,7 @@ export const useCohortWizardStore = create<CohortWizardStore>((set, get) => ({
 
   addImagingCriterion: (criterion) =>
     set((s) => ({
-      imagingCriteria: [...s.imagingCriteria, criterion],
+      imagingCriteria: [...s.imagingCriteria, { ...criterion, _key: crypto.randomUUID() }],
     })),
 
   removeImagingCriterion: (index) =>

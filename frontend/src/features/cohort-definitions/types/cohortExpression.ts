@@ -119,6 +119,7 @@ export type GenomicCriteriaType =
   | "treatment_episode";
 
 export interface GenomicCriterion {
+  _key?: string;
   id?: number; // saved criterion ID (from genomic_cohort_criteria)
   type: GenomicCriteriaType;
   label: string; // human-readable, e.g. "EGFR L858R mutation present"
@@ -151,6 +152,7 @@ export type ImagingCriteriaType =
   | "dose";
 
 export interface ImagingCriterion {
+  _key?: string;
   id?: number;
   type: ImagingCriteriaType;
   label: string;
@@ -177,6 +179,7 @@ export interface ImagingCriterion {
 // ---------------------------------------------------------------------------
 
 export interface RiskScoreCriterion {
+  _key?: string;
   id: number;
   label: string;
   analysisId: number;
