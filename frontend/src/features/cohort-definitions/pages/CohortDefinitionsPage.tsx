@@ -1,35 +1,19 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Loader2, Upload, X, Search, Stethoscope, LayoutGrid, List } from "lucide-react";
+import { Wand2, Upload, X, Search, Stethoscope, LayoutGrid, List } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CohortDefinitionList } from "../components/CohortDefinitionList";
 import { CohortStatsBar } from "../components/CohortStatsBar";
 import { ImportCohortModal } from "../components/ImportCohortModal";
 import { CreateFromBundleModal } from "../components/CreateFromBundleModal";
-import {
-  useCreateCohortDefinition,
-  useCohortDefinitions,
-} from "../hooks/useCohortDefinitions";
+import { useCohortDefinitions } from "../hooks/useCohortDefinitions";
 import { getCohortTags } from "../api/cohortApi";
 import { HelpButton } from "@/features/help";
 import TagFilterBar from "@/components/ui/TagFilterBar";
 
-const defaultExpression = {
-  ConceptSets: [],
-  PrimaryCriteria: {
-    CriteriaList: [],
-    ObservationWindow: { PriorDays: 0, PostDays: 0 },
-  },
-  QualifiedLimit: { Type: "First" as const },
-  ExpressionLimit: { Type: "First" as const },
-  CollapseSettings: { CollapseType: "ERA" as const, EraPad: 0 },
-};
-
 export default function CohortDefinitionsPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const createMutation = useCreateCohortDefinition();
-  const [isCreating, setIsCreating] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [showFromBundle, setShowFromBundle] = useState(false);
   const [activeTags, setActiveTags] = useState<string[]>([]);
@@ -60,21 +44,7 @@ export default function CohortDefinitionsPage() {
   const facets = listData?.facets;
 
   const handleCreate = () => {
-    setIsCreating(true);
-    createMutation.mutate(
-      {
-        name: "Untitled Cohort Definition",
-        expression_json: defaultExpression,
-      },
-      {
-        onSuccess: (def) => {
-          navigate(`/cohort-definitions/${def.id}`);
-        },
-        onSettled: () => {
-          setIsCreating(false);
-        },
-      },
-    );
+    navigate("/cohort-definitions/new");
   };
 
   const toggleTag = (tag: string) => {
@@ -127,15 +97,10 @@ export default function CohortDefinitionsPage() {
           <button
             type="button"
             onClick={handleCreate}
-            disabled={isCreating}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2.5 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2.5 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors"
           >
-            {isCreating ? (
-              <Loader2 size={16} className="animate-spin" />
-            ) : (
-              <Plus size={16} />
-            )}
-            New Cohort Definition
+            <Wand2 size={16} />
+            Cohort Wizard
           </button>
         </div>
       </div>
