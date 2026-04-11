@@ -1278,4 +1278,60 @@ class PatientSimilarityController extends Controller
             ], 500);
         }
     }
+
+    // ── UMAP Patient Landscape Projection ──────────────────────────
+
+    /**
+     * Project patient feature vectors into a 2D/3D scatter plot via PCA + UMAP.
+     *
+     * Proxies to the AI service's /patient-similarity/project endpoint.
+     */
+    public function landscape(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'source_id' => ['required', 'integer', 'exists:sources,id'],
+            'cohort_person_ids' => ['sometimes', 'array'],
+            'cohort_person_ids.*' => ['integer'],
+            'dimensions' => ['sometimes', 'integer', 'in:2,3'],
+            'max_patients' => ['sometimes', 'integer', 'min:100', 'max:10000'],
+        ]);
+
+        try {
+            $source = Source::with('daimons')->findOrFail($validated['source_id']);
+            SourceContext::forSource($source);
+
+            $payload = [
+                'source_id' => $source->id,
+                'dimensions' => $validated['dimensions'] ?? 3,
+                'max_patients' => $validated['max_patients'] ?? 5000,
+            ];
+
+            // If cohort_person_ids provided, cap at 5000 to avoid OOM in AI service
+            if (! empty($validated['cohort_person_ids'])) {
+                $personIds = array_values(array_unique($validated['cohort_person_ids']));
+                if (count($personIds) > 5000) {
+                    $personIds = collect($personIds)->shuffle()->take(5000)->values()->all();
+                }
+                $payload['person_ids'] = $personIds;
+            }
+
+            $aiUrl = rtrim((string) config('services.ai.url', 'http://python-ai:8000'), '/');
+
+            /** @var Response $response */
+            $response = Http::timeout(300)->post("{$aiUrl}/patient-similarity/project", $payload);
+
+            if ($response->failed()) {
+                $body = $response->json();
+                $detail = $body['detail'] ?? 'Patient landscape projection failed in AI service.';
+
+                return response()->json(['error' => $detail], $response->status());
+            }
+
+            return response()->json(['data' => $response->json()]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Patient landscape projection failed: '.$e->getMessage(),
+            ], 500);
+        }
+    }
 }
