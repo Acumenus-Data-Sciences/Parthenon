@@ -22,8 +22,8 @@ const ETHNICITY_OPTIONS = [
 export function DemographicsStep() {
   const { demographics, setDemographics } = useCohortWizardStore();
 
-  const ageMin = demographics?.Age?.Value ?? "";
-  const ageMax = demographics?.Age?.Extent ?? "";
+  const ageMin = demographics?.Age?.Value;
+  const ageMax = demographics?.Age?.Extent;
   const genders = demographics?.Gender ?? [];
   const races = demographics?.Race ?? [];
   const ethnicities = demographics?.Ethnicity ?? [];
@@ -64,15 +64,16 @@ export function DemographicsStep() {
                 min={0}
                 max={120}
                 placeholder="Min"
-                value={ageMin}
+                value={ageMin ?? ""}
                 onChange={(e) => {
                   const val = e.target.value ? parseInt(e.target.value) : undefined;
-                  updateField(
-                    "Age",
-                    val !== undefined
-                      ? { Value: val, Op: "bt" as const, Extent: typeof ageMax === "number" ? ageMax : undefined }
-                      : undefined,
-                  );
+                  if (val !== undefined) {
+                    updateField("Age", { Value: val, Op: "bt" as const, Extent: ageMax });
+                  } else if (ageMax !== undefined) {
+                    updateField("Age", { Value: 0, Op: "bt" as const, Extent: ageMax });
+                  } else {
+                    updateField("Age", undefined);
+                  }
                 }}
                 className="w-[80px] rounded-md border border-[#444] bg-[#1a1a2e] px-3 py-2 text-center text-[13px] text-[#C9A227] outline-none focus:border-[#C9A227]"
               />
@@ -82,16 +83,14 @@ export function DemographicsStep() {
                 min={0}
                 max={120}
                 placeholder="Max"
-                value={ageMax}
+                value={ageMax ?? ""}
                 onChange={(e) => {
                   const val = e.target.value ? parseInt(e.target.value) : undefined;
-                  const min = typeof ageMin === "number" ? ageMin : 0;
-                  updateField(
-                    "Age",
-                    val !== undefined || typeof ageMin === "number"
-                      ? { Value: min, Op: "bt" as const, Extent: val }
-                      : undefined,
-                  );
+                  if (val !== undefined || ageMin !== undefined) {
+                    updateField("Age", { Value: ageMin ?? 0, Op: "bt" as const, Extent: val });
+                  } else {
+                    updateField("Age", undefined);
+                  }
                 }}
                 className="w-[80px] rounded-md border border-[#444] bg-[#1a1a2e] px-3 py-2 text-center text-[13px] text-[#C9A227] outline-none focus:border-[#C9A227]"
               />

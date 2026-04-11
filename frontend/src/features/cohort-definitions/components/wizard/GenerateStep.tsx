@@ -25,7 +25,13 @@ export function GenerateStep() {
   const handleGenerate = () => {
     if (!sourceId) return;
 
-    const expression = store.buildExpression();
+    let expression;
+    try {
+      expression = store.buildExpression();
+    } catch (err) {
+      console.error("Failed to build expression:", err);
+      return;
+    }
 
     createMutation.mutate(
       {

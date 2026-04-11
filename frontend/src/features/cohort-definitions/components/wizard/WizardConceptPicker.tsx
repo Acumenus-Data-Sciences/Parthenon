@@ -3,6 +3,7 @@ import { Search, Sparkles, GitBranch } from "lucide-react";
 import { VocabularySearchPanel } from "@/features/vocabulary/components/VocabularySearchPanel";
 import { SemanticSearchPanel } from "@/features/vocabulary/components/SemanticSearchPanel";
 import { HierarchyBrowserPanel } from "@/features/vocabulary/components/HierarchyBrowserPanel";
+import { getConcept } from "@/features/vocabulary/api/vocabularyApi";
 import type { DomainCriterionType } from "../../types/cohortExpression";
 import type { WizardEntryConcept } from "../../utils/buildExpression";
 import type { Concept } from "@/features/vocabulary/types/vocabulary";
@@ -19,6 +20,10 @@ const DOMAIN_MAP: Record<string, DomainCriterionType> = {
   Visit: "VisitOccurrence",
   Death: "Death",
 };
+
+function resolveDomain(domainId: string): DomainCriterionType {
+  return DOMAIN_MAP[domainId] ?? "ConditionOccurrence";
+}
 
 interface WizardConceptPickerProps {
   concepts: WizardEntryConcept[];
@@ -40,34 +45,30 @@ export function WizardConceptPicker({
   onRemove,
   onUpdateOptions,
   showFirstOccurrence = false,
-  prompt = "Search for conditions, drugs, procedures...",
 }: WizardConceptPickerProps) {
   const [activeTab, setActiveTab] = useState<SearchTab>("keyword");
+  const [isAdding, setIsAdding] = useState(false);
 
   const selectedIds = useMemo(
     () => new Set(concepts.map((c) => c.concept.concept_id)),
     [concepts],
   );
 
-  // TODO: The VocabularySearchPanel and SemanticSearchPanel onAddToSet callbacks only provide
-  // conceptId (number), not the full Concept object. The consuming step components should
-  // wire concept detail fetching (e.g., via useConcept(id) or a lookup map from search results)
-  // and pass the resolved Concept + domain to onAdd. For now, this picker provides the
-  // tab structure and selection list UI — full concept resolution is the responsibility
-  // of the parent step component.
   const handleAddConcept = useCallback(
-    (_conceptId: number) => {
-      // Stub: concept detail fetching will be wired by consuming components.
-      // They should override this via onAddToSet with their own resolution logic.
+    async (conceptId: number) => {
+      if (selectedIds.has(conceptId) || isAdding) return;
+      setIsAdding(true);
+      try {
+        const concept = await getConcept(conceptId);
+        const domain = resolveDomain(concept.domain_id);
+        onAdd(concept, domain);
+      } catch (err) {
+        console.error("Failed to fetch concept:", err);
+      } finally {
+        setIsAdding(false);
+      }
     },
-    [],
-  );
-
-  const handleSelectConcept = useCallback(
-    (_conceptId: number) => {
-      // Browse mode selection — not used for adding in wizard context.
-    },
-    [],
+    [selectedIds, isAdding, onAdd],
   );
 
   const tabs = [
@@ -90,12 +91,6 @@ export function WizardConceptPicker({
       color: "rgba(201,162,39,0.3)",
     },
   ];
-
-  // Silence unused-variable warnings for DOMAIN_MAP and prompt until
-  // consuming step components wire full concept resolution.
-  void DOMAIN_MAP;
-  void prompt;
-  void onAdd;
 
   return (
     <div className="rounded-lg border border-[#2a2a3a] bg-[#0E0E11] p-4">
@@ -132,24 +127,20 @@ export function WizardConceptPicker({
           <VocabularySearchPanel
             mode="build"
             conceptSetItemIds={selectedIds}
-            onAddToSet={(conceptId) => {
-              handleAddConcept(conceptId);
-            }}
+            onAddToSet={handleAddConcept}
           />
         )}
         {activeTab === "semantic" && (
           <SemanticSearchPanel
             mode="build"
             conceptSetItemIds={selectedIds}
-            onAddToSet={(conceptId) => {
-              handleAddConcept(conceptId);
-            }}
+            onAddToSet={handleAddConcept}
           />
         )}
         {activeTab === "hierarchy" && (
           <HierarchyBrowserPanel
             mode="browse"
-            onSelectConcept={handleSelectConcept}
+            onSelectConcept={(conceptId) => void handleAddConcept(conceptId)}
           />
         )}
       </div>
@@ -169,9 +160,9 @@ export function WizardConceptPicker({
         <div className="mt-3 rounded-lg border border-[rgba(201,162,39,0.15)] bg-[rgba(201,162,39,0.05)] px-3 py-2">
           <span className="text-[#C9A227]">💡</span>{" "}
           <span className="text-[11px] text-[#999]">
-            <strong className="text-[#C9A227]">Tip:</strong> "Include descendants"
-            automatically captures all sub-types. For example, selecting "Type 2 diabetes
-            mellitus" with descendants includes all specific complications.
+            <strong className="text-[#C9A227]">Tip:</strong> &ldquo;Include descendants&rdquo;
+            automatically captures all sub-types. For example, selecting &ldquo;Type 2 diabetes
+            mellitus&rdquo; with descendants includes all specific complications.
           </span>
         </div>
       )}
