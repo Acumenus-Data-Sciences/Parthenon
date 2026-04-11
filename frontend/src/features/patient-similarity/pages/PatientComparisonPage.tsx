@@ -519,18 +519,23 @@ export default function PatientComparisonPage() {
   return (
     <div className="space-y-4 max-w-5xl">
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <div>
         <Link
           to={backUrl}
-          className="flex items-center gap-1.5 text-xs text-[#5A5650] hover:text-[#C5C0B8] transition-colors"
+          className="inline-flex items-center gap-1 text-sm text-[#8A857D] hover:text-[#F0EDE8] transition-colors mb-3"
         >
           <ArrowLeft size={14} />
-          Back to results
+          Patient Similarity
         </Link>
-        <h1 className="page-title">Patient Comparison</h1>
-        <span className="text-xs text-[#5A5650] tabular-nums">
-          #{personA} vs #{personB}
-        </span>
+        <div className="flex items-center gap-3">
+          <h1 className="page-title">Patient Comparison</h1>
+          <span className="text-sm text-[#8A857D] tabular-nums font-['IBM_Plex_Mono',monospace]">
+            #{personA} vs #{personB}
+          </span>
+        </div>
+        <p className="page-subtitle">
+          Head-to-head similarity analysis across all clinical dimensions
+        </p>
       </div>
 
       {/* Loading */}
