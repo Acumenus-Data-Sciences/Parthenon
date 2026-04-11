@@ -31,6 +31,8 @@ export function ReviewGenerateStep({ onClose }: Props) {
 
   const createMutation = useCreateCohortDefinition();
   const generateMutation = useGenerateCohort();
+  const [generating, setGenerating] = useState(false);
+  const [generateError, setGenerateError] = useState<string | null>(null);
   const { data: generation } = useCohortGeneration(createdId, genId);
 
   // ── Validation ────────────────────────────────────────────────────────────
@@ -41,8 +43,8 @@ export function ReviewGenerateStep({ onClose }: Props) {
 
   // ── Generate handler ──────────────────────────────────────────────────────
 
-  const handleGenerate = () => {
-    if (!sourceId || createMutation.isPending || generateMutation.isPending || createdId) return;
+  const handleGenerate = async () => {
+    if (!sourceId || generating) return;
 
     let expression;
     try {
@@ -52,35 +54,38 @@ export function ReviewGenerateStep({ onClose }: Props) {
       return;
     }
 
-    createMutation.mutate(
-      {
+    setGenerating(true);
+    setGenerateError(null);
+
+    try {
+      const def = await createMutation.mutateAsync({
         name: store.name,
         description: store.description,
         expression_json: expression,
-      },
-      {
-        onSuccess: (def) => {
-          store.setCreatedId(def.id);
-          generateMutation.mutate(
-            { defId: def.id, sourceId },
-            {
-              onSuccess: (gen) => setGenId(gen.id),
-            },
-          );
-        },
-      },
-    );
+      });
+      store.setCreatedId(def.id);
+
+      const gen = await generateMutation.mutateAsync({
+        defId: def.id,
+        sourceId,
+      });
+      setGenId(gen.id);
+    } catch (err) {
+      console.error("Failed to generate cohort:", err);
+      setGenerateError("Failed to generate cohort. Please try again.");
+    } finally {
+      setGenerating(false);
+    }
   };
 
   const generationStatus = generation?.status;
   const isRunning =
-    createMutation.isPending ||
-    generateMutation.isPending ||
+    generating ||
     generationStatus === "running" ||
     generationStatus === "queued" ||
     generationStatus === "pending";
 
-  const isDisabled = !sourceId || isRunning || !store.name || store.entryConcepts.length === 0;
+  const isDisabled = !sourceId || isRunning || errors.length > 0;
   const showWhatsNext = generationStatus === "completed";
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -179,9 +184,9 @@ export function ReviewGenerateStep({ onClose }: Props) {
       )}
 
       {/* Error result */}
-      {generationStatus === "failed" && (
+      {(generationStatus === "failed" || generateError) && (
         <div className="rounded-lg border border-[rgba(155,27,48,0.3)] bg-[rgba(155,27,48,0.05)] px-4 py-3 text-[13px] text-[#E85A6B]">
-          Generation failed. Check the expression and try again.
+          {generateError ?? "Generation failed. Check the expression and try again."}
         </div>
       )}
 
