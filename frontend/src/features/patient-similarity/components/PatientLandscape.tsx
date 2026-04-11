@@ -116,7 +116,7 @@ function PointCloud({ points, colorByCluster, is2D, onHover, onClick }: PointClo
       onPointerOut={handlePointerOut}
       onClick={handleClick}
     >
-      <sphereGeometry args={[0.015, 8, 8]}>
+      <sphereGeometry args={[0.025, 8, 8]}>
         <instancedBufferAttribute
           attach="attributes-color"
           args={[colorArray, 3]}
