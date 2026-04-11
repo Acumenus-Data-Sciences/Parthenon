@@ -160,16 +160,16 @@ export function DashboardPage() {
       )}
 
       {/* CDM Characterization Section */}
-      <div className="rounded-xl border border-[#232328] bg-[#0E0E11] p-6" style={{ marginBottom: "var(--space-6)" }}>
+      <div className="rounded-xl border border-border-default bg-surface-base p-6" style={{ marginBottom: "var(--space-6)" }}>
         <div className="mb-5 flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-[#F0EDE8]">CDM Characterization</h2>
-            <p className="mt-0.5 text-sm text-[#8A857D]">Clinical data profile for the selected source</p>
+            <h2 className="text-lg font-semibold text-text-primary">CDM Characterization</h2>
+            <p className="mt-0.5 text-sm text-text-muted">Clinical data profile for the selected source</p>
           </div>
           <div className="flex items-center gap-3">
             <Link
               to="/data-explorer"
-              className="flex items-center gap-1 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#C9A227] hover:border-[#C9A227]/30 hover:text-[#C9A227]"
+              className="flex items-center gap-1 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-accent hover:border-accent/30 hover:text-accent"
             >
               View Full <ArrowRight size={14} />
             </Link>
@@ -182,7 +182,7 @@ export function DashboardPage() {
             {cdmLoading ? (
               <div className="grid grid-cols-4 gap-4 mb-5">
                 {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+                  <div key={i} className="rounded-lg border border-border-default bg-surface-raised p-4">
                     <Skeleton height="16px" className="mb-2" />
                     <Skeleton height="28px" className="mb-1" />
                     <Skeleton height="12px" />
@@ -192,7 +192,7 @@ export function DashboardPage() {
             ) : (
               <div className="grid grid-cols-4 gap-4 mb-5">
                 <CdmMetricCard
-                  icon={<Activity size={16} className="text-[#2DD4BF]" />}
+                  icon={<Activity size={16} className="text-success" />}
                   label="Persons"
                   value={formatCompact(personCount)}
                   sparkline={sparklineValues}
@@ -200,19 +200,19 @@ export function DashboardPage() {
                   onClick={() => navigate(`/data-explorer/${sourceId}`)}
                 />
                 <CdmMetricCard
-                  icon={<Clock size={16} className="text-[#C9A227]" />}
+                  icon={<Clock size={16} className="text-accent" />}
                   label="Median Obs Duration"
                   value={`${formatCompact(medianObsDuration)} days`}
                   onClick={() => navigate(`/data-explorer/${sourceId}`)}
                 />
                 <CdmMetricCard
-                  icon={<BarChart3 size={16} className="text-[#60A5FA]" />}
+                  icon={<BarChart3 size={16} className="text-info" />}
                   label="Total Events"
                   value={formatCompact(totalEvents)}
                   onClick={() => navigate(`/data-explorer/${sourceId}`)}
                 />
                 <CdmMetricCard
-                  icon={<CheckCircle2 size={16} className="text-[#2DD4BF]" />}
+                  icon={<CheckCircle2 size={16} className="text-success" />}
                   label="Data Completeness"
                   value={`${completeness}%`}
                   sub={`${tablesWithData}/${totalTables} tables`}
@@ -230,8 +230,8 @@ export function DashboardPage() {
             ) : (
               <div className="grid grid-cols-2 gap-4">
                 {/* Left: Gender + Age Pyramid combined */}
-                <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-                  <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
+                <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+                  <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-muted">
                     Demographics
                   </h3>
 
@@ -251,8 +251,8 @@ export function DashboardPage() {
                 </div>
 
                 {/* Right: CDM Domain Counts */}
-                <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-                  <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
+                <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+                  <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-muted">
                     CDM Domain Counts
                   </h3>
 
@@ -267,13 +267,13 @@ export function DashboardPage() {
                             <div className="mb-1 flex items-center justify-between">
                               <div className="flex items-center gap-2">
                                 <span style={{ color: config.color }}>{config.icon}</span>
-                                <span className="text-xs font-medium text-[#C5C0B8]">{config.label}</span>
+                                <span className="text-xs font-medium text-text-secondary">{config.label}</span>
                               </div>
-                              <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#F0EDE8]">
+                              <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-primary">
                                 {rc.count.toLocaleString()}
                               </span>
                             </div>
-                            <div className="h-1.5 overflow-hidden rounded-full bg-[#232328]">
+                            <div className="h-1.5 overflow-hidden rounded-full bg-surface-elevated">
                               <div
                                 className="h-full rounded-full transition-all duration-500"
                                 style={{ width: `${pct}%`, backgroundColor: config.color, opacity: 0.7 }}
@@ -284,7 +284,7 @@ export function DashboardPage() {
                       })}
                     </div>
                   ) : (
-                    <p className="text-sm text-[#5A5650]">No domain data available</p>
+                    <p className="text-sm text-text-ghost">No domain data available</p>
                   )}
                 </div>
               </div>
@@ -292,8 +292,8 @@ export function DashboardPage() {
           </>
         ) : (
           <div className="flex flex-col items-center justify-center py-10">
-            <Database size={32} className="mb-3 text-[#5A5650]" />
-            <p className="text-sm text-[#8A857D]">Select a data source to view characterization</p>
+            <Database size={32} className="mb-3 text-text-ghost" />
+            <p className="text-sm text-text-muted">Select a data source to view characterization</p>
           </div>
         )}
       </div>
@@ -514,7 +514,7 @@ function CdmMetricCard({
 }) {
   return (
     <div
-      className="rounded-lg border border-[#232328] bg-[#151518] p-4 transition-colors hover:border-[#3A3A40]"
+      className="rounded-lg border border-border-default bg-surface-raised p-4 transition-colors hover:border-surface-highlight"
       onClick={onClick}
       style={onClick ? { cursor: "pointer" } : undefined}
       role={onClick ? "button" : undefined}
@@ -524,17 +524,17 @@ function CdmMetricCard({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           {icon}
-          <span className="text-xs font-medium uppercase tracking-wider text-[#8A857D]">{label}</span>
+          <span className="text-xs font-medium uppercase tracking-wider text-text-muted">{label}</span>
         </div>
         {sparkline && sparkline.length > 1 && (
           <Sparkline data={sparkline} width={60} height={20} color={sparkColor} />
         )}
       </div>
-      <div className="mt-2 font-['IBM_Plex_Mono',monospace] text-xl font-semibold text-[#F0EDE8]">
+      <div className="mt-2 font-['IBM_Plex_Mono',monospace] text-xl font-semibold text-text-primary">
         {value}
       </div>
       {sub && (
-        <div className="mt-0.5 text-xs text-[#5A5650]">{sub}</div>
+        <div className="mt-0.5 text-xs text-text-ghost">{sub}</div>
       )}
     </div>
   );
