@@ -115,6 +115,10 @@ interface CohortWizardStore {
   addImagingCriterion: (criterion: ImagingCriterion) => void;
   removeImagingCriterion: (index: number) => void;
 
+  // Generated cohort ID (set by GenerateStep, consumed by HandoffStep)
+  createdId: number | null;
+  setCreatedId: (id: number | null) => void;
+
   // Chapter completion
   getChapterStatus: (chapter: number) => ChapterStatus;
 
@@ -153,6 +157,7 @@ const initialState = {
   selectedSpecialized: [] as ("genomic" | "imaging")[],
   genomicCriteria: [] as GenomicCriterion[],
   imagingCriteria: [] as ImagingCriterion[],
+  createdId: null as number | null,
 };
 
 export const useCohortWizardStore = create<CohortWizardStore>((set, get) => ({
@@ -397,6 +402,9 @@ export const useCohortWizardStore = create<CohortWizardStore>((set, get) => ({
     };
     return buildExpression(wizardState);
   },
+
+  // --- createdId ---
+  setCreatedId: (id) => set({ createdId: id }),
 
   // --- Reset ---
   reset: () => set(initialState),

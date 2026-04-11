@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { Check, Wrench, BarChart3 } from "lucide-react";
+import { useCohortWizardStore } from "../../stores/cohortWizardStore";
 
 export function HandoffStep() {
   const navigate = useNavigate();
+  const createdId = useCohortWizardStore((s) => s.createdId);
 
   return (
     <div className="flex flex-col gap-4">
@@ -29,7 +31,7 @@ export function HandoffStep() {
 
         <button
           type="button"
-          onClick={() => navigate("/cohort-definitions")}
+          onClick={() => createdId ? navigate(`/cohort-definitions/${createdId}`) : navigate("/cohort-definitions")}
           className="rounded-lg border border-[rgba(201,162,39,0.2)] bg-[rgba(201,162,39,0.05)] p-4 text-left transition-colors hover:border-[rgba(201,162,39,0.4)]"
         >
           <div className="flex items-center gap-2 text-[13px] font-medium text-[#C9A227]">
@@ -51,7 +53,7 @@ export function HandoffStep() {
 
         <button
           type="button"
-          onClick={() => navigate("/cohort-definitions")}
+          onClick={() => createdId ? navigate(`/cohort-definitions/${createdId}`) : navigate("/cohort-definitions")}
           className="rounded-lg border border-[#333] bg-[#1a1a2e] p-4 text-left transition-colors hover:border-[#555]"
         >
           <div className="flex items-center gap-2 text-[13px] font-medium text-[#ccc]">

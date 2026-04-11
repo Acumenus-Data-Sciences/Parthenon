@@ -9,8 +9,8 @@ import type { Source } from "@/types/models";
 
 export function GenerateStep() {
   const store = useCohortWizardStore();
+  const createdId = useCohortWizardStore((s) => s.createdId);
   const [sourceId, setSourceId] = useState<number | null>(null);
-  const [createdId, setCreatedId] = useState<number | null>(null);
   const [genId, setGenId] = useState<number | null>(null);
 
   const { data: sources, isLoading: loadingSources } = useQuery({
@@ -35,7 +35,7 @@ export function GenerateStep() {
       },
       {
         onSuccess: (def) => {
-          setCreatedId(def.id);
+          store.setCreatedId(def.id);
           generateMutation.mutate(
             { defId: def.id, sourceId },
             {
