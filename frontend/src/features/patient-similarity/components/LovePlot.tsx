@@ -110,7 +110,7 @@ function SingleLovePlot({
               borderRadius: 6,
               fontSize: 11,
             }}
-            formatter={((value: number) => [value.toFixed(4), "|SMD|"]) as never}
+            formatter={((value: unknown) => [typeof value === "number" ? value.toFixed(4) : String(value), "|SMD|"]) as never}
           />
           <Scatter
             data={data}
@@ -192,8 +192,8 @@ function BeforeAfterLovePlot({
               borderRadius: 6,
               fontSize: 11,
             }}
-            formatter={((value: number, name: string) => [
-              value.toFixed(4),
+            formatter={((value: unknown, name: string) => [
+              typeof value === "number" ? value.toFixed(4) : String(value),
               name === "Before" ? "Before |SMD|" : "After |SMD|",
             ]) as never}
           />
