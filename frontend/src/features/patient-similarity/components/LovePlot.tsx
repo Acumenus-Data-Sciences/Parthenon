@@ -84,20 +84,23 @@ function SingleLovePlot({
       <ResponsiveContainer width="100%" height={Math.max(300, data.length * 22)}>
         <ScatterChart
           layout="vertical"
-          margin={{ top: 5, right: 20, bottom: 5, left: 140 }}
+          margin={{ top: 5, right: 20, bottom: 20, left: 140 }}
         >
           <CartesianGrid strokeDasharray="3 3" stroke="#232328" horizontal={false} />
           <XAxis
             type="number"
+            dataKey="absSmd"
             domain={[0, "auto"]}
             tick={{ fill: "#5A5650", fontSize: 10 }}
-            label={{ value: "|SMD|", position: "bottom", fill: "#5A5650", fontSize: 11 }}
+            name="|SMD|"
+            label={{ value: "|SMD|", position: "bottom", fill: "#5A5650", fontSize: 11, offset: 0 }}
           />
           <YAxis
             type="category"
             dataKey="covariate"
             width={135}
             tick={{ fill: "#8A857D", fontSize: 10 }}
+            name="Covariate"
           />
           <ReferenceLine x={0.1} stroke="#C9A227" strokeDasharray="5 5" label={{ value: "0.1", fill: "#C9A227", fontSize: 10 }} />
           <Tooltip
@@ -163,20 +166,23 @@ function BeforeAfterLovePlot({
       <ResponsiveContainer width="100%" height={Math.max(300, displayed.length * 22)}>
         <ScatterChart
           layout="vertical"
-          margin={{ top: 5, right: 20, bottom: 5, left: 140 }}
+          margin={{ top: 5, right: 20, bottom: 20, left: 140 }}
         >
           <CartesianGrid strokeDasharray="3 3" stroke="#232328" horizontal={false} />
           <XAxis
             type="number"
+            dataKey="absSmd"
             domain={[0, "auto"]}
             tick={{ fill: "#5A5650", fontSize: 10 }}
-            label={{ value: "|SMD|", position: "bottom", fill: "#5A5650", fontSize: 11 }}
+            name="|SMD|"
+            label={{ value: "|SMD|", position: "bottom", fill: "#5A5650", fontSize: 11, offset: 0 }}
           />
           <YAxis
             type="category"
             dataKey="covariate"
             width={135}
             tick={{ fill: "#8A857D", fontSize: 10 }}
+            name="Covariate"
           />
           <ReferenceLine x={0.1} stroke="#C9A227" strokeDasharray="5 5" label={{ value: "0.1", fill: "#C9A227", fontSize: 10 }} />
           <Tooltip
