@@ -948,17 +948,30 @@ class PatientSimilarityController extends Controller
             $sourceCohortDef = CohortDefinition::find($validated['source_cohort_id']);
             $targetCohortDef = CohortDefinition::find($validated['target_cohort_id']);
 
-            // Load individual feature vectors for covariate balance + distributional divergence
-            $sourceVectors = PatientFeatureVector::where('source_id', $source->id)
-                ->whereIn('person_id', $sourceMemberIds)
-                ->get()
-                ->map(fn ($v) => $v->features)
+            // Load individual feature vectors for covariate balance + distributional divergence.
+            // Sample large cohorts to stay within PG's 65535 bind-parameter limit and avoid OOM.
+            $maxVectors = 5000;
+            $sourceSample = count($sourceMemberIds) > $maxVectors
+                ? collect($sourceMemberIds)->shuffle()->take($maxVectors)->values()->all()
+                : $sourceMemberIds;
+            $targetSample = count($targetMemberIds) > $maxVectors
+                ? collect($targetMemberIds)->shuffle()->take($maxVectors)->values()->all()
+                : $targetMemberIds;
+
+            $sourceVectors = collect($sourceSample)
+                ->chunk($maxVectors)
+                ->flatMap(fn ($chunk) => PatientFeatureVector::where('source_id', $source->id)
+                    ->whereIn('person_id', $chunk->all())
+                    ->get()
+                    ->map(fn ($v) => $v->features))
                 ->all();
 
-            $targetVectors = PatientFeatureVector::where('source_id', $source->id)
-                ->whereIn('person_id', $targetMemberIds)
-                ->get()
-                ->map(fn ($v) => $v->features)
+            $targetVectors = collect($targetSample)
+                ->chunk($maxVectors)
+                ->flatMap(fn ($chunk) => PatientFeatureVector::where('source_id', $source->id)
+                    ->whereIn('person_id', $chunk->all())
+                    ->get()
+                    ->map(fn ($v) => $v->features))
                 ->all();
 
             $covariates = $this->comparisonService->computeCovariateBalance($sourceVectors, $targetVectors);
