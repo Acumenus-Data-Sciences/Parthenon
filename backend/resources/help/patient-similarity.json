@@ -1,0 +1,16 @@
+{
+  "key": "patient-similarity",
+  "title": "Patient Similarity",
+  "description": "Patient Similarity lets you compare cohort profiles, find clinically similar patients, and run propensity score matching across OMOP CDM sources. It operates in two modes:\n\n**Compare mode** compares two existing cohorts head-to-head to assess how different they are and whether they're suitable for comparative effectiveness research. Select a target cohort and a comparator cohort, then run the pipeline: Profile Comparison → Covariate Balance (Love plot + SMD) → Propensity Score Matching → UMAP Landscape.\n\n**Expand mode** starts with a single seed cohort and finds new patients outside it who are clinically similar. Select a seed cohort, then run: Centroid Profile → Similar Patients → UMAP Landscape → Phenotype Discovery.\n\nIn short: Compare = 'how different are A vs B?' and Expand = 'find me more patients like A.'",
+  "docs_url": null,
+  "video_url": null,
+  "tips": [
+    "Use Compare mode for new-user comparative effectiveness studies — e.g. Clopidogrel vs Aspirin post-MI.",
+    "Use Expand mode to grow a small cohort, build external control arms, or find missed patients.",
+    "The PSM (Propensity Score Matching) step is recommended when the covariate balance panel shows imbalanced covariates (SMD > 0.1).",
+    "The UMAP Landscape projects patients into a 3D scatter plot — toggle 'Cluster colors' to see K-means groupings.",
+    "Hover over points in the landscape to see patient demographics, cluster membership, and cohort status.",
+    "The Love plot shows standardized mean differences (SMD) for each covariate. After PSM, the 'after' dots (teal) should be closer to zero than 'before' dots (crimson).",
+    "Large cohorts (>5,000 members) are automatically sampled for covariate balance and PSM to maintain performance."
+  ]
+}
