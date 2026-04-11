@@ -134,7 +134,7 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
         .filter((row) => row.chr && !isNaN(row.pos) && !isNaN(row.p));
 
       onUploadComplete(uploadResult, rows);
-    } catch (err) {
+    } catch {
       setMappingError("Failed to parse file. Please check the format.");
     } finally {
       setIsParsing(false);
