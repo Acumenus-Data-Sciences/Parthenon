@@ -69,7 +69,7 @@ function TarRow({
 }) {
   return (
     <div
-      className="rounded-lg border border-[#232328] bg-[#0E0E11] p-3 space-y-3"
+      className="rounded-lg border border-border-default bg-surface-base p-3 space-y-3"
       aria-label={`Time-at-risk window ${index + 1}`}
     >
       <div className="flex items-center justify-between">
@@ -83,7 +83,7 @@ function TarRow({
           <button
             type="button"
             onClick={onRemove}
-            className="p-1 rounded text-[#5A5650] hover:text-[#E85A6B] transition-colors"
+            className="p-1 rounded text-text-ghost hover:text-critical transition-colors"
             title="Remove window"
           >
             <Trash2 size={12} />
@@ -206,11 +206,11 @@ function AgeBreaksEditor({
           setError(null);
         }}
         onBlur={handleBlur}
-        className={cn("form-input", error && "border-[#E85A6B]")}
+        className={cn("form-input", error && "border-critical")}
         placeholder="0, 18, 35, 50, 65"
       />
       {error ? (
-        <p className="text-xs" style={{ color: "#E85A6B" }}>
+        <p className="text-xs" style={{ color: "var(--critical)" }}>
           {error}
         </p>
       ) : (
@@ -519,7 +519,7 @@ export function IncidenceRateDesigner({
                   return (
                     <div
                       key={entry.cohort_id}
-                      className="flex items-center gap-3 rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2"
+                      className="flex items-center gap-3 rounded-lg border border-border-default bg-surface-base px-3 py-2"
                     >
                       <span
                         className="flex-1 text-sm truncate"
@@ -558,7 +558,7 @@ export function IncidenceRateDesigner({
                       <button
                         type="button"
                         onClick={() => removeOutcomeCohort(entry.cohort_id)}
-                        className="p-1 rounded text-[#5A5650] hover:text-[#E85A6B] transition-colors"
+                        className="p-1 rounded text-text-ghost hover:text-critical transition-colors"
                       >
                         <X size={13} />
                       </button>
@@ -586,7 +586,7 @@ export function IncidenceRateDesigner({
           <button
             type="button"
             onClick={addTar}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[#232328] bg-[#151518] px-3 py-1.5 text-xs font-medium text-[#8A857D] hover:text-[#F0EDE8] hover:border-[#323238] transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-surface-raised px-3 py-1.5 text-xs font-medium text-text-muted hover:text-text-primary hover:border-surface-highlight transition-colors"
           >
             <Plus size={12} />
             Add Window
@@ -674,10 +674,10 @@ export function IncidenceRateDesigner({
       {/* Direct calculation error */}
       {directError && (
         <div
-          className="rounded-lg border border-[#E85A6B]/30 bg-[#E85A6B]/5 px-4 py-3"
+          className="rounded-lg border border-critical/30 bg-critical/5 px-4 py-3"
           role="alert"
         >
-          <p className="text-sm" style={{ color: "#E85A6B" }}>
+          <p className="text-sm" style={{ color: "var(--critical)" }}>
             Direct calculation failed: {directError}
           </p>
         </div>
@@ -694,7 +694,7 @@ export function IncidenceRateDesigner({
               disabled={isCalculating || !canCalculateDirect}
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50",
-                "border border-[#2DD4BF]/40 bg-[#2DD4BF]/10 text-[#2DD4BF] hover:bg-[#2DD4BF]/20",
+                "border border-success/40 bg-success/10 text-success hover:bg-success/20",
               )}
               title={
                 !sourceId

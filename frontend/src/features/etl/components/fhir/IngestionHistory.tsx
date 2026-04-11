@@ -30,21 +30,21 @@ export function IngestionHistory({
   if (history.length === 0) return null;
 
   return (
-    <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+    <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
       <button
         type="button"
         onClick={() => setExpanded((p) => !p)}
-        className="w-full flex items-center gap-2 px-4 py-3 bg-[#1C1C20] border-b border-[#232328] text-left"
+        className="w-full flex items-center gap-2 px-4 py-3 bg-surface-overlay border-b border-border-default text-left"
       >
-        <Clock size={14} className="text-[#8A857D]" />
-        <span className="flex-1 text-sm font-medium text-[#F0EDE8]">
+        <Clock size={14} className="text-text-muted" />
+        <span className="flex-1 text-sm font-medium text-text-primary">
           Ingestion History
         </span>
-        <span className="text-[11px] text-[#5A5650]">{history.length}</span>
+        <span className="text-[11px] text-text-ghost">{history.length}</span>
         {expanded ? (
-          <ChevronUp size={14} className="text-[#8A857D]" />
+          <ChevronUp size={14} className="text-text-muted" />
         ) : (
-          <ChevronDown size={14} className="text-[#8A857D]" />
+          <ChevronDown size={14} className="text-text-muted" />
         )}
       </button>
 
@@ -60,31 +60,31 @@ export function IngestionHistory({
                 key={entry.id}
                 onClick={() => onSelect(entry)}
                 className={cn(
-                  "flex items-center gap-3 px-4 py-2.5 border-b border-[#1C1C20] cursor-pointer hover:bg-[#1C1C20] transition-colors",
+                  "flex items-center gap-3 px-4 py-2.5 border-b border-surface-overlay cursor-pointer hover:bg-surface-overlay transition-colors",
                   selectedId === entry.id &&
-                    "bg-[#1C1C20] border-l-2 border-l-[#9B1B30]",
+                    "bg-surface-overlay border-l-2 border-l-primary",
                 )}
               >
                 {isSuccess ? (
-                  <CheckCircle2 size={14} className="shrink-0 text-[#2DD4BF]" />
+                  <CheckCircle2 size={14} className="shrink-0 text-success" />
                 ) : isPartial ? (
-                  <AlertTriangle size={14} className="shrink-0 text-[#C9A227]" />
+                  <AlertTriangle size={14} className="shrink-0 text-accent" />
                 ) : (
-                  <XCircle size={14} className="shrink-0 text-[#E85A6B]" />
+                  <XCircle size={14} className="shrink-0 text-critical" />
                 )}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-xs font-medium text-[#F0EDE8] truncate">
+                    <p className="text-xs font-medium text-text-primary truncate">
                       {entry.resourceCount} resources \u2192{" "}
                       {fmtNumber(entry.recordsCreated)} records
                     </p>
                     {entry.errorCount > 0 && (
-                      <span className="text-[10px] text-[#E85A6B]">
+                      <span className="text-[10px] text-critical">
                         {entry.errorCount} err
                       </span>
                     )}
                   </div>
-                  <p className="text-[10px] text-[#5A5650]">
+                  <p className="text-[10px] text-text-ghost">
                     {new Date(entry.timestamp).toLocaleString()}
                     {entry.fileName && ` \u2014 ${entry.fileName}`}
                   </p>
@@ -95,18 +95,18 @@ export function IngestionHistory({
                     e.stopPropagation();
                     onDelete(entry.id);
                   }}
-                  className="p-1 rounded hover:bg-[#2E2E35] text-[#5A5650] hover:text-[#E85A6B] transition-colors"
+                  className="p-1 rounded hover:bg-[#2E2E35] text-text-ghost hover:text-critical transition-colors"
                 >
                   <Trash2 size={12} />
                 </button>
               </div>
             );
           })}
-          <div className="px-4 py-2 border-t border-[#232328]">
+          <div className="px-4 py-2 border-t border-border-default">
             <button
               type="button"
               onClick={onClear}
-              className="text-[11px] text-[#5A5650] hover:text-[#E85A6B] transition-colors"
+              className="text-[11px] text-text-ghost hover:text-critical transition-colors"
             >
               Clear all history
             </button>

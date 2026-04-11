@@ -113,7 +113,7 @@ export default function UnmappedCodesView() {
 
         {/* View mode toggle */}
         {selectedSourceId && activeReleaseId && (
-          <div className="ml-auto flex items-center gap-1 rounded-lg border border-[#252530] bg-[#0E0E11] p-0.5">
+          <div className="ml-auto flex items-center gap-1 rounded-lg border border-[#252530] bg-surface-base p-0.5">
             {(["table", "pareto", "vocabulary"] as const).map((mode) => (
               <button
                 key={mode}
@@ -182,7 +182,7 @@ export default function UnmappedCodesView() {
                   setPage(1);
                 }}
                 className="rounded border border-[#333] bg-[#1a1a22] px-3 py-1.5 text-sm text-white
-                           placeholder-[#555] focus:border-[#2DD4BF] focus:outline-none"
+                           placeholder-[#555] focus:border-success focus:outline-none"
               />
             </div>
           )}
@@ -200,7 +200,7 @@ export default function UnmappedCodesView() {
                   }}
                   className={`rounded-full border px-3 py-1 text-xs transition-colors ${
                     tableFilter === s.cdm_table
-                      ? "border-[#C9A227] bg-[#C9A227]/10 text-[#C9A227]"
+                      ? "border-accent bg-accent/10 text-accent"
                       : "border-[#333] text-[#888] hover:border-[#555]"
                   }`}
                 >
@@ -221,7 +221,7 @@ export default function UnmappedCodesView() {
 
       {/* Pareto view */}
       {viewMode === "pareto" && paretoData && paretoData.codes.length > 0 && (
-        <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
+        <div className="rounded-lg border border-[#252530] bg-surface-raised p-4">
           <h3 className="mb-3 text-sm font-medium text-white">Unmapped Codes Pareto Analysis</h3>
           <ParetoChart data={paretoData.codes} top20Coverage={paretoData.top_20_coverage} />
         </div>
@@ -233,7 +233,7 @@ export default function UnmappedCodesView() {
 
       {/* Vocabulary view */}
       {viewMode === "vocabulary" && treemapData && treemapData.length > 0 && (
-        <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
+        <div className="rounded-lg border border-[#252530] bg-surface-raised p-4">
           <h3 className="mb-3 text-sm font-medium text-white">Unmapped Codes by Vocabulary</h3>
           <VocabularyBarChart data={treemapData} />
         </div>
@@ -270,7 +270,7 @@ export default function UnmappedCodesView() {
               </thead>
               <tbody>
                 {codesData.data.map((code: UnmappedCode, idx: number) => (
-                  <tr key={code.id} className="border-b border-[#1a1a22] hover:bg-[#151518]">
+                  <tr key={code.id} className="border-b border-[#1a1a22] hover:bg-surface-raised">
                     <td className="px-3 py-2 font-mono text-xs text-[#ccc]">{code.source_code}</td>
                     <td className="px-3 py-2 text-xs text-[#888]">{code.source_vocabulary_id}</td>
                     <td className="px-3 py-2 text-xs text-[#888]">{code.cdm_table}</td>
@@ -281,7 +281,7 @@ export default function UnmappedCodesView() {
                     <td className="px-3 py-2 text-right text-xs">
                       <span className="flex items-center justify-end gap-1.5">
                         {page === 1 && idx < 3 && (
-                          <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#9B1B30] text-[10px] font-bold text-white">
+                          <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
                             #{idx + 1}
                           </span>
                         )}
@@ -299,7 +299,7 @@ export default function UnmappedCodesView() {
             <div className="mt-3 space-y-1">
               <p className="mb-2 text-[11px] uppercase text-[#666]">AI Mapping Suggestions</p>
               {codesData.data.map((code: UnmappedCode) => (
-                <div key={`suggest-${code.id}`} className="rounded-lg border border-[#252530] bg-[#151518]">
+                <div key={`suggest-${code.id}`} className="rounded-lg border border-[#252530] bg-surface-raised">
                   <div className="px-3 py-1.5 text-xs text-[#ccc]">
                     <span className="font-mono">{code.source_code}</span>
                     <span className="ml-2 text-[#666]">({code.source_vocabulary_id})</span>

@@ -191,9 +191,9 @@ export function SetupWizard({ mustChangePassword, onClose }: Props) {
                 <div
                   className={cn(
                     "flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold transition-all shrink-0",
-                    isCompleted && "bg-[#C9A227] text-[#0E0E11]",
-                    isActive && "border-2 border-[#C9A227] bg-[#C9A227]/10 text-[#C9A227]",
-                    isPending && "border-2 border-[#323238] text-[#5A5650] bg-transparent",
+                    isCompleted && "bg-accent text-surface-base",
+                    isActive && "border-2 border-accent bg-accent/10 text-accent",
+                    isPending && "border-2 border-surface-highlight text-text-ghost bg-transparent",
                   )}
                 >
                   {isCompleted ? <Check size={14} strokeWidth={3} /> : index + 1}
@@ -201,9 +201,9 @@ export function SetupWizard({ mustChangePassword, onClose }: Props) {
                 <span
                   className={cn(
                     "text-xs font-medium whitespace-nowrap",
-                    isCompleted && "text-[#C9A227]",
-                    isActive && "text-[#F0EDE8]",
-                    isPending && "text-[#5A5650]",
+                    isCompleted && "text-accent",
+                    isActive && "text-text-primary",
+                    isPending && "text-text-ghost",
                   )}
                 >
                   {s.label}
@@ -215,7 +215,7 @@ export function SetupWizard({ mustChangePassword, onClose }: Props) {
                   <div
                     className={cn(
                       "h-[2px] w-full rounded-full",
-                      isCompleted ? "bg-[#C9A227]" : "bg-[#323238]",
+                      isCompleted ? "bg-accent" : "bg-surface-highlight",
                     )}
                   />
                 </div>
@@ -243,8 +243,8 @@ export function SetupWizard({ mustChangePassword, onClose }: Props) {
         }
       `}</style>
 
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0E0E11]/90 backdrop-blur-sm">
-        <div className="relative mx-4 flex w-full max-w-4xl flex-col rounded-2xl border border-[#232328] bg-[#151518] shadow-2xl max-h-[90vh]">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-surface-base/90 backdrop-blur-sm">
+        <div className="relative mx-4 flex w-full max-w-4xl flex-col rounded-2xl border border-border-default bg-surface-raised shadow-2xl max-h-[90vh]">
 
           {/* Dismiss button — hidden until password is changed on first run */}
           {canDismiss && (
@@ -253,7 +253,7 @@ export function SetupWizard({ mustChangePassword, onClose }: Props) {
               onClick={dismiss}
               disabled={completing}
               title={onClose ? "Close" : "Skip setup — return any time via Administration"}
-              className="absolute right-4 top-4 z-10 rounded-md p-1.5 text-[#5A5650] hover:text-[#8A857D] transition-colors disabled:opacity-50"
+              className="absolute right-4 top-4 z-10 rounded-md p-1.5 text-text-ghost hover:text-text-muted transition-colors disabled:opacity-50"
             >
               <X size={18} />
             </button>
@@ -276,7 +276,7 @@ export function SetupWizard({ mustChangePassword, onClose }: Props) {
 
           {/* Navigation footer (hidden on last step) */}
           {!isLastStep && (
-            <div className="flex items-center justify-between border-t border-[#232328] px-8 py-4">
+            <div className="flex items-center justify-between border-t border-border-default px-8 py-4">
               <button
                 type="button"
                 onClick={goPrev}
@@ -284,8 +284,8 @@ export function SetupWizard({ mustChangePassword, onClose }: Props) {
                 className={cn(
                   "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
                   isFirstStep
-                    ? "cursor-not-allowed text-[#323238]"
-                    : "text-[#8A857D] hover:text-[#C5C0B8]",
+                    ? "cursor-not-allowed text-surface-highlight"
+                    : "text-text-muted hover:text-text-secondary",
                 )}
               >
                 <ArrowLeft size={14} />
@@ -299,7 +299,7 @@ export function SetupWizard({ mustChangePassword, onClose }: Props) {
                     type="button"
                     onClick={goNext}
                     title="Skip this step — configure later in Administration"
-                    className="inline-flex items-center gap-1.5 text-sm text-[#5A5650] hover:text-[#8A857D] transition-colors"
+                    className="inline-flex items-center gap-1.5 text-sm text-text-ghost hover:text-text-muted transition-colors"
                   >
                     <SkipForward size={14} />
                     Skip
@@ -312,7 +312,7 @@ export function SetupWizard({ mustChangePassword, onClose }: Props) {
                   onClick={goNext}
                   disabled={step.key === "change-password" && !wizardState.passwordChanged}
                   className={cn(
-                    "inline-flex items-center gap-2 rounded-lg bg-[#C9A227] px-5 py-2 text-sm font-semibold text-[#0E0E11]",
+                    "inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2 text-sm font-semibold text-surface-base",
                     "hover:bg-[#D4AE3A] transition-colors disabled:opacity-40 disabled:cursor-not-allowed",
                   )}
                 >

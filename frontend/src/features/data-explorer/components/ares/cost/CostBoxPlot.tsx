@@ -31,7 +31,7 @@ export default function CostBoxPlot({ distributions }: CostBoxPlotProps) {
   return (
     <div className="space-y-3">
       {distributions.map((dist) => (
-        <div key={dist.domain} className="rounded-lg border border-[#252530] bg-[#151518] p-3">
+        <div key={dist.domain} className="rounded-lg border border-[#252530] bg-surface-raised p-3">
           <div className="mb-2 flex items-center justify-between">
             <span className="text-sm font-medium text-white">{formatDomain(dist.domain)}</span>
             <span className="text-xs text-[#666]">{dist.count.toLocaleString()} records</span>
@@ -50,7 +50,7 @@ export default function CostBoxPlot({ distributions }: CostBoxPlotProps) {
                   />
                   {/* IQR box */}
                   <div
-                    className="absolute h-6 rounded border border-[#2DD4BF] bg-[#2DD4BF]/20"
+                    className="absolute h-6 rounded border border-success bg-success/20"
                     style={{
                       left: scale(dist.p25),
                       width: `calc(${scale(dist.p75)} - ${scale(dist.p25)})`,
@@ -58,7 +58,7 @@ export default function CostBoxPlot({ distributions }: CostBoxPlotProps) {
                   />
                   {/* Median line */}
                   <div
-                    className="absolute h-6 w-0.5 bg-[#C9A227]"
+                    className="absolute h-6 w-0.5 bg-accent"
                     style={{ left: scale(dist.median) }}
                   />
                   {/* Mean dot */}
@@ -75,7 +75,7 @@ export default function CostBoxPlot({ distributions }: CostBoxPlotProps) {
           <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-[#666]">
             <span>P10: {formatCurrency(dist.p10)}</span>
             <span>P25: {formatCurrency(dist.p25)}</span>
-            <span className="text-[#C9A227]">Median: {formatCurrency(dist.median)}</span>
+            <span className="text-accent">Median: {formatCurrency(dist.median)}</span>
             <span>P75: {formatCurrency(dist.p75)}</span>
             <span>P90: {formatCurrency(dist.p90)}</span>
             <span className="text-[#e85d75]">Mean: {formatCurrency(dist.mean)}</span>

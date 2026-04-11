@@ -90,7 +90,7 @@ export function EvidenceBoard({ investigation }: EvidenceBoardProps) {
   return (
     <div
       className="flex flex-col min-h-screen"
-      style={{ backgroundColor: "#0E0E11" }}
+      style={{ backgroundColor: "var(--surface-base)" }}
     >
       {/* Top bar */}
       <div className="shrink-0 border-b border-zinc-800 bg-zinc-950 px-4 py-3">

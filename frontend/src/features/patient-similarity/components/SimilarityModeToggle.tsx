@@ -17,7 +17,7 @@ const modes: { value: SimilarityMode; label: string }[] = [
 export function SimilarityModeToggle({ mode, onChange, recommendedMode }: SimilarityModeToggleProps) {
   return (
     <div className="flex items-center gap-2">
-      <div className="flex items-center rounded-full border border-[#2A2A30] bg-[#151518] p-0.5">
+      <div className="flex items-center rounded-full border border-border-default bg-surface-raised p-0.5">
         {modes.map((m) => (
           <button
             key={m.value}
@@ -26,8 +26,8 @@ export function SimilarityModeToggle({ mode, onChange, recommendedMode }: Simila
             className={cn(
               'px-3 py-1 text-xs font-medium rounded-full transition-colors',
               mode === m.value
-                ? 'bg-[#C9A227]/15 text-[#C9A227] border border-[#C9A227]/30'
-                : 'text-[#5A5650] hover:text-[#C5C0B8] border border-transparent',
+                ? 'bg-accent/15 text-accent border border-accent/30'
+                : 'text-text-ghost hover:text-text-secondary border border-transparent',
             )}
           >
             {m.label}
@@ -35,7 +35,7 @@ export function SimilarityModeToggle({ mode, onChange, recommendedMode }: Simila
         ))}
       </div>
       {mode === 'auto' && recommendedMode && (
-        <span className="text-[11px] text-[#5A5650]">
+        <span className="text-[11px] text-text-ghost">
           will use {recommendedMode}
         </span>
       )}

@@ -24,20 +24,20 @@ export function CohortSummary() {
   const hasDescendants = s.entryConcepts.some((e) => e.includeDescendants);
 
   return (
-    <div className="rounded-lg bg-[#1C1C20] p-4 text-[13px] leading-[1.8] text-[#C5C0B8]">
-      <div className="mb-2 text-[11px] uppercase tracking-wider text-[#5A5650]">
+    <div className="rounded-lg bg-surface-overlay p-4 text-[13px] leading-[1.8] text-text-secondary">
+      <div className="mb-2 text-[11px] uppercase tracking-wider text-text-ghost">
         Your cohort definition reads as:
       </div>
 
       {/* Entry events */}
       <div>
         Patients with{" "}
-        <strong className="text-[#C9A227]">
+        <strong className="text-accent">
           {entryNames.length > 0 ? entryNames.join(", ") : "(no entry events)"}
         </strong>
-        {hasDescendants && <span className="text-[#8A857D]"> (or any sub-type)</span>}
+        {hasDescendants && <span className="text-text-muted"> (or any sub-type)</span>}
         {", "}
-        <span className="text-[#5A5650]">
+        <span className="text-text-ghost">
           using {s.qualifiedLimit.toLowerCase()} qualifying event
           {s.qualifiedLimit === "All" ? "s" : ""}
         </span>
@@ -52,14 +52,14 @@ export function CohortSummary() {
           <div key={i}>
             {isExclusion ? (
               <>
-                and do <strong className="text-[#E85A6B]">NOT</strong> have{" "}
-                <strong className="text-[#C9A227]">{conceptName}</strong>{" "}
+                and do <strong className="text-critical">NOT</strong> have{" "}
+                <strong className="text-accent">{conceptName}</strong>{" "}
                 {describeWindow(rule.temporalWindow)}
               </>
             ) : (
               <>
                 who have{" "}
-                <strong className="text-[#C9A227]">
+                <strong className="text-accent">
                   {OCCURRENCE_LABELS[rule.occurrenceType]} {rule.occurrenceCount}{" "}
                   {DOMAIN_LABELS[rule.domain] ?? rule.domain} of {conceptName}
                 </strong>{" "}
@@ -75,7 +75,7 @@ export function CohortSummary() {
       {s.demographics?.Age && (
         <div>
           aged{" "}
-          <strong className="text-[#C9A227]">
+          <strong className="text-accent">
             {s.demographics.Age.Value}&ndash;{s.demographics.Age.Extent ?? "\u221E"}
           </strong>
           {","}
@@ -85,7 +85,7 @@ export function CohortSummary() {
       {/* End strategy */}
       <div>
         followed until{" "}
-        <strong className="text-[#C9A227]">
+        <strong className="text-accent">
           {s.endStrategy.type === "observation" && "end of continuous observation"}
           {s.endStrategy.type === "fixed" && `${s.endStrategy.fixedDays} days after entry`}
           {s.endStrategy.type === "drug_era" &&
@@ -98,7 +98,7 @@ export function CohortSummary() {
       {s.censoringConcepts.length > 0 && (
         <div>
           censored at{" "}
-          <strong className="text-[#C9A227]">
+          <strong className="text-accent">
             {s.censoringConcepts.map((c) => c.concept.concept_name).join(", ")}
           </strong>
           .

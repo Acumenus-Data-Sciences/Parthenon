@@ -275,7 +275,7 @@ export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
                 tab.disabled
                   ? "text-zinc-600 cursor-not-allowed"
                   : activeTab === tab.id
-                    ? "text-[#2DD4BF]"
+                    ? "text-success"
                     : "text-zinc-400 hover:text-zinc-200"
               }`}
             >
@@ -286,7 +286,7 @@ export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
                 </span>
               )}
               {activeTab === tab.id && !tab.disabled && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2DD4BF] rounded-full" />
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-success rounded-full" />
               )}
             </button>
           ))}
@@ -299,8 +299,8 @@ export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
               status === "saving"
                 ? "text-amber-400 bg-amber-900/20 border-amber-600/30"
                 : status === "saved"
-                  ? "text-[#2DD4BF] bg-teal-900/20 border-teal-600/30"
-                  : "text-[#9B1B30] bg-red-900/20 border-red-700/30"
+                  ? "text-success bg-teal-900/20 border-teal-600/30"
+                  : "text-primary bg-red-900/20 border-red-700/30"
             }`}
           >
             {status === "saving"

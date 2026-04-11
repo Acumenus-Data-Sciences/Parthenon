@@ -125,7 +125,7 @@ export function NotificationSettings() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+        <Loader2 size={24} className="animate-spin text-text-muted" />
       </div>
     );
   }
@@ -134,8 +134,8 @@ export function NotificationSettings() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <AlertCircle size={24} className="mx-auto text-[#E85A6B] mb-2" />
-          <p className="text-[#E85A6B]">Failed to load notification preferences</p>
+          <AlertCircle size={24} className="mx-auto text-critical mb-2" />
+          <p className="text-critical">Failed to load notification preferences</p>
         </div>
       </div>
     );
@@ -144,16 +144,16 @@ export function NotificationSettings() {
   return (
     <div className="max-w-2xl space-y-8">
       {/* Email Notifications */}
-      <section className="rounded-lg border border-[#232328] bg-[#151518] p-6 space-y-5">
+      <section className="rounded-lg border border-border-default bg-surface-raised p-6 space-y-5">
         <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-[#2DD4BF]/10">
-            <Mail size={18} className="text-[#2DD4BF]" />
+          <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-success/10">
+            <Mail size={18} className="text-success" />
           </div>
           <div className="flex-1">
-            <h3 className="text-sm font-semibold text-[#F0EDE8]">
+            <h3 className="text-sm font-semibold text-text-primary">
               Email Notifications
             </h3>
-            <p className="text-xs text-[#8A857D]">
+            <p className="text-xs text-text-muted">
               Receive notifications via email
             </p>
           </div>
@@ -164,7 +164,7 @@ export function NotificationSettings() {
         </div>
 
         {form.notification_email && (
-          <div className="ml-12 space-y-3 border-l-2 border-[#232328] pl-4">
+          <div className="ml-12 space-y-3 border-l-2 border-border-default pl-4">
             {GRANULAR_LABELS.map((item) => (
               <label
                 key={item.key}
@@ -181,10 +181,10 @@ export function NotificationSettings() {
                   size="sm"
                 />
                 <div>
-                  <span className="text-sm text-[#C5C0B8] group-hover:text-[#F0EDE8] transition-colors">
+                  <span className="text-sm text-text-secondary group-hover:text-text-primary transition-colors">
                     {item.label}
                   </span>
-                  <p className="text-xs text-[#5A5650]">{item.description}</p>
+                  <p className="text-xs text-text-ghost">{item.description}</p>
                 </div>
               </label>
             ))}
@@ -192,7 +192,7 @@ export function NotificationSettings() {
             {/* Daily digest mode selector */}
             {form.notification_preferences.daily_digest && (
               <div className="mt-3 ml-1 space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
+                <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">
                   Digest Frequency
                 </p>
                 {(
@@ -230,13 +230,13 @@ export function NotificationSettings() {
                           },
                         }))
                       }
-                      className="mt-0.5 accent-[#2DD4BF]"
+                      className="mt-0.5 accent-success"
                     />
                     <div>
-                      <span className="text-sm text-[#C5C0B8] group-hover:text-[#F0EDE8] transition-colors">
+                      <span className="text-sm text-text-secondary group-hover:text-text-primary transition-colors">
                         {opt.label}
                       </span>
-                      <p className="text-xs text-[#5A5650]">{opt.desc}</p>
+                      <p className="text-xs text-text-ghost">{opt.desc}</p>
                     </div>
                   </label>
                 ))}
@@ -247,16 +247,16 @@ export function NotificationSettings() {
       </section>
 
       {/* SMS Notifications */}
-      <section className="rounded-lg border border-[#232328] bg-[#151518] p-6 space-y-5">
+      <section className="rounded-lg border border-border-default bg-surface-raised p-6 space-y-5">
         <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-[#A78BFA]/10">
-            <Smartphone size={18} className="text-[#A78BFA]" />
+          <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-[var(--domain-observation)]/10">
+            <Smartphone size={18} className="text-[var(--domain-observation)]" />
           </div>
           <div className="flex-1">
-            <h3 className="text-sm font-semibold text-[#F0EDE8]">
+            <h3 className="text-sm font-semibold text-text-primary">
               SMS Notifications
             </h3>
-            <p className="text-xs text-[#8A857D]">
+            <p className="text-xs text-text-muted">
               Receive notifications via text message
             </p>
           </div>
@@ -267,10 +267,10 @@ export function NotificationSettings() {
         </div>
 
         {form.notification_sms && (
-          <div className="ml-12 space-y-4 border-l-2 border-[#232328] pl-4">
+          <div className="ml-12 space-y-4 border-l-2 border-border-default pl-4">
             {/* Phone number */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
+              <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
                 Phone Number
               </label>
               <input
@@ -279,9 +279,9 @@ export function NotificationSettings() {
                 onChange={(e) => handlePhoneChange(e.target.value)}
                 placeholder="+1 (555) 000-0000"
                 className={cn(
-                  "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-                  "text-[#F0EDE8] placeholder:text-[#5A5650]",
-                  "focus:border-[#A78BFA] focus:outline-none focus:ring-1 focus:ring-[#A78BFA]/40",
+                  "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
+                  "text-text-primary placeholder:text-text-ghost",
+                  "focus:border-[var(--domain-observation)] focus:outline-none focus:ring-1 focus:ring-[var(--domain-observation)]/40",
                 )}
               />
             </div>
@@ -304,10 +304,10 @@ export function NotificationSettings() {
                     );
                   })()}
                   <div>
-                    <span className="text-sm text-[#C5C0B8] group-hover:text-[#F0EDE8] transition-colors">
+                    <span className="text-sm text-text-secondary group-hover:text-text-primary transition-colors">
                       {item.label}
                     </span>
-                    <p className="text-xs text-[#5A5650]">{item.description}</p>
+                    <p className="text-xs text-text-ghost">{item.description}</p>
                   </div>
                 </label>
               ))}
@@ -324,7 +324,7 @@ export function NotificationSettings() {
           disabled={updateMutation.isPending}
           className={cn(
             "inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium transition-colors",
-            "bg-[#2DD4BF] text-[#0E0E11] hover:bg-[#26B8A5] disabled:opacity-50",
+            "bg-success text-surface-base hover:bg-success disabled:opacity-50",
           )}
         >
           {updateMutation.isPending ? (
@@ -344,8 +344,8 @@ export function NotificationSettings() {
             className={cn(
               "flex items-center gap-2 rounded-lg border px-4 py-3 text-sm shadow-lg animate-in slide-in-from-bottom-2",
               toast.type === "success"
-                ? "border-[#2DD4BF]/30 bg-[#151518] text-[#2DD4BF]"
-                : "border-[#E85A6B]/30 bg-[#151518] text-[#E85A6B]",
+                ? "border-success/30 bg-surface-raised text-success"
+                : "border-critical/30 bg-surface-raised text-critical",
             )}
           >
             {toast.type === "success" ? (
@@ -383,7 +383,7 @@ function ToggleSwitch({
       onClick={onChange}
       className={cn(
         "relative inline-flex shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out",
-        checked ? "bg-[#2DD4BF]" : "bg-[#232328]",
+        checked ? "bg-success" : "bg-surface-elevated",
         isSmall ? "h-5 w-9" : "h-6 w-11",
       )}
     >

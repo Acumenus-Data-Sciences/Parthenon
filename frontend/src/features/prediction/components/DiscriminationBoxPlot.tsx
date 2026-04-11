@@ -25,8 +25,8 @@ export function DiscriminationBoxPlot({
   const toX = (v: number) => padding.left + v * plotW;
   const rowH = plotH / 2;
 
-  const OUTCOME_COLOR = "#E85A6B";
-  const NO_OUTCOME_COLOR = "#2DD4BF";
+  const OUTCOME_COLOR = "var(--critical)";
+  const NO_OUTCOME_COLOR = "var(--success)";
 
   const ticks = [0, 0.2, 0.4, 0.6, 0.8, 1.0];
 
@@ -78,7 +78,7 @@ export function DiscriminationBoxPlot({
         <polygon
           points={`${toX(stats.mean)},${y - 5} ${toX(stats.mean) + 4},${y} ${toX(stats.mean)},${y + 5} ${toX(stats.mean) - 4},${y}`}
           fill={color}
-          stroke="#151518"
+          stroke="var(--surface-raised)"
           strokeWidth={0.5}
         />
       </g>
@@ -91,17 +91,17 @@ export function DiscriminationBoxPlot({
         width={width}
         height={height}
         viewBox={`0 0 ${width} ${height}`}
-        className="text-[#F0EDE8]"
+        className="text-text-primary"
         role="img"
         aria-label="Discrimination box plot showing predicted probability distribution by outcome status"
       >
-        <rect width={width} height={height} fill="#151518" rx={8} />
+        <rect width={width} height={height} fill="var(--surface-raised)" rx={8} />
 
         {/* Grid */}
         {ticks.map((v) => (
           <g key={v}>
-            <line x1={toX(v)} y1={padding.top} x2={toX(v)} y2={padding.top + plotH} stroke="#232328" strokeWidth={0.5} />
-            <text x={toX(v)} y={padding.top + plotH + 16} textAnchor="middle" fill="#5A5650" fontSize={10}>
+            <line x1={toX(v)} y1={padding.top} x2={toX(v)} y2={padding.top + plotH} stroke="var(--border-default)" strokeWidth={0.5} />
+            <text x={toX(v)} y={padding.top + plotH + 16} textAnchor="middle" fill="var(--text-ghost)" fontSize={10}>
               {v.toFixed(1)}
             </text>
           </g>
@@ -134,14 +134,14 @@ export function DiscriminationBoxPlot({
         {renderBox(noOutcomeGroup, padding.top + rowH + rowH / 2, NO_OUTCOME_COLOR)}
 
         {/* Plot boundary */}
-        <rect x={padding.left} y={padding.top} width={plotW} height={plotH} fill="none" stroke="#323238" strokeWidth={1} />
+        <rect x={padding.left} y={padding.top} width={plotW} height={plotH} fill="none" stroke="var(--border-default)" strokeWidth={1} />
 
         {/* X-axis label */}
         <text
           x={padding.left + plotW / 2}
           y={height - 6}
           textAnchor="middle"
-          fill="#8A857D"
+          fill="var(--text-muted)"
           fontSize={11}
           fontWeight={600}
         >

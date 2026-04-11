@@ -2,7 +2,7 @@ import { useGeographicDiversity } from "../../../hooks/useNetworkData";
 import type { GeographicDiversity } from "../../../types/ares";
 
 const STATE_BAR_COLORS = [
-  "#2DD4BF", "#C9A227", "#9B1B30", "#6366F1", "#EC4899",
+  "var(--success)", "var(--accent)", "var(--primary)", "#6366F1", "#EC4899",
   "#F59E0B", "#10B981", "#8B5CF6", "#EF4444", "#3B82F6",
 ];
 
@@ -15,9 +15,9 @@ function ADIRatingLabel({ median }: { median: number | null }) {
     "High deprivation (underserved)";
 
   const color =
-    median <= 3 ? "text-[#2DD4BF]" :
-    median <= 6 ? "text-[#C9A227]" :
-    "text-[#9B1B30]";
+    median <= 3 ? "text-success" :
+    median <= 6 ? "text-accent" :
+    "text-primary";
 
   return <span className={color}>{label}</span>;
 }
@@ -77,7 +77,7 @@ function ADIHistogram({ data }: { data: Record<string, number> }) {
                 className="w-full rounded-t"
                 style={{
                   height: `${height}%`,
-                  backgroundColor: isDisadvantaged ? "#9B1B30" : "#2DD4BF",
+                  backgroundColor: isDisadvantaged ? "var(--primary)" : "var(--success)",
                   opacity: count > 0 ? 1 : 0.2,
                 }}
                 title={`Decile ${d}: ${count} ZIP codes`}
@@ -126,23 +126,23 @@ export default function GeographicDiversityView() {
     <div className="space-y-4">
       {/* Summary cards */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <div className="rounded-lg border border-[#252530] bg-[#151518] p-3">
-          <p className="text-2xl font-semibold text-[#2DD4BF]">{totalReach}</p>
+        <div className="rounded-lg border border-[#252530] bg-surface-raised p-3">
+          <p className="text-2xl font-semibold text-success">{totalReach}</p>
           <p className="mt-0.5 text-xs text-[#888]">States / regions covered</p>
         </div>
-        <div className="rounded-lg border border-[#252530] bg-[#151518] p-3">
-          <p className="text-2xl font-semibold text-[#C9A227]">
+        <div className="rounded-lg border border-[#252530] bg-surface-raised p-3">
+          <p className="text-2xl font-semibold text-accent">
             {networkMedianAdi !== null ? networkMedianAdi : "N/A"}
           </p>
           <p className="mt-0.5 text-xs text-[#888]">
             Network Median ADI: <ADIRatingLabel median={networkMedianAdi} />
           </p>
         </div>
-        <div className="rounded-lg border border-[#252530] bg-[#151518] p-3">
+        <div className="rounded-lg border border-[#252530] bg-surface-raised p-3">
           <p className="text-2xl font-semibold text-white">{geoData.length}</p>
           <p className="mt-0.5 text-xs text-[#888]">Sources with location data</p>
         </div>
-        <div className="rounded-lg border border-[#252530] bg-[#151518] p-3">
+        <div className="rounded-lg border border-[#252530] bg-surface-raised p-3">
           <p className="text-2xl font-semibold text-white">
             {geoData.filter((s: GeographicDiversity) => Object.keys(s.adi_distribution).length > 0).length}
           </p>
@@ -152,7 +152,7 @@ export default function GeographicDiversityView() {
 
       {/* Per-source breakdown */}
       {geoData.map((source: GeographicDiversity) => (
-        <div key={source.source_id} className="rounded-lg border border-[#252530] bg-[#151518] p-4">
+        <div key={source.source_id} className="rounded-lg border border-[#252530] bg-surface-raised p-4">
           <div className="mb-3 flex items-center justify-between">
             <h3 className="text-sm font-medium text-white">{source.source_name}</h3>
             <div className="flex items-center gap-3">

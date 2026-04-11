@@ -30,7 +30,7 @@ interface DqdTabProps {
 }
 
 const CATEGORY_COLORS: Record<string, { bar: string; bg: string; label: string }> = {
-  completeness: { bar: "#60A5FA", bg: "rgba(96,165,250,0.1)", label: "Completeness" },
+  completeness: { bar: "var(--info)", bg: "rgba(96,165,250,0.1)", label: "Completeness" },
   conformance: { bar: "#A855F7", bg: "rgba(168,85,247,0.1)", label: "Conformance" },
   plausibility: { bar: "#E5A84B", bg: "rgba(229,168,75,0.1)", label: "Plausibility" },
 };
@@ -41,33 +41,33 @@ function ProgressPanel({ progress }: { progress: DqdProgress }) {
   return (
     <div className="space-y-4">
       {/* Overall progress */}
-      <div className="rounded-xl border border-[#232328] bg-[#151518] p-6">
+      <div className="rounded-xl border border-border-default bg-surface-raised p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="relative">
-              <Activity size={18} className="text-[#C9A227] animate-pulse" />
+              <Activity size={18} className="text-accent animate-pulse" />
             </div>
             <div>
-              <h3 className="text-sm font-medium text-[#F0EDE8]">
+              <h3 className="text-sm font-medium text-text-primary">
                 DQD Analysis Running
               </h3>
-              <p className="text-xs text-[#5A5650] mt-0.5">
+              <p className="text-xs text-text-ghost mt-0.5">
                 {progress.completed} of {progress.total} checks completed
               </p>
             </div>
           </div>
-          <span className="text-2xl font-semibold font-['IBM_Plex_Mono',monospace] text-[#C9A227]">
+          <span className="text-2xl font-semibold font-['IBM_Plex_Mono',monospace] text-accent">
             {pct.toFixed(1)}%
           </span>
         </div>
 
         {/* Main progress bar */}
-        <div className="h-3 w-full overflow-hidden rounded-full bg-[#1A1A1E]">
+        <div className="h-3 w-full overflow-hidden rounded-full bg-surface-overlay">
           <div
             className="h-full rounded-full transition-all duration-300 ease-out"
             style={{
               width: `${pct}%`,
-              background: "linear-gradient(90deg, #C9A227 0%, #2DD4BF 100%)",
+              background: "linear-gradient(90deg, var(--accent) 0%, var(--success) 100%)",
             }}
           />
         </div>
@@ -75,27 +75,27 @@ function ProgressPanel({ progress }: { progress: DqdProgress }) {
         {/* Pass/fail counts */}
         <div className="flex items-center gap-6 mt-3">
           <div className="flex items-center gap-1.5">
-            <CheckCircle2 size={12} className="text-[#2DD4BF]" />
-            <span className="text-xs font-['IBM_Plex_Mono',monospace] text-[#2DD4BF]">
+            <CheckCircle2 size={12} className="text-success" />
+            <span className="text-xs font-['IBM_Plex_Mono',monospace] text-success">
               {progress.passed}
             </span>
-            <span className="text-xs text-[#5A5650]">passed</span>
+            <span className="text-xs text-text-ghost">passed</span>
           </div>
           {progress.failed > 0 && (
             <div className="flex items-center gap-1.5">
-              <XCircle size={12} className="text-[#E85A6B]" />
-              <span className="text-xs font-['IBM_Plex_Mono',monospace] text-[#E85A6B]">
+              <XCircle size={12} className="text-critical" />
+              <span className="text-xs font-['IBM_Plex_Mono',monospace] text-critical">
                 {progress.failed}
               </span>
-              <span className="text-xs text-[#5A5650]">failed</span>
+              <span className="text-xs text-text-ghost">failed</span>
             </div>
           )}
           <div className="flex items-center gap-1.5">
-            <Shield size={12} className="text-[#5A5650]" />
-            <span className="text-xs font-['IBM_Plex_Mono',monospace] text-[#8A857D]">
+            <Shield size={12} className="text-text-ghost" />
+            <span className="text-xs font-['IBM_Plex_Mono',monospace] text-text-muted">
               {progress.total - progress.completed}
             </span>
-            <span className="text-xs text-[#5A5650]">remaining</span>
+            <span className="text-xs text-text-ghost">remaining</span>
           </div>
         </div>
       </div>
@@ -104,7 +104,7 @@ function ProgressPanel({ progress }: { progress: DqdProgress }) {
       <div className="grid grid-cols-3 gap-4">
         {progress.by_category.map((cat) => {
           const meta = CATEGORY_COLORS[cat.category] ?? {
-            bar: "#8A857D",
+            bar: "var(--text-muted)",
             bg: "rgba(138,133,125,0.1)",
             label: cat.category,
           };
@@ -113,20 +113,20 @@ function ProgressPanel({ progress }: { progress: DqdProgress }) {
           return (
             <div
               key={cat.category}
-              className="rounded-xl border border-[#232328] bg-[#151518] p-4"
+              className="rounded-xl border border-border-default bg-surface-raised p-4"
               style={{ borderColor: cat.completed > 0 ? meta.bar + "33" : undefined }}
             >
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium" style={{ color: meta.bar }}>
                   {meta.label}
                 </span>
-                <span className="text-xs font-['IBM_Plex_Mono',monospace] text-[#8A857D]">
+                <span className="text-xs font-['IBM_Plex_Mono',monospace] text-text-muted">
                   {cat.completed}/{cat.total}
                 </span>
               </div>
 
               {/* Category progress bar */}
-              <div className="h-2 w-full overflow-hidden rounded-full bg-[#1A1A1E] mb-2">
+              <div className="h-2 w-full overflow-hidden rounded-full bg-surface-overlay mb-2">
                 <div
                   className="h-full rounded-full transition-all duration-300 ease-out"
                   style={{
@@ -140,22 +140,22 @@ function ProgressPanel({ progress }: { progress: DqdProgress }) {
               <div className="flex items-center gap-3">
                 {cat.passed > 0 && (
                   <div className="flex items-center gap-1">
-                    <CheckCircle2 size={10} className="text-[#2DD4BF]" />
-                    <span className="text-[10px] font-['IBM_Plex_Mono',monospace] text-[#2DD4BF]">
+                    <CheckCircle2 size={10} className="text-success" />
+                    <span className="text-[10px] font-['IBM_Plex_Mono',monospace] text-success">
                       {cat.passed}
                     </span>
                   </div>
                 )}
                 {cat.failed > 0 && (
                   <div className="flex items-center gap-1">
-                    <XCircle size={10} className="text-[#E85A6B]" />
-                    <span className="text-[10px] font-['IBM_Plex_Mono',monospace] text-[#E85A6B]">
+                    <XCircle size={10} className="text-critical" />
+                    <span className="text-[10px] font-['IBM_Plex_Mono',monospace] text-critical">
                       {cat.failed}
                     </span>
                   </div>
                 )}
                 {cat.completed === 0 && (
-                  <span className="text-[10px] text-[#5A5650]">Waiting...</span>
+                  <span className="text-[10px] text-text-ghost">Waiting...</span>
                 )}
               </div>
             </div>
@@ -165,20 +165,20 @@ function ProgressPanel({ progress }: { progress: DqdProgress }) {
 
       {/* Latest check indicator */}
       {progress.latest_check && (
-        <div className="flex items-center gap-2 rounded-lg border border-[#232328] bg-[#0E0E11] px-4 py-2.5">
-          <Loader2 size={12} className="animate-spin text-[#C9A227]" />
-          <span className="text-xs text-[#5A5650]">Running:</span>
-          <span className="text-xs font-['IBM_Plex_Mono',monospace] text-[#8A857D]">
+        <div className="flex items-center gap-2 rounded-lg border border-border-default bg-surface-base px-4 py-2.5">
+          <Loader2 size={12} className="animate-spin text-accent" />
+          <span className="text-xs text-text-ghost">Running:</span>
+          <span className="text-xs font-['IBM_Plex_Mono',monospace] text-text-muted">
             {progress.latest_check.cdm_table}
             {progress.latest_check.cdm_column
               ? `.${progress.latest_check.cdm_column}`
               : ""}
           </span>
-          <span className="text-xs text-[#5A5650]">
+          <span className="text-xs text-text-ghost">
             ({progress.latest_check.category})
           </span>
           {progress.latest_check.passed ? (
-            <CheckCircle2 size={10} className="text-[#2DD4BF] ml-auto" />
+            <CheckCircle2 size={10} className="text-success ml-auto" />
           ) : (
             <AlertTriangle size={10} className="text-[#E5A84B] ml-auto" />
           )}
@@ -283,8 +283,8 @@ export default function DqdTab({ sourceId }: DqdTabProps) {
           onClick={() => runMutation.mutate()}
           disabled={runMutation.isPending || isRunning}
           className={cn(
-            "inline-flex items-center gap-2 rounded-lg bg-[#9B1B30] px-4 py-2.5 text-sm font-medium text-[#F0EDE8]",
-            "hover:bg-[#B82D42] transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
+            "inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-text-primary",
+            "hover:bg-primary-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
           )}
         >
           {runMutation.isPending || isRunning ? (
@@ -301,16 +301,16 @@ export default function DqdTab({ sourceId }: DqdTabProps) {
             <button
               type="button"
               onClick={() => setShowRunSelector(!showRunSelector)}
-              className="inline-flex items-center gap-2 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#C5C0B8] hover:bg-[#1A1A1E] transition-colors"
+              className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-secondary hover:bg-surface-overlay transition-colors"
             >
-              <History size={14} className="text-[#8A857D]" />
+              <History size={14} className="text-text-muted" />
               {activeRunId
                 ? `Run ${activeRunId.slice(0, 8)}...`
                 : "Select run"}
-              <ChevronDown size={12} className="text-[#8A857D]" />
+              <ChevronDown size={12} className="text-text-muted" />
             </button>
             {showRunSelector && (
-              <div className="absolute top-full left-0 z-10 mt-1 w-64 rounded-lg border border-[#232328] bg-[#1A1A1E] shadow-xl">
+              <div className="absolute top-full left-0 z-10 mt-1 w-64 rounded-lg border border-border-default bg-surface-overlay shadow-xl">
                 {dqdRuns.data.map((run) => (
                   <button
                     key={run.run_id}
@@ -320,16 +320,16 @@ export default function DqdTab({ sourceId }: DqdTabProps) {
                       setShowRunSelector(false);
                     }}
                     className={cn(
-                      "flex w-full items-center justify-between px-4 py-2.5 text-left text-sm hover:bg-[#232328] transition-colors",
+                      "flex w-full items-center justify-between px-4 py-2.5 text-left text-sm hover:bg-surface-elevated transition-colors",
                       run.run_id === activeRunId
-                        ? "text-[#C9A227]"
-                        : "text-[#C5C0B8]",
+                        ? "text-accent"
+                        : "text-text-secondary",
                     )}
                   >
                     <span className="font-['IBM_Plex_Mono',monospace] text-xs">
                       {run.run_id.slice(0, 12)}
                     </span>
-                    <span className="text-xs text-[#5A5650]">
+                    <span className="text-xs text-text-ghost">
                       {new Date(run.started_at).toLocaleDateString()}
                     </span>
                   </button>
@@ -340,7 +340,7 @@ export default function DqdTab({ sourceId }: DqdTabProps) {
         )}
 
         {runMutation.isError && (
-          <span className="text-xs text-[#E85A6B]">Failed to dispatch DQD run</span>
+          <span className="text-xs text-critical">Failed to dispatch DQD run</span>
         )}
       </div>
 
@@ -352,16 +352,16 @@ export default function DqdTab({ sourceId }: DqdTabProps) {
       {/* Loading state for completed run data */}
       {!isRunning && (dqdRun.isLoading || dqdResults.isLoading) && (
         <div className="flex items-center justify-center py-16">
-          <Loader2 size={20} className="animate-spin text-[#8A857D]" />
+          <Loader2 size={20} className="animate-spin text-text-muted" />
         </div>
       )}
 
       {/* No data state */}
       {!isRunning && !dqdRun.isLoading && !dqdRun.data && !activeRunId && (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[#323238] bg-[#151518] py-16">
-          <History size={32} className="text-[#5A5650] mb-3" />
-          <p className="text-sm text-[#8A857D]">No DQD runs yet</p>
-          <p className="mt-1 text-xs text-[#5A5650]">
+        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-surface-highlight bg-surface-raised py-16">
+          <History size={32} className="text-text-ghost mb-3" />
+          <p className="text-sm text-text-muted">No DQD runs yet</p>
+          <p className="mt-1 text-xs text-text-ghost">
             Click "Run DQD" to start a data quality analysis
           </p>
         </div>

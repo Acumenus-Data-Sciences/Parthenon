@@ -33,11 +33,11 @@ export function PredictionDistribution({ bins }: PredictionDistributionProps) {
         width={width}
         height={height}
         viewBox={`0 0 ${width} ${height}`}
-        className="text-[#F0EDE8]"
+        className="text-text-primary"
         role="img"
         aria-label="Prediction distribution histogram"
       >
-        <rect width={width} height={height} fill="#151518" rx={8} />
+        <rect width={width} height={height} fill="var(--surface-raised)" rx={8} />
 
         {/* Y Grid */}
         {yTicks.map((v) => (
@@ -47,10 +47,10 @@ export function PredictionDistribution({ bins }: PredictionDistributionProps) {
               y1={toY(v)}
               x2={padding.left + plotW}
               y2={toY(v)}
-              stroke="#232328"
+              stroke="var(--border-default)"
               strokeWidth={0.5}
             />
-            <text x={padding.left - 8} y={toY(v) + 4} textAnchor="end" fill="#5A5650" fontSize={9}>
+            <text x={padding.left - 8} y={toY(v) + 4} textAnchor="end" fill="var(--text-ghost)" fontSize={9}>
               {v.toLocaleString()}
             </text>
           </g>
@@ -71,7 +71,7 @@ export function PredictionDistribution({ bins }: PredictionDistributionProps) {
                 y={baseY - noOutH}
                 width={binW - 2}
                 height={noOutH}
-                fill="#2DD4BF"
+                fill="var(--success)"
                 opacity={0.5}
                 rx={1}
               >
@@ -85,7 +85,7 @@ export function PredictionDistribution({ bins }: PredictionDistributionProps) {
                 y={baseY - noOutH - outH}
                 width={binW - 2}
                 height={outH}
-                fill="#E85A6B"
+                fill="var(--critical)"
                 opacity={0.6}
                 rx={1}
               >
@@ -101,33 +101,33 @@ export function PredictionDistribution({ bins }: PredictionDistributionProps) {
         {xTicks.map((v) => {
           const x = padding.left + v * plotW;
           return (
-            <text key={`x-${v}`} x={x} y={padding.top + plotH + 16} textAnchor="middle" fill="#5A5650" fontSize={10}>
+            <text key={`x-${v}`} x={x} y={padding.top + plotH + 16} textAnchor="middle" fill="var(--text-ghost)" fontSize={10}>
               {v.toFixed(1)}
             </text>
           );
         })}
 
         {/* Plot boundary */}
-        <rect x={padding.left} y={padding.top} width={plotW} height={plotH} fill="none" stroke="#323238" strokeWidth={1} />
+        <rect x={padding.left} y={padding.top} width={plotW} height={plotH} fill="none" stroke="var(--border-default)" strokeWidth={1} />
 
         {/* Legend */}
         <g transform={`translate(${padding.left + plotW - 175}, ${padding.top + 8})`}>
-          <rect x={0} y={0} width={165} height={42} rx={4} fill="#0E0E11" stroke="#232328" strokeWidth={1} />
-          <rect x={10} y={8} width={10} height={10} rx={2} fill="#E85A6B" opacity={0.6} />
-          <text x={26} y={17} fill="#C5C0B8" fontSize={10}>With Outcome</text>
-          <rect x={10} y={26} width={10} height={10} rx={2} fill="#2DD4BF" opacity={0.5} />
-          <text x={26} y={35} fill="#C5C0B8" fontSize={10}>Without Outcome</text>
+          <rect x={0} y={0} width={165} height={42} rx={4} fill="var(--surface-base)" stroke="var(--border-default)" strokeWidth={1} />
+          <rect x={10} y={8} width={10} height={10} rx={2} fill="var(--critical)" opacity={0.6} />
+          <text x={26} y={17} fill="var(--text-secondary)" fontSize={10}>With Outcome</text>
+          <rect x={10} y={26} width={10} height={10} rx={2} fill="var(--success)" opacity={0.5} />
+          <text x={26} y={35} fill="var(--text-secondary)" fontSize={10}>Without Outcome</text>
         </g>
 
         {/* Axis labels */}
-        <text x={padding.left + plotW / 2} y={height - 8} textAnchor="middle" fill="#8A857D" fontSize={11} fontWeight={600}>
+        <text x={padding.left + plotW / 2} y={height - 8} textAnchor="middle" fill="var(--text-muted)" fontSize={11} fontWeight={600}>
           Predicted Probability
         </text>
         <text
           x={14}
           y={padding.top + plotH / 2}
           textAnchor="middle"
-          fill="#8A857D"
+          fill="var(--text-muted)"
           fontSize={11}
           fontWeight={600}
           transform={`rotate(-90 14 ${padding.top + plotH / 2})`}

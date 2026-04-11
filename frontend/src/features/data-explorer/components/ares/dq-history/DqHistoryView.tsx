@@ -94,7 +94,7 @@ export default function DqHistoryView() {
                 type="button"
                 onClick={() => setActiveTab(tab)}
                 className={`rounded px-3 py-1 text-xs ${
-                  activeTab === tab ? "bg-[#2DD4BF] text-black" : "text-[#888]"
+                  activeTab === tab ? "bg-success text-black" : "text-[#888]"
                 }`}
               >
                 {labels[tab]}
@@ -115,7 +115,7 @@ export default function DqHistoryView() {
 
           {!trendsLoading && trends && (
             <>
-              <div className="mb-6 rounded-lg border border-[#252530] bg-[#151518] p-4">
+              <div className="mb-6 rounded-lg border border-[#252530] bg-surface-raised p-4">
                 <h3 className="mb-3 text-sm font-medium text-white">DQ Pass Rate Over Releases</h3>
                 <DqTrendChart
                   data={trends}
@@ -125,7 +125,7 @@ export default function DqHistoryView() {
               </div>
 
               {selectedReleaseId && (
-                <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
+                <div className="rounded-lg border border-[#252530] bg-surface-raised p-4">
                   {deltasLoading ? (
                     <p className="text-[#555]">Loading deltas...</p>
                   ) : (
@@ -143,7 +143,7 @@ export default function DqHistoryView() {
 
       {/* Heatmap tab */}
       {activeTab === "heatmap" && selectedSourceId && (
-        <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
+        <div className="rounded-lg border border-[#252530] bg-surface-raised p-4">
           <h3 className="mb-3 text-sm font-medium text-white">Category x Release Heatmap</h3>
           {heatmapLoading && <p className="text-[#555]">Loading heatmap...</p>}
           {heatmapData && (
@@ -162,7 +162,7 @@ export default function DqHistoryView() {
 
       {/* SLA tab */}
       {activeTab === "sla" && selectedSourceId && (
-        <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
+        <div className="rounded-lg border border-[#252530] bg-surface-raised p-4">
           <h3 className="mb-3 text-sm font-medium text-white">SLA Compliance Dashboard</h3>
           <DqSlaDashboard sourceId={selectedSourceId} />
         </div>
@@ -170,7 +170,7 @@ export default function DqHistoryView() {
 
       {/* Cross-source overlay tab */}
       {activeTab === "overlay" && (
-        <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
+        <div className="rounded-lg border border-[#252530] bg-surface-raised p-4">
           <h3 className="mb-3 text-sm font-medium text-white">Cross-Source DQ Overlay</h3>
           {overlayLoading && <p className="text-[#555]">Loading overlay data...</p>}
           {overlayData && overlayData.length > 0 && (

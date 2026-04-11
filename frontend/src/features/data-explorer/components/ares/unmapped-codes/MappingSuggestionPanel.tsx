@@ -11,10 +11,10 @@ interface MappingSuggestionPanelProps {
 function ConfidenceBar({ score }: { score: number }) {
   const pct = Math.round(score * 100);
   const color =
-    pct >= 80 ? "bg-[#2DD4BF]" :
-    pct >= 60 ? "bg-[#C9A227]" :
+    pct >= 80 ? "bg-success" :
+    pct >= 60 ? "bg-accent" :
     pct >= 40 ? "bg-amber-500" :
-    "bg-[#9B1B30]";
+    "bg-primary";
 
   return (
     <div className="flex items-center gap-2">
@@ -57,7 +57,7 @@ export default function MappingSuggestionPanel({ code, sourceId }: MappingSugges
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}
-        className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-[#2DD4BF] hover:bg-[#151518]"
+        className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-success hover:bg-surface-raised"
       >
         <span className={`transition-transform ${expanded ? "rotate-90" : ""}`}>
           {"\u25B6"}
@@ -72,7 +72,7 @@ export default function MappingSuggestionPanel({ code, sourceId }: MappingSugges
           )}
 
           {error && (
-            <p className="text-xs text-[#9B1B30]">
+            <p className="text-xs text-primary">
               Failed to load suggestions. The AI service or concept embeddings may not be available.
             </p>
           )}
@@ -93,8 +93,8 @@ export default function MappingSuggestionPanel({ code, sourceId }: MappingSugges
                     key={suggestion.concept_id}
                     className={`flex items-center justify-between rounded-lg border p-2 ${
                       isAccepted
-                        ? "border-[#2DD4BF]/50 bg-[#2DD4BF]/5"
-                        : "border-[#252530] bg-[#0E0E11]"
+                        ? "border-success/50 bg-success/5"
+                        : "border-[#252530] bg-surface-base"
                     }`}
                   >
                     <div className="flex-1">
@@ -119,7 +119,7 @@ export default function MappingSuggestionPanel({ code, sourceId }: MappingSugges
 
                     <div className="ml-3 flex items-center gap-1">
                       {isAccepted ? (
-                        <span className="rounded-full bg-[#2DD4BF]/20 px-3 py-1 text-[10px] font-medium text-[#2DD4BF]">
+                        <span className="rounded-full bg-success/20 px-3 py-1 text-[10px] font-medium text-success">
                           Accepted
                         </span>
                       ) : (
@@ -128,7 +128,7 @@ export default function MappingSuggestionPanel({ code, sourceId }: MappingSugges
                             type="button"
                             onClick={() => acceptMutation.mutate(suggestion)}
                             disabled={acceptMutation.isPending || acceptedId !== null}
-                            className="rounded border border-[#2DD4BF]/30 px-2 py-1 text-[10px] text-[#2DD4BF] hover:bg-[#2DD4BF]/10 disabled:opacity-30"
+                            className="rounded border border-success/30 px-2 py-1 text-[10px] text-success hover:bg-success/10 disabled:opacity-30"
                           >
                             {acceptMutation.isPending ? "..." : "Accept"}
                           </button>

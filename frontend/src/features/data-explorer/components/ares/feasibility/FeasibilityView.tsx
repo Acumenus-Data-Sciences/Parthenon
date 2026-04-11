@@ -14,12 +14,12 @@ import type { FeasibilityAssessment, FeasibilityResult } from "../../../types/ar
 
 function ScoreBadge({ score, pass: _pass }: { score: number; pass: boolean }) {
   const color = score >= 90
-    ? "bg-[#2DD4BF]/20 text-[#2DD4BF]"
+    ? "bg-success/20 text-success"
     : score >= 70
-      ? "bg-[#C9A227]/20 text-[#C9A227]"
+      ? "bg-accent/20 text-accent"
       : score >= 50
         ? "bg-[#F59E0B]/20 text-[#F59E0B]"
-        : "bg-[#9B1B30]/20 text-[#e85d75]";
+        : "bg-primary/20 text-[#e85d75]";
 
   return (
     <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${color}`}>
@@ -49,7 +49,7 @@ export default function FeasibilityView() {
         <button
           type="button"
           onClick={() => setShowForm(!showForm)}
-          className="rounded bg-[#C9A227] px-3 py-1.5 text-sm font-medium text-black hover:bg-[#d4ad2f]"
+          className="rounded bg-accent px-3 py-1.5 text-sm font-medium text-black hover:bg-accent"
         >
           + New Assessment
         </button>
@@ -84,8 +84,8 @@ export default function FeasibilityView() {
               onClick={() => { setSelectedId(a.id); setDetailView("table"); }}
               className={`flex w-full items-center justify-between rounded-lg border p-3 text-left transition-colors ${
                 selectedId === a.id
-                  ? "border-[#C9A227] bg-[#C9A227]/5"
-                  : "border-[#252530] bg-[#151518] hover:border-[#333]"
+                  ? "border-accent bg-accent/5"
+                  : "border-[#252530] bg-surface-raised hover:border-[#333]"
               }`}
             >
               <div>
@@ -97,10 +97,10 @@ export default function FeasibilityView() {
               <span
                 className={`rounded px-2 py-0.5 text-xs font-medium ${
                   a.sources_passed === a.sources_assessed
-                    ? "bg-[#2DD4BF]/20 text-[#2DD4BF]"
+                    ? "bg-success/20 text-success"
                     : a.sources_passed > 0
-                      ? "bg-[#C9A227]/20 text-[#C9A227]"
-                      : "bg-[#9B1B30]/20 text-[#e85d75]"
+                      ? "bg-accent/20 text-accent"
+                      : "bg-primary/20 text-[#e85d75]"
                 }`}
               >
                 {a.sources_passed}/{a.sources_assessed} passed
@@ -121,7 +121,7 @@ export default function FeasibilityView() {
               onClick={() => setDetailView(mode)}
               className={`rounded px-2 py-1 text-xs transition-colors ${
                 detailView === mode
-                  ? "bg-[#C9A227]/20 text-[#C9A227]"
+                  ? "bg-accent/20 text-accent"
                   : "text-[#888] hover:text-white"
               }`}
             >
@@ -133,7 +133,7 @@ export default function FeasibilityView() {
 
       {/* Assessment results detail - Table view */}
       {selectedAssessment?.results && detailView === "table" && (
-        <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
+        <div className="rounded-lg border border-[#252530] bg-surface-raised p-4">
           <h3 className="mb-3 text-sm font-medium text-white">
             Results: {selectedAssessment.name}
           </h3>
@@ -175,10 +175,10 @@ export default function FeasibilityView() {
                       <span
                         className={`rounded-full px-2 py-0.5 text-xs font-bold ${
                           (r.composite_score ?? 0) >= 80
-                            ? "bg-[#2DD4BF]/20 text-[#2DD4BF]"
+                            ? "bg-success/20 text-success"
                             : (r.composite_score ?? 0) >= 60
-                              ? "bg-[#C9A227]/20 text-[#C9A227]"
-                              : "bg-[#9B1B30]/20 text-[#e85d75]"
+                              ? "bg-accent/20 text-accent"
+                              : "bg-primary/20 text-[#e85d75]"
                         }`}
                       >
                         {r.composite_score ?? 0}%
@@ -189,8 +189,8 @@ export default function FeasibilityView() {
                         <span
                           className={`rounded px-2 py-0.5 text-[10px] font-bold ${
                             r.overall_pass
-                              ? "bg-[#2DD4BF]/20 text-[#2DD4BF]"
-                              : "bg-[#9B1B30]/20 text-[#e85d75]"
+                              ? "bg-success/20 text-success"
+                              : "bg-primary/20 text-[#e85d75]"
                           }`}
                         >
                           {r.overall_pass ? "ELIGIBLE" : "INELIGIBLE"}
@@ -210,8 +210,8 @@ export default function FeasibilityView() {
                           }}
                           className={`rounded px-2 py-0.5 text-[10px] font-medium transition-colors ${
                             forecastSourceId === r.source_id
-                              ? "bg-[#C9A227] text-black"
-                              : "border border-[#333] text-[#888] hover:border-[#C9A227] hover:text-[#C9A227]"
+                              ? "bg-accent text-black"
+                              : "border border-[#333] text-[#888] hover:border-accent hover:text-accent"
                           }`}
                         >
                           {forecastSourceId === r.source_id ? "Hide" : "Forecast"}

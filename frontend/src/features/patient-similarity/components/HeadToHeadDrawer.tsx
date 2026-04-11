@@ -25,14 +25,14 @@ function ageBucketLabel(bucket: number | null | undefined): string {
 }
 
 function scoreGradient(score: number): string {
-  if (score >= 0.7) return "from-[#2DD4BF]/60 to-[#2DD4BF]/20";
-  if (score >= 0.4) return "from-[#C9A227]/60 to-[#C9A227]/20";
+  if (score >= 0.7) return "from-success/60 to-success/20";
+  if (score >= 0.4) return "from-accent/60 to-accent/20";
   return "from-[#666666]/60 to-[#666666]/20";
 }
 
 function scoreColor(score: number): string {
-  if (score >= 0.7) return "#2DD4BF";
-  if (score >= 0.4) return "#C9A227";
+  if (score >= 0.7) return "var(--success)";
+  if (score >= 0.4) return "var(--accent)";
   return "#666666";
 }
 
@@ -61,7 +61,7 @@ function PatientCard({
 }: PatientCardProps) {
   return (
     <div
-      className="flex-1 rounded-lg border bg-[#151518] p-4 space-y-2"
+      className="flex-1 rounded-lg border bg-surface-raised p-4 space-y-2"
       style={{ borderColor: accentColor + "40" }}
     >
       <div className="flex items-center justify-between">
@@ -86,20 +86,20 @@ function PatientCard({
       </div>
       <div className="space-y-1">
         <div className="flex justify-between text-xs">
-          <span className="text-[#5A5650]">Gender</span>
-          <span className="text-[#C5C0B8]">{genderLabel(genderConceptId)}</span>
+          <span className="text-text-ghost">Gender</span>
+          <span className="text-text-secondary">{genderLabel(genderConceptId)}</span>
         </div>
         <div className="flex justify-between text-xs">
-          <span className="text-[#5A5650]">Age</span>
-          <span className="text-[#C5C0B8]">{ageBucketLabel(ageBucket)}</span>
+          <span className="text-text-ghost">Age</span>
+          <span className="text-text-secondary">{ageBucketLabel(ageBucket)}</span>
         </div>
         <div className="flex justify-between text-xs">
-          <span className="text-[#5A5650]">Conditions</span>
-          <span className="text-[#C5C0B8]">{conditionCount}</span>
+          <span className="text-text-ghost">Conditions</span>
+          <span className="text-text-secondary">{conditionCount}</span>
         </div>
         <div className="flex justify-between text-xs">
-          <span className="text-[#5A5650]">Labs</span>
-          <span className="text-[#C5C0B8]">{labCount}</span>
+          <span className="text-text-ghost">Labs</span>
+          <span className="text-text-secondary">{labCount}</span>
         </div>
       </div>
       {dimensionsAvailable.length > 0 && (
@@ -152,11 +152,11 @@ function ComparisonContent({ result, personAId, personBId, sourceId }: Compariso
           labCount={result.person_a.lab_count}
           dimensionsAvailable={result.person_a.dimensions_available}
           sourceId={sourceId}
-          accentColor="#2DD4BF"
+          accentColor="var(--success)"
         />
 
-        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-[#232328] bg-[#0E0E11]">
-          <span className="text-[10px] font-bold text-[#5A5650]">VS</span>
+        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-border-default bg-surface-base">
+          <span className="text-[10px] font-bold text-text-ghost">VS</span>
         </div>
 
         <PatientCard
@@ -168,13 +168,13 @@ function ComparisonContent({ result, personAId, personBId, sourceId }: Compariso
           labCount={result.person_b.lab_count}
           dimensionsAvailable={result.person_b.dimensions_available}
           sourceId={sourceId}
-          accentColor="#C9A227"
+          accentColor="var(--accent)"
         />
       </div>
 
       {/* Overall similarity score */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-3">
-        <div className="text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
+      <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
+        <div className="text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
           Overall Similarity
         </div>
         <div className="flex items-end gap-3">
@@ -184,10 +184,10 @@ function ComparisonContent({ result, personAId, personBId, sourceId }: Compariso
           >
             {(overall_score * 100).toFixed(1)}
           </span>
-          <span className="mb-1 text-lg text-[#5A5650]">%</span>
+          <span className="mb-1 text-lg text-text-ghost">%</span>
         </div>
         {/* Gradient progress bar */}
-        <div className="relative h-3 w-full overflow-hidden rounded-full bg-[#232328]">
+        <div className="relative h-3 w-full overflow-hidden rounded-full bg-surface-elevated">
           <div
             className={`absolute inset-y-0 left-0 rounded-full bg-gradient-to-r ${scoreGradient(overall_score)} transition-all duration-500`}
             style={{ width: `${Math.round(overall_score * 100)}%` }}
@@ -196,14 +196,14 @@ function ComparisonContent({ result, personAId, personBId, sourceId }: Compariso
       </div>
 
       {/* Dimension scores — 2-column grid */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-3">
-        <div className="text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
+      <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
+        <div className="text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
           Dimension Scores
         </div>
         <div className="grid grid-cols-2 gap-x-6 gap-y-3">
           {dimensionKeys.map((key) => (
             <div key={key} className="flex items-center justify-between gap-2">
-              <span className="text-xs text-[#8A857D] min-w-0 truncate">
+              <span className="text-xs text-text-muted min-w-0 truncate">
                 {DIMENSION_LABELS[key]}
               </span>
               <DimensionScoreBar score={dimension_scores[key]} label={DIMENSION_LABELS[key]} />
@@ -216,8 +216,8 @@ function ComparisonContent({ result, personAId, personBId, sourceId }: Compariso
       {(result.shared_features.condition_count > 0 ||
         result.shared_features.drug_count > 0 ||
         result.shared_features.procedure_count > 0) && (
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-3">
-          <div className="text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
+          <div className="text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
             Shared Features
           </div>
           <div className="grid grid-cols-3 gap-3">
@@ -225,19 +225,19 @@ function ComparisonContent({ result, personAId, personBId, sourceId }: Compariso
               label="Conditions"
               count={result.shared_features.condition_count}
               names={result.shared_features.condition_names}
-              color="#9B1B30"
+              color="var(--primary)"
             />
             <SharedFeatureStat
               label="Drugs"
               count={result.shared_features.drug_count}
               names={result.shared_features.drug_names}
-              color="#2DD4BF"
+              color="var(--success)"
             />
             <SharedFeatureStat
               label="Procedures"
               count={result.shared_features.procedure_count}
               names={result.shared_features.procedure_names}
-              color="#C9A227"
+              color="var(--accent)"
             />
           </div>
         </div>
@@ -245,7 +245,7 @@ function ComparisonContent({ result, personAId, personBId, sourceId }: Compariso
 
       {/* Temporal trajectory */}
       <div className="space-y-2">
-        <div className="text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
+        <div className="text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
           Temporal Trajectory
         </div>
         <TrajectoryComparison
@@ -261,7 +261,7 @@ function ComparisonContent({ result, personAId, personBId, sourceId }: Compariso
           href={`/patient-profiles/${personAId}?source_id=${sourceId}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-[#2DD4BF]/30 bg-[#2DD4BF]/10 px-4 py-2.5 text-sm font-medium text-[#2DD4BF] hover:bg-[#2DD4BF]/20 transition-colors"
+          className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-success/30 bg-success/10 px-4 py-2.5 text-sm font-medium text-success hover:bg-success/20 transition-colors"
         >
           View Patient A Profile
           <ExternalLink size={13} />
@@ -270,7 +270,7 @@ function ComparisonContent({ result, personAId, personBId, sourceId }: Compariso
           href={`/patient-profiles/${personBId}?source_id=${sourceId}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-[#C9A227]/30 bg-[#C9A227]/10 px-4 py-2.5 text-sm font-medium text-[#C9A227] hover:bg-[#C9A227]/20 transition-colors"
+          className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm font-medium text-accent hover:bg-accent/20 transition-colors"
         >
           View Patient B Profile
           <ExternalLink size={13} />
@@ -301,12 +301,12 @@ function SharedFeatureStat({ label, count, names, color }: SharedFeatureStatProp
       {names && names.length > 0 && (
         <div className="space-y-0.5">
           {names.slice(0, 3).map((n) => (
-            <div key={n.concept_id} className="truncate text-[10px] text-[#5A5650]" title={n.name}>
+            <div key={n.concept_id} className="truncate text-[10px] text-text-ghost" title={n.name}>
               {n.name}
             </div>
           ))}
           {names.length > 3 && (
-            <div className="text-[10px] text-[#3A3A40]">+{names.length - 3} more</div>
+            <div className="text-[10px] text-surface-highlight">+{names.length - 3} more</div>
           )}
         </div>
       )}
@@ -328,8 +328,8 @@ function DrawerBody({
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center gap-3">
-        <Loader2 size={20} className="animate-spin text-[#2DD4BF]" />
-        <span className="text-sm text-[#8A857D]">Loading comparison...</span>
+        <Loader2 size={20} className="animate-spin text-success" />
+        <span className="text-sm text-text-muted">Loading comparison...</span>
       </div>
     );
   }
@@ -337,8 +337,8 @@ function DrawerBody({
   if (isError || !data) {
     return (
       <div className="flex h-64 flex-col items-center justify-center gap-2 text-center">
-        <span className="text-sm text-[#8A857D]">No comparison data available.</span>
-        <span className="text-xs text-[#5A5650]">
+        <span className="text-sm text-text-muted">No comparison data available.</span>
+        <span className="text-xs text-text-ghost">
           Ensure both patients have feature vectors computed for this source.
         </span>
       </div>
@@ -372,7 +372,7 @@ export function HeadToHeadDrawer({
       {personAId != null && personBId != null ? (
         <DrawerBody personAId={personAId} personBId={personBId} sourceId={sourceId} />
       ) : (
-        <div className="flex h-64 items-center justify-center text-sm text-[#5A5650]">
+        <div className="flex h-64 items-center justify-center text-sm text-text-ghost">
           Select two patients to compare.
         </div>
       )}

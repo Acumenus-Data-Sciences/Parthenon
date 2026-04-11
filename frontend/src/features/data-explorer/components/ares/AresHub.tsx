@@ -15,7 +15,7 @@ export function AresHub({ onNavigate }: AresHubProps) {
     return (
       <div className="space-y-6">
         {/* Banner skeleton */}
-        <div className="h-20 animate-pulse rounded-xl border border-[#252530] bg-[#151518]" />
+        <div className="h-20 animate-pulse rounded-xl border border-[#252530] bg-surface-raised" />
 
         {/* Row 1 */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -57,7 +57,7 @@ export function AresHub({ onNavigate }: AresHubProps) {
 
       {/* Row 1: Primary */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <HubCard section="network-overview" title="Network Overview" accentColor="#2DD4BF" onClick={onNavigate}>
+        <HubCard section="network-overview" title="Network Overview" accentColor="var(--success)" onClick={onNavigate}>
           <p className="text-2xl font-semibold text-white">{kpis?.source_count ?? "--"}</p>
           <p className="text-sm text-[#888]">
             {kpis?.sources_needing_attention
@@ -65,10 +65,10 @@ export function AresHub({ onNavigate }: AresHubProps) {
               : "Source health, DQ scores, trend indicators"}
           </p>
         </HubCard>
-        <HubCard section="concept-comparison" title="Concept Comparison" accentColor="#C9A227" onClick={onNavigate}>
+        <HubCard section="concept-comparison" title="Concept Comparison" accentColor="var(--accent)" onClick={onNavigate}>
           <p className="text-sm text-[#888]">Compare concept prevalence across sources</p>
         </HubCard>
-        <HubCard section="dq-history" title="DQ History" accentColor="#2DD4BF" onClick={onNavigate}>
+        <HubCard section="dq-history" title="DQ History" accentColor="var(--success)" onClick={onNavigate}>
           <p className="text-2xl font-semibold text-white">
             {kpis?.avg_dq_score != null
               ? `${kpis.avg_dq_score.toFixed(1)}%`
@@ -80,23 +80,23 @@ export function AresHub({ onNavigate }: AresHubProps) {
 
       {/* Row 2: Secondary */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <HubCard section="coverage" title="Coverage Matrix" accentColor="#9B1B30" onClick={onNavigate}>
+        <HubCard section="coverage" title="Coverage Matrix" accentColor="var(--primary)" onClick={onNavigate}>
           <p className="text-sm text-[#888]">Domain x source availability</p>
         </HubCard>
-        <HubCard section="feasibility" title="Feasibility" accentColor="#C9A227" onClick={onNavigate}>
+        <HubCard section="feasibility" title="Feasibility" accentColor="var(--accent)" onClick={onNavigate}>
           <p className="text-sm text-[#888]">Can your network support a study?</p>
         </HubCard>
-        <HubCard section="diversity" title="Diversity" accentColor="#2DD4BF" onClick={onNavigate}>
+        <HubCard section="diversity" title="Diversity" accentColor="var(--success)" onClick={onNavigate}>
           <p className="text-sm text-[#888]">Demographic parity across sources</p>
         </HubCard>
       </div>
 
       {/* Row 3: Tertiary */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <HubCard section="releases" title="Releases" accentColor="#C9A227" onClick={onNavigate}>
+        <HubCard section="releases" title="Releases" accentColor="var(--accent)" onClick={onNavigate}>
           <p className="text-sm text-[#888]">Version history per source</p>
         </HubCard>
-        <HubCard section="unmapped-codes" title="Unmapped Codes" accentColor="#9B1B30" onClick={onNavigate}>
+        <HubCard section="unmapped-codes" title="Unmapped Codes" accentColor="var(--primary)" onClick={onNavigate}>
           <p className="text-2xl font-semibold text-white">
             {kpis?.total_unmapped_codes !== undefined
               ? kpis.total_unmapped_codes.toLocaleString()
@@ -104,7 +104,7 @@ export function AresHub({ onNavigate }: AresHubProps) {
           </p>
           <p className="text-sm text-[#888]">Source codes without standard mappings</p>
         </HubCard>
-        <HubCard section="annotations" title="Annotations" accentColor="#2DD4BF" onClick={onNavigate}>
+        <HubCard section="annotations" title="Annotations" accentColor="var(--success)" onClick={onNavigate}>
           <p className="text-2xl font-semibold text-white">{kpis?.annotation_count ?? "--"}</p>
           <p className="text-sm text-[#888]">Chart notes across all sources</p>
         </HubCard>
@@ -112,7 +112,7 @@ export function AresHub({ onNavigate }: AresHubProps) {
 
       {/* Row 4: Bottom */}
       <div className="grid grid-cols-1 gap-4">
-        <HubCard section="cost" title="Cost Analysis" accentColor="#C9A227" onClick={onNavigate}>
+        <HubCard section="cost" title="Cost Analysis" accentColor="var(--accent)" onClick={onNavigate}>
           <p className="text-sm text-[#888]">Cost data by domain and over time</p>
         </HubCard>
       </div>

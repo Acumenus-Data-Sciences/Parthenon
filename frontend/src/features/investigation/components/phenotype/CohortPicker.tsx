@@ -57,7 +57,7 @@ export function CohortPicker({
 
   if (isError) {
     return (
-      <div className="flex items-center justify-center h-20 text-[#9B1B30] text-xs">
+      <div className="flex items-center justify-center h-20 text-primary text-xs">
         Failed to load cohort definitions.
       </div>
     );
@@ -71,7 +71,7 @@ export function CohortPicker({
         placeholder="Search cohorts…"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="w-full bg-zinc-800/60 border border-zinc-700 rounded px-3 py-1.5 text-xs text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:border-[#2DD4BF]/60"
+        className="w-full bg-zinc-800/60 border border-zinc-700 rounded px-3 py-1.5 text-xs text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:border-success/60"
       />
 
       {/* List */}
@@ -93,7 +93,7 @@ export function CohortPicker({
               onClick={() => toggleCohort(cohort.id)}
               className={`relative flex items-start gap-3 rounded px-3 py-2.5 cursor-pointer transition-colors ${
                 isSelected
-                  ? "border border-[#2DD4BF]/50 bg-teal-900/10"
+                  ? "border border-success/50 bg-teal-900/10"
                   : "border border-zinc-700/50 bg-zinc-800/40 hover:bg-zinc-800/70"
               }`}
             >
@@ -101,13 +101,13 @@ export function CohortPicker({
               <div
                 className={`mt-0.5 w-4 h-4 rounded border flex items-center justify-center shrink-0 ${
                   isSelected
-                    ? "border-[#2DD4BF] bg-[#2DD4BF]/20"
+                    ? "border-success bg-success/20"
                     : "border-zinc-600 bg-zinc-800"
                 }`}
               >
                 {isSelected && (
                   <svg
-                    className="w-2.5 h-2.5 text-[#2DD4BF]"
+                    className="w-2.5 h-2.5 text-success"
                     fill="none"
                     viewBox="0 0 10 10"
                   >
@@ -129,7 +129,7 @@ export function CohortPicker({
                     {cohort.name}
                   </span>
                   {isPrimary && (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#C9A227]/20 text-[#C9A227] border border-[#C9A227]/30 font-medium">
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent/20 text-accent border border-accent/30 font-medium">
                       Primary
                     </span>
                   )}
@@ -155,8 +155,8 @@ export function CohortPicker({
                   }}
                   className={`shrink-0 text-[10px] px-2 py-1 rounded border transition-colors ${
                     isPrimary
-                      ? "border-[#C9A227]/50 text-[#C9A227] bg-[#C9A227]/10"
-                      : "border-zinc-600 text-zinc-400 hover:border-[#C9A227]/50 hover:text-[#C9A227]"
+                      ? "border-accent/50 text-accent bg-accent/10"
+                      : "border-zinc-600 text-zinc-400 hover:border-accent/50 hover:text-accent"
                   }`}
                 >
                   {isPrimary ? "Primary ✓" : "Set as Primary"}

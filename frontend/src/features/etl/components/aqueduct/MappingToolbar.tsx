@@ -71,39 +71,39 @@ function MappingToolbarComponent({
   }, [exportOpen]);
 
   return (
-    <div className="bg-[#0E0E11] border-b border-[#2A2A30] px-4 py-2 flex items-center justify-between gap-3">
+    <div className="bg-surface-base border-b border-border-default px-4 py-2 flex items-center justify-between gap-3">
       {/* Left: back + project + status + progress */}
       <div className="flex items-center gap-2.5 min-w-0">
         <button
           type="button"
           onClick={onBack}
-          className="text-[#8A857D] hover:text-[#F0EDE8] transition-colors p-0.5 flex-shrink-0"
+          className="text-text-muted hover:text-text-primary transition-colors p-0.5 flex-shrink-0"
           aria-label="Go back"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
         </button>
-        <span className="text-[#F0EDE8] font-medium text-base truncate max-w-[200px]">{projectName}</span>
+        <span className="text-text-primary font-medium text-base truncate max-w-[200px]">{projectName}</span>
         <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium flex-shrink-0 ${statusStyle.bg} ${statusStyle.text}`}>
           {statusStyle.label}
         </span>
-        <span className="text-[#323238] flex-shrink-0">{"\u2502"}</span>
-        <span className="text-[#8A857D] text-sm flex-shrink-0 whitespace-nowrap">
+        <span className="text-surface-highlight flex-shrink-0">{"\u2502"}</span>
+        <span className="text-text-muted text-sm flex-shrink-0 whitespace-nowrap">
           {mappedTables}/{totalCdmTables}
         </span>
-        <div className="w-24 h-1 bg-[#2A2A30] rounded-full overflow-hidden flex-shrink-0">
+        <div className="w-24 h-1 bg-surface-accent rounded-full overflow-hidden flex-shrink-0">
           <div
-            className="h-full bg-[#2DD4BF] rounded-full transition-all duration-300"
+            className="h-full bg-success rounded-full transition-all duration-300"
             style={{ width: `${Math.min(progressPct, 100)}%` }}
           />
         </div>
-        <span className="text-[#2DD4BF] text-sm font-medium flex-shrink-0">{fieldCoveragePct}%</span>
+        <span className="text-success text-sm font-medium flex-shrink-0">{fieldCoveragePct}%</span>
       </div>
 
       {/* Right: filters + actions + expand */}
       <div className="flex items-center gap-2 flex-shrink-0">
-        <div className="flex rounded-md overflow-hidden border border-[#2A2A30]">
+        <div className="flex rounded-md overflow-hidden border border-border-default">
           {FILTER_OPTIONS.map((opt) => (
             <button
               key={opt.value}
@@ -111,8 +111,8 @@ function MappingToolbarComponent({
               onClick={() => onFilterChange(opt.value)}
               className={`text-sm px-3 py-1.5 transition-colors ${
                 filter === opt.value
-                  ? "bg-[#2DD4BF]/20 text-[#2DD4BF] font-medium"
-                  : "text-[#5A5650] hover:text-[#F0EDE8] hover:bg-[#1C1C20]"
+                  ? "bg-success/20 text-success font-medium"
+                  : "text-text-ghost hover:text-text-primary hover:bg-surface-overlay"
               }`}
             >
               {opt.label}
@@ -123,7 +123,7 @@ function MappingToolbarComponent({
           type="button"
           onClick={onSuggest}
           disabled={isSuggesting}
-          className="text-sm px-3 py-1.5 border border-[#2A2A30] rounded-md transition-colors disabled:opacity-50 text-[#C9A227] hover:bg-amber-900/30"
+          className="text-sm px-3 py-1.5 border border-border-default rounded-md transition-colors disabled:opacity-50 text-accent hover:bg-amber-900/30"
         >
           {isSuggesting ? "Suggesting..." : "\u2728 AI"}
         </button>
@@ -132,18 +132,18 @@ function MappingToolbarComponent({
             type="button"
             onClick={() => setExportOpen((prev) => !prev)}
             disabled={isExporting}
-            className="text-sm px-3 py-1.5 border border-[#2A2A30] rounded-md transition-colors disabled:opacity-50 text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#1C1C20]"
+            className="text-sm px-3 py-1.5 border border-border-default rounded-md transition-colors disabled:opacity-50 text-text-muted hover:text-text-primary hover:bg-surface-overlay"
           >
             {isExporting ? "..." : "Export \u25BE"}
           </button>
           {exportOpen && (
-            <div className="absolute right-0 mt-1 w-44 bg-[#1C1C20] border border-[#2A2A30] rounded-lg shadow-lg z-50 overflow-hidden">
+            <div className="absolute right-0 mt-1 w-44 bg-surface-overlay border border-border-default rounded-lg shadow-lg z-50 overflow-hidden">
               {EXPORT_OPTIONS.map((opt) => (
                 <button
                   key={opt.format}
                   type="button"
                   onClick={() => { setExportOpen(false); onExport(opt.format); }}
-                  className="w-full text-left text-xs px-3 py-2 text-[#8A857D] hover:bg-[#2A2A30]/80 hover:text-[#F0EDE8] transition-colors"
+                  className="w-full text-left text-xs px-3 py-2 text-text-muted hover:bg-surface-accent/80 hover:text-text-primary transition-colors"
                 >
                   {opt.label}
                 </button>
@@ -156,8 +156,8 @@ function MappingToolbarComponent({
           onClick={onToggleFullscreen}
           className={`flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-md transition-colors ${
             isFullscreen
-              ? "text-[#F0EDE8] bg-[#2DD4BF]/20 border border-[#2DD4BF] hover:bg-[#2DD4BF]/30"
-              : "text-[#C9A227] bg-[#232328] border border-[#2A2A30] hover:bg-[#232328]/80"
+              ? "text-text-primary bg-success/20 border border-success hover:bg-success/30"
+              : "text-accent bg-surface-elevated border border-border-default hover:bg-surface-elevated/80"
           }`}
           title={isFullscreen ? "Collapse" : "Expand"}
         >

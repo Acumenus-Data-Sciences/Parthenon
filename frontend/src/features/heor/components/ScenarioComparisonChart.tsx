@@ -19,7 +19,7 @@ export default function ScenarioComparisonChart({ results }: Props) {
   if (!results || results.length === 0) {
     return (
       <ChartCard title="Scenario Comparison" subtitle="Total cost and QALYs by scenario">
-        <div className="h-64 flex items-center justify-center text-sm text-[#5A5650]">
+        <div className="h-64 flex items-center justify-center text-sm text-text-ghost">
           No results to compare.
         </div>
       </ChartCard>
@@ -45,7 +45,7 @@ export default function ScenarioComparisonChart({ results }: Props) {
       <div className="grid grid-cols-2 gap-4">
         {/* Cost comparison */}
         <div>
-          <p className="text-[10px] text-[#5A5650] uppercase tracking-wider font-medium mb-2 px-1">
+          <p className="text-[10px] text-text-ghost uppercase tracking-wider font-medium mb-2 px-1">
             Total Cost by Scenario
           </p>
           <ResponsiveContainer width="100%" height={260}>
@@ -74,25 +74,25 @@ export default function ScenarioComparisonChart({ results }: Props) {
                   const d = payload[0].payload;
                   return (
                     <div className={TOOLTIP_CLS}>
-                      <p className="text-xs font-semibold text-[#F0EDE8] mb-1">
+                      <p className="text-xs font-semibold text-text-primary mb-1">
                         {d.fullName}
                         {d.isBaseCase && (
-                          <span className="ml-1.5 text-[10px] text-[#2DD4BF]">(Base Case)</span>
+                          <span className="ml-1.5 text-[10px] text-success">(Base Case)</span>
                         )}
                       </p>
-                      <div className="space-y-0.5 text-xs text-[#C5C0B8]">
+                      <div className="space-y-0.5 text-xs text-text-secondary">
                         <p>
                           Total Cost:{" "}
                           <span className="font-mono text-[#F59E0B]">${d.totalCost.toLocaleString()}</span>
                         </p>
                         {d.icer !== null && (
                           <p>
-                            ICER: <span className="font-mono text-[#60A5FA]">${d.icer.toLocaleString()}/QALY</span>
+                            ICER: <span className="font-mono text-info">${d.icer.toLocaleString()}/QALY</span>
                           </p>
                         )}
                         {d.roi !== null && (
                           <p>
-                            ROI: <span className="font-mono text-[#2DD4BF]">{d.roi.toFixed(1)}%</span>
+                            ROI: <span className="font-mono text-success">{d.roi.toFixed(1)}%</span>
                           </p>
                         )}
                       </div>
@@ -115,7 +115,7 @@ export default function ScenarioComparisonChart({ results }: Props) {
 
         {/* QALY comparison */}
         <div>
-          <p className="text-[10px] text-[#5A5650] uppercase tracking-wider font-medium mb-2 px-1">
+          <p className="text-[10px] text-text-ghost uppercase tracking-wider font-medium mb-2 px-1">
             Total QALYs by Scenario
           </p>
           <ResponsiveContainer width="100%" height={260}>
@@ -144,21 +144,21 @@ export default function ScenarioComparisonChart({ results }: Props) {
                   const d = payload[0].payload;
                   return (
                     <div className={TOOLTIP_CLS}>
-                      <p className="text-xs font-semibold text-[#F0EDE8] mb-1">
+                      <p className="text-xs font-semibold text-text-primary mb-1">
                         {d.fullName}
                         {d.isBaseCase && (
-                          <span className="ml-1.5 text-[10px] text-[#2DD4BF]">(Base Case)</span>
+                          <span className="ml-1.5 text-[10px] text-success">(Base Case)</span>
                         )}
                       </p>
-                      <div className="space-y-0.5 text-xs text-[#C5C0B8]">
+                      <div className="space-y-0.5 text-xs text-text-secondary">
                         <p>
                           Total QALYs:{" "}
-                          <span className="font-mono text-[#2DD4BF]">{d.totalQalys.toFixed(3)}</span>
+                          <span className="font-mono text-success">{d.totalQalys.toFixed(3)}</span>
                         </p>
                         {d.nmb !== null && (
                           <p>
                             NMB:{" "}
-                            <span className={`font-mono ${d.nmb >= 0 ? "text-[#2DD4BF]" : "text-[#E85A6B]"}`}>
+                            <span className={`font-mono ${d.nmb >= 0 ? "text-success" : "text-critical"}`}>
                               ${d.nmb.toLocaleString()}
                             </span>
                           </p>
@@ -189,19 +189,19 @@ export default function ScenarioComparisonChart({ results }: Props) {
             key={i}
             className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs ${
               d.isBaseCase
-                ? "border-[#323238] bg-[#1A1A1E]"
-                : "border-[#232328] bg-[#0E0E11]"
+                ? "border-surface-highlight bg-surface-overlay"
+                : "border-border-default bg-surface-base"
             }`}
           >
-            <span className="font-medium text-[#C5C0B8]">{d.fullName}</span>
+            <span className="font-medium text-text-secondary">{d.fullName}</span>
             {d.isBaseCase && (
-              <span className="text-[10px] text-[#2DD4BF] bg-[#2DD4BF]/10 px-1.5 py-0.5 rounded">
+              <span className="text-[10px] text-success bg-success/10 px-1.5 py-0.5 rounded">
                 Base
               </span>
             )}
             <span className="font-mono text-[#F59E0B]">${formatCompact(d.totalCost)}</span>
-            <span className="text-[#5A5650]">|</span>
-            <span className="font-mono text-[#2DD4BF]">{d.totalQalys.toFixed(2)} QALYs</span>
+            <span className="text-text-ghost">|</span>
+            <span className="font-mono text-success">{d.totalQalys.toFixed(2)} QALYs</span>
           </div>
         ))}
       </div>

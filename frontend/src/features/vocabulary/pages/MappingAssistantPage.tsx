@@ -70,20 +70,20 @@ function ConfidenceBar({ value }: { value: number }) {
   const pct = Math.round(value * 100);
   const color =
     value >= 0.8
-      ? "bg-[#2DD4BF]"
+      ? "bg-success"
       : value >= 0.5
-        ? "bg-[#C9A227]"
-        : "bg-[#E85A6B]";
+        ? "bg-accent"
+        : "bg-critical";
   const textColor =
     value >= 0.8
-      ? "text-[#2DD4BF]"
+      ? "text-success"
       : value >= 0.5
-        ? "text-[#C9A227]"
-        : "text-[#E85A6B]";
+        ? "text-accent"
+        : "text-critical";
 
   return (
     <div className="flex items-center gap-2 min-w-[100px]">
-      <div className="flex-1 h-1.5 rounded-full bg-[#232328] overflow-hidden">
+      <div className="flex-1 h-1.5 rounded-full bg-surface-elevated overflow-hidden">
         <div
           className={cn("h-full rounded-full transition-all", color)}
           style={{ width: `${pct}%` }}
@@ -100,15 +100,15 @@ function ConfidenceBar({ value }: { value: number }) {
 
 function MatchTypeBadge({ type }: { type: string }) {
   const styles: Record<string, string> = {
-    verbatim: "bg-[#2DD4BF]/15 text-[#2DD4BF] border-[#2DD4BF]/30",
-    vector: "bg-[#C9A227]/15 text-[#C9A227] border-[#C9A227]/30",
-    llm: "bg-[#9B1B30]/15 text-[#E85A6B] border-[#9B1B30]/30",
+    verbatim: "bg-success/15 text-success border-success/30",
+    vector: "bg-accent/15 text-accent border-accent/30",
+    llm: "bg-primary/15 text-critical border-primary/30",
   };
   return (
     <span
       className={cn(
         "inline-flex items-center rounded px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide border",
-        styles[type] ?? "bg-[#1C1C20] text-[#8A857D] border-[#232328]",
+        styles[type] ?? "bg-surface-overlay text-text-muted border-border-default",
       )}
     >
       {type}
@@ -144,8 +144,8 @@ function MultiSelect({ label, options, selected, onChange }: MultiSelectProps) {
         className={cn(
           "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors min-w-[160px] justify-between",
           selected.length > 0
-            ? "border-[#9B1B30]/40 bg-[#9B1B30]/10 text-[#E85A6B]"
-            : "border-[#232328] bg-[#151518] text-[#8A857D] hover:text-[#C5C0B8]",
+            ? "border-primary/40 bg-primary/10 text-critical"
+            : "border-border-default bg-surface-raised text-text-muted hover:text-text-secondary",
         )}
       >
         <span className="truncate">
@@ -166,20 +166,20 @@ function MultiSelect({ label, options, selected, onChange }: MultiSelectProps) {
             className="fixed inset-0 z-10"
             onClick={() => setOpen(false)}
           />
-          <div className="absolute left-0 top-full z-20 mt-1 w-52 rounded-lg border border-[#232328] bg-[#151518] shadow-xl py-1">
+          <div className="absolute left-0 top-full z-20 mt-1 w-52 rounded-lg border border-border-default bg-surface-raised shadow-xl py-1">
             {options.map((opt) => (
               <button
                 key={opt.value}
                 type="button"
                 onClick={() => toggle(opt.value)}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-[#1C1C20] transition-colors"
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-surface-overlay transition-colors"
               >
                 <div
                   className={cn(
                     "h-4 w-4 rounded border flex items-center justify-center shrink-0",
                     selected.includes(opt.value)
-                      ? "bg-[#9B1B30] border-[#9B1B30]"
-                      : "border-[#3A3A40] bg-transparent",
+                      ? "bg-primary border-primary"
+                      : "border-surface-highlight bg-transparent",
                   )}
                 >
                   {selected.includes(opt.value) && (
@@ -189,8 +189,8 @@ function MultiSelect({ label, options, selected, onChange }: MultiSelectProps) {
                 <span
                   className={
                     selected.includes(opt.value)
-                      ? "text-[#F0EDE8]"
-                      : "text-[#C5C0B8]"
+                      ? "text-text-primary"
+                      : "text-text-secondary"
                   }
                 >
                   {opt.label}
@@ -198,11 +198,11 @@ function MultiSelect({ label, options, selected, onChange }: MultiSelectProps) {
               </button>
             ))}
             {selected.length > 0 && (
-              <div className="border-t border-[#232328] mt-1 pt-1">
+              <div className="border-t border-border-default mt-1 pt-1">
                 <button
                   type="button"
                   onClick={() => onChange([])}
-                  className="w-full px-3 py-1.5 text-xs text-[#5A5650] hover:text-[#C5C0B8] text-left transition-colors"
+                  className="w-full px-3 py-1.5 text-xs text-text-ghost hover:text-text-secondary text-left transition-colors"
                 >
                   Clear selection
                 </button>
@@ -288,21 +288,21 @@ function DisambiguationDrawer({ result, onClose, onSelectCandidate }: Disambigua
       />
 
       {/* Modal */}
-      <div className="relative z-10 w-full max-w-lg max-h-[85vh] rounded-xl border border-[#232328] bg-[#0E0E11] shadow-2xl flex flex-col mx-4">
+      <div className="relative z-10 w-full max-w-lg max-h-[85vh] rounded-xl border border-border-default bg-surface-base shadow-2xl flex flex-col mx-4">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#232328] shrink-0">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border-default shrink-0">
           <div className="min-w-0 flex-1">
-            <div className="text-[10px] uppercase tracking-widest text-[#5A5650] mb-1">
+            <div className="text-[10px] uppercase tracking-widest text-text-ghost mb-1">
               Disambiguate
             </div>
-            <div className="text-base font-semibold text-[#F0EDE8] truncate">
+            <div className="text-base font-semibold text-text-primary truncate">
               {result.source_term}
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="ml-3 h-8 w-8 rounded-lg border border-[#232328] flex items-center justify-center text-[#5A5650] hover:text-[#F0EDE8] hover:border-[#3A3A40] transition-colors shrink-0"
+            className="ml-3 h-8 w-8 rounded-lg border border-border-default flex items-center justify-center text-text-ghost hover:text-text-primary hover:border-surface-highlight transition-colors shrink-0"
           >
             <X className="h-4 w-4" />
           </button>
@@ -310,12 +310,12 @@ function DisambiguationDrawer({ result, onClose, onSelectCandidate }: Disambigua
 
         {/* Candidates list */}
         <div className="flex-1 overflow-y-auto px-5 py-4 space-y-2">
-          <div className="text-[10px] uppercase tracking-widest text-[#5A5650] mb-3">
+          <div className="text-[10px] uppercase tracking-widest text-text-ghost mb-3">
             {result.candidates.length} candidate{result.candidates.length !== 1 ? "s" : ""} — select the correct mapping
           </div>
 
           {result.candidates.length === 0 && (
-            <div className="text-sm text-[#5A5650] italic py-8 text-center">
+            <div className="text-sm text-text-ghost italic py-8 text-center">
               No candidates found. Try cleaning the term below.
             </div>
           )}
@@ -328,17 +328,17 @@ function DisambiguationDrawer({ result, onClose, onSelectCandidate }: Disambigua
                 onSelectCandidate(result.source_term, c);
                 onClose();
               }}
-              className="w-full text-left rounded-lg border border-[#1C1C20] bg-[#151518] p-3 space-y-2 hover:border-[#2DD4BF]/40 hover:bg-[#2DD4BF]/5 transition-colors group"
+              className="w-full text-left rounded-lg border border-surface-overlay bg-surface-raised p-3 space-y-2 hover:border-success/40 hover:bg-success/5 transition-colors group"
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
-                  <div className="text-sm font-medium text-[#F0EDE8] group-hover:text-[#2DD4BF] transition-colors">
+                  <div className="text-sm font-medium text-text-primary group-hover:text-success transition-colors">
                     {c.concept_name}
                   </div>
                   <div className="flex items-center gap-2 mt-1 flex-wrap">
-                    <span className="text-[10px] text-[#5A5650] font-mono">#{c.concept_id}</span>
-                    <span className="text-[10px] text-[#5A5650]">{c.vocabulary_id}</span>
-                    <span className="text-[10px] text-[#5A5650]">{c.domain_id}</span>
+                    <span className="text-[10px] text-text-ghost font-mono">#{c.concept_id}</span>
+                    <span className="text-[10px] text-text-ghost">{c.vocabulary_id}</span>
+                    <span className="text-[10px] text-text-ghost">{c.domain_id}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
@@ -351,8 +351,8 @@ function DisambiguationDrawer({ result, onClose, onSelectCandidate }: Disambigua
         </div>
 
         {/* Clean term section */}
-        <div className="border-t border-[#232328] px-5 py-4 space-y-3 shrink-0">
-          <div className="text-[10px] uppercase tracking-widest text-[#5A5650]">
+        <div className="border-t border-border-default px-5 py-4 space-y-3 shrink-0">
+          <div className="text-[10px] uppercase tracking-widest text-text-ghost">
             Clean & Re-map
           </div>
           <div className="flex gap-2">
@@ -361,7 +361,7 @@ function DisambiguationDrawer({ result, onClose, onSelectCandidate }: Disambigua
               value={cleanRawText}
               onChange={(e) => setCleanRawText(e.target.value)}
               placeholder="Edit term and re-map..."
-              className="flex-1 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] placeholder-[#3A3A40] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30 font-mono transition-colors"
+              className="flex-1 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary placeholder-surface-highlight focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30 font-mono transition-colors"
               onKeyDown={(e) => {
                 if (e.key === "Enter" && cleanRawText.trim()) handleClean();
               }}
@@ -370,7 +370,7 @@ function DisambiguationDrawer({ result, onClose, onSelectCandidate }: Disambigua
               type="button"
               disabled={!cleanRawText.trim() || cleanMutation.isPending}
               onClick={handleClean}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[#C9A227]/40 bg-[#C9A227]/10 px-3 py-2 text-xs font-medium text-[#C9A227] hover:bg-[#C9A227]/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-accent/40 bg-accent/10 px-3 py-2 text-xs font-medium text-accent hover:bg-accent/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
             >
               {cleanMutation.isPending ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -381,21 +381,21 @@ function DisambiguationDrawer({ result, onClose, onSelectCandidate }: Disambigua
             </button>
           </div>
           {cleaned.length > 0 && (
-            <div className="rounded-lg border border-[#232328] bg-[#151518] divide-y divide-[#1C1C20]">
+            <div className="rounded-lg border border-border-default bg-surface-raised divide-y divide-surface-overlay">
               {cleaned.map((item, i) => (
                 <div key={i} className="flex items-center gap-2 px-3 py-2">
-                  <span className="text-[11px] text-[#5A5650] font-mono flex-1 truncate">
+                  <span className="text-[11px] text-text-ghost font-mono flex-1 truncate">
                     {item.original}
                   </span>
-                  <ChevronRight className="h-3 w-3 text-[#5A5650] shrink-0" />
-                  <span className="text-[11px] text-[#2DD4BF] font-mono flex-1 truncate">
+                  <ChevronRight className="h-3 w-3 text-text-ghost shrink-0" />
+                  <span className="text-[11px] text-success font-mono flex-1 truncate">
                     {item.cleaned}
                   </span>
                   <button
                     type="button"
                     disabled={remapPending}
                     onClick={() => handleRemap(item.cleaned)}
-                    className="inline-flex items-center gap-1 rounded border border-[#2DD4BF]/30 bg-[#2DD4BF]/10 px-2 py-0.5 text-[10px] font-medium text-[#2DD4BF] hover:bg-[#2DD4BF]/20 disabled:opacity-50 transition-colors shrink-0"
+                    className="inline-flex items-center gap-1 rounded border border-success/30 bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success hover:bg-success/20 disabled:opacity-50 transition-colors shrink-0"
                   >
                     {remapPending ? (
                       <Loader2 className="h-3 w-3 animate-spin" />
@@ -409,7 +409,7 @@ function DisambiguationDrawer({ result, onClose, onSelectCandidate }: Disambigua
             </div>
           )}
           {cleanMutation.isError && (
-            <div className="flex items-center gap-2 text-[#E85A6B] text-xs">
+            <div className="flex items-center gap-2 text-critical text-xs">
               <AlertCircle className="h-3.5 w-3.5 shrink-0" />
               <span>Cleanup failed.</span>
             </div>
@@ -436,15 +436,15 @@ function ResultRow({ result, decision, override, onDecide, onOpenDrawer, onSwapC
   const display = override ?? result.best_match;
 
   return (
-    <div className="border-b border-[#1C1C20] last:border-b-0">
+    <div className="border-b border-surface-overlay last:border-b-0">
       <div
         className={cn(
           "grid gap-3 px-4 py-3 transition-colors",
           "grid-cols-[28px_1fr_1fr_100px_100px_80px_100px]",
-          "hover:bg-[#1A1A1F]/60",
-          showCandidates && "bg-[#1A1A1F]/40",
-          decision === "accepted" && "bg-[#2DD4BF]/5",
-          decision === "rejected" && "bg-[#E85A6B]/5 opacity-60",
+          "hover:bg-surface-overlay/60",
+          showCandidates && "bg-surface-overlay/40",
+          decision === "accepted" && "bg-success/5",
+          decision === "rejected" && "bg-critical/5 opacity-60",
         )}
       >
         {/* Expand toggle */}
@@ -456,8 +456,8 @@ function ResultRow({ result, decision, override, onDecide, onOpenDrawer, onSwapC
           >
             <ChevronRight
               className={cn(
-                "h-3.5 w-3.5 text-[#5A5650] transition-transform",
-                showCandidates && "rotate-90 text-[#2DD4BF]",
+                "h-3.5 w-3.5 text-text-ghost transition-transform",
+                showCandidates && "rotate-90 text-success",
               )}
             />
           </button>
@@ -466,15 +466,15 @@ function ResultRow({ result, decision, override, onDecide, onOpenDrawer, onSwapC
         {/* Source term */}
         <div className="flex items-center min-w-0">
           <div>
-            <div className="text-sm font-medium text-[#F0EDE8] truncate">
+            <div className="text-sm font-medium text-text-primary truncate">
               {result.source_term}
             </div>
             <div className="flex items-center gap-1.5 mt-0.5">
-              <span className="text-[10px] text-[#5A5650]">
+              <span className="text-[10px] text-text-ghost">
                 {result.candidates.length} candidate{result.candidates.length !== 1 ? "s" : ""}
               </span>
               {override && (
-                <span className="text-[10px] text-[#C9A227] font-medium">
+                <span className="text-[10px] text-accent font-medium">
                   (overridden)
                 </span>
               )}
@@ -486,13 +486,13 @@ function ResultRow({ result, decision, override, onDecide, onOpenDrawer, onSwapC
         <div className="flex items-center min-w-0">
           {display ? (
             <div className="min-w-0">
-              <div className="text-sm text-[#C5C0B8] truncate">{display.concept_name}</div>
-              <div className="text-[10px] text-[#5A5650] font-mono mt-0.5">
+              <div className="text-sm text-text-secondary truncate">{display.concept_name}</div>
+              <div className="text-[10px] text-text-ghost font-mono mt-0.5">
                 #{display.concept_id}
               </div>
             </div>
           ) : (
-            <span className="text-[#5A5650] text-sm italic">No match found</span>
+            <span className="text-text-ghost text-sm italic">No match found</span>
           )}
         </div>
 
@@ -501,7 +501,7 @@ function ResultRow({ result, decision, override, onDecide, onOpenDrawer, onSwapC
           {display ? (
             <ConfidenceBar value={display.confidence} />
           ) : (
-            <span className="text-[#5A5650] text-xs">&mdash;</span>
+            <span className="text-text-ghost text-xs">&mdash;</span>
           )}
         </div>
 
@@ -510,16 +510,16 @@ function ResultRow({ result, decision, override, onDecide, onOpenDrawer, onSwapC
           {display ? (
             <MatchTypeBadge type={display.match_type} />
           ) : (
-            <span className="text-[#5A5650] text-xs">&mdash;</span>
+            <span className="text-text-ghost text-xs">&mdash;</span>
           )}
         </div>
 
         {/* Vocabulary */}
         <div className="flex items-center">
           {display ? (
-            <span className="text-xs text-[#8A857D]">{display.vocabulary_id}</span>
+            <span className="text-xs text-text-muted">{display.vocabulary_id}</span>
           ) : (
-            <span className="text-[#5A5650] text-xs">&mdash;</span>
+            <span className="text-text-ghost text-xs">&mdash;</span>
           )}
         </div>
 
@@ -537,8 +537,8 @@ function ResultRow({ result, decision, override, onDecide, onOpenDrawer, onSwapC
             className={cn(
               "h-7 w-7 rounded-md border flex items-center justify-center transition-colors",
               decision === "accepted"
-                ? "bg-[#2DD4BF]/20 border-[#2DD4BF]/40 text-[#2DD4BF]"
-                : "border-[#232328] text-[#5A5650] hover:border-[#2DD4BF]/40 hover:text-[#2DD4BF] hover:bg-[#2DD4BF]/10",
+                ? "bg-success/20 border-success/40 text-success"
+                : "border-border-default text-text-ghost hover:border-success/40 hover:text-success hover:bg-success/10",
             )}
           >
             <Check className="h-3.5 w-3.5" />
@@ -552,8 +552,8 @@ function ResultRow({ result, decision, override, onDecide, onOpenDrawer, onSwapC
             className={cn(
               "h-7 w-7 rounded-md border flex items-center justify-center transition-colors",
               decision === "rejected"
-                ? "bg-[#E85A6B]/20 border-[#E85A6B]/40 text-[#E85A6B]"
-                : "border-[#232328] text-[#5A5650] hover:border-[#E85A6B]/40 hover:text-[#E85A6B] hover:bg-[#E85A6B]/10",
+                ? "bg-critical/20 border-critical/40 text-critical"
+                : "border-border-default text-text-ghost hover:border-critical/40 hover:text-critical hover:bg-critical/10",
             )}
           >
             <X className="h-3.5 w-3.5" />
@@ -562,7 +562,7 @@ function ResultRow({ result, decision, override, onDecide, onOpenDrawer, onSwapC
             type="button"
             title="Disambiguate — view all candidates"
             onClick={() => onOpenDrawer(result)}
-            className="h-7 w-7 rounded-md border border-[#232328] flex items-center justify-center text-[#5A5650] hover:border-[#C9A227]/40 hover:text-[#C9A227] hover:bg-[#C9A227]/10 transition-colors"
+            className="h-7 w-7 rounded-md border border-border-default flex items-center justify-center text-text-ghost hover:border-accent/40 hover:text-accent hover:bg-accent/10 transition-colors"
           >
             <HelpCircle className="h-3.5 w-3.5" />
           </button>
@@ -571,13 +571,13 @@ function ResultRow({ result, decision, override, onDecide, onOpenDrawer, onSwapC
 
       {/* Inline candidate swap panel */}
       {showCandidates && (
-        <div className="px-6 pb-4 pt-2 bg-[#0E0E11] border-t border-[#1C1C20] space-y-1.5">
-          <div className="text-[10px] uppercase tracking-widest text-[#5A5650] mb-2 flex items-center gap-2">
+        <div className="px-6 pb-4 pt-2 bg-surface-base border-t border-surface-overlay space-y-1.5">
+          <div className="text-[10px] uppercase tracking-widest text-text-ghost mb-2 flex items-center gap-2">
             <Repeat className="h-3 w-3" />
             Select a candidate to override the mapping
           </div>
           {result.candidates.length === 0 && (
-            <div className="text-sm text-[#5A5650] italic py-2">
+            <div className="text-sm text-text-ghost italic py-2">
               No additional candidates.
             </div>
           )}
@@ -591,22 +591,22 @@ function ResultRow({ result, decision, override, onDecide, onOpenDrawer, onSwapC
                 className={cn(
                   "w-full flex items-center gap-3 rounded-lg border px-3 py-2 text-left transition-colors",
                   isSelected
-                    ? "bg-[#2DD4BF]/10 border-[#2DD4BF]/30"
-                    : "bg-[#151518] border-[#1C1C20] hover:border-[#3A3A40]",
+                    ? "bg-success/10 border-success/30"
+                    : "bg-surface-raised border-surface-overlay hover:border-surface-highlight",
                 )}
               >
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm text-[#F0EDE8] truncate">{c.concept_name}</div>
+                  <div className="text-sm text-text-primary truncate">{c.concept_name}</div>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-[10px] text-[#5A5650] font-mono">#{c.concept_id}</span>
-                    <span className="text-[10px] text-[#5A5650]">{c.vocabulary_id}</span>
-                    <span className="text-[10px] text-[#5A5650]">{c.domain_id}</span>
+                    <span className="text-[10px] text-text-ghost font-mono">#{c.concept_id}</span>
+                    <span className="text-[10px] text-text-ghost">{c.vocabulary_id}</span>
+                    <span className="text-[10px] text-text-ghost">{c.domain_id}</span>
                   </div>
                 </div>
                 <MatchTypeBadge type={c.match_type} />
                 <ConfidenceBar value={c.confidence} />
                 {isSelected && (
-                  <Check className="h-4 w-4 text-[#2DD4BF] shrink-0" />
+                  <Check className="h-4 w-4 text-success shrink-0" />
                 )}
               </button>
             );
@@ -866,20 +866,20 @@ export default function MappingAssistantPage() {
       {/* ── Header ── */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#9B1B30]/15">
-            <ArrowLeftRight className="h-5 w-5 text-[#E85A6B]" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/15">
+            <ArrowLeftRight className="h-5 w-5 text-critical" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold text-[#F0EDE8]">
+              <h1 className="text-2xl font-bold text-text-primary">
                 Concept Mapping Assistant
               </h1>
-              <span className="inline-flex items-center gap-1 rounded-full border border-[#9B1B30]/40 bg-[#9B1B30]/10 px-2.5 py-0.5 text-[10px] font-semibold tracking-wide text-[#E85A6B]">
+              <span className="inline-flex items-center gap-1 rounded-full border border-primary/40 bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold tracking-wide text-critical">
                 <Sparkles className="h-3 w-3" />
                 Powered by Ariadne
               </span>
             </div>
-            <p className="text-sm text-[#8A857D] mt-0.5">
+            <p className="text-sm text-text-muted mt-0.5">
               Map source terms to OMOP standard concepts using verbatim, vector, and LLM matching
             </p>
           </div>
@@ -887,27 +887,27 @@ export default function MappingAssistantPage() {
       </div>
 
       {/* ── Input section ── */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-5 space-y-4">
+      <div className="rounded-lg border border-border-default bg-surface-raised p-5 space-y-4">
         {/* Compact summary chip when collapsed */}
         {results.length > 0 && inputCollapsed ? (
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#9B1B30]/30 bg-[#9B1B30]/10 px-4 py-1.5">
-                <ArrowLeftRight className="h-3.5 w-3.5 text-[#E85A6B]" />
-                <span className="text-sm font-medium text-[#E85A6B]">
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5">
+                <ArrowLeftRight className="h-3.5 w-3.5 text-critical" />
+                <span className="text-sm font-medium text-critical">
                   {parsedTerms.length} term{parsedTerms.length !== 1 ? "s" : ""} mapped
                 </span>
               </div>
               {/* Compact filters */}
               {(targetVocabs.length > 0 || targetDomains.length > 0) && (
-                <div className="flex items-center gap-2 text-[10px] text-[#5A5650]">
+                <div className="flex items-center gap-2 text-[10px] text-text-ghost">
                   {targetVocabs.length > 0 && (
-                    <span className="rounded border border-[#232328] px-2 py-0.5">
+                    <span className="rounded border border-border-default px-2 py-0.5">
                       {targetVocabs.join(", ")}
                     </span>
                   )}
                   {targetDomains.length > 0 && (
-                    <span className="rounded border border-[#232328] px-2 py-0.5">
+                    <span className="rounded border border-border-default px-2 py-0.5">
                       {targetDomains.join(", ")}
                     </span>
                   )}
@@ -917,7 +917,7 @@ export default function MappingAssistantPage() {
             <button
               type="button"
               onClick={() => setInputCollapsed(false)}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[#232328] bg-transparent px-3 py-1.5 text-xs text-[#8A857D] hover:text-[#F0EDE8] hover:border-[#3A3A40] transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-transparent px-3 py-1.5 text-xs text-text-muted hover:text-text-primary hover:border-surface-highlight transition-colors"
             >
               <Edit3 className="h-3.5 w-3.5" />
               Edit terms
@@ -925,7 +925,7 @@ export default function MappingAssistantPage() {
           </div>
         ) : (
           <>
-            <div className="text-[10px] uppercase tracking-widest text-[#5A5650]">
+            <div className="text-[10px] uppercase tracking-widest text-text-ghost">
               Source Terms
             </div>
 
@@ -936,13 +936,13 @@ export default function MappingAssistantPage() {
                 onChange={(e) => setTermsText(e.target.value)}
                 placeholder={"Enter source terms, one per line...\n\ntype 2 diabetes mellitus\nacute myocardial infarction\nHTN\nASA 81mg"}
                 rows={7}
-                className="w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2.5 text-sm text-[#F0EDE8] placeholder-[#3A3A40] focus:border-[#9B1B30] focus:outline-none focus:ring-1 focus:ring-[#9B1B30]/30 resize-none font-mono transition-colors"
+                className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2.5 text-sm text-text-primary placeholder-surface-highlight focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 resize-none font-mono transition-colors"
               />
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#232328] bg-transparent px-3 py-1.5 text-xs text-[#8A857D] hover:text-[#F0EDE8] hover:border-[#3A3A40] transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-transparent px-3 py-1.5 text-xs text-text-muted hover:text-text-primary hover:border-surface-highlight transition-colors"
                 >
                   <Upload className="h-3.5 w-3.5" />
                   Upload CSV
@@ -960,7 +960,7 @@ export default function MappingAssistantPage() {
                   <button
                     type="button"
                     onClick={() => setShowProjectDropdown((v) => !v)}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#232328] bg-transparent px-3 py-1.5 text-xs text-[#8A857D] hover:text-[#F0EDE8] hover:border-[#3A3A40] transition-colors"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-transparent px-3 py-1.5 text-xs text-text-muted hover:text-text-primary hover:border-surface-highlight transition-colors"
                   >
                     <FolderOpen className="h-3.5 w-3.5" />
                     Load Project
@@ -971,20 +971,20 @@ export default function MappingAssistantPage() {
                         className="fixed inset-0 z-10"
                         onClick={() => setShowProjectDropdown(false)}
                       />
-                      <div className="absolute left-0 top-full z-20 mt-1 w-72 rounded-lg border border-[#232328] bg-[#151518] shadow-xl py-1 max-h-64 overflow-y-auto">
+                      <div className="absolute left-0 top-full z-20 mt-1 w-72 rounded-lg border border-border-default bg-surface-raised shadow-xl py-1 max-h-64 overflow-y-auto">
                         {projectsQuery.isLoading && (
-                          <div className="flex items-center gap-2 px-3 py-3 text-xs text-[#5A5650]">
+                          <div className="flex items-center gap-2 px-3 py-3 text-xs text-text-ghost">
                             <Loader2 className="h-3.5 w-3.5 animate-spin" />
                             Loading projects...
                           </div>
                         )}
                         {projectsQuery.isError && (
-                          <div className="px-3 py-3 text-xs text-[#E85A6B]">
+                          <div className="px-3 py-3 text-xs text-critical">
                             Failed to load projects
                           </div>
                         )}
                         {projectsQuery.data && projectsQuery.data.length === 0 && (
-                          <div className="px-3 py-3 text-xs text-[#5A5650]">
+                          <div className="px-3 py-3 text-xs text-text-ghost">
                             No saved projects
                           </div>
                         )}
@@ -993,10 +993,10 @@ export default function MappingAssistantPage() {
                             key={p.id}
                             type="button"
                             onClick={() => handleLoadProject(p.id)}
-                            className="w-full text-left px-3 py-2 hover:bg-[#1C1C20] transition-colors"
+                            className="w-full text-left px-3 py-2 hover:bg-surface-overlay transition-colors"
                           >
-                            <div className="text-sm text-[#F0EDE8] truncate">{p.name}</div>
-                            <div className="text-[10px] text-[#5A5650] mt-0.5">
+                            <div className="text-sm text-text-primary truncate">{p.name}</div>
+                            <div className="text-[10px] text-text-ghost mt-0.5">
                               {p.source_terms.length} terms
                               {" -- "}
                               {new Date(p.updated_at).toLocaleDateString()}
@@ -1009,7 +1009,7 @@ export default function MappingAssistantPage() {
                 </div>
 
                 {parsedTerms.length > 0 && (
-                  <span className="text-xs text-[#5A5650]">
+                  <span className="text-xs text-text-ghost">
                     {parsedTerms.length} term{parsedTerms.length !== 1 ? "s" : ""} entered
                   </span>
                 )}
@@ -1018,7 +1018,7 @@ export default function MappingAssistantPage() {
 
             {/* Filters row */}
             <div className="flex flex-wrap items-center gap-3 pt-1">
-              <div className="flex items-center gap-2 text-xs text-[#5A5650]">
+              <div className="flex items-center gap-2 text-xs text-text-ghost">
                 Target Vocabulary:
               </div>
               <MultiSelect
@@ -1027,7 +1027,7 @@ export default function MappingAssistantPage() {
                 selected={targetVocabs}
                 onChange={setTargetVocabs}
               />
-              <div className="flex items-center gap-2 text-xs text-[#5A5650]">
+              <div className="flex items-center gap-2 text-xs text-text-ghost">
                 Target Domain:
               </div>
               <MultiSelect
@@ -1044,7 +1044,7 @@ export default function MappingAssistantPage() {
                 type="button"
                 disabled={parsedTerms.length === 0 || mapMutation.isPending}
                 onClick={handleMap}
-                className="inline-flex items-center gap-2 rounded-lg bg-[#9B1B30] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#B22234] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#B22234] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {mapMutation.isPending ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -1064,7 +1064,7 @@ export default function MappingAssistantPage() {
                     setInputCollapsed(false);
                     mapMutation.reset();
                   }}
-                  className="inline-flex items-center gap-1.5 text-xs text-[#5A5650] hover:text-[#C5C0B8] transition-colors"
+                  className="inline-flex items-center gap-1.5 text-xs text-text-ghost hover:text-text-secondary transition-colors"
                 >
                   <RefreshCw className="h-3 w-3" />
                   Clear results
@@ -1076,7 +1076,7 @@ export default function MappingAssistantPage() {
 
         {/* Error */}
         {mapMutation.isError && (
-          <div className="flex items-center gap-2 rounded-lg border border-[#E85A6B]/30 bg-[#E85A6B]/10 px-4 py-3 text-sm text-[#E85A6B]">
+          <div className="flex items-center gap-2 rounded-lg border border-critical/30 bg-critical/10 px-4 py-3 text-sm text-critical">
             <AlertCircle className="h-4 w-4 shrink-0" />
             <span>
               Mapping failed. Verify the Ariadne service is running and reachable.
@@ -1091,10 +1091,10 @@ export default function MappingAssistantPage() {
           {/* Progress indicator during mapping */}
           {mapMutation.isPending && (
             <div className="space-y-2">
-              <div className="h-1 w-full rounded-full bg-[#232328] overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-[#9B1B30] via-[#C9A227] to-[#2DD4BF] rounded-full animate-pulse" style={{ width: "100%", animation: "pulse 1.5s ease-in-out infinite" }} />
+              <div className="h-1 w-full rounded-full bg-surface-elevated overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-primary via-accent to-success rounded-full animate-pulse" style={{ width: "100%", animation: "pulse 1.5s ease-in-out infinite" }} />
               </div>
-              <div className="flex items-center gap-2 text-sm text-[#8A857D]">
+              <div className="flex items-center gap-2 text-sm text-text-muted">
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Mapping {parsedTerms.length} terms...
               </div>
@@ -1104,40 +1104,40 @@ export default function MappingAssistantPage() {
           {/* Summary stats bar with auto-accept */}
           <div className="flex items-center gap-3 flex-wrap">
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 flex-1 min-w-0">
-              <div className="rounded-lg border border-[#232328] bg-[#151518] px-4 py-3 flex items-center gap-3">
-                <div className="h-8 w-8 rounded-lg bg-[#2DD4BF]/15 flex items-center justify-center shrink-0">
-                  <ArrowLeftRight className="h-4 w-4 text-[#2DD4BF]" />
+              <div className="rounded-lg border border-border-default bg-surface-raised px-4 py-3 flex items-center gap-3">
+                <div className="h-8 w-8 rounded-lg bg-success/15 flex items-center justify-center shrink-0">
+                  <ArrowLeftRight className="h-4 w-4 text-success" />
                 </div>
                 <div>
-                  <div className="text-xl font-bold text-[#F0EDE8]">{totalMapped}</div>
-                  <div className="text-[11px] text-[#8A857D]">Terms mapped</div>
+                  <div className="text-xl font-bold text-text-primary">{totalMapped}</div>
+                  <div className="text-[11px] text-text-muted">Terms mapped</div>
                 </div>
               </div>
-              <div className="rounded-lg border border-[#232328] bg-[#151518] px-4 py-3 flex items-center gap-3">
-                <div className="h-8 w-8 rounded-lg bg-[#2DD4BF]/15 flex items-center justify-center shrink-0">
-                  <Check className="h-4 w-4 text-[#2DD4BF]" />
+              <div className="rounded-lg border border-border-default bg-surface-raised px-4 py-3 flex items-center gap-3">
+                <div className="h-8 w-8 rounded-lg bg-success/15 flex items-center justify-center shrink-0">
+                  <Check className="h-4 w-4 text-success" />
                 </div>
                 <div>
-                  <div className="text-xl font-bold text-[#F0EDE8]">{highConf}</div>
-                  <div className="text-[11px] text-[#8A857D]">High confidence</div>
+                  <div className="text-xl font-bold text-text-primary">{highConf}</div>
+                  <div className="text-[11px] text-text-muted">High confidence</div>
                 </div>
               </div>
-              <div className="rounded-lg border border-[#232328] bg-[#151518] px-4 py-3 flex items-center gap-3">
-                <div className="h-8 w-8 rounded-lg bg-[#C9A227]/15 flex items-center justify-center shrink-0">
-                  <AlertCircle className="h-4 w-4 text-[#C9A227]" />
+              <div className="rounded-lg border border-border-default bg-surface-raised px-4 py-3 flex items-center gap-3">
+                <div className="h-8 w-8 rounded-lg bg-accent/15 flex items-center justify-center shrink-0">
+                  <AlertCircle className="h-4 w-4 text-accent" />
                 </div>
                 <div>
-                  <div className="text-xl font-bold text-[#F0EDE8]">{needReview}</div>
-                  <div className="text-[11px] text-[#8A857D]">Need review</div>
+                  <div className="text-xl font-bold text-text-primary">{needReview}</div>
+                  <div className="text-[11px] text-text-muted">Need review</div>
                 </div>
               </div>
-              <div className="rounded-lg border border-[#232328] bg-[#151518] px-4 py-3 flex items-center gap-3">
-                <div className="h-8 w-8 rounded-lg bg-[#9B1B30]/15 flex items-center justify-center shrink-0">
-                  <X className="h-4 w-4 text-[#E85A6B]" />
+              <div className="rounded-lg border border-border-default bg-surface-raised px-4 py-3 flex items-center gap-3">
+                <div className="h-8 w-8 rounded-lg bg-primary/15 flex items-center justify-center shrink-0">
+                  <X className="h-4 w-4 text-critical" />
                 </div>
                 <div>
-                  <div className="text-xl font-bold text-[#F0EDE8]">{noMatch}</div>
-                  <div className="text-[11px] text-[#8A857D]">No match</div>
+                  <div className="text-xl font-bold text-text-primary">{noMatch}</div>
+                  <div className="text-[11px] text-text-muted">No match</div>
                 </div>
               </div>
             </div>
@@ -1146,7 +1146,7 @@ export default function MappingAssistantPage() {
             <button
               type="button"
               onClick={handleAutoAccept}
-              className="inline-flex items-center gap-2 rounded-lg border border-[#2DD4BF]/30 bg-[#2DD4BF]/10 px-4 py-2.5 text-sm font-medium text-[#2DD4BF] hover:bg-[#2DD4BF]/20 transition-colors shrink-0"
+              className="inline-flex items-center gap-2 rounded-lg border border-success/30 bg-success/10 px-4 py-2.5 text-sm font-medium text-success hover:bg-success/20 transition-colors shrink-0"
             >
               <Zap className="h-4 w-4" />
               Accept all &ge; 90%
@@ -1154,9 +1154,9 @@ export default function MappingAssistantPage() {
           </div>
 
           {/* Results table */}
-          <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+          <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
             {/* Table header */}
-            <div className="grid gap-3 px-4 py-3 border-b border-[#232328] text-[10px] font-semibold uppercase tracking-wider text-[#5A5650] grid-cols-[28px_1fr_1fr_100px_100px_80px_100px]">
+            <div className="grid gap-3 px-4 py-3 border-b border-border-default text-[10px] font-semibold uppercase tracking-wider text-text-ghost grid-cols-[28px_1fr_1fr_100px_100px_80px_100px]">
               <div />
               <div>Source Term</div>
               <div>Best Match</div>
@@ -1183,18 +1183,18 @@ export default function MappingAssistantPage() {
 
       {/* ── Progress indicator when mapping (no results yet) ── */}
       {mapMutation.isPending && results.length === 0 && (
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-6 space-y-3">
-          <div className="h-1 w-full rounded-full bg-[#232328] overflow-hidden">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-6 space-y-3">
+          <div className="h-1 w-full rounded-full bg-surface-elevated overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-[#9B1B30] via-[#C9A227] to-[#2DD4BF] rounded-full"
+              className="h-full bg-gradient-to-r from-primary via-accent to-success rounded-full"
               style={{
                 width: "100%",
                 animation: "pulse 1.5s ease-in-out infinite",
               }}
             />
           </div>
-          <div className="flex items-center gap-2 text-sm text-[#8A857D]">
-            <Loader2 className="h-4 w-4 animate-spin text-[#C9A227]" />
+          <div className="flex items-center gap-2 text-sm text-text-muted">
+            <Loader2 className="h-4 w-4 animate-spin text-accent" />
             Mapping {parsedTerms.length} terms...
           </div>
         </div>
@@ -1202,18 +1202,18 @@ export default function MappingAssistantPage() {
 
       {/* ── Sticky action bar ── */}
       {results.length > 0 && (
-        <div className="sticky bottom-0 z-30 -mx-6 px-6 py-3 border-t border-[#232328] bg-[#0E0E11]/90 backdrop-blur-md flex items-center justify-between gap-4">
+        <div className="sticky bottom-0 z-30 -mx-6 px-6 py-3 border-t border-border-default bg-surface-base/90 backdrop-blur-md flex items-center justify-between gap-4">
           {/* Stats summary */}
-          <div className="flex items-center gap-3 text-xs text-[#8A857D] flex-wrap">
-            <span className="text-[#2DD4BF]">{totalMapped} mapped</span>
-            <span className="text-[#5A5650]">&middot;</span>
+          <div className="flex items-center gap-3 text-xs text-text-muted flex-wrap">
+            <span className="text-success">{totalMapped} mapped</span>
+            <span className="text-text-ghost">&middot;</span>
             <span>{highConf} high</span>
-            <span className="text-[#5A5650]">&middot;</span>
-            <span className="text-[#C9A227]">{needReview} review</span>
-            <span className="text-[#5A5650]">&middot;</span>
-            <span className="text-[#E85A6B]">{noMatch} no match</span>
-            <span className="text-[#5A5650]">&middot;</span>
-            <span className="text-[#2DD4BF] font-medium">{accepted} accepted</span>
+            <span className="text-text-ghost">&middot;</span>
+            <span className="text-accent">{needReview} review</span>
+            <span className="text-text-ghost">&middot;</span>
+            <span className="text-critical">{noMatch} no match</span>
+            <span className="text-text-ghost">&middot;</span>
+            <span className="text-success font-medium">{accepted} accepted</span>
           </div>
 
           {/* Action buttons */}
@@ -1225,7 +1225,7 @@ export default function MappingAssistantPage() {
                 const entries = buildSaveMappingEntries(results, decisions, overrides);
                 if (entries.length > 0) saveMappingsMutation.mutate(entries);
               }}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#9B1B30] px-4 py-2 text-sm font-medium text-white hover:bg-[#B22234] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-[#B22234] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {saveMappingsMutation.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -1239,7 +1239,7 @@ export default function MappingAssistantPage() {
               <button
                 type="button"
                 onClick={() => setShowProjectNameInput(true)}
-                className="inline-flex items-center gap-2 rounded-lg border border-[#232328] bg-[#151518] px-4 py-2 text-sm text-[#8A857D] hover:text-[#F0EDE8] hover:border-[#3A3A40] transition-colors"
+                className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-4 py-2 text-sm text-text-muted hover:text-text-primary hover:border-surface-highlight transition-colors"
               >
                 <Save className="h-4 w-4" />
                 Save Project
@@ -1251,7 +1251,7 @@ export default function MappingAssistantPage() {
                   value={projectNameInput}
                   onChange={(e) => setProjectNameInput(e.target.value)}
                   placeholder="Project name..."
-                  className="rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8] placeholder-[#3A3A40] focus:border-[#9B1B30] focus:outline-none focus:ring-1 focus:ring-[#9B1B30]/30 w-48 transition-colors"
+                  className="rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary placeholder-surface-highlight focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 w-48 transition-colors"
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && projectNameInput.trim()) {
                       saveProjectMutation.mutate({ name: projectNameInput.trim() });
@@ -1266,7 +1266,7 @@ export default function MappingAssistantPage() {
                   type="button"
                   disabled={!projectNameInput.trim() || saveProjectMutation.isPending}
                   onClick={() => saveProjectMutation.mutate({ name: projectNameInput.trim() })}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#9B1B30] px-3 py-2 text-sm text-white hover:bg-[#B22234] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm text-white hover:bg-[#B22234] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   {saveProjectMutation.isPending ? (
                     <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -1280,7 +1280,7 @@ export default function MappingAssistantPage() {
                     setShowProjectNameInput(false);
                     setProjectNameInput("");
                   }}
-                  className="text-[#5A5650] hover:text-[#C5C0B8] transition-colors"
+                  className="text-text-ghost hover:text-text-secondary transition-colors"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -1290,7 +1290,7 @@ export default function MappingAssistantPage() {
             <button
               type="button"
               onClick={() => exportCsv(results, decisions, overrides)}
-              className="inline-flex items-center gap-2 rounded-lg border border-[#232328] bg-[#151518] px-4 py-2 text-sm text-[#8A857D] hover:text-[#F0EDE8] hover:border-[#3A3A40] transition-colors"
+              className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-4 py-2 text-sm text-text-muted hover:text-text-primary hover:border-surface-highlight transition-colors"
             >
               <Download className="h-4 w-4" />
               Export CSV

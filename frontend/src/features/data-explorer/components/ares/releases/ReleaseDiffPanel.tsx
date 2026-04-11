@@ -19,7 +19,7 @@ function DeltaChip({ value, suffix = "" }: { value: number; suffix?: string }) {
   return (
     <span
       className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs ${
-        isPositive ? "bg-[#2DD4BF]/10 text-[#2DD4BF]" : "bg-[#9B1B30]/10 text-[#9B1B30]"
+        isPositive ? "bg-success/10 text-success" : "bg-primary/10 text-primary"
       }`}
     >
       {isPositive ? <ArrowUp size={10} /> : <ArrowDown size={10} />}
@@ -36,7 +36,7 @@ export default function ReleaseDiffPanel({ diff, isLoading }: ReleaseDiffPanelPr
   if (!diff) return null;
 
   return (
-    <div className="mt-3 rounded-lg border border-[#252530] bg-[#0E0E11] p-3">
+    <div className="mt-3 rounded-lg border border-[#252530] bg-surface-base p-3">
       <div className="mb-2 text-[11px] font-medium uppercase text-[#666]">Release Diff</div>
 
       {!diff.has_previous ? (
@@ -62,7 +62,7 @@ export default function ReleaseDiffPanel({ diff, isLoading }: ReleaseDiffPanelPr
             </div>
             {diff.vocab_version_changed && (
               <div>
-                <span className="rounded-full bg-[#C9A227]/10 px-2 py-0.5 text-xs text-[#C9A227]">
+                <span className="rounded-full bg-accent/10 px-2 py-0.5 text-xs text-accent">
                   Vocab updated
                 </span>
               </div>

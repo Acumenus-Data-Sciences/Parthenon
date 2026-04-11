@@ -27,9 +27,9 @@ function formatCurrency(value: number): string {
 }
 
 const CARE_COLORS: Record<string, string> = {
-  "Inpatient Visit": "#9B1B30",
-  "Outpatient Visit": "#2DD4BF",
-  "Emergency Room Visit": "#C9A227",
+  "Inpatient Visit": "var(--primary)",
+  "Outpatient Visit": "var(--success)",
+  "Emergency Room Visit": "var(--accent)",
   "Emergency Room and Inpatient Visit": "#e85d75",
   "Pharmacy visit": "#7c8aed",
 };
@@ -37,7 +37,7 @@ const CARE_COLORS: Record<string, string> = {
 export default function CareSettingBreakdown({ settings }: CareSettingBreakdownProps) {
   if (settings.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-[#323238] bg-[#151518] py-10 text-center text-sm text-[#555]">
+      <div className="rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-10 text-center text-sm text-[#555]">
         No care setting cost data available. Requires Visit-domain cost records joined with
         visit_occurrence.
       </div>
@@ -90,7 +90,7 @@ export default function CareSettingBreakdown({ settings }: CareSettingBreakdownP
       {/* Detail cards */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {settings.map((s) => (
-          <div key={s.visit_concept_id} className="rounded border border-[#252530] bg-[#0E0E11] p-3">
+          <div key={s.visit_concept_id} className="rounded border border-[#252530] bg-surface-base p-3">
             <p className="text-[10px] uppercase tracking-wider text-[#666]">
               {s.setting.replace(/ Visit$/, "")}
             </p>

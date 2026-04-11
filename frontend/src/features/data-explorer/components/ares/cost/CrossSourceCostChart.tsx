@@ -29,7 +29,7 @@ export default function CrossSourceCostChart({
 
   if (sourcesWithData.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[#323238] bg-[#151518] py-12">
+      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-surface-highlight bg-surface-raised py-12">
         <div className="mb-2 text-3xl text-[#333]">$</div>
         <p className="text-sm text-[#666]">No sources have cost data for comparison.</p>
       </div>
@@ -55,7 +55,7 @@ export default function CrossSourceCostChart({
         return (
           <div
             key={source.source_id}
-            className="rounded-lg border border-[#252530] bg-[#151518] p-3"
+            className="rounded-lg border border-[#252530] bg-surface-raised p-3"
           >
             <div className="mb-2 flex items-center justify-between">
               <span className="text-sm font-medium text-white">{source.source_name}</span>
@@ -87,7 +87,7 @@ export default function CrossSourceCostChart({
                 />
                 {/* IQR box */}
                 <div
-                  className="absolute h-6 rounded border border-[#2DD4BF] bg-[#2DD4BF]/20"
+                  className="absolute h-6 rounded border border-success bg-success/20"
                   style={{
                     left: scale(dist.p25),
                     width: `calc(${scale(dist.p75)} - ${scale(dist.p25)})`,
@@ -95,7 +95,7 @@ export default function CrossSourceCostChart({
                 />
                 {/* Median line */}
                 <div
-                  className="absolute h-6 w-0.5 bg-[#C9A227]"
+                  className="absolute h-6 w-0.5 bg-accent"
                   style={{ left: scale(dist.median) }}
                 />
               </div>
@@ -105,7 +105,7 @@ export default function CrossSourceCostChart({
             <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-[#666]">
               <span>P10: {formatCurrency(dist.p10)}</span>
               <span>P25: {formatCurrency(dist.p25)}</span>
-              <span className="text-[#C9A227]">Median: {formatCurrency(dist.median)}</span>
+              <span className="text-accent">Median: {formatCurrency(dist.median)}</span>
               <span>P75: {formatCurrency(dist.p75)}</span>
               <span>P90: {formatCurrency(dist.p90)}</span>
             </div>

@@ -97,7 +97,7 @@ export function ForestPlot({
         width={width}
         height={height}
         viewBox={`0 0 ${width} ${height}`}
-        className="text-[#F0EDE8]"
+        className="text-text-primary"
       >
         {/* Background */}
         <rect
@@ -105,7 +105,7 @@ export function ForestPlot({
           y={0}
           width={width}
           height={height}
-          fill="#151518"
+          fill="var(--surface-raised)"
           rx={8}
         />
 
@@ -114,7 +114,7 @@ export function ForestPlot({
           x={leftLabelWidth / 2}
           y={30}
           textAnchor="middle"
-          fill="#8A857D"
+          fill="var(--text-muted)"
           fontSize={11}
           fontWeight={600}
         >
@@ -124,7 +124,7 @@ export function ForestPlot({
           x={leftLabelWidth + plotWidth / 2}
           y={20}
           textAnchor="middle"
-          fill="#8A857D"
+          fill="var(--text-muted)"
           fontSize={11}
           fontWeight={600}
         >
@@ -134,7 +134,7 @@ export function ForestPlot({
           x={leftLabelWidth + plotWidth / 2}
           y={36}
           textAnchor="middle"
-          fill="#5A5650"
+          fill="var(--text-ghost)"
           fontSize={10}
         >
           Favors Target | Favors Comparator
@@ -143,7 +143,7 @@ export function ForestPlot({
           x={leftLabelWidth + plotWidth + 110}
           y={30}
           textAnchor="middle"
-          fill="#8A857D"
+          fill="var(--text-muted)"
           fontSize={11}
           fontWeight={600}
         >
@@ -154,7 +154,7 @@ export function ForestPlot({
             x={width - nntColumnWidth / 2}
             y={30}
             textAnchor="middle"
-            fill="#8A857D"
+            fill="var(--text-muted)"
             fontSize={11}
             fontWeight={600}
           >
@@ -168,7 +168,7 @@ export function ForestPlot({
           y1={headerHeight}
           x2={refLineX}
           y2={headerHeight + estimates.length * rowHeight}
-          stroke="#C9A227"
+          stroke="var(--accent)"
           strokeWidth={1.5}
           strokeDasharray="4 4"
           opacity={0.6}
@@ -190,7 +190,7 @@ export function ForestPlot({
               (estimates.length - 1) * rowHeight +
               rowHeight / 2
             }
-            stroke="#C9A227"
+            stroke="var(--accent)"
             strokeWidth={1}
             strokeDasharray="6 3"
             opacity={0.6}
@@ -207,14 +207,14 @@ export function ForestPlot({
                 y1={headerHeight}
                 x2={x}
                 y2={headerHeight + estimates.length * rowHeight}
-                stroke="#232328"
+                stroke="var(--border-default)"
                 strokeWidth={0.5}
               />
               <text
                 x={x}
                 y={height - 12}
                 textAnchor="middle"
-                fill="#5A5650"
+                fill="var(--text-ghost)"
                 fontSize={9}
               >
                 {tick}
@@ -231,7 +231,7 @@ export function ForestPlot({
             y={headerHeight + idx * rowHeight}
             width={width}
             height={rowHeight}
-            fill={idx % 2 === 0 ? "transparent" : "#1A1A1E"}
+            fill={idx % 2 === 0 ? "transparent" : "var(--surface-overlay)"}
             opacity={0.5}
           />
         ))}
@@ -245,9 +245,9 @@ export function ForestPlot({
           const isSignificant = num(entry.p_value) < 0.05;
           const color = isSignificant
             ? num(entry.hazard_ratio) < 1
-              ? "#2DD4BF"
-              : "#E85A6B"
-            : "#8A857D";
+              ? "var(--success)"
+              : "var(--critical)"
+            : "var(--text-muted)";
 
           // Weight-proportional square size (default 7 half-size)
           const baseSize = 7;
@@ -262,7 +262,7 @@ export function ForestPlot({
               <text
                 x={12}
                 y={y + 4}
-                fill="#F0EDE8"
+                fill="var(--text-primary)"
                 fontSize={11}
                 className="font-medium"
               >
@@ -307,14 +307,14 @@ export function ForestPlot({
                   width={squareSize * 2}
                   height={squareSize * 2}
                   fill={color}
-                  stroke="#0E0E11"
+                  stroke="var(--surface-base)"
                   strokeWidth={0.5}
                 />
               ) : (
                 <polygon
                   points={`${hrX},${y - baseSize} ${hrX + 5},${y} ${hrX},${y + baseSize} ${hrX - 5},${y}`}
                   fill={color}
-                  stroke="#0E0E11"
+                  stroke="var(--surface-base)"
                   strokeWidth={0.5}
                 />
               )}
@@ -323,7 +323,7 @@ export function ForestPlot({
               <text
                 x={leftLabelWidth + plotWidth + 8}
                 y={y + 4}
-                fill="#C5C0B8"
+                fill="var(--text-secondary)"
                 fontSize={10}
                 fontFamily="IBM Plex Mono, monospace"
               >
@@ -333,7 +333,7 @@ export function ForestPlot({
               <text
                 x={leftLabelWidth + plotWidth + 180}
                 y={y + 4}
-                fill={isSignificant ? color : "#5A5650"}
+                fill={isSignificant ? color : "var(--text-ghost)"}
                 fontSize={10}
                 fontFamily="IBM Plex Mono, monospace"
                 textAnchor="end"
@@ -351,10 +351,10 @@ export function ForestPlot({
                   textAnchor="middle"
                   fill={
                     nntValues[idx].label === "NNT"
-                      ? "#2DD4BF"
+                      ? "var(--success)"
                       : nntValues[idx].label === "NNH"
-                        ? "#E85A6B"
-                        : "#5A5650"
+                        ? "var(--critical)"
+                        : "var(--text-ghost)"
                   }
                   fontSize={10}
                   fontFamily="IBM Plex Mono, monospace"
@@ -375,7 +375,7 @@ export function ForestPlot({
           width={plotWidth}
           height={estimates.length * rowHeight}
           fill="none"
-          stroke="#232328"
+          stroke="var(--border-default)"
           strokeWidth={1}
         />
       </svg>

@@ -82,7 +82,7 @@ export function TopLociTable({
       );
     }
     return (
-      <span className="ml-1 text-[10px]" style={{ color: "#2DD4BF" }}>
+      <span className="ml-1 text-[10px]" style={{ color: "var(--success)" }}>
         {sortDir === "asc" ? "↑" : "↓"}
       </span>
     );
@@ -95,7 +95,7 @@ export function TopLociTable({
       <div className="flex items-center justify-between">
         <span
           className="text-xs font-semibold uppercase tracking-wide"
-          style={{ color: "#2DD4BF" }}
+          style={{ color: "var(--success)" }}
         >
           Significant Loci
         </span>
@@ -170,7 +170,7 @@ export function TopLociTable({
                     <td className="px-3 py-2 font-mono text-xs whitespace-nowrap">
                       <span
                         style={{
-                          color: nlp >= 10 ? "#C9A227" : nlp >= 8 ? "#2DD4BF" : "#d4d4d8",
+                          color: nlp >= 10 ? "var(--accent)" : nlp >= 8 ? "var(--success)" : "#d4d4d8",
                           fontWeight: nlp >= 10 ? 600 : 400,
                         }}
                       >
@@ -185,7 +185,7 @@ export function TopLociTable({
                         {row.beta !== undefined ? (
                           <span
                             style={{
-                              color: row.beta > 0 ? "#2DD4BF" : row.beta < 0 ? "#9B1B30" : "#d4d4d8",
+                              color: row.beta > 0 ? "var(--success)" : row.beta < 0 ? "var(--primary)" : "#d4d4d8",
                             }}
                           >
                             {row.beta > 0 ? "+" : ""}

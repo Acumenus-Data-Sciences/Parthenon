@@ -20,8 +20,8 @@ interface MappingCardProps {
 
 const TIER_STYLES: Record<string, { bg: string; text: string; label: string }> = {
   auto_accepted: {
-    bg: "bg-[#2DD4BF]/15",
-    text: "text-[#2DD4BF]",
+    bg: "bg-success/15",
+    text: "text-success",
     label: "Auto-Accepted",
   },
   quick_review: {
@@ -30,13 +30,13 @@ const TIER_STYLES: Record<string, { bg: string; text: string; label: string }> =
     label: "Quick Review",
   },
   full_review: {
-    bg: "bg-[#E85A6B]/15",
-    text: "text-[#E85A6B]",
+    bg: "bg-critical/15",
+    text: "text-critical",
     label: "Full Review",
   },
   unmappable: {
-    bg: "bg-[#323238]",
-    text: "text-[#5A5650]",
+    bg: "bg-surface-highlight",
+    text: "text-text-ghost",
     label: "Unmappable",
   },
 };
@@ -60,9 +60,9 @@ export function MappingCard({
       className={cn(
         "rounded-lg border transition-colors",
         mapping.is_reviewed
-          ? "border-[#2DD4BF]/20 bg-[#151518]"
-          : "border-[#232328] bg-[#151518]",
-        isSelected && "ring-1 ring-[#9B1B30]/50",
+          ? "border-success/20 bg-surface-raised"
+          : "border-border-default bg-surface-raised",
+        isSelected && "ring-1 ring-primary/50",
       )}
     >
       {/* Main row */}
@@ -74,7 +74,7 @@ export function MappingCard({
               type="checkbox"
               checked={isSelected ?? false}
               onChange={onToggleSelect}
-              className="h-3.5 w-3.5 rounded border-[#323238] bg-[#0E0E11] accent-[#9B1B30]"
+              className="h-3.5 w-3.5 rounded border-surface-highlight bg-surface-base accent-primary"
             />
           </div>
         )}
@@ -83,7 +83,7 @@ export function MappingCard({
         <button
           type="button"
           onClick={onToggleExpand}
-          className="pt-0.5 text-[#5A5650] hover:text-[#C5C0B8] transition-colors shrink-0"
+          className="pt-0.5 text-text-ghost hover:text-text-secondary transition-colors shrink-0"
         >
           {isExpanded ? (
             <ChevronDown size={16} />
@@ -95,11 +95,11 @@ export function MappingCard({
         {/* Source info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-['IBM_Plex_Mono',monospace] text-sm font-bold text-[#F0EDE8]">
+            <span className="font-['IBM_Plex_Mono',monospace] text-sm font-bold text-text-primary">
               {mapping.source_code}
             </span>
             {mapping.source_description && (
-              <span className="text-sm text-[#C5C0B8] truncate">
+              <span className="text-sm text-text-secondary truncate">
                 {mapping.source_description}
               </span>
             )}
@@ -108,22 +108,22 @@ export function MappingCard({
           {/* Source context */}
           <div className="flex items-center gap-3 mt-1 flex-wrap">
             {(mapping.source_table || mapping.source_column) && (
-              <span className="text-xs text-[#5A5650] font-['IBM_Plex_Mono',monospace]">
+              <span className="text-xs text-text-ghost font-['IBM_Plex_Mono',monospace]">
                 {[mapping.source_table, mapping.source_column]
                   .filter(Boolean)
                   .join(".")}
               </span>
             )}
             {mapping.source_frequency !== null && mapping.source_frequency > 0 && (
-              <span className="text-xs text-[#8A857D]">
+              <span className="text-xs text-text-muted">
                 Freq:{" "}
-                <span className="text-[#C5C0B8] tabular-nums font-['IBM_Plex_Mono',monospace]">
+                <span className="text-text-secondary tabular-nums font-['IBM_Plex_Mono',monospace]">
                   {mapping.source_frequency.toLocaleString()}
                 </span>
               </span>
             )}
             {mapping.strategy && (
-              <span className="text-[10px] font-['IBM_Plex_Mono',monospace] text-[#5A5650] bg-[#232328] rounded px-1.5 py-0.5">
+              <span className="text-[10px] font-['IBM_Plex_Mono',monospace] text-text-ghost bg-surface-elevated rounded px-1.5 py-0.5">
                 {mapping.strategy}
               </span>
             )}
@@ -134,10 +134,10 @@ export function MappingCard({
         <div className="shrink-0 flex items-center gap-3">
           {topCandidate && (
             <div className="text-right">
-              <p className="text-sm text-[#C5C0B8] max-w-[200px] truncate">
+              <p className="text-sm text-text-secondary max-w-[200px] truncate">
                 {topCandidate.concept_name}
               </p>
-              <span className="text-[10px] font-['IBM_Plex_Mono',monospace] text-[#8A857D]">
+              <span className="text-[10px] font-['IBM_Plex_Mono',monospace] text-text-muted">
                 {topCandidate.target_concept_id}
               </span>
             </div>
@@ -160,14 +160,14 @@ export function MappingCard({
 
           {/* Reviewed checkmark */}
           {mapping.is_reviewed && (
-            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#2DD4BF]/20">
-              <Check size={12} className="text-[#2DD4BF]" />
+            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-success/20">
+              <Check size={12} className="text-success" />
             </span>
           )}
         </div>
 
         {/* Actions */}
-        <div className="shrink-0 flex items-center gap-1 pl-2 border-l border-[#232328]">
+        <div className="shrink-0 flex items-center gap-1 pl-2 border-l border-border-default">
           <button
             type="button"
             onClick={() =>
@@ -180,7 +180,7 @@ export function MappingCard({
             title="Accept top candidate"
             className={cn(
               "inline-flex items-center justify-center w-8 h-8 rounded-md transition-colors",
-              "text-[#2DD4BF] hover:bg-[#2DD4BF]/15",
+              "text-success hover:bg-success/15",
             )}
           >
             <Check size={16} />
@@ -191,7 +191,7 @@ export function MappingCard({
             title="Reject mapping"
             className={cn(
               "inline-flex items-center justify-center w-8 h-8 rounded-md transition-colors",
-              "text-[#E85A6B] hover:bg-[#E85A6B]/15",
+              "text-critical hover:bg-critical/15",
             )}
           >
             <X size={16} />
@@ -202,7 +202,7 @@ export function MappingCard({
             title="Search for concept"
             className={cn(
               "inline-flex items-center justify-center w-8 h-8 rounded-md transition-colors",
-              "text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#1C1C20]",
+              "text-text-muted hover:text-text-primary hover:bg-surface-overlay",
             )}
           >
             <Search size={16} />
@@ -212,8 +212,8 @@ export function MappingCard({
 
       {/* Expanded candidates */}
       {isExpanded && mapping.candidates && mapping.candidates.length > 0 && (
-        <div className="border-t border-[#232328] px-4 py-2 space-y-0.5">
-          <p className="text-[10px] uppercase tracking-wider text-[#5A5650] font-medium mb-1 px-3">
+        <div className="border-t border-border-default px-4 py-2 space-y-0.5">
+          <p className="text-[10px] uppercase tracking-wider text-text-ghost font-medium mb-1 px-3">
             Candidates ({mapping.candidates.length})
           </p>
           {mapping.candidates.map((candidate) => (
@@ -231,8 +231,8 @@ export function MappingCard({
 
       {isExpanded &&
         (!mapping.candidates || mapping.candidates.length === 0) && (
-          <div className="border-t border-[#232328] px-4 py-6 text-center">
-            <p className="text-xs text-[#5A5650]">
+          <div className="border-t border-border-default px-4 py-6 text-center">
+            <p className="text-xs text-text-ghost">
               No alternative candidates available
             </p>
           </div>

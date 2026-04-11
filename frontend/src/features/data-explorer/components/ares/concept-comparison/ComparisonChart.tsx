@@ -12,7 +12,7 @@ import {
 } from "recharts";
 import type { ConceptComparison, MultiConceptComparison } from "../../../types/ares";
 
-const CONCEPT_COLORS = ["#2DD4BF", "#C9A227", "#e85d75", "#7c8aed", "#59c990"];
+const CONCEPT_COLORS = ["var(--success)", "var(--accent)", "#e85d75", "#7c8aed", "#59c990"];
 
 interface SingleComparisonChartProps {
   data: ConceptComparison[];
@@ -110,7 +110,7 @@ export default function ComparisonChart(props: ComparisonChartProps) {
               }}
             />
           )}
-          <Bar dataKey="value" fill="#C9A227" radius={[4, 4, 0, 0]}>
+          <Bar dataKey="value" fill="var(--accent)" radius={[4, 4, 0, 0]}>
             {metric === "rate_per_1000" && (
               <ErrorBar dataKey="error" width={4} stroke="#888" strokeWidth={1} />
             )}

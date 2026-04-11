@@ -26,17 +26,17 @@ const VERDICT_CONFIG: Record<
   higher: {
     label: "Significantly higher rate",
     icon: "\u2191",
-    colorClasses: "bg-[#E85A6B]/15 text-[#E85A6B] border-[#E85A6B]/30",
+    colorClasses: "bg-critical/15 text-critical border-critical/30",
   },
   lower: {
     label: "Significantly lower rate",
     icon: "\u2193",
-    colorClasses: "bg-[#2DD4BF]/15 text-[#2DD4BF] border-[#2DD4BF]/30",
+    colorClasses: "bg-success/15 text-success border-success/30",
   },
   not_significant: {
     label: "No significant difference",
     icon: "\u2194",
-    colorClasses: "bg-[#8A857D]/15 text-[#8A857D] border-[#8A857D]/30",
+    colorClasses: "bg-text-muted/15 text-text-muted border-text-muted/30",
   },
 };
 
@@ -47,9 +47,9 @@ function getIRDVerdict(ciLower: number, ciUpper: number, ird: number): IRDVerdic
 }
 
 function irdColor(verdict: IRDVerdict): string {
-  if (verdict === "higher") return "text-[#E85A6B]";
-  if (verdict === "lower") return "text-[#2DD4BF]";
-  return "text-[#8A857D]";
+  if (verdict === "higher") return "text-critical";
+  if (verdict === "lower") return "text-success";
+  return "text-text-muted";
 }
 
 /**
@@ -138,17 +138,17 @@ export function IncidenceRateVerdictDashboard({
     return (
       <div
         data-testid="ir-verdict-dashboard"
-        className="rounded-lg border border-[#232328] bg-[#0E0E11] p-6 space-y-5"
+        className="rounded-lg border border-border-default bg-surface-base p-6 space-y-5"
       >
         <div className="flex flex-wrap items-center gap-6">
           <div className="flex items-baseline gap-2">
             <span
               data-testid="verdict-ir-value"
-              className="font-['IBM_Plex_Mono',monospace] text-4xl font-bold text-[#2DD4BF]"
+              className="font-['IBM_Plex_Mono',monospace] text-4xl font-bold text-success"
             >
               {fmt(r1.incidence_rate, 2)}
             </span>
-            <span className="text-sm text-[#8A857D]">per 1,000 PY</span>
+            <span className="text-sm text-text-muted">per 1,000 PY</span>
           </div>
         </div>
 
@@ -186,49 +186,49 @@ export function IncidenceRateVerdictDashboard({
   return (
     <div
       data-testid="ir-verdict-dashboard"
-      className="rounded-lg border border-[#232328] bg-[#0E0E11] p-6 space-y-5"
+      className="rounded-lg border border-border-default bg-surface-base p-6 space-y-5"
     >
       {/* Comparative IR Cards */}
       <div className="flex flex-wrap items-start gap-6">
         {/* Cohort 1 */}
         <div className="flex-1 min-w-[200px]">
-          <span className="text-xs font-medium uppercase tracking-wider text-[#8A857D]">
+          <span className="text-xs font-medium uppercase tracking-wider text-text-muted">
             {r1.outcome_cohort_name}
           </span>
           <div className="mt-1 flex items-baseline gap-2">
             <span
               data-testid="verdict-ir-value-1"
-              className="font-['IBM_Plex_Mono',monospace] text-3xl font-bold text-[#2DD4BF]"
+              className="font-['IBM_Plex_Mono',monospace] text-3xl font-bold text-success"
             >
               {fmt(r1.incidence_rate, 2)}
             </span>
-            <span className="text-xs text-[#8A857D]">per 1,000 PY</span>
+            <span className="text-xs text-text-muted">per 1,000 PY</span>
           </div>
-          <span className="text-xs text-[#5A5650]">
+          <span className="text-xs text-text-ghost">
             {num(r1.persons_with_outcome).toLocaleString()} events | {num(r1.person_years).toLocaleString(undefined, { maximumFractionDigits: 1 })} PY
           </span>
         </div>
 
         {/* vs separator */}
         <div className="flex items-center self-center">
-          <span className="text-sm font-medium text-[#5A5650]">vs</span>
+          <span className="text-sm font-medium text-text-ghost">vs</span>
         </div>
 
         {/* Cohort 2 */}
         <div className="flex-1 min-w-[200px]">
-          <span className="text-xs font-medium uppercase tracking-wider text-[#8A857D]">
+          <span className="text-xs font-medium uppercase tracking-wider text-text-muted">
             {c2.outcome_cohort_name}
           </span>
           <div className="mt-1 flex items-baseline gap-2">
             <span
               data-testid="verdict-ir-value-2"
-              className="font-['IBM_Plex_Mono',monospace] text-3xl font-bold text-[#C9A227]"
+              className="font-['IBM_Plex_Mono',monospace] text-3xl font-bold text-accent"
             >
               {fmt(c2.incidence_rate, 2)}
             </span>
-            <span className="text-xs text-[#8A857D]">per 1,000 PY</span>
+            <span className="text-xs text-text-muted">per 1,000 PY</span>
           </div>
-          <span className="text-xs text-[#5A5650]">
+          <span className="text-xs text-text-ghost">
             {num(c2.persons_with_outcome).toLocaleString()} events | {num(c2.person_years).toLocaleString(undefined, { maximumFractionDigits: 1 })} PY
           </span>
         </div>
@@ -237,8 +237,8 @@ export function IncidenceRateVerdictDashboard({
       {/* Rate Difference + Rate Ratio row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* IRD */}
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-          <span className="text-xs font-medium uppercase tracking-wider text-[#8A857D]">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+          <span className="text-xs font-medium uppercase tracking-wider text-text-muted">
             Rate Difference (IRD)
           </span>
           <div className={`mt-1 font-['IBM_Plex_Mono',monospace] text-2xl font-bold ${irdColor(verdict)}`}>
@@ -246,10 +246,10 @@ export function IncidenceRateVerdictDashboard({
               {diff.ird >= 0 ? "+" : ""}{fmt(diff.ird, 2)}
             </span>
           </div>
-          <span className="text-xs text-[#5A5650]">
+          <span className="text-xs text-text-ghost">
             95% CI: {fmt(diff.ciLower, 2)} to {fmt(diff.ciUpper, 2)}
           </span>
-          <p className="mt-1 text-xs text-[#8A857D]">
+          <p className="mt-1 text-xs text-text-muted">
             {verdict === "not_significant"
               ? "No significant difference in incidence rates"
               : `${Math.abs(num(diff.ird)).toFixed(1)} additional events per 1,000 person-years`}
@@ -257,8 +257,8 @@ export function IncidenceRateVerdictDashboard({
         </div>
 
         {/* IRR */}
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-          <span className="text-xs font-medium uppercase tracking-wider text-[#8A857D]">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+          <span className="text-xs font-medium uppercase tracking-wider text-text-muted">
             Rate Ratio (IRR)
           </span>
           {ratio ? (
@@ -266,12 +266,12 @@ export function IncidenceRateVerdictDashboard({
               <div className={`mt-1 font-['IBM_Plex_Mono',monospace] text-2xl font-bold ${irdColor(verdict)}`}>
                 <span data-testid="irr-value">{fmt(ratio.irr, 2)}</span>
               </div>
-              <span className="text-xs text-[#5A5650]">
+              <span className="text-xs text-text-ghost">
                 95% CI: {fmt(ratio.ciLower, 2)} to {fmt(ratio.ciUpper, 2)}
               </span>
             </>
           ) : (
-            <div className="mt-1 text-2xl font-bold text-[#8A857D]">N/A</div>
+            <div className="mt-1 text-2xl font-bold text-text-muted">N/A</div>
           )}
         </div>
       </div>
@@ -290,7 +290,7 @@ export function IncidenceRateVerdictDashboard({
       {/* Stratified Comparison Panel */}
       {strataComparisons.length > 0 && (
         <div className="space-y-3">
-          <h4 className="text-sm font-semibold text-[#F0EDE8]">
+          <h4 className="text-sm font-semibold text-text-primary">
             Stratified Comparisons
           </h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -327,18 +327,18 @@ function StratumCard({
       data-testid="stratum-card"
       className={`rounded-lg border p-3 ${
         comparison.directionReversed
-          ? "border-[#C9A227]/50 bg-[#C9A227]/5"
-          : "border-[#232328] bg-[#151518]"
+          ? "border-accent/50 bg-accent/5"
+          : "border-border-default bg-surface-raised"
       }`}
     >
       <div className="flex items-center justify-between mb-2">
-        <span className="text-xs font-medium text-[#F0EDE8] truncate">
+        <span className="text-xs font-medium text-text-primary truncate">
           {comparison.stratumLabel}
         </span>
         {comparison.directionReversed && (
           <span
             data-testid="direction-reversed-flag"
-            className="text-[10px] font-medium text-[#C9A227] uppercase tracking-wider"
+            className="text-[10px] font-medium text-accent uppercase tracking-wider"
           >
             Reversed
           </span>
@@ -349,25 +349,25 @@ function StratumCard({
       <div className="space-y-1.5">
         <div className="flex items-center gap-2">
           <div
-            className="h-3 rounded-sm bg-[#2DD4BF]"
+            className="h-3 rounded-sm bg-success"
             style={{ width: `${(comparison.rate1 / maxRate) * 100}%`, minWidth: 2 }}
           />
-          <span className="text-[10px] font-['IBM_Plex_Mono',monospace] text-[#8A857D] shrink-0">
+          <span className="text-[10px] font-['IBM_Plex_Mono',monospace] text-text-muted shrink-0">
             {fmt(comparison.rate1, 1)}
           </span>
         </div>
         <div className="flex items-center gap-2">
           <div
-            className="h-3 rounded-sm bg-[#C9A227]"
+            className="h-3 rounded-sm bg-accent"
             style={{ width: `${(comparison.rate2 / maxRate) * 100}%`, minWidth: 2 }}
           />
-          <span className="text-[10px] font-['IBM_Plex_Mono',monospace] text-[#8A857D] shrink-0">
+          <span className="text-[10px] font-['IBM_Plex_Mono',monospace] text-text-muted shrink-0">
             {fmt(comparison.rate2, 1)}
           </span>
         </div>
       </div>
 
-      <div className="mt-2 flex items-center justify-between text-[10px] text-[#5A5650]">
+      <div className="mt-2 flex items-center justify-between text-[10px] text-text-ghost">
         <span className="truncate" title={cohort1Name}>
           {cohort1Name.slice(0, 15)}
         </span>

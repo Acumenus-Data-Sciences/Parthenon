@@ -31,7 +31,7 @@ export function ImportStep({ importId, mapping, onReset }: Props) {
         <button
           onClick={handleStart}
           disabled={execute.isPending}
-          className="rounded bg-[#C9A227] px-6 py-3 text-sm font-medium text-[#0E0E11] hover:bg-[#C9A227]/90 disabled:opacity-50"
+          className="rounded bg-accent px-6 py-3 text-sm font-medium text-surface-base hover:bg-accent/90 disabled:opacity-50"
         >
           {execute.isPending ? "Starting..." : "Start Import"}
         </button>
@@ -45,12 +45,12 @@ export function ImportStep({ importId, mapping, onReset }: Props) {
       {isRunning && (
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <Loader2 className="h-4 w-4 animate-spin text-[#C9A227]" />
+            <Loader2 className="h-4 w-4 animate-spin text-accent" />
             <span className="text-sm text-[#E8E4DC]">Importing... {status?.progress_percentage ?? 0}%</span>
           </div>
-          <div className="h-2 rounded-full bg-[#232328]">
+          <div className="h-2 rounded-full bg-surface-elevated">
             <div
-              className="h-2 rounded-full bg-[#C9A227] transition-all"
+              className="h-2 rounded-full bg-accent transition-all"
               style={{ width: `${status?.progress_percentage ?? 0}%` }}
             />
           </div>
@@ -59,8 +59,8 @@ export function ImportStep({ importId, mapping, onReset }: Props) {
 
       {/* Log output */}
       {status?.log_output && (
-        <div className="rounded border border-[#232328] bg-[#0A0A0F] p-3">
-          <pre className="max-h-48 overflow-y-auto font-mono text-xs text-[#8A857D] whitespace-pre-wrap">
+        <div className="rounded border border-border-default bg-[#0A0A0F] p-3">
+          <pre className="max-h-48 overflow-y-auto font-mono text-xs text-text-muted whitespace-pre-wrap">
             {status.log_output}
           </pre>
         </div>
@@ -78,15 +78,15 @@ export function ImportStep({ importId, mapping, onReset }: Props) {
           </div>
 
           {/* Learn prompt */}
-          <div className="rounded border border-[#232328] bg-[#0E0E11] p-3">
+          <div className="rounded border border-border-default bg-surface-base p-3">
             <label className="flex items-center gap-2 text-sm text-[#E8E4DC]">
               <input
                 type="checkbox"
                 checked={saveLearning}
                 onChange={(e) => setSaveLearning(e.target.checked)}
-                className="rounded border-[#323238]"
+                className="rounded border-surface-highlight"
               />
-              <BookOpen className="h-3.5 w-3.5 text-[#C9A227]" />
+              <BookOpen className="h-3.5 w-3.5 text-accent" />
               Save mappings so Abby learns for next time
             </label>
             {saveLearning && (
@@ -100,7 +100,7 @@ export function ImportStep({ importId, mapping, onReset }: Props) {
                   }));
                   await storeAbbyLearning(importId, learnings);
                 }}
-                className="mt-2 rounded bg-[#232328] px-3 py-1 text-xs text-[#C9A227] hover:bg-[#323238]"
+                className="mt-2 rounded bg-surface-elevated px-3 py-1 text-xs text-accent hover:bg-surface-highlight"
               >
                 Save to Abby
               </button>
@@ -110,14 +110,14 @@ export function ImportStep({ importId, mapping, onReset }: Props) {
           <div className="flex gap-3">
             <a
               href="/gis"
-              className="flex items-center gap-1.5 rounded bg-[#C9A227] px-4 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#C9A227]/90"
+              className="flex items-center gap-1.5 rounded bg-accent px-4 py-2 text-sm font-medium text-surface-base hover:bg-accent/90"
             >
               <ExternalLink className="h-3.5 w-3.5" />
               View in GIS Explorer
             </a>
             <button
               onClick={onReset}
-              className="rounded border border-[#323238] px-4 py-2 text-sm text-[#8A857D] hover:border-[#5A5650]"
+              className="rounded border border-surface-highlight px-4 py-2 text-sm text-text-muted hover:border-text-ghost"
             >
               Import Another
             </button>

@@ -112,7 +112,7 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
       {/* Results Section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-[#C5C0B8]">
+          <h3 className="text-sm font-semibold text-text-secondary">
             Results ({totalResults})
           </h3>
           <div className="flex items-center gap-2">
@@ -130,7 +130,7 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
         {/* Filters */}
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex items-center gap-2">
-            <Filter size={12} className="text-[#5A5650]" />
+            <Filter size={12} className="text-text-ghost" />
             <select
               value={resultType}
               onChange={(e) => { setResultType(e.target.value); setPage(1); }}
@@ -142,12 +142,12 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
               ))}
             </select>
           </div>
-          <label className="flex items-center gap-1.5 text-xs text-[#8A857D] cursor-pointer">
+          <label className="flex items-center gap-1.5 text-xs text-text-muted cursor-pointer">
             <input
               type="checkbox"
               checked={publishableOnly}
               onChange={(e) => { setPublishableOnly(e.target.checked); setPage(1); }}
-              className="rounded border-[#323238] bg-[#151518]"
+              className="rounded border-surface-highlight bg-surface-raised"
             />
             Publishable only
           </label>
@@ -155,11 +155,11 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
 
         {loadingResults ? (
           <div className="flex items-center justify-center py-16">
-            <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+            <Loader2 size={24} className="animate-spin text-text-muted" />
           </div>
         ) : results.length === 0 ? (
           <div className="empty-state">
-            <BarChart3 size={24} className="text-[#323238] mb-2" />
+            <BarChart3 size={24} className="text-surface-highlight mb-2" />
             <h3 className="empty-title">No results yet</h3>
             <p className="empty-message">
               Results will appear here after analyses are executed
@@ -176,8 +176,8 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
                     key={r.id}
                     className={`border rounded-lg transition-colors ${
                       isSelected
-                        ? "border-[#2DD4BF]/40 bg-[#2DD4BF]/5"
-                        : "border-[#232328] bg-[#151518]"
+                        ? "border-success/40 bg-success/5"
+                        : "border-border-default bg-surface-raised"
                     }`}
                   >
                     <div className="flex items-center gap-3 p-3">
@@ -186,16 +186,16 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => toggleResultSelection(r.id)}
-                          className="rounded border-[#323238]"
+                          className="rounded border-surface-highlight"
                         />
                       )}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#60A5FA]/10 text-[#60A5FA]">
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-info/10 text-info">
                             {RESULT_TYPE_LABELS[r.result_type] ?? r.result_type}
                           </span>
                           {r.site?.source && (
-                            <span className="text-xs text-[#5A5650]">
+                            <span className="text-xs text-text-ghost">
                               {r.site.source.source_name}
                             </span>
                           )}
@@ -210,7 +210,7 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
                             </span>
                           )}
                         </div>
-                        <p className="text-[10px] text-[#5A5650] mt-0.5">
+                        <p className="text-[10px] text-text-ghost mt-0.5">
                           Result #{r.id} · {new Date(r.created_at).toLocaleDateString()}
                           {r.reviewed_by_user && (
                             <> · Reviewed by {r.reviewed_by_user.name}</>
@@ -221,7 +221,7 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
                         <button
                           type="button"
                           onClick={() => handleTogglePrimary(r)}
-                          className="p-1.5 text-[#5A5650] hover:text-[#F59E0B]"
+                          className="p-1.5 text-text-ghost hover:text-[#F59E0B]"
                           title={r.is_primary ? "Unmark primary" : "Mark as primary"}
                         >
                           {r.is_primary ? <Star size={14} /> : <StarOff size={14} />}
@@ -229,7 +229,7 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
                         <button
                           type="button"
                           onClick={() => handleTogglePublishable(r)}
-                          className="p-1.5 text-[#5A5650] hover:text-[#34D399]"
+                          className="p-1.5 text-text-ghost hover:text-[#34D399]"
                           title={r.is_publishable ? "Unmark publishable" : "Mark as publishable"}
                         >
                           {r.is_publishable ? <Shield size={14} /> : <ShieldOff size={14} />}
@@ -237,7 +237,7 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
                         <button
                           type="button"
                           onClick={() => setExpandedResult(isExpanded ? null : r.id)}
-                          className="p-1.5 text-[#5A5650] hover:text-[#C5C0B8]"
+                          className="p-1.5 text-text-ghost hover:text-text-secondary"
                         >
                           {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                         </button>
@@ -245,15 +245,15 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
                     </div>
 
                     {isExpanded && (
-                      <div className="border-t border-[#232328] p-4 space-y-3">
+                      <div className="border-t border-border-default p-4 space-y-3">
                         {r.summary_data && Object.keys(r.summary_data).length > 0 ? (
                           <div>
-                            <h4 className="text-[10px] font-semibold text-[#8A857D] uppercase tracking-wider mb-2">Summary</h4>
+                            <h4 className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-2">Summary</h4>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                               {Object.entries(r.summary_data).map(([key, val]) => (
                                 <div key={key} className="bg-[#0D0D10] rounded p-2">
-                                  <p className="text-[9px] text-[#5A5650] uppercase">{key.replace(/_/g, " ")}</p>
-                                  <p className="text-sm text-[#F0EDE8] font-mono">
+                                  <p className="text-[9px] text-text-ghost uppercase">{key.replace(/_/g, " ")}</p>
+                                  <p className="text-sm text-text-primary font-mono">
                                     {typeof val === "number" ? val.toLocaleString() : String(val)}
                                   </p>
                                 </div>
@@ -261,13 +261,13 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
                             </div>
                           </div>
                         ) : (
-                          <p className="text-xs text-[#5A5650] italic">No summary data available</p>
+                          <p className="text-xs text-text-ghost italic">No summary data available</p>
                         )}
 
                         {r.diagnostics && Object.keys(r.diagnostics).length > 0 && (
                           <div>
-                            <h4 className="text-[10px] font-semibold text-[#8A857D] uppercase tracking-wider mb-2">Diagnostics</h4>
-                            <pre className="text-[10px] text-[#8A857D] bg-[#0D0D10] rounded p-3 overflow-x-auto">
+                            <h4 className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-2">Diagnostics</h4>
+                            <pre className="text-[10px] text-text-muted bg-[#0D0D10] rounded p-3 overflow-x-auto">
                               {JSON.stringify(r.diagnostics, null, 2)}
                             </pre>
                           </div>
@@ -290,7 +290,7 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
                 >
                   Previous
                 </button>
-                <span className="text-xs text-[#5A5650]">
+                <span className="text-xs text-text-ghost">
                   Page {page} of {totalPages}
                 </span>
                 <button
@@ -309,21 +309,21 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
 
       {/* Synthesis Creation Panel */}
       {showSynthesisPanel && (
-        <div className="border border-[#2DD4BF]/20 rounded-lg bg-[#2DD4BF]/5 p-4 space-y-3">
+        <div className="border border-success/20 rounded-lg bg-success/5 p-4 space-y-3">
           <div className="flex items-center justify-between">
-            <h4 className="text-sm font-semibold text-[#2DD4BF]">
+            <h4 className="text-sm font-semibold text-success">
               <Layers size={14} className="inline mr-1.5" />
               Create Synthesis
             </h4>
             <button
               type="button"
               onClick={() => { setShowSynthesisPanel(false); setSelectedResultIds([]); }}
-              className="text-xs text-[#5A5650] hover:text-[#C5C0B8]"
+              className="text-xs text-text-ghost hover:text-text-secondary"
             >
               Cancel
             </button>
           </div>
-          <p className="text-xs text-[#8A857D]">
+          <p className="text-xs text-text-muted">
             Select 2 or more results above, then choose a synthesis method.
           </p>
           <div className="flex items-center gap-3">
@@ -355,17 +355,17 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
 
       {/* Existing Syntheses */}
       <div className="space-y-4">
-        <h3 className="text-sm font-semibold text-[#C5C0B8]">
+        <h3 className="text-sm font-semibold text-text-secondary">
           Syntheses ({syntheses?.length ?? 0})
         </h3>
 
         {loadingSyntheses ? (
           <div className="flex items-center justify-center py-8">
-            <Loader2 size={20} className="animate-spin text-[#8A857D]" />
+            <Loader2 size={20} className="animate-spin text-text-muted" />
           </div>
         ) : !syntheses || syntheses.length === 0 ? (
           <div className="empty-state">
-            <Layers size={24} className="text-[#323238] mb-2" />
+            <Layers size={24} className="text-surface-highlight mb-2" />
             <h3 className="empty-title">No syntheses</h3>
             <p className="empty-message">
               Combine results from multiple sites using meta-analysis
@@ -401,21 +401,21 @@ function SynthesisCard({
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="border border-[#232328] rounded-lg bg-[#151518]">
+    <div className="border border-border-default rounded-lg bg-surface-raised">
       <div className="flex items-center gap-3 p-3">
-        <div className="w-8 h-8 rounded-lg bg-[#A78BFA]/10 flex items-center justify-center shrink-0">
-          <Layers size={16} className="text-[#A78BFA]" />
+        <div className="w-8 h-8 rounded-lg bg-[var(--domain-observation)]/10 flex items-center justify-center shrink-0">
+          <Layers size={16} className="text-[var(--domain-observation)]" />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-[#F0EDE8] font-medium">
+            <span className="text-sm text-text-primary font-medium">
               {SYNTHESIS_TYPE_LABELS[s.synthesis_type] ?? s.synthesis_type}
             </span>
-            <span className="text-[10px] text-[#5A5650]">
+            <span className="text-[10px] text-text-ghost">
               {s.input_result_ids.length} results
             </span>
           </div>
-          <p className="text-[10px] text-[#5A5650] mt-0.5">
+          <p className="text-[10px] text-text-ghost mt-0.5">
             {s.generated_by_user?.name ?? "System"} · {new Date(s.created_at).toLocaleDateString()}
           </p>
         </div>
@@ -423,14 +423,14 @@ function SynthesisCard({
           <button
             type="button"
             onClick={() => setExpanded(!expanded)}
-            className="p-1.5 text-[#5A5650] hover:text-[#C5C0B8]"
+            className="p-1.5 text-text-ghost hover:text-text-secondary"
           >
             <Eye size={14} />
           </button>
           <button
             type="button"
             onClick={onDelete}
-            className="p-1.5 text-[#5A5650] hover:text-[#E85A6B]"
+            className="p-1.5 text-text-ghost hover:text-critical"
           >
             <Trash2 size={14} />
           </button>
@@ -438,24 +438,24 @@ function SynthesisCard({
       </div>
 
       {expanded && (
-        <div className="border-t border-[#232328] p-4 space-y-3">
+        <div className="border-t border-border-default p-4 space-y-3">
           {s.method_settings && Object.keys(s.method_settings).length > 0 && (
             <div>
-              <h4 className="text-[10px] font-semibold text-[#8A857D] uppercase tracking-wider mb-2">Method Settings</h4>
-              <pre className="text-[10px] text-[#8A857D] bg-[#0D0D10] rounded p-3 overflow-x-auto">
+              <h4 className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-2">Method Settings</h4>
+              <pre className="text-[10px] text-text-muted bg-[#0D0D10] rounded p-3 overflow-x-auto">
                 {JSON.stringify(s.method_settings, null, 2)}
               </pre>
             </div>
           )}
           {s.output && Object.keys(s.output).length > 0 ? (
             <div>
-              <h4 className="text-[10px] font-semibold text-[#8A857D] uppercase tracking-wider mb-2">Output</h4>
-              <pre className="text-[10px] text-[#8A857D] bg-[#0D0D10] rounded p-3 overflow-x-auto">
+              <h4 className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-2">Output</h4>
+              <pre className="text-[10px] text-text-muted bg-[#0D0D10] rounded p-3 overflow-x-auto">
                 {JSON.stringify(s.output, null, 2)}
               </pre>
             </div>
           ) : (
-            <p className="text-xs text-[#5A5650] italic">No output generated yet</p>
+            <p className="text-xs text-text-ghost italic">No output generated yet</p>
           )}
         </div>
       )}

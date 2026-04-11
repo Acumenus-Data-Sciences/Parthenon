@@ -4,8 +4,8 @@ import * as d3 from "d3";
 // ── Dark theme constants ───────────────────────────────────────────────────────
 const COLOR_TEXT = "#d4d4d8";    // zinc-300
 const COLOR_AXIS = "#52525b";    // zinc-600
-const COLOR_TARGET = "#2DD4BF";  // teal
-const COLOR_COMPARATOR = "#9B1B30"; // crimson
+const COLOR_TARGET = "var(--success)";  // teal
+const COLOR_COMPARATOR = "var(--primary)"; // crimson
 
 const MARGIN = { top: 24, right: 24, bottom: 44, left: 48 };
 

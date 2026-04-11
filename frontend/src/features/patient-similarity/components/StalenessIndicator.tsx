@@ -22,9 +22,9 @@ export function StalenessIndicator({ sourceId }: StalenessIndicatorProps) {
 
   if (status.staleness_warning) {
     return (
-      <div className="flex items-center gap-2 rounded-lg bg-[#C9A227]/10 border border-[#C9A227]/20 px-3 py-1.5">
-        <AlertTriangle size={14} className="text-[#C9A227] shrink-0" />
-        <span className="text-xs text-[#C9A227]">
+      <div className="flex items-center gap-2 rounded-lg bg-accent/10 border border-accent/20 px-3 py-1.5">
+        <AlertTriangle size={14} className="text-accent shrink-0" />
+        <span className="text-xs text-accent">
           Features are stale
           {daysAgo !== null
             ? ` (${daysAgo}d ago)`
@@ -34,7 +34,7 @@ export function StalenessIndicator({ sourceId }: StalenessIndicatorProps) {
           type="button"
           onClick={() => computeMutation.mutate({ sourceId, force: true })}
           disabled={computeMutation.isPending}
-          className="text-xs text-[#C9A227] hover:text-[#D4AF37] font-medium transition-colors disabled:opacity-50"
+          className="text-xs text-accent hover:text-[#D4AF37] font-medium transition-colors disabled:opacity-50"
         >
           {computeMutation.isPending ? (
             <RefreshCw size={12} className="animate-spin" />
@@ -47,7 +47,7 @@ export function StalenessIndicator({ sourceId }: StalenessIndicatorProps) {
   }
 
   return (
-    <span className="text-[10px] text-[#5A5650]">
+    <span className="text-[10px] text-text-ghost">
       {daysAgo !== null
         ? `Updated ${daysAgo}d ago`
         : "Not yet computed"}

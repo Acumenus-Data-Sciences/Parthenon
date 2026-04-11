@@ -25,13 +25,13 @@ export default function DiagnosisList({ diagnoses }: DiagnosisListProps) {
             <tr key={`${dx.hadm_id}-${dx.seq_num}`} className="hover:bg-zinc-900/50">
               <td className="px-3 py-2 align-top text-zinc-600">{dx.seq_num}</td>
               <td className="px-3 py-2 align-top">
-                <span className="font-mono text-[#C9A227]">{dx.icd_code}</span>
+                <span className="font-mono text-accent">{dx.icd_code}</span>
                 <span className="text-zinc-600 ml-1">v{dx.icd_version}</span>
               </td>
               <td className="px-3 py-2 align-top text-zinc-300">{dx.description || '\u2014'}</td>
               <td className="px-3 py-2 align-top">
                 {dx.concept_id ? (
-                  <span className="text-[#2DD4BF]">{dx.standard_concept_name}</span>
+                  <span className="text-success">{dx.standard_concept_name}</span>
                 ) : (
                   <span className="text-zinc-600">unmapped</span>
                 )}

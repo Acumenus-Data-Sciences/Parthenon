@@ -61,7 +61,7 @@ describe("SystematicErrorPlot", () => {
     render(<SystematicErrorPlot negativeControls={makeNegativeControls()} />);
     const svg = screen.getByTestId("systematic-error-plot");
     const circles = svg.querySelectorAll("circle");
-    // NC data circles have fill="#2DD4BF" and r=4 (legend circles have r=3)
+    // NC data circles have fill="var(--success)" and r=4 (legend circles have r=3)
     const dataCircles = Array.from(circles).filter(
       (c) => c.getAttribute("r") === "4" && c.getAttribute("fill") !== "none",
     );

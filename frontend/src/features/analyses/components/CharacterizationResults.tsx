@@ -264,10 +264,10 @@ function Table1View({
     const abs = Math.abs(value);
     const color =
       abs >= 0.2
-        ? "#E85A6B"
+        ? "var(--critical)"
         : abs >= 0.1
           ? "#F59E0B"
-          : "#2DD4BF";
+          : "var(--success)";
     return (
       <div className="flex items-center justify-end gap-2">
         <div
@@ -292,22 +292,22 @@ function Table1View({
   return (
     <div className="space-y-3">
       {/* Summary bar */}
-      <div className="flex items-center gap-4 rounded-lg border px-4 py-3" style={{ borderColor: "#232328", background: "#151518" }}>
+      <div className="flex items-center gap-4 rounded-lg border px-4 py-3" style={{ borderColor: "var(--border-default)", background: "var(--surface-raised)" }}>
         <div className="flex-1">
           <p className="text-xs" style={{ color: "var(--text-muted)" }}>Total Covariates</p>
-          <p className="text-lg font-bold font-['IBM_Plex_Mono',monospace]" style={{ color: "#F0EDE8" }}>
+          <p className="text-lg font-bold font-['IBM_Plex_Mono',monospace]" style={{ color: "var(--text-primary)" }}>
             {rows.length.toLocaleString()}
           </p>
         </div>
         <div className="flex-1">
           <p className="text-xs" style={{ color: "var(--text-muted)" }}>Imbalanced (|SMD| ≥ 0.1)</p>
-          <p className="text-lg font-bold font-['IBM_Plex_Mono',monospace]" style={{ color: imbalancedCount > 0 ? "#F59E0B" : "#2DD4BF" }}>
+          <p className="text-lg font-bold font-['IBM_Plex_Mono',monospace]" style={{ color: imbalancedCount > 0 ? "#F59E0B" : "var(--success)" }}>
             {imbalancedCount.toLocaleString()}
           </p>
         </div>
         <div className="flex-1">
           <p className="text-xs" style={{ color: "var(--text-muted)" }}>High imbalance (|SMD| ≥ 0.2)</p>
-          <p className="text-lg font-bold font-['IBM_Plex_Mono',monospace]" style={{ color: highImbalanceCount > 0 ? "#E85A6B" : "#2DD4BF" }}>
+          <p className="text-lg font-bold font-['IBM_Plex_Mono',monospace]" style={{ color: highImbalanceCount > 0 ? "var(--critical)" : "var(--success)" }}>
             {highImbalanceCount.toLocaleString()}
           </p>
         </div>
@@ -316,7 +316,7 @@ function Table1View({
       {/* Filters */}
       <div className="flex items-center gap-3">
         <div className="relative flex-1">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "#5A5650" }} />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--text-ghost)" }} />
           <input
             type="text"
             value={search}
@@ -327,13 +327,13 @@ function Table1View({
               "focus:outline-none focus:ring-1",
             )}
             style={{
-              borderColor: "#232328",
-              background: "#0E0E11",
-              color: "#F0EDE8",
+              borderColor: "var(--border-default)",
+              background: "var(--surface-base)",
+              color: "var(--text-primary)",
             }}
           />
         </div>
-        <div className="flex items-center gap-1 rounded-lg border p-1" style={{ borderColor: "#232328", background: "#151518" }}>
+        <div className="flex items-center gap-1 rounded-lg border p-1" style={{ borderColor: "var(--border-default)", background: "var(--surface-raised)" }}>
           {(["all", "imbalanced", "balanced"] as SmdFilter[]).map((f) => (
             <button
               key={f}
@@ -341,8 +341,8 @@ function Table1View({
               onClick={() => setSmdFilter(f)}
               className="rounded px-3 py-1.5 text-xs font-medium transition-colors capitalize"
               style={smdFilter === f
-                ? { background: "#232328", color: "#F0EDE8" }
-                : { color: "#8A857D" }
+                ? { background: "var(--surface-elevated)", color: "var(--text-primary)" }
+                : { color: "var(--text-muted)" }
               }
             >
               {f}
@@ -352,27 +352,27 @@ function Table1View({
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border overflow-hidden" style={{ borderColor: "#232328", background: "#151518" }}>
+      <div className="rounded-lg border overflow-hidden" style={{ borderColor: "var(--border-default)", background: "var(--surface-raised)" }}>
         <div className="max-h-[500px] overflow-auto">
           <table className="w-full">
-            <thead className="sticky top-0 z-10" style={{ background: "#1C1C20" }}>
+            <thead className="sticky top-0 z-10" style={{ background: "var(--surface-overlay)" }}>
               <tr>
                 <th
                   className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider cursor-pointer hover:opacity-80 select-none"
-                  style={{ color: "#8A857D" }}
+                  style={{ color: "var(--text-muted)" }}
                   onClick={() => handleSort("name")}
                 >
                   Covariate Name {sortBy === "name" && (sortDir === "asc" ? "↑" : "↓")}
                 </th>
-                <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider" style={{ color: "#2DD4BF" }}>
+                <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--success)" }}>
                   Mean (Target)
                 </th>
-                <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider" style={{ color: "#C9A227" }}>
+                <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--accent)" }}>
                   Mean (Outcome)
                 </th>
                 <th
                   className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider cursor-pointer hover:opacity-80 select-none"
-                  style={{ color: "#8A857D" }}
+                  style={{ color: "var(--text-muted)" }}
                   onClick={() => handleSort("smd")}
                 >
                   |SMD| {sortBy === "smd" && (sortDir === "asc" ? "↑" : "↓")}
@@ -385,22 +385,22 @@ function Table1View({
                   key={`${row.covariate_name}-${i}`}
                   className="border-t"
                   style={{
-                    borderColor: "#1C1C20",
-                    background: i % 2 === 0 ? "#151518" : "#1A1A1E",
+                    borderColor: "var(--surface-overlay)",
+                    background: i % 2 === 0 ? "var(--surface-raised)" : "var(--surface-overlay)",
                   }}
                 >
-                  <td className="px-4 py-2.5 text-sm" style={{ color: "#F0EDE8", maxWidth: "400px" }}>
+                  <td className="px-4 py-2.5 text-sm" style={{ color: "var(--text-primary)", maxWidth: "400px" }}>
                     <span className="break-words">{row.covariate_name}</span>
                     {row.time_window && (
-                      <span className="ml-2 text-[10px] rounded px-1.5 py-0.5" style={{ background: "#232328", color: "#8A857D" }}>
+                      <span className="ml-2 text-[10px] rounded px-1.5 py-0.5" style={{ background: "var(--surface-elevated)", color: "var(--text-muted)" }}>
                         {row.time_window}
                       </span>
                     )}
                   </td>
-                  <td className="px-4 py-2.5 text-right font-['IBM_Plex_Mono',monospace] text-sm" style={{ color: "#2DD4BF" }}>
+                  <td className="px-4 py-2.5 text-right font-['IBM_Plex_Mono',monospace] text-sm" style={{ color: "var(--success)" }}>
                     {fmt(row.mean_target, 3)}
                   </td>
-                  <td className="px-4 py-2.5 text-right font-['IBM_Plex_Mono',monospace] text-sm" style={{ color: "#C9A227" }}>
+                  <td className="px-4 py-2.5 text-right font-['IBM_Plex_Mono',monospace] text-sm" style={{ color: "var(--accent)" }}>
                     {fmt(row.mean_outcome, 3)}
                   </td>
                   <td className="px-4 py-2.5 text-right">
@@ -410,7 +410,7 @@ function Table1View({
               ))}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="px-4 py-8 text-center text-sm" style={{ color: "#5A5650" }}>
+                  <td colSpan={4} className="px-4 py-8 text-center text-sm" style={{ color: "var(--text-ghost)" }}>
                     No covariates match the current filters
                   </td>
                 </tr>
@@ -420,14 +420,14 @@ function Table1View({
         </div>
       </div>
 
-      <p className="text-[10px]" style={{ color: "#5A5650" }}>
+      <p className="text-[10px]" style={{ color: "var(--text-ghost)" }}>
         Showing {filtered.length} of {rows.length} covariates
         {" · "}
-        SMD color: <span style={{ color: "#2DD4BF" }}>green &lt; 0.1</span>
+        SMD color: <span style={{ color: "var(--success)" }}>green &lt; 0.1</span>
         {", "}
         <span style={{ color: "#F59E0B" }}>yellow 0.1–0.2</span>
         {", "}
-        <span style={{ color: "#E85A6B" }}>red ≥ 0.2</span>
+        <span style={{ color: "var(--critical)" }}>red ≥ 0.2</span>
       </p>
     </div>
   );
@@ -456,11 +456,11 @@ function DirectLovePlot({ rows }: { rows: AggregateCovariateRow[] }) {
   }));
 
   return (
-    <div className="rounded-lg border p-4" style={{ borderColor: "#232328", background: "#151518" }}>
-      <h3 className="text-sm font-semibold mb-1" style={{ color: "#F0EDE8" }}>
+    <div className="rounded-lg border p-4" style={{ borderColor: "var(--border-default)", background: "var(--surface-raised)" }}>
+      <h3 className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>
         SMD Love Plot — Covariate Balance
       </h3>
-      <p className="text-xs mb-4" style={{ color: "#8A857D" }}>
+      <p className="text-xs mb-4" style={{ color: "var(--text-muted)" }}>
         Showing top {sorted.length} covariates by |SMD|. Reference lines at 0.1 (balance threshold).
       </p>
       <div className="flex justify-center">
@@ -491,8 +491,8 @@ function TimeToEventSection({
   }
 
   return (
-    <div className="rounded-lg border p-4 space-y-4" style={{ borderColor: "#232328", background: "#151518" }}>
-      <h3 className="text-sm font-semibold" style={{ color: "#F0EDE8" }}>
+    <div className="rounded-lg border p-4 space-y-4" style={{ borderColor: "var(--border-default)", background: "var(--surface-raised)" }}>
+      <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
         Time to Event
       </h3>
       {Array.from(pairs.entries()).map(([key, pairRows]) => {
@@ -507,25 +507,25 @@ function TimeToEventSection({
 
         return (
           <div key={key}>
-            <p className="text-xs font-medium mb-2" style={{ color: "#C5C0B8" }}>
+            <p className="text-xs font-medium mb-2" style={{ color: "var(--text-secondary)" }}>
               {label}
             </p>
-            <div className="rounded-lg border overflow-hidden" style={{ borderColor: "#232328" }}>
+            <div className="rounded-lg border overflow-hidden" style={{ borderColor: "var(--border-default)" }}>
               <table className="w-full">
-                <thead style={{ background: "#1C1C20" }}>
+                <thead style={{ background: "var(--surface-overlay)" }}>
                   <tr>
-                    <th className="px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-wider" style={{ color: "#8A857D" }}>
+                    <th className="px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
                       Time (days)
                     </th>
-                    <th className="px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-wider" style={{ color: "#8A857D" }}>
+                    <th className="px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
                       Events
                     </th>
                     {pairRows[0].num_at_risk !== undefined && (
-                      <th className="px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-wider" style={{ color: "#8A857D" }}>
+                      <th className="px-3 py-2 text-right text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
                         At Risk
                       </th>
                     )}
-                    <th className="px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-wider" style={{ color: "#8A857D" }}>
+                    <th className="px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
                       Distribution
                     </th>
                   </tr>
@@ -535,26 +535,26 @@ function TimeToEventSection({
                     <tr
                       key={i}
                       className="border-t"
-                      style={{ borderColor: "#1C1C20", background: i % 2 === 0 ? "#151518" : "#1A1A1E" }}
+                      style={{ borderColor: "var(--surface-overlay)", background: i % 2 === 0 ? "var(--surface-raised)" : "var(--surface-overlay)" }}
                     >
-                      <td className="px-3 py-2 font-['IBM_Plex_Mono',monospace] text-sm" style={{ color: "#F0EDE8" }}>
+                      <td className="px-3 py-2 font-['IBM_Plex_Mono',monospace] text-sm" style={{ color: "var(--text-primary)" }}>
                         {row.time_days}
                       </td>
-                      <td className="px-3 py-2 text-right font-['IBM_Plex_Mono',monospace] text-sm" style={{ color: "#2DD4BF" }}>
+                      <td className="px-3 py-2 text-right font-['IBM_Plex_Mono',monospace] text-sm" style={{ color: "var(--success)" }}>
                         {row.num_events.toLocaleString()}
                       </td>
                       {row.num_at_risk !== undefined && (
-                        <td className="px-3 py-2 text-right font-['IBM_Plex_Mono',monospace] text-sm" style={{ color: "#C5C0B8" }}>
+                        <td className="px-3 py-2 text-right font-['IBM_Plex_Mono',monospace] text-sm" style={{ color: "var(--text-secondary)" }}>
                           {row.num_at_risk.toLocaleString()}
                         </td>
                       )}
                       <td className="px-3 py-2">
-                        <div className="w-32 h-1.5 rounded-full overflow-hidden" style={{ background: "#232328" }}>
+                        <div className="w-32 h-1.5 rounded-full overflow-hidden" style={{ background: "var(--surface-elevated)" }}>
                           <div
                             className="h-full rounded-full"
                             style={{
                               width: `${(row.num_events / maxEvents) * 100}%`,
-                              background: "#9B1B30",
+                              background: "var(--primary)",
                             }}
                           />
                         </div>
@@ -565,7 +565,7 @@ function TimeToEventSection({
               </table>
             </div>
             {pairRows.length > 30 && (
-              <p className="text-[10px] mt-1" style={{ color: "#5A5650" }}>
+              <p className="text-[10px] mt-1" style={{ color: "var(--text-ghost)" }}>
                 Showing first 30 of {pairRows.length} rows
               </p>
             )}
@@ -593,19 +593,19 @@ function CohortCountCards({
         <div
           key={c.cohort_id}
           className="flex items-center gap-3 rounded-lg border px-4 py-3"
-          style={{ borderColor: "#232328", background: "#151518" }}
+          style={{ borderColor: "var(--border-default)", background: "var(--surface-raised)" }}
         >
-          <Users size={16} style={{ color: "#9B1B30" }} />
+          <Users size={16} style={{ color: "var(--primary)" }} />
           <div>
-            <p className="text-xs font-medium" style={{ color: "#8A857D" }}>
+            <p className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>
               {c.cohort_name ?? `Cohort #${c.cohort_id}`}
             </p>
             <p
               className="text-xl font-bold font-['IBM_Plex_Mono',monospace]"
-              style={{ color: "#F0EDE8" }}
+              style={{ color: "var(--text-primary)" }}
             >
               {c.person_count.toLocaleString()}
-              <span className="text-xs font-normal ml-1" style={{ color: "#8A857D" }}>
+              <span className="text-xs font-normal ml-1" style={{ color: "var(--text-muted)" }}>
                 persons
               </span>
             </p>
@@ -646,19 +646,19 @@ function DirectRunResultsView({ result }: { result: DirectRunResult }) {
 
   if (result.error) {
     return (
-      <div className="rounded-lg border border-dashed p-8 text-center" style={{ borderColor: "#323238", background: "#151518" }}>
-        <AlertCircle size={20} className="mx-auto mb-2" style={{ color: "#E85A6B" }} />
-        <p className="text-sm font-semibold" style={{ color: "#F0EDE8" }}>R execution error</p>
-        <p className="mt-1 text-xs" style={{ color: "#E85A6B" }}>{result.error}</p>
+      <div className="rounded-lg border border-dashed p-8 text-center" style={{ borderColor: "var(--surface-highlight)", background: "var(--surface-raised)" }}>
+        <AlertCircle size={20} className="mx-auto mb-2" style={{ color: "var(--critical)" }} />
+        <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>R execution error</p>
+        <p className="mt-1 text-xs" style={{ color: "var(--critical)" }}>{result.error}</p>
       </div>
     );
   }
 
   if (availableTabs.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed p-8 text-center" style={{ borderColor: "#323238", background: "#151518" }}>
-        <AlertCircle size={20} className="mx-auto mb-2" style={{ color: "#323238" }} />
-        <p className="text-sm" style={{ color: "#8A857D" }}>
+      <div className="rounded-lg border border-dashed p-8 text-center" style={{ borderColor: "var(--surface-highlight)", background: "var(--surface-raised)" }}>
+        <AlertCircle size={20} className="mx-auto mb-2" style={{ color: "var(--surface-highlight)" }} />
+        <p className="text-sm" style={{ color: "var(--text-muted)" }}>
           No result data returned from R execution.
         </p>
       </div>
@@ -674,14 +674,14 @@ function DirectRunResultsView({ result }: { result: DirectRunResult }) {
 
       {/* Execution time */}
       {result.execution_time_seconds !== undefined && (
-        <p className="text-xs" style={{ color: "#5A5650" }}>
+        <p className="text-xs" style={{ color: "var(--text-ghost)" }}>
           R execution time: {result.execution_time_seconds.toFixed(1)}s
         </p>
       )}
 
       {/* Tab bar */}
       {availableTabs.length > 1 && (
-        <div className="flex items-center gap-1 border-b" style={{ borderColor: "#232328" }}>
+        <div className="flex items-center gap-1 border-b" style={{ borderColor: "var(--border-default)" }}>
           {availableTabs.map((tab) => (
             <button
               key={tab.key}
@@ -691,13 +691,13 @@ function DirectRunResultsView({ result }: { result: DirectRunResult }) {
                 "relative px-4 py-2.5 text-sm font-medium transition-colors",
               )}
               style={activeTab === tab.key
-                ? { color: "#2DD4BF" }
-                : { color: "#8A857D" }
+                ? { color: "var(--success)" }
+                : { color: "var(--text-muted)" }
               }
             >
               {tab.label}
               {activeTab === tab.key && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: "#2DD4BF" }} />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: "var(--success)" }} />
               )}
             </button>
           ))}
@@ -732,7 +732,7 @@ export function CharacterizationResults({
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+        <Loader2 size={24} className="animate-spin text-text-muted" />
       </div>
     );
   }
@@ -741,9 +741,9 @@ export function CharacterizationResults({
   if (directResult) {
     return (
       <div className="space-y-6">
-        <div className="rounded-lg border px-4 py-2 flex items-center gap-2" style={{ borderColor: "#9B1B3040", background: "#9B1B3010" }}>
-          <span className="text-xs font-semibold" style={{ color: "#9B1B30" }}>OHDSI Direct Run Result</span>
-          <span className="text-xs" style={{ color: "#8A857D" }}>via R Characterization package</span>
+        <div className="rounded-lg border px-4 py-2 flex items-center gap-2" style={{ borderColor: "color-mix(in srgb, var(--primary) 25%, transparent)", background: "color-mix(in srgb, var(--primary) 6%, transparent)" }}>
+          <span className="text-xs font-semibold" style={{ color: "var(--primary)" }}>OHDSI Direct Run Result</span>
+          <span className="text-xs" style={{ color: "var(--text-muted)" }}>via R Characterization package</span>
         </div>
         <DirectRunResultsView result={directResult} />
       </div>
@@ -752,18 +752,18 @@ export function CharacterizationResults({
 
   if (!execution || execution.status !== "completed") {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
-        <AlertCircle size={24} className="text-[#323238] mb-3" />
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
+        <AlertCircle size={24} className="text-surface-highlight mb-3" />
+        <h3 className="text-sm font-semibold text-text-primary">
           No results available
         </h3>
-        <p className="mt-1 text-xs text-[#8A857D]">
+        <p className="mt-1 text-xs text-text-muted">
           {execution
             ? `Execution status: ${execution.status}`
             : "Execute the analysis to generate results, or use Run Direct (OHDSI) from the Design tab."}
         </p>
         {execution?.fail_message && (
-          <p className="mt-2 text-xs text-[#E85A6B] max-w-md text-center">
+          <p className="mt-2 text-xs text-critical max-w-md text-center">
             {execution.fail_message}
           </p>
         )}
@@ -775,9 +775,9 @@ export function CharacterizationResults({
 
   if (results.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
-        <AlertCircle size={24} className="text-[#323238] mb-3" />
-        <p className="text-sm text-[#8A857D]">
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
+        <AlertCircle size={24} className="text-surface-highlight mb-3" />
+        <p className="text-sm text-text-muted">
           Execution completed but no results were returned.
         </p>
       </div>
@@ -846,8 +846,8 @@ export function CharacterizationResults({
 
       {/* Covariate Balance Love Plot (when comparator present) */}
       {balanceEntries.length > 0 && (
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-          <h3 className="text-sm font-semibold text-[#F0EDE8] mb-4">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+          <h3 className="text-sm font-semibold text-text-primary mb-4">
             Covariate Balance — Standardized Mean Differences
           </h3>
           <div className="flex justify-center">

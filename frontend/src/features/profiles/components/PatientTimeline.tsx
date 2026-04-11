@@ -376,14 +376,14 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
 
   if (events.length === 0) {
     return (
-      <div className="flex items-center justify-center h-48 rounded-lg border border-dashed border-[#323238] bg-[#151518]">
-        <p className="text-sm text-[#8A857D]">No clinical events to display</p>
+      <div className="flex items-center justify-center h-48 rounded-lg border border-dashed border-surface-highlight bg-surface-raised">
+        <p className="text-sm text-text-muted">No clinical events to display</p>
       </div>
     );
   }
 
   return (
-    <div className="relative rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+    <div className="relative rounded-lg border border-border-default bg-surface-raised overflow-hidden">
       <TimelineToolbar
         eventCount={events.length}
         activeDomainCount={activeDomains.length}
@@ -412,14 +412,14 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
 
       {/* Year quick-nav */}
       {years.length > 1 && (
-        <div className="flex items-center gap-1 px-4 py-1.5 bg-[#0E0E11] border-b border-[#1C1C20] overflow-x-auto">
-          <span className="text-[10px] text-[#5A5650] shrink-0 mr-1">Jump:</span>
+        <div className="flex items-center gap-1 px-4 py-1.5 bg-surface-base border-b border-surface-overlay overflow-x-auto">
+          <span className="text-[10px] text-text-ghost shrink-0 mr-1">Jump:</span>
           {years.map((y) => (
             <button
               key={y}
               type="button"
               onClick={() => jumpToYear(y)}
-              className="text-[10px] text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#232328] px-1.5 py-0.5 rounded transition-colors shrink-0"
+              className="text-[10px] text-text-muted hover:text-text-primary hover:bg-surface-elevated px-1.5 py-0.5 rounded transition-colors shrink-0"
             >
               {y}
             </button>
@@ -465,7 +465,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
                 y1={0}
                 x2={0}
                 y2={6}
-                stroke="#232328"
+                stroke="var(--border-default)"
                 strokeWidth={1.5}
               />
             </pattern>
@@ -482,7 +482,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
                   y={28}
                   width={bw}
                   height={svgHeight - 28}
-                  fill="#2DD4BF"
+                  fill="var(--success)"
                   opacity={0.05}
                 />
               );
@@ -496,7 +496,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
               x2={svgWidth}
               y1={26}
               y2={26}
-              stroke="#323238"
+              stroke="var(--border-default)"
               strokeWidth={1}
             />
             {ticks.map((tick, i) => (
@@ -506,14 +506,14 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
                   x2={tick.x}
                   y1={22}
                   y2={30}
-                  stroke="#5A5650"
+                  stroke="var(--text-ghost)"
                   strokeWidth={1}
                 />
                 <text
                   x={tick.x}
                   y={18}
                   textAnchor="middle"
-                  className="fill-[#8A857D]"
+                  className="fill-text-muted"
                   style={{ fontSize: 9 }}
                 >
                   {tick.label}
@@ -523,7 +523,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
                   x2={tick.x}
                   y1={30}
                   y2={svgHeight}
-                  stroke="#1C1C20"
+                  stroke="var(--surface-overlay)"
                   strokeWidth={1}
                   strokeDasharray="2 4"
                 />
@@ -538,7 +538,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
                   x2={todayX}
                   y1={26}
                   y2={svgHeight}
-                  stroke="#C9A227"
+                  stroke="var(--accent)"
                   strokeWidth={1}
                   strokeDasharray="3 3"
                   opacity={0.5}
@@ -546,7 +546,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
                 <text
                   x={todayX + 3}
                   y={18}
-                  className="fill-[#C9A227]"
+                  className="fill-accent"
                   style={{ fontSize: 8 }}
                 >
                   Today
@@ -576,7 +576,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
                   x2={svgWidth}
                   y1={y}
                   y2={y}
-                  stroke="#1C1C20"
+                  stroke="var(--surface-overlay)"
                   strokeWidth={1}
                 />
 
@@ -595,7 +595,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
                   <text
                     x={10}
                     y={y + LANE_HEIGHT / 2 + 4}
-                    className="fill-[#5A5650]"
+                    className="fill-text-ghost"
                     style={{ fontSize: 8 }}
                   >
                     {isCollapsed ? "\u25B6" : "\u25BC"}
@@ -611,7 +611,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
                   <text
                     x={36}
                     y={y + LANE_HEIGHT / 2 + 3}
-                    className="fill-[#C5C0B8]"
+                    className="fill-text-secondary"
                     style={{ fontSize: 10, fontWeight: 500 }}
                   >
                     {config.label}
@@ -620,7 +620,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
                     x={LABEL_WIDTH - 6}
                     y={y + LANE_HEIGHT / 2 + 3}
                     textAnchor="end"
-                    className="fill-[#5A5650]"
+                    className="fill-text-ghost"
                     style={{ fontSize: 9 }}
                   >
                     {domEvts.length}
@@ -753,7 +753,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
                   x2={band.x1}
                   y1={28}
                   y2={svgHeight}
-                  stroke="#2DD4BF"
+                  stroke="var(--success)"
                   strokeWidth={1}
                   strokeDasharray="3 2"
                   opacity={0.3}
@@ -763,7 +763,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
                   x2={band.x2}
                   y1={28}
                   y2={svgHeight}
-                  stroke="#2DD4BF"
+                  stroke="var(--success)"
                   strokeWidth={1}
                   strokeDasharray="3 2"
                   opacity={0.3}

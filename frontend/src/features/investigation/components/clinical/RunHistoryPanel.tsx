@@ -6,9 +6,9 @@ import type { ClinicalAnalysisGroup, ClinicalAnalysisType, Investigation } from 
 // ── Constants ──────────────────────────────────────────────────────────────
 
 const GROUP_COLOR: Record<ClinicalAnalysisGroup, string> = {
-  characterize: "#2DD4BF",
-  compare: "#9B1B30",
-  predict: "#C9A227",
+  characterize: "var(--success)",
+  compare: "var(--primary)",
+  predict: "var(--accent)",
 };
 
 type QueuedStatus = "configured" | "queued" | "running" | "complete" | "failed";
@@ -47,10 +47,10 @@ const STATUS_CONFIG: Record<
   },
   failed: {
     label: "Failed",
-    dotClass: "bg-[#9B1B30]",
-    textClass: "text-[#9B1B30]",
-    bgClass: "bg-[#9B1B30]/10",
-    borderClass: "border-[#9B1B30]/30",
+    dotClass: "bg-primary",
+    textClass: "text-primary",
+    bgClass: "bg-primary/10",
+    borderClass: "border-primary/30",
   },
 };
 

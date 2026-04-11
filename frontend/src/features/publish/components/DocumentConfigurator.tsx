@@ -138,7 +138,7 @@ export default function DocumentConfigurator({
         <div>
           <label
             htmlFor="doc-title"
-            className="block text-sm font-medium text-[#F0EDE8] mb-1"
+            className="block text-sm font-medium text-text-primary mb-1"
           >
             Document Title
           </label>
@@ -148,7 +148,7 @@ export default function DocumentConfigurator({
             value={title}
             onChange={(e) => onTitleChange(e.target.value)}
             placeholder="Enter document title..."
-            className="w-full bg-[#151518] border border-[#232328] rounded-lg px-3 py-2 text-sm text-[#F0EDE8] placeholder-[#5A5650] focus:outline-none focus:border-[#C9A227]"
+            className="w-full bg-surface-raised border border-border-default rounded-lg px-3 py-2 text-sm text-text-primary placeholder-text-ghost focus:outline-none focus:border-accent"
           />
         </div>
 
@@ -156,7 +156,7 @@ export default function DocumentConfigurator({
         <div>
           <label
             htmlFor="doc-authors"
-            className="block text-sm font-medium text-[#F0EDE8] mb-1"
+            className="block text-sm font-medium text-text-primary mb-1"
           >
             Authors (comma-separated)
           </label>
@@ -166,7 +166,7 @@ export default function DocumentConfigurator({
             value={authors.join(", ")}
             onChange={(e) => handleAuthorsInput(e.target.value)}
             placeholder="Author One, Author Two..."
-            className="w-full bg-[#151518] border border-[#232328] rounded-lg px-3 py-2 text-sm text-[#F0EDE8] placeholder-[#5A5650] focus:outline-none focus:border-[#C9A227]"
+            className="w-full bg-surface-raised border border-border-default rounded-lg px-3 py-2 text-sm text-text-primary placeholder-text-ghost focus:outline-none focus:border-accent"
           />
         </div>
 
@@ -174,7 +174,7 @@ export default function DocumentConfigurator({
         <div>
           <label
             htmlFor="doc-template"
-            className="block text-sm font-medium text-[#F0EDE8] mb-1"
+            className="block text-sm font-medium text-text-primary mb-1"
           >
             Template
           </label>
@@ -182,7 +182,7 @@ export default function DocumentConfigurator({
             id="doc-template"
             value={template}
             onChange={(e) => onTemplateChange(e.target.value)}
-            className="w-full bg-[#151518] border border-[#232328] rounded-lg px-3 py-2 text-sm text-[#F0EDE8] focus:outline-none focus:border-[#C9A227]"
+            className="w-full bg-surface-raised border border-border-default rounded-lg px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent"
           >
             {TEMPLATE_LIST.map((t) => (
               <option key={t.id} value={t.id}>
@@ -190,7 +190,7 @@ export default function DocumentConfigurator({
               </option>
             ))}
           </select>
-          <p className="text-xs text-[#5A5650] mt-1">
+          <p className="text-xs text-text-ghost mt-1">
             {(TEMPLATES[template] ?? TEMPLATES["generic-ohdsi"]).description}
           </p>
         </div>
@@ -227,11 +227,11 @@ export default function DocumentConfigurator({
       </div>
 
       {/* Footer buttons */}
-      <div className="flex items-center justify-between pt-4 border-t border-[#232328] mt-4">
+      <div className="flex items-center justify-between pt-4 border-t border-border-default mt-4">
         <button
           type="button"
           onClick={onBack}
-          className="flex items-center gap-1.5 px-4 py-2 text-sm text-[#F0EDE8] border border-[#232328] rounded-lg hover:bg-[#232328] transition-colors"
+          className="flex items-center gap-1.5 px-4 py-2 text-sm text-text-primary border border-border-default rounded-lg hover:bg-surface-elevated transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Back
@@ -239,7 +239,7 @@ export default function DocumentConfigurator({
         <button
           type="button"
           onClick={onNext}
-          className="px-4 py-2 bg-[#C9A227] text-[#0E0E11] font-medium text-sm rounded-lg hover:bg-[#d4ad2f] transition-colors"
+          className="px-4 py-2 bg-accent text-surface-base font-medium text-sm rounded-lg hover:bg-accent transition-colors"
         >
           Preview Document &rarr;
         </button>

@@ -17,8 +17,8 @@ export default function CheckSparklines({ sparklines, checkId }: CheckSparklines
             passed === null
               ? "bg-[#333]"
               : passed
-                ? "bg-[#2DD4BF]"
-                : "bg-[#9B1B30]"
+                ? "bg-success"
+                : "bg-primary"
           }`}
         />
       ))}

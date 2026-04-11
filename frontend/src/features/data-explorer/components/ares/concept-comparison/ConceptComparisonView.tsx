@@ -70,7 +70,7 @@ export default function ConceptComparisonView() {
             type="button"
             onClick={() => setViewMode("single")}
             className={`rounded px-3 py-1 text-xs ${
-              viewMode === "single" ? "bg-[#2DD4BF] text-black" : "text-[#888]"
+              viewMode === "single" ? "bg-success text-black" : "text-[#888]"
             }`}
           >
             Single
@@ -79,7 +79,7 @@ export default function ConceptComparisonView() {
             type="button"
             onClick={() => setViewMode("temporal")}
             className={`rounded px-3 py-1 text-xs ${
-              viewMode === "temporal" ? "bg-[#2DD4BF] text-black" : "text-[#888]"
+              viewMode === "temporal" ? "bg-success text-black" : "text-[#888]"
             }`}
           >
             Temporal
@@ -88,7 +88,7 @@ export default function ConceptComparisonView() {
             type="button"
             onClick={() => setViewMode("multi")}
             className={`rounded px-3 py-1 text-xs ${
-              viewMode === "multi" ? "bg-[#2DD4BF] text-black" : "text-[#888]"
+              viewMode === "multi" ? "bg-success text-black" : "text-[#888]"
             }`}
           >
             Multi-Concept
@@ -97,7 +97,7 @@ export default function ConceptComparisonView() {
             type="button"
             onClick={() => setViewMode("funnel")}
             className={`rounded px-3 py-1 text-xs ${
-              viewMode === "funnel" ? "bg-[#2DD4BF] text-black" : "text-[#888]"
+              viewMode === "funnel" ? "bg-success text-black" : "text-[#888]"
             }`}
           >
             Attrition Funnel
@@ -135,7 +135,7 @@ export default function ConceptComparisonView() {
               }}
               onFocus={() => setShowResults(true)}
               className="w-full rounded-lg border border-[#333] bg-[#1a1a22] px-4 py-2.5 text-sm text-white
-                         placeholder-[#555] focus:border-[#C9A227] focus:outline-none"
+                         placeholder-[#555] focus:border-accent focus:outline-none"
             />
             {searchLoading && (
               <span className="absolute right-3 top-3 text-xs text-[#555]">Searching...</span>
@@ -178,7 +178,7 @@ export default function ConceptComparisonView() {
                         type="button"
                         onClick={() => setRateMode("crude")}
                         className={`rounded px-3 py-1 text-xs ${
-                          rateMode === "crude" ? "bg-[#2DD4BF] text-black" : "text-[#888]"
+                          rateMode === "crude" ? "bg-success text-black" : "text-[#888]"
                         }`}
                       >
                         Crude Rate
@@ -187,7 +187,7 @@ export default function ConceptComparisonView() {
                         type="button"
                         onClick={() => setRateMode("standardized")}
                         className={`rounded px-3 py-1 text-xs ${
-                          rateMode === "standardized" ? "bg-[#2DD4BF] text-black" : "text-[#888]"
+                          rateMode === "standardized" ? "bg-success text-black" : "text-[#888]"
                         }`}
                       >
                         Age-Sex Adjusted
@@ -199,7 +199,7 @@ export default function ConceptComparisonView() {
                       type="button"
                       onClick={() => setMetric("rate_per_1000")}
                       className={`rounded px-3 py-1 text-xs ${
-                        metric === "rate_per_1000" ? "bg-[#C9A227] text-black" : "text-[#888]"
+                        metric === "rate_per_1000" ? "bg-accent text-black" : "text-[#888]"
                       }`}
                     >
                       Rate/1000
@@ -208,7 +208,7 @@ export default function ConceptComparisonView() {
                       type="button"
                       onClick={() => setMetric("count")}
                       className={`rounded px-3 py-1 text-xs ${
-                        metric === "count" ? "bg-[#C9A227] text-black" : "text-[#888]"
+                        metric === "count" ? "bg-accent text-black" : "text-[#888]"
                       }`}
                     >
                       Count
@@ -229,7 +229,7 @@ export default function ConceptComparisonView() {
           )}
 
           {rateMode === "standardized" && standardizedData && (
-            <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
+            <div className="rounded-lg border border-[#252530] bg-surface-raised p-4">
               <ComparisonChart
                 data={standardizedData.map((s) => ({
                   source_id: s.source_id,
@@ -251,7 +251,7 @@ export default function ConceptComparisonView() {
                   {standardizedData
                     .filter((s) => s.warning)
                     .map((s) => (
-                      <p key={s.source_id} className="text-[10px] text-[#C9A227]">
+                      <p key={s.source_id} className="text-[10px] text-accent">
                         {s.source_name}: {s.warning}
                       </p>
                     ))}
@@ -261,7 +261,7 @@ export default function ConceptComparisonView() {
           )}
 
           {rateMode === "crude" && comparison && (
-            <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
+            <div className="rounded-lg border border-[#252530] bg-surface-raised p-4">
               <ComparisonChart data={comparisonSources} metric={metric} benchmarkRate={benchmarkRate} />
             </div>
           )}
@@ -280,7 +280,7 @@ export default function ConceptComparisonView() {
           {temporalLoading && <p className="text-[#555]">Loading temporal prevalence...</p>}
 
           {temporalData && temporalData.sources.length > 0 && (
-            <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
+            <div className="rounded-lg border border-[#252530] bg-surface-raised p-4">
               <TemporalPrevalenceChart
                 sources={temporalData.sources}
                 title={selectedConcept ? `Temporal Trend: ${selectedConcept.concept_name}` : undefined}
@@ -312,7 +312,7 @@ export default function ConceptComparisonView() {
                   type="button"
                   onClick={() => setMetric("rate_per_1000")}
                   className={`rounded px-3 py-1 text-xs ${
-                    metric === "rate_per_1000" ? "bg-[#C9A227] text-black" : "text-[#888]"
+                    metric === "rate_per_1000" ? "bg-accent text-black" : "text-[#888]"
                   }`}
                 >
                   Rate/1000
@@ -321,7 +321,7 @@ export default function ConceptComparisonView() {
                   type="button"
                   onClick={() => setMetric("count")}
                   className={`rounded px-3 py-1 text-xs ${
-                    metric === "count" ? "bg-[#C9A227] text-black" : "text-[#888]"
+                    metric === "count" ? "bg-accent text-black" : "text-[#888]"
                   }`}
                 >
                   Count
@@ -333,7 +333,7 @@ export default function ConceptComparisonView() {
           {multiLoading && <p className="text-[#555]">Loading multi-concept comparison...</p>}
 
           {multiComparison && (
-            <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
+            <div className="rounded-lg border border-[#252530] bg-surface-raised p-4">
               <ComparisonChart multiData={multiComparison} metric={metric} />
             </div>
           )}

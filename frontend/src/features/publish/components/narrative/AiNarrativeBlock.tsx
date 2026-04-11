@@ -24,7 +24,7 @@ export default function AiNarrativeBlock({
         type="button"
         onClick={onGenerate}
         disabled={isGenerating}
-        className="flex items-center gap-2 px-4 py-2.5 border border-dashed border-[#232328] rounded-lg text-sm text-[#5A5650] hover:border-[#C9A227] hover:text-[#C9A227] transition-colors"
+        className="flex items-center gap-2 px-4 py-2.5 border border-dashed border-border-default rounded-lg text-sm text-text-ghost hover:border-accent hover:text-accent transition-colors"
       >
         <Sparkles className="w-4 h-4" />
         Generate AI Draft
@@ -34,9 +34,9 @@ export default function AiNarrativeBlock({
 
   if (narrativeState === "generating" || isGenerating) {
     return (
-      <div className="flex items-center gap-2 px-4 py-3 bg-[#151518] border border-[#232328] rounded-lg">
-        <Loader2 className="w-4 h-4 text-[#C9A227] animate-spin" />
-        <span className="text-sm text-[#5A5650]">Generating narrative...</span>
+      <div className="flex items-center gap-2 px-4 py-3 bg-surface-raised border border-border-default rounded-lg">
+        <Loader2 className="w-4 h-4 text-accent animate-spin" />
+        <span className="text-sm text-text-ghost">Generating narrative...</span>
       </div>
     );
   }
@@ -53,7 +53,7 @@ export default function AiNarrativeBlock({
           value={content}
           onChange={(e) => onContentChange(e.target.value)}
           rows={6}
-          className="w-full bg-[#151518] border border-[#232328] rounded-lg px-3 py-2 text-sm text-[#F0EDE8] placeholder-[#5A5650] focus:outline-none focus:border-[#C9A227] resize-y"
+          className="w-full bg-surface-raised border border-border-default rounded-lg px-3 py-2 text-sm text-text-primary placeholder-text-ghost focus:outline-none focus:border-accent resize-y"
         />
         <div className="flex gap-2">
           <button
@@ -68,7 +68,7 @@ export default function AiNarrativeBlock({
             type="button"
             onClick={onGenerate}
             disabled={isGenerating}
-            className="flex items-center gap-1.5 px-3 py-1.5 border border-[#232328] text-sm text-[#F0EDE8] rounded-lg hover:bg-[#232328] transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 border border-border-default text-sm text-text-primary rounded-lg hover:bg-surface-elevated transition-colors"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             Regenerate
@@ -86,13 +86,13 @@ export default function AiNarrativeBlock({
           Accepted
         </span>
       </div>
-      <div className="bg-[#151518] border border-[#232328] rounded-lg px-3 py-2 text-sm text-[#F0EDE8] whitespace-pre-wrap">
+      <div className="bg-surface-raised border border-border-default rounded-lg px-3 py-2 text-sm text-text-primary whitespace-pre-wrap">
         {content}
       </div>
       <button
         type="button"
         onClick={() => onContentChange(content)}
-        className="flex items-center gap-1.5 px-3 py-1.5 border border-[#232328] text-sm text-[#F0EDE8] rounded-lg hover:bg-[#232328] transition-colors"
+        className="flex items-center gap-1.5 px-3 py-1.5 border border-border-default text-sm text-text-primary rounded-lg hover:bg-surface-elevated transition-colors"
       >
         <Pencil className="w-3.5 h-3.5" />
         Edit

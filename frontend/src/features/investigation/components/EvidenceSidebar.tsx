@@ -44,7 +44,7 @@ export function EvidenceSidebar({ investigationId }: EvidenceSidebarProps) {
         "flex flex-col border-l border-zinc-800 transition-all duration-200 overflow-hidden shrink-0",
         sidebarOpen ? "w-72" : "w-8",
       ].join(" ")}
-      style={{ backgroundColor: "#0E0E11" }}
+      style={{ backgroundColor: "var(--surface-base)" }}
     >
       <div className="flex items-center justify-between px-3 py-3 border-b border-zinc-800">
         {sidebarOpen && (
@@ -91,7 +91,7 @@ export function EvidenceSidebar({ investigationId }: EvidenceSidebarProps) {
               <button
                 type="button"
                 onClick={() => void refetch()}
-                className="text-xs text-[#2DD4BF] hover:underline transition-colors"
+                className="text-xs text-success hover:underline transition-colors"
               >
                 Retry
               </button>

@@ -37,7 +37,7 @@ export default function ExportButton({ data, filename, headers }: ExportButtonPr
       type="button"
       onClick={handleExport}
       disabled={data.length === 0}
-      className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-xs text-[#C5C0B8] transition-colors hover:bg-zinc-800 hover:text-[#F0EDE8] disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30"
+      className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-xs text-text-secondary transition-colors hover:bg-zinc-800 hover:text-text-primary disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-1 focus:ring-success/30"
     >
       <Download size={12} />
       Export CSV

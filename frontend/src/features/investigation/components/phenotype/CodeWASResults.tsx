@@ -121,7 +121,7 @@ export function CodeWASResults({ result, onPinFinding }: CodeWASResultsProps) {
                       <button
                         onClick={() => handlePin(signal.label, signal.count)}
                         title="Pin to dossier"
-                        className="text-[10px] px-2 py-0.5 rounded border border-zinc-600 text-zinc-400 hover:border-[#C9A227]/50 hover:text-[#C9A227] transition-colors"
+                        className="text-[10px] px-2 py-0.5 rounded border border-zinc-600 text-zinc-400 hover:border-accent/50 hover:text-accent transition-colors"
                       >
                         Pin
                       </button>

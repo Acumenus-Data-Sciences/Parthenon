@@ -56,25 +56,25 @@ function UserDropdown() {
 
       {open && (
         <div
-          className="absolute right-0 mt-1 w-48 rounded-lg border border-[#232328] bg-[#151518] shadow-xl z-50 py-1"
+          className="absolute right-0 mt-1 w-48 rounded-lg border border-border-default bg-surface-raised shadow-xl z-50 py-1"
         >
           <button
             onClick={() => {
               setOpen(false);
               navigate("/settings");
             }}
-            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-[#C5C0B8] hover:bg-[#1A1A1F] transition-colors"
+            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-text-secondary hover:bg-surface-overlay transition-colors"
           >
             <Settings size={14} />
             Settings
           </button>
-          <div className="border-t border-[#232328] my-1" />
+          <div className="border-t border-border-default my-1" />
           <button
             onClick={() => {
               setOpen(false);
               logout();
             }}
-            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-[#E85A6B] hover:bg-[#1A1A1F] transition-colors"
+            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-critical hover:bg-surface-overlay transition-colors"
           >
             <LogOut size={14} />
             Logout
@@ -131,14 +131,14 @@ function HeaderSourceSelector() {
   return (
     <div className="relative flex items-center gap-1.5">
       {selectedSource && selectedSource.id === defaultSourceId ? (
-        <Star size={13} className="text-[#C9A227] fill-[#C9A227] shrink-0" />
+        <Star size={13} className="text-accent fill-accent shrink-0" />
       ) : (
-        <Database size={13} className="text-[#8A857D] shrink-0" />
+        <Database size={13} className="text-text-muted shrink-0" />
       )}
       <select
         value={activeSourceId ?? ""}
         onChange={(e) => handleChange(Number(e.target.value))}
-        className="appearance-none rounded-md border border-[#232328] bg-[#151518] pl-2 pr-6 py-1 text-base text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30 cursor-pointer min-w-[160px]"
+        className="appearance-none rounded-md border border-border-default bg-surface-raised pl-2 pr-6 py-1 text-base text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30 cursor-pointer min-w-[160px]"
       >
         <option value="" disabled>
           Select source
@@ -151,7 +151,7 @@ function HeaderSourceSelector() {
       </select>
       <ChevronDown
         size={12}
-        className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 text-[#8A857D]"
+        className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 text-text-muted"
       />
     </div>
   );
@@ -192,7 +192,7 @@ export function Header() {
               className="btn btn-ghost btn-sm"
               onClick={() => setAboutAbbyOpen(true)}
               style={{
-                color: "#C9A227",
+                color: "var(--accent)",
                 fontWeight: 600,
                 fontSize: "var(--text-sm)",
                 gap: "var(--space-1)",

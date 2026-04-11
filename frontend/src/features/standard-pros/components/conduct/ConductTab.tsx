@@ -32,16 +32,16 @@ type FilterId = (typeof FILTERS)[number]["id"];
 function EmptyState({ onCreate }: { onCreate: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[#2A2A2F] bg-[#141418] px-6 py-16 text-center">
-      <ClipboardList size={32} className="mb-3 text-[#5A5650]" />
-      <h3 className="text-sm font-medium text-[#F0EDE8]">No survey campaigns yet</h3>
-      <p className="mt-1 max-w-lg text-xs leading-relaxed text-[#8A857D]">
+      <ClipboardList size={32} className="mb-3 text-text-ghost" />
+      <h3 className="text-sm font-medium text-text-primary">No survey campaigns yet</h3>
+      <p className="mt-1 max-w-lg text-xs leading-relaxed text-text-muted">
         Create a campaign to seed cohort-based survey conduct, track completion, and prepare for import,
         proxy entry, and published self-report links.
       </p>
       <button
         type="button"
         onClick={onCreate}
-        className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11]"
+        className="mt-4 inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base"
       >
         <Plus size={14} />
         New Campaign
@@ -108,10 +108,10 @@ export function ConductTab() {
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
-                <Radio size={16} className="text-[#2DD4BF]" />
-                <h2 className="text-sm font-semibold text-[#F0EDE8]">Survey Conduct</h2>
+                <Radio size={16} className="text-success" />
+                <h2 className="text-sm font-semibold text-text-primary">Survey Conduct</h2>
               </div>
-              <p className="mt-1 text-xs leading-relaxed text-[#8A857D]">
+              <p className="mt-1 text-xs leading-relaxed text-text-muted">
                 Campaign-first operations for survey administration. Phase 1 covers draft, activation,
                 closure, denominator tracking, response import, proxy entry, and public collection.
               </p>
@@ -121,7 +121,7 @@ export function ConductTab() {
               <button
                 type="button"
                 onClick={() => campaignQuery.refetch()}
-                className="inline-flex items-center gap-2 rounded-lg border border-[#2A2A2F] px-3 py-2 text-xs font-medium text-[#8A857D] hover:text-[#F0EDE8]"
+                className="inline-flex items-center gap-2 rounded-lg border border-[#2A2A2F] px-3 py-2 text-xs font-medium text-text-muted hover:text-text-primary"
               >
                 <RefreshCcw size={12} />
                 Refresh
@@ -129,7 +129,7 @@ export function ConductTab() {
               <button
                 type="button"
                 onClick={() => setIsCreateOpen(true)}
-                className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-3 py-2 text-xs font-medium text-[#0E0E11]"
+                className="inline-flex items-center gap-2 rounded-lg bg-success px-3 py-2 text-xs font-medium text-surface-base"
               >
                 <Plus size={12} />
                 New Campaign
@@ -145,8 +145,8 @@ export function ConductTab() {
                 onClick={() => setFilter(option.id)}
                 className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
                   filter === option.id
-                    ? "bg-[#2DD4BF]/10 text-[#2DD4BF]"
-                    : "bg-[#0E0E11] text-[#8A857D] hover:text-[#F0EDE8]"
+                    ? "bg-success/10 text-success"
+                    : "bg-surface-base text-text-muted hover:text-text-primary"
                 }`}
               >
                 {option.label}
@@ -157,30 +157,30 @@ export function ConductTab() {
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-4">
-            <div className="text-lg font-semibold text-[#2DD4BF]">{campaignQuery.data?.total ?? 0}</div>
-            <div className="text-[10px] uppercase tracking-wider text-[#5A5650]">Campaigns</div>
+            <div className="text-lg font-semibold text-success">{campaignQuery.data?.total ?? 0}</div>
+            <div className="text-[10px] uppercase tracking-wider text-text-ghost">Campaigns</div>
           </div>
           <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-4">
-            <div className="text-lg font-semibold text-[#C9A227]">
+            <div className="text-lg font-semibold text-accent">
               {campaignDetails.filter((campaign) => campaign.status === "draft").length}
             </div>
-            <div className="text-[10px] uppercase tracking-wider text-[#5A5650]">Draft</div>
+            <div className="text-[10px] uppercase tracking-wider text-text-ghost">Draft</div>
           </div>
           <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-4">
-            <div className="text-lg font-semibold text-[#A78BFA]">
+            <div className="text-lg font-semibold text-[var(--domain-observation)]">
               {campaignDetails.filter((campaign) => campaign.status === "active").length}
             </div>
-            <div className="text-[10px] uppercase tracking-wider text-[#5A5650]">Active</div>
+            <div className="text-[10px] uppercase tracking-wider text-text-ghost">Active</div>
           </div>
         </div>
 
         <div className="space-y-4">
           {lastImportSummary && (
-            <div className="rounded-xl border border-[#2DD4BF]/30 bg-[#2DD4BF]/5 px-4 py-3">
-              <div className="text-xs font-medium text-[#2DD4BF]">
+            <div className="rounded-xl border border-success/30 bg-success/5 px-4 py-3">
+              <div className="text-xs font-medium text-success">
                 Import complete: {lastImportSummary.campaignName}
               </div>
-              <div className="mt-1 text-[11px] text-[#8A857D]">
+              <div className="mt-1 text-[11px] text-text-muted">
                 Processed {lastImportSummary.processed} rows, matched {lastImportSummary.matched}, skipped {lastImportSummary.missing}, created {lastImportSummary.createdResponses} responses.
               </div>
             </div>
@@ -188,8 +188,8 @@ export function ConductTab() {
 
           {isLoading && (
             <div className="flex items-center justify-center py-16">
-              <Loader2 size={20} className="animate-spin text-[#8A857D]" />
-              <span className="ml-2 text-sm text-[#8A857D]">Loading campaigns...</span>
+              <Loader2 size={20} className="animate-spin text-text-muted" />
+              <span className="ml-2 text-sm text-text-muted">Loading campaigns...</span>
             </div>
           )}
 

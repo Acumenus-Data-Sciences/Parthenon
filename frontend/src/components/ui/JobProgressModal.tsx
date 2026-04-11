@@ -102,9 +102,9 @@ export function JobProgressModal({
       />
 
       {/* Card */}
-      <div className="relative z-10 w-full max-w-lg rounded-xl border border-[#232328] bg-[#141418] shadow-2xl">
+      <div className="relative z-10 w-full max-w-lg rounded-xl border border-border-default bg-[#141418] shadow-2xl">
         {/* Header */}
-        <div className="flex items-start justify-between border-b border-[#232328] px-5 py-4">
+        <div className="flex items-start justify-between border-b border-border-default px-5 py-4">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2.5">
               <h2 className="truncate text-base font-semibold text-[#E8E4DC]">
@@ -118,13 +118,13 @@ export function JobProgressModal({
               </span>
             </div>
             {description && (
-              <p className="mt-1 text-sm text-[#8A857D]">{description}</p>
+              <p className="mt-1 text-sm text-text-muted">{description}</p>
             )}
           </div>
           <button
             onClick={onClose}
             disabled={!isTerminal}
-            className="ml-3 rounded p-1 text-[#5A5650] transition-colors hover:text-[#E8E4DC] disabled:cursor-not-allowed disabled:opacity-30"
+            className="ml-3 rounded p-1 text-text-ghost transition-colors hover:text-[#E8E4DC] disabled:cursor-not-allowed disabled:opacity-30"
             aria-label="Close"
           >
             <X className="h-4 w-4" />
@@ -136,14 +136,14 @@ export function JobProgressModal({
           {/* Progress bar + percentage */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-[#8A857D]">Progress</span>
+              <span className="text-text-muted">Progress</span>
               <span className="font-mono font-medium text-[#E8E4DC]">
                 {Math.round(progress)}%
               </span>
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-[#232328]">
+            <div className="h-2 overflow-hidden rounded-full bg-surface-elevated">
               <div
-                className="h-full rounded-full bg-[#C9A227] transition-all duration-300 ease-out"
+                className="h-full rounded-full bg-accent transition-all duration-300 ease-out"
                 style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
               />
             </div>
@@ -151,7 +151,7 @@ export function JobProgressModal({
 
           {/* Timer */}
           {startedAt && (
-            <div className="flex items-center gap-1.5 text-xs text-[#8A857D]">
+            <div className="flex items-center gap-1.5 text-xs text-text-muted">
               <Clock className="h-3 w-3" />
               <span>
                 {isTerminal ? "Duration" : "Elapsed"}:{" "}
@@ -166,7 +166,7 @@ export function JobProgressModal({
           {logOutput && (
             <pre
               ref={logRef}
-              className="max-h-[200px] overflow-y-auto rounded-lg border border-[#232328] bg-[#0E0E11] p-3 font-mono text-xs leading-relaxed text-[#8A857D]"
+              className="max-h-[200px] overflow-y-auto rounded-lg border border-border-default bg-surface-base p-3 font-mono text-xs leading-relaxed text-text-muted"
             >
               {logOutput}
             </pre>
@@ -191,10 +191,10 @@ export function JobProgressModal({
 
         {/* Footer */}
         {isTerminal && (
-          <div className="flex justify-end border-t border-[#232328] px-5 py-3">
+          <div className="flex justify-end border-t border-border-default px-5 py-3">
             <button
               onClick={onClose}
-              className="rounded-lg bg-[#232328] px-4 py-1.5 text-sm font-medium text-[#E8E4DC] transition-colors hover:bg-[#2a2a30]"
+              className="rounded-lg bg-surface-elevated px-4 py-1.5 text-sm font-medium text-[#E8E4DC] transition-colors hover:bg-surface-accent"
             >
               Close
             </button>

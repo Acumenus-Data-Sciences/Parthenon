@@ -120,45 +120,45 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
   };
 
   const inputCls = cn(
-    "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-    "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+    "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
+    "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
   );
 
   return (
     <div className="space-y-6">
       {/* Name & Description */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-4">
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">Basic Information</h3>
+      <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
+        <h3 className="text-sm font-semibold text-text-primary">Basic Information</h3>
         <div className="space-y-3">
           <div>
-            <label className="block text-xs font-medium text-[#8A857D] mb-1">Name</label>
+            <label className="block text-xs font-medium text-text-muted mb-1">Name</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="SCCS analysis name"
-              className={cn(inputCls, "placeholder:text-[#5A5650]")}
+              className={cn(inputCls, "placeholder:text-text-ghost")}
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-[#8A857D] mb-1">Description</label>
+            <label className="block text-xs font-medium text-text-muted mb-1">Description</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Optional description"
               rows={2}
-              className={cn(inputCls, "placeholder:text-[#5A5650] resize-none")}
+              className={cn(inputCls, "placeholder:text-text-ghost resize-none")}
             />
           </div>
         </div>
       </div>
 
       {/* Exposure Cohort */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-3">
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">Exposure Cohort</h3>
-        <p className="text-xs text-[#8A857D]">Select the drug/exposure cohort. Each patient serves as their own control.</p>
+      <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
+        <h3 className="text-sm font-semibold text-text-primary">Exposure Cohort</h3>
+        <p className="text-xs text-text-muted">Select the drug/exposure cohort. Each patient serves as their own control.</p>
         {loadingCohorts ? (
-          <Loader2 size={16} className="animate-spin text-[#8A857D]" />
+          <Loader2 size={16} className="animate-spin text-text-muted" />
         ) : (
           <select
             value={design.exposureCohortId || ""}
@@ -174,11 +174,11 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
       </div>
 
       {/* Outcome Cohort */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-3">
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">Outcome Cohort</h3>
-        <p className="text-xs text-[#8A857D]">Select the adverse event/outcome to study.</p>
+      <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
+        <h3 className="text-sm font-semibold text-text-primary">Outcome Cohort</h3>
+        <p className="text-xs text-text-muted">Select the adverse event/outcome to study.</p>
         {loadingCohorts ? (
-          <Loader2 size={16} className="animate-spin text-[#8A857D]" />
+          <Loader2 size={16} className="animate-spin text-text-muted" />
         ) : (
           <select
             value={design.outcomeCohortId || ""}
@@ -194,34 +194,34 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
       </div>
 
       {/* Risk Windows */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-4">
+      <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-[#F0EDE8]">Risk Windows</h3>
+          <h3 className="text-sm font-semibold text-text-primary">Risk Windows</h3>
           <button
             type="button"
             onClick={addRiskWindow}
-            className="inline-flex items-center gap-1 text-xs text-[#2DD4BF] hover:text-[#26B8A5] transition-colors"
+            className="inline-flex items-center gap-1 text-xs text-success hover:text-[#26B8A5] transition-colors"
           >
             <Plus size={12} /> Add Window
           </button>
         </div>
-        <p className="text-xs text-[#8A857D]">
+        <p className="text-xs text-text-muted">
           Define time windows relative to the exposure era where the outcome risk is assessed.
         </p>
         {design.riskWindows.map((rw, idx) => (
-          <div key={idx} className="rounded-lg border border-[#232328] bg-[#0E0E11] p-3 space-y-3">
+          <div key={idx} className="rounded-lg border border-border-default bg-surface-base p-3 space-y-3">
             <div className="flex items-center justify-between">
               <input
                 type="text"
                 value={rw.label}
                 onChange={(e) => updateRiskWindow(idx, { label: e.target.value })}
-                className="bg-transparent text-sm text-[#F0EDE8] font-medium focus:outline-none border-b border-transparent focus:border-[#C9A227] transition-colors"
+                className="bg-transparent text-sm text-text-primary font-medium focus:outline-none border-b border-transparent focus:border-accent transition-colors"
               />
               {design.riskWindows.length > 1 && (
                 <button
                   type="button"
                   onClick={() => removeRiskWindow(idx)}
-                  className="text-[#8A857D] hover:text-[#E85A6B] transition-colors"
+                  className="text-text-muted hover:text-critical transition-colors"
                 >
                   <X size={14} />
                 </button>
@@ -229,7 +229,7 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div>
-                <label className="block text-[10px] text-[#5A5650] mb-1">Start Day</label>
+                <label className="block text-[10px] text-text-ghost mb-1">Start Day</label>
                 <input
                   type="number"
                   value={rw.start}
@@ -238,7 +238,7 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
                 />
               </div>
               <div>
-                <label className="block text-[10px] text-[#5A5650] mb-1">Start Anchor</label>
+                <label className="block text-[10px] text-text-ghost mb-1">Start Anchor</label>
                 <select
                   value={rw.startAnchor}
                   onChange={(e) => updateRiskWindow(idx, { startAnchor: e.target.value as "era_start" | "era_end" })}
@@ -249,7 +249,7 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
                 </select>
               </div>
               <div>
-                <label className="block text-[10px] text-[#5A5650] mb-1">End Day</label>
+                <label className="block text-[10px] text-text-ghost mb-1">End Day</label>
                 <input
                   type="number"
                   value={rw.end}
@@ -258,7 +258,7 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
                 />
               </div>
               <div>
-                <label className="block text-[10px] text-[#5A5650] mb-1">End Anchor</label>
+                <label className="block text-[10px] text-text-ghost mb-1">End Anchor</label>
                 <select
                   value={rw.endAnchor}
                   onChange={(e) => updateRiskWindow(idx, { endAnchor: e.target.value as "era_start" | "era_end" })}
@@ -274,11 +274,11 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
       </div>
 
       {/* Model & Population Settings */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-4">
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">Model & Population</h3>
+      <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
+        <h3 className="text-sm font-semibold text-text-primary">Model & Population</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-medium text-[#8A857D] mb-1">Model Type</label>
+            <label className="block text-xs font-medium text-text-muted mb-1">Model Type</label>
             <select
               value={design.model.type}
               onChange={(e) => setDesign((d) => ({ ...d, model: { ...d.model, type: e.target.value as SccsDesign["model"]["type"] } }))}
@@ -291,7 +291,7 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-[#8A857D] mb-1">Naive Period (days)</label>
+            <label className="block text-xs font-medium text-text-muted mb-1">Naive Period (days)</label>
             <input
               type="number"
               min={0}
@@ -305,7 +305,7 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
           </div>
         </div>
         <div className="flex items-center gap-6">
-          <label className="flex items-center gap-2 text-sm text-[#C5C0B8] cursor-pointer">
+          <label className="flex items-center gap-2 text-sm text-text-secondary cursor-pointer">
             <button
               type="button"
               onClick={() => setDesign((d) => ({
@@ -314,7 +314,7 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
               }))}
               className={cn(
                 "relative w-9 h-5 rounded-full transition-colors",
-                (design.studyPopulation?.firstOutcomeOnly ?? true) ? "bg-[#2DD4BF]" : "bg-[#323238]",
+                (design.studyPopulation?.firstOutcomeOnly ?? true) ? "bg-success" : "bg-surface-highlight",
               )}
             >
               <span className={cn(
@@ -348,7 +348,7 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
           type="button"
           onClick={handleSave}
           disabled={isSaving || !name.trim()}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-5 py-2.5 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-lg bg-success px-5 py-2.5 text-sm font-medium text-surface-base hover:bg-success transition-colors disabled:opacity-50"
         >
           {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
           {isNew ? "Create" : "Save Changes"}

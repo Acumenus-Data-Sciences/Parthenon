@@ -25,14 +25,14 @@ export function ReportPreview({
       {/* Paper container */}
       <div
         id="publish-report-preview"
-        className="rounded-xl border border-[#232328] bg-[#0E0E11] p-6 shadow-xl"
+        className="rounded-xl border border-border-default bg-surface-base p-6 shadow-xl"
       >
         {/* Report header */}
-        <div className="mb-6 pb-4 border-b border-[#232328]">
-          <h2 className="text-lg font-bold text-[#F0EDE8]">
+        <div className="mb-6 pb-4 border-b border-border-default">
+          <h2 className="text-lg font-bold text-text-primary">
             Study Report Preview
           </h2>
-          <p className="text-xs text-[#F0EDE8]/40 mt-1">
+          <p className="text-xs text-text-primary/40 mt-1">
             Toggle sections on/off and reorder using the controls. Only
             included sections will appear in the export.
           </p>
@@ -55,7 +55,7 @@ export function ReportPreview({
         </div>
 
         {sections.length === 0 && (
-          <p className="text-center text-sm text-[#F0EDE8]/40 py-8">
+          <p className="text-center text-sm text-text-primary/40 py-8">
             No sections to preview. Go back and select analysis executions.
           </p>
         )}

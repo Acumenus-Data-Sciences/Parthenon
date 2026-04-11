@@ -13,7 +13,7 @@ import {
 import { AnnotationMarker } from "../annotations/AnnotationMarker";
 import type { DqTrendPoint } from "../../../types/ares";
 
-const SOURCE_COLORS = ["#2DD4BF", "#C9A227", "#e85d75", "#7c8aed", "#59c990", "#f0a8d0", "#87ceeb"];
+const SOURCE_COLORS = ["var(--success)", "var(--accent)", "#e85d75", "#7c8aed", "#59c990", "#f0a8d0", "#87ceeb"];
 
 interface OverlaySource {
   source_id: number;
@@ -98,22 +98,22 @@ export default function DqTrendChart({ data, sourceId, onReleaseClick, overlayDa
               formatter={((value: number | string) => [`${Number(value).toFixed(1)}%`, "Pass Rate"]) as any}
             />
             {/* Good zone: >90% -- green */}
-            <ReferenceArea y1={90} y2={100} fill="#2DD4BF" fillOpacity={0.05} ifOverflow="extendDomain" />
+            <ReferenceArea y1={90} y2={100} fill="var(--success)" fillOpacity={0.05} ifOverflow="extendDomain" />
 
             {/* Warning zone: 80-90% -- amber */}
-            <ReferenceArea y1={80} y2={90} fill="#C9A227" fillOpacity={0.05} ifOverflow="extendDomain" />
+            <ReferenceArea y1={80} y2={90} fill="var(--accent)" fillOpacity={0.05} ifOverflow="extendDomain" />
 
             {/* Danger zone: <80% -- red */}
-            <ReferenceArea y1={0} y2={80} fill="#9B1B30" fillOpacity={0.05} ifOverflow="extendDomain" />
+            <ReferenceArea y1={0} y2={80} fill="var(--primary)" fillOpacity={0.05} ifOverflow="extendDomain" />
 
-            <ReferenceLine y={80} stroke="#C9A227" strokeDasharray="5 5" />
+            <ReferenceLine y={80} stroke="var(--accent)" strokeDasharray="5 5" />
             <Line
               type="monotone"
               dataKey="pass_rate"
-              stroke="#2DD4BF"
+              stroke="var(--success)"
               strokeWidth={2}
-              dot={{ fill: "#2DD4BF", r: 5, cursor: "pointer" }}
-              activeDot={{ r: 7, fill: "#2DD4BF" }}
+              dot={{ fill: "var(--success)", r: 5, cursor: "pointer" }}
+              activeDot={{ r: 7, fill: "var(--success)" }}
             />
           </LineChart>
         </ResponsiveContainer>
@@ -170,10 +170,10 @@ function OverlayChart({ overlayData }: { overlayData: OverlaySource[] }) {
             }}
           />
           <Legend wrapperStyle={{ fontSize: 11, color: "#888" }} />
-          <ReferenceArea y1={90} y2={100} fill="#2DD4BF" fillOpacity={0.05} ifOverflow="extendDomain" />
-          <ReferenceArea y1={80} y2={90} fill="#C9A227" fillOpacity={0.05} ifOverflow="extendDomain" />
-          <ReferenceArea y1={0} y2={80} fill="#9B1B30" fillOpacity={0.05} ifOverflow="extendDomain" />
-          <ReferenceLine y={80} stroke="#C9A227" strokeDasharray="5 5" />
+          <ReferenceArea y1={90} y2={100} fill="var(--success)" fillOpacity={0.05} ifOverflow="extendDomain" />
+          <ReferenceArea y1={80} y2={90} fill="var(--accent)" fillOpacity={0.05} ifOverflow="extendDomain" />
+          <ReferenceArea y1={0} y2={80} fill="var(--primary)" fillOpacity={0.05} ifOverflow="extendDomain" />
+          <ReferenceLine y={80} stroke="var(--accent)" strokeDasharray="5 5" />
 
           {overlayData.map((source, i) => (
             <Line

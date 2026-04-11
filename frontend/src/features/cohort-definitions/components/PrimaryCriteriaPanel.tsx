@@ -31,15 +31,15 @@ export function PrimaryCriteriaPanel() {
   };
 
   const inputClass = cn(
-    "w-20 rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-1.5 text-sm text-center",
-    "text-[#F0EDE8] focus:border-[#2DD4BF] focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40",
+    "w-20 rounded-lg border border-border-default bg-surface-base px-3 py-1.5 text-sm text-center",
+    "text-text-primary focus:border-success focus:outline-none focus:ring-1 focus:ring-success/40",
     "font-['IBM_Plex_Mono',monospace] tabular-nums",
   );
 
   return (
     <div className="space-y-4">
       {/* Info text */}
-      <p className="text-xs text-[#5A5650]">
+      <p className="text-xs text-text-ghost">
         Define the initial qualifying events (entry events) for this cohort.
         People must have at least one of these events to enter the cohort.
       </p>
@@ -58,10 +58,10 @@ export function PrimaryCriteriaPanel() {
             return (
               <div
                 key={i}
-                className="flex items-center justify-between rounded-lg border border-[#232328] bg-[#151518] px-4 py-3"
+                className="flex items-center justify-between rounded-lg border border-border-default bg-surface-raised px-4 py-3"
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-xs font-medium text-[#5A5650]">
+                  <span className="text-xs font-medium text-text-ghost">
                     #{i + 1}
                   </span>
                   {domainInfo && (
@@ -77,10 +77,10 @@ export function PrimaryCriteriaPanel() {
                     </span>
                   )}
                   {crit && (
-                    <span className="text-xs text-[#8A857D]">
+                    <span className="text-xs text-text-muted">
                       Concept Set #{crit.CodesetId}
                       {crit.First && (
-                        <span className="ml-2 text-[#C9A227]">
+                        <span className="ml-2 text-accent">
                           (first occurrence)
                         </span>
                       )}
@@ -91,7 +91,7 @@ export function PrimaryCriteriaPanel() {
                 <button
                   type="button"
                   onClick={() => removePrimaryCriterion(i)}
-                  className="inline-flex items-center justify-center w-7 h-7 rounded-md text-[#8A857D] hover:text-[#E85A6B] hover:bg-[#E85A6B]/10 transition-colors"
+                  className="inline-flex items-center justify-center w-7 h-7 rounded-md text-text-muted hover:text-critical hover:bg-critical/10 transition-colors"
                 >
                   <Trash2 size={12} />
                 </button>
@@ -100,10 +100,10 @@ export function PrimaryCriteriaPanel() {
           })}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-8">
-          <AlertCircle size={20} className="text-[#323238] mb-2" />
-          <p className="text-sm text-[#8A857D]">No primary criteria defined</p>
-          <p className="mt-1 text-xs text-[#5A5650]">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-8">
+          <AlertCircle size={20} className="text-surface-highlight mb-2" />
+          <p className="text-sm text-text-muted">No primary criteria defined</p>
+          <p className="mt-1 text-xs text-text-ghost">
             Add at least one entry event to define this cohort
           </p>
         </div>
@@ -119,7 +119,7 @@ export function PrimaryCriteriaPanel() {
         <button
           type="button"
           onClick={() => setShowAdd(true)}
-          className="inline-flex items-center gap-2 rounded-lg border border-[#232328] bg-[#151518] px-4 py-2.5 text-sm text-[#C5C0B8] hover:bg-[#1A1A1E] hover:text-[#F0EDE8] transition-colors"
+          className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-4 py-2.5 text-sm text-text-secondary hover:bg-surface-overlay hover:text-text-primary transition-colors"
         >
           <Plus size={14} />
           Add Primary Criterion
@@ -127,16 +127,16 @@ export function PrimaryCriteriaPanel() {
       )}
 
       {/* Observation window */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-3">
-        <h5 className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
+      <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
+        <h5 className="text-xs font-semibold uppercase tracking-wider text-text-muted">
           Observation Window
         </h5>
-        <p className="text-xs text-[#5A5650]">
+        <p className="text-xs text-text-ghost">
           Require a minimum amount of continuous observation before and after
           the index date.
         </p>
         <div className="flex items-center gap-3">
-          <label className="text-xs text-[#8A857D]">At least</label>
+          <label className="text-xs text-text-muted">At least</label>
           <input
             type="number"
             min={0}
@@ -149,7 +149,7 @@ export function PrimaryCriteriaPanel() {
             }
             className={inputClass}
           />
-          <label className="text-xs text-[#8A857D]">days before and</label>
+          <label className="text-xs text-text-muted">days before and</label>
           <input
             type="number"
             min={0}
@@ -162,7 +162,7 @@ export function PrimaryCriteriaPanel() {
             }
             className={inputClass}
           />
-          <label className="text-xs text-[#8A857D]">days after</label>
+          <label className="text-xs text-text-muted">days after</label>
         </div>
       </div>
     </div>

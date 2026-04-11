@@ -26,7 +26,7 @@ export const LAB_PANELS: LabPanelConfig[] = [
   },
   {
     name: 'Hematologic',
-    color: '#E85A6B',
+    color: "var(--critical)",
     tests: [
       'white blood cells', 'hemoglobin', 'hematocrit', 'platelet count',
       'red blood cells', 'mcv', 'mch', 'mchc', 'rdw',

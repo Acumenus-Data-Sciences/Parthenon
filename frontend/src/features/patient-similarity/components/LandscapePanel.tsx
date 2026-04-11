@@ -3,8 +3,8 @@ import type { LandscapeResult } from "../types/patientSimilarity";
 import { PatientLandscape } from "./PatientLandscape";
 
 const CLUSTER_PALETTE = [
-  "#2DD4BF", "#C9A227", "#9B1B30", "#6366F1", "#EC4899",
-  "#22D3EE", "#A78BFA", "#F97316", "#84CC16", "#F43F5E",
+  "var(--success)", "var(--accent)", "var(--primary)", "#6366F1", "#EC4899",
+  "#22D3EE", "var(--domain-observation)", "#F97316", "#84CC16", "#F43F5E",
 ];
 
 const GENDER_LABELS: Record<number, string> = { 8507: "Male", 8532: "Female" };
@@ -58,35 +58,35 @@ export function LandscapePanel({ result, onContinue }: LandscapePanelProps) {
 
       {/* Cluster summary table */}
       {clusterSummaries.length > 0 && (
-        <div className="rounded-lg border border-[#2A2A30] bg-[#151518] overflow-hidden">
-          <div className="px-4 py-2.5 border-b border-[#2A2A30]">
-            <h4 className="text-xs font-semibold text-[#F0EDE8]">Cluster Summary</h4>
+        <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
+          <div className="px-4 py-2.5 border-b border-border-default">
+            <h4 className="text-xs font-semibold text-text-primary">Cluster Summary</h4>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className="bg-[#1C1C20] border-b border-[#2A2A30]">
-                  <th className="px-3 py-2 text-left text-[11px] font-semibold text-[#5A5650] uppercase tracking-[0.5px]">Cluster</th>
-                  <th className="px-3 py-2 text-right text-[11px] font-semibold text-[#5A5650] uppercase tracking-[0.5px]">Size</th>
-                  <th className="px-3 py-2 text-right text-[11px] font-semibold text-[#5A5650] uppercase tracking-[0.5px]">Mean Age</th>
-                  <th className="px-3 py-2 text-left text-[11px] font-semibold text-[#5A5650] uppercase tracking-[0.5px]">Top Gender</th>
-                  <th className="px-3 py-2 text-right text-[11px] font-semibold text-[#5A5650] uppercase tracking-[0.5px]">Cohort %</th>
+                <tr className="bg-surface-overlay border-b border-border-default">
+                  <th className="px-3 py-2 text-left text-[11px] font-semibold text-text-ghost uppercase tracking-[0.5px]">Cluster</th>
+                  <th className="px-3 py-2 text-right text-[11px] font-semibold text-text-ghost uppercase tracking-[0.5px]">Size</th>
+                  <th className="px-3 py-2 text-right text-[11px] font-semibold text-text-ghost uppercase tracking-[0.5px]">Mean Age</th>
+                  <th className="px-3 py-2 text-left text-[11px] font-semibold text-text-ghost uppercase tracking-[0.5px]">Top Gender</th>
+                  <th className="px-3 py-2 text-right text-[11px] font-semibold text-text-ghost uppercase tracking-[0.5px]">Cohort %</th>
                 </tr>
               </thead>
               <tbody>
                 {clusterSummaries.map((c) => (
-                  <tr key={c.id} className="border-b border-[#2A2A30]/50 hover:bg-[#1C1C20]/50">
-                    <td className="px-3 py-2 text-[#C5C0B8]">
+                  <tr key={c.id} className="border-b border-border-default/50 hover:bg-surface-overlay/50">
+                    <td className="px-3 py-2 text-text-secondary">
                       <span
                         className="inline-block h-2 w-2 rounded-full mr-1.5"
                         style={{ background: CLUSTER_PALETTE[c.id % CLUSTER_PALETTE.length] }}
                       />
                       {c.label}
                     </td>
-                    <td className="px-3 py-2 text-right text-[#C5C0B8] tabular-nums">{c.size.toLocaleString()}</td>
-                    <td className="px-3 py-2 text-right text-[#C5C0B8] tabular-nums">{c.meanAge != null ? `~${c.meanAge}y` : "—"}</td>
-                    <td className="px-3 py-2 text-[#8A857D]">{c.topGender}</td>
-                    <td className="px-3 py-2 text-right tabular-nums" style={{ color: c.cohortPct > 50 ? "#2DD4BF" : "#8A857D" }}>
+                    <td className="px-3 py-2 text-right text-text-secondary tabular-nums">{c.size.toLocaleString()}</td>
+                    <td className="px-3 py-2 text-right text-text-secondary tabular-nums">{c.meanAge != null ? `~${c.meanAge}y` : "—"}</td>
+                    <td className="px-3 py-2 text-text-muted">{c.topGender}</td>
+                    <td className="px-3 py-2 text-right tabular-nums" style={{ color: c.cohortPct > 50 ? "var(--success)" : "var(--text-muted)" }}>
                       {c.cohortPct}%
                     </td>
                   </tr>
@@ -98,7 +98,7 @@ export function LandscapePanel({ result, onContinue }: LandscapePanelProps) {
       )}
 
       {/* Action bar */}
-      <div className="flex items-center justify-end gap-3 border-t border-[#2A2A30] pt-4">
+      <div className="flex items-center justify-end gap-3 border-t border-border-default pt-4">
         <button
           type="button"
           onClick={() => {
@@ -109,18 +109,16 @@ export function LandscapePanel({ result, onContinue }: LandscapePanelProps) {
             link.href = canvas.toDataURL('image/png');
             link.click();
           }}
-          className="rounded-md border border-[#2A2A30] bg-[#151518] px-4 py-2 text-sm text-[#C5C0B8] transition-colors hover:border-[#5A5650] hover:text-[#F0EDE8]"
+          className="rounded-md border border-border-default bg-surface-raised px-4 py-2 text-sm text-text-secondary transition-colors hover:border-text-ghost hover:text-text-primary"
         >
           Export Screenshot
         </button>
         <button
           type="button"
           onClick={onContinue}
-          disabled
-          title="Phenotype Discovery will be available in a future update"
-          className="rounded-md bg-[#2DD4BF]/20 px-4 py-2 text-sm font-medium text-[#2DD4BF]/50 cursor-not-allowed"
+          className="rounded-md bg-success/20 px-4 py-2 text-sm font-medium text-success transition-colors hover:bg-success/30"
         >
-          Phenotype Discovery (coming soon)
+          Continue to Phenotype Discovery
         </button>
       </div>
     </div>

@@ -35,7 +35,7 @@ function CustomTooltip({
   return (
     <div className="max-w-xs rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 shadow-lg">
       <p className="text-sm font-medium text-zinc-200">{item.label}</p>
-      <p className="mt-0.5 font-mono text-xs text-[#2DD4BF]">
+      <p className="mt-0.5 font-mono text-xs text-success">
         {item.count.toLocaleString()} occurrences
       </p>
     </div>
@@ -90,7 +90,7 @@ export function SignalsBarChart({
         />
         <Bar
           dataKey="count"
-          fill="#2DD4BF"
+          fill="var(--success)"
           radius={[0, 4, 4, 0]}
           maxBarSize={20}
           onClick={(_data, _idx, e) => {

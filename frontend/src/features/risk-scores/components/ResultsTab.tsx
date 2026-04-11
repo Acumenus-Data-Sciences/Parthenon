@@ -58,8 +58,8 @@ export function ResultsTab({
   if (summaries.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <BarChart3 className="h-12 w-12 text-[#5A5650] mb-4" />
-        <p className="text-[#8A857D] text-sm">
+        <BarChart3 className="h-12 w-12 text-text-ghost mb-4" />
+        <p className="text-text-muted text-sm">
           No results available. Run the analysis to compute risk scores.
         </p>
       </div>
@@ -75,8 +75,8 @@ export function ResultsTab({
           onClick={() => setActiveScore(null)}
           className={`rounded-full px-4 py-1.5 text-xs font-medium border transition-colors ${
             activeScore === null
-              ? "bg-[#2DD4BF]/10 text-[#2DD4BF] border-[#2DD4BF]/40"
-              : "bg-[#151518] text-[#8A857D] border-[#232328] hover:text-[#C5C0B8]"
+              ? "bg-success/10 text-success border-success/40"
+              : "bg-surface-raised text-text-muted border-border-default hover:text-text-secondary"
           }`}
         >
           All Scores
@@ -88,8 +88,8 @@ export function ResultsTab({
             onClick={() => setActiveScore(id === activeScore ? null : id)}
             className={`rounded-full px-4 py-1.5 text-xs font-medium border transition-colors ${
               activeScore === id
-                ? "bg-[#2DD4BF]/10 text-[#2DD4BF] border-[#2DD4BF]/40"
-                : "bg-[#151518] text-[#8A857D] border-[#232328] hover:text-[#C5C0B8]"
+                ? "bg-success/10 text-success border-success/40"
+                : "bg-surface-raised text-text-muted border-border-default hover:text-text-secondary"
             }`}
           >
             {scoreNames[id] ?? id}
@@ -134,10 +134,10 @@ export function ResultsTab({
           >
             {/* Header */}
             <div className="mb-4 flex items-center gap-3">
-              <h3 className="text-base font-semibold text-[#F0EDE8]">
+              <h3 className="text-base font-semibold text-text-primary">
                 {scoreNames[scoreId] ?? scoreId}
               </h3>
-              <span className="rounded-md bg-[#1A1A1F] px-2 py-0.5 text-[10px] font-medium text-[#8A857D] border border-[#2A2A2F]">
+              <span className="rounded-md bg-surface-overlay px-2 py-0.5 text-[10px] font-medium text-text-muted border border-[#2A2A2F]">
                 {scoreId}
               </span>
             </div>
@@ -149,23 +149,23 @@ export function ResultsTab({
             <div className="mt-4 overflow-hidden rounded-xl border border-[#2A2A2F]">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="border-b border-[#2A2A2F] bg-[#0E0E11]">
-                    <th className="px-3 py-2 text-left text-[#8A857D] font-medium">
+                  <tr className="border-b border-[#2A2A2F] bg-surface-base">
+                    <th className="px-3 py-2 text-left text-text-muted font-medium">
                       Tier
                     </th>
-                    <th className="px-3 py-2 text-right text-[#8A857D] font-medium">
+                    <th className="px-3 py-2 text-right text-text-muted font-medium">
                       Count
                     </th>
-                    <th className="px-3 py-2 text-right text-[#8A857D] font-medium">
+                    <th className="px-3 py-2 text-right text-text-muted font-medium">
                       % of Total
                     </th>
-                    <th className="px-3 py-2 text-right text-[#8A857D] font-medium">
+                    <th className="px-3 py-2 text-right text-text-muted font-medium">
                       Mean Score
                     </th>
-                    <th className="px-3 py-2 text-right text-[#8A857D] font-medium">
+                    <th className="px-3 py-2 text-right text-text-muted font-medium">
                       Confidence
                     </th>
-                    <th className="px-3 py-2 text-center text-[#8A857D] font-medium">
+                    <th className="px-3 py-2 text-center text-text-muted font-medium">
                       Action
                     </th>
                   </tr>
@@ -179,9 +179,9 @@ export function ResultsTab({
                     return (
                       <tr
                         key={s.risk_tier}
-                        className="border-b border-[#2A2A2F]/50 last:border-b-0 hover:bg-[#1A1A1F] transition-colors"
+                        className="border-b border-[#2A2A2F]/50 last:border-b-0 hover:bg-surface-overlay transition-colors"
                       >
-                        <td className="px-3 py-2 text-[#F0EDE8]">
+                        <td className="px-3 py-2 text-text-primary">
                           <div className="flex items-center gap-2">
                             <div
                               className="w-2.5 h-2.5 rounded-full"
@@ -194,18 +194,18 @@ export function ResultsTab({
                             {tierLabel(s.risk_tier)}
                           </div>
                         </td>
-                        <td className="px-3 py-2 text-right font-['IBM_Plex_Mono',monospace] text-[#C5C0B8]">
+                        <td className="px-3 py-2 text-right font-['IBM_Plex_Mono',monospace] text-text-secondary">
                           {s.patient_count.toLocaleString()}
                         </td>
-                        <td className="px-3 py-2 text-right font-['IBM_Plex_Mono',monospace] text-[#8A857D]">
+                        <td className="px-3 py-2 text-right font-['IBM_Plex_Mono',monospace] text-text-muted">
                           {pct.toFixed(1)}%
                         </td>
-                        <td className="px-3 py-2 text-right font-['IBM_Plex_Mono',monospace] text-[#C5C0B8]">
+                        <td className="px-3 py-2 text-right font-['IBM_Plex_Mono',monospace] text-text-secondary">
                           {s.mean_score != null
                             ? Number(s.mean_score).toFixed(1)
                             : "-"}
                         </td>
-                        <td className="px-3 py-2 text-right font-['IBM_Plex_Mono',monospace] text-[#C5C0B8]">
+                        <td className="px-3 py-2 text-right font-['IBM_Plex_Mono',monospace] text-text-secondary">
                           {s.mean_confidence != null
                             ? `${(Number(s.mean_confidence) * 100).toFixed(0)}%`
                             : "-"}
@@ -220,7 +220,7 @@ export function ResultsTab({
                                 s.patient_count,
                               )
                             }
-                            className="inline-flex items-center gap-1 rounded-md bg-[#2DD4BF]/10 px-2 py-1 text-[10px] font-medium text-[#2DD4BF] border border-[#2DD4BF]/20 hover:bg-[#2DD4BF]/20 transition-colors"
+                            className="inline-flex items-center gap-1 rounded-md bg-success/10 px-2 py-1 text-[10px] font-medium text-success border border-success/20 hover:bg-success/20 transition-colors"
                             title="Create Cohort"
                           >
                             <Users className="h-3 w-3" />
@@ -236,9 +236,9 @@ export function ResultsTab({
 
             {/* Completeness note */}
             {avgCompleteness != null && (
-              <p className="mt-3 text-[10px] text-[#5A5650]">
+              <p className="mt-3 text-[10px] text-text-ghost">
                 Average completeness:{" "}
-                <span className="text-[#8A857D]">
+                <span className="text-text-muted">
                   {(avgCompleteness * 100).toFixed(1)}%
                 </span>
               </p>

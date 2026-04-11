@@ -72,11 +72,11 @@ const MODALITY_LABELS: Record<string, string> = {
 };
 
 const STATUS_DOT: Record<string, string> = {
-  ok: "bg-[#2DD4BF]",
-  healthy: "bg-[#2DD4BF]",
-  degraded: "bg-[#C9A227]",
-  error: "bg-[#E85A6B]",
-  unreachable: "bg-[#E85A6B]",
+  ok: "bg-success",
+  healthy: "bg-success",
+  degraded: "bg-accent",
+  error: "bg-critical",
+  unreachable: "bg-critical",
 };
 
 // ── Component ────────────────────────────────────────────────────────────────
@@ -109,10 +109,10 @@ export default function PacsConnectionCard({
   return (
     <div
       className={cn(
-        "rounded-xl border bg-[#151518] p-5 transition-colors",
+        "rounded-xl border bg-surface-raised p-5 transition-colors",
         connection.is_default
-          ? "border-[#C9A227]/40"
-          : "border-[#232328]",
+          ? "border-accent/40"
+          : "border-border-default",
         !connection.is_active && "opacity-50",
       )}
     >
@@ -124,11 +124,11 @@ export default function PacsConnectionCard({
             className={cn(
               "h-3 w-3 rounded-full flex-shrink-0",
               connection.last_health_status
-                ? STATUS_DOT[connection.last_health_status] ?? "bg-[#5A5650]"
-                : "bg-[#5A5650]",
+                ? STATUS_DOT[connection.last_health_status] ?? "bg-text-ghost"
+                : "bg-text-ghost",
             )}
           />
-          <h3 className="text-base font-semibold text-[#F0EDE8] truncate">
+          <h3 className="text-base font-semibold text-text-primary truncate">
             {connection.name}
           </h3>
           {/* Default star */}
@@ -142,14 +142,14 @@ export default function PacsConnectionCard({
               size={16}
               className={cn(
                 connection.is_default
-                  ? "fill-[#C9A227] text-[#C9A227]"
-                  : "text-[#5A5650] hover:text-[#C9A227]",
+                  ? "fill-accent text-accent"
+                  : "text-text-ghost hover:text-accent",
                 "transition-colors",
               )}
             />
           </button>
           {/* Type badge */}
-          <span className="flex-shrink-0 rounded px-2 py-0.5 text-xs font-medium bg-[#2DD4BF]/15 text-[#2DD4BF]">
+          <span className="flex-shrink-0 rounded px-2 py-0.5 text-xs font-medium bg-success/15 text-success">
             {TYPE_LABELS[connection.type] ?? connection.type}
           </span>
         </div>
@@ -159,7 +159,7 @@ export default function PacsConnectionCard({
             type="button"
             onClick={() => onEdit(connection)}
             title="Edit"
-            className="p-2 rounded text-[#5A5650] hover:text-[#C5C0B8] hover:bg-[#232328] transition-colors"
+            className="p-2 rounded text-text-ghost hover:text-text-secondary hover:bg-surface-elevated transition-colors"
           >
             <Pencil size={16} />
           </button>
@@ -169,7 +169,7 @@ export default function PacsConnectionCard({
               if (confirm(`Delete "${connection.name}"?`)) onDelete(connection.id);
             }}
             title="Delete"
-            className="p-2 rounded text-[#5A5650] hover:text-[#E85A6B] hover:bg-[#E85A6B]/10 transition-colors"
+            className="p-2 rounded text-text-ghost hover:text-critical hover:bg-critical/10 transition-colors"
           >
             <Trash2 size={16} />
           </button>
@@ -187,31 +187,31 @@ export default function PacsConnectionCard({
         ].map((cell) => (
           <div
             key={cell.label}
-            className="rounded-lg bg-[#0E0E11] px-3 py-3 text-center"
+            className="rounded-lg bg-surface-base px-3 py-3 text-center"
           >
-            <cell.icon size={16} className="mx-auto text-[#5A5650] mb-1.5" />
-            <div className="text-sm font-semibold text-[#F0EDE8] font-['IBM_Plex_Mono',monospace]">
+            <cell.icon size={16} className="mx-auto text-text-ghost mb-1.5" />
+            <div className="text-sm font-semibold text-text-primary font-['IBM_Plex_Mono',monospace]">
               {cell.value}
             </div>
-            <div className="text-xs text-[#8A857D] mt-0.5">{cell.label}</div>
+            <div className="text-xs text-text-muted mt-0.5">{cell.label}</div>
           </div>
         ))}
       </div>
 
       {/* Modality breakdown */}
       {stats?.modalities && Object.keys(stats.modalities).length > 0 && (
-        <div className="mt-3 rounded-lg bg-[#0E0E11] px-4 py-3">
-          <div className="text-xs font-medium text-[#8A857D] mb-2">Series by Modality</div>
+        <div className="mt-3 rounded-lg bg-surface-base px-4 py-3">
+          <div className="text-xs font-medium text-text-muted mb-2">Series by Modality</div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-1.5">
             {Object.entries(stats.modalities).map(([mod, count]) => (
               <div key={mod} className="flex items-baseline justify-between gap-2">
-                <span className="text-sm text-[#C5C0B8] truncate" title={MODALITY_LABELS[mod] ?? mod}>
+                <span className="text-sm text-text-secondary truncate" title={MODALITY_LABELS[mod] ?? mod}>
                   {mod}
                   {MODALITY_LABELS[mod] && mod !== MODALITY_LABELS[mod] && (
-                    <span className="ml-1.5 text-xs text-[#5A5650]">{MODALITY_LABELS[mod]}</span>
+                    <span className="ml-1.5 text-xs text-text-ghost">{MODALITY_LABELS[mod]}</span>
                   )}
                 </span>
-                <span className="shrink-0 text-sm font-semibold text-[#2DD4BF] font-['IBM_Plex_Mono',monospace]">
+                <span className="shrink-0 text-sm font-semibold text-success font-['IBM_Plex_Mono',monospace]">
                   {formatCount(count)}
                 </span>
               </div>
@@ -222,7 +222,7 @@ export default function PacsConnectionCard({
 
       {/* Footer */}
       <div className="mt-4 flex items-center justify-between">
-        <span className="text-sm text-[#5A5650]">
+        <span className="text-sm text-text-ghost">
           Stats updated {formatDate(connection.metadata_cached_at)}
         </span>
         <div className="flex items-center gap-1.5">
@@ -230,7 +230,7 @@ export default function PacsConnectionCard({
             type="button"
             onClick={() => onTest(connection.id)}
             disabled={isTesting}
-            className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#232328] transition-colors disabled:opacity-40"
+            className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-text-muted hover:text-text-primary hover:bg-surface-elevated transition-colors disabled:opacity-40"
           >
             {isTesting ? (
               <Loader2 size={14} className="animate-spin" />
@@ -243,7 +243,7 @@ export default function PacsConnectionCard({
             type="button"
             onClick={() => onRefresh(connection.id)}
             disabled={isRefreshing}
-            className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#232328] transition-colors disabled:opacity-40"
+            className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-text-muted hover:text-text-primary hover:bg-surface-elevated transition-colors disabled:opacity-40"
           >
             {isRefreshing ? (
               <Loader2 size={14} className="animate-spin" />
@@ -255,7 +255,7 @@ export default function PacsConnectionCard({
           <button
             type="button"
             onClick={() => onBrowse(connection)}
-            className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-[#2DD4BF] hover:bg-[#2DD4BF]/10 transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-success hover:bg-success/10 transition-colors"
           >
             <Search size={14} />
             Browse

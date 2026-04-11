@@ -138,7 +138,7 @@ export default function JupyterPage() {
             onClick={() => setHelpOpen(true)}
             aria-label="Workspace details"
             title="Workspace details"
-            className="flex h-7 w-7 items-center justify-center rounded-md text-[#5A5650] hover:text-[#8A857D] hover:bg-[#1E1E24] transition-colors"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-text-ghost hover:text-text-muted hover:bg-border-subtle transition-colors"
           >
             <HelpCircle size={16} />
           </button>
@@ -240,7 +240,7 @@ export default function JupyterPage() {
               </span>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
-              <div className="rounded-lg border border-[#232328] bg-[#0E0E11] p-4">
+              <div className="rounded-lg border border-border-default bg-surface-base p-4">
                 <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-ghost)", marginBottom: 2 }}>Runtime</div>
                 <div style={{ fontSize: "var(--text-sm)", fontWeight: 500, color: "var(--color-text-primary)" }}>
                   {data?.label ?? "JupyterLab 4.4"}
@@ -249,7 +249,7 @@ export default function JupyterPage() {
                   Python 3.12 with pandas, polars, sqlalchemy, and role-based database access.
                 </div>
               </div>
-              <div className="rounded-lg border border-[#232328] bg-[#0E0E11] p-4">
+              <div className="rounded-lg border border-border-default bg-surface-base p-4">
                 <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-ghost)", marginBottom: 2 }}>Private Workspace</div>
                 <div style={{ fontSize: "var(--text-sm)", fontWeight: 500, color: "var(--color-text-primary)", fontFamily: "'IBM Plex Mono', monospace" }}>
                   {data?.workspace_path ?? "/home/jovyan/notebooks"}
@@ -258,7 +258,7 @@ export default function JupyterPage() {
                   Your personal notebook directory. Persists across sessions — your work is always saved.
                 </div>
               </div>
-              <div className="rounded-lg border border-[#232328] bg-[#0E0E11] p-4">
+              <div className="rounded-lg border border-border-default bg-surface-base p-4">
                 <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-ghost)", marginBottom: 2 }}>Shared Folder</div>
                 <div style={{ fontSize: "var(--text-sm)", fontWeight: 500, color: "var(--color-text-primary)", fontFamily: "'IBM Plex Mono', monospace" }}>
                   {data?.shared_path ?? "/home/jovyan/shared"}
@@ -281,7 +281,7 @@ export default function JupyterPage() {
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
                 {(data?.mounts ?? []).map((mount) => (
-                  <div key={mount.path} className="rounded-lg border border-[#232328] bg-[#0E0E11] p-4">
+                  <div key={mount.path} className="rounded-lg border border-border-default bg-surface-base p-4">
                     <div style={{ fontSize: "var(--text-sm)", fontWeight: 500, color: "var(--color-text-primary)" }}>
                       {mount.label}
                     </div>
@@ -307,7 +307,7 @@ export default function JupyterPage() {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
               {(data?.starter_notebooks ?? []).map((notebook) => (
-                <div key={notebook.filename} className="rounded-lg border border-[#232328] bg-[#0E0E11] p-4">
+                <div key={notebook.filename} className="rounded-lg border border-border-default bg-surface-base p-4">
                   <div style={{ fontSize: "var(--text-sm)", fontWeight: 500, color: "var(--color-text-primary)" }}>
                     {notebook.name}
                   </div>
@@ -338,7 +338,7 @@ export default function JupyterPage() {
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
                 {data!.hints.map((hint, i) => (
-                  <div key={i} className="rounded-lg border border-[#232328] bg-[#0E0E11] px-4 py-3">
+                  <div key={i} className="rounded-lg border border-border-default bg-surface-base px-4 py-3">
                     <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--space-2)" }}>
                       <span
                         style={{
@@ -369,7 +369,7 @@ export default function JupyterPage() {
           )}
 
           {/* Quick links */}
-          <section style={{ borderTop: "1px solid #1E1E24", paddingTop: "var(--space-4)" }}>
+          <section style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: "var(--space-4)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginBottom: "var(--space-3)" }}>
               <BookOpenText size={14} style={{ color: "var(--color-gold)" }} />
               <span style={{ fontSize: "var(--text-xs)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--color-text-ghost)" }}>

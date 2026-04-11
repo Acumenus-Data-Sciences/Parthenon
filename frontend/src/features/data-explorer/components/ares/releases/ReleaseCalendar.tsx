@@ -6,9 +6,9 @@ interface ReleaseCalendarProps {
 
 function getIntensityClass(count: number): string {
   if (count === 0) return "bg-[#1a1a22]";
-  if (count === 1) return "bg-[#2DD4BF]/20";
-  if (count <= 3) return "bg-[#2DD4BF]/40";
-  return "bg-[#2DD4BF]/70";
+  if (count === 1) return "bg-success/20";
+  if (count <= 3) return "bg-success/40";
+  return "bg-success/70";
 }
 
 export default function ReleaseCalendar({ events }: ReleaseCalendarProps) {
@@ -76,7 +76,7 @@ export default function ReleaseCalendar({ events }: ReleaseCalendarProps) {
                       className={`group relative h-3 w-3 rounded-sm ${getIntensityClass(day.count)}`}
                     >
                       {day.count > 0 && (
-                        <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1 -translate-x-1/2 whitespace-nowrap rounded bg-[#0E0E11] px-2 py-1 text-[9px] text-[#ccc] opacity-0 shadow-lg group-hover:opacity-100 transition-opacity border border-[#252530]">
+                        <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1 -translate-x-1/2 whitespace-nowrap rounded bg-surface-base px-2 py-1 text-[9px] text-[#ccc] opacity-0 shadow-lg group-hover:opacity-100 transition-opacity border border-[#252530]">
                           {day.date}: {day.count} release{day.count > 1 ? "s" : ""}
                         </div>
                       )}
@@ -91,9 +91,9 @@ export default function ReleaseCalendar({ events }: ReleaseCalendarProps) {
       <div className="mt-2 flex items-center gap-1 text-[9px] text-[#555]">
         <span>Less</span>
         <span className="h-3 w-3 rounded-sm bg-[#1a1a22]" />
-        <span className="h-3 w-3 rounded-sm bg-[#2DD4BF]/20" />
-        <span className="h-3 w-3 rounded-sm bg-[#2DD4BF]/40" />
-        <span className="h-3 w-3 rounded-sm bg-[#2DD4BF]/70" />
+        <span className="h-3 w-3 rounded-sm bg-success/20" />
+        <span className="h-3 w-3 rounded-sm bg-success/40" />
+        <span className="h-3 w-3 rounded-sm bg-success/70" />
         <span>More</span>
       </div>
     </div>

@@ -16,7 +16,7 @@ interface CohortProfilePanelProps {
 
 function SectionHeader({ children }: { children: React.ReactNode }) {
   return (
-    <h4 className="mb-2 text-[10px] uppercase tracking-wider text-[#5A5650]">
+    <h4 className="mb-2 text-[10px] uppercase tracking-wider text-text-ghost">
       {children}
     </h4>
   );
@@ -35,12 +35,12 @@ function PercentageBar({
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between">
-        <span className="text-sm text-[#C5C0B8]">{label}</span>
-        <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#5A5650]">
+        <span className="text-sm text-text-secondary">{label}</span>
+        <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-ghost">
           {pct}%
         </span>
       </div>
-      <div className="h-2 w-full rounded-full bg-[#232328]">
+      <div className="h-2 w-full rounded-full bg-surface-elevated">
         <div
           className="h-2 rounded-full"
           style={{ width: `${pct}%`, backgroundColor: color }}
@@ -64,7 +64,7 @@ export function CohortProfilePanel({
 
     return (
       <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] px-4 py-3">
-        <p className="text-sm text-[#C5C0B8]">
+        <p className="text-sm text-text-secondary">
           <span className="font-['IBM_Plex_Mono',monospace] text-[#E8E4DE]">
             {profile.patient_count.toLocaleString()}
           </span>{" "}
@@ -72,7 +72,7 @@ export function CohortProfilePanel({
           {femalePctDisplay}% female
         </p>
         {topThree && (
-          <p className="mt-1 text-xs text-[#5A5650]">{topThree}</p>
+          <p className="mt-1 text-xs text-text-ghost">{topThree}</p>
         )}
       </div>
     );
@@ -91,9 +91,9 @@ export function CohortProfilePanel({
             <span className="font-['IBM_Plex_Mono',monospace] text-2xl text-[#E8E4DE]">
               {profile.patient_count.toLocaleString()}
             </span>
-            <span className="ml-2 text-xs text-[#5A5650]">patients</span>
+            <span className="ml-2 text-xs text-text-ghost">patients</span>
           </div>
-          <div className="text-sm text-[#C5C0B8]">
+          <div className="text-sm text-text-secondary">
             Age{" "}
             <span className="font-['IBM_Plex_Mono',monospace]">
               {profile.min_age}
@@ -104,12 +104,12 @@ export function CohortProfilePanel({
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-[#C5C0B8]">
+            <span className="text-sm text-text-secondary">
               {femalePctDisplay}% female
             </span>
-            <div className="h-2 w-20 rounded-full bg-[#232328]">
+            <div className="h-2 w-20 rounded-full bg-surface-elevated">
               <div
-                className="h-2 rounded-full bg-[#2DD4BF]"
+                className="h-2 rounded-full bg-success"
                 style={{ width: `${femalePctDisplay}%` }}
               />
             </div>
@@ -127,7 +127,7 @@ export function CohortProfilePanel({
                 key={condition.concept_id}
                 label={condition.name}
                 value={condition.prevalence}
-                color="#2DD4BF"
+                color="var(--success)"
               />
             ))}
           </div>

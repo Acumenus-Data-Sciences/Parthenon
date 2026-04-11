@@ -35,12 +35,12 @@ export function ReportSectionCard({
       data-testid={`report-section-${section.id}`}
       className={`rounded-lg border transition-opacity ${
         included
-          ? "border-[#232328] bg-[#151518]"
-          : "border-[#232328]/50 bg-[#151518]/50 opacity-50"
+          ? "border-border-default bg-surface-raised"
+          : "border-border-default/50 bg-surface-raised/50 opacity-50"
       }`}
     >
       {/* Header bar */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[#232328]">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border-default">
         <div className="flex items-center gap-3">
           {/* Reorder buttons */}
           <div className="flex flex-col gap-0.5">
@@ -48,7 +48,7 @@ export function ReportSectionCard({
               type="button"
               onClick={onMoveUp}
               disabled={isFirst}
-              className="p-0.5 rounded text-[#F0EDE8]/40 hover:text-[#F0EDE8] disabled:opacity-20 disabled:cursor-not-allowed"
+              className="p-0.5 rounded text-text-primary/40 hover:text-text-primary disabled:opacity-20 disabled:cursor-not-allowed"
               aria-label="Move up"
             >
               <ChevronUp size={14} />
@@ -57,7 +57,7 @@ export function ReportSectionCard({
               type="button"
               onClick={onMoveDown}
               disabled={isLast}
-              className="p-0.5 rounded text-[#F0EDE8]/40 hover:text-[#F0EDE8] disabled:opacity-20 disabled:cursor-not-allowed"
+              className="p-0.5 rounded text-text-primary/40 hover:text-text-primary disabled:opacity-20 disabled:cursor-not-allowed"
               aria-label="Move down"
             >
               <ChevronDown size={14} />
@@ -66,10 +66,10 @@ export function ReportSectionCard({
 
           {/* Title */}
           <div>
-            <h3 className="text-sm font-semibold text-[#F0EDE8]">
+            <h3 className="text-sm font-semibold text-text-primary">
               {section.title}
             </h3>
-            <span className="text-xs text-[#F0EDE8]/40 capitalize">
+            <span className="text-xs text-text-primary/40 capitalize">
               {section.type}
               {section.analysisType ? ` / ${section.analysisType}` : ""}
             </span>
@@ -82,8 +82,8 @@ export function ReportSectionCard({
           onClick={onToggle}
           className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-colors ${
             included
-              ? "bg-[#2DD4BF]/15 text-[#2DD4BF] hover:bg-[#2DD4BF]/25"
-              : "bg-[#E85A6B]/15 text-[#E85A6B] hover:bg-[#E85A6B]/25"
+              ? "bg-success/15 text-success hover:bg-success/25"
+              : "bg-critical/15 text-critical hover:bg-critical/25"
           }`}
           aria-label={included ? "Exclude section" : "Include section"}
         >
@@ -100,7 +100,7 @@ export function ReportSectionCard({
             <ResultsSummarySection section={section} />
           )}
           {section.type === "diagnostics" && (
-            <div className="text-sm text-[#F0EDE8]/50 italic">
+            <div className="text-sm text-text-primary/50 italic">
               Diagnostics data will be rendered in the exported report.
             </div>
           )}

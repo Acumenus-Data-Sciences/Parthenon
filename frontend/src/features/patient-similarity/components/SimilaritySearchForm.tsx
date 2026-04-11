@@ -107,7 +107,7 @@ export function SimilaritySearchForm({
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* Source Selector */}
       <div>
-        <label className="block text-[10px] text-[#5A5650] uppercase tracking-wider mb-1.5">
+        <label className="block text-[10px] text-text-ghost uppercase tracking-wider mb-1.5">
           Data Source
         </label>
         <select
@@ -115,9 +115,9 @@ export function SimilaritySearchForm({
           onChange={(e) => onSourceChange(parseInt(e.target.value, 10))}
           className={cn(
             "w-full rounded-lg px-3 py-2 text-sm",
-            "bg-[#0E0E11] border border-[#232328]",
-            "text-[#F0EDE8]",
-            "focus:outline-none focus:border-[#C9A227] focus:ring-1 focus:ring-[#C9A227]/15",
+            "bg-surface-base border border-border-default",
+            "text-text-primary",
+            "focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/15",
           )}
         >
           <option value={0}>Select source...</option>
@@ -131,14 +131,14 @@ export function SimilaritySearchForm({
 
       {/* Patient ID — live search */}
       <div>
-        <label className="block text-[10px] text-[#5A5650] uppercase tracking-wider mb-1.5">
+        <label className="block text-[10px] text-text-ghost uppercase tracking-wider mb-1.5">
           Seed Patient ID
         </label>
         <div ref={dropdownRef} className="relative">
           <div className="relative">
             <Search
               size={14}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost"
             />
             <input
               ref={inputRef}
@@ -160,16 +160,16 @@ export function SimilaritySearchForm({
               disabled={sourceId <= 0}
               className={cn(
                 "w-full rounded-lg pl-9 pr-8 py-2 text-sm",
-                "bg-[#0E0E11] border border-[#232328]",
-                "text-[#F0EDE8] placeholder:text-[#5A5650]",
+                "bg-surface-base border border-border-default",
+                "text-text-primary placeholder:text-text-ghost",
                 sourceId <= 0
                   ? "opacity-50 cursor-not-allowed"
-                  : "focus:outline-none focus:border-[#C9A227] focus:ring-1 focus:ring-[#C9A227]/15",
+                  : "focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/15",
               )}
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
               {(searchLoading || searchFetching) && searchQuery.trim() ? (
-                <Loader2 size={13} className="animate-spin text-[#5A5650]" />
+                <Loader2 size={13} className="animate-spin text-text-ghost" />
               ) : searchQuery ? (
                 <button
                   type="button"
@@ -179,7 +179,7 @@ export function SimilaritySearchForm({
                     setIsDropdownOpen(false);
                     inputRef.current?.focus();
                   }}
-                  className="text-[#5A5650] hover:text-[#C5C0B8] transition-colors"
+                  className="text-text-ghost hover:text-text-secondary transition-colors"
                 >
                   <X size={13} />
                 </button>
@@ -190,10 +190,10 @@ export function SimilaritySearchForm({
           {/* Search type hints */}
           {sourceId > 0 && !searchQuery && (
             <div className="flex items-center gap-3 mt-1 px-1">
-              <span className="inline-flex items-center gap-1 text-[10px] text-[#5A5650]">
+              <span className="inline-flex items-center gap-1 text-[10px] text-text-ghost">
                 <Hash size={9} /> Person ID
               </span>
-              <span className="inline-flex items-center gap-1 text-[10px] text-[#5A5650]">
+              <span className="inline-flex items-center gap-1 text-[10px] text-text-ghost">
                 <CreditCard size={9} /> MRN
               </span>
             </div>
@@ -204,50 +204,50 @@ export function SimilaritySearchForm({
             <div
               className={cn(
                 "absolute left-0 right-0 top-full mt-1 z-50",
-                "rounded-lg border border-[#323238] bg-[#0E0E11] shadow-2xl overflow-hidden",
+                "rounded-lg border border-surface-highlight bg-surface-base shadow-2xl overflow-hidden",
               )}
             >
               {searchLoading && !searchResults ? (
                 <div className="flex items-center justify-center py-4">
-                  <Loader2 size={16} className="animate-spin text-[#8A857D]" />
+                  <Loader2 size={16} className="animate-spin text-text-muted" />
                 </div>
               ) : !hasResults ? (
                 <div className="flex flex-col items-center py-4 px-3 text-center">
-                  <User size={16} className="text-[#323238] mb-1" />
-                  <p className="text-xs text-[#8A857D]">
+                  <User size={16} className="text-surface-highlight mb-1" />
+                  <p className="text-xs text-text-muted">
                     No patients found for &ldquo;{searchQuery}&rdquo;
                   </p>
                 </div>
               ) : (
                 <div>
-                  <div className="px-3 py-1 border-b border-[#1C1C20]">
-                    <p className="text-[10px] text-[#5A5650]">
+                  <div className="px-3 py-1 border-b border-surface-overlay">
+                    <p className="text-[10px] text-text-ghost">
                       {searchResults.length} result{searchResults.length !== 1 ? "s" : ""}
                       {searchResults.length === 20 ? " (showing first 20)" : ""}
                     </p>
                   </div>
-                  <div className="max-h-56 overflow-y-auto divide-y divide-[#1C1C20]">
+                  <div className="max-h-56 overflow-y-auto divide-y divide-surface-overlay">
                     {searchResults.map((person) => (
                       <button
                         key={person.person_id}
                         type="button"
                         onClick={() => handleSelectPerson(person.person_id)}
-                        className="w-full flex items-center gap-2 px-3 py-2 hover:bg-[#1C1C20] transition-colors text-left"
+                        className="w-full flex items-center gap-2 px-3 py-2 hover:bg-surface-overlay transition-colors text-left"
                       >
-                        <div className="flex items-center justify-center w-6 h-6 rounded-full bg-[#2DD4BF]/10 shrink-0">
-                          <User size={11} className="text-[#2DD4BF]" />
+                        <div className="flex items-center justify-center w-6 h-6 rounded-full bg-success/10 shrink-0">
+                          <User size={11} className="text-success" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className="text-sm font-semibold text-[#2DD4BF] font-['IBM_Plex_Mono',monospace]">
+                            <span className="text-sm font-semibold text-success font-['IBM_Plex_Mono',monospace]">
                               #{person.person_id}
                             </span>
-                            <span className="text-[10px] text-[#8A857D]">
+                            <span className="text-[10px] text-text-muted">
                               {person.gender} · {computeAge(person.year_of_birth)} yrs
                             </span>
                           </div>
                           {person.person_source_value && (
-                            <p className="text-[10px] text-[#5A5650] truncate">
+                            <p className="text-[10px] text-text-ghost truncate">
                               MRN: {person.person_source_value}
                             </p>
                           )}
@@ -265,15 +265,15 @@ export function SimilaritySearchForm({
       {/* Dimension Weight Sliders */}
       {dimensions && dimensions.length > 0 && (
         <div>
-          <label className="block text-[10px] text-[#5A5650] uppercase tracking-wider mb-2">
+          <label className="block text-[10px] text-text-ghost uppercase tracking-wider mb-2">
             Dimension Weights
           </label>
           <div className="space-y-3">
             {dimensions.filter((d) => d.is_active).map((dim) => (
               <div key={dim.key}>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-[#C5C0B8]">{dim.name}</span>
-                  <span className="text-[10px] font-medium text-[#2DD4BF] tabular-nums">
+                  <span className="text-xs text-text-secondary">{dim.name}</span>
+                  <span className="text-[10px] font-medium text-success tabular-nums">
                     {(weights[dim.key] ?? dim.default_weight).toFixed(1)}
                   </span>
                 </div>
@@ -286,7 +286,7 @@ export function SimilaritySearchForm({
                   onChange={(e) =>
                     handleWeightChange(dim.key, parseFloat(e.target.value))
                   }
-                  className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-[#232328] accent-[#2DD4BF]"
+                  className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-surface-elevated accent-success"
                 />
               </div>
             ))}
@@ -296,7 +296,7 @@ export function SimilaritySearchForm({
 
       {/* Filters */}
       <div className="space-y-3">
-        <label className="block text-[10px] text-[#5A5650] uppercase tracking-wider">
+        <label className="block text-[10px] text-text-ghost uppercase tracking-wider">
           Filters (optional)
         </label>
 
@@ -309,12 +309,12 @@ export function SimilaritySearchForm({
             placeholder="Min age"
             className={cn(
               "w-1/2 rounded-lg px-3 py-1.5 text-xs",
-              "bg-[#0E0E11] border border-[#232328]",
-              "text-[#F0EDE8] placeholder:text-[#5A5650]",
-              "focus:outline-none focus:border-[#C9A227] focus:ring-1 focus:ring-[#C9A227]/15",
+              "bg-surface-base border border-border-default",
+              "text-text-primary placeholder:text-text-ghost",
+              "focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/15",
             )}
           />
-          <span className="text-[#5A5650] text-xs">-</span>
+          <span className="text-text-ghost text-xs">-</span>
           <input
             type="text"
             value={ageMax}
@@ -322,9 +322,9 @@ export function SimilaritySearchForm({
             placeholder="Max age"
             className={cn(
               "w-1/2 rounded-lg px-3 py-1.5 text-xs",
-              "bg-[#0E0E11] border border-[#232328]",
-              "text-[#F0EDE8] placeholder:text-[#5A5650]",
-              "focus:outline-none focus:border-[#C9A227] focus:ring-1 focus:ring-[#C9A227]/15",
+              "bg-surface-base border border-border-default",
+              "text-text-primary placeholder:text-text-ghost",
+              "focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/15",
             )}
           />
         </div>
@@ -335,9 +335,9 @@ export function SimilaritySearchForm({
           onChange={(e) => setGender(e.target.value)}
           className={cn(
             "w-full rounded-lg px-3 py-1.5 text-xs",
-            "bg-[#0E0E11] border border-[#232328]",
-            "text-[#F0EDE8]",
-            "focus:outline-none focus:border-[#C9A227] focus:ring-1 focus:ring-[#C9A227]/15",
+            "bg-surface-base border border-border-default",
+            "text-text-primary",
+            "focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/15",
           )}
         >
           <option value="">Any gender</option>
@@ -352,7 +352,7 @@ export function SimilaritySearchForm({
         disabled={isLoading || !personId.trim() || sourceId <= 0}
         className={cn(
           "w-full flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors",
-          "bg-[#9B1B30] text-white hover:bg-[#B22040]",
+          "bg-primary text-white hover:bg-[#B22040]",
           "disabled:opacity-50 disabled:cursor-not-allowed",
         )}
       >

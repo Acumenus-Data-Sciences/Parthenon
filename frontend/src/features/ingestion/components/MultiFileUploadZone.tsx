@@ -66,10 +66,10 @@ export function MultiFileUploadZone({ onFilesSelect }: MultiFileUploadZoneProps)
       onDrop={handleDrop}
       onClick={handleClick}
       className={cn(
-        "relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed bg-[#151518] px-6 py-16 cursor-pointer transition-all",
+        "relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed bg-surface-raised px-6 py-16 cursor-pointer transition-all",
         isDragOver
-          ? "border-[#C9A227] bg-[#1C1C20]"
-          : "border-[#323238] hover:border-[#C9A227] hover:bg-[#1A1A1E]",
+          ? "border-accent bg-surface-overlay"
+          : "border-surface-highlight hover:border-accent hover:bg-surface-overlay",
       )}
     >
       <input
@@ -81,26 +81,26 @@ export function MultiFileUploadZone({ onFilesSelect }: MultiFileUploadZoneProps)
         onChange={handleInputChange}
       />
 
-      <div className="flex items-center justify-center w-14 h-14 rounded-full bg-[#1C1C20] mb-4">
+      <div className="flex items-center justify-center w-14 h-14 rounded-full bg-surface-overlay mb-4">
         <Upload
           size={24}
           className={cn(
             "transition-colors",
-            isDragOver ? "text-[#C9A227]" : "text-[#8A857D]",
+            isDragOver ? "text-accent" : "text-text-muted",
           )}
         />
       </div>
 
-      <p className="text-sm font-medium text-[#F0EDE8]">
+      <p className="text-sm font-medium text-text-primary">
         Drag & drop files here
       </p>
-      <p className="mt-1 text-xs text-[#8A857D]">or click to browse</p>
+      <p className="mt-1 text-xs text-text-muted">or click to browse</p>
 
       <div className="flex items-center gap-2 mt-5">
         {["CSV", "TSV", "XLSX"].map((fmt) => (
           <span
             key={fmt}
-            className="px-2 py-0.5 rounded text-[10px] font-medium tracking-wider uppercase bg-[#1C1C20] text-[#5A5650] border border-[#2A2A30]"
+            className="px-2 py-0.5 rounded text-[10px] font-medium tracking-wider uppercase bg-surface-overlay text-text-ghost border border-border-default"
           >
             {fmt}
           </span>

@@ -45,14 +45,14 @@ const SEVERITY_COLORS = {
   normal: '#22C55E',
   mild: '#EAB308',
   moderate: '#F97316',
-  critical: '#E85A6B',
+  critical: 'var(--critical)',
 };
 
 function TrendIcon({ values }: { values: number[] }) {
-  if (values.length < 2) return <Minus size={12} className="text-[#5A5650]" />;
+  if (values.length < 2) return <Minus size={12} className="text-text-ghost" />;
   const last = values[values.length - 1];
   const prev = values[values.length - 2];
-  if (last > prev * 1.05) return <TrendingUp size={12} className="text-[#E85A6B]" />;
+  if (last > prev * 1.05) return <TrendingUp size={12} className="text-critical" />;
   if (last < prev * 0.95) return <TrendingDown size={12} className="text-[#818CF8]" />;
   return <Minus size={12} className="text-[#22C55E]" />;
 }
@@ -123,7 +123,7 @@ export default function LabPanelDashboard({ labs, onConceptClick }: LabPanelDash
     if (ungrouped.length > 0) {
       ungrouped.sort((a, b) => a.label.localeCompare(b.label));
       result.push({
-        panel: { name: 'Other', color: '#8A857D', tests: [] },
+        panel: { name: 'Other', color: "var(--text-muted)", tests: [] },
         tests: ungrouped,
       });
     }
@@ -133,8 +133,8 @@ export default function LabPanelDashboard({ labs, onConceptClick }: LabPanelDash
 
   if (panels.length === 0) {
     return (
-      <div className="flex items-center justify-center h-32 rounded-lg border border-dashed border-[#323238] bg-[#151518]">
-        <p className="text-sm text-[#8A857D]">No numeric lab results available</p>
+      <div className="flex items-center justify-center h-32 rounded-lg border border-dashed border-surface-highlight bg-surface-raised">
+        <p className="text-sm text-text-muted">No numeric lab results available</p>
       </div>
     );
   }
@@ -165,7 +165,7 @@ export default function LabPanelDashboard({ labs, onConceptClick }: LabPanelDash
 
   return (
     <div className="space-y-3">
-      <div className="text-xs text-[#8A857D]">
+      <div className="text-xs text-text-muted">
         {groups.size} tests · {labs.filter((l) => l.valuenum != null).length} numeric values
       </div>
 
@@ -179,14 +179,14 @@ export default function LabPanelDashboard({ labs, onConceptClick }: LabPanelDash
               <button
                 type="button"
                 onClick={() => setExpandedPanel(expandedPanel === panel.name ? null : panel.name)}
-                className="w-full flex items-center justify-between px-3 py-2 hover:bg-[#1A1A1E] transition-colors focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30"
+                className="w-full flex items-center justify-between px-3 py-2 hover:bg-surface-overlay transition-colors focus:outline-none focus:ring-1 focus:ring-success/30"
               >
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full" style={{ backgroundColor: panel.color }} />
-                  <span className="text-xs font-semibold text-[#F0EDE8]">{panel.name}</span>
-                  <span className="text-[10px] text-[#5A5650]">{tests.length} tests</span>
+                  <span className="text-xs font-semibold text-text-primary">{panel.name}</span>
+                  <span className="text-[10px] text-text-ghost">{tests.length} tests</span>
                 </div>
-                <ChevronDown size={12} className={`text-[#5A5650] transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown size={12} className={`text-text-ghost transition-transform ${isOpen ? 'rotate-180' : ''}`} />
               </button>
 
               {isOpen && (
@@ -199,25 +199,25 @@ export default function LabPanelDashboard({ labs, onConceptClick }: LabPanelDash
                     return (
                       <div key={g.itemid}>
                         <div
-                          className="flex items-center gap-2 px-3 py-1.5 hover:bg-[#1A1A1E] transition-colors cursor-pointer"
+                          className="flex items-center gap-2 px-3 py-1.5 hover:bg-surface-overlay transition-colors cursor-pointer"
                           onClick={() => setExpandedRow(isExpanded ? null : g.itemid)}
                         >
-                          <ChevronDown size={10} className={`text-[#5A5650] transition-transform shrink-0 ${isExpanded ? 'rotate-180' : ''}`} />
+                          <ChevronDown size={10} className={`text-text-ghost transition-transform shrink-0 ${isExpanded ? 'rotate-180' : ''}`} />
                           <button
                             type="button"
                             onClick={(e) => { e.stopPropagation(); handleConceptClick(g); }}
-                            className="text-[11px] text-[#C5C0B8] hover:text-[#2DD4BF] truncate w-[120px] shrink-0 text-left transition-colors"
+                            className="text-[11px] text-text-secondary hover:text-success truncate w-[120px] shrink-0 text-left transition-colors"
                           >
                             {g.label}
                           </button>
-                          <span className="text-[9px] text-[#5A5650] shrink-0 w-6 text-right">×{g.count}</span>
+                          <span className="text-[9px] text-text-ghost shrink-0 w-6 text-right">×{g.count}</span>
                           {/* Sparkline stretches to fill remaining space */}
                           <div className="flex-1 min-w-0">
                             <LabSparkline values={vals} rangeLow={g.rangeLow} rangeHigh={g.rangeHigh} width={999} height={24} />
                           </div>
-                          <span className="text-xs font-semibold text-[#F0EDE8] shrink-0 tabular-nums text-right" style={{ minWidth: 52 }}>
+                          <span className="text-xs font-semibold text-text-primary shrink-0 tabular-nums text-right" style={{ minWidth: 52 }}>
                             {g.latest.toFixed(1)}
-                            <span className="text-[9px] text-[#5A5650] ml-0.5">{g.unit}</span>
+                            <span className="text-[9px] text-text-ghost ml-0.5">{g.unit}</span>
                           </span>
                           <TrendIcon values={vals} />
                           <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: SEVERITY_COLORS[severity] }} title={severity} />

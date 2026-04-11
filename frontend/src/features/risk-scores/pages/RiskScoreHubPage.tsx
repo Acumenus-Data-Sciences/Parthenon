@@ -46,20 +46,20 @@ const STATUS_OPTIONS = [
 ];
 
 const CATEGORY_COLORS: Record<string, string> = {
-  Cardiovascular: "#E85A6B",
-  "Comorbidity Burden": "#A78BFA",
+  Cardiovascular: "var(--critical)",
+  "Comorbidity Burden": "var(--domain-observation)",
   Hepatic: "#F59E0B",
-  Pulmonary: "#60A5FA",
+  Pulmonary: "var(--info)",
   Respiratory: "#22D3EE",
   Metabolic: "#34D399",
   Endocrine: "#FB923C",
-  Musculoskeletal: "#8A857D",
+  Musculoskeletal: "var(--text-muted)",
 };
 
 const CATEGORY_OPTIONS = CATEGORY_ORDER.map((cat) => ({
   value: cat,
   label: cat,
-  color: CATEGORY_COLORS[cat] ?? "#8A857D",
+  color: CATEGORY_COLORS[cat] ?? "var(--text-muted)",
 }));
 
 export default function RiskScoreHubPage() {
@@ -192,7 +192,7 @@ export default function RiskScoreHubPage() {
     if (!catalogue?.scores) return [];
     return CATEGORY_ORDER.map((category) => ({
       category,
-      color: CATEGORY_COLORS[category] ?? "#8A857D",
+      color: CATEGORY_COLORS[category] ?? "var(--text-muted)",
       scores: catalogue.scores.filter((s) => s.category === category),
     })).filter((g) => g.scores.length > 0);
   }, [catalogue]);
@@ -216,15 +216,15 @@ export default function RiskScoreHubPage() {
 
         {/* Right side: view toggle, search, help, create */}
         <div className="flex items-center gap-2 shrink-0">
-          <div className="flex items-center rounded-lg border border-[#232328] bg-[#0E0E11] overflow-hidden">
+          <div className="flex items-center rounded-lg border border-border-default bg-surface-base overflow-hidden">
             <button
               type="button"
               onClick={() => setViewMode("table")}
               className={cn(
                 "p-2 transition-colors",
                 viewMode === "table"
-                  ? "bg-[#2DD4BF]/10 text-[#2DD4BF]"
-                  : "text-[#5A5650] hover:text-[#C5C0B8]",
+                  ? "bg-success/10 text-success"
+                  : "text-text-ghost hover:text-text-secondary",
               )}
               title="Table view"
             >
@@ -236,8 +236,8 @@ export default function RiskScoreHubPage() {
               className={cn(
                 "p-2 transition-colors",
                 viewMode === "card"
-                  ? "bg-[#2DD4BF]/10 text-[#2DD4BF]"
-                  : "text-[#5A5650] hover:text-[#C5C0B8]",
+                  ? "bg-success/10 text-success"
+                  : "text-text-ghost hover:text-text-secondary",
               )}
               title="Card view"
             >
@@ -249,7 +249,7 @@ export default function RiskScoreHubPage() {
           <div className="relative w-72" ref={searchRef}>
             <Search
               size={14}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650] z-10"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost z-10"
             />
             <input
               type="text"
@@ -262,9 +262,9 @@ export default function RiskScoreHubPage() {
               placeholder="Search analyses..."
               className={cn(
                 "w-full rounded-lg pl-9 pr-8 py-2 text-sm",
-                "bg-[#0E0E11] border border-[#232328]",
-                "text-[#F0EDE8] placeholder:text-[#5A5650]",
-                "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+                "bg-surface-base border border-border-default",
+                "text-text-primary placeholder:text-text-ghost",
+                "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
                 "transition-colors",
               )}
             />
@@ -272,7 +272,7 @@ export default function RiskScoreHubPage() {
               <button
                 type="button"
                 onClick={() => { setSearchInput(""); }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-[#5A5650] hover:text-[#C5C0B8] z-10"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-text-ghost hover:text-text-secondary z-10"
               >
                 <X size={14} />
               </button>
@@ -280,16 +280,16 @@ export default function RiskScoreHubPage() {
 
             {/* Dropdown listing */}
             {showDropdown && (
-              <div className="absolute top-full left-0 w-96 mt-1 rounded-lg border border-[#232328] bg-[#151518] shadow-xl z-50 overflow-hidden">
+              <div className="absolute top-full left-0 w-96 mt-1 rounded-lg border border-border-default bg-surface-raised shadow-xl z-50 overflow-hidden">
                 <div className="max-h-80 overflow-y-auto">
                   {dropdownAnalyses.length === 0 ? (
-                    <div className="px-4 py-6 text-center text-sm text-[#5A5650]">
+                    <div className="px-4 py-6 text-center text-sm text-text-ghost">
                       No analyses match &ldquo;{searchInput}&rdquo;
                     </div>
                   ) : (
                     dropdownAnalyses.map((analysis) => {
                       const status = getAnalysisStatus(analysis);
-                      const sColor = ANALYSIS_STATUS_COLORS[status] ?? "#8A857D";
+                      const sColor = ANALYSIS_STATUS_COLORS[status] ?? "var(--text-muted)";
                       const scoreCount = analysis.design_json?.scoreIds?.length ?? 0;
                       return (
                         <button
@@ -300,9 +300,9 @@ export default function RiskScoreHubPage() {
                             setSearchInput("");
                             navigate(`/risk-scores/${analysis.id}`);
                           }}
-                          className="w-full px-4 py-2.5 text-left hover:bg-[#1C1C20] transition-colors border-b border-[#1C1C20] last:border-b-0"
+                          className="w-full px-4 py-2.5 text-left hover:bg-surface-overlay transition-colors border-b border-surface-overlay last:border-b-0"
                         >
-                          <p className="text-sm font-medium text-[#F0EDE8] truncate">{analysis.name}</p>
+                          <p className="text-sm font-medium text-text-primary truncate">{analysis.name}</p>
                           <div className="flex items-center gap-2 mt-0.5">
                             <span
                               className="inline-flex items-center gap-1 text-[10px] font-medium"
@@ -311,8 +311,8 @@ export default function RiskScoreHubPage() {
                               <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: sColor }} />
                               {status.replace(/_/g, " ")}
                             </span>
-                            <span className="text-[10px] text-[#323238]">&middot;</span>
-                            <span className="text-[10px] text-[#5A5650]">
+                            <span className="text-[10px] text-surface-highlight">&middot;</span>
+                            <span className="text-[10px] text-text-ghost">
                               {scoreCount} {scoreCount === 1 ? "score" : "scores"}
                             </span>
                           </div>
@@ -322,7 +322,7 @@ export default function RiskScoreHubPage() {
                   )}
                 </div>
                 {(allAnalysesData?.data?.length ?? 0) > 12 && !searchInput.trim() && (
-                  <div className="px-4 py-2 text-center text-[10px] text-[#5A5650] border-t border-[#232328] bg-[#0E0E11]">
+                  <div className="px-4 py-2 text-center text-[10px] text-text-ghost border-t border-border-default bg-surface-base">
                     Type to filter {allAnalysesData?.data?.length} analyses
                   </div>
                 )}
@@ -350,11 +350,11 @@ export default function RiskScoreHubPage() {
         <div className="space-y-3">
           <div className="grid grid-cols-5 gap-3">
             {[
-              { label: "Total", value: stats.total, icon: Briefcase, color: "#C5C0B8", drilldown: null as string | null },
+              { label: "Total", value: stats.total, icon: Briefcase, color: "var(--text-secondary)", drilldown: null as string | null },
               { label: "Running", value: stats.running, icon: Loader2, color: "#F59E0B", drilldown: "running" },
-              { label: "Completed", value: stats.completed, icon: CheckCircle2, color: "#2DD4BF", drilldown: "completed" },
-              { label: "Scores Available", value: stats.scores_available, icon: BarChart3, color: "#60A5FA", drilldown: "__catalogue__" },
-              { label: "Patients Scored", value: stats.patients_scored, icon: Users, color: "#A78BFA", drilldown: null },
+              { label: "Completed", value: stats.completed, icon: CheckCircle2, color: "var(--success)", drilldown: "completed" },
+              { label: "Scores Available", value: stats.scores_available, icon: BarChart3, color: "var(--info)", drilldown: "__catalogue__" },
+              { label: "Patients Scored", value: stats.patients_scored, icon: Users, color: "var(--domain-observation)", drilldown: null },
             ].map((metric) => {
               const Icon = metric.icon;
               const isDrilling =
@@ -379,7 +379,7 @@ export default function RiskScoreHubPage() {
                     "flex items-center gap-3 rounded-lg border px-4 py-3 text-left transition-all",
                     isDrilling
                       ? "ring-1"
-                      : "border-[#232328] bg-[#151518] hover:border-[#323238] hover:bg-[#1C1C20]",
+                      : "border-border-default bg-surface-raised hover:border-surface-highlight hover:bg-surface-overlay",
                   )}
                   style={isDrilling ? {
                     borderColor: `${metric.color}40`,
@@ -400,7 +400,7 @@ export default function RiskScoreHubPage() {
                     >
                       {metric.value}
                     </p>
-                    <p className="text-[10px] text-[#5A5650] uppercase tracking-wider">
+                    <p className="text-[10px] text-text-ghost uppercase tracking-wider">
                       {metric.label}
                     </p>
                   </div>
@@ -411,35 +411,35 @@ export default function RiskScoreHubPage() {
 
           {/* Drilldown panel */}
           {drilldownStatus && drilldownAnalyses.length > 0 && (
-            <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-2 bg-[#1C1C20] border-b border-[#232328]">
-                <p className="text-[11px] font-semibold text-[#8A857D] uppercase tracking-wider">
+            <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-2 bg-surface-overlay border-b border-border-default">
+                <p className="text-[11px] font-semibold text-text-muted uppercase tracking-wider">
                   {drilldownStatus.replace(/_/g, " ")} Analyses
-                  <span className="ml-1.5 text-[#5A5650]">({drilldownAnalyses.length})</span>
+                  <span className="ml-1.5 text-text-ghost">({drilldownAnalyses.length})</span>
                 </p>
                 <button
                   type="button"
                   onClick={() => setDrilldownStatus(null)}
-                  className="text-[#5A5650] hover:text-[#C5C0B8] transition-colors"
+                  className="text-text-ghost hover:text-text-secondary transition-colors"
                 >
                   <X size={14} />
                 </button>
               </div>
-              <div className="divide-y divide-[#1C1C20] max-h-64 overflow-y-auto">
+              <div className="divide-y divide-surface-overlay max-h-64 overflow-y-auto">
                 {drilldownAnalyses.map((analysis: RiskScoreAnalysis) => {
                   const status = getAnalysisStatus(analysis);
-                  const sColor = ANALYSIS_STATUS_COLORS[status] ?? "#8A857D";
+                  const sColor = ANALYSIS_STATUS_COLORS[status] ?? "var(--text-muted)";
                   const scoreCount = analysis.design_json?.scoreIds?.length ?? 0;
                   return (
                     <button
                       key={analysis.id}
                       type="button"
                       onClick={() => navigate(`/risk-scores/${analysis.id}`)}
-                      className="w-full flex items-center justify-between px-4 py-2.5 text-left hover:bg-[#1C1C20] transition-colors"
+                      className="w-full flex items-center justify-between px-4 py-2.5 text-left hover:bg-surface-overlay transition-colors"
                     >
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-[#F0EDE8] truncate">{analysis.name}</p>
-                        <p className="text-[10px] text-[#5A5650] truncate mt-0.5">
+                        <p className="text-sm font-medium text-text-primary truncate">{analysis.name}</p>
+                        <p className="text-[10px] text-text-ghost truncate mt-0.5">
                           {scoreCount} {scoreCount === 1 ? "score" : "scores"}
                           {analysis.author?.name ? ` - ${analysis.author.name}` : ""}
                         </p>
@@ -472,7 +472,7 @@ export default function RiskScoreHubPage() {
           <List size={14} />
           Analyses
           {stats && stats.total > 0 && (
-            <span className="text-[10px] font-medium text-[#5A5650]">{stats.total}</span>
+            <span className="text-[10px] font-medium text-text-ghost">{stats.total}</span>
           )}
         </button>
         <button
@@ -483,7 +483,7 @@ export default function RiskScoreHubPage() {
           <BarChart3 size={14} />
           Score Catalogue
           {catalogue?.scores && (
-            <span className="text-[10px] font-medium text-[#5A5650]">{catalogue.scores.length}</span>
+            <span className="text-[10px] font-medium text-text-ghost">{catalogue.scores.length}</span>
           )}
         </button>
       </div>
@@ -493,7 +493,7 @@ export default function RiskScoreHubPage() {
         <>
           {/* Filter Chips */}
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[10px] text-[#5A5650] uppercase tracking-wider mr-1">Status</span>
+            <span className="text-[10px] text-text-ghost uppercase tracking-wider mr-1">Status</span>
             {STATUS_OPTIONS.map((opt) => {
               const count = facets?.status?.[opt.value];
               return (
@@ -505,7 +505,7 @@ export default function RiskScoreHubPage() {
                     "px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors border",
                     filterStatus === opt.value
                       ? "border-transparent"
-                      : "border-[#232328] bg-[#151518] text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#323238]",
+                      : "border-border-default bg-surface-raised text-text-muted hover:text-text-secondary hover:border-surface-highlight",
                   )}
                   style={filterStatus === opt.value ? { backgroundColor: `${opt.color}20`, color: opt.color, borderColor: `${opt.color}40` } : undefined}
                 >
@@ -515,8 +515,8 @@ export default function RiskScoreHubPage() {
               );
             })}
 
-            <span className="text-[#232328] mx-1">|</span>
-            <span className="text-[10px] text-[#5A5650] uppercase tracking-wider mr-1">Category</span>
+            <span className="text-surface-elevated mx-1">|</span>
+            <span className="text-[10px] text-text-ghost uppercase tracking-wider mr-1">Category</span>
             {CATEGORY_OPTIONS.map((opt) => {
               const count = facets?.category?.[opt.value];
               return (
@@ -528,7 +528,7 @@ export default function RiskScoreHubPage() {
                     "px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors border",
                     filterCategory === opt.value
                       ? "border-transparent"
-                      : "border-[#232328] bg-[#151518] text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#323238]",
+                      : "border-border-default bg-surface-raised text-text-muted hover:text-text-secondary hover:border-surface-highlight",
                   )}
                   style={filterCategory === opt.value ? { backgroundColor: `${opt.color}20`, color: opt.color, borderColor: `${opt.color}40` } : undefined}
                 >
@@ -542,7 +542,7 @@ export default function RiskScoreHubPage() {
               <button
                 type="button"
                 onClick={() => { setFilterStatus(null); setFilterCategory(null); }}
-                className="ml-2 px-2 py-1 rounded text-[11px] text-[#E85A6B] hover:bg-[#E85A6B]/10 transition-colors"
+                className="ml-2 px-2 py-1 rounded text-[11px] text-critical hover:bg-critical/10 transition-colors"
               >
                 <X size={12} className="inline mr-0.5" />
                 Clear
@@ -551,10 +551,10 @@ export default function RiskScoreHubPage() {
           </div>
 
           {sourceId > 0 && legacyOnlySummaries.length > 0 && (
-            <div className="rounded-xl border border-[#60A5FA]/20 bg-[#60A5FA]/5 px-5 py-4">
+            <div className="rounded-xl border border-info/20 bg-info/5 px-5 py-4">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-sm font-medium text-[#60A5FA]">
+                  <p className="text-sm font-medium text-info">
                     Source-Level Completed Scores
                   </p>
                   <p className="mt-1 text-xs text-[#93C5FD]">
@@ -565,7 +565,7 @@ export default function RiskScoreHubPage() {
                 <button
                   type="button"
                   onClick={() => setHubTab("catalogue")}
-                  className="shrink-0 text-xs text-[#60A5FA] hover:text-[#93C5FD] transition-colors"
+                  className="shrink-0 text-xs text-info hover:text-[#93C5FD] transition-colors"
                 >
                   Open Catalogue
                 </button>
@@ -580,7 +580,7 @@ export default function RiskScoreHubPage() {
                       setHubTab("catalogue");
                       setSelectedScoreId(summary.score_id);
                     }}
-                    className="rounded-full border border-[#60A5FA]/30 bg-[#60A5FA]/10 px-3 py-1.5 text-left transition-colors hover:bg-[#60A5FA]/20"
+                    className="rounded-full border border-info/30 bg-info/10 px-3 py-1.5 text-left transition-colors hover:bg-info/20"
                   >
                     <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#93C5FD]">
                       {summary.score_id}
@@ -612,19 +612,19 @@ export default function RiskScoreHubPage() {
             <div>
               {isLoading ? (
                 <div className="flex items-center justify-center h-64">
-                  <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+                  <Loader2 size={24} className="animate-spin text-text-muted" />
                 </div>
               ) : error ? (
-                <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#E85A6B]/30 bg-[#E85A6B]/5 py-16">
-                  <p className="text-sm text-[#E85A6B]">Failed to load analyses. Please try again.</p>
+                <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-critical/30 bg-critical/5 py-16">
+                  <p className="text-sm text-critical">Failed to load analyses. Please try again.</p>
                 </div>
               ) : analyses.length === 0 ? (
-                <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
-                  <Activity size={28} className="text-[#323238] mb-3" />
-                  <h3 className="text-lg font-semibold text-[#F0EDE8]">
+                <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
+                  <Activity size={28} className="text-surface-highlight mb-3" />
+                  <h3 className="text-lg font-semibold text-text-primary">
                     {debouncedSearch ? "No matching analyses" : "No risk score analyses yet"}
                   </h3>
-                  <p className="mt-2 text-sm text-[#8A857D]">
+                  <p className="mt-2 text-sm text-text-muted">
                     {debouncedSearch
                       ? `No analyses found for "${debouncedSearch}"`
                       : "Create your first analysis to stratify patients by clinical risk scores."}
@@ -660,14 +660,14 @@ export default function RiskScoreHubPage() {
       {hubTab === "catalogue" && (
         <div className="space-y-6">
           {sourceId > 0 ? (
-            <div className="flex items-center justify-between rounded-xl border border-[#2DD4BF]/20 bg-[#2DD4BF]/5 px-5 py-3">
+            <div className="flex items-center justify-between rounded-xl border border-success/20 bg-success/5 px-5 py-3">
               <div className="flex items-center gap-2">
                 {loadingEligibility || refreshEligibilityMutation.isPending ? (
-                  <Loader2 size={14} className="animate-spin text-[#2DD4BF]" />
+                  <Loader2 size={14} className="animate-spin text-success" />
                 ) : (
-                  <CheckCircle2 size={14} className="text-[#2DD4BF]" />
+                  <CheckCircle2 size={14} className="text-success" />
                 )}
-                <p className="text-sm text-[#2DD4BF]">
+                <p className="text-sm text-success">
                   {loadingEligibility || refreshEligibilityMutation.isPending
                     ? "Checking eligibility..."
                     : <>
@@ -681,13 +681,13 @@ export default function RiskScoreHubPage() {
               </div>
               <div className="flex items-center gap-3">
                 {eligibility && (
-                  <span className="text-xs text-[#2DD4BF]/70">
+                  <span className="text-xs text-success/70">
                     {Object.values(eligibility).filter((e) => e.eligible).length} of{" "}
                     {Object.keys(eligibility).length} scores eligible
                   </span>
                 )}
                 {sourceResults && sourceResults.scores_computed > 0 && (
-                  <span className="text-xs text-[#60A5FA]">
+                  <span className="text-xs text-info">
                     {sourceResults.scores_computed} completed results
                   </span>
                 )}
@@ -695,7 +695,7 @@ export default function RiskScoreHubPage() {
                   type="button"
                   onClick={() => refreshEligibilityMutation.mutate(sourceId)}
                   disabled={refreshEligibilityMutation.isPending}
-                  className="flex items-center gap-1 text-xs text-[#2DD4BF] hover:text-[#2DD4BF]/80 transition-colors disabled:opacity-50"
+                  className="flex items-center gap-1 text-xs text-success hover:text-success/80 transition-colors disabled:opacity-50"
                   title="Refresh eligibility check"
                 >
                   <RefreshCw size={12} className={refreshEligibilityMutation.isPending ? "animate-spin" : ""} />
@@ -704,9 +704,9 @@ export default function RiskScoreHubPage() {
               </div>
             </div>
           ) : (
-            <div className="flex items-center gap-3 rounded-xl border border-[#C9A227]/20 bg-[#C9A227]/5 px-5 py-3">
-              <Info size={16} className="text-[#C9A227] shrink-0" />
-              <p className="text-sm text-[#C9A227]">
+            <div className="flex items-center gap-3 rounded-xl border border-accent/20 bg-accent/5 px-5 py-3">
+              <Info size={16} className="text-accent shrink-0" />
+              <p className="text-sm text-accent">
                 Select a data source from the header to check eligibility for each score.
               </p>
             </div>
@@ -719,19 +719,19 @@ export default function RiskScoreHubPage() {
                   className="w-2 h-2 rounded-full"
                   style={{ backgroundColor: color }}
                 />
-                <h2 className="text-sm font-medium text-[#C5C0B8] uppercase tracking-wider">
+                <h2 className="text-sm font-medium text-text-secondary uppercase tracking-wider">
                   {category}
                 </h2>
-                <span className="text-[10px] text-[#5A5650]">
+                <span className="text-[10px] text-text-ghost">
                   ({scores.length})
                 </span>
                 {sourceId > 0 && eligibility && (
-                  <span className="text-[10px] text-[#2DD4BF]">
+                  <span className="text-[10px] text-success">
                     {scores.filter((s) => eligibility[s.score_id]?.eligible).length} eligible
                   </span>
                 )}
                 {sourceId > 0 && sourceResults && (
-                  <span className="text-[10px] text-[#60A5FA]">
+                  <span className="text-[10px] text-info">
                     {scores.filter((s) => sourceSummaryByScore.has(s.score_id)).length} completed
                   </span>
                 )}
@@ -754,7 +754,7 @@ export default function RiskScoreHubPage() {
 
           {(!catalogue?.scores || catalogue.scores.length === 0) && (
             <div className="flex items-center justify-center h-32">
-              <Loader2 size={20} className="animate-spin text-[#8A857D]" />
+              <Loader2 size={20} className="animate-spin text-text-muted" />
             </div>
           )}
         </div>
@@ -763,7 +763,7 @@ export default function RiskScoreHubPage() {
       {selectedScoreId && catalogue?.scores && (() => {
         const score = catalogue.scores.find((s) => s.score_id === selectedScoreId);
         if (!score) return null;
-        const catColor = CATEGORY_COLORS[score.category] ?? "#8A857D";
+        const catColor = CATEGORY_COLORS[score.category] ?? "var(--text-muted)";
         return (
           <ScoreDetailModal
             score={score}

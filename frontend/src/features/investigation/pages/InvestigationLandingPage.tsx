@@ -51,7 +51,7 @@ function DomainDot({ label, filled }: { label: string; filled: boolean }) {
     <div className="flex flex-col items-center gap-1">
       <div
         className="h-2.5 w-2.5 rounded-full transition-colors"
-        style={{ backgroundColor: filled ? "#2DD4BF" : "#3f3f46" }}
+        style={{ backgroundColor: filled ? "var(--success)" : "#3f3f46" }}
       />
       <span className="text-[10px] text-zinc-500">{label}</span>
     </div>
@@ -162,22 +162,22 @@ interface WorkflowStep {
 
 const WORKFLOW_STEPS: WorkflowStep[] = [
   {
-    icon: <FileText className="h-5 w-5" style={{ color: "#C9A227" }} />,
+    icon: <FileText className="h-5 w-5" style={{ color: "var(--accent)" }} />,
     label: "Ask a Question",
     description: "Define your research question and title.",
   },
   {
-    icon: <Microscope className="h-5 w-5" style={{ color: "#2DD4BF" }} />,
+    icon: <Microscope className="h-5 w-5" style={{ color: "var(--success)" }} />,
     label: "Build Phenotype",
     description: "Curate concept sets and cohort definitions.",
   },
   {
-    icon: <Activity className="h-5 w-5" style={{ color: "#9B1B30" }} />,
+    icon: <Activity className="h-5 w-5" style={{ color: "var(--primary)" }} />,
     label: "Gather Evidence",
     description: "Run HADES analyses and pull genomic signals.",
   },
   {
-    icon: <Dna className="h-5 w-5" style={{ color: "#2DD4BF" }} />,
+    icon: <Dna className="h-5 w-5" style={{ color: "var(--success)" }} />,
     label: "Synthesize Dossier",
     description: "Export a structured Evidence Dossier for publication.",
   },
@@ -190,7 +190,7 @@ export default function InvestigationLandingPage() {
   const { data: investigations, isLoading } = useInvestigations();
 
   return (
-    <div className="min-h-screen px-4 py-8" style={{ backgroundColor: "#0E0E11" }}>
+    <div className="min-h-screen px-4 py-8" style={{ backgroundColor: "var(--surface-base)" }}>
       <div className="max-w-5xl mx-auto space-y-10">
 
         {/* ── Header ── */}
@@ -209,7 +209,7 @@ export default function InvestigationLandingPage() {
                 className="h-10 w-10 rounded-xl flex items-center justify-center shrink-0"
                 style={{ backgroundColor: "rgba(45,212,191,0.12)", border: "1px solid rgba(45,212,191,0.25)" }}
               >
-                <Dna className="h-5 w-5" style={{ color: "#2DD4BF" }} />
+                <Dna className="h-5 w-5" style={{ color: "var(--success)" }} />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-zinc-100">Evidence Investigation</h1>
@@ -222,7 +222,7 @@ export default function InvestigationLandingPage() {
             <button
               onClick={() => void navigate("/workbench/investigation/new")}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-white transition-colors hover:opacity-90 shrink-0"
-              style={{ backgroundColor: "#9B1B30" }}
+              style={{ backgroundColor: "var(--primary)" }}
             >
               <Plus className="h-4 w-4" />
               New Investigation
@@ -300,7 +300,7 @@ export default function InvestigationLandingPage() {
               <button
                 onClick={() => void navigate("/workbench/investigation/new")}
                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors hover:opacity-90"
-                style={{ backgroundColor: "#9B1B30" }}
+                style={{ backgroundColor: "var(--primary)" }}
               >
                 <Plus className="h-3.5 w-3.5" />
                 New Investigation

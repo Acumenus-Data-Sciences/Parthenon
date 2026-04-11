@@ -77,7 +77,7 @@ export default function PacsStudyBrowser({
   if (!connection) return null;
 
   const inputCls =
-    "w-full px-2.5 py-1.5 text-xs bg-[#0E0E11] border border-[#232328] rounded-lg text-[#F0EDE8] placeholder-[#5A5650] focus:outline-none focus:border-[#2DD4BF]/50 focus:ring-1 focus:ring-[#2DD4BF]/30";
+    "w-full px-2.5 py-1.5 text-xs bg-surface-base border border-border-default rounded-lg text-text-primary placeholder-text-ghost focus:outline-none focus:border-success/50 focus:ring-1 focus:ring-success/30";
 
   return (
     <>
@@ -90,27 +90,27 @@ export default function PacsStudyBrowser({
       {/* Slide panel */}
       <div
         className={cn(
-          "fixed inset-y-0 right-0 z-50 w-[600px] bg-[#151518] border-l border-[#232328] shadow-2xl",
+          "fixed inset-y-0 right-0 z-50 w-[600px] bg-surface-raised border-l border-border-default shadow-2xl",
           "transform transition-transform duration-200 ease-out",
           connection ? "translate-x-0" : "translate-x-full",
         )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-[#232328]">
-          <h2 className="text-sm font-semibold text-[#F0EDE8] truncate">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border-default">
+          <h2 className="text-sm font-semibold text-text-primary truncate">
             Browse: {connection.name}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="p-1 rounded text-[#5A5650] hover:text-[#C5C0B8] hover:bg-[#232328] transition-colors"
+            className="p-1 rounded text-text-ghost hover:text-text-secondary hover:bg-surface-elevated transition-colors"
           >
             <X size={16} />
           </button>
         </div>
 
         {/* Filters */}
-        <div className="px-4 py-3 border-b border-[#232328] space-y-2">
+        <div className="px-4 py-3 border-b border-border-default space-y-2">
           <div className="grid grid-cols-3 gap-2">
             <div>
               <input
@@ -149,19 +149,19 @@ export default function PacsStudyBrowser({
         <div className="flex-1 overflow-y-auto" style={{ height: "calc(100vh - 140px)" }}>
           {isLoading ? (
             <div className="flex items-center justify-center py-16">
-              <Loader2 size={22} className="animate-spin text-[#2DD4BF]" />
+              <Loader2 size={22} className="animate-spin text-success" />
             </div>
           ) : studies.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-[#5A5650]">
+            <div className="flex flex-col items-center justify-center py-16 text-text-ghost">
               <Search size={32} className="mb-3 opacity-40" />
-              <p className="text-sm font-medium text-[#8A857D]">No studies found</p>
+              <p className="text-sm font-medium text-text-muted">No studies found</p>
             </div>
           ) : (
             <>
               {/* Table */}
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="border-b border-[#232328] text-[10px] font-medium text-[#5A5650] uppercase tracking-wider">
+                  <tr className="border-b border-border-default text-[10px] font-medium text-text-ghost uppercase tracking-wider">
                     <th className="px-3 py-2 text-left">Patient Name</th>
                     <th className="px-3 py-2 text-left">Patient ID</th>
                     <th className="px-3 py-2 text-left">Date</th>
@@ -175,33 +175,33 @@ export default function PacsStudyBrowser({
                   {studies.map((study, i) => (
                     <tr
                       key={study.study_instance_uid ?? i}
-                      className="border-b border-[#1E1E23] hover:bg-[#1C1C20] transition-colors"
+                      className="border-b border-[#1E1E23] hover:bg-surface-overlay transition-colors"
                     >
-                      <td className="px-3 py-2 text-[#F0EDE8] truncate max-w-[120px]">
+                      <td className="px-3 py-2 text-text-primary truncate max-w-[120px]">
                         {study.patient_name ?? "--"}
                       </td>
-                      <td className="px-3 py-2 text-[#8A857D] font-['IBM_Plex_Mono',monospace]">
+                      <td className="px-3 py-2 text-text-muted font-['IBM_Plex_Mono',monospace]">
                         {study.patient_id ?? "--"}
                       </td>
-                      <td className="px-3 py-2 text-[#8A857D] font-['IBM_Plex_Mono',monospace]">
+                      <td className="px-3 py-2 text-text-muted font-['IBM_Plex_Mono',monospace]">
                         {study.study_date ?? "--"}
                       </td>
                       <td className="px-3 py-2">
                         {study.modalities ? (
-                          <span className="rounded px-1 py-0.5 bg-[#2DD4BF]/10 text-[#2DD4BF] text-[10px] font-medium">
+                          <span className="rounded px-1 py-0.5 bg-success/10 text-success text-[10px] font-medium">
                             {study.modalities}
                           </span>
                         ) : (
                           "--"
                         )}
                       </td>
-                      <td className="px-3 py-2 text-[#8A857D] truncate max-w-[140px]">
+                      <td className="px-3 py-2 text-text-muted truncate max-w-[140px]">
                         {study.study_description ?? "--"}
                       </td>
-                      <td className="px-3 py-2 text-right text-[#F0EDE8] font-['IBM_Plex_Mono',monospace]">
+                      <td className="px-3 py-2 text-right text-text-primary font-['IBM_Plex_Mono',monospace]">
                         {study.num_series ?? "--"}
                       </td>
-                      <td className="px-3 py-2 text-right text-[#F0EDE8] font-['IBM_Plex_Mono',monospace]">
+                      <td className="px-3 py-2 text-right text-text-primary font-['IBM_Plex_Mono',monospace]">
                         {study.num_instances ?? "--"}
                       </td>
                     </tr>
@@ -210,8 +210,8 @@ export default function PacsStudyBrowser({
               </table>
 
               {/* Pagination */}
-              <div className="flex items-center justify-between px-4 py-3 border-t border-[#232328]">
-                <span className="text-xs text-[#5A5650]">
+              <div className="flex items-center justify-between px-4 py-3 border-t border-border-default">
+                <span className="text-xs text-text-ghost">
                   {offset + 1}–{offset + studies.length}
                   {totalStudies != null && (
                     <>
@@ -228,7 +228,7 @@ export default function PacsStudyBrowser({
                     type="button"
                     onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}
                     disabled={!hasPrev}
-                    className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#232328] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs text-text-muted hover:text-text-primary hover:bg-surface-elevated transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     <ChevronLeft size={12} />
                     Previous
@@ -237,7 +237,7 @@ export default function PacsStudyBrowser({
                     type="button"
                     onClick={() => setOffset(offset + PAGE_SIZE)}
                     disabled={!hasNext}
-                    className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#232328] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs text-text-muted hover:text-text-primary hover:bg-surface-elevated transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     Next
                     <ChevronRight size={12} />

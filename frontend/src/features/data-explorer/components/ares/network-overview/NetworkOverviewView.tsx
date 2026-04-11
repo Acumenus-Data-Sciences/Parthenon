@@ -20,7 +20,7 @@ function DomainRing({ count }: { count: number }) {
           cy={10}
           r={8}
           fill="none"
-          stroke="#2DD4BF"
+          stroke="var(--success)"
           strokeWidth={2}
           strokeDasharray={`${fraction * circumference} ${circumference}`}
           strokeLinecap="round"
@@ -56,7 +56,7 @@ export default function NetworkOverviewView() {
           onClick={() => setShowRadar(!showRadar)}
           className={`rounded-md border px-3 py-1 text-xs transition-colors ${
             showRadar
-              ? "border-[#2DD4BF] bg-[#2DD4BF]/10 text-[#2DD4BF]"
+              ? "border-success bg-success/10 text-success"
               : "border-[#333] text-[#888] hover:border-[#555]"
           }`}
         >
@@ -76,26 +76,26 @@ export default function NetworkOverviewView() {
 
       {/* Summary stats */}
       <div className="mb-6 grid grid-cols-5 gap-3">
-        <div className="rounded-lg border border-[#252530] bg-[#151518] p-3 text-center">
-          <p className="text-2xl font-semibold text-[#2DD4BF]">{overview.source_count}</p>
+        <div className="rounded-lg border border-[#252530] bg-surface-raised p-3 text-center">
+          <p className="text-2xl font-semibold text-success">{overview.source_count}</p>
           <p className="text-[11px] text-[#666]">Data Sources</p>
         </div>
-        <div className="rounded-lg border border-[#252530] bg-[#151518] p-3 text-center">
-          <p className="text-2xl font-semibold text-[#C9A227]">
+        <div className="rounded-lg border border-[#252530] bg-surface-raised p-3 text-center">
+          <p className="text-2xl font-semibold text-accent">
             {overview.avg_dq_score !== null ? `${overview.avg_dq_score.toFixed(1)}%` : "--"}
           </p>
           <p className="text-[11px] text-[#666]">Avg DQ Score</p>
         </div>
-        <div className="rounded-lg border border-[#252530] bg-[#151518] p-3 text-center">
-          <p className="text-2xl font-semibold text-[#9B1B30]">{overview.total_unmapped_codes.toLocaleString()}</p>
+        <div className="rounded-lg border border-[#252530] bg-surface-raised p-3 text-center">
+          <p className="text-2xl font-semibold text-primary">{overview.total_unmapped_codes.toLocaleString()}</p>
           <p className="text-[11px] text-[#666]">Unmapped Codes</p>
         </div>
-        <div className="rounded-lg border border-[#252530] bg-[#151518] p-3 text-center">
+        <div className="rounded-lg border border-[#252530] bg-surface-raised p-3 text-center">
           <p className="text-2xl font-semibold text-white">{overview.sources_needing_attention}</p>
           <p className="text-[11px] text-[#666]">Need Attention</p>
         </div>
-        <div className="rounded-lg border border-[#252530] bg-[#151518] p-3 text-center">
-          <p className="text-2xl font-semibold text-[#2DD4BF]">
+        <div className="rounded-lg border border-[#252530] bg-surface-raised p-3 text-center">
+          <p className="text-2xl font-semibold text-success">
             {overview.network_person_count?.toLocaleString() ?? "--"}
           </p>
           <p className="text-[11px] text-[#666]">Total Persons</p>
@@ -121,17 +121,17 @@ export default function NetworkOverviewView() {
               <tr
                 key={source.source_id}
                 onClick={() => navigate(`/data-explorer/${source.source_id}`)}
-                className="cursor-pointer border-b border-[#1a1a22] hover:bg-[#151518]"
+                className="cursor-pointer border-b border-[#1a1a22] hover:bg-surface-raised"
               >
                 <td className="px-4 py-2 text-white">{source.source_name}</td>
                 <td className="px-4 py-2 text-center">
                   <span
                     className={`rounded px-2 py-0.5 text-xs font-medium ${
                       source.pass_rate >= 90
-                        ? "bg-[#2DD4BF]/20 text-[#2DD4BF]"
+                        ? "bg-success/20 text-success"
                         : source.pass_rate >= 80
-                          ? "bg-[#C9A227]/20 text-[#C9A227]"
-                          : "bg-[#9B1B30]/20 text-[#e85d75]"
+                          ? "bg-accent/20 text-accent"
+                          : "bg-primary/20 text-[#e85d75]"
                     }`}
                   >
                     {source.pass_rate > 0 ? `${source.pass_rate.toFixed(1)}%` : "--"}
@@ -155,16 +155,16 @@ export default function NetworkOverviewView() {
 
             {/* Network aggregate row */}
             <tr className="border-t-2 border-[#333] bg-[#1a1a22] font-medium">
-              <td className="px-4 py-2 text-[#C9A227]">Network Total</td>
+              <td className="px-4 py-2 text-accent">Network Total</td>
               <td className="px-4 py-2 text-center">
-                <span className="text-xs text-[#C9A227]">
+                <span className="text-xs text-accent">
                   {overview.avg_dq_score !== null ? `${overview.avg_dq_score.toFixed(1)}%` : "--"} avg
                 </span>
               </td>
               <td />
               <td />
               <td />
-              <td className="px-4 py-2 text-right text-xs text-[#C9A227]">
+              <td className="px-4 py-2 text-right text-xs text-accent">
                 {overview.network_person_count?.toLocaleString() ?? "--"}
               </td>
               <td />

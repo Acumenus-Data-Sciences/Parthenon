@@ -145,7 +145,7 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
     <div className="flex flex-col gap-4">
       {/* Header */}
       <div className="flex items-center gap-2">
-        <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: "#2DD4BF" }}>
+        <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--success)" }}>
           Upload GWAS Summary Statistics
         </span>
       </div>
@@ -196,7 +196,7 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
           <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-zinc-950/70">
             <div
               className="w-6 h-6 border-2 border-zinc-600 rounded-full animate-spin"
-              style={{ borderTopColor: "#2DD4BF" }}
+              style={{ borderTopColor: "var(--success)" }}
             />
           </div>
         )}
@@ -204,7 +204,7 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
 
       {/* Upload error */}
       {isError && (
-        <p className="text-xs px-1" style={{ color: "#9B1B30" }}>
+        <p className="text-xs px-1" style={{ color: "var(--primary)" }}>
           {error instanceof Error ? error.message : "Upload failed. Please try again."}
         </p>
       )}
@@ -307,7 +307,7 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
 
           {/* Mapping error */}
           {mappingError && (
-            <p className="text-xs px-1" style={{ color: "#9B1B30" }}>
+            <p className="text-xs px-1" style={{ color: "var(--primary)" }}>
               {mappingError}
             </p>
           )}
@@ -326,7 +326,7 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
               <>
                 <div
                   className="w-3.5 h-3.5 border-2 border-zinc-600 rounded-full animate-spin"
-                  style={{ borderTopColor: "#2DD4BF" }}
+                  style={{ borderTopColor: "var(--success)" }}
                 />
                 Parsing…
               </>

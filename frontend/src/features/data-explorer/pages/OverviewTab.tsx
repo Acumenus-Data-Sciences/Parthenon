@@ -47,7 +47,7 @@ function Shimmer({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "animate-pulse rounded-xl border border-[#232328] bg-[#151518]",
+        "animate-pulse rounded-xl border border-border-default bg-surface-raised",
         className,
       )}
     />
@@ -65,11 +65,11 @@ function SectionHeader({
 }) {
   return (
     <div className="flex items-center gap-2 pt-2">
-      {Icon && <Icon size={16} className="text-[#8A857D]" />}
-      <h2 className="text-base font-bold uppercase tracking-wider text-[#C5C0B8]">
+      {Icon && <Icon size={16} className="text-text-muted" />}
+      <h2 className="text-base font-bold uppercase tracking-wider text-text-secondary">
         {title}
       </h2>
-      <div className="flex-1 border-b border-[#232328]" />
+      <div className="flex-1 border-b border-border-default" />
     </div>
   );
 }
@@ -97,7 +97,7 @@ function MetricCard({
 }: MetricCardProps) {
   return (
     <div
-      className="rounded-xl border border-[#232328] bg-[#151518] p-5 transition-colors hover:border-[#3A3A40]"
+      className="rounded-xl border border-border-default bg-surface-raised p-5 transition-colors hover:border-surface-highlight"
       onClick={onClick}
       style={onClick ? { cursor: "pointer" } : undefined}
       role={onClick ? "button" : undefined}
@@ -105,17 +105,17 @@ function MetricCard({
       onKeyDown={onClick ? (e) => { if (e.key === "Enter" || e.key === " ") onClick(); } : undefined}
     >
       <div className="mb-2 flex items-center gap-2">
-        <Icon size={14} className="text-[#8A857D]" />
-        <span className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
+        <Icon size={14} className="text-text-muted" />
+        <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
           {label}
         </span>
       </div>
       <div className="flex items-end justify-between gap-2">
         <div>
-          <p className="font-serif text-2xl font-bold text-[#F0EDE8]">
+          <p className="font-serif text-2xl font-bold text-text-primary">
             {value}
           </p>
-          {sub && <p className="mt-0.5 text-xs text-[#5A5650]">{sub}</p>}
+          {sub && <p className="mt-0.5 text-xs text-text-ghost">{sub}</p>}
         </div>
         {sparkData && sparkData.length > 2 && (
           <Sparkline data={sparkData} color={sparkColor} />
@@ -138,7 +138,7 @@ function RaceBarChart({ data }: { data: DemographicDistribution[] }) {
         const pct = (d.count / max) * 100;
         return (
           <div key={d.concept_id} className="flex items-center gap-3">
-            <span className="w-24 truncate text-right text-xs text-[#C5C0B8]">
+            <span className="w-24 truncate text-right text-xs text-text-secondary">
               {d.concept_name}
             </span>
             <div className="flex-1">
@@ -151,7 +151,7 @@ function RaceBarChart({ data }: { data: DemographicDistribution[] }) {
                 }}
               />
             </div>
-            <span className="w-14 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#8A857D]">
+            <span className="w-14 text-right font-['IBM_Plex_Mono',monospace] text-xs text-text-muted">
               {formatCompact(d.count)}
             </span>
           </div>
@@ -359,28 +359,28 @@ export default function OverviewTab({
             {/* Panel 1: Gender, Ethnicity & Race — Panel 2: Age Pyramid */}
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
               {/* Left panel: Gender + Ethnicity + Race stacked in one card */}
-              <div className="rounded-xl border border-[#232328] bg-[#151518] p-6">
+              <div className="rounded-xl border border-border-default bg-surface-raised p-6">
                 {/* Gender section */}
-                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-[#8A857D]">
+                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-text-muted">
                   Gender Distribution
                 </h3>
                 <ProportionalBar segments={genderSegments} height={24} />
 
                 {/* Divider */}
-                <div className="my-4 border-t border-[#232328]" />
+                <div className="my-4 border-t border-border-default" />
 
                 {/* Ethnicity section */}
-                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-[#8A857D]">
+                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-text-muted">
                   Ethnicity
                 </h3>
                 <ProportionalBar segments={ethnicitySegments} height={24} />
 
                 {/* Divider */}
-                <div className="my-4 border-t border-[#232328]" />
+                <div className="my-4 border-t border-border-default" />
 
                 {/* Race section */}
-                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-[#8A857D]">
-                  Race <span className="font-normal normal-case text-[#5A5650]">Top 10</span>
+                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-text-muted">
+                  Race <span className="font-normal normal-case text-text-ghost">Top 10</span>
                 </h3>
                 <RaceBarChart data={demographics.data.race} />
               </div>
@@ -504,8 +504,8 @@ export default function OverviewTab({
             />
           </ChartCard>
         ) : (
-          <div className="flex items-center justify-center rounded-xl border border-dashed border-[#323238] bg-[#151518] py-12">
-            <p className="text-sm text-[#8A857D]">
+          <div className="flex items-center justify-center rounded-xl border border-dashed border-surface-highlight bg-surface-raised py-12">
+            <p className="text-sm text-text-muted">
               Run Achilles to generate temporal trend data
             </p>
           </div>

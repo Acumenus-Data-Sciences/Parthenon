@@ -104,7 +104,7 @@ export function NewCampaignModal({
           <button
             type="button"
             onClick={handleClose}
-            className="rounded-lg border border-[#2A2A2F] px-4 py-2 text-sm text-[#8A857D] hover:text-[#F0EDE8]"
+            className="rounded-lg border border-[#2A2A2F] px-4 py-2 text-sm text-text-muted hover:text-text-primary"
           >
             Cancel
           </button>
@@ -123,7 +123,7 @@ export function NewCampaignModal({
                 requires_honest_broker: form.requires_honest_broker,
               });
             }}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSaving && <Loader2 size={14} className="animate-spin" />}
             {mode === "create" ? "Create Campaign" : "Save Campaign"}
@@ -134,25 +134,25 @@ export function NewCampaignModal({
       <div className="space-y-5">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div>
-            <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-[#8A857D]">
+            <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-text-muted">
               Campaign Name
             </label>
             <input
               value={form.name}
               onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
               placeholder="Baseline mental health intake"
-              className="w-full rounded-lg border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF]"
+              className="w-full rounded-lg border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-[#8A857D]">
+            <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-text-muted">
               Instrument
             </label>
             <select
               value={form.survey_instrument_id}
               onChange={(event) => setForm((current) => ({ ...current, survey_instrument_id: event.target.value }))}
-              className="w-full rounded-lg border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF]"
+              className="w-full rounded-lg border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
             >
               <option value="">Select an instrument</option>
               {instruments.map((instrument) => (
@@ -165,7 +165,7 @@ export function NewCampaignModal({
         </div>
 
         <div>
-          <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-[#8A857D]">
+          <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-text-muted">
             Description
           </label>
           <textarea
@@ -173,7 +173,7 @@ export function NewCampaignModal({
             onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
             rows={3}
             placeholder="Enrollment wave, inclusion notes, or operational instructions"
-            className="w-full rounded-lg border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF]"
+            className="w-full rounded-lg border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
           />
         </div>
 
@@ -182,11 +182,11 @@ export function NewCampaignModal({
             type="checkbox"
             checked={form.requires_honest_broker}
             onChange={(event) => setForm((current) => ({ ...current, requires_honest_broker: event.target.checked }))}
-            className="mt-1 h-4 w-4 rounded border-[#2A2A2F] bg-[#0E0E11] text-[#2DD4BF] focus:ring-[#2DD4BF]"
+            className="mt-1 h-4 w-4 rounded border-[#2A2A2F] bg-surface-base text-success focus:ring-success"
           />
           <div>
-            <div className="text-sm font-medium text-[#F0EDE8]">Require Honest Broker</div>
-            <p className="mt-1 text-[11px] text-[#8A857D]">
+            <div className="text-sm font-medium text-text-primary">Require Honest Broker</div>
+            <p className="mt-1 text-[11px] text-text-muted">
               Public respondents must be pre-registered by an honest broker before their answers can be linked to OMOP person IDs.
             </p>
           </div>
@@ -195,21 +195,21 @@ export function NewCampaignModal({
         <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-4">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <div className="text-xs font-medium uppercase tracking-wider text-[#8A857D]">
+              <div className="text-xs font-medium uppercase tracking-wider text-text-muted">
                 Cohort Generation
               </div>
-              <p className="mt-1 text-[11px] text-[#5A5650]">
+              <p className="mt-1 text-[11px] text-text-ghost">
                 Optional. Pick a completed generation to seed the denominator automatically.
               </p>
             </div>
 
             <div className="relative w-full lg:max-w-sm">
-              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]" />
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost" />
               <input
                 value={form.cohortQuery}
                 onChange={(event) => setForm((current) => ({ ...current, cohortQuery: event.target.value }))}
                 placeholder="Search cohorts"
-                className="w-full rounded-lg border border-[#2A2A2F] bg-[#0E0E11] py-2 pl-9 pr-3 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF]"
+                className="w-full rounded-lg border border-[#2A2A2F] bg-surface-base py-2 pl-9 pr-3 text-sm text-text-primary outline-none focus:border-success"
               />
             </div>
           </div>
@@ -220,12 +220,12 @@ export function NewCampaignModal({
               onClick={() => setForm((current) => ({ ...current, cohort_generation_id: "" }))}
               className={`w-full rounded-lg border px-3 py-3 text-left ${
                 form.cohort_generation_id === ""
-                  ? "border-[#2DD4BF] bg-[#2DD4BF]/10"
-                  : "border-[#2A2A2F] bg-[#0E0E11]"
+                  ? "border-success bg-success/10"
+                  : "border-[#2A2A2F] bg-surface-base"
               }`}
             >
-              <div className="text-sm font-medium text-[#F0EDE8]">No cohort seeding</div>
-              <div className="mt-1 text-[11px] text-[#5A5650]">
+              <div className="text-sm font-medium text-text-primary">No cohort seeding</div>
+              <div className="mt-1 text-[11px] text-text-ghost">
                 Create an unseeded campaign and collect only anonymous/public responses.
               </div>
             </button>
@@ -238,10 +238,10 @@ export function NewCampaignModal({
               }
 
               return (
-                <div key={cohort.id} className="rounded-lg border border-[#2A2A2F] bg-[#0E0E11] p-3">
-                  <div className="text-sm font-medium text-[#F0EDE8]">{cohort.name}</div>
+                <div key={cohort.id} className="rounded-lg border border-[#2A2A2F] bg-surface-base p-3">
+                  <div className="text-sm font-medium text-text-primary">{cohort.name}</div>
                   {cohort.description && (
-                    <div className="mt-1 text-[11px] text-[#5A5650]">{cohort.description}</div>
+                    <div className="mt-1 text-[11px] text-text-ghost">{cohort.description}</div>
                   )}
                   <div className="mt-3 space-y-2">
                     {generations
@@ -255,19 +255,19 @@ export function NewCampaignModal({
                             onClick={() => setForm((current) => ({ ...current, cohort_generation_id: String(generation.id) }))}
                             className={`w-full rounded-lg border px-3 py-2 text-left ${
                               selected
-                                ? "border-[#C9A227] bg-[#C9A227]/10"
+                                ? "border-accent bg-accent/10"
                                 : "border-[#2A2A2F] bg-[#141418]"
                             }`}
                           >
                             <div className="flex items-center justify-between gap-2">
-                              <span className="text-xs font-medium text-[#F0EDE8]">
+                              <span className="text-xs font-medium text-text-primary">
                                 Generation #{generation.id}
                               </span>
-                              <span className="text-[10px] uppercase tracking-wider text-[#5A5650]">
+                              <span className="text-[10px] uppercase tracking-wider text-text-ghost">
                                 {generation.person_count ?? 0} persons
                               </span>
                             </div>
-                            <div className="mt-1 text-[11px] text-[#8A857D]">
+                            <div className="mt-1 text-[11px] text-text-muted">
                               Completed {generation.completed_at ? new Date(generation.completed_at).toLocaleString() : "unknown"}
                             </div>
                           </button>
@@ -280,14 +280,14 @@ export function NewCampaignModal({
           </div>
 
           {selectedGeneration && (
-            <div className="mt-4 rounded-lg border border-[#2DD4BF]/30 bg-[#2DD4BF]/5 px-4 py-3">
-              <div className="text-xs font-medium text-[#2DD4BF]">
+            <div className="mt-4 rounded-lg border border-success/30 bg-success/5 px-4 py-3">
+              <div className="text-xs font-medium text-success">
                 Selected denominator source
               </div>
-              <div className="mt-1 text-sm text-[#C5C0B8]">
+              <div className="mt-1 text-sm text-text-secondary">
                 {selectedGeneration.cohort.name} · Generation #{selectedGeneration.generation.id}
               </div>
-              <div className="mt-1 text-[11px] text-[#8A857D]">
+              <div className="mt-1 text-[11px] text-text-muted">
                 {selectedGeneration.generation.person_count ?? 0} persons seeded into the campaign denominator.
               </div>
             </div>

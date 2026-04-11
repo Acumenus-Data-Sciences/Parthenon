@@ -33,21 +33,21 @@ interface ProjectDetailViewProps {
 }
 
 const STATUS_STYLES: Record<IngestionProject["status"], { label: string; classes: string }> = {
-  draft: { label: "Draft", classes: "bg-[#2A2A30] text-[#8A857D]" },
+  draft: { label: "Draft", classes: "bg-surface-accent text-text-muted" },
   profiling: { label: "Profiling", classes: "bg-blue-900/30 text-blue-400 animate-pulse" },
-  ready: { label: "Ready", classes: "bg-teal-900/30 text-[#2DD4BF]" },
-  mapping: { label: "Mapping", classes: "bg-amber-900/30 text-[#C9A227]" },
+  ready: { label: "Ready", classes: "bg-teal-900/30 text-success" },
+  mapping: { label: "Mapping", classes: "bg-amber-900/30 text-accent" },
   completed: { label: "Completed", classes: "bg-green-900/30 text-green-400" },
   failed: { label: "Failed", classes: "bg-red-900/30 text-red-400" },
 };
 
 const JOB_STATUS_ICON: Record<string, React.ReactNode> = {
-  completed: <Check size={14} className="text-[#2DD4BF]" />,
+  completed: <Check size={14} className="text-success" />,
   running: <Loader2 size={14} className="animate-spin text-blue-400" />,
-  pending: <Loader2 size={14} className="text-[#8A857D]" />,
-  queued: <Loader2 size={14} className="text-[#8A857D]" />,
-  failed: <X size={14} className="text-[#E85A6B]" />,
-  cancelled: <X size={14} className="text-[#5A5650]" />,
+  pending: <Loader2 size={14} className="text-text-muted" />,
+  queued: <Loader2 size={14} className="text-text-muted" />,
+  failed: <X size={14} className="text-critical" />,
+  cancelled: <X size={14} className="text-text-ghost" />,
 };
 
 function formatBytes(bytes: number | null | undefined): string {
@@ -142,7 +142,7 @@ export default function ProjectDetailView({ projectId, onBack }: ProjectDetailVi
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+        <Loader2 size={24} className="animate-spin text-text-muted" />
       </div>
     );
   }
@@ -153,13 +153,13 @@ export default function ProjectDetailView({ projectId, onBack }: ProjectDetailVi
         <button
           type="button"
           onClick={onBack}
-          className="flex items-center gap-1 text-sm text-[#8A857D] hover:text-[#F0EDE8] transition-colors"
+          className="flex items-center gap-1 text-sm text-text-muted hover:text-text-primary transition-colors"
         >
           <ArrowLeft size={14} />
           Back to Projects
         </button>
         <div className="flex items-center justify-center py-16">
-          <p className="text-sm text-[#E85A6B]">Failed to load project</p>
+          <p className="text-sm text-critical">Failed to load project</p>
         </div>
       </div>
     );
@@ -176,7 +176,7 @@ export default function ProjectDetailView({ projectId, onBack }: ProjectDetailVi
         <button
           type="button"
           onClick={onBack}
-          className="flex items-center gap-1 text-sm text-[#8A857D] hover:text-[#F0EDE8] transition-colors"
+          className="flex items-center gap-1 text-sm text-text-muted hover:text-text-primary transition-colors"
         >
           <ArrowLeft size={14} />
           Back to Projects
@@ -184,7 +184,7 @@ export default function ProjectDetailView({ projectId, onBack }: ProjectDetailVi
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <h2 className="text-lg font-semibold text-[#F0EDE8]">{project.name}</h2>
+            <h2 className="text-lg font-semibold text-text-primary">{project.name}</h2>
             <span
               className={cn(
                 "inline-block rounded-full px-2.5 py-0.5 text-xs font-medium",
@@ -204,8 +204,8 @@ export default function ProjectDetailView({ projectId, onBack }: ProjectDetailVi
             className={cn(
               "inline-flex items-center gap-2 rounded-lg px-4 py-1.5 text-xs font-medium transition-colors",
               project.status === "ready" || project.status === "mapping" || project.status === "completed"
-                ? "bg-[#2DD4BF] text-[#0E0E11] hover:bg-[#26BCA8]"
-                : "bg-[#1C1C20] text-[#5A5650] border border-[#323238] pointer-events-none",
+                ? "bg-success text-surface-base hover:bg-[#26BCA8]"
+                : "bg-surface-overlay text-text-ghost border border-surface-highlight pointer-events-none",
             )}
           >
             Open in Aqueduct
@@ -213,13 +213,13 @@ export default function ProjectDetailView({ projectId, onBack }: ProjectDetailVi
           </a>
         </div>
 
-        <div className="flex items-center gap-4 text-xs text-[#8A857D]">
+        <div className="flex items-center gap-4 text-xs text-text-muted">
           <span>{project.file_count} file{project.file_count !== 1 ? "s" : ""}</span>
-          <span className="w-px h-3 bg-[#323238]" />
+          <span className="w-px h-3 bg-surface-highlight" />
           <span>{formatBytes(project.total_size_bytes)}</span>
           {project.source && (
             <>
-              <span className="w-px h-3 bg-[#323238]" />
+              <span className="w-px h-3 bg-surface-highlight" />
               <span>Source: {project.source.source_name}</span>
             </>
           )}
@@ -229,42 +229,42 @@ export default function ProjectDetailView({ projectId, onBack }: ProjectDetailVi
       {/* Ingestion: Connect to Database + Upload Files */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Left column: Connect to Database */}
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-5">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-5">
           <div className="flex items-center gap-2 mb-4">
-            <h3 className="text-sm font-medium text-[#F0EDE8]">Connect to Database</h3>
+            <h3 className="text-sm font-medium text-text-primary">Connect to Database</h3>
           </div>
           <ConnectDatabaseColumn project={project} />
         </div>
 
         {/* Right column: Upload Files */}
-        <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+        <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
           <button
             type="button"
             onClick={() => setUploadExpanded((v) => !v)}
-            className="flex items-center justify-between w-full px-5 py-3.5 text-left hover:bg-[#1C1C20] transition-colors"
+            className="flex items-center justify-between w-full px-5 py-3.5 text-left hover:bg-surface-overlay transition-colors"
           >
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#9B1B30]/15">
-                <Plus size={16} className="text-[#9B1B30]" />
+              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/15">
+                <Plus size={16} className="text-primary" />
               </div>
               <div>
-                <span className="text-sm font-medium text-[#F0EDE8]">
+                <span className="text-sm font-medium text-text-primary">
                   {isDraft ? "Upload Source Files" : "Add More Files"}
                 </span>
-                <p className="text-xs text-[#8A857D]">
+                <p className="text-xs text-text-muted">
                   Select CSV, TSV, or Excel files to stage into the project
                 </p>
               </div>
             </div>
             {uploadExpanded ? (
-              <ChevronUp size={16} className="text-[#8A857D]" />
+              <ChevronUp size={16} className="text-text-muted" />
             ) : (
-              <ChevronDown size={16} className="text-[#8A857D]" />
+              <ChevronDown size={16} className="text-text-muted" />
             )}
           </button>
 
           {uploadExpanded && (
-            <div className="px-5 pb-5 pt-1 border-t border-[#1C1C20] space-y-4">
+            <div className="px-5 pb-5 pt-1 border-t border-surface-overlay space-y-4">
               {selectedFiles.length === 0 ? (
                 <MultiFileUploadZone onFilesSelect={handleFilesSelect} />
               ) : (
@@ -279,8 +279,8 @@ export default function ProjectDetailView({ projectId, onBack }: ProjectDetailVi
               )}
 
               {stageFilesMutation.isError && (
-                <div className="rounded-lg border border-[#E85A6B]/30 bg-[#E85A6B]/10 px-4 py-2.5">
-                  <p className="text-sm text-[#E85A6B]">
+                <div className="rounded-lg border border-critical/30 bg-critical/10 px-4 py-2.5">
+                  <p className="text-sm text-critical">
                     {stageFilesMutation.error instanceof Error
                       ? stageFilesMutation.error.message
                       : "Staging failed. Please try again."}
@@ -295,29 +295,29 @@ export default function ProjectDetailView({ projectId, onBack }: ProjectDetailVi
       {/* Staged Files Table */}
       {stagedJobs.length > 0 && (
         <div className="space-y-3">
-          <h3 className="text-sm font-medium text-[#8A857D] uppercase tracking-wider">
+          <h3 className="text-sm font-medium text-text-muted uppercase tracking-wider">
             Staged Files
           </h3>
-          <div className="rounded-lg border border-[#232328] overflow-hidden">
+          <div className="rounded-lg border border-border-default overflow-hidden">
             <table className="w-full">
               <thead>
-                <tr className="bg-[#151518] border-b border-[#232328]">
-                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                <tr className="bg-surface-raised border-b border-border-default">
+                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                     Table Name
                   </th>
-                  <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                  <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                     Rows
                   </th>
-                  <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                  <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                     Columns
                   </th>
-                  <th className="px-4 py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                  <th className="px-4 py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                     Status
                   </th>
-                  <th className="px-4 py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                  <th className="px-4 py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                     PII
                   </th>
-                  <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                  <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                     Actions
                   </th>
                 </tr>
@@ -358,9 +358,9 @@ export default function ProjectDetailView({ projectId, onBack }: ProjectDetailVi
 
       {/* Empty state when no staged jobs */}
       {stagedJobs.length === 0 && !isDraft && (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-12">
-          <FileText size={24} className="text-[#8A857D] mb-3" />
-          <p className="text-sm text-[#8A857D]">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-12">
+          <FileText size={24} className="text-text-muted mb-3" />
+          <p className="text-sm text-text-muted">
             No staged files yet. Upload files above to get started.
           </p>
         </div>
@@ -372,7 +372,7 @@ export default function ProjectDetailView({ projectId, onBack }: ProjectDetailVi
           <button
             type="button"
             onClick={() => setUploadExpanded(true)}
-            className="inline-flex items-center gap-2 rounded-lg border border-[#323238] bg-[#1C1C20] px-5 py-2.5 text-sm font-medium text-[#F0EDE8] transition-colors hover:bg-[#232328]"
+            className="inline-flex items-center gap-2 rounded-lg border border-surface-highlight bg-surface-overlay px-5 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-surface-elevated"
           >
             <Plus size={14} />
             Add more files
@@ -419,19 +419,19 @@ function StagedFileRow({
 
   return (
     <>
-      <tr className="border-b border-[#232328] bg-[#0E0E11] hover:bg-[#1A1A1E] transition-colors">
+      <tr className="border-b border-border-default bg-surface-base hover:bg-surface-overlay transition-colors">
         {/* Table Name */}
-        <td className="px-4 py-3 text-sm font-mono text-[#F0EDE8]">
+        <td className="px-4 py-3 text-sm font-mono text-text-primary">
           {tableName}
         </td>
 
         {/* Rows */}
-        <td className="px-4 py-3 text-right text-sm tabular-nums text-[#C5C0B8]">
+        <td className="px-4 py-3 text-right text-sm tabular-nums text-text-secondary">
           {rowCount !== null ? rowCount.toLocaleString() : "--"}
         </td>
 
         {/* Columns */}
-        <td className="px-4 py-3 text-right text-sm tabular-nums text-[#C5C0B8]">
+        <td className="px-4 py-3 text-right text-sm tabular-nums text-text-secondary">
           {colCount !== null ? colCount.toLocaleString() : "--"}
         </td>
 
@@ -439,12 +439,12 @@ function StagedFileRow({
         <td className="px-4 py-3 text-center">
           <div className="inline-flex items-center gap-1.5" title={job.error_message ?? job.status}>
             {statusIcon}
-            <span className="text-xs text-[#8A857D] capitalize">{job.status}</span>
+            <span className="text-xs text-text-muted capitalize">{job.status}</span>
           </div>
           {job.status === "failed" && job.error_message && (
             <div className="mt-1">
               <span
-                className="text-[10px] text-[#E85A6B] cursor-help"
+                className="text-[10px] text-critical cursor-help"
                 title={job.error_message}
               >
                 <AlertTriangle size={10} className="inline mr-0.5" />
@@ -457,14 +457,14 @@ function StagedFileRow({
         {/* PII */}
         <td className="px-4 py-3 text-center">
           {pii === null ? (
-            <span className="text-xs text-[#5A5650]">--</span>
+            <span className="text-xs text-text-ghost">--</span>
           ) : pii ? (
             <span className="inline-flex items-center gap-1 text-xs text-amber-400" title="PII detected">
               <AlertTriangle size={12} />
               Yes
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 text-xs text-[#2DD4BF]">
+            <span className="inline-flex items-center gap-1 text-xs text-success">
               <Check size={12} />
               No
             </span>
@@ -481,8 +481,8 @@ function StagedFileRow({
               className={cn(
                 "inline-flex items-center justify-center w-8 h-8 rounded-md transition-colors",
                 isPreviewOpen
-                  ? "text-[#C9A227] bg-[#C9A227]/10"
-                  : "text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#232328]",
+                  ? "text-accent bg-accent/10"
+                  : "text-text-muted hover:text-text-primary hover:bg-surface-elevated",
               )}
               title={isPreviewOpen ? "Hide preview" : "Preview data"}
             >
@@ -503,7 +503,7 @@ function StagedFileRow({
                 <button
                   type="button"
                   onClick={() => onConfirmDelete(null)}
-                  className="rounded-md px-2 py-1 text-xs text-[#8A857D] hover:bg-[#1C1C20] transition-colors"
+                  className="rounded-md px-2 py-1 text-xs text-text-muted hover:bg-surface-overlay transition-colors"
                 >
                   Cancel
                 </button>
@@ -512,7 +512,7 @@ function StagedFileRow({
               <button
                 type="button"
                 onClick={() => onConfirmDelete(job.id)}
-                className="inline-flex items-center justify-center w-8 h-8 rounded-md text-[#8A857D] hover:text-[#E85A6B] hover:bg-[#232328] transition-colors"
+                className="inline-flex items-center justify-center w-8 h-8 rounded-md text-text-muted hover:text-critical hover:bg-surface-elevated transition-colors"
                 title="Remove file"
               >
                 <Trash2 size={15} />

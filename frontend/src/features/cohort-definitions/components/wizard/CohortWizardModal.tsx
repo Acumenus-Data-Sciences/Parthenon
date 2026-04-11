@@ -41,9 +41,9 @@ function StepIndicator({ currentStep }: { currentStep: number }) {
               <div
                 className={cn(
                   "flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold transition-all shrink-0",
-                  isCompleted && "bg-[#C9A227] text-[#0E0E11]",
-                  isActive && "border-2 border-[#C9A227] bg-[#C9A227]/10 text-[#C9A227]",
-                  isPending && "border-2 border-[#323238] text-[#5A5650] bg-transparent",
+                  isCompleted && "bg-accent text-surface-base",
+                  isActive && "border-2 border-accent bg-accent/10 text-accent",
+                  isPending && "border-2 border-surface-highlight text-text-ghost bg-transparent",
                 )}
               >
                 {isCompleted ? <Check size={14} strokeWidth={3} /> : index + 1}
@@ -51,9 +51,9 @@ function StepIndicator({ currentStep }: { currentStep: number }) {
               <span
                 className={cn(
                   "text-xs font-medium whitespace-nowrap",
-                  isCompleted && "text-[#C9A227]",
-                  isActive && "text-[#F0EDE8]",
-                  isPending && "text-[#5A5650]",
+                  isCompleted && "text-accent",
+                  isActive && "text-text-primary",
+                  isPending && "text-text-ghost",
                 )}
               >
                 {s.label}
@@ -61,7 +61,7 @@ function StepIndicator({ currentStep }: { currentStep: number }) {
             </div>
             {!isLast && (
               <div className="flex-1 mx-2 mb-5">
-                <div className={cn("h-[2px] w-full rounded-full", isCompleted ? "bg-[#C9A227]" : "bg-[#323238]")} />
+                <div className={cn("h-[2px] w-full rounded-full", isCompleted ? "bg-accent" : "bg-surface-highlight")} />
               </div>
             )}
           </div>
@@ -119,20 +119,20 @@ export function CohortWizardModal({ onClose }: Props) {
         }
       `}</style>
 
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0E0E11]/90 backdrop-blur-sm">
-        <div className="relative mx-4 flex w-full max-w-3xl flex-col rounded-2xl border border-[#232328] bg-[#151518] shadow-2xl max-h-[90vh]">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-surface-base/90 backdrop-blur-sm">
+        <div className="relative flex flex-col rounded-2xl border border-border-default bg-surface-raised shadow-2xl w-[min(80vw,1100px)] h-[80vh]">
 
           <button
             type="button"
             onClick={handleClose}
-            className="absolute right-4 top-4 z-10 rounded-md p-1.5 text-[#5A5650] hover:text-[#8A857D] transition-colors"
+            className="absolute right-4 top-4 z-10 rounded-md p-1.5 text-text-ghost hover:text-text-muted transition-colors"
           >
             <X size={18} />
           </button>
 
           <StepIndicator currentStep={currentStep} />
 
-          <div className="flex-1 overflow-y-auto px-8 py-4">
+          <div className="flex-1 min-h-0 overflow-y-auto px-8 py-4">
             <div
               key={animKey}
               style={{
@@ -143,7 +143,7 @@ export function CohortWizardModal({ onClose }: Props) {
             </div>
           </div>
 
-          <div className="flex items-center justify-between border-t border-[#232328] px-8 py-4">
+          <div className="flex items-center justify-between border-t border-border-default px-8 py-4">
             <button
               type="button"
               onClick={handleBack}
@@ -151,8 +151,8 @@ export function CohortWizardModal({ onClose }: Props) {
               className={cn(
                 "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
                 currentStep === 0
-                  ? "cursor-not-allowed text-[#323238]"
-                  : "text-[#8A857D] hover:text-[#C5C0B8]",
+                  ? "cursor-not-allowed text-surface-highlight"
+                  : "text-text-muted hover:text-text-secondary",
               )}
             >
               <ArrowLeft size={14} />
@@ -167,8 +167,8 @@ export function CohortWizardModal({ onClose }: Props) {
                 className={cn(
                   "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors",
                   canProceed()
-                    ? "bg-[#C9A227] text-[#0E0E11] hover:bg-[#D4AF37]"
-                    : "cursor-not-allowed bg-[#232328] text-[#5A5650]",
+                    ? "bg-accent text-surface-base hover:bg-accent-light"
+                    : "cursor-not-allowed bg-surface-elevated text-text-ghost",
                 )}
               >
                 Next

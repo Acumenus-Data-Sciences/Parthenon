@@ -59,9 +59,9 @@ export function VennDiagram({
         cx={cxA}
         cy={cy}
         r={rA}
-        fill="#2DD4BF"
+        fill="var(--success)"
         fillOpacity={0.2}
-        stroke="#2DD4BF"
+        stroke="var(--success)"
         strokeWidth={1.5}
       />
 
@@ -82,7 +82,7 @@ export function VennDiagram({
           cx={cxB}
           cy={cy}
           r={rB}
-          fill="#C9A227"
+          fill="var(--accent)"
           fillOpacity={0.35}
           clipPath={`url(#clip-a-${pair.cohort_id_a})`}
         />
@@ -93,7 +93,7 @@ export function VennDiagram({
         x={cxA}
         y={cy - rA - 12}
         textAnchor="middle"
-        className="fill-[#F0EDE8] text-[11px] font-medium"
+        className="fill-text-primary text-[11px] font-medium"
       >
         {labelA}
       </text>
@@ -101,7 +101,7 @@ export function VennDiagram({
         x={cxB}
         y={cy - rB - 12}
         textAnchor="middle"
-        className="fill-[#F0EDE8] text-[11px] font-medium"
+        className="fill-text-primary text-[11px] font-medium"
       >
         {labelB}
       </text>
@@ -111,7 +111,7 @@ export function VennDiagram({
         x={cxA - rA * 0.4}
         y={cy + 4}
         textAnchor="middle"
-        className="fill-[#2DD4BF] text-[10px] font-['IBM_Plex_Mono',monospace]"
+        className="fill-success text-[10px] font-['IBM_Plex_Mono',monospace]"
       >
         {fmt(pair.only_a)}
       </text>
@@ -120,7 +120,7 @@ export function VennDiagram({
           x={cx}
           y={cy + 4}
           textAnchor="middle"
-          className="fill-[#C9A227] text-[11px] font-semibold font-['IBM_Plex_Mono',monospace]"
+          className="fill-accent text-[11px] font-semibold font-['IBM_Plex_Mono',monospace]"
         >
           {fmt(pair.overlap_count)}
         </text>
@@ -139,7 +139,7 @@ export function VennDiagram({
         x={cx}
         y={height - 8}
         textAnchor="middle"
-        className="fill-[#8A857D] text-[9px]"
+        className="fill-text-muted text-[9px]"
       >
         Jaccard Index: {pair.jaccard_index.toFixed(3)}
       </text>

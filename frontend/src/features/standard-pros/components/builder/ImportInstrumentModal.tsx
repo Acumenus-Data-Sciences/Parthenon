@@ -47,7 +47,7 @@ export function ImportInstrumentModal({
           <button
             type="button"
             onClick={handleClose}
-            className="rounded-lg border border-[#2A2A2F] px-4 py-2 text-sm text-[#8A857D] hover:text-[#F0EDE8]"
+            className="rounded-lg border border-[#2A2A2F] px-4 py-2 text-sm text-text-muted hover:text-text-primary"
           >
             Cancel
           </button>
@@ -55,7 +55,7 @@ export function ImportInstrumentModal({
             type="button"
             disabled={content.trim() === "" || isImporting}
             onClick={() => onSubmit({ sourceType, content, name, abbreviation, domain })}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base disabled:opacity-50"
           >
             {isImporting && <Loader2 size={14} className="animate-spin" />}
             Import
@@ -66,27 +66,27 @@ export function ImportInstrumentModal({
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
           <label className="block">
-            <span className="mb-1 block text-xs uppercase tracking-wider text-[#8A857D]">Source</span>
-            <select value={sourceType} onChange={(e) => setSourceType(e.target.value as "redcap" | "fhir")} className="w-full rounded-lg border border-[#2A2A2F] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8]">
+            <span className="mb-1 block text-xs uppercase tracking-wider text-text-muted">Source</span>
+            <select value={sourceType} onChange={(e) => setSourceType(e.target.value as "redcap" | "fhir")} className="w-full rounded-lg border border-[#2A2A2F] bg-surface-base px-3 py-2 text-sm text-text-primary">
               <option value="redcap">REDCap Dictionary CSV</option>
               <option value="fhir">FHIR Questionnaire JSON</option>
             </select>
           </label>
           <label className="block">
-            <span className="mb-1 block text-xs uppercase tracking-wider text-[#8A857D]">Name Override</span>
-            <input value={name} onChange={(e) => setName(e.target.value)} className="w-full rounded-lg border border-[#2A2A2F] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8]" />
+            <span className="mb-1 block text-xs uppercase tracking-wider text-text-muted">Name Override</span>
+            <input value={name} onChange={(e) => setName(e.target.value)} className="w-full rounded-lg border border-[#2A2A2F] bg-surface-base px-3 py-2 text-sm text-text-primary" />
           </label>
           <label className="block">
-            <span className="mb-1 block text-xs uppercase tracking-wider text-[#8A857D]">Abbreviation</span>
-            <input value={abbreviation} onChange={(e) => setAbbreviation(e.target.value)} className="w-full rounded-lg border border-[#2A2A2F] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8]" />
+            <span className="mb-1 block text-xs uppercase tracking-wider text-text-muted">Abbreviation</span>
+            <input value={abbreviation} onChange={(e) => setAbbreviation(e.target.value)} className="w-full rounded-lg border border-[#2A2A2F] bg-surface-base px-3 py-2 text-sm text-text-primary" />
           </label>
           <label className="block">
-            <span className="mb-1 block text-xs uppercase tracking-wider text-[#8A857D]">Domain</span>
-            <input value={domain} onChange={(e) => setDomain(e.target.value)} className="w-full rounded-lg border border-[#2A2A2F] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8]" />
+            <span className="mb-1 block text-xs uppercase tracking-wider text-text-muted">Domain</span>
+            <input value={domain} onChange={(e) => setDomain(e.target.value)} className="w-full rounded-lg border border-[#2A2A2F] bg-surface-base px-3 py-2 text-sm text-text-primary" />
           </label>
         </div>
 
-        <div className="rounded-lg border border-[#2A2A2F] bg-[#141418] px-4 py-3 text-[11px] text-[#8A857D]">
+        <div className="rounded-lg border border-[#2A2A2F] bg-[#141418] px-4 py-3 text-[11px] text-text-muted">
           {sourceType === "redcap"
             ? "Paste a REDCap data dictionary CSV. Supported columns include Field Label, Field Type, and Choices/Calculations."
             : "Paste a FHIR Questionnaire JSON resource. Nested items are flattened into a linear item list."}
@@ -96,7 +96,7 @@ export function ImportInstrumentModal({
           value={content}
           onChange={(e) => setContent(e.target.value)}
           rows={18}
-          className="w-full rounded-lg border border-[#2A2A2F] bg-[#141418] px-3 py-3 font-['IBM_Plex_Mono',monospace] text-xs text-[#F0EDE8] outline-none focus:border-[#2DD4BF]"
+          className="w-full rounded-lg border border-[#2A2A2F] bg-[#141418] px-3 py-3 font-['IBM_Plex_Mono',monospace] text-xs text-text-primary outline-none focus:border-success"
           placeholder={sourceType === "redcap" ? "Variable / Field Name,Form Name,Section Header,Field Type,Field Label,Choices, Calculations, OR Slider Labels" : '{ "resourceType": "Questionnaire", "title": "Example", "item": [] }'}
         />
       </div>

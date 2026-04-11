@@ -9,8 +9,8 @@ export interface QQPlotProps {
 }
 
 // Dark clinical theme colors
-const COLOR_TEAL = "#2DD4BF";
-const COLOR_GOLD = "#C9A227";
+const COLOR_TEAL = "var(--success)";
+const COLOR_GOLD = "var(--accent)";
 const COLOR_ZINC_300 = "#d4d4d8";
 const COLOR_ZINC_600 = "#52525b";
 const COLOR_ZINC_700 = "#3f3f46";

@@ -29,7 +29,7 @@ function CustomTooltip({
   if (!active || !payload?.length) return null;
   return (
     <div className={TOOLTIP_CLS}>
-      <p className="text-xs text-[#8A857D]">
+      <p className="text-xs text-text-muted">
         {label ? formatYearMonth(label) : ""}
       </p>
       {payload.map((p, i) => (

@@ -10,7 +10,7 @@ import {
 } from "recharts";
 import type { TemporalPrevalenceSource } from "../../../types/ares";
 
-const SOURCE_COLORS = ["#2DD4BF", "#C9A227", "#e85d75", "#7c8aed", "#59c990", "#f0a8d0", "#87ceeb"];
+const SOURCE_COLORS = ["var(--success)", "var(--accent)", "#e85d75", "#7c8aed", "#59c990", "#f0a8d0", "#87ceeb"];
 
 interface TemporalPrevalenceChartProps {
   sources: TemporalPrevalenceSource[];

@@ -25,21 +25,21 @@ export default function StructuredDataBlock({
 
   if (entries.length === 0) {
     return (
-      <p className="text-sm text-[#5A5650] italic">No structured data available</p>
+      <p className="text-sm text-text-ghost italic">No structured data available</p>
     );
   }
 
   return (
-    <div className="grid grid-cols-2 gap-px bg-[#232328] rounded-lg overflow-hidden">
+    <div className="grid grid-cols-2 gap-px bg-surface-elevated rounded-lg overflow-hidden">
       {entries.map(([key, value]) => (
         <div key={key} className="contents">
-          <div className="bg-[#151518] px-3 py-2">
-            <span className="text-xs font-medium text-[#5A5650]">
+          <div className="bg-surface-raised px-3 py-2">
+            <span className="text-xs font-medium text-text-ghost">
               {formatKey(key)}
             </span>
           </div>
-          <div className="bg-[#151518] px-3 py-2">
-            <span className="text-sm text-[#F0EDE8] break-words">
+          <div className="bg-surface-raised px-3 py-2">
+            <span className="text-sm text-text-primary break-words">
               {formatValue(value)}
             </span>
           </div>

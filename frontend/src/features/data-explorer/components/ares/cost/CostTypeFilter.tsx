@@ -20,7 +20,7 @@ export default function CostTypeFilter({
   return (
     <div className="mb-4">
       {/* Warning banner when multiple cost types detected */}
-      <div className="mb-2 rounded-lg border border-[#C9A227]/30 bg-[#C9A227]/10 px-4 py-2 text-xs text-[#C9A227]">
+      <div className="mb-2 rounded-lg border border-accent/30 bg-accent/10 px-4 py-2 text-xs text-accent">
         <span className="font-medium">Multiple cost types detected.</span>{" "}
         This source has {costTypes.length} different cost type concepts. Mixing charged amounts with
         paid amounts produces misleading statistics. Filter by cost type for accurate analysis.
@@ -33,7 +33,7 @@ export default function CostTypeFilter({
           onClick={() => onSelect(null)}
           className={`rounded-full border px-3 py-1 text-xs transition-colors ${
             selectedTypeId === null
-              ? "border-[#2DD4BF] bg-[#2DD4BF]/10 text-[#2DD4BF]"
+              ? "border-success bg-success/10 text-success"
               : "border-[#333] text-[#888] hover:border-[#555]"
           }`}
         >
@@ -46,7 +46,7 @@ export default function CostTypeFilter({
             onClick={() => onSelect(ct.cost_type_concept_id)}
             className={`rounded-full border px-3 py-1 text-xs transition-colors ${
               selectedTypeId === ct.cost_type_concept_id
-                ? "border-[#2DD4BF] bg-[#2DD4BF]/10 text-[#2DD4BF]"
+                ? "border-success bg-success/10 text-success"
                 : "border-[#333] text-[#888] hover:border-[#555]"
             }`}
           >

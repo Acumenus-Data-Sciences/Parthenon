@@ -33,14 +33,14 @@ export function BroadcastEmailModal({ userCount, onClose }: BroadcastEmailModalP
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
       {/* Panel */}
-      <div className="relative z-10 w-full max-w-lg rounded-xl border border-[#232328] bg-[#1C1C20] shadow-xl">
+      <div className="relative z-10 w-full max-w-lg rounded-xl border border-border-default bg-surface-overlay shadow-xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#232328] px-5 py-4">
-          <h2 className="text-base font-semibold text-[#F0EDE8]">Broadcast Email</h2>
+        <div className="flex items-center justify-between border-b border-border-default px-5 py-4">
+          <h2 className="text-base font-semibold text-text-primary">Broadcast Email</h2>
           <button
             type="button"
             onClick={onClose}
-            className="flex h-7 w-7 items-center justify-center rounded-md text-[#5A5650] transition-colors hover:bg-[#2A2A30] hover:text-[#8A857D]"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-text-ghost transition-colors hover:bg-surface-accent hover:text-text-muted"
           >
             <X size={16} />
           </button>
@@ -48,15 +48,15 @@ export function BroadcastEmailModal({ userCount, onClose }: BroadcastEmailModalP
 
         {/* Body */}
         <div className="space-y-4 px-5 py-4">
-          <p className="text-xs text-[#8A857D]">
+          <p className="text-xs text-text-muted">
             This will send an individual email to each of{" "}
-            <span className="font-['IBM_Plex_Mono',monospace] text-[#C9A227]">{userCount}</span>{" "}
+            <span className="font-['IBM_Plex_Mono',monospace] text-accent">{userCount}</span>{" "}
             registered users.
           </p>
 
           {/* Subject */}
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-[#8A857D]">Subject</label>
+            <label className="mb-1.5 block text-xs font-medium text-text-muted">Subject</label>
             <input
               type="text"
               value={subject}
@@ -64,13 +64,13 @@ export function BroadcastEmailModal({ userCount, onClose }: BroadcastEmailModalP
               placeholder="Email subject line…"
               maxLength={255}
               disabled={broadcast.isPending || !!result}
-              className="w-full rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] placeholder:text-[#5A5650] focus:border-[#2DD4BF] focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors disabled:opacity-50"
+              className="w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-success focus:outline-none focus:ring-1 focus:ring-success/40 transition-colors disabled:opacity-50"
             />
           </div>
 
           {/* Body */}
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-[#8A857D]">Message</label>
+            <label className="mb-1.5 block text-xs font-medium text-text-muted">Message</label>
             <textarea
               value={body}
               onChange={(e) => setBody(e.target.value)}
@@ -78,9 +78,9 @@ export function BroadcastEmailModal({ userCount, onClose }: BroadcastEmailModalP
               rows={8}
               maxLength={10000}
               disabled={broadcast.isPending || !!result}
-              className="w-full resize-none rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] placeholder:text-[#5A5650] focus:border-[#2DD4BF] focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors disabled:opacity-50"
+              className="w-full resize-none rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-success focus:outline-none focus:ring-1 focus:ring-success/40 transition-colors disabled:opacity-50"
             />
-            <p className="mt-1 text-right text-[10px] text-[#5A5650]">
+            <p className="mt-1 text-right text-[10px] text-text-ghost">
               {body.length.toLocaleString()} / 10,000
             </p>
           </div>
@@ -90,8 +90,8 @@ export function BroadcastEmailModal({ userCount, onClose }: BroadcastEmailModalP
             <div
               className={`flex items-start gap-2 rounded-lg border px-3 py-2.5 text-sm ${
                 result.success
-                  ? "border-[#2DD4BF]/30 bg-[#2DD4BF]/5 text-[#2DD4BF]"
-                  : "border-[#E85A6B]/30 bg-[#E85A6B]/5 text-[#E85A6B]"
+                  ? "border-success/30 bg-success/5 text-success"
+                  : "border-critical/30 bg-critical/5 text-critical"
               }`}
             >
               {result.success ? <CheckCircle size={16} className="mt-0.5 shrink-0" /> : <AlertCircle size={16} className="mt-0.5 shrink-0" />}
@@ -101,11 +101,11 @@ export function BroadcastEmailModal({ userCount, onClose }: BroadcastEmailModalP
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-3 border-t border-[#232328] px-5 py-4">
+        <div className="flex justify-end gap-3 border-t border-border-default px-5 py-4">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-[#2A2A30] bg-[#151518] px-4 py-2 text-sm text-[#8A857D] transition-colors hover:border-[#3A3A42] hover:text-[#C5C0B8]"
+            className="rounded-lg border border-border-default bg-surface-raised px-4 py-2 text-sm text-text-muted transition-colors hover:border-surface-highlight hover:text-text-secondary"
           >
             {result ? "Close" : "Cancel"}
           </button>
@@ -114,7 +114,7 @@ export function BroadcastEmailModal({ userCount, onClose }: BroadcastEmailModalP
               type="button"
               disabled={broadcast.isPending || !subject.trim() || !body.trim()}
               onClick={handleSend}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#C9A227] px-4 py-2 text-sm font-semibold text-[#0E0E11] transition-colors hover:bg-[#B5911F] disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-surface-base transition-colors hover:bg-[#B5911F] disabled:opacity-50"
             >
               {broadcast.isPending ? (
                 <>

@@ -8,10 +8,10 @@ export function PopulationStep() {
       <div className="pb-5">
         <EntryEventsStep />
       </div>
-      <div className="border-t border-[#2A2A30] pb-5 pt-5">
+      <div className="border-t border-border-default pb-5 pt-5">
         <ObservationWindowStep />
       </div>
-      <div className="border-t border-[#2A2A30] pt-5">
+      <div className="border-t border-border-default pt-5">
         <QualifyingEventsStep />
       </div>
     </div>

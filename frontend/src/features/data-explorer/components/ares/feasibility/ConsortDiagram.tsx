@@ -53,7 +53,7 @@ export default function ConsortDiagram({ results, criteriaLabels }: ConsortDiagr
   const steps = buildConsortSteps(results, labels);
 
   return (
-    <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
+    <div className="rounded-lg border border-[#252530] bg-surface-raised p-4">
       <h4 className="mb-1 text-sm font-medium text-white">CONSORT-Style Attrition Flow</h4>
       <p className="mb-4 text-[11px] text-[#666]">
         Shows how sources are progressively excluded by each criterion gate.
@@ -66,9 +66,9 @@ export default function ConsortDiagram({ results, criteriaLabels }: ConsortDiagr
             <div
               className={`flex w-56 flex-col items-center rounded-lg border px-4 py-2 ${
                 idx === 0
-                  ? "border-[#C9A227]/40 bg-[#C9A227]/10"
+                  ? "border-accent/40 bg-accent/10"
                   : step.remaining === 0
-                    ? "border-[#9B1B30]/40 bg-[#9B1B30]/10"
+                    ? "border-primary/40 bg-primary/10"
                     : "border-[#252530] bg-[#1a1a22]"
               }`}
             >
@@ -81,7 +81,7 @@ export default function ConsortDiagram({ results, criteriaLabels }: ConsortDiagr
               <div className="flex items-center gap-2 py-1">
                 <div className="h-6 w-px bg-[#333]" />
                 {steps[idx + 1].excluded > 0 && (
-                  <span className="rounded bg-[#9B1B30]/15 px-2 py-0.5 text-[10px] text-[#e85d75]">
+                  <span className="rounded bg-primary/15 px-2 py-0.5 text-[10px] text-[#e85d75]">
                     -{steps[idx + 1].excluded} excluded
                   </span>
                 )}

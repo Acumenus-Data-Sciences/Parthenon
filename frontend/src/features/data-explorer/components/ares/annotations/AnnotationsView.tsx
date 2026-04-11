@@ -7,17 +7,17 @@ import AnnotationTimeline from "./AnnotationTimeline";
 import type { ChartAnnotation } from "../../../types/ares";
 
 const TAG_OPTIONS = [
-  { value: undefined, label: "All", color: "border-[#333] text-[#888]", activeBg: "border-[#C9A227] bg-[#C9A227]/10 text-[#C9A227]" },
-  { value: "data_event", label: "Data Event", color: "border-[#333] text-[#888]", activeBg: "border-[#2DD4BF] bg-[#2DD4BF]/10 text-[#2DD4BF]" },
-  { value: "research_note", label: "Research Note", color: "border-[#333] text-[#888]", activeBg: "border-[#C9A227] bg-[#C9A227]/10 text-[#C9A227]" },
-  { value: "action_item", label: "Action Item", color: "border-[#333] text-[#888]", activeBg: "border-[#9B1B30] bg-[#9B1B30]/10 text-[#9B1B30]" },
+  { value: undefined, label: "All", color: "border-[#333] text-[#888]", activeBg: "border-accent bg-accent/10 text-accent" },
+  { value: "data_event", label: "Data Event", color: "border-[#333] text-[#888]", activeBg: "border-success bg-success/10 text-success" },
+  { value: "research_note", label: "Research Note", color: "border-[#333] text-[#888]", activeBg: "border-accent bg-accent/10 text-accent" },
+  { value: "action_item", label: "Action Item", color: "border-[#333] text-[#888]", activeBg: "border-primary bg-primary/10 text-primary" },
   { value: "system", label: "System", color: "border-[#333] text-[#888]", activeBg: "border-[#6366F1] bg-[#6366F1]/10 text-[#6366F1]" },
 ] as const;
 
 const TAG_BADGE_COLORS: Record<string, string> = {
-  data_event: "bg-[#2DD4BF]/10 text-[#2DD4BF]",
-  research_note: "bg-[#C9A227]/10 text-[#C9A227]",
-  action_item: "bg-[#9B1B30]/10 text-[#9B1B30]",
+  data_event: "bg-success/10 text-success",
+  research_note: "bg-accent/10 text-accent",
+  action_item: "bg-primary/10 text-primary",
   system: "bg-[#6366F1]/10 text-[#6366F1]",
 };
 
@@ -34,8 +34,8 @@ function ReplyCard({ reply, onDelete }: { reply: ChartAnnotation; onDelete: (id:
   return (
     <div className="ml-6 flex items-start justify-between border-l-2 border-[#252530] pl-3 py-2">
       <div className="space-y-0.5">
-        <p className="text-xs text-[#F0EDE8]">{reply.annotation_text}</p>
-        <div className="flex gap-2 text-[10px] text-[#8A857D]">
+        <p className="text-xs text-text-primary">{reply.annotation_text}</p>
+        <div className="flex gap-2 text-[10px] text-text-muted">
           {reply.creator && <span>{reply.creator.name}</span>}
           <span>{new Date(reply.created_at).toLocaleDateString()}</span>
         </div>
@@ -43,7 +43,7 @@ function ReplyCard({ reply, onDelete }: { reply: ChartAnnotation; onDelete: (id:
       <button
         type="button"
         onClick={() => onDelete(reply.id)}
-        className="text-[#8A857D] hover:text-[#9B1B30] transition-colors p-0.5 shrink-0"
+        className="text-text-muted hover:text-primary transition-colors p-0.5 shrink-0"
       >
         <Trash2 size={11} />
       </button>
@@ -97,14 +97,14 @@ function ReplyForm({
             handleSubmit();
           }
         }}
-        className="flex-1 rounded-lg border border-[#252530] bg-[#0E0E11] px-2.5 py-1.5 text-xs text-[#F0EDE8]
-                   placeholder-[#555] focus:border-[#C9A227] focus:outline-none"
+        className="flex-1 rounded-lg border border-[#252530] bg-surface-base px-2.5 py-1.5 text-xs text-text-primary
+                   placeholder-[#555] focus:border-accent focus:outline-none"
       />
       <button
         type="button"
         onClick={handleSubmit}
         disabled={!text.trim() || createMutation.isPending}
-        className="rounded-lg bg-[#C9A227] px-2.5 py-1.5 text-xs font-medium text-[#0E0E11] hover:bg-[#e0b82e] disabled:opacity-50 transition-colors"
+        className="rounded-lg bg-accent px-2.5 py-1.5 text-xs font-medium text-surface-base hover:bg-[#e0b82e] disabled:opacity-50 transition-colors"
       >
         <Send size={12} />
       </button>
@@ -148,7 +148,7 @@ export function AnnotationsView() {
         <select
           value={selectedSourceId ?? ""}
           onChange={(e) => setSelectedSourceId(e.target.value ? Number(e.target.value) : null)}
-          className="rounded-lg border border-[#252530] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none"
+          className="rounded-lg border border-[#252530] bg-surface-raised px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none"
         >
           <option value="">All sources</option>
           {sources?.map((s) => (
@@ -157,13 +157,13 @@ export function AnnotationsView() {
         </select>
 
         {/* View mode toggle */}
-        <div className="flex rounded-lg border border-[#252530] bg-[#151518]">
+        <div className="flex rounded-lg border border-[#252530] bg-surface-raised">
           <button
             type="button"
             onClick={() => setViewMode("list")}
             className={`flex items-center gap-1.5 px-3 py-1.5 text-xs transition-colors ${
               viewMode === "list"
-                ? "bg-[#C9A227]/10 text-[#C9A227]"
+                ? "bg-accent/10 text-accent"
                 : "text-[#666] hover:text-[#888]"
             }`}
           >
@@ -175,7 +175,7 @@ export function AnnotationsView() {
             onClick={() => setViewMode("timeline")}
             className={`flex items-center gap-1.5 px-3 py-1.5 text-xs transition-colors ${
               viewMode === "timeline"
-                ? "bg-[#C9A227]/10 text-[#C9A227]"
+                ? "bg-accent/10 text-accent"
                 : "text-[#666] hover:text-[#888]"
             }`}
           >
@@ -212,8 +212,8 @@ export function AnnotationsView() {
               placeholder="Search annotations..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="rounded-lg border border-[#252530] bg-[#151518] py-1.5 pl-8 pr-3 text-sm text-[#F0EDE8]
-                         placeholder-[#555] focus:border-[#2DD4BF] focus:outline-none"
+              className="rounded-lg border border-[#252530] bg-surface-raised py-1.5 pl-8 pr-3 text-sm text-text-primary
+                         placeholder-[#555] focus:border-success focus:outline-none"
             />
           </div>
         </div>
@@ -222,22 +222,22 @@ export function AnnotationsView() {
       {/* Loading */}
       {selectedSourceId && isLoading && (
         <div className="flex items-center justify-center py-12">
-          <Loader2 size={20} className="animate-spin text-[#8A857D]" />
+          <Loader2 size={20} className="animate-spin text-text-muted" />
         </div>
       )}
 
       {/* Empty state */}
       {!selectedSourceId && (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[#323238] bg-[#151518] py-16">
-          <MessageSquare size={32} className="text-[#8A857D] mb-3" />
-          <p className="text-sm text-[#8A857D]">Select a source to view its annotations</p>
+        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-surface-highlight bg-surface-raised py-16">
+          <MessageSquare size={32} className="text-text-muted mb-3" />
+          <p className="text-sm text-text-muted">Select a source to view its annotations</p>
         </div>
       )}
 
       {selectedSourceId && !isLoading && (!annotations || annotations.length === 0) && (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[#323238] bg-[#151518] py-16">
-          <MessageSquare size={32} className="text-[#8A857D] mb-3" />
-          <p className="text-sm text-[#8A857D]">No annotations yet for this source</p>
+        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-surface-highlight bg-surface-raised py-16">
+          <MessageSquare size={32} className="text-text-muted mb-3" />
+          <p className="text-sm text-text-muted">No annotations yet for this source</p>
         </div>
       )}
 
@@ -251,12 +251,12 @@ export function AnnotationsView() {
           {annotations.map((ann) => (
             <div
               key={ann.id}
-              className="rounded-xl border border-[#252530] bg-[#151518] p-4"
+              className="rounded-xl border border-[#252530] bg-surface-raised p-4"
             >
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="rounded-full bg-[#C9A227]/10 px-2 py-0.5 text-xs font-medium text-[#C9A227]">
+                    <span className="rounded-full bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent">
                       {ann.chart_type}
                     </span>
                     {ann.tag && (
@@ -264,13 +264,13 @@ export function AnnotationsView() {
                         {TAG_LABELS[ann.tag] ?? ann.tag}
                       </span>
                     )}
-                    <span className="text-xs text-[#8A857D]">x = {ann.x_value}</span>
+                    <span className="text-xs text-text-muted">x = {ann.x_value}</span>
                     {ann.y_value != null && (
-                      <span className="text-xs text-[#8A857D]">y = {ann.y_value}</span>
+                      <span className="text-xs text-text-muted">y = {ann.y_value}</span>
                     )}
                   </div>
-                  <p className="text-sm text-[#F0EDE8]">{ann.annotation_text}</p>
-                  <div className="flex gap-3 text-xs text-[#8A857D]">
+                  <p className="text-sm text-text-primary">{ann.annotation_text}</p>
+                  <div className="flex gap-3 text-xs text-text-muted">
                     {ann.creator && <span>{ann.creator.name}</span>}
                     {ann.source && <span>{ann.source.source_name}</span>}
                     <span>{new Date(ann.created_at).toLocaleDateString()}</span>
@@ -280,7 +280,7 @@ export function AnnotationsView() {
                   <button
                     type="button"
                     onClick={() => setReplyingTo(replyingTo === ann.id ? null : ann.id)}
-                    className="text-[#8A857D] hover:text-[#2DD4BF] transition-colors p-1"
+                    className="text-text-muted hover:text-success transition-colors p-1"
                     title="Reply"
                   >
                     <Reply size={14} />
@@ -289,7 +289,7 @@ export function AnnotationsView() {
                     type="button"
                     onClick={() => handleDelete(ann.id)}
                     disabled={deleteMutation.isPending}
-                    className="text-[#8A857D] hover:text-[#9B1B30] transition-colors p-1"
+                    className="text-text-muted hover:text-primary transition-colors p-1"
                   >
                     <Trash2 size={14} />
                   </button>

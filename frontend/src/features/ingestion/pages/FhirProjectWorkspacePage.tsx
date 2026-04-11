@@ -96,15 +96,15 @@ function ProjectPicker({ onSelect }: { onSelect: (id: number) => void }) {
     <Panel
       header={
         <div>
-          <h2 className="text-lg font-semibold text-[#F0EDE8]">Vulcan</h2>
-          <p className="mt-1 text-sm text-[#8A857D]">
+          <h2 className="text-lg font-semibold text-text-primary">Vulcan</h2>
+          <p className="mt-1 text-sm text-text-muted">
             Connection-backed FHIR bulk sync. Attach a FHIR server to an ingestion project and run incremental or full exports.
           </p>
         </div>
       }
     >
       {isLoading ? (
-        <div className="flex items-center gap-2 py-8 text-sm text-[#8A857D]">
+        <div className="flex items-center gap-2 py-8 text-sm text-text-muted">
           <Loader2 size={16} className="animate-spin" />
           Loading projects...
         </div>
@@ -121,20 +121,20 @@ function ProjectPicker({ onSelect }: { onSelect: (id: number) => void }) {
               key={project.id}
               type="button"
               onClick={() => onSelect(project.id)}
-              className="flex items-center justify-between rounded-lg border border-[#232328] bg-[#101014] px-4 py-3 text-left transition-colors hover:border-[#2DD4BF]/40 hover:bg-[#17171B]"
+              className="flex items-center justify-between rounded-lg border border-border-default bg-[#101014] px-4 py-3 text-left transition-colors hover:border-success/40 hover:bg-[#17171B]"
             >
               <div>
-                <div className="text-sm font-medium text-[#F0EDE8]">
+                <div className="text-sm font-medium text-text-primary">
                   {project.name}
                 </div>
-                <div className="mt-1 flex items-center gap-2 text-xs text-[#8A857D]">
+                <div className="mt-1 flex items-center gap-2 text-xs text-text-muted">
                   {statusBadge(project.last_fhir_sync_status ?? project.status)}
                   {project.fhir_connection_id && (
-                    <span className="text-[#2DD4BF]">FHIR linked</span>
+                    <span className="text-success">FHIR linked</span>
                   )}
                 </div>
               </div>
-              <ChevronDown size={14} className="-rotate-90 text-[#8A857D]" />
+              <ChevronDown size={14} className="-rotate-90 text-text-muted" />
             </button>
           ))}
         </div>
@@ -160,7 +160,7 @@ function WorkspaceView({
   if (workspaceQuery.isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 size={20} className="animate-spin text-[#8A857D]" />
+        <Loader2 size={20} className="animate-spin text-text-muted" />
       </div>
     );
   }
@@ -175,7 +175,7 @@ function WorkspaceView({
             <button
               type="button"
               onClick={onBack}
-              className="mt-3 text-sm text-[#2DD4BF] hover:underline"
+              className="mt-3 text-sm text-success hover:underline"
             >
               Back to projects
             </button>
@@ -196,14 +196,14 @@ function WorkspaceView({
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <h2 className="text-lg font-semibold text-[#F0EDE8]">{project.name}</h2>
+          <h2 className="text-lg font-semibold text-text-primary">{project.name}</h2>
           {statusBadge(project.last_fhir_sync_status ?? project.status)}
         </div>
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => workspaceQuery.refetch()}
-            className="inline-flex items-center gap-2 rounded-lg border border-[#323238] px-3 py-2 text-sm text-[#C5C0B8] transition-colors hover:text-[#F0EDE8]"
+            className="inline-flex items-center gap-2 rounded-lg border border-surface-highlight px-3 py-2 text-sm text-text-secondary transition-colors hover:text-text-primary"
           >
             <RefreshCw size={14} />
             Refresh
@@ -211,7 +211,7 @@ function WorkspaceView({
           <button
             type="button"
             onClick={onBack}
-            className="inline-flex items-center gap-2 rounded-lg border border-[#323238] px-3 py-2 text-sm text-[#C5C0B8] transition-colors hover:text-[#F0EDE8]"
+            className="inline-flex items-center gap-2 rounded-lg border border-surface-highlight px-3 py-2 text-sm text-text-secondary transition-colors hover:text-text-primary"
           >
             All Projects
           </button>
@@ -249,27 +249,27 @@ function WorkspaceView({
           className="flex w-full items-center justify-between text-left"
         >
           <div className="flex items-center gap-3">
-            <Upload size={16} className="text-[#8A857D]" />
+            <Upload size={16} className="text-text-muted" />
             <div>
-              <div className="text-sm font-medium text-[#F0EDE8]">
+              <div className="text-sm font-medium text-text-primary">
                 Bundle / NDJSON Sandbox
               </div>
-              <div className="mt-0.5 text-xs text-[#8A857D]">
+              <div className="mt-0.5 text-xs text-text-muted">
                 Ad-hoc upload for local validation and mapper spot checks
               </div>
             </div>
           </div>
           {sandboxOpen ? (
-            <ChevronUp size={16} className="text-[#8A857D]" />
+            <ChevronUp size={16} className="text-text-muted" />
           ) : (
-            <ChevronDown size={16} className="text-[#8A857D]" />
+            <ChevronDown size={16} className="text-text-muted" />
           )}
         </button>
         {sandboxOpen && (
-          <div className="mt-4 border-t border-[#232328] pt-4">
+          <div className="mt-4 border-t border-border-default pt-4">
             <Suspense
               fallback={
-                <div className="flex items-center gap-2 py-6 text-sm text-[#8A857D]">
+                <div className="flex items-center gap-2 py-6 text-sm text-text-muted">
                   <Loader2 size={16} className="animate-spin" />
                   Loading sandbox...
                 </div>
@@ -310,20 +310,20 @@ function ConnectedView({
       <Panel
         header={
           <div className="flex items-center gap-2">
-            <Link2 size={16} className="text-[#2DD4BF]" />
-            <span className="text-sm font-medium text-[#F0EDE8]">Attached Connection</span>
+            <Link2 size={16} className="text-success" />
+            <span className="text-sm font-medium text-text-primary">Attached Connection</span>
           </div>
         }
       >
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <div className="text-sm font-medium text-[#F0EDE8]">
+            <div className="text-sm font-medium text-text-primary">
               {connection.site_name}
             </div>
-            <div className="mt-1 text-xs text-[#8A857D]">
+            <div className="mt-1 text-xs text-text-muted">
               {connection.site_key} &middot; {connection.ehr_vendor}
               {connection.auth_mode === "none" && (
-                <span className="ml-2 text-[#C9A227]">anonymous</span>
+                <span className="ml-2 text-accent">anonymous</span>
               )}
             </div>
           </div>
@@ -352,7 +352,7 @@ function ConnectedView({
             type="button"
             onClick={() => onSync(false)}
             disabled={syncInProgress}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] transition-colors hover:bg-[#26BCA8] disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base transition-colors hover:bg-[#26BCA8] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {syncInProgress ? (
               <Loader2 size={14} className="animate-spin" />
@@ -365,7 +365,7 @@ function ConnectedView({
             type="button"
             onClick={() => onSync(true)}
             disabled={syncInProgress}
-            className="inline-flex items-center gap-2 rounded-lg border border-[#323238] px-4 py-2 text-sm text-[#C5C0B8] transition-colors hover:text-[#F0EDE8] disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg border border-surface-highlight px-4 py-2 text-sm text-text-secondary transition-colors hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50"
           >
             <RefreshCw size={14} />
             Full Sync
@@ -373,7 +373,7 @@ function ConnectedView({
         </div>
 
         {activeRun && (
-          <div className="mt-3 flex items-center gap-2 rounded-md bg-[#1A1710] px-3 py-2 text-xs text-[#C9A227]">
+          <div className="mt-3 flex items-center gap-2 rounded-md bg-[#1A1710] px-3 py-2 text-xs text-accent">
             <Loader2 size={12} className="animate-spin" />
             Sync in progress — auto-refreshing every 10 seconds
           </div>
@@ -403,8 +403,8 @@ function AttachConnectionView({
     <Panel
       header={
         <div className="flex items-center gap-2">
-          <Link2 size={16} className="text-[#8A857D]" />
-          <span className="text-sm font-medium text-[#F0EDE8]">FHIR Connection</span>
+          <Link2 size={16} className="text-text-muted" />
+          <span className="text-sm font-medium text-text-primary">FHIR Connection</span>
         </div>
       }
     >
@@ -419,7 +419,7 @@ function AttachConnectionView({
           <select
             value={selectedId}
             onChange={(e) => setSelectedId(e.target.value)}
-            className="min-w-[280px] rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#C9A227]"
+            className="min-w-[280px] rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary outline-none focus:border-accent"
           >
             <option value="">Select a FHIR connection</option>
             {availableConnections.map((c) => (
@@ -432,7 +432,7 @@ function AttachConnectionView({
             type="button"
             onClick={() => onAttach(Number(selectedId))}
             disabled={!selectedId || isPending}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] transition-colors hover:bg-[#26BCA8] disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base transition-colors hover:bg-[#26BCA8] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isPending ? (
               <Loader2 size={14} className="animate-spin" />
@@ -454,8 +454,8 @@ function SyncRunsTable({ runs }: { runs: FhirSyncRun[] }) {
     <Panel
       header={
         <div className="flex items-center gap-2">
-          <Activity size={16} className="text-[#C9A227]" />
-          <span className="text-sm font-medium text-[#F0EDE8]">Recent Sync Runs</span>
+          <Activity size={16} className="text-accent" />
+          <span className="text-sm font-medium text-text-primary">Recent Sync Runs</span>
         </div>
       }
     >
@@ -466,17 +466,17 @@ function SyncRunsTable({ runs }: { runs: FhirSyncRun[] }) {
           message="Start a sync to begin pulling data from the attached FHIR server."
         />
       ) : (
-        <div className="overflow-hidden rounded-lg border border-[#232328]">
+        <div className="overflow-hidden rounded-lg border border-border-default">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-[#232328] bg-[#151518]">
-                <th className="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-[#8A857D]">Run</th>
-                <th className="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-[#8A857D]">Status</th>
-                <th className="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-[#8A857D]">Extracted</th>
-                <th className="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-[#8A857D]">Mapped</th>
-                <th className="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-[#8A857D]">Written</th>
-                <th className="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-[#8A857D]">Coverage</th>
-                <th className="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-[#8A857D]">Started</th>
+              <tr className="border-b border-border-default bg-surface-raised">
+                <th className="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-text-muted">Run</th>
+                <th className="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-text-muted">Status</th>
+                <th className="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-text-muted">Extracted</th>
+                <th className="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-text-muted">Mapped</th>
+                <th className="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-text-muted">Written</th>
+                <th className="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-text-muted">Coverage</th>
+                <th className="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-text-muted">Started</th>
               </tr>
             </thead>
             <tbody>
@@ -484,25 +484,25 @@ function SyncRunsTable({ runs }: { runs: FhirSyncRun[] }) {
                 <tr
                   key={run.id}
                   className={cn(
-                    "border-b border-[#232328] bg-[#0E0E11]",
+                    "border-b border-border-default bg-surface-base",
                     isActiveRun(run) && "animate-pulse",
                   )}
                 >
-                  <td className="px-4 py-2.5 text-sm font-mono text-[#8A857D]">#{run.id}</td>
+                  <td className="px-4 py-2.5 text-sm font-mono text-text-muted">#{run.id}</td>
                   <td className="px-4 py-2.5">{statusBadge(run.status)}</td>
-                  <td className="px-4 py-2.5 text-right text-sm text-[#F0EDE8]">
+                  <td className="px-4 py-2.5 text-right text-sm text-text-primary">
                     {run.records_extracted.toLocaleString()}
                   </td>
-                  <td className="px-4 py-2.5 text-right text-sm text-[#F0EDE8]">
+                  <td className="px-4 py-2.5 text-right text-sm text-text-primary">
                     {run.records_mapped.toLocaleString()}
                   </td>
-                  <td className="px-4 py-2.5 text-right text-sm text-[#F0EDE8]">
+                  <td className="px-4 py-2.5 text-right text-sm text-text-primary">
                     {run.records_written.toLocaleString()}
                   </td>
-                  <td className="px-4 py-2.5 text-right text-sm text-[#F0EDE8]">
+                  <td className="px-4 py-2.5 text-right text-sm text-text-primary">
                     {run.mapping_coverage == null ? "—" : `${run.mapping_coverage}%`}
                   </td>
-                  <td className="px-4 py-2.5 text-sm text-[#8A857D]">
+                  <td className="px-4 py-2.5 text-sm text-text-muted">
                     {formatDateTime(run.created_at)}
                   </td>
                 </tr>

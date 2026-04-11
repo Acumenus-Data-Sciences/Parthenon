@@ -79,7 +79,7 @@ export default function NewInvestigationPage() {
   return (
     <div
       className="min-h-screen flex flex-col px-4"
-      style={{ backgroundColor: "#0E0E11" }}
+      style={{ backgroundColor: "var(--surface-base)" }}
     >
       {/* Back link */}
       <div className="pt-6 pb-2 max-w-lg w-full mx-auto">
@@ -108,7 +108,7 @@ export default function NewInvestigationPage() {
               htmlFor="title"
               className="block text-sm font-medium text-zinc-300 mb-1.5"
             >
-              Title <span className="text-[#9B1B30]">*</span>
+              Title <span className="text-primary">*</span>
             </label>
             <input
               id="title"
@@ -139,7 +139,7 @@ export default function NewInvestigationPage() {
               className="w-full rounded-lg bg-zinc-900 border border-zinc-700 px-3 py-2 text-zinc-100 placeholder-zinc-600 text-sm focus:outline-none focus:border-zinc-500 transition-colors resize-none"
             />
             {isLongEnough && (
-              <p className="mt-1 text-xs text-[#2DD4BF]">
+              <p className="mt-1 text-xs text-success">
                 AI will analyze your research question to suggest phenotype
                 concepts.
               </p>
@@ -151,7 +151,7 @@ export default function NewInvestigationPage() {
             type="submit"
             disabled={isPending || !title.trim()}
             className="w-full flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ backgroundColor: "#9B1B30" }}
+            style={{ backgroundColor: "var(--primary)" }}
           >
             {isPending ? (
               <>

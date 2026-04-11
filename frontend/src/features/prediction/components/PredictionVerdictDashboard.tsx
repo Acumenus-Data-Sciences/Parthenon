@@ -163,7 +163,7 @@ export function PredictionVerdictDashboard({ result }: PredictionVerdictDashboar
   return (
     <div className="space-y-4" data-testid="prediction-verdict-dashboard">
       {/* Overall Verdict Banner */}
-      <div className="flex items-center gap-3 rounded-lg border border-[#232328] bg-[#151518] p-4">
+      <div className="flex items-center gap-3 rounded-lg border border-border-default bg-surface-raised p-4">
         <div className="shrink-0">
           <VerdictIcon
             size={28}
@@ -178,12 +178,12 @@ export function PredictionVerdictDashboard({ result }: PredictionVerdictDashboar
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold text-[#F0EDE8]">
+            <h3 className="text-sm font-semibold text-text-primary">
               Model Performance Verdict
             </h3>
             <TrafficLightBadge color={config.color} label={config.label} />
           </div>
-          <p className="mt-1 text-xs text-[#8A857D]">{config.description}</p>
+          <p className="mt-1 text-xs text-text-muted">{config.description}</p>
         </div>
       </div>
 
@@ -230,9 +230,9 @@ export function PredictionVerdictDashboard({ result }: PredictionVerdictDashboar
 
       {/* Clinical Utility Threshold Selector */}
       {result.roc_curve && result.roc_curve.length > 0 && (
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-4">
           <div className="flex items-center gap-2 mb-4">
-            <h4 className="text-sm font-semibold text-[#F0EDE8]">
+            <h4 className="text-sm font-semibold text-text-primary">
               Clinical Utility Threshold Selector
             </h4>
             <InterpretationTooltip metric="Threshold" plain="Adjust the threshold probability to see how sensitivity, specificity, PPV, and NPV change." technical="Lower thresholds catch more true positives but increase false positives." />
@@ -240,7 +240,7 @@ export function PredictionVerdictDashboard({ result }: PredictionVerdictDashboar
 
           {/* Slider */}
           <div className="flex items-center gap-4 mb-4">
-            <label className="text-xs text-[#8A857D] whitespace-nowrap" htmlFor="threshold-slider">
+            <label className="text-xs text-text-muted whitespace-nowrap" htmlFor="threshold-slider">
               Threshold: {fmt(threshold, 2)}
             </label>
             <input
@@ -251,52 +251,52 @@ export function PredictionVerdictDashboard({ result }: PredictionVerdictDashboar
               step="0.01"
               value={threshold}
               onChange={(e) => setThreshold(parseFloat(e.target.value))}
-              className="flex-1 h-1.5 appearance-none rounded-full bg-[#232328] accent-[#2DD4BF] cursor-pointer"
+              className="flex-1 h-1.5 appearance-none rounded-full bg-surface-elevated accent-success cursor-pointer"
               data-testid="threshold-slider"
             />
           </div>
 
           {/* Operating characteristics */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="rounded border border-[#232328] bg-[#0E0E11] p-3">
-              <p className="text-[10px] font-medium text-[#8A857D] uppercase tracking-wider">
+            <div className="rounded border border-border-default bg-surface-base p-3">
+              <p className="text-[10px] font-medium text-text-muted uppercase tracking-wider">
                 Sensitivity
               </p>
               <p
-                className="mt-1 font-['IBM_Plex_Mono',monospace] text-base font-bold text-[#2DD4BF]"
+                className="mt-1 font-['IBM_Plex_Mono',monospace] text-base font-bold text-success"
                 data-testid="operating-sensitivity"
               >
                 {fmt(operatingPoint.sensitivity)}
               </p>
             </div>
-            <div className="rounded border border-[#232328] bg-[#0E0E11] p-3">
-              <p className="text-[10px] font-medium text-[#8A857D] uppercase tracking-wider">
+            <div className="rounded border border-border-default bg-surface-base p-3">
+              <p className="text-[10px] font-medium text-text-muted uppercase tracking-wider">
                 Specificity
               </p>
               <p
-                className="mt-1 font-['IBM_Plex_Mono',monospace] text-base font-bold text-[#C9A227]"
+                className="mt-1 font-['IBM_Plex_Mono',monospace] text-base font-bold text-accent"
                 data-testid="operating-specificity"
               >
                 {fmt(operatingPoint.specificity)}
               </p>
             </div>
-            <div className="rounded border border-[#232328] bg-[#0E0E11] p-3">
-              <p className="text-[10px] font-medium text-[#8A857D] uppercase tracking-wider">
+            <div className="rounded border border-border-default bg-surface-base p-3">
+              <p className="text-[10px] font-medium text-text-muted uppercase tracking-wider">
                 PPV
               </p>
               <p
-                className="mt-1 font-['IBM_Plex_Mono',monospace] text-base font-bold text-[#F0EDE8]"
+                className="mt-1 font-['IBM_Plex_Mono',monospace] text-base font-bold text-text-primary"
                 data-testid="operating-ppv"
               >
                 {fmt(operatingPoint.ppv)}
               </p>
             </div>
-            <div className="rounded border border-[#232328] bg-[#0E0E11] p-3">
-              <p className="text-[10px] font-medium text-[#8A857D] uppercase tracking-wider">
+            <div className="rounded border border-border-default bg-surface-base p-3">
+              <p className="text-[10px] font-medium text-text-muted uppercase tracking-wider">
                 NPV
               </p>
               <p
-                className="mt-1 font-['IBM_Plex_Mono',monospace] text-base font-bold text-[#F0EDE8]"
+                className="mt-1 font-['IBM_Plex_Mono',monospace] text-base font-bold text-text-primary"
                 data-testid="operating-npv"
               >
                 {fmt(operatingPoint.npv)}

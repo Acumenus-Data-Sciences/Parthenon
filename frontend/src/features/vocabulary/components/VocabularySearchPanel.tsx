@@ -147,14 +147,14 @@ export function VocabularySearchPanel({
     : [];
 
   return (
-    <div className="flex flex-col h-full border-r border-[#232328]">
+    <div className="flex flex-col h-full border-r border-border-default">
       {/* Search Header */}
-      <div className="px-4 py-4 border-b border-[#232328] space-y-3">
+      <div className="px-4 py-4 border-b border-border-default space-y-3">
         {/* Search Input + Autocomplete */}
         <div className="relative">
           <Search
             size={14}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost"
           />
           <input
             ref={inputRef}
@@ -169,9 +169,9 @@ export function VocabularySearchPanel({
             placeholder="Search concepts..."
             className={cn(
               "w-full rounded-lg pl-9 pr-8 py-2.5 text-sm",
-              "bg-[#0E0E11] border border-[#232328]",
-              "text-[#F0EDE8] placeholder:text-[#5A5650]",
-              "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+              "bg-surface-base border border-border-default",
+              "text-text-primary placeholder:text-text-ghost",
+              "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
               "transition-colors",
             )}
           />
@@ -182,7 +182,7 @@ export function VocabularySearchPanel({
                 setQuery("");
                 setShowSuggestions(false);
               }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-[#5A5650] hover:text-[#C5C0B8] transition-colors"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-text-ghost hover:text-text-secondary transition-colors"
             >
               <X size={14} />
             </button>
@@ -192,7 +192,7 @@ export function VocabularySearchPanel({
           {showSuggestions && suggestions && suggestions.length > 0 && query.length >= 2 && (
             <div
               ref={suggestionsRef}
-              className="absolute z-50 top-full mt-1 w-full rounded-lg border border-[#232328] bg-[#16161A] shadow-xl overflow-hidden"
+              className="absolute z-50 top-full mt-1 w-full rounded-lg border border-border-default bg-[#16161A] shadow-xl overflow-hidden"
             >
               {suggestions.slice(0, 8).map((s, i) => (
                 <button
@@ -202,11 +202,11 @@ export function VocabularySearchPanel({
                   className={cn(
                     "flex items-center gap-2 w-full px-3 py-2 text-left text-sm transition-colors",
                     i === selectedSuggestionIdx
-                      ? "bg-[#2DD4BF]/10 text-[#F0EDE8]"
-                      : "text-[#C5C0B8] hover:bg-[#1C1C20]",
+                      ? "bg-success/10 text-text-primary"
+                      : "text-text-secondary hover:bg-surface-overlay",
                   )}
                 >
-                  <Search size={11} className="shrink-0 text-[#5A5650]" />
+                  <Search size={11} className="shrink-0 text-text-ghost" />
                   <span className="truncate">{s.concept_name}</span>
                 </button>
               ))}
@@ -222,14 +222,14 @@ export function VocabularySearchPanel({
             className={cn(
               "inline-flex items-center gap-1.5 text-xs transition-colors",
               hasActiveFilters
-                ? "text-[#2DD4BF]"
-                : "text-[#8A857D] hover:text-[#C5C0B8]",
+                ? "text-success"
+                : "text-text-muted hover:text-text-secondary",
             )}
           >
             <Filter size={12} />
             Filters
             {hasActiveFilters && (
-              <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#2DD4BF]/15 text-[9px] font-bold text-[#2DD4BF]">
+              <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-success/15 text-[9px] font-bold text-success">
                 {activeFilterCount}
               </span>
             )}
@@ -244,7 +244,7 @@ export function VocabularySearchPanel({
 
           {/* Standard Concepts Toggle */}
           <label className="flex items-center gap-1.5 cursor-pointer">
-            <span className={cn("text-xs transition-colors", standardOnly ? "text-[#2DD4BF]" : "text-[#5A5650]")}>
+            <span className={cn("text-xs transition-colors", standardOnly ? "text-success" : "text-text-ghost")}>
               Standard
             </span>
             <button
@@ -254,7 +254,7 @@ export function VocabularySearchPanel({
               onClick={() => setStandardOnly(!standardOnly)}
               className={cn(
                 "relative w-8 h-[18px] rounded-full transition-colors",
-                standardOnly ? "bg-[#2DD4BF]" : "bg-[#323238]",
+                standardOnly ? "bg-success" : "bg-surface-highlight",
               )}
             >
               <div
@@ -276,9 +276,9 @@ export function VocabularySearchPanel({
               onChange={(e) => setDomainFilter(e.target.value)}
               className={cn(
                 "w-full rounded-lg px-3 py-2 text-sm appearance-none",
-                "bg-[#0E0E11] border border-[#232328]",
-                "text-[#F0EDE8]",
-                "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+                "bg-surface-base border border-border-default",
+                "text-text-primary",
+                "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
               )}
             >
               <option value="">All Domains</option>
@@ -298,9 +298,9 @@ export function VocabularySearchPanel({
               onChange={(e) => setVocabFilter(e.target.value)}
               className={cn(
                 "w-full rounded-lg px-3 py-2 text-sm appearance-none",
-                "bg-[#0E0E11] border border-[#232328]",
-                "text-[#F0EDE8]",
-                "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+                "bg-surface-base border border-border-default",
+                "text-text-primary",
+                "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
               )}
             >
               <option value="">All Vocabularies</option>
@@ -320,9 +320,9 @@ export function VocabularySearchPanel({
               onChange={(e) => setConceptClassFilter(e.target.value)}
               className={cn(
                 "w-full rounded-lg px-3 py-2 text-sm appearance-none",
-                "bg-[#0E0E11] border border-[#232328]",
-                "text-[#F0EDE8]",
-                "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+                "bg-surface-base border border-border-default",
+                "text-text-primary",
+                "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
               )}
             >
               <option value="">All Concept Classes</option>
@@ -338,7 +338,7 @@ export function VocabularySearchPanel({
               <button
                 type="button"
                 onClick={clearFilters}
-                className="text-xs text-[#E85A6B] hover:text-[#F06B7F] transition-colors"
+                className="text-xs text-critical hover:text-[#F06B7F] transition-colors"
               >
                 Clear all filters
               </button>
@@ -351,26 +351,26 @@ export function VocabularySearchPanel({
       <div className="flex-1 overflow-y-auto">
         {isLoading && !isFetchingNextPage ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 size={18} className="animate-spin text-[#8A857D]" />
+            <Loader2 size={18} className="animate-spin text-text-muted" />
           </div>
         ) : !query || query.length < 2 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center px-4">
-            <Search size={28} className="text-[#323238] mb-3" />
-            <p className="text-sm text-[#8A857D]">Search the OMOP Vocabulary</p>
-            <p className="mt-1 text-xs text-[#5A5650]">
+            <Search size={28} className="text-surface-highlight mb-3" />
+            <p className="text-sm text-text-muted">Search the OMOP Vocabulary</p>
+            <p className="mt-1 text-xs text-text-ghost">
               Type at least 2 characters to search concepts by name, code, or ID
             </p>
           </div>
         ) : !results || results.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center px-4">
-            <p className="text-sm text-[#8A857D]">
+            <p className="text-sm text-text-muted">
               No concepts found for &ldquo;{query}&rdquo;
             </p>
             {hasActiveFilters && (
               <button
                 type="button"
                 onClick={clearFilters}
-                className="mt-2 text-xs text-[#2DD4BF] hover:text-[#26B8A5] transition-colors"
+                className="mt-2 text-xs text-success hover:text-[#26B8A5] transition-colors"
               >
                 Try clearing filters
               </button>
@@ -379,8 +379,8 @@ export function VocabularySearchPanel({
         ) : (
           <div>
             {/* Result count + engine indicator */}
-            <div className="px-4 py-2 border-b border-[#232328] flex items-center justify-between">
-              <p className="text-[10px] text-[#5A5650]">
+            <div className="px-4 py-2 border-b border-border-default flex items-center justify-between">
+              <p className="text-[10px] text-text-ghost">
                 Showing {results.length} of {total.toLocaleString()} results
               </p>
               {engine && (
@@ -388,14 +388,14 @@ export function VocabularySearchPanel({
                   className={cn(
                     "inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-medium",
                     engine === "solr"
-                      ? "bg-[#2DD4BF]/10 text-[#2DD4BF]"
-                      : "bg-[#8A857D]/10 text-[#8A857D]",
+                      ? "bg-success/10 text-success"
+                      : "bg-text-muted/10 text-text-muted",
                   )}
                 >
                   <span
                     className={cn(
                       "w-1.5 h-1.5 rounded-full",
-                      engine === "solr" ? "bg-[#2DD4BF]" : "bg-[#8A857D]",
+                      engine === "solr" ? "bg-success" : "bg-text-muted",
                     )}
                   />
                   {engine === "solr" ? "Solr" : "PG"}
@@ -405,7 +405,7 @@ export function VocabularySearchPanel({
 
             {/* Faceted filter chips (Solr-powered) — domain, vocabulary, concept class */}
             {facets && Object.keys(facets).length > 0 && !showFilters && (
-              <div className="px-4 py-1.5 border-b border-[#232328] flex flex-wrap gap-1">
+              <div className="px-4 py-1.5 border-b border-border-default flex flex-wrap gap-1">
                 {/* Domain chips */}
                 {facets.domain_id && Object.entries(facets.domain_id).slice(0, 4).map(([name, count]) => (
                   <button
@@ -417,12 +417,12 @@ export function VocabularySearchPanel({
                     className={cn(
                       "inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] transition-colors",
                       domainFilter === name
-                        ? "bg-[#60A5FA]/20 text-[#60A5FA]"
-                        : "bg-[#60A5FA]/10 text-[#60A5FA]/70 hover:text-[#60A5FA]",
+                        ? "bg-info/20 text-info"
+                        : "bg-info/10 text-info/70 hover:text-info",
                     )}
                   >
                     {name}
-                    <span className="text-[#60A5FA]/50">{count.toLocaleString()}</span>
+                    <span className="text-info/50">{count.toLocaleString()}</span>
                   </button>
                 ))}
                 {/* Vocabulary chips */}
@@ -436,12 +436,12 @@ export function VocabularySearchPanel({
                     className={cn(
                       "inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] transition-colors",
                       vocabFilter === name
-                        ? "bg-[#C9A227]/20 text-[#C9A227]"
-                        : "bg-[#C9A227]/10 text-[#C9A227]/70 hover:text-[#C9A227]",
+                        ? "bg-accent/20 text-accent"
+                        : "bg-accent/10 text-accent/70 hover:text-accent",
                     )}
                   >
                     {name}
-                    <span className="text-[#C9A227]/50">{count.toLocaleString()}</span>
+                    <span className="text-accent/50">{count.toLocaleString()}</span>
                   </button>
                 ))}
                 {/* Concept class chips */}
@@ -455,18 +455,18 @@ export function VocabularySearchPanel({
                     className={cn(
                       "inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] transition-colors",
                       conceptClassFilter === name
-                        ? "bg-[#8A857D]/25 text-[#C5C0B8]"
-                        : "bg-[#8A857D]/10 text-[#8A857D]/70 hover:text-[#8A857D]",
+                        ? "bg-text-muted/25 text-text-secondary"
+                        : "bg-text-muted/10 text-text-muted/70 hover:text-text-muted",
                     )}
                   >
                     {name}
-                    <span className="text-[#8A857D]/50">{count.toLocaleString()}</span>
+                    <span className="text-text-muted/50">{count.toLocaleString()}</span>
                   </button>
                 ))}
               </div>
             )}
 
-            <div className="divide-y divide-[#232328]">
+            <div className="divide-y divide-border-default">
               {results.map((concept) => {
                 const isStandard = concept.standard_concept === "S";
                 const isSelected = concept.concept_id === selectedConceptId;
@@ -485,23 +485,23 @@ export function VocabularySearchPanel({
                     className={cn(
                       "flex flex-col gap-1 w-full px-4 py-3 text-left transition-colors",
                       resolvedMode === 'browse' && isSelected
-                        ? "bg-[#2DD4BF]/10 border-l-2 border-[#2DD4BF]"
+                        ? "bg-success/10 border-l-2 border-success"
                         : resolvedMode === 'build' && isInSet
                           ? "border-l-2 border-l-teal-400 bg-teal-400/5"
-                          : "hover:bg-[#1C1C20] border-l-2 border-transparent",
+                          : "hover:bg-surface-overlay border-l-2 border-transparent",
                     )}
                   >
                     <div className="flex items-center gap-2">
                       <span
                         className={cn(
                           "font-['IBM_Plex_Mono',monospace] text-xs tabular-nums",
-                          isStandard ? "text-[#C9A227]" : "text-[#8A857D]",
+                          isStandard ? "text-accent" : "text-text-muted",
                         )}
                       >
                         {concept.concept_id}
                       </span>
                       {isStandard && (
-                        <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-[#2DD4BF]/15 text-[#2DD4BF]">
+                        <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-success/15 text-success">
                           S
                         </span>
                       )}
@@ -518,27 +518,27 @@ export function VocabularySearchPanel({
                               e.stopPropagation();
                               onAddToSet?.(concept.concept_id);
                             }}
-                            className="shrink-0 flex h-6 w-6 items-center justify-center rounded bg-teal-400 text-[#0E0E11] text-sm font-bold hover:bg-teal-300 transition-colors"
+                            className="shrink-0 flex h-6 w-6 items-center justify-center rounded bg-teal-400 text-surface-base text-sm font-bold hover:bg-teal-300 transition-colors"
                           >
                             +
                           </button>
                         )
                       ) : null}
                     </div>
-                    <p className="text-sm text-[#F0EDE8] leading-snug [&_mark]:bg-[#C9A227]/30 [&_mark]:text-[#F0EDE8] [&_mark]:rounded-sm [&_mark]:px-0.5">
+                    <p className="text-sm text-text-primary leading-snug [&_mark]:bg-accent/30 [&_mark]:text-text-primary [&_mark]:rounded-sm [&_mark]:px-0.5">
                       <HighlightedText
                         html={highlightedName}
                         fallback={concept.concept_name}
                       />
                     </p>
                     <div className="flex items-center gap-1.5">
-                      <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#60A5FA]/15 text-[#60A5FA]">
+                      <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-info/15 text-info">
                         {concept.domain_id}
                       </span>
-                      <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#C9A227]/15 text-[#C9A227]">
+                      <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-accent/15 text-accent">
                         {concept.vocabulary_id}
                       </span>
-                      <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#8A857D]/15 text-[#8A857D]">
+                      <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-text-muted/15 text-text-muted">
                         {concept.concept_class_id}
                       </span>
                     </div>
@@ -549,14 +549,14 @@ export function VocabularySearchPanel({
 
             {/* Load More */}
             {hasNextPage && (
-              <div className="px-4 py-3 border-t border-[#232328]">
+              <div className="px-4 py-3 border-t border-border-default">
                 <button
                   type="button"
                   onClick={() => fetchNextPage()}
                   disabled={isFetchingNextPage}
                   className={cn(
-                    "w-full px-3 py-2 text-xs rounded-lg border border-[#232328] transition-colors",
-                    "text-[#8A857D] hover:text-[#F0EDE8] hover:border-[#2DD4BF]/30",
+                    "w-full px-3 py-2 text-xs rounded-lg border border-border-default transition-colors",
+                    "text-text-muted hover:text-text-primary hover:border-success/30",
                     isFetchingNextPage && "opacity-50 cursor-not-allowed",
                   )}
                 >

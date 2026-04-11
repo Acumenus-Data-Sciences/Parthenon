@@ -79,8 +79,8 @@ function AqueductContent({
   if (loadingProjects) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 size={24} className="animate-spin text-[#2DD4BF]" />
-        <span className="ml-3 text-sm text-[#8A857D]">Loading ETL projects...</span>
+        <Loader2 size={24} className="animate-spin text-success" />
+        <span className="ml-3 text-sm text-text-muted">Loading ETL projects...</span>
       </div>
     );
   }
@@ -88,26 +88,26 @@ function AqueductContent({
   // No project: show create card
   if (!existingProject) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 rounded-lg border border-dashed border-[#2E2E35] bg-[#151518]">
-        <div className="w-16 h-16 rounded-full bg-[#1C1C20] flex items-center justify-center mb-4">
-          <GitMerge size={28} className="text-[#2DD4BF]" />
+      <div className="flex flex-col items-center justify-center py-20 rounded-lg border border-dashed border-[#2E2E35] bg-surface-raised">
+        <div className="w-16 h-16 rounded-full bg-surface-overlay flex items-center justify-center mb-4">
+          <GitMerge size={28} className="text-success" />
         </div>
-        <h3 className="text-[#F0EDE8] font-semibold text-lg">
+        <h3 className="text-text-primary font-semibold text-lg">
           Create ETL Mapping Project
         </h3>
-        <p className="text-sm text-[#8A857D] mt-1 text-center max-w-md">
+        <p className="text-sm text-text-muted mt-1 text-center max-w-md">
           Start mapping your source schema to the OMOP CDM. Select a source
           that has been profiled via the Source Profiler tab first.
         </p>
         <div className="mt-6 flex items-center gap-4">
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-[#8A857D] uppercase tracking-wider">
+            <label className="block text-xs font-medium text-text-muted uppercase tracking-wider">
               CDM Version
             </label>
             <select
               value={cdmVersion}
               onChange={(e) => setCdmVersion(e.target.value)}
-              className="rounded-lg bg-[#1C1C20] border border-[#2E2E35] px-3 py-2 text-sm text-[#F0EDE8] focus:outline-none focus:border-[#2DD4BF]"
+              className="rounded-lg bg-surface-overlay border border-[#2E2E35] px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-success"
             >
               <option value="5.4">OMOP CDM v5.4</option>
               <option value="5.3">OMOP CDM v5.3</option>
@@ -117,7 +117,7 @@ function AqueductContent({
             type="button"
             onClick={handleCreateProject}
             disabled={createProject.isPending}
-            className="mt-5 inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-5 py-2.5 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors disabled:opacity-50"
+            className="mt-5 inline-flex items-center gap-2 rounded-lg bg-success px-5 py-2.5 text-sm font-medium text-surface-base hover:bg-success transition-colors disabled:opacity-50"
           >
             {createProject.isPending ? (
               <>
@@ -133,7 +133,7 @@ function AqueductContent({
           </button>
         </div>
         {createProject.isError && (
-          <p className="mt-3 text-xs text-[#E85A6B]">
+          <p className="mt-3 text-xs text-critical">
             {(createProject.error as Error)?.message ?? "Failed to create project"}
           </p>
         )}
@@ -194,14 +194,14 @@ export default function EtlToolsPage() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center py-20 rounded-lg border border-dashed border-[#2E2E35] bg-[#151518]">
-      <div className="w-16 h-16 rounded-full bg-[#1C1C20] flex items-center justify-center mb-4">
-        <GitMerge size={28} className="text-[#8A857D]" />
+    <div className="flex flex-col items-center justify-center py-20 rounded-lg border border-dashed border-[#2E2E35] bg-surface-raised">
+      <div className="w-16 h-16 rounded-full bg-surface-overlay flex items-center justify-center mb-4">
+        <GitMerge size={28} className="text-text-muted" />
       </div>
-      <h3 className="text-[#F0EDE8] font-semibold text-lg">
+      <h3 className="text-text-primary font-semibold text-lg">
         Aqueduct ETL Mapping Designer
       </h3>
-      <p className="text-sm text-[#8A857D] mt-1 text-center max-w-md">
+      <p className="text-sm text-text-muted mt-1 text-center max-w-md">
         Navigate to an ingestion project and click &ldquo;Open in Aqueduct&rdquo; to start
         designing ETL mappings from your source schema to the OMOP CDM.
       </p>

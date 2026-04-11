@@ -35,10 +35,10 @@ type Tab = (typeof TABS)[number]["id"];
 
 function StatsBar({ stats, isLoading }: { stats: SurveyStatsApi | undefined; isLoading: boolean }) {
   const items = [
-    { label: "Instruments", value: stats?.total_instruments ?? 0, icon: Library, color: "#2DD4BF" },
-    { label: "With Items", value: stats?.instruments_with_items ?? 0, icon: CheckCircle2, color: "#C9A227" },
-    { label: "Question Items", value: stats?.total_items ?? 0, icon: FileText, color: "#60A5FA" },
-    { label: "Answer Options", value: stats?.total_answer_options ?? 0, icon: BookOpen, color: "#A78BFA" },
+    { label: "Instruments", value: stats?.total_instruments ?? 0, icon: Library, color: "var(--success)" },
+    { label: "With Items", value: stats?.instruments_with_items ?? 0, icon: CheckCircle2, color: "var(--accent)" },
+    { label: "Question Items", value: stats?.total_items ?? 0, icon: FileText, color: "var(--info)" },
+    { label: "Answer Options", value: stats?.total_answer_options ?? 0, icon: BookOpen, color: "var(--domain-observation)" },
   ];
 
   return (
@@ -46,7 +46,7 @@ function StatsBar({ stats, isLoading }: { stats: SurveyStatsApi | undefined; isL
       {items.map((item) => (
         <div
           key={item.label}
-          className="flex items-center gap-3 rounded-lg border border-[#232328] bg-[#151518] px-4 py-3"
+          className="flex items-center gap-3 rounded-lg border border-border-default bg-surface-raised px-4 py-3"
         >
           <div
             className="flex items-center justify-center w-8 h-8 rounded-md flex-shrink-0"
@@ -61,7 +61,7 @@ function StatsBar({ stats, isLoading }: { stats: SurveyStatsApi | undefined; isL
             >
               {isLoading ? "\u2014" : item.value}
             </p>
-            <p className="text-[10px] text-[#5A5650] uppercase tracking-wider">
+            <p className="text-[10px] text-text-ghost uppercase tracking-wider">
               {item.label}
             </p>
           </div>
@@ -97,9 +97,9 @@ function AnalyticsTab() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3 rounded-xl border border-dashed border-[#C9A227]/30 bg-[#C9A227]/5 px-5 py-4">
-        <Info size={16} className="text-[#C9A227] shrink-0" />
-        <p className="text-sm text-[#C9A227]">
+      <div className="flex items-center gap-3 rounded-xl border border-dashed border-accent/30 bg-accent/5 px-5 py-4">
+        <Info size={16} className="text-accent shrink-0" />
+        <p className="text-sm text-accent">
           Analytics require survey_conduct data. Administer surveys through the Conduct tab to populate results.
         </p>
       </div>
@@ -107,21 +107,21 @@ function AnalyticsTab() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Achilles 900-series */}
         <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-5">
-          <h3 className="text-sm font-medium text-[#F0EDE8] mb-4">
+          <h3 className="text-sm font-medium text-text-primary mb-4">
             Achilles 900-Series Analyses
           </h3>
           <div className="space-y-2">
             {analyses.map((a) => (
               <div
                 key={a.id}
-                className="flex items-start gap-3 rounded-lg bg-[#0E0E11] border border-[#2A2A2F]/50 px-3 py-2"
+                className="flex items-start gap-3 rounded-lg bg-surface-base border border-[#2A2A2F]/50 px-3 py-2"
               >
-                <span className="text-[10px] font-['IBM_Plex_Mono',monospace] font-bold text-[#2DD4BF] shrink-0 pt-0.5">
+                <span className="text-[10px] font-['IBM_Plex_Mono',monospace] font-bold text-success shrink-0 pt-0.5">
                   {a.id}
                 </span>
                 <div>
-                  <span className="text-xs font-medium text-[#F0EDE8]">{a.title}</span>
-                  <p className="text-[11px] text-[#8A857D]">{a.desc}</p>
+                  <span className="text-xs font-medium text-text-primary">{a.title}</span>
+                  <p className="text-[11px] text-text-muted">{a.desc}</p>
                 </div>
               </div>
             ))}
@@ -130,29 +130,29 @@ function AnalyticsTab() {
 
         {/* DQ checks */}
         <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-5">
-          <h3 className="text-sm font-medium text-[#F0EDE8] mb-4">
+          <h3 className="text-sm font-medium text-text-primary mb-4">
             Data Quality Checks
           </h3>
           <div className="space-y-2">
             {dqChecks.map((dq) => (
               <div
                 key={dq.id}
-                className="flex items-start gap-3 rounded-lg bg-[#0E0E11] border border-[#2A2A2F]/50 px-3 py-2.5"
+                className="flex items-start gap-3 rounded-lg bg-surface-base border border-[#2A2A2F]/50 px-3 py-2.5"
               >
-                <span className="text-[10px] font-['IBM_Plex_Mono',monospace] font-bold text-[#C9A227] shrink-0 pt-0.5">
+                <span className="text-[10px] font-['IBM_Plex_Mono',monospace] font-bold text-accent shrink-0 pt-0.5">
                   {dq.id}
                 </span>
                 <div>
-                  <span className="text-xs font-medium text-[#F0EDE8]">{dq.title}</span>
-                  <p className="text-[11px] text-[#8A857D]">{dq.desc}</p>
+                  <span className="text-xs font-medium text-text-primary">{dq.title}</span>
+                  <p className="text-[11px] text-text-muted">{dq.desc}</p>
                 </div>
               </div>
             ))}
           </div>
 
           <div className="mt-6 flex flex-col items-center py-8">
-            <BarChart3 size={28} className="text-[#5A5650] mb-2" />
-            <span className="inline-block rounded-md bg-[#C9A227]/10 px-3 py-1 text-[10px] font-medium text-[#C9A227] uppercase tracking-wider">
+            <BarChart3 size={28} className="text-text-ghost mb-2" />
+            <span className="inline-block rounded-md bg-accent/10 px-3 py-1 text-[10px] font-medium text-accent uppercase tracking-wider">
               Requires Survey Data
             </span>
           </div>
@@ -179,33 +179,33 @@ export default function StandardProsPage() {
       <div className="flex items-center gap-3">
         <div
           className="flex items-center justify-center w-9 h-9 rounded-md flex-shrink-0"
-          style={{ backgroundColor: "#2DD4BF18" }}
+          style={{ backgroundColor: "color-mix(in srgb, var(--success) 9%, transparent)" }}
         >
-          <ClipboardList size={18} style={{ color: "#2DD4BF" }} />
+          <ClipboardList size={18} style={{ color: "var(--success)" }} />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-[#F0EDE8]">
+            <h1 className="text-2xl font-bold text-text-primary">
               Standard PROs+
             </h1>
             {stats && !statsLoading && (
-              <span className="inline-flex items-center gap-1 rounded-md bg-[#2DD4BF]/10 px-2 py-0.5 text-[10px] font-medium text-[#2DD4BF]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#2DD4BF] animate-pulse" />
+              <span className="inline-flex items-center gap-1 rounded-md bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success">
+                <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
                 Live
               </span>
             )}
             {instrumentsLoading && (
-              <Loader2 size={14} className="animate-spin text-[#5A5650]" />
+              <Loader2 size={14} className="animate-spin text-text-ghost" />
             )}
           </div>
-          <p className="text-sm text-[#8A857D]">
+          <p className="text-sm text-text-muted">
             Pre-mapped survey instrument library, visual builder, and dedicated PRO analytics
           </p>
         </div>
         <button
           type="button"
           onClick={() => setShowAbout(true)}
-          className="flex items-center gap-2 rounded-lg bg-[#9B1B30] px-4 py-2 text-sm font-medium text-white hover:bg-[#B42240] transition-colors shrink-0"
+          className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-[#B42240] transition-colors shrink-0"
         >
           <Info size={14} />
           About PROs+
@@ -216,7 +216,7 @@ export default function StandardProsPage() {
       <StatsBar stats={stats} isLoading={statsLoading} />
 
       {/* Tab bar */}
-      <div className="flex gap-1 border-b border-[#232328]">
+      <div className="flex gap-1 border-b border-border-default">
         {TABS.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
@@ -224,8 +224,8 @@ export default function StandardProsPage() {
             onClick={() => setTab(id)}
             className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px ${
               tab === id
-                ? "border-[#2DD4BF] text-[#2DD4BF]"
-                : "border-transparent text-[#5A5650] hover:text-[#8A857D]"
+                ? "border-success text-success"
+                : "border-transparent text-text-ghost hover:text-text-muted"
             }`}
           >
             <Icon size={14} />

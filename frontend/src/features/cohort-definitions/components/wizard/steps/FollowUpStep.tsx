@@ -7,7 +7,7 @@ export function FollowUpStep() {
       <div className="pb-5">
         <EndStrategyStep />
       </div>
-      <div className="border-t border-[#2A2A30] pt-5">
+      <div className="border-t border-border-default pt-5">
         <CensoringStep />
       </div>
     </div>

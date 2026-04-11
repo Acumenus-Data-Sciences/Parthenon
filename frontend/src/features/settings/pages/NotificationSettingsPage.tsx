@@ -7,14 +7,14 @@ export default function NotificationSettingsPage() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-3 mb-1">
-          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-[#2DD4BF]/10">
-            <Bell size={20} className="text-[#2DD4BF]" />
+          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-success/10">
+            <Bell size={20} className="text-success" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-[#F0EDE8]">
+            <h1 className="text-2xl font-bold text-text-primary">
               Notification Preferences
             </h1>
-            <p className="text-sm text-[#8A857D]">
+            <p className="text-sm text-text-muted">
               Configure how and when you receive notifications
             </p>
           </div>

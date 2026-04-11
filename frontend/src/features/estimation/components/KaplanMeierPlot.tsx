@@ -44,9 +44,9 @@ export function KaplanMeierPlot({
   const plotW = width - padding.left - padding.right;
   const plotH = chartHeight - padding.top - padding.bottom;
 
-  const TARGET_COLOR = "#2DD4BF";
-  const COMPARATOR_COLOR = "#C9A227";
-  const RISK_DIFF_COLOR = "#E85A6B";
+  const TARGET_COLOR = "var(--success)";
+  const COMPARATOR_COLOR = "var(--accent)";
+  const RISK_DIFF_COLOR = "var(--critical)";
 
   // Interactive hover state
   const [hoverTime, setHoverTime] = useState<number | null>(null);
@@ -252,14 +252,14 @@ export function KaplanMeierPlot({
         width={width}
         height={height}
         viewBox={`0 0 ${width} ${height}`}
-        className="text-[#F0EDE8]"
+        className="text-text-primary"
         role="img"
         aria-label="Kaplan-Meier survival curves"
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       >
         {/* Background */}
-        <rect width={width} height={height} fill="#151518" rx={8} />
+        <rect width={width} height={height} fill="var(--surface-raised)" rx={8} />
 
         {/* Grid */}
         {yTicks.map((v) => (
@@ -269,14 +269,14 @@ export function KaplanMeierPlot({
               y1={toY(v)}
               x2={padding.left + plotW}
               y2={toY(v)}
-              stroke="#232328"
+              stroke="var(--border-default)"
               strokeWidth={0.5}
             />
             <text
               x={padding.left - 8}
               y={toY(v) + 3}
               textAnchor="end"
-              fill="#5A5650"
+              fill="var(--text-ghost)"
               fontSize={10}
             >
               {v.toFixed(1)}
@@ -290,14 +290,14 @@ export function KaplanMeierPlot({
               y1={padding.top}
               x2={toX(t)}
               y2={padding.top + plotH}
-              stroke="#232328"
+              stroke="var(--border-default)"
               strokeWidth={0.5}
             />
             <text
               x={toX(t)}
               y={chartHeight - 4}
               textAnchor="middle"
-              fill="#5A5650"
+              fill="var(--text-ghost)"
               fontSize={10}
             >
               {t}
@@ -381,7 +381,7 @@ export function KaplanMeierPlot({
               y1={padding.top}
               x2={toX(hoverTime)}
               y2={padding.top + plotH}
-              stroke="#F0EDE8"
+              stroke="var(--text-primary)"
               strokeWidth={1}
               strokeDasharray="3 3"
               opacity={0.5}
@@ -393,15 +393,15 @@ export function KaplanMeierPlot({
               width={148}
               height={52}
               rx={4}
-              fill="#0E0E11"
-              stroke="#323238"
+              fill="var(--surface-base)"
+              stroke="var(--border-default)"
               strokeWidth={1}
               opacity={0.95}
             />
             <text
               x={Math.min(toX(hoverTime) + 16, width - 152)}
               y={padding.top + 20}
-              fill="#8A857D"
+              fill="var(--text-muted)"
               fontSize={9}
               fontFamily="IBM Plex Mono, monospace"
             >
@@ -438,7 +438,7 @@ export function KaplanMeierPlot({
           width={plotW}
           height={plotH}
           fill="none"
-          stroke="#323238"
+          stroke="var(--border-default)"
           strokeWidth={1}
         />
 
@@ -450,8 +450,8 @@ export function KaplanMeierPlot({
             width={200}
             height={legendHeight}
             rx={4}
-            fill="#0E0E11"
-            stroke="#232328"
+            fill="var(--surface-base)"
+            stroke="var(--border-default)"
             strokeWidth={1}
           />
           <line
@@ -462,7 +462,7 @@ export function KaplanMeierPlot({
             stroke={TARGET_COLOR}
             strokeWidth={2.5}
           />
-          <text x={34} y={18} fill="#C5C0B8" fontSize={11}>
+          <text x={34} y={18} fill="var(--text-secondary)" fontSize={11}>
             {targetLabel}
           </text>
           <line
@@ -473,7 +473,7 @@ export function KaplanMeierPlot({
             stroke={COMPARATOR_COLOR}
             strokeWidth={2.5}
           />
-          <text x={34} y={36} fill="#C5C0B8" fontSize={11}>
+          <text x={34} y={36} fill="var(--text-secondary)" fontSize={11}>
             {comparatorLabel}
           </text>
           {(() => {
@@ -486,7 +486,7 @@ export function KaplanMeierPlot({
                   key="logrank"
                   x={8}
                   y={yOffset + 10}
-                  fill="#8A857D"
+                  fill="var(--text-muted)"
                   fontSize={10}
                   fontFamily="IBM Plex Mono, monospace"
                 >
@@ -512,7 +512,7 @@ export function KaplanMeierPlot({
                   <text
                     x={30}
                     y={yOffset + 10}
-                    fill="#C5C0B8"
+                    fill="var(--text-secondary)"
                     fontSize={10}
                   >
                     Risk difference
@@ -528,7 +528,7 @@ export function KaplanMeierPlot({
                   key="rmst"
                   x={8}
                   y={yOffset + 10}
-                  fill="#8A857D"
+                  fill="var(--text-muted)"
                   fontSize={9}
                   fontFamily="IBM Plex Mono, monospace"
                 >
@@ -549,7 +549,7 @@ export function KaplanMeierPlot({
               x={padding.left + plotW - 8}
               y={padding.top + plotH - 8}
               textAnchor="end"
-              fill="#8A857D"
+              fill="var(--text-muted)"
               fontSize={10}
               fontFamily="IBM Plex Mono, monospace"
             >
@@ -563,7 +563,7 @@ export function KaplanMeierPlot({
           x={padding.left + plotW / 2}
           y={chartHeight + 16}
           textAnchor="middle"
-          fill="#8A857D"
+          fill="var(--text-muted)"
           fontSize={11}
           fontWeight={600}
         >
@@ -573,7 +573,7 @@ export function KaplanMeierPlot({
           x={14}
           y={padding.top + plotH / 2}
           textAnchor="middle"
-          fill="#8A857D"
+          fill="var(--text-muted)"
           fontSize={11}
           fontWeight={600}
           transform={`rotate(-90 14 ${padding.top + plotH / 2})`}
@@ -587,7 +587,7 @@ export function KaplanMeierPlot({
           y1={chartHeight + 24}
           x2={padding.left + plotW}
           y2={chartHeight + 24}
-          stroke="#232328"
+          stroke="var(--border-default)"
           strokeWidth={0.5}
         />
         <text

@@ -156,7 +156,7 @@ export function MessageItem({
               className="group/thread mt-3 flex items-center gap-2 rounded-xl border border-white/[0.05] bg-white/[0.02] px-3 py-2 text-xs text-primary transition-all duration-150 hover:border-white/[0.08] hover:bg-white/[0.04]"
             >
               <div className="flex -space-x-1.5">
-                <div className="h-5 w-5 rounded-full bg-primary/20 border border-[#0e0e11] flex items-center justify-center text-[7px] font-semibold text-primary">
+                <div className="h-5 w-5 rounded-full bg-primary/20 border border-surface-base flex items-center justify-center text-[7px] font-semibold text-primary">
                   {message.reply_count}
                 </div>
               </div>

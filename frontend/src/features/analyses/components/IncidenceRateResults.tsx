@@ -255,7 +255,7 @@ function SummaryCards({
       label: "Persons at Risk",
       value: computedPersons.toLocaleString(),
       icon: Users,
-      color: "#2DD4BF",
+      color: "var(--success)",
     },
     {
       label: "Person-Years",
@@ -264,19 +264,19 @@ function SummaryCards({
           ? `${(computedPY / 1000).toLocaleString(undefined, { maximumFractionDigits: 1 })}K`
           : computedPY.toLocaleString(undefined, { maximumFractionDigits: 1 }),
       icon: Clock,
-      color: "#C9A227",
+      color: "var(--accent)",
     },
     {
       label: "Total Outcome Events",
       value: computedOutcomes.toLocaleString(),
       icon: Activity,
-      color: "#9B1B30",
+      color: "var(--primary)",
     },
     {
       label: "Avg IR / 1000 PY",
       value: fmt(avgIR, 2),
       icon: Zap,
-      color: isDirectCalc ? "#2DD4BF" : "#8A857D",
+      color: isDirectCalc ? "var(--success)" : "var(--text-muted)",
     },
   ];
 
@@ -285,7 +285,7 @@ function SummaryCards({
       {cards.map((card) => (
         <div
           key={card.label}
-          className="rounded-lg border border-[#232328] bg-[#151518] px-4 py-3"
+          className="rounded-lg border border-border-default bg-surface-raised px-4 py-3"
         >
           <div className="flex items-center justify-between mb-1">
             <span className="text-xs uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
@@ -335,7 +335,7 @@ function CIBar({
         style={{
           left: `${leftPct}%`,
           width: `${widthPct}%`,
-          background: "color-mix(in srgb, #2DD4BF 25%, transparent)",
+          background: "color-mix(in srgb, var(--success) 25%, transparent)",
         }}
       />
       <div
@@ -343,7 +343,7 @@ function CIBar({
         style={{
           left: `${dotPct}%`,
           marginLeft: "-4px",
-          background: "#2DD4BF",
+          background: "var(--success)",
           border: "1px solid var(--surface-base)",
         }}
       />
@@ -405,7 +405,7 @@ function StratumPanel({
 
   return (
     <div className="panel" style={{ padding: 0, overflow: "hidden" }}>
-      <div className="px-4 py-3 border-b border-[#232328]">
+      <div className="px-4 py-3 border-b border-border-default">
         <h4 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
           {isGender ? "Gender Breakdown" : isAge ? "Age Group Breakdown" : `${stratumName} Breakdown`}
         </h4>
@@ -417,9 +417,9 @@ function StratumPanel({
           const barWidth = maxIR > 0 ? (num(row.stratum.incidence_rate) / maxIR) * 100 : 0;
           const barColor = isGender
             ? (row.stratum.stratum_value ?? "").toLowerCase().includes("female")
-              ? "#9B1B30"
-              : "#2DD4BF"
-            : "#C9A227";
+              ? "var(--primary)"
+              : "var(--success)"
+            : "var(--accent)";
 
           return (
             <div key={i} className="space-y-0.5">
@@ -459,7 +459,7 @@ function StratumPanel({
                     )}
                 </div>
               </div>
-              <div className="h-2 rounded-full overflow-hidden" style={{ background: "#1C1C20" }}>
+              <div className="h-2 rounded-full overflow-hidden" style={{ background: "var(--surface-overlay)" }}>
                 <div
                   className="h-full rounded-full transition-all duration-300"
                   style={{ width: `${barWidth}%`, background: barColor }}
@@ -487,28 +487,28 @@ function StratumPanel({
         </thead>
         <tbody>
           {rows.map((row, i) => (
-            <tr key={i} className="border-t border-[#1C1C20]">
-              <td className="px-4 py-2 text-[#C5C0B8]">{row.stratum.stratum_value}</td>
+            <tr key={i} className="border-t border-surface-overlay">
+              <td className="px-4 py-2 text-text-secondary">{row.stratum.stratum_value}</td>
               {results.length > 1 && (
-                <td className="px-4 py-2 text-[#8A857D] truncate max-w-[10rem]">
+                <td className="px-4 py-2 text-text-muted truncate max-w-[10rem]">
                   {row.outcome}
                 </td>
               )}
-              <td className="px-4 py-2 text-right font-mono text-[#C5C0B8]">
+              <td className="px-4 py-2 text-right font-mono text-text-secondary">
                 {num(row.stratum.persons_at_risk).toLocaleString()}
               </td>
-              <td className="px-4 py-2 text-right font-mono text-[#C5C0B8]">
+              <td className="px-4 py-2 text-right font-mono text-text-secondary">
                 {num(row.stratum.person_years).toLocaleString(undefined, {
                   maximumFractionDigits: 1,
                 })}
               </td>
-              <td className="px-4 py-2 text-right font-mono text-[#C5C0B8]">
+              <td className="px-4 py-2 text-right font-mono text-text-secondary">
                 {num(row.stratum.persons_with_outcome).toLocaleString()}
               </td>
-              <td className="px-4 py-2 text-right font-mono font-medium" style={{ color: "#2DD4BF" }}>
+              <td className="px-4 py-2 text-right font-mono font-medium" style={{ color: "var(--success)" }}>
                 {fmt(row.stratum.incidence_rate, 2)}
               </td>
-              <td className="px-4 py-2 text-right font-mono text-[#8A857D]">
+              <td className="px-4 py-2 text-right font-mono text-text-muted">
                 {row.stratum.rate_95_ci_lower != null &&
                 row.stratum.rate_95_ci_upper != null
                   ? `(${fmt(row.stratum.rate_95_ci_lower, 2)} – ${fmt(row.stratum.rate_95_ci_upper, 2)})`
@@ -546,7 +546,7 @@ function ForestPlot({ results }: { results: IncidenceRateResult[] }) {
             precision === "narrow"
               ? "var(--primary)"
               : precision === "wide"
-                ? "#C9A227"
+                ? "var(--accent)"
                 : "var(--primary)";
 
           return (
@@ -569,7 +569,7 @@ function ForestPlot({ results }: { results: IncidenceRateResult[] }) {
                       precision === "narrow"
                         ? "color-mix(in srgb, var(--primary) 25%, transparent)"
                         : precision === "wide"
-                          ? "color-mix(in srgb, #C9A227 20%, transparent)"
+                          ? "color-mix(in srgb, var(--accent) 20%, transparent)"
                           : "color-mix(in srgb, var(--primary) 20%, transparent)",
                   }}
                 />
@@ -639,7 +639,7 @@ function SortableHeader({
           className={cn(
             "transition-opacity",
             isActive
-              ? "opacity-100 text-[#2DD4BF]"
+              ? "opacity-100 text-success"
               : "opacity-30 group-hover:opacity-60",
           )}
           style={
@@ -676,8 +676,8 @@ function ExpandableRow({
     <>
       <tr
         className={cn(
-          "border-t border-[#1C1C20] transition-colors",
-          hasStrata && "cursor-pointer hover:bg-[#1C1C20]",
+          "border-t border-surface-overlay transition-colors",
+          hasStrata && "cursor-pointer hover:bg-surface-overlay",
         )}
         onClick={() => hasStrata && setExpanded(!expanded)}
       >
@@ -685,27 +685,27 @@ function ExpandableRow({
           <div className="flex items-center gap-1.5">
             {hasStrata &&
               (expanded ? (
-                <ChevronDown size={12} className="text-[#8A857D]" />
+                <ChevronDown size={12} className="text-text-muted" />
               ) : (
-                <ChevronRight size={12} className="text-[#8A857D]" />
+                <ChevronRight size={12} className="text-text-muted" />
               ))}
-            <span className="text-sm text-[#F0EDE8]">{result.outcome_cohort_name}</span>
+            <span className="text-sm text-text-primary">{result.outcome_cohort_name}</span>
           </div>
         </td>
-        <td className="px-4 py-3 text-right font-['IBM_Plex_Mono',monospace] text-sm text-[#C5C0B8]">
+        <td className="px-4 py-3 text-right font-['IBM_Plex_Mono',monospace] text-sm text-text-secondary">
           {num(result.persons_at_risk).toLocaleString()}
         </td>
-        <td className="px-4 py-3 text-right font-['IBM_Plex_Mono',monospace] text-sm text-[#C5C0B8]">
+        <td className="px-4 py-3 text-right font-['IBM_Plex_Mono',monospace] text-sm text-text-secondary">
           {num(result.persons_with_outcome).toLocaleString()}
         </td>
-        <td className="px-4 py-3 text-right font-['IBM_Plex_Mono',monospace] text-sm text-[#C5C0B8]">
+        <td className="px-4 py-3 text-right font-['IBM_Plex_Mono',monospace] text-sm text-text-secondary">
           {num(result.person_years).toLocaleString(undefined, { maximumFractionDigits: 1 })}
         </td>
         <td
           className="px-4 py-3 text-right"
           style={irCellStyle(num(result.incidence_rate), maxIR, precision)}
         >
-          <span className="font-['IBM_Plex_Mono',monospace] text-sm font-medium text-[#2DD4BF]">
+          <span className="font-['IBM_Plex_Mono',monospace] text-sm font-medium text-success">
             {fmt(result.incidence_rate, 2)}
           </span>
           {precision !== "medium" && (
@@ -713,7 +713,7 @@ function ExpandableRow({
               data-testid="ci-precision-indicator"
               className={cn(
                 "ml-1.5 inline-block h-1.5 w-1.5 rounded-full",
-                precision === "narrow" ? "bg-[#2DD4BF]" : "bg-[#C9A227]",
+                precision === "narrow" ? "bg-success" : "bg-accent",
               )}
               title={precision === "narrow" ? "Narrow CI (precise)" : "Wide CI (imprecise)"}
             />
@@ -728,7 +728,7 @@ function ExpandableRow({
               ciUpper={num(result.rate_95_ci_upper)}
               maxRate={maxIR}
             />
-            <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#8A857D] whitespace-nowrap">
+            <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-muted whitespace-nowrap">
               ({fmt(result.rate_95_ci_lower, 2)} – {fmt(result.rate_95_ci_upper, 2)})
             </span>
           </div>
@@ -738,26 +738,26 @@ function ExpandableRow({
         result.strata?.map((s) => (
           <tr
             key={`${result.outcome_cohort_id}-${s.stratum_name}-${s.stratum_value}`}
-            className="border-t border-[#1C1C20] bg-[#0E0E11]"
+            className="border-t border-surface-overlay bg-surface-base"
           >
             <td className="px-4 py-2 pl-10">
-              <span className="text-xs text-[#8A857D]">
+              <span className="text-xs text-text-muted">
                 {s.stratum_name}: {s.stratum_value}
               </span>
             </td>
-            <td className="px-4 py-2 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#8A857D]">
+            <td className="px-4 py-2 text-right font-['IBM_Plex_Mono',monospace] text-xs text-text-muted">
               {num(s.persons_at_risk).toLocaleString()}
             </td>
-            <td className="px-4 py-2 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#8A857D]">
+            <td className="px-4 py-2 text-right font-['IBM_Plex_Mono',monospace] text-xs text-text-muted">
               {num(s.persons_with_outcome).toLocaleString()}
             </td>
-            <td className="px-4 py-2 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#8A857D]">
+            <td className="px-4 py-2 text-right font-['IBM_Plex_Mono',monospace] text-xs text-text-muted">
               {num(s.person_years).toLocaleString(undefined, { maximumFractionDigits: 1 })}
             </td>
-            <td className="px-4 py-2 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
+            <td className="px-4 py-2 text-right font-['IBM_Plex_Mono',monospace] text-xs text-text-secondary">
               {fmt(s.incidence_rate, 2)}
             </td>
-            <td className="px-4 py-2 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#8A857D]">
+            <td className="px-4 py-2 text-right font-['IBM_Plex_Mono',monospace] text-xs text-text-muted">
               {s.rate_95_ci_lower != null && s.rate_95_ci_upper != null
                 ? `(${fmt(s.rate_95_ci_lower, 2)} – ${fmt(s.rate_95_ci_upper, 2)})`
                 : "—"}
@@ -802,8 +802,8 @@ function TarSelector({
           className={cn(
             "rounded-md px-2.5 py-1 text-xs font-medium border transition-colors",
             selectedTarId === opt.id
-              ? "border-[#2DD4BF]/50 bg-[#2DD4BF]/10 text-[#2DD4BF]"
-              : "border-[#232328] bg-[#151518] text-[#8A857D] hover:text-[#C5C0B8]",
+              ? "border-success/50 bg-success/10 text-success"
+              : "border-border-default bg-surface-raised text-text-muted hover:text-text-secondary",
           )}
         >
           {opt.label}
@@ -854,8 +854,8 @@ function IncidenceRateResultsInner({
       {isDirectCalc && (
         <div className="flex items-center gap-2">
           <span
-            className="inline-flex items-center gap-1.5 rounded-md border border-[#2DD4BF]/30 bg-[#2DD4BF]/5 px-2.5 py-1 text-xs font-medium"
-            style={{ color: "#2DD4BF" }}
+            className="inline-flex items-center gap-1.5 rounded-md border border-success/30 bg-success/5 px-2.5 py-1 text-xs font-medium"
+            style={{ color: "var(--success)" }}
           >
             <Zap size={11} />
             OHDSI CohortIncidence — Direct Result
@@ -1047,7 +1047,7 @@ export function IncidenceRateResults({
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+        <Loader2 size={24} className="animate-spin text-text-muted" />
       </div>
     );
   }
@@ -1057,9 +1057,9 @@ export function IncidenceRateResults({
     const normalizedDirectResults = normalizeDirectCalcResponse(directResults);
     if (normalizedDirectResults.incidence_rates.length === 0) {
       return (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
-          <AlertCircle size={24} className="text-[#323238] mb-3" />
-          <p className="text-sm text-[#8A857D]">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
+          <AlertCircle size={24} className="text-surface-highlight mb-3" />
+          <p className="text-sm text-text-muted">
             CohortIncidence completed but returned no results.
           </p>
         </div>
@@ -1077,16 +1077,16 @@ export function IncidenceRateResults({
 
   if (!execution || execution.status !== "completed") {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
-        <AlertCircle size={24} className="text-[#323238] mb-3" />
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">No results available</h3>
-        <p className="mt-1 text-xs text-[#8A857D]">
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
+        <AlertCircle size={24} className="text-surface-highlight mb-3" />
+        <h3 className="text-sm font-semibold text-text-primary">No results available</h3>
+        <p className="mt-1 text-xs text-text-muted">
           {execution
             ? `Execution status: ${execution.status}`
             : "Execute the analysis to generate results."}
         </p>
         {execution?.fail_message && (
-          <p className="mt-2 text-xs text-[#E85A6B] max-w-md text-center">
+          <p className="mt-2 text-xs text-critical max-w-md text-center">
             {execution.fail_message}
           </p>
         )}
@@ -1098,9 +1098,9 @@ export function IncidenceRateResults({
 
   if (results.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
-        <AlertCircle size={24} className="text-[#323238] mb-3" />
-        <p className="text-sm text-[#8A857D]">
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
+        <AlertCircle size={24} className="text-surface-highlight mb-3" />
+        <p className="text-sm text-text-muted">
           Execution completed but no results were returned.
         </p>
       </div>

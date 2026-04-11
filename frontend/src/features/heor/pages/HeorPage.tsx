@@ -41,29 +41,29 @@ const ANALYSIS_TYPE_LABELS: Record<string, string> = {
 };
 
 const STATUS_BADGE: Record<string, string> = {
-  draft: "bg-[#232328] text-[#8A857D]",
+  draft: "bg-surface-elevated text-text-muted",
   running: "bg-blue-400/15 text-blue-400",
-  completed: "bg-[#2DD4BF]/15 text-[#2DD4BF]",
-  failed: "bg-[#E85A6B]/15 text-[#E85A6B]",
+  completed: "bg-success/15 text-success",
+  failed: "bg-critical/15 text-critical",
 };
 
 const inputCls =
-  "w-full rounded-lg bg-[#0E0E11] border border-[#232328] px-3 py-2 text-sm text-[#F0EDE8] placeholder:text-[#5A5650] focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors";
+  "w-full rounded-lg bg-surface-base border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40 transition-colors";
 const selectCls =
-  "w-full rounded-lg bg-[#0E0E11] border border-[#232328] px-3 py-2 text-sm text-[#F0EDE8] focus:outline-none focus:border-[#2DD4BF] transition-colors";
+  "w-full rounded-lg bg-surface-base border border-border-default px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-success transition-colors";
 
 function StatsBar() {
   const { data: stats, isLoading } = useHeorStats();
 
   const items = [
     { label: "Total Analyses", value: stats?.total_analyses ?? 0, icon: BarChart2, color: "#F59E0B" },
-    { label: "Completed", value: stats?.completed_analyses ?? 0, icon: CheckCircle2, color: "#2DD4BF" },
-    { label: "Value Contracts", value: stats?.total_contracts ?? 0, icon: Handshake, color: "#A78BFA" },
+    { label: "Completed", value: stats?.completed_analyses ?? 0, icon: CheckCircle2, color: "var(--success)" },
+    { label: "Value Contracts", value: stats?.total_contracts ?? 0, icon: Handshake, color: "var(--domain-observation)" },
     {
       label: "Analysis Types",
       value: Object.keys(stats?.by_type ?? {}).length,
       icon: FileText,
-      color: "#60A5FA",
+      color: "var(--info)",
     },
   ];
 
@@ -72,7 +72,7 @@ function StatsBar() {
       {items.map((item) => (
         <div
           key={item.label}
-          className="flex items-center gap-3 rounded-lg border border-[#232328] bg-[#151518] px-4 py-3"
+          className="flex items-center gap-3 rounded-lg border border-border-default bg-surface-raised px-4 py-3"
         >
           <div
             className="flex items-center justify-center w-8 h-8 rounded-md flex-shrink-0"
@@ -87,7 +87,7 @@ function StatsBar() {
             >
               {isLoading ? "—" : item.value}
             </p>
-            <p className="text-[10px] text-[#5A5650] uppercase tracking-wider">{item.label}</p>
+            <p className="text-[10px] text-text-ghost uppercase tracking-wider">{item.label}</p>
           </div>
         </div>
       ))}
@@ -117,9 +117,9 @@ function NewAnalysisForm({ onCreated }: { onCreated: () => void }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-3"
+      className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3"
     >
-      <h3 className="text-sm font-semibold text-[#F0EDE8]">New Economic Analysis</h3>
+      <h3 className="text-sm font-semibold text-text-primary">New Economic Analysis</h3>
       <div className="grid grid-cols-2 gap-3">
         <input
           className={inputCls}
@@ -144,14 +144,14 @@ function NewAnalysisForm({ onCreated }: { onCreated: () => void }) {
         <button
           type="button"
           onClick={onCreated}
-          className="px-4 py-2 text-sm text-[#5A5650] hover:text-[#8A857D] transition-colors"
+          className="px-4 py-2 text-sm text-text-ghost hover:text-text-muted transition-colors"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={createMutation.isPending}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] disabled:opacity-50 transition-colors"
+          className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base hover:bg-success disabled:opacity-50 transition-colors"
         >
           {createMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
           Create
@@ -171,14 +171,14 @@ function AnalysesTab() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-[#8A857D]">
+        <p className="text-sm text-text-muted">
           Build cost-effectiveness, budget impact, and ROI analyses with scenario modeling and
           sensitivity analysis.
         </p>
         <button
           type="button"
           onClick={() => setShowNew(true)}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2.5 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors"
+          className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2.5 text-sm font-medium text-surface-base hover:bg-success transition-colors"
         >
           <Plus size={14} />
           New Analysis
@@ -188,14 +188,14 @@ function AnalysesTab() {
       {showNew && <NewAnalysisForm onCreated={() => setShowNew(false)} />}
 
       {isLoading && (
-        <div className="flex items-center gap-2 text-[#5A5650]">
+        <div className="flex items-center gap-2 text-text-ghost">
           <Loader2 size={14} className="animate-spin" />
           <span className="text-sm">Loading…</span>
         </div>
       )}
 
       {!isLoading && analyses.length === 0 && !showNew && (
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-10 text-center text-sm text-[#5A5650]">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-10 text-center text-sm text-text-ghost">
           No analyses yet. Click "New Analysis" to get started.
         </div>
       )}
@@ -204,26 +204,26 @@ function AnalysesTab() {
         {analyses.map((a) => (
           <div
             key={a.id}
-            className="rounded-lg border border-[#232328] bg-[#151518] p-4 flex items-center gap-4"
+            className="rounded-lg border border-border-default bg-surface-raised p-4 flex items-center gap-4"
           >
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1 flex-wrap">
-                <span className="font-medium text-[#F0EDE8] truncate">{a.name}</span>
-                <span className="inline-block rounded-full px-2 py-0.5 text-[10px] font-medium bg-[#232328] text-[#8A857D]">
+                <span className="font-medium text-text-primary truncate">{a.name}</span>
+                <span className="inline-block rounded-full px-2 py-0.5 text-[10px] font-medium bg-surface-elevated text-text-muted">
                   {ANALYSIS_TYPE_LABELS[a.analysis_type] ?? a.analysis_type}
                 </span>
                 <span
                   className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                    STATUS_BADGE[a.status] ?? "bg-[#232328] text-[#8A857D]"
+                    STATUS_BADGE[a.status] ?? "bg-surface-elevated text-text-muted"
                   }`}
                 >
                   {a.status}
                 </span>
               </div>
               {a.description && (
-                <p className="text-sm text-[#8A857D] truncate">{a.description}</p>
+                <p className="text-sm text-text-muted truncate">{a.description}</p>
               )}
-              <p className="text-xs text-[#5A5650] mt-1">
+              <p className="text-xs text-text-ghost mt-1">
                 {a.scenarios?.length ?? 0} scenarios ·{" "}
                 {a.time_horizon?.replace("_", " ")} · {a.currency}
               </p>
@@ -231,7 +231,7 @@ function AnalysesTab() {
             <div className="flex items-center gap-2 flex-shrink-0">
               <Link
                 to={`/heor/${a.id}`}
-                className="inline-flex items-center gap-1 rounded-lg border border-[#2A2A30] bg-[#151518] px-3 py-1.5 text-xs font-medium text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#3A3A42] transition-colors"
+                className="inline-flex items-center gap-1 rounded-lg border border-border-default bg-surface-raised px-3 py-1.5 text-xs font-medium text-text-muted hover:text-text-secondary hover:border-surface-highlight transition-colors"
               >
                 <ChevronRight size={12} />
                 Open
@@ -240,7 +240,7 @@ function AnalysesTab() {
                 type="button"
                 onClick={() => deleteMutation.mutate(a.id)}
                 disabled={deleteMutation.isPending}
-                className="p-1.5 rounded text-[#5A5650] hover:text-[#E85A6B] hover:bg-[#E85A6B]/10 disabled:opacity-40 transition-colors"
+                className="p-1.5 rounded text-text-ghost hover:text-critical hover:bg-critical/10 disabled:opacity-40 transition-colors"
                 title="Delete analysis"
               >
                 <Trash2 size={13} />
@@ -285,21 +285,21 @@ function ContractsTab() {
   };
 
   const contractStatusCls = (status: string) => {
-    if (status === "active") return "bg-[#2DD4BF]/15 text-[#2DD4BF]";
-    if (status === "expired") return "bg-[#E85A6B]/15 text-[#E85A6B]";
-    return "bg-[#232328] text-[#8A857D]";
+    if (status === "active") return "bg-success/15 text-success";
+    if (status === "expired") return "bg-critical/15 text-critical";
+    return "bg-surface-elevated text-text-muted";
   };
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-[#8A857D]">
+        <p className="text-sm text-text-muted">
           Define outcomes-based value contracts with rebate tiers linked to observed outcome rates.
         </p>
         <button
           type="button"
           onClick={() => setShowNew(true)}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2.5 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors"
+          className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2.5 text-sm font-medium text-surface-base hover:bg-success transition-colors"
         >
           <Plus size={14} />
           New Contract
@@ -309,9 +309,9 @@ function ContractsTab() {
       {showNew && (
         <form
           onSubmit={handleCreate}
-          className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-3"
+          className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3"
         >
-          <h3 className="text-sm font-semibold text-[#F0EDE8]">New Value Contract</h3>
+          <h3 className="text-sm font-semibold text-text-primary">New Value Contract</h3>
           <div className="grid grid-cols-2 gap-3">
             <input
               className={inputCls}
@@ -347,14 +347,14 @@ function ContractsTab() {
             <button
               type="button"
               onClick={() => setShowNew(false)}
-              className="px-4 py-2 text-sm text-[#5A5650] hover:text-[#8A857D] transition-colors"
+              className="px-4 py-2 text-sm text-text-ghost hover:text-text-muted transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={createMutation.isPending}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] disabled:opacity-50 transition-colors"
+              className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base hover:bg-success disabled:opacity-50 transition-colors"
             >
               {createMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : null}
               Create
@@ -364,14 +364,14 @@ function ContractsTab() {
       )}
 
       {isLoading && (
-        <div className="flex items-center gap-2 text-[#5A5650]">
+        <div className="flex items-center gap-2 text-text-ghost">
           <Loader2 size={14} className="animate-spin" />
           <span className="text-sm">Loading…</span>
         </div>
       )}
 
       {!isLoading && !contracts?.length && !showNew && (
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-10 text-center text-sm text-[#5A5650]">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-10 text-center text-sm text-text-ghost">
           No value contracts defined. Click "New Contract" to start.
         </div>
       )}
@@ -380,13 +380,13 @@ function ContractsTab() {
         {contracts?.map((c: HeorValueContract) => (
           <div
             key={c.id}
-            className="rounded-lg border border-[#232328] bg-[#151518] p-4 flex items-start gap-4"
+            className="rounded-lg border border-border-default bg-surface-raised p-4 flex items-start gap-4"
           >
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1 flex-wrap">
-                <span className="font-medium text-[#F0EDE8]">{c.contract_name}</span>
+                <span className="font-medium text-text-primary">{c.contract_name}</span>
                 {c.drug_name && (
-                  <span className="inline-block rounded-full px-2 py-0.5 text-[10px] font-medium bg-[#232328] text-[#8A857D]">
+                  <span className="inline-block rounded-full px-2 py-0.5 text-[10px] font-medium bg-surface-elevated text-text-muted">
                     {c.drug_name}
                   </span>
                 )}
@@ -396,9 +396,9 @@ function ContractsTab() {
                   {c.status}
                 </span>
               </div>
-              <p className="text-sm text-[#8A857D]">
+              <p className="text-sm text-text-muted">
                 Outcome:{" "}
-                <span className="text-[#C5C0B8] font-medium">{c.outcome_metric}</span>
+                <span className="text-text-secondary font-medium">{c.outcome_metric}</span>
                 {c.list_price && ` · List price: $${c.list_price.toLocaleString()}`}
                 {c.baseline_rate !== null &&
                   ` · Baseline: ${(c.baseline_rate * 100).toFixed(1)}%`}
@@ -408,7 +408,7 @@ function ContractsTab() {
                   {c.rebate_tiers.map((tier, i) => (
                     <span
                       key={i}
-                      className="text-xs bg-[#0E0E11] border border-[#232328] rounded px-2 py-0.5 text-[#5A5650]"
+                      className="text-xs bg-surface-base border border-border-default rounded px-2 py-0.5 text-text-ghost"
                     >
                       ≥{(tier.threshold * 100).toFixed(0)}% improvement →{" "}
                       {tier.rebate_percent}% rebate
@@ -421,7 +421,7 @@ function ContractsTab() {
               type="button"
               onClick={() => deleteMutation.mutate(c.id)}
               disabled={deleteMutation.isPending}
-              className="p-1.5 rounded text-[#5A5650] hover:text-[#E85A6B] hover:bg-[#E85A6B]/10 disabled:opacity-40 transition-colors flex-shrink-0"
+              className="p-1.5 rounded text-text-ghost hover:text-critical hover:bg-critical/10 disabled:opacity-40 transition-colors flex-shrink-0"
               title="Delete contract"
             >
               <Trash2 size={13} />
@@ -447,10 +447,10 @@ export default function HeorPage() {
           <TrendingUp size={18} style={{ color: "#F59E0B" }} />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-[#F0EDE8]">
+          <h1 className="text-2xl font-bold text-text-primary">
             Health Economics & Outcomes Research
           </h1>
-          <p className="text-sm text-[#8A857D]">
+          <p className="text-sm text-text-muted">
             Cost-effectiveness analyses, budget impact modeling, ROI calculators, and value-based
             contract simulation
           </p>
@@ -461,7 +461,7 @@ export default function HeorPage() {
       <StatsBar />
 
       {/* Tab bar */}
-      <div className="flex gap-1 border-b border-[#232328]">
+      <div className="flex gap-1 border-b border-border-default">
         {TABS.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
@@ -469,8 +469,8 @@ export default function HeorPage() {
             onClick={() => setTab(id)}
             className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors -mb-px ${
               tab === id
-                ? "border-[#2DD4BF] text-[#2DD4BF]"
-                : "border-transparent text-[#5A5650] hover:text-[#8A857D]"
+                ? "border-success text-success"
+                : "border-transparent text-text-ghost hover:text-text-muted"
             }`}
           >
             <Icon size={14} />

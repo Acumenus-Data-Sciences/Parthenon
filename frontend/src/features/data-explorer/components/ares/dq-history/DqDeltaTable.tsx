@@ -9,9 +9,9 @@ const STATUS_CONFIG: Record<
   DqDelta["delta_status"],
   { label: string; bg: string; text: string }
 > = {
-  new: { label: "NEW", bg: "bg-[#9B1B30]/20", text: "text-[#e85d75]" },
-  existing: { label: "EXISTING", bg: "bg-[#C9A227]/20", text: "text-[#C9A227]" },
-  resolved: { label: "RESOLVED", bg: "bg-[#2DD4BF]/20", text: "text-[#2DD4BF]" },
+  new: { label: "NEW", bg: "bg-primary/20", text: "text-[#e85d75]" },
+  existing: { label: "EXISTING", bg: "bg-accent/20", text: "text-accent" },
+  resolved: { label: "RESOLVED", bg: "bg-success/20", text: "text-success" },
   stable: { label: "STABLE", bg: "bg-[#333]/30", text: "text-[#888]" },
 };
 
@@ -37,8 +37,8 @@ export default function DqDeltaTable({ deltas, releaseName }: DqDeltaTableProps)
         <h3 className="text-sm font-medium text-white">Delta Report: {releaseName}</h3>
         <div className="flex gap-3 text-[11px]">
           <span className="text-[#e85d75]">{grouped.new.length} new</span>
-          <span className="text-[#C9A227]">{grouped.existing.length} existing</span>
-          <span className="text-[#2DD4BF]">{grouped.resolved.length} resolved</span>
+          <span className="text-accent">{grouped.existing.length} existing</span>
+          <span className="text-success">{grouped.resolved.length} resolved</span>
           <span className="text-[#888]">{grouped.stable.length} stable</span>
         </div>
       </div>
@@ -57,7 +57,7 @@ export default function DqDeltaTable({ deltas, releaseName }: DqDeltaTableProps)
             {deltas.map((delta) => {
               const config = STATUS_CONFIG[delta.delta_status];
               return (
-                <tr key={delta.id} className="border-b border-[#1a1a22] hover:bg-[#151518]">
+                <tr key={delta.id} className="border-b border-[#1a1a22] hover:bg-surface-raised">
                   <td className="px-3 py-2">
                     <span className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase ${config.bg} ${config.text}`}>
                       {config.label}
@@ -65,7 +65,7 @@ export default function DqDeltaTable({ deltas, releaseName }: DqDeltaTableProps)
                   </td>
                   <td className="px-3 py-2 font-mono text-xs text-[#ccc]">{delta.check_id}</td>
                   <td className="px-3 py-2">
-                    <span className={delta.current_passed ? "text-[#2DD4BF]" : "text-[#e85d75]"}>
+                    <span className={delta.current_passed ? "text-success" : "text-[#e85d75]"}>
                       {delta.current_passed ? "PASS" : "FAIL"}
                     </span>
                   </td>
@@ -73,7 +73,7 @@ export default function DqDeltaTable({ deltas, releaseName }: DqDeltaTableProps)
                     {delta.previous_passed === null ? (
                       <span className="text-[#555]">N/A</span>
                     ) : (
-                      <span className={delta.previous_passed ? "text-[#2DD4BF]" : "text-[#e85d75]"}>
+                      <span className={delta.previous_passed ? "text-success" : "text-[#e85d75]"}>
                         {delta.previous_passed ? "PASS" : "FAIL"}
                       </span>
                     )}

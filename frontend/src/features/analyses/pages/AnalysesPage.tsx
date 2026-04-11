@@ -164,21 +164,21 @@ interface TabDef {
 }
 
 const tabDefs: TabDef[] = [
-  { key: "characterizations", label: "Characterizations", icon: BarChart3, color: "#60A5FA", statsKey: "characterizations" },
-  { key: "incidence-rates", label: "Incidence Rates", icon: TrendingUp, color: "#2DD4BF", statsKey: "incidence_rates" },
-  { key: "pathways", label: "Pathways", icon: GitBranch, color: "#C9A227", statsKey: "pathways" },
-  { key: "estimations", label: "Estimations", icon: Scale, color: "#A78BFA", statsKey: "estimations" },
-  { key: "predictions", label: "Predictions", icon: Brain, color: "#F472B6", statsKey: "predictions" },
+  { key: "characterizations", label: "Characterizations", icon: BarChart3, color: "var(--info)", statsKey: "characterizations" },
+  { key: "incidence-rates", label: "Incidence Rates", icon: TrendingUp, color: "var(--success)", statsKey: "incidence_rates" },
+  { key: "pathways", label: "Pathways", icon: GitBranch, color: "var(--accent)", statsKey: "pathways" },
+  { key: "estimations", label: "Estimations", icon: Scale, color: "var(--domain-observation)", statsKey: "estimations" },
+  { key: "predictions", label: "Predictions", icon: Brain, color: "var(--domain-procedure)", statsKey: "predictions" },
   { key: "sccs", label: "SCCS", icon: Clock, color: "#FB923C", statsKey: "sccs" },
   { key: "evidence-synthesis", label: "Evidence Synthesis", icon: Layers, color: "#34D399", statsKey: "evidence_synthesis" },
 ];
 
 const createMenuItems: { key: Tab; label: string; icon: typeof BarChart3; color: string }[] = [
-  { key: "characterizations", label: "Characterization", icon: BarChart3, color: "#60A5FA" },
-  { key: "incidence-rates", label: "Incidence Rate", icon: TrendingUp, color: "#2DD4BF" },
-  { key: "pathways", label: "Pathway", icon: GitBranch, color: "#C9A227" },
-  { key: "estimations", label: "Estimation", icon: Scale, color: "#A78BFA" },
-  { key: "predictions", label: "Prediction", icon: Brain, color: "#F472B6" },
+  { key: "characterizations", label: "Characterization", icon: BarChart3, color: "var(--info)" },
+  { key: "incidence-rates", label: "Incidence Rate", icon: TrendingUp, color: "var(--success)" },
+  { key: "pathways", label: "Pathway", icon: GitBranch, color: "var(--accent)" },
+  { key: "estimations", label: "Estimation", icon: Scale, color: "var(--domain-observation)" },
+  { key: "predictions", label: "Prediction", icon: Brain, color: "var(--domain-procedure)" },
   { key: "sccs", label: "SCCS", icon: Clock, color: "#FB923C" },
   { key: "evidence-synthesis", label: "Evidence Synthesis", icon: Layers, color: "#34D399" },
 ];
@@ -340,8 +340,8 @@ export default function AnalysesPage() {
       {/* Header — title left, search center, create dropdown right */}
       <div className="flex items-start justify-between gap-4">
         <div className="shrink-0">
-          <h1 className="text-2xl font-bold text-[#F0EDE8]">Analyses</h1>
-          <p className="mt-1 text-sm text-[#8A857D]">
+          <h1 className="text-2xl font-bold text-text-primary">Analyses</h1>
+          <p className="mt-1 text-sm text-text-muted">
             Population-level research studies across 7 analysis types
           </p>
         </div>
@@ -350,20 +350,20 @@ export default function AnalysesPage() {
           <div className="relative w-full">
             <Search
               size={16}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost"
             />
             <input
               type="text"
               placeholder="Search across all analyses..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full rounded-lg border border-[#232328] bg-[#151518] py-2 pl-9 pr-8 text-sm text-[#F0EDE8] placeholder:text-[#5A5650] focus:border-[#2DD4BF]/40 focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40"
+              className="w-full rounded-lg border border-border-default bg-surface-raised py-2 pl-9 pr-8 text-sm text-text-primary placeholder:text-text-ghost focus:border-success/40 focus:outline-none focus:ring-1 focus:ring-success/40"
             />
             {searchInput && (
               <button
                 type="button"
                 onClick={() => setSearchInput("")}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-[#5A5650] hover:text-[#F0EDE8]"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-text-ghost hover:text-text-primary"
               >
                 <X size={14} />
               </button>
@@ -378,7 +378,7 @@ export default function AnalysesPage() {
               type="button"
               onClick={() => setShowCreateMenu((v) => !v)}
               disabled={isCreating}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base hover:bg-success transition-colors disabled:opacity-50"
             >
               {isCreating ? (
                 <Loader2 size={16} className="animate-spin" />
@@ -390,13 +390,13 @@ export default function AnalysesPage() {
             </button>
 
             {showCreateMenu && (
-              <div className="absolute right-0 top-full mt-1 z-50 w-56 rounded-lg border border-[#232328] bg-[#1A1A1F] py-1 shadow-xl">
+              <div className="absolute right-0 top-full mt-1 z-50 w-56 rounded-lg border border-border-default bg-surface-overlay py-1 shadow-xl">
                 {createMenuItems.map((item) => (
                   <button
                     key={item.key}
                     type="button"
                     onClick={() => handleCreate(item.key)}
-                    className="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-[#C5C0B8] hover:bg-[#232328] transition-colors"
+                    className="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-text-secondary hover:bg-surface-elevated transition-colors"
                   >
                     <item.icon size={14} style={{ color: item.color }} />
                     {item.label}
@@ -422,8 +422,8 @@ export default function AnalysesPage() {
               className={cn(
                 "flex items-center gap-2 shrink-0 rounded-lg px-3 py-2 text-sm font-medium transition-all",
                 isActive
-                  ? "bg-[#1E1E24] border border-[#2A2A32] text-[#F0EDE8]"
-                  : "border border-transparent text-[#5A5650] hover:text-[#8A857D] hover:bg-[#151518]",
+                  ? "bg-border-subtle border border-[#2A2A32] text-text-primary"
+                  : "border border-transparent text-text-ghost hover:text-text-muted hover:bg-surface-raised",
               )}
             >
               <Icon
@@ -437,8 +437,8 @@ export default function AnalysesPage() {
                   className={cn(
                     "inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded text-xs font-semibold font-['IBM_Plex_Mono',monospace]",
                     isActive
-                      ? "text-[#0E0E11]"
-                      : "bg-[#1A1A1F] text-[#5A5650]",
+                      ? "text-surface-base"
+                      : "bg-surface-overlay text-text-ghost",
                   )}
                   style={isActive ? { backgroundColor: tab.color } : undefined}
                 >
@@ -451,7 +451,7 @@ export default function AnalysesPage() {
       </div>
 
       {/* Divider */}
-      <div className="border-t border-[#1E1E24]" />
+      <div className="border-t border-border-subtle" />
 
       {/* Tab Content */}
       {activeTab === "characterizations" && (

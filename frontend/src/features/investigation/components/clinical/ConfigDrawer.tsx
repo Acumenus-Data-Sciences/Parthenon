@@ -42,7 +42,7 @@ function SelectInput({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       disabled={disabled}
-      className="w-full bg-zinc-800/60 border border-zinc-700 rounded px-3 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-[#2DD4BF]/60 disabled:opacity-50"
+      className="w-full bg-zinc-800/60 border border-zinc-700 rounded px-3 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-success/60 disabled:opacity-50"
     >
       {children}
     </select>
@@ -67,7 +67,7 @@ function NumberInput({
       min={min}
       aria-label={label}
       onChange={(e) => onChange(Number(e.target.value))}
-      className="w-full bg-zinc-800/60 border border-zinc-700 rounded px-3 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-[#2DD4BF]/60"
+      className="w-full bg-zinc-800/60 border border-zinc-700 rounded px-3 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-success/60"
     />
   );
 }
@@ -307,12 +307,12 @@ export function ConfigDrawer({
                       type="checkbox"
                       checked={outcomeCohortIds.includes(c.id)}
                       onChange={() => toggleOutcomeCohort(c.id)}
-                      className="accent-[#2DD4BF] w-3 h-3"
+                      className="accent-success w-3 h-3"
                     />
                     <span className="text-xs text-zinc-300 group-hover:text-zinc-100 transition-colors flex items-center gap-1.5">
                       {c.name}
                       {investigationCohortIds.has(c.id) && (
-                        <span className="text-[10px] px-1 py-0.5 rounded bg-[#2DD4BF]/10 text-[#2DD4BF] border border-[#2DD4BF]/20">
+                        <span className="text-[10px] px-1 py-0.5 rounded bg-success/10 text-success border border-success/20">
                           From investigation
                         </span>
                       )}
@@ -341,7 +341,7 @@ export function ConfigDrawer({
                       value={opt.value}
                       checked={psMethod === opt.value}
                       onChange={() => setPsMethod(opt.value)}
-                      className="accent-[#2DD4BF]"
+                      className="accent-success"
                     />
                     <span className="text-xs text-zinc-300">{opt.label}</span>
                   </label>
@@ -585,7 +585,7 @@ export function ConfigDrawer({
             <button
               onClick={handleExecute}
               disabled={analysisType === "evidence_synthesis" || isPending}
-              className="px-5 py-2 rounded text-xs font-medium text-white bg-[#9B1B30] hover:bg-[#b02035] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-w-[110px] justify-center"
+              className="px-5 py-2 rounded text-xs font-medium text-white bg-primary hover:bg-[#b02035] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-w-[110px] justify-center"
             >
               {isPending ? (
                 <>

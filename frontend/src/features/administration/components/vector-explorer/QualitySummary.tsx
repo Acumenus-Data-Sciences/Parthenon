@@ -9,9 +9,9 @@ interface QualitySummaryProps {
 
 export default function QualitySummary({ quality, stats, qaLayers, onToggle }: QualitySummaryProps) {
   const items = [
-    { key: "outliers" as const, label: "Outliers", count: quality.outlier_ids.length, color: "#E85A6B" },
+    { key: "outliers" as const, label: "Outliers", count: quality.outlier_ids.length, color: "var(--critical)" },
     { key: "duplicates" as const, label: "Duplicate pairs", count: quality.duplicate_pairs.length, color: "#F59E0B" },
-    { key: "orphans" as const, label: "Orphans", count: quality.orphan_ids.length, color: "#5A5650" },
+    { key: "orphans" as const, label: "Orphans", count: quality.orphan_ids.length, color: "var(--text-ghost)" },
   ];
 
   function handleExport() {
@@ -33,7 +33,7 @@ export default function QualitySummary({ quality, stats, qaLayers, onToggle }: Q
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-3 rounded border border-[#232328] bg-[#0E0E11] px-3 py-2">
+    <div className="flex flex-wrap items-center gap-3 rounded border border-border-default bg-surface-base px-3 py-2">
       {items.map((item) => (
         <button
           key={item.key}
@@ -43,16 +43,16 @@ export default function QualitySummary({ quality, stats, qaLayers, onToggle }: Q
           }`}
         >
           <span className="h-2 w-2 rounded-full" style={{ background: item.color }} />
-          <span className="text-[#C5C0B8]">{item.count}</span>
-          <span className="text-[#5A5650]">{item.label}</span>
+          <span className="text-text-secondary">{item.count}</span>
+          <span className="text-text-ghost">{item.label}</span>
         </button>
       ))}
-      <span className="text-xs text-[#5A5650]">
+      <span className="text-xs text-text-ghost">
         out of {stats.sampled.toLocaleString()} sampled
       </span>
       <button
         onClick={handleExport}
-        className="ml-auto text-xs text-[#C9A227] hover:text-[#C9A227]/80"
+        className="ml-auto text-xs text-accent hover:text-accent/80"
       >
         Export CSV
       </button>

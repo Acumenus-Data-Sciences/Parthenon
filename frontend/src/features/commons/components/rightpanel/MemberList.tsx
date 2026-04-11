@@ -67,7 +67,7 @@ export function MemberList({ members, presenceUsers = [] }: MemberListProps) {
             <UserAvatar user={{ id: member.user_id, name: member.user.name }} size="sm" />
             {isOnline && (
               <span
-                className={`absolute -bottom-px -right-px h-2.5 w-2.5 rounded-full ring-2 ring-[#151518] ${
+                className={`absolute -bottom-px -right-px h-2.5 w-2.5 rounded-full ring-2 ring-surface-raised ${
                   isActive ? "bg-green-500" : "bg-amber-400"
                 }`}
               />

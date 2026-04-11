@@ -14,7 +14,7 @@ interface AttritionFunnelProps {
   }>;
 }
 
-const FUNNEL_COLORS = ["#2DD4BF", "#C9A227", "#e85d75", "#7c8aed", "#59c990"];
+const FUNNEL_COLORS = ["var(--success)", "var(--accent)", "#e85d75", "#7c8aed", "#59c990"];
 
 export default function AttritionFunnel({ data }: AttritionFunnelProps) {
   if (data.length === 0) return null;
@@ -22,7 +22,7 @@ export default function AttritionFunnel({ data }: AttritionFunnelProps) {
   return (
     <div className="space-y-4">
       {data.map((source) => (
-        <div key={source.source_id} className="rounded-lg border border-[#252530] bg-[#151518] p-4">
+        <div key={source.source_id} className="rounded-lg border border-[#252530] bg-surface-raised p-4">
           <h4 className="mb-3 text-sm font-medium text-white">{source.source_name}</h4>
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">

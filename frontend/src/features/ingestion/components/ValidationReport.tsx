@@ -25,7 +25,7 @@ const CATEGORY_META: Record<
   completeness: {
     label: "Completeness",
     icon: Shield,
-    color: "text-[#60A5FA]",
+    color: "text-info",
   },
   conformance: {
     label: "Conformance",
@@ -43,13 +43,13 @@ const SEVERITY_META: Record<
   CheckSeverity,
   { label: string; bg: string; text: string }
 > = {
-  error: { label: "Error", bg: "bg-[#E85A6B]/15", text: "text-[#E85A6B]" },
+  error: { label: "Error", bg: "bg-critical/15", text: "text-critical" },
   warning: {
     label: "Warning",
     bg: "bg-[#E5A84B]/15",
     text: "text-[#E5A84B]",
   },
-  info: { label: "Info", bg: "bg-[#60A5FA]/15", text: "text-[#60A5FA]" },
+  info: { label: "Info", bg: "bg-info/15", text: "text-info" },
 };
 
 function ScoreRing({
@@ -66,7 +66,7 @@ function ScoreRing({
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (pct / 100) * circumference;
   const color =
-    pct >= 90 ? "#2DD4BF" : pct >= 70 ? "#E5A84B" : "#E85A6B";
+    pct >= 90 ? "var(--success)" : pct >= 70 ? "#E5A84B" : "var(--critical)";
 
   return (
     <div className="relative" style={{ width: size, height: size }}>
@@ -76,7 +76,7 @@ function ScoreRing({
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="#232328"
+          stroke="var(--border-default)"
           strokeWidth={4}
         />
         <circle
@@ -121,10 +121,10 @@ export function ValidationReport({ results, summary }: ValidationReportProps) {
 
   if (!summary && results.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-xl border border-[#232328] bg-[#151518] py-16">
-        <Shield className="h-10 w-10 text-[#5A5650] mb-3" />
-        <p className="text-sm text-[#8A857D]">No validation results yet</p>
-        <p className="mt-1 text-xs text-[#5A5650]">
+      <div className="flex flex-col items-center justify-center rounded-xl border border-border-default bg-surface-raised py-16">
+        <Shield className="h-10 w-10 text-text-ghost mb-3" />
+        <p className="text-sm text-text-muted">No validation results yet</p>
+        <p className="mt-1 text-xs text-text-ghost">
           Validation runs after CDM data writing completes
         </p>
       </div>
@@ -140,9 +140,9 @@ export function ValidationReport({ results, summary }: ValidationReportProps) {
       {/* Scorecard */}
       <div className="grid grid-cols-4 gap-4">
         {/* Overall Score */}
-        <div className="col-span-1 flex flex-col items-center justify-center rounded-xl border border-[#232328] bg-[#151518] py-6">
+        <div className="col-span-1 flex flex-col items-center justify-center rounded-xl border border-border-default bg-surface-raised py-6">
           <ScoreRing passed={passedChecks} total={totalChecks} size={96} />
-          <span className="mt-2 text-sm text-[#8A857D]">Overall Score</span>
+          <span className="mt-2 text-sm text-text-muted">Overall Score</span>
         </div>
 
         {/* Category Scores */}
@@ -162,14 +162,14 @@ export function ValidationReport({ results, summary }: ValidationReportProps) {
           return (
             <div
               key={category}
-              className="flex flex-col items-center justify-center rounded-xl border border-[#232328] bg-[#151518] py-6"
+              className="flex flex-col items-center justify-center rounded-xl border border-border-default bg-surface-raised py-6"
             >
               <ScoreRing passed={catData.passed} total={catData.total} size={72} />
               <div className="mt-2 flex items-center gap-1.5">
                 <Icon className={cn("h-3.5 w-3.5", meta.color)} />
-                <span className="text-sm text-[#C5C0B8]">{meta.label}</span>
+                <span className="text-sm text-text-secondary">{meta.label}</span>
               </div>
-              <span className="mt-0.5 text-xs text-[#5A5650]">
+              <span className="mt-0.5 text-xs text-text-ghost">
                 {catData.passed}/{catData.total} passed
               </span>
             </div>
@@ -178,32 +178,32 @@ export function ValidationReport({ results, summary }: ValidationReportProps) {
       </div>
 
       {/* Summary Bar */}
-      <div className="flex items-center gap-6 rounded-xl border border-[#232328] bg-[#151518] px-6 py-4">
+      <div className="flex items-center gap-6 rounded-xl border border-border-default bg-surface-raised px-6 py-4">
         <div className="flex items-center gap-2">
-          <CheckCircle2 className="h-4 w-4 text-[#2DD4BF]" />
-          <span className="text-sm font-['IBM_Plex_Mono',monospace] text-[#2DD4BF]">
+          <CheckCircle2 className="h-4 w-4 text-success" />
+          <span className="text-sm font-['IBM_Plex_Mono',monospace] text-success">
             {passedChecks}
           </span>
-          <span className="text-sm text-[#8A857D]">Passed</span>
+          <span className="text-sm text-text-muted">Passed</span>
         </div>
         <div className="flex items-center gap-2">
-          <XCircle className="h-4 w-4 text-[#E85A6B]" />
-          <span className="text-sm font-['IBM_Plex_Mono',monospace] text-[#E85A6B]">
+          <XCircle className="h-4 w-4 text-critical" />
+          <span className="text-sm font-['IBM_Plex_Mono',monospace] text-critical">
             {failedChecks}
           </span>
-          <span className="text-sm text-[#8A857D]">Failed</span>
+          <span className="text-sm text-text-muted">Failed</span>
         </div>
         <div className="flex-1">
-          <div className="flex h-2 overflow-hidden rounded-full bg-[#1A1A1E]">
+          <div className="flex h-2 overflow-hidden rounded-full bg-surface-overlay">
             {passedChecks > 0 && (
               <div
-                className="bg-[#2DD4BF] transition-all"
+                className="bg-success transition-all"
                 style={{ width: `${(passedChecks / totalChecks) * 100}%` }}
               />
             )}
             {failedChecks > 0 && (
               <div
-                className="bg-[#E85A6B] transition-all"
+                className="bg-critical transition-all"
                 style={{ width: `${(failedChecks / totalChecks) * 100}%` }}
               />
             )}
@@ -222,21 +222,21 @@ export function ValidationReport({ results, summary }: ValidationReportProps) {
           return (
             <div
               key={category}
-              className="rounded-xl border border-[#232328] bg-[#151518] overflow-hidden"
+              className="rounded-xl border border-border-default bg-surface-raised overflow-hidden"
             >
-              <div className="flex items-center gap-3 border-b border-[#232328] bg-[#1A1A1E] px-6 py-3">
+              <div className="flex items-center gap-3 border-b border-border-default bg-surface-overlay px-6 py-3">
                 <Icon className={cn("h-4 w-4", meta.color)} />
-                <h3 className="text-sm font-semibold text-[#F0EDE8]">
+                <h3 className="text-sm font-semibold text-text-primary">
                   {meta.label}
                 </h3>
-                <span className="rounded-full bg-[#232328] px-2 py-0.5 text-xs text-[#8A857D]">
+                <span className="rounded-full bg-surface-elevated px-2 py-0.5 text-xs text-text-muted">
                   {categoryResults.length} checks
                 </span>
               </div>
 
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-[#232328] text-xs text-[#5A5650]">
+                  <tr className="border-b border-border-default text-xs text-text-ghost">
                     <th className="px-6 py-2 text-left font-medium w-8" />
                     <th className="px-3 py-2 text-left font-medium">Check</th>
                     <th className="px-3 py-2 text-left font-medium">Table</th>
@@ -250,7 +250,7 @@ export function ValidationReport({ results, summary }: ValidationReportProps) {
                     <th className="px-3 py-2 text-right font-medium">%</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#232328]">
+                <tbody className="divide-y divide-border-default">
                   {categoryResults.map((result) => {
                     const severity = SEVERITY_META[result.severity];
 
@@ -260,29 +260,29 @@ export function ValidationReport({ results, summary }: ValidationReportProps) {
                         className={cn(
                           "text-sm transition",
                           result.passed
-                            ? "hover:bg-[#1A1A1E]"
-                            : "bg-[#E85A6B]/5 hover:bg-[#E85A6B]/10",
+                            ? "hover:bg-surface-overlay"
+                            : "bg-critical/5 hover:bg-critical/10",
                         )}
                       >
                         <td className="px-6 py-2.5">
                           {result.passed ? (
-                            <CheckCircle2 className="h-4 w-4 text-[#2DD4BF]" />
+                            <CheckCircle2 className="h-4 w-4 text-success" />
                           ) : (
-                            <XCircle className="h-4 w-4 text-[#E85A6B]" />
+                            <XCircle className="h-4 w-4 text-critical" />
                           )}
                         </td>
                         <td className="px-3 py-2.5">
                           <div>
-                            <span className="text-[#F0EDE8]">
+                            <span className="text-text-primary">
                               {result.check_name}
                             </span>
-                            <p className="text-xs text-[#5A5650] mt-0.5">
+                            <p className="text-xs text-text-ghost mt-0.5">
                               {result.description}
                             </p>
                           </div>
                         </td>
                         <td className="px-3 py-2.5">
-                          <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
+                          <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-secondary">
                             {result.cdm_table}
                             {result.cdm_column && `.${result.cdm_column}`}
                           </span>
@@ -298,10 +298,10 @@ export function ValidationReport({ results, summary }: ValidationReportProps) {
                             {severity.label}
                           </span>
                         </td>
-                        <td className="px-3 py-2.5 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
+                        <td className="px-3 py-2.5 text-right font-['IBM_Plex_Mono',monospace] text-xs text-text-secondary">
                           {result.violated_rows.toLocaleString()}
                         </td>
-                        <td className="px-3 py-2.5 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#8A857D]">
+                        <td className="px-3 py-2.5 text-right font-['IBM_Plex_Mono',monospace] text-xs text-text-muted">
                           {result.total_rows.toLocaleString()}
                         </td>
                         <td className="px-3 py-2.5 text-right">
@@ -309,10 +309,10 @@ export function ValidationReport({ results, summary }: ValidationReportProps) {
                             className={cn(
                               "font-['IBM_Plex_Mono',monospace] text-xs",
                               result.violation_percentage === 0
-                                ? "text-[#2DD4BF]"
+                                ? "text-success"
                                 : result.violation_percentage < 5
                                   ? "text-[#E5A84B]"
-                                  : "text-[#E85A6B]",
+                                  : "text-critical",
                             )}
                           >
                             {result.violation_percentage.toFixed(1)}%

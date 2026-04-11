@@ -55,7 +55,7 @@ function StudyCard({ study, onPinFinding }: StudyCardProps) {
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-col gap-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[10px] px-2 py-0.5 rounded border font-mono" style={{ borderColor: "#2DD4BF40", color: "#2DD4BF" }}>
+            <span className="text-[10px] px-2 py-0.5 rounded border font-mono" style={{ borderColor: "color-mix(in srgb, var(--success) 25%, transparent)", color: "var(--success)" }}>
               {study.accessionId}
             </span>
             {year && (
@@ -74,7 +74,7 @@ function StudyCard({ study, onPinFinding }: StudyCardProps) {
         </div>
         <button
           onClick={handlePin}
-          className="flex-shrink-0 text-[10px] px-2.5 py-1 rounded border border-zinc-600 text-zinc-400 hover:border-[#2DD4BF]/50 hover:text-[#2DD4BF] transition-colors whitespace-nowrap"
+          className="flex-shrink-0 text-[10px] px-2.5 py-1 rounded border border-zinc-600 text-zinc-400 hover:border-success/50 hover:text-success transition-colors whitespace-nowrap"
         >
           Pin
         </button>
@@ -172,7 +172,7 @@ function SnpCard({ assoc, onPinFinding }: SnpCardProps) {
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-col gap-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm font-bold font-mono" style={{ color: "#2DD4BF" }}>
+            <span className="text-sm font-bold font-mono" style={{ color: "var(--success)" }}>
               {rsId}
             </span>
             {chr && pos != null && (
@@ -198,7 +198,7 @@ function SnpCard({ assoc, onPinFinding }: SnpCardProps) {
           )}
           <button
             onClick={handlePin}
-            className="text-[10px] px-2.5 py-1 rounded border border-zinc-600 text-zinc-400 hover:border-[#2DD4BF]/50 hover:text-[#2DD4BF] transition-colors whitespace-nowrap"
+            className="text-[10px] px-2.5 py-1 rounded border border-zinc-600 text-zinc-400 hover:border-success/50 hover:text-success transition-colors whitespace-nowrap"
           >
             Pin
           </button>

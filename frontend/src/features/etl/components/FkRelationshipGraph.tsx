@@ -37,12 +37,12 @@ const FK_MAP: Record<string, string> = {
 };
 
 const DOMAIN_COLORS: Record<string, string> = {
-  person: "#2DD4BF",
+  person: "var(--success)",
   visit_occurrence: "#3B82F6",
-  visit_detail: "#60A5FA",
-  condition_occurrence: "#C9A227",
+  visit_detail: "var(--info)",
+  condition_occurrence: "var(--accent)",
   condition_era: "#D4A843",
-  drug_exposure: "#9B1B30",
+  drug_exposure: "var(--primary)",
   drug_era: "#B52D44",
   procedure_occurrence: "#A855F7",
   measurement: "#8B5CF6",
@@ -199,16 +199,16 @@ export function FkRelationshipGraph({ fields, onTableClick }: FkRelationshipGrap
   }
 
   return (
-    <div className="rounded-xl border border-[#2a2a3e] bg-[#0E0E11] p-4 space-y-3">
+    <div className="rounded-xl border border-[#2a2a3e] bg-surface-base p-4 space-y-3">
       <button
         type="button"
         onClick={() => setExpanded((p) => !p)}
         className="flex items-center gap-2 w-full text-left"
       >
-        {expanded ? <ChevronUp size={14} className="text-[#8A857D]" /> : <ChevronDown size={14} className="text-[#8A857D]" />}
-        <GitBranch size={14} className="text-[#2DD4BF]" />
-        <span className="text-sm font-medium text-[#F0EDE8]">CDM Relationships</span>
-        <span className="text-[11px] text-[#5A5650] ml-1">
+        {expanded ? <ChevronUp size={14} className="text-text-muted" /> : <ChevronDown size={14} className="text-text-muted" />}
+        <GitBranch size={14} className="text-success" />
+        <span className="text-sm font-medium text-text-primary">CDM Relationships</span>
+        <span className="text-[11px] text-text-ghost ml-1">
           {edges.length} relationships across {activeNodes.size} tables
         </span>
       </button>
@@ -269,7 +269,7 @@ export function FkRelationshipGraph({ fields, onTableClick }: FkRelationshipGrap
                     x={pos.x}
                     y={pos.rowCount > 0 ? pos.y - 3 : pos.y + 4}
                     textAnchor="middle"
-                    fill="#F0EDE8"
+                    fill="var(--text-primary)"
                     fontSize={11}
                     fontFamily="monospace"
                   >
@@ -280,7 +280,7 @@ export function FkRelationshipGraph({ fields, onTableClick }: FkRelationshipGrap
                       x={pos.x}
                       y={pos.y + 12}
                       textAnchor="middle"
-                      fill="#8A857D"
+                      fill="var(--text-muted)"
                       fontSize={9}
                     >
                       {fmtCount(pos.rowCount)} rows

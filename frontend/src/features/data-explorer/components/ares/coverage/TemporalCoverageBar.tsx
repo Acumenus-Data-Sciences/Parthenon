@@ -47,7 +47,7 @@ export default function TemporalCoverageBar({
     <div className="flex flex-col gap-0.5">
       <div className="relative h-2 w-full rounded bg-[#1a1a22]" title={`${formatDate(earliest)} - ${formatDate(latest)}`}>
         <div
-          className="absolute top-0 h-2 rounded bg-[#2DD4BF]/50"
+          className="absolute top-0 h-2 rounded bg-success/50"
           style={{ left: `${leftPct}%`, width: `${Math.min(widthPct, 100 - leftPct)}%` }}
         />
       </div>

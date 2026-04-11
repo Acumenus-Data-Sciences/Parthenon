@@ -286,8 +286,8 @@ export default function PatientProfilePage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#F0EDE8]">Patient Profiles</h1>
-          <p className="mt-1 text-sm text-[#8A857D]">
+          <h1 className="text-2xl font-bold text-text-primary">Patient Profiles</h1>
+          <p className="mt-1 text-sm text-text-muted">
             Search by person ID or MRN, or browse cohort members
           </p>
         </div>
@@ -297,18 +297,18 @@ export default function PatientProfilePage() {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Clock size={14} className="text-[#8A857D]" />
-                <h2 className="text-sm font-semibold text-[#C5C0B8]">
+                <Clock size={14} className="text-text-muted" />
+                <h2 className="text-sm font-semibold text-text-secondary">
                   Recent Profiles
                 </h2>
-                <span className="text-xs text-[#5A5650]">
+                <span className="text-xs text-text-ghost">
                   ({recentProfiles.length})
                 </span>
               </div>
               <button
                 type="button"
                 onClick={clearRecentProfiles}
-                className="inline-flex items-center gap-1 text-[10px] text-[#5A5650] hover:text-[#8A857D] transition-colors"
+                className="inline-flex items-center gap-1 text-[10px] text-text-ghost hover:text-text-muted transition-colors"
               >
                 <X size={10} />
                 Clear
@@ -320,26 +320,26 @@ export default function PatientProfilePage() {
                   key={`${rp.sourceId}-${rp.personId}`}
                   type="button"
                   onClick={() => handleSelectPerson(rp.sourceId, rp.personId)}
-                  className="flex items-center gap-3 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2.5 text-left hover:border-[#2DD4BF]/30 hover:bg-[#1A1A1E] transition-colors group"
+                  className="flex items-center gap-3 rounded-lg border border-border-default bg-surface-raised px-3 py-2.5 text-left hover:border-success/30 hover:bg-surface-overlay transition-colors group"
                 >
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#2DD4BF]/10 shrink-0">
-                    <User size={14} className="text-[#2DD4BF]" />
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-success/10 shrink-0">
+                    <User size={14} className="text-success" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-[#2DD4BF] font-['IBM_Plex_Mono',monospace]">
+                      <span className="text-sm font-semibold text-success font-['IBM_Plex_Mono',monospace]">
                         #{rp.personId}
                       </span>
-                      <span className="text-xs text-[#8A857D]">
+                      <span className="text-xs text-text-muted">
                         {rp.gender} · {new Date().getFullYear() - rp.yearOfBirth} yrs
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5 mt-0.5">
-                      <Database size={9} className="text-[#5A5650] shrink-0" />
-                      <span className="text-[10px] text-[#5A5650] truncate">
+                      <Database size={9} className="text-text-ghost shrink-0" />
+                      <span className="text-[10px] text-text-ghost truncate">
                         {rp.sourceName}
                       </span>
-                      <span className="text-[10px] text-[#3A3A40] shrink-0">
+                      <span className="text-[10px] text-surface-highlight shrink-0">
                         · {formatTimeAgo(rp.viewedAt)}
                       </span>
                     </div>
@@ -364,13 +364,13 @@ export default function PatientProfilePage() {
           <button
             type="button"
             onClick={() => navigate(navState?.from ?? "/profiles")}
-            className="inline-flex items-center gap-1 text-sm text-[#8A857D] hover:text-[#F0EDE8] transition-colors mb-3"
+            className="inline-flex items-center gap-1 text-sm text-text-muted hover:text-text-primary transition-colors mb-3"
           >
             <ArrowLeft size={14} />
             {navState?.fromLabel ?? "Patient Profiles"}
           </button>
-          <h1 className="text-2xl font-bold text-[#F0EDE8]">Patient Profile</h1>
-          <p className="mt-1 text-sm text-[#8A857D]">Person #{parsedPersonId}</p>
+          <h1 className="text-2xl font-bold text-text-primary">Patient Profile</h1>
+          <p className="mt-1 text-sm text-text-muted">Person #{parsedPersonId}</p>
         </div>
 
         {/* Right side: source selector + quick patient search */}
@@ -392,12 +392,12 @@ export default function PatientProfilePage() {
               return selectedSource && selectedSource.id === userDefaultSourceId ? (
                 <Star
                   size={12}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[#C9A227] fill-[#C9A227]"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-accent fill-accent"
                 />
               ) : (
                 <Database
                   size={12}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost"
                 />
               );
             })()}
@@ -406,8 +406,8 @@ export default function PatientProfilePage() {
               onChange={(e) => handleSourceChange(Number(e.target.value) || null)}
               disabled={loadingSources}
               className={cn(
-                "appearance-none rounded-lg border border-[#232328] bg-[#0E0E11] pl-8 pr-8 py-2 text-sm",
-                "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                "appearance-none rounded-lg border border-border-default bg-surface-base pl-8 pr-8 py-2 text-sm",
+                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               )}
             >
               <option value="">Select source...</option>
@@ -419,7 +419,7 @@ export default function PatientProfilePage() {
             </select>
             <ChevronDown
               size={12}
-              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-text-ghost"
             />
           </div>
         </div>
@@ -427,9 +427,9 @@ export default function PatientProfilePage() {
 
       {/* Source required */}
       {!sourceId && (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
-          <Database size={24} className="text-[#5A5650] mb-3" />
-          <p className="text-sm text-[#8A857D]">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
+          <Database size={24} className="text-text-ghost mb-3" />
+          <p className="text-sm text-text-muted">
             Please select a data source to load the patient profile.
           </p>
         </div>
@@ -438,7 +438,7 @@ export default function PatientProfilePage() {
       {/* Loading */}
       {sourceId && loadingProfile && (
         <div className="flex items-center justify-center h-64">
-          <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+          <Loader2 size={24} className="animate-spin text-text-muted" />
         </div>
       )}
 
@@ -446,10 +446,10 @@ export default function PatientProfilePage() {
       {sourceId && profileError && (
         <div className="flex items-center justify-center h-48">
           <div className="text-center">
-            <p className="text-[#E85A6B] text-sm">
+            <p className="text-critical text-sm">
               Failed to load patient profile
             </p>
-            <p className="mt-1 text-xs text-[#8A857D]">
+            <p className="mt-1 text-xs text-text-muted">
               Person #{parsedPersonId} may not exist in this data source.
             </p>
           </div>
@@ -473,7 +473,7 @@ export default function PatientProfilePage() {
           <div className="flex justify-end">
             <button
               onClick={() => navigate(`/patient-similarity?person_id=${parsedPersonId}&source_id=${sourceId}`)}
-              className="flex items-center gap-1.5 rounded-md border border-[#9B1B30]/40 bg-[#9B1B30]/10 px-3 py-1.5 text-xs font-medium text-[#9B1B30] transition-colors hover:bg-[#9B1B30]/20"
+              className="flex items-center gap-1.5 rounded-md border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
             >
               <UsersRound size={13} />
               Find Similar Patients
@@ -482,9 +482,9 @@ export default function PatientProfilePage() {
 
           {/* Truncation warning */}
           {truncatedDomains.length > 0 && (
-            <div className="flex items-start gap-2 rounded-lg border border-[#C9A227]/30 bg-[#C9A227]/5 px-4 py-3">
-              <AlertTriangle size={14} className="text-[#C9A227] shrink-0 mt-0.5" />
-              <div className="text-xs text-[#C9A227]">
+            <div className="flex items-start gap-2 rounded-lg border border-accent/30 bg-accent/5 px-4 py-3">
+              <AlertTriangle size={14} className="text-accent shrink-0 mt-0.5" />
+              <div className="text-xs text-accent">
                 <span className="font-semibold">Results capped at {PROFILE_DOMAIN_LIMIT.toLocaleString()} per domain. </span>
                 Showing most recent records only.{" "}
                 {truncatedDomains.map((d, i) => (
@@ -499,13 +499,13 @@ export default function PatientProfilePage() {
 
           {/* View controls */}
           <div className="flex items-center justify-between gap-3 flex-wrap">
-            <span className="text-sm font-semibold text-[#F0EDE8]">
+            <span className="text-sm font-semibold text-text-primary">
               Clinical Events ({allEvents.length})
             </span>
 
             <div className="flex items-center gap-2">
               {/* View mode toggle */}
-              <div className="flex items-center gap-1 rounded-lg border border-[#232328] bg-[#0E0E11] p-0.5">
+              <div className="flex items-center gap-1 rounded-lg border border-border-default bg-surface-base p-0.5">
                 {VIEW_BUTTONS.filter(
                   (b) => b.mode !== "eras" || hasEras,
                 ).map(({ mode, icon, label }) => (
@@ -516,8 +516,8 @@ export default function PatientProfilePage() {
                     className={cn(
                       "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
                       viewMode === mode
-                        ? "bg-[#2DD4BF]/10 text-[#2DD4BF]"
-                        : "text-[#8A857D] hover:text-[#C5C0B8]",
+                        ? "bg-success/10 text-success"
+                        : "text-text-muted hover:text-text-secondary",
                     )}
                   >
                     {icon}
@@ -531,7 +531,7 @@ export default function PatientProfilePage() {
                 <button
                   type="button"
                   onClick={handleExportCsv}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#323238] px-3 py-1.5 text-xs text-[#8A857D] hover:text-[#F0EDE8] hover:border-[#5A5650] transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-surface-highlight px-3 py-1.5 text-xs text-text-muted hover:text-text-primary hover:border-text-ghost transition-colors"
                 >
                   <Download size={12} />
                   Export CSV
@@ -589,7 +589,7 @@ export default function PatientProfilePage() {
           {viewMode === "list" && (
             <div className="space-y-4">
               {/* Domain tabs + grouping toggle */}
-              <div className="flex items-center justify-between gap-3 border-b border-[#232328] overflow-x-auto">
+              <div className="flex items-center justify-between gap-3 border-b border-border-default overflow-x-auto">
                 <div className="flex items-center gap-1">
                   {DOMAIN_TABS.map((tab) => {
                     const count =
@@ -605,14 +605,14 @@ export default function PatientProfilePage() {
                         className={cn(
                           "relative px-3 py-2 text-xs font-medium transition-colors whitespace-nowrap",
                           domainTab === tab.key
-                            ? "text-[#2DD4BF]"
-                            : "text-[#8A857D] hover:text-[#C5C0B8]",
+                            ? "text-success"
+                            : "text-text-muted hover:text-text-secondary",
                         )}
                       >
                         {tab.label}{" "}
                         <span className="text-[10px] opacity-60">({count})</span>
                         {domainTab === tab.key && (
-                          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2DD4BF]" />
+                          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-success" />
                         )}
                       </button>
                     );
@@ -624,8 +624,8 @@ export default function PatientProfilePage() {
                   className={cn(
                     "shrink-0 mb-1 text-[10px] px-2.5 py-1 rounded border transition-colors",
                     groupList
-                      ? "border-[#2DD4BF]/40 text-[#2DD4BF] bg-[#2DD4BF]/5"
-                      : "border-[#323238] text-[#8A857D] hover:text-[#F0EDE8]",
+                      ? "border-success/40 text-success bg-success/5"
+                      : "border-surface-highlight text-text-muted hover:text-text-primary",
                   )}
                 >
                   {groupList ? `${groupedEvents.length} concepts` : `${filteredEvents.length} events`}
@@ -634,8 +634,8 @@ export default function PatientProfilePage() {
 
               {/* Event cards */}
               {filteredEvents.length === 0 ? (
-                <div className="flex items-center justify-center h-32 rounded-lg border border-dashed border-[#323238] bg-[#151518]">
-                  <p className="text-sm text-[#8A857D]">
+                <div className="flex items-center justify-center h-32 rounded-lg border border-dashed border-surface-highlight bg-surface-raised">
+                  <p className="text-sm text-text-muted">
                     No events in this category
                   </p>
                 </div>
@@ -680,16 +680,16 @@ function PatientImagingView({ personId }: { personId: number }) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 size={24} className="animate-spin text-[#60A5FA]" />
+        <Loader2 size={24} className="animate-spin text-info" />
       </div>
     );
   }
 
   if (error || !timeline) {
     return (
-      <div className="flex flex-col items-center justify-center h-48 rounded-lg border border-dashed border-[#323238] bg-[#151518]">
-        <ScanLine size={24} className="text-[#5A5650] mb-3" />
-        <p className="text-sm text-[#8A857D]">
+      <div className="flex flex-col items-center justify-center h-48 rounded-lg border border-dashed border-surface-highlight bg-surface-raised">
+        <ScanLine size={24} className="text-text-ghost mb-3" />
+        <p className="text-sm text-text-muted">
           {error ? "Failed to load imaging data" : "No imaging studies available for this patient"}
         </p>
       </div>

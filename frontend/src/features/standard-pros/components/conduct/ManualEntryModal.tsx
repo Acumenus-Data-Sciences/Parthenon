@@ -82,7 +82,7 @@ export function ManualEntryModal({
           <button
             type="button"
             onClick={handleClose}
-            className="rounded-lg border border-[#2A2A2F] px-4 py-2 text-sm text-[#8A857D] hover:text-[#F0EDE8]"
+            className="rounded-lg border border-[#2A2A2F] px-4 py-2 text-sm text-text-muted hover:text-text-primary"
           >
             Cancel
           </button>
@@ -90,7 +90,7 @@ export function ManualEntryModal({
             type="button"
             disabled={conductId === "" || isSubmitting}
             onClick={submitResponses}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base disabled:opacity-50"
           >
             {isSubmitting && <Loader2 size={14} className="animate-spin" />}
             Save Responses
@@ -100,7 +100,7 @@ export function ManualEntryModal({
     >
       <div className="space-y-4">
         <div>
-          <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-[#8A857D]">
+          <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-text-muted">
             Pending Conduct Record
           </label>
           <div className="grid grid-cols-1 gap-3 md:grid-cols-[220px_minmax(0,1fr)]">
@@ -109,12 +109,12 @@ export function ManualEntryModal({
               onChange={(event) => setRecordQuery(event.target.value)}
               placeholder="Filter by person_id"
               inputMode="numeric"
-              className="w-full rounded-lg border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF]"
+              className="w-full rounded-lg border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
             />
             <select
               value={conductId}
               onChange={(event) => setConductId(event.target.value)}
-              className="w-full rounded-lg border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF]"
+              className="w-full rounded-lg border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
             >
               <option value="">Select a person</option>
               {pendingRecords.map((record) => (
@@ -129,7 +129,7 @@ export function ManualEntryModal({
         <div className="max-h-[55vh] space-y-4 overflow-y-auto pr-1">
           {instrument?.items.map((item) => (
             <div key={item.id} className="rounded-lg border border-[#2A2A2F] bg-[#141418] p-4">
-              <label className="mb-2 block text-sm text-[#F0EDE8]">
+              <label className="mb-2 block text-sm text-text-primary">
                 {item.item_number}. {item.item_text}
               </label>
 
@@ -141,7 +141,7 @@ export function ManualEntryModal({
                       const checked = current.includes(option.option_text);
 
                       return (
-                        <label key={option.id} className="flex items-center gap-2 text-xs text-[#C5C0B8]">
+                        <label key={option.id} className="flex items-center gap-2 text-xs text-text-secondary">
                           <input
                             type="checkbox"
                             checked={checked}
@@ -164,7 +164,7 @@ export function ManualEntryModal({
                   <select
                     value={typeof values[item.id] === "string" ? values[item.id] : ""}
                     onChange={(event) => setValues((existing) => ({ ...existing, [item.id]: event.target.value }))}
-                    className="w-full rounded-lg border border-[#2A2A2F] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF]"
+                    className="w-full rounded-lg border border-[#2A2A2F] bg-surface-base px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
                   >
                     <option value="">Select a response</option>
                     {item.answer_options.map((option) => (
@@ -181,7 +181,7 @@ export function ManualEntryModal({
                   type={item.response_type === "date" ? "date" : "number"}
                   value={typeof values[item.id] === "string" ? values[item.id] : ""}
                   onChange={(event) => setValues((existing) => ({ ...existing, [item.id]: event.target.value }))}
-                  className="w-full rounded-lg border border-[#2A2A2F] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF]"
+                  className="w-full rounded-lg border border-[#2A2A2F] bg-surface-base px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
                 />
               )}
 
@@ -190,7 +190,7 @@ export function ManualEntryModal({
                   rows={3}
                   value={typeof values[item.id] === "string" ? values[item.id] : ""}
                   onChange={(event) => setValues((existing) => ({ ...existing, [item.id]: event.target.value }))}
-                  className="w-full rounded-lg border border-[#2A2A2F] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF]"
+                  className="w-full rounded-lg border border-[#2A2A2F] bg-surface-base px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
                 />
               )}
             </div>

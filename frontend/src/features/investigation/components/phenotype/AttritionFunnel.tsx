@@ -78,7 +78,7 @@ export default function AttritionFunnel({
         .attr("width", barWidth)
         .attr("height", BAR_HEIGHT)
         .attr("rx", 4)
-        .attr("fill", "#2DD4BF"); // teal
+        .attr("fill", "var(--success)"); // teal
 
       // Count text inside or right of bar
       const countLabel = `n = ${step.count.toLocaleString()}`;
@@ -128,7 +128,7 @@ export default function AttritionFunnel({
             .attr("x2", midX + 60)
             .attr("y1", midY)
             .attr("y2", midY)
-            .attr("stroke", "#9B1B30") // crimson
+            .attr("stroke", "var(--primary)") // crimson
             .attr("stroke-width", 1);
 
           // Excluded label
@@ -137,7 +137,7 @@ export default function AttritionFunnel({
             .attr("y", midY)
             .attr("dominant-baseline", "central")
             .attr("font-size", "10px")
-            .attr("fill", "#9B1B30") // crimson
+            .attr("fill", "var(--primary)") // crimson
             .attr("font-family", "sans-serif")
             .text(`−${excluded.toLocaleString()} excluded`);
         }

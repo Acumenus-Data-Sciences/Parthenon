@@ -78,7 +78,7 @@ export function StudySelector({ onSelect }: StudySelectorProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12 text-[#F0EDE8]/50">
+      <div className="flex items-center justify-center py-12 text-text-primary/50">
         <Loader2 size={20} className="animate-spin mr-2" />
         Loading studies...
       </div>
@@ -87,7 +87,7 @@ export function StudySelector({ onSelect }: StudySelectorProps) {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center py-12 text-[#E85A6B]">
+      <div className="flex items-center justify-center py-12 text-critical">
         <AlertCircle size={18} className="mr-2" />
         Failed to load studies. Please try again.
       </div>
@@ -100,11 +100,11 @@ export function StudySelector({ onSelect }: StudySelectorProps) {
     <div data-testid="study-selector" className="space-y-6">
       {/* Study cards */}
       <div>
-        <h3 className="text-sm font-semibold text-[#F0EDE8] mb-3">
+        <h3 className="text-sm font-semibold text-text-primary mb-3">
           Select a Study
         </h3>
         {studyList.length === 0 ? (
-          <p className="text-sm text-[#F0EDE8]/40">
+          <p className="text-sm text-text-primary/40">
             No studies found. Create a study first.
           </p>
         ) : (
@@ -116,27 +116,27 @@ export function StudySelector({ onSelect }: StudySelectorProps) {
                 onClick={() => handleStudyClick(study)}
                 className={`flex items-start gap-3 rounded-lg border p-4 text-left transition-colors ${
                   selectedStudyId === study.id
-                    ? "border-[#2DD4BF] bg-[#2DD4BF]/10"
-                    : "border-[#232328] bg-[#151518] hover:border-[#2DD4BF]/40"
+                    ? "border-success bg-success/10"
+                    : "border-border-default bg-surface-raised hover:border-success/40"
                 }`}
               >
                 <Briefcase
                   size={18}
                   className={
                     selectedStudyId === study.id
-                      ? "text-[#2DD4BF] mt-0.5"
-                      : "text-[#F0EDE8]/40 mt-0.5"
+                      ? "text-success mt-0.5"
+                      : "text-text-primary/40 mt-0.5"
                   }
                 />
                 <div className="min-w-0 flex-1">
-                  <h4 className="text-sm font-medium text-[#F0EDE8] truncate">
+                  <h4 className="text-sm font-medium text-text-primary truncate">
                     {study.title}
                   </h4>
-                  <p className="text-xs text-[#F0EDE8]/40 mt-0.5">
+                  <p className="text-xs text-text-primary/40 mt-0.5">
                     {study.study_type} | {study.status}
                   </p>
                   {study.description && (
-                    <p className="text-xs text-[#F0EDE8]/30 mt-1 line-clamp-2">
+                    <p className="text-xs text-text-primary/30 mt-1 line-clamp-2">
                       {study.description}
                     </p>
                   )}
@@ -151,14 +151,14 @@ export function StudySelector({ onSelect }: StudySelectorProps) {
       {selectedStudyId !== null && (
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-[#F0EDE8]">
+            <h3 className="text-sm font-semibold text-text-primary">
               Completed Executions
             </h3>
             {completedExecutions.length > 0 && (
               <button
                 type="button"
                 onClick={toggleAll}
-                className="text-xs text-[#2DD4BF] hover:text-[#2DD4BF]/80"
+                className="text-xs text-success hover:text-success/80"
               >
                 {checkedExecutionIds.size === completedExecutions.length
                   ? "Deselect All"
@@ -168,12 +168,12 @@ export function StudySelector({ onSelect }: StudySelectorProps) {
           </div>
 
           {isLoadingDetail ? (
-            <div className="flex items-center py-4 text-[#F0EDE8]/50 text-sm">
+            <div className="flex items-center py-4 text-text-primary/50 text-sm">
               <Loader2 size={16} className="animate-spin mr-2" />
               Loading executions...
             </div>
           ) : completedExecutions.length === 0 ? (
-            <p className="text-sm text-[#F0EDE8]/40">
+            <p className="text-sm text-text-primary/40">
               No completed executions found for this study.
             </p>
           ) : (
@@ -187,24 +187,24 @@ export function StudySelector({ onSelect }: StudySelectorProps) {
                     onClick={() => toggleExecution(exec.id)}
                     className={`flex items-center gap-3 w-full rounded-lg border px-4 py-3 text-left transition-colors ${
                       checked
-                        ? "border-[#2DD4BF]/50 bg-[#2DD4BF]/5"
-                        : "border-[#232328] bg-[#151518] hover:border-[#232328]/80"
+                        ? "border-success/50 bg-success/5"
+                        : "border-border-default bg-surface-raised hover:border-border-default/80"
                     }`}
                   >
                     {checked ? (
-                      <CheckSquare size={16} className="text-[#2DD4BF] shrink-0" />
+                      <CheckSquare size={16} className="text-success shrink-0" />
                     ) : (
-                      <Square size={16} className="text-[#F0EDE8]/30 shrink-0" />
+                      <Square size={16} className="text-text-primary/30 shrink-0" />
                     )}
                     <div className="min-w-0 flex-1">
-                      <span className="text-sm text-[#F0EDE8]">
+                      <span className="text-sm text-text-primary">
                         {exec.analysis_type} #{exec.analysis_id}
                       </span>
-                      <span className="text-xs text-[#F0EDE8]/40 ml-2">
+                      <span className="text-xs text-text-primary/40 ml-2">
                         Execution #{exec.id}
                       </span>
                     </div>
-                    <span className="text-xs text-[#2DD4BF]/60">
+                    <span className="text-xs text-success/60">
                       {exec.completed_at
                         ? new Date(exec.completed_at).toLocaleDateString()
                         : ""}
@@ -223,7 +223,7 @@ export function StudySelector({ onSelect }: StudySelectorProps) {
           type="button"
           onClick={handleNext}
           disabled={checkedExecutionIds.size === 0}
-          className="flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-5 py-2.5 text-sm font-semibold text-[#0E0E11] hover:bg-[#2DD4BF]/90 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          className="flex items-center gap-2 rounded-lg bg-success px-5 py-2.5 text-sm font-semibold text-surface-base hover:bg-success/90 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
         >
           Next
           <ChevronRight size={16} />

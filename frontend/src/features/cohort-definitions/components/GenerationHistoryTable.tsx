@@ -28,12 +28,12 @@ function formatDate(iso: string | null): string {
 
 function StatusBadge({ status }: { status: CohortGeneration["status"] }) {
   const config = {
-    pending: { icon: Clock, color: "#8A857D", label: "Pending" },
-    queued: { icon: Clock, color: "#C9A227", label: "Queued" },
-    running: { icon: Loader2, color: "#60A5FA", label: "Running" },
-    completed: { icon: CheckCircle2, color: "#2DD4BF", label: "Completed" },
-    failed: { icon: XCircle, color: "#E85A6B", label: "Failed" },
-    cancelled: { icon: Ban, color: "#8A857D", label: "Cancelled" },
+    pending: { icon: Clock, color: "var(--text-muted)", label: "Pending" },
+    queued: { icon: Clock, color: "var(--accent)", label: "Queued" },
+    running: { icon: Loader2, color: "var(--info)", label: "Running" },
+    completed: { icon: CheckCircle2, color: "var(--success)", label: "Completed" },
+    failed: { icon: XCircle, color: "var(--critical)", label: "Failed" },
+    cancelled: { icon: Ban, color: "var(--text-muted)", label: "Cancelled" },
   }[status];
 
   const Icon = config.icon;
@@ -64,14 +64,14 @@ export function GenerationHistoryTable({
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <Loader2 size={18} className="animate-spin text-[#8A857D]" />
+        <Loader2 size={18} className="animate-spin text-text-muted" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center py-8 text-xs text-[#E85A6B]">
+      <div className="flex items-center justify-center py-8 text-xs text-critical">
         Failed to load generation history
       </div>
     );
@@ -79,10 +79,10 @@ export function GenerationHistoryTable({
 
   if (!generations || generations.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-8">
-        <AlertCircle size={20} className="text-[#323238] mb-2" />
-        <p className="text-sm text-[#8A857D]">No generations yet</p>
-        <p className="mt-1 text-xs text-[#5A5650]">
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-8">
+        <AlertCircle size={20} className="text-surface-highlight mb-2" />
+        <p className="text-sm text-text-muted">No generations yet</p>
+        <p className="mt-1 text-xs text-text-ghost">
           Generate the cohort to see results here
         </p>
       </div>
@@ -90,23 +90,23 @@ export function GenerationHistoryTable({
   }
 
   return (
-    <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+    <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
       <table className="w-full">
         <thead>
-          <tr className="bg-[#1C1C20]">
-            <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+          <tr className="bg-surface-overlay">
+            <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
               Status
             </th>
-            <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+            <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
               Source
             </th>
-            <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+            <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
               Persons
             </th>
-            <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+            <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
               Started
             </th>
-            <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+            <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
               Completed
             </th>
           </tr>
@@ -116,30 +116,30 @@ export function GenerationHistoryTable({
             <tr
               key={gen.id}
               className={cn(
-                "border-t border-[#1C1C20] transition-colors",
-                i % 2 === 0 ? "bg-[#151518]" : "bg-[#1A1A1E]",
+                "border-t border-surface-overlay transition-colors",
+                i % 2 === 0 ? "bg-surface-raised" : "bg-surface-overlay",
               )}
             >
               <td className="px-4 py-3">
                 <StatusBadge status={gen.status} />
               </td>
-              <td className="px-4 py-3 text-xs text-[#8A857D]">
+              <td className="px-4 py-3 text-xs text-text-muted">
                 Source #{gen.source_id}
               </td>
               <td className="px-4 py-3 text-right">
                 {gen.person_count !== null ? (
-                  <span className="inline-flex items-center gap-1 font-['IBM_Plex_Mono',monospace] text-sm font-medium text-[#2DD4BF]">
+                  <span className="inline-flex items-center gap-1 font-['IBM_Plex_Mono',monospace] text-sm font-medium text-success">
                     <Users size={12} />
                     {gen.person_count.toLocaleString()}
                   </span>
                 ) : (
-                  <span className="text-xs text-[#5A5650]">--</span>
+                  <span className="text-xs text-text-ghost">--</span>
                 )}
               </td>
-              <td className="px-4 py-3 text-xs text-[#8A857D]">
+              <td className="px-4 py-3 text-xs text-text-muted">
                 {formatDate(gen.started_at)}
               </td>
-              <td className="px-4 py-3 text-xs text-[#8A857D]">
+              <td className="px-4 py-3 text-xs text-text-muted">
                 {formatDate(gen.completed_at)}
               </td>
             </tr>

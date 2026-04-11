@@ -1,6 +1,6 @@
 export function HubCardSkeleton() {
   return (
-    <div className="flex flex-col items-start gap-3 rounded-xl border border-[#252530] bg-[#151518] p-5">
+    <div className="flex flex-col items-start gap-3 rounded-xl border border-[#252530] bg-surface-raised p-5">
       <div className="flex items-center gap-2">
         <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-[#333]" />
         <span className="h-3 w-24 animate-pulse rounded bg-[#252530]" />

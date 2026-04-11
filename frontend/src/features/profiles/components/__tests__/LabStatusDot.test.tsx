@@ -23,7 +23,7 @@ describe('LabStatusDot', () => {
     const { container } = render(
       <svg><LabStatusDot cx={10} cy={10} payload={{ status: 'high' }} /></svg>
     );
-    expect(container.querySelector('circle')?.getAttribute('fill')).toBe('#9B1B30');
+    expect(container.querySelector('circle')?.getAttribute('fill')).toBe('var(--primary)');
   });
 
   it('renders crimson+gold ring for critical', () => {
@@ -31,8 +31,8 @@ describe('LabStatusDot', () => {
       <svg><LabStatusDot cx={10} cy={10} payload={{ status: 'critical' }} /></svg>
     );
     const circle = container.querySelector('circle');
-    expect(circle?.getAttribute('fill')).toBe('#9B1B30');
-    expect(circle?.getAttribute('stroke')).toBe('#C9A227');
+    expect(circle?.getAttribute('fill')).toBe('var(--primary)');
+    expect(circle?.getAttribute('stroke')).toBe('var(--accent)');
   });
 
   it('renders hollow for unknown', () => {

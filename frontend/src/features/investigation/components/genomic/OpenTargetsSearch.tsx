@@ -52,7 +52,7 @@ export function OpenTargetsSearch({
         <div className="flex items-center gap-2">
           <span
             className="text-xs font-semibold uppercase tracking-wide"
-            style={{ color: "#C9A227" }}
+            style={{ color: "var(--accent)" }}
           >
             Open Targets
           </span>
@@ -92,14 +92,14 @@ export function OpenTargetsSearch({
         />
         {isLoading && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
-            <div className="w-3.5 h-3.5 border-2 border-zinc-600 border-t-[#C9A227] rounded-full animate-spin" />
+            <div className="w-3.5 h-3.5 border-2 border-zinc-600 border-t-accent rounded-full animate-spin" />
           </div>
         )}
       </div>
 
       {/* States */}
       {isError && (
-        <p className="text-xs text-[#9B1B30] px-1">
+        <p className="text-xs text-primary px-1">
           {error instanceof Error ? error.message : "Search failed. Please try again."}
         </p>
       )}

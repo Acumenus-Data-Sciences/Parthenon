@@ -45,13 +45,13 @@ export function PipelineStepper({ currentStep, status }: PipelineStepperProps) {
                 className={cn(
                   "flex items-center justify-center w-9 h-9 rounded-full text-sm font-semibold transition-all shrink-0",
                   state === "completed" &&
-                    "bg-[#2DD4BF] text-[#0E0E11]",
+                    "bg-success text-surface-base",
                   state === "active" &&
-                    "bg-[#9B1B30] text-[#F0EDE8] animate-pulse",
+                    "bg-primary text-text-primary animate-pulse",
                   state === "pending" &&
-                    "border-2 border-[#323238] text-[#5A5650] bg-transparent",
+                    "border-2 border-surface-highlight text-text-ghost bg-transparent",
                   state === "failed" &&
-                    "bg-[#E85A6B] text-[#F0EDE8]",
+                    "bg-critical text-text-primary",
                 )}
               >
                 {state === "completed" ? (
@@ -65,10 +65,10 @@ export function PipelineStepper({ currentStep, status }: PipelineStepperProps) {
               <span
                 className={cn(
                   "text-xs font-medium whitespace-nowrap",
-                  state === "completed" && "text-[#2DD4BF]",
-                  state === "active" && "text-[#F0EDE8]",
-                  state === "pending" && "text-[#5A5650]",
-                  state === "failed" && "text-[#E85A6B]",
+                  state === "completed" && "text-success",
+                  state === "active" && "text-text-primary",
+                  state === "pending" && "text-text-ghost",
+                  state === "failed" && "text-critical",
                 )}
               >
                 {step.label}
@@ -82,8 +82,8 @@ export function PipelineStepper({ currentStep, status }: PipelineStepperProps) {
                   className={cn(
                     "h-[2px] w-full rounded-full",
                     index < currentIndex
-                      ? "bg-[#2DD4BF]"
-                      : "bg-[#323238]",
+                      ? "bg-success"
+                      : "bg-surface-highlight",
                   )}
                 />
               </div>

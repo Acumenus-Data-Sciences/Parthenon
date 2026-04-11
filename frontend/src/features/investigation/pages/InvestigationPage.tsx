@@ -33,7 +33,7 @@ export default function InvestigationPage() {
     return (
       <div
         className="flex min-h-screen items-center justify-center"
-        style={{ backgroundColor: "#0E0E11" }}
+        style={{ backgroundColor: "var(--surface-base)" }}
       >
         <div className="flex items-center gap-3 text-zinc-400">
           <Loader2 className="h-5 w-5 animate-spin" />
@@ -47,7 +47,7 @@ export default function InvestigationPage() {
     return (
       <div
         className="flex min-h-screen items-center justify-center"
-        style={{ backgroundColor: "#0E0E11" }}
+        style={{ backgroundColor: "var(--surface-base)" }}
       >
         <div className="text-center space-y-3">
           <p className="text-zinc-400 text-sm">
@@ -55,7 +55,7 @@ export default function InvestigationPage() {
           </p>
           <Link
             to="/workbench"
-            className="inline-block text-sm text-[#2DD4BF] hover:underline"
+            className="inline-block text-sm text-success hover:underline"
           >
             Back to Workbench
           </Link>

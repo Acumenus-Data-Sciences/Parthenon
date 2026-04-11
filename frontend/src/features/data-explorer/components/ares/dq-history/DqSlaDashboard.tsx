@@ -54,7 +54,7 @@ function SlaForm({
   };
 
   return (
-    <div className="mb-4 rounded-lg border border-[#252530] bg-[#0E0E11] p-4">
+    <div className="mb-4 rounded-lg border border-[#252530] bg-surface-base p-4">
       <h4 className="mb-3 text-xs font-medium uppercase tracking-wider text-[#888]">
         SLA Targets (min pass rate %)
       </h4>
@@ -81,12 +81,12 @@ function SlaForm({
         type="button"
         onClick={handleSave}
         disabled={storeMutation.isPending}
-        className="mt-3 rounded bg-[#2DD4BF] px-4 py-1.5 text-xs font-medium text-black transition-colors hover:bg-[#2DD4BF]/80 disabled:opacity-50"
+        className="mt-3 rounded bg-success px-4 py-1.5 text-xs font-medium text-black transition-colors hover:bg-success/80 disabled:opacity-50"
       >
         {storeMutation.isPending ? "Saving..." : "Save SLA Targets"}
       </button>
       {storeMutation.isSuccess && (
-        <span className="ml-3 text-xs text-[#2DD4BF]">Saved</span>
+        <span className="ml-3 text-xs text-success">Saved</span>
       )}
     </div>
   );
@@ -136,12 +136,12 @@ function ComplianceChart({ compliance }: { compliance: DqSlaCompliance[] }) {
               {chartData.map((entry, idx) => (
                 <Cell
                   key={idx}
-                  fill={entry.compliant ? "#2DD4BF" : "#9B1B30"}
+                  fill={entry.compliant ? "var(--success)" : "var(--primary)"}
                 />
               ))}
             </Bar>
             {chartData.length > 0 && (
-              <ReferenceLine x={chartData[0].target} stroke="#C9A227" strokeDasharray="3 3" label={{ value: "Target", fill: "#C9A227", fontSize: 10 }} />
+              <ReferenceLine x={chartData[0].target} stroke="var(--accent)" strokeDasharray="3 3" label={{ value: "Target", fill: "var(--accent)", fontSize: 10 }} />
             )}
           </BarChart>
         </ResponsiveContainer>
@@ -158,12 +158,12 @@ function ComplianceChart({ compliance }: { compliance: DqSlaCompliance[] }) {
               key={c.category}
               className={`rounded border px-3 py-2 ${
                 c.compliant
-                  ? "border-[#2DD4BF]/30 bg-[#2DD4BF]/5"
-                  : "border-[#9B1B30]/30 bg-[#9B1B30]/5"
+                  ? "border-success/30 bg-success/5"
+                  : "border-primary/30 bg-primary/5"
               }`}
             >
               <p className="text-xs capitalize text-[#888]">{c.category.replace(/_/g, " ")}</p>
-              <p className={`text-sm font-semibold ${c.compliant ? "text-[#2DD4BF]" : "text-[#e85d75]"}`}>
+              <p className={`text-sm font-semibold ${c.compliant ? "text-success" : "text-[#e85d75]"}`}>
                 {c.error_budget_remaining >= 0 ? "+" : ""}
                 {c.error_budget_remaining.toFixed(1)}%
               </p>

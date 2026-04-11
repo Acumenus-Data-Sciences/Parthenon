@@ -57,10 +57,10 @@ export function TierBreakdownChart({
       {/* Horizontal stacked tier distribution bar */}
       {totalPatients > 0 && (
         <div>
-          <p className="text-xs text-[#8A857D] mb-2">
+          <p className="text-xs text-text-muted mb-2">
             Tier Distribution
           </p>
-          <div className="flex h-6 w-full overflow-hidden rounded-lg bg-[#1A1A1F]">
+          <div className="flex h-6 w-full overflow-hidden rounded-lg bg-surface-overlay">
             {sorted.map((t) => {
               const pct = (t.patient_count / totalPatients) * 100;
               if (pct < 0.3) return null;
@@ -84,7 +84,7 @@ export function TierBreakdownChart({
             {sorted.map((t) => (
               <div
                 key={t.risk_tier}
-                className="flex items-center gap-1.5 text-[10px] text-[#8A857D]"
+                className="flex items-center gap-1.5 text-[10px] text-text-muted"
               >
                 <div
                   className="w-2 h-2 rounded-full"
@@ -103,7 +103,7 @@ export function TierBreakdownChart({
 
       {/* Bar chart: patient counts per tier */}
       <div>
-        <p className="text-xs text-[#8A857D] mb-2">
+        <p className="text-xs text-text-muted mb-2">
           Patients per Tier
         </p>
         <ResponsiveContainer width="100%" height={200}>
@@ -117,12 +117,12 @@ export function TierBreakdownChart({
           >
             <XAxis
               dataKey="name"
-              tick={{ fill: "#8A857D", fontSize: 11 }}
+              tick={{ fill: "var(--text-muted)", fontSize: 11 }}
               axisLine={{ stroke: "#2A2A2F" }}
               tickLine={false}
             />
             <YAxis
-              tick={{ fill: "#8A857D", fontSize: 11 }}
+              tick={{ fill: "var(--text-muted)", fontSize: 11 }}
               axisLine={{ stroke: "#2A2A2F" }}
               tickLine={false}
             />
@@ -133,7 +133,7 @@ export function TierBreakdownChart({
                 borderRadius: 8,
                 fontSize: 12,
               }}
-              labelStyle={{ color: "#F0EDE8" }}
+              labelStyle={{ color: "var(--text-primary)" }}
               formatter={
                 ((value: number) => [
                   value.toLocaleString(),
@@ -168,17 +168,17 @@ export function TierBreakdownChart({
       <div className="overflow-hidden rounded-xl border border-[#2A2A2F]">
         <table className="w-full text-xs">
           <thead>
-            <tr className="border-b border-[#2A2A2F] bg-[#0E0E11]">
-              <th className="px-3 py-2 text-left text-[#8A857D] font-medium">
+            <tr className="border-b border-[#2A2A2F] bg-surface-base">
+              <th className="px-3 py-2 text-left text-text-muted font-medium">
                 Tier
               </th>
-              <th className="px-3 py-2 text-right text-[#8A857D] font-medium">
+              <th className="px-3 py-2 text-right text-text-muted font-medium">
                 Count
               </th>
-              <th className="px-3 py-2 text-right text-[#8A857D] font-medium">
+              <th className="px-3 py-2 text-right text-text-muted font-medium">
                 %
               </th>
-              <th className="px-3 py-2 text-right text-[#8A857D] font-medium">
+              <th className="px-3 py-2 text-right text-text-muted font-medium">
                 Mean Score
               </th>
             </tr>
@@ -192,10 +192,10 @@ export function TierBreakdownChart({
               return (
                 <tr
                   key={t.risk_tier}
-                  className="border-b border-[#2A2A2F]/50 last:border-b-0 hover:bg-[#1A1A1F] cursor-pointer transition-colors"
+                  className="border-b border-[#2A2A2F]/50 last:border-b-0 hover:bg-surface-overlay cursor-pointer transition-colors"
                   onClick={() => onTierClick?.(t.risk_tier)}
                 >
-                  <td className="px-3 py-2 text-[#F0EDE8]">
+                  <td className="px-3 py-2 text-text-primary">
                     <div className="flex items-center gap-2">
                       <div
                         className="w-2.5 h-2.5 rounded-full"
@@ -208,13 +208,13 @@ export function TierBreakdownChart({
                       {tierLabel(t.risk_tier)}
                     </div>
                   </td>
-                  <td className="px-3 py-2 text-right font-['IBM_Plex_Mono',monospace] text-[#C5C0B8]">
+                  <td className="px-3 py-2 text-right font-['IBM_Plex_Mono',monospace] text-text-secondary">
                     {t.patient_count.toLocaleString()}
                   </td>
-                  <td className="px-3 py-2 text-right font-['IBM_Plex_Mono',monospace] text-[#8A857D]">
+                  <td className="px-3 py-2 text-right font-['IBM_Plex_Mono',monospace] text-text-muted">
                     {pct.toFixed(1)}%
                   </td>
-                  <td className="px-3 py-2 text-right font-['IBM_Plex_Mono',monospace] text-[#C5C0B8]">
+                  <td className="px-3 py-2 text-right font-['IBM_Plex_Mono',monospace] text-text-secondary">
                     {t.mean_score != null
                       ? Number(t.mean_score).toFixed(1)
                       : "-"}

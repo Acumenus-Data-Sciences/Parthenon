@@ -21,7 +21,7 @@ export function DomainBarChart({ data, onDomainClick }: DomainBarChartProps) {
         return (
           <div
             key={d.name}
-            className="group flex items-center gap-3 rounded-lg px-2 py-1.5 transition-colors hover:bg-[#1A1A1E]"
+            className="group flex items-center gap-3 rounded-lg px-2 py-1.5 transition-colors hover:bg-surface-overlay"
             onClick={() => onDomainClick?.(d.name.toLowerCase().replace(/ /g, "_"))}
             style={{ cursor: onDomainClick ? "pointer" : "default" }}
             role={onDomainClick ? "button" : undefined}
@@ -41,7 +41,7 @@ export function DomainBarChart({ data, onDomainClick }: DomainBarChartProps) {
                 className="inline-block h-2.5 w-2.5 rounded-sm"
                 style={{ backgroundColor: d.color }}
               />
-              <span className="text-xs font-medium text-[#C5C0B8] group-hover:text-[#F0EDE8]">
+              <span className="text-xs font-medium text-text-secondary group-hover:text-text-primary">
                 {d.name}
               </span>
             </div>
@@ -62,10 +62,10 @@ export function DomainBarChart({ data, onDomainClick }: DomainBarChartProps) {
 
             {/* Count + percentage */}
             <div className="flex w-28 shrink-0 items-baseline justify-end gap-2">
-              <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
+              <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-secondary">
                 {formatCompact(d.size)}
               </span>
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#5A5650]">
+              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-text-ghost">
                 {pct.toFixed(1)}%
               </span>
             </div>
@@ -74,18 +74,18 @@ export function DomainBarChart({ data, onDomainClick }: DomainBarChartProps) {
       })}
 
       {/* Total row */}
-      <div className="mt-1 flex items-center gap-3 border-t border-[#232328] px-2 pt-3">
+      <div className="mt-1 flex items-center gap-3 border-t border-border-default px-2 pt-3">
         <div className="w-28 shrink-0">
-          <span className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
+          <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
             Total
           </span>
         </div>
         <div className="flex-1" />
         <div className="flex w-28 shrink-0 items-baseline justify-end gap-2">
-          <span className="font-['IBM_Plex_Mono',monospace] text-xs font-semibold text-[#F0EDE8]">
+          <span className="font-['IBM_Plex_Mono',monospace] text-xs font-semibold text-text-primary">
             {formatCompact(total)}
           </span>
-          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#5A5650]">
+          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-text-ghost">
             100%
           </span>
         </div>

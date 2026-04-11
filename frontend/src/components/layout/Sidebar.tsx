@@ -376,7 +376,7 @@ export function Sidebar() {
           aria-label="Open contextual help"
           className={cn(
             "flex items-center gap-2 rounded-lg transition-colors",
-            "bg-[#C9A227]/15 text-[#C9A227] hover:bg-[#C9A227]/25 hover:text-[#D4AF37]",
+            "bg-accent/15 text-accent hover:bg-accent/25 hover:text-[#D4AF37]",
             sidebarOpen
               ? "px-3 py-2 text-sm font-medium w-full justify-center"
               : "h-8 w-8 justify-center",

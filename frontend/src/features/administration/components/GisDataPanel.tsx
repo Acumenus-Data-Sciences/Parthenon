@@ -86,7 +86,7 @@ export function GisDataPanel() {
     <Panel>
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <Globe className="h-5 w-5 text-[#C9A227]" />
+          <Globe className="h-5 w-5 text-accent" />
           <div>
             <p className="font-semibold text-foreground">GIS Boundary Data</p>
             <p className="mt-0.5 text-sm text-muted-foreground">
@@ -100,13 +100,13 @@ export function GisDataPanel() {
       </div>
 
       {/* Tab navigation */}
-      <div className="mt-4 flex border-b border-[#232328]">
+      <div className="mt-4 flex border-b border-border-default">
         <button
           onClick={() => setActiveTab("boundaries")}
           className={`px-4 py-2 text-sm font-medium transition-colors ${
             activeTab === "boundaries"
-              ? "border-b-2 border-[#C9A227] text-[#C9A227]"
-              : "text-[#5A5650] hover:text-[#8A857D]"
+              ? "border-b-2 border-accent text-accent"
+              : "text-text-ghost hover:text-text-muted"
           }`}
         >
           Boundaries
@@ -115,8 +115,8 @@ export function GisDataPanel() {
           onClick={() => setActiveTab("import")}
           className={`px-4 py-2 text-sm font-medium transition-colors ${
             activeTab === "import"
-              ? "border-b-2 border-[#C9A227] text-[#C9A227]"
-              : "text-[#5A5650] hover:text-[#8A857D]"
+              ? "border-b-2 border-accent text-accent"
+              : "text-text-ghost hover:text-text-muted"
           }`}
         >
           Data Import
@@ -159,7 +159,7 @@ export function GisDataPanel() {
               .map((l) => (
                 <span
                   key={l.code}
-                  className="rounded bg-[#232328] px-2 py-0.5 text-xs text-[#8A857D]"
+                  className="rounded bg-surface-elevated px-2 py-0.5 text-xs text-text-muted"
                 >
                   {l.label}: {l.count.toLocaleString()}
                 </span>
@@ -173,8 +173,8 @@ export function GisDataPanel() {
       )}
 
       {/* Load controls */}
-      <div className="mt-4 space-y-3 rounded-lg border border-[#232328] bg-[#0E0E11] p-3">
-        <h4 className="text-xs font-semibold uppercase tracking-wider text-[#5A5650]">
+      <div className="mt-4 space-y-3 rounded-lg border border-border-default bg-surface-base p-3">
+        <h4 className="text-xs font-semibold uppercase tracking-wider text-text-ghost">
           Load Boundaries
         </h4>
 
@@ -185,8 +185,8 @@ export function GisDataPanel() {
               key={src.id}
               className={`flex cursor-pointer items-start gap-3 rounded border p-2 transition-colors ${
                 selectedSource === src.id
-                  ? "border-[#C9A227]/50 bg-[#C9A227]/5"
-                  : "border-[#232328] hover:border-[#5A5650]"
+                  ? "border-accent/50 bg-accent/5"
+                  : "border-border-default hover:border-text-ghost"
               }`}
             >
               <input
@@ -195,11 +195,11 @@ export function GisDataPanel() {
                 value={src.id}
                 checked={selectedSource === src.id}
                 onChange={() => setSelectedSource(src.id)}
-                className="mt-0.5 accent-[#C9A227]"
+                className="mt-0.5 accent-accent"
               />
               <div>
                 <p className="text-sm font-medium text-[#E8E4DC]">{src.name}</p>
-                <p className="text-xs text-[#5A5650]">
+                <p className="text-xs text-text-ghost">
                   {src.description} ({src.size})
                 </p>
               </div>
@@ -209,7 +209,7 @@ export function GisDataPanel() {
 
         {/* Level selector */}
         <div>
-          <p className="mb-1.5 text-xs text-[#8A857D]">Admin levels to load:</p>
+          <p className="mb-1.5 text-xs text-text-muted">Admin levels to load:</p>
           <div className="flex flex-wrap gap-2">
             {LEVEL_OPTIONS.map((opt) => (
               <button
@@ -217,8 +217,8 @@ export function GisDataPanel() {
                 onClick={() => toggleLevel(opt.value)}
                 className={`rounded px-2.5 py-1 text-xs transition-colors ${
                   selectedLevels.includes(opt.value)
-                    ? "bg-[#C9A227]/20 text-[#C9A227]"
-                    : "bg-[#232328] text-[#5A5650] hover:text-[#8A857D]"
+                    ? "bg-accent/20 text-accent"
+                    : "bg-surface-elevated text-text-ghost hover:text-text-muted"
                 }`}
               >
                 {opt.label}
@@ -264,22 +264,22 @@ export function GisDataPanel() {
       {/* CLI command modal */}
       {modalOpen && cliCommand && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="mx-4 w-full max-w-lg rounded-lg border border-[#232328] bg-[#18181B] p-6 shadow-2xl">
-            <div className="flex items-center gap-2 text-[#C9A227]">
+          <div className="mx-4 w-full max-w-lg rounded-lg border border-border-default bg-[#18181B] p-6 shadow-2xl">
+            <div className="flex items-center gap-2 text-accent">
               <Terminal className="h-5 w-5" />
               <h3 className="text-lg font-semibold">Run on Host</h3>
             </div>
-            <p className="mt-2 text-sm text-[#8A857D]">
+            <p className="mt-2 text-sm text-text-muted">
               GIS data loads directly to local PostgreSQL 17. Run this command from
               the project root:
             </p>
-            <div className="group mt-3 flex items-start gap-2 rounded-lg border border-[#232328] bg-[#0E0E11] p-3">
-              <code className="flex-1 break-all text-sm text-[#2DD4BF]">
+            <div className="group mt-3 flex items-start gap-2 rounded-lg border border-border-default bg-surface-base p-3">
+              <code className="flex-1 break-all text-sm text-success">
                 {cliCommand}
               </code>
               <button
                 onClick={handleCopy}
-                className="shrink-0 rounded p-1 text-[#5A5650] hover:text-[#C9A227]"
+                className="shrink-0 rounded p-1 text-text-ghost hover:text-accent"
                 title="Copy to clipboard"
               >
                 {copied ? (
@@ -289,8 +289,8 @@ export function GisDataPanel() {
                 )}
               </button>
             </div>
-            <p className="mt-3 text-xs text-[#5A5650]">
-              The <code className="text-[#8A857D]">--dataset-id</code> flag enables
+            <p className="mt-3 text-xs text-text-ghost">
+              The <code className="text-text-muted">--dataset-id</code> flag enables
               progress tracking. Refresh stats after the script completes.
             </p>
             <div className="mt-4 flex justify-end gap-2">

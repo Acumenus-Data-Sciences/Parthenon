@@ -26,8 +26,8 @@ export function ConfidenceBadge({ score }: ConfidenceBadgeProps) {
 function getScoreStyle(score: number) {
   if (score >= 0.95) {
     return {
-      bg: "bg-[#2DD4BF]/20",
-      text: "text-[#2DD4BF]",
+      bg: "bg-success/20",
+      text: "text-success",
       label: "High",
     };
   }
@@ -40,14 +40,14 @@ function getScoreStyle(score: number) {
   }
   if (score > 0) {
     return {
-      bg: "bg-[#E85A6B]/20",
-      text: "text-[#E85A6B]",
+      bg: "bg-critical/20",
+      text: "text-critical",
       label: "Low",
     };
   }
   return {
-    bg: "bg-[#323238]",
-    text: "text-[#5A5650]",
+    bg: "bg-surface-highlight",
+    text: "text-text-ghost",
     label: "None",
   };
 }

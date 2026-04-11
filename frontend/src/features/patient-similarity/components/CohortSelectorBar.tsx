@@ -82,7 +82,7 @@ export function CohortSelectorBar({
     comparatorCohortId > 0;
 
   return (
-    <div className="sticky top-0 z-10 rounded-xl border border-[#2A2A30] bg-[#151518] px-4 py-3 space-y-2">
+    <div className="sticky top-0 z-10 rounded-xl border border-border-default bg-surface-raised px-4 py-3 space-y-2">
       {/* Row 1 — controls */}
       <div className="flex items-start gap-3 flex-wrap">
         {/* Data source dropdown */}
@@ -90,8 +90,8 @@ export function CohortSelectorBar({
           value={sourceId ?? ""}
           onChange={handleSourceChange}
           className={cn(
-            "rounded-md bg-[#1C1C20] border border-[#2A2A30] px-3 py-1.5 text-sm text-[#C5C0B8]",
-            "focus:outline-none focus:ring-1 focus:ring-[#C9A227]/15",
+            "rounded-md bg-surface-overlay border border-border-default px-3 py-1.5 text-sm text-text-secondary",
+            "focus:outline-none focus:ring-1 focus:ring-accent/15",
             "min-w-[140px]",
           )}
           aria-label="Data source"
@@ -105,15 +105,15 @@ export function CohortSelectorBar({
         </select>
 
         {/* Mode toggle */}
-        <div className="flex rounded-md overflow-hidden border border-[#2A2A30]">
+        <div className="flex rounded-md overflow-hidden border border-border-default">
           <button
             type="button"
             onClick={() => onModeChange("compare")}
             className={cn(
               "px-3 py-1.5 text-xs font-medium transition-colors",
               isCompareMode
-                ? "bg-[#9B1B30] text-white"
-                : "bg-[#151518] text-[#8A857D] hover:text-[#C5C0B8]",
+                ? "bg-primary text-white"
+                : "bg-surface-raised text-text-muted hover:text-text-secondary",
             )}
           >
             Compare Cohorts
@@ -124,8 +124,8 @@ export function CohortSelectorBar({
             className={cn(
               "px-3 py-1.5 text-xs font-medium transition-colors",
               !isCompareMode
-                ? "bg-[#2DD4BF] text-[#0E0E11]"
-                : "bg-[#151518] text-[#8A857D] hover:text-[#C5C0B8]",
+                ? "bg-success text-surface-base"
+                : "bg-surface-raised text-text-muted hover:text-text-secondary",
             )}
           >
             Expand Cohort
@@ -138,8 +138,8 @@ export function CohortSelectorBar({
             value={targetCohortId ?? ""}
             onChange={handleTargetChange}
             className={cn(
-              "w-full rounded-md bg-[#1C1C20] border border-[#9B1B30]/30 px-3 py-1.5 text-sm text-[#C5C0B8]",
-              "focus:outline-none focus:ring-1 focus:ring-[#9B1B30]/15",
+              "w-full rounded-md bg-surface-overlay border border-primary/30 px-3 py-1.5 text-sm text-text-secondary",
+              "focus:outline-none focus:ring-1 focus:ring-primary/15",
             )}
             aria-label="Target cohort"
           >
@@ -155,7 +155,7 @@ export function CohortSelectorBar({
           {showTargetBanner && (
             <div className="mt-1">
               <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-medium text-[#9B1B30]">
+                <span className="text-[10px] font-medium text-primary">
                   {isCompareMode ? "Target:" : "Seed:"}
                 </span>
                 <GenerationStatusBanner
@@ -176,8 +176,8 @@ export function CohortSelectorBar({
               value={comparatorCohortId ?? ""}
               onChange={handleComparatorChange}
               className={cn(
-                "w-full rounded-md bg-[#1C1C20] border border-[#2DD4BF]/30 px-3 py-1.5 text-sm text-[#C5C0B8]",
-                "focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/15",
+                "w-full rounded-md bg-surface-overlay border border-success/30 px-3 py-1.5 text-sm text-text-secondary",
+                "focus:outline-none focus:ring-1 focus:ring-success/15",
               )}
               aria-label="Comparator cohort"
             >
@@ -190,7 +190,7 @@ export function CohortSelectorBar({
             </select>
             {showComparatorBanner && (
               <div className="mt-1.5 flex items-center gap-1.5">
-                <span className="text-[10px] font-medium text-[#2DD4BF]">
+                <span className="text-[10px] font-medium text-success">
                   Comparator:
                 </span>
                 <GenerationStatusBanner
@@ -213,8 +213,8 @@ export function CohortSelectorBar({
             "px-4 py-1.5 rounded-md text-sm font-medium transition-colors shrink-0",
             "disabled:opacity-40 disabled:cursor-not-allowed",
             isCompareMode
-              ? "bg-[#9B1B30] text-white hover:bg-[#B22040]"
-              : "bg-[#2DD4BF] text-[#0E0E11] hover:bg-[#26B8A5]",
+              ? "bg-primary text-white hover:bg-[#B22040]"
+              : "bg-success text-surface-base hover:bg-success",
           )}
         >
           {isCompareMode ? "Compare" : "Find Similar"}
@@ -226,7 +226,7 @@ export function CohortSelectorBar({
           onClick={onOpenSettings}
           title="Analysis settings"
           className={cn(
-            "p-1.5 rounded-md text-[#8A857D] hover:text-[#C5C0B8] hover:bg-[#1C1C20] transition-colors shrink-0",
+            "p-1.5 rounded-md text-text-muted hover:text-text-secondary hover:bg-surface-overlay transition-colors shrink-0",
           )}
         >
           <Settings size={16} />

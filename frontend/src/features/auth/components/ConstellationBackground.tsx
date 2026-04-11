@@ -61,15 +61,15 @@ export function ConstellationBackground() {
         >
           <defs>
             <radialGradient id="gw">
-              <stop offset="0%" stopColor="#F0EDE8" stopOpacity="0.9" />
-              <stop offset="35%" stopColor="#F0EDE8" stopOpacity="0.3" />
-              <stop offset="100%" stopColor="#F0EDE8" stopOpacity="0" />
+              <stop offset="0%" stopColor="var(--text-primary)" stopOpacity="0.9" />
+              <stop offset="35%" stopColor="var(--text-primary)" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="var(--text-primary)" stopOpacity="0" />
             </radialGradient>
             <radialGradient id="gb">
               <stop offset="0%" stopColor="#FF6B4A" stopOpacity="0.95" />
               <stop offset="25%" stopColor="#E8523A" stopOpacity="0.45" />
-              <stop offset="60%" stopColor="#9B1B30" stopOpacity="0.12" />
-              <stop offset="100%" stopColor="#9B1B30" stopOpacity="0" />
+              <stop offset="60%" stopColor="var(--primary)" stopOpacity="0.12" />
+              <stop offset="100%" stopColor="var(--primary)" stopOpacity="0" />
             </radialGradient>
             <radialGradient id="gr">
               <stop offset="0%" stopColor="#A8D4FF" stopOpacity="0.95" />
@@ -80,13 +80,13 @@ export function ConstellationBackground() {
             <radialGradient id="ga">
               <stop offset="0%" stopColor="#FF5533" stopOpacity="0.9" />
               <stop offset="25%" stopColor="#CC3322" stopOpacity="0.4" />
-              <stop offset="60%" stopColor="#9B1B30" stopOpacity="0.1" />
-              <stop offset="100%" stopColor="#9B1B30" stopOpacity="0" />
+              <stop offset="60%" stopColor="var(--primary)" stopOpacity="0.1" />
+              <stop offset="100%" stopColor="var(--primary)" stopOpacity="0" />
             </radialGradient>
             <radialGradient id="gg">
-              <stop offset="0%" stopColor="#C9A227" stopOpacity="0.9" />
-              <stop offset="30%" stopColor="#C9A227" stopOpacity="0.35" />
-              <stop offset="100%" stopColor="#C9A227" stopOpacity="0" />
+              <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.9" />
+              <stop offset="30%" stopColor="var(--accent)" stopOpacity="0.35" />
+              <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
             </radialGradient>
             <radialGradient id="gs">
               <stop offset="0%" stopColor="#CCE0FF" stopOpacity="0.95" />
@@ -102,17 +102,17 @@ export function ConstellationBackground() {
             </radialGradient>
             <radialGradient id="nebula-orion" cx="50%" cy="50%" r="50%">
               <stop offset="0%" stopColor="#C82848" stopOpacity="0.30" />
-              <stop offset="25%" stopColor="#9B1B30" stopOpacity="0.18" />
+              <stop offset="25%" stopColor="var(--primary)" stopOpacity="0.18" />
               <stop offset="50%" stopColor="#7A2845" stopOpacity="0.10" />
               <stop offset="100%" stopColor="transparent" />
             </radialGradient>
             <linearGradient id="mw" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="transparent" />
-              <stop offset="15%" stopColor="#F0EDE8" stopOpacity="0.03" />
-              <stop offset="30%" stopColor="#F0EDE8" stopOpacity="0.07" />
-              <stop offset="50%" stopColor="#F0EDE8" stopOpacity="0.08" />
-              <stop offset="70%" stopColor="#F0EDE8" stopOpacity="0.07" />
-              <stop offset="85%" stopColor="#F0EDE8" stopOpacity="0.03" />
+              <stop offset="15%" stopColor="var(--text-primary)" stopOpacity="0.03" />
+              <stop offset="30%" stopColor="var(--text-primary)" stopOpacity="0.07" />
+              <stop offset="50%" stopColor="var(--text-primary)" stopOpacity="0.08" />
+              <stop offset="70%" stopColor="var(--text-primary)" stopOpacity="0.07" />
+              <stop offset="85%" stopColor="var(--text-primary)" stopOpacity="0.03" />
               <stop offset="100%" stopColor="transparent" />
             </linearGradient>
           </defs>
@@ -125,7 +125,7 @@ export function ConstellationBackground() {
               [325,260],[350,290],[375,280],[400,310],[420,300],[445,330],[465,315],[490,345],
               [130,225],[175,215],[215,245],[260,260],[305,285],[345,275],[390,305],[435,320],
             ].map(([cx, cy], i) => (
-              <circle key={`mw-${i}`} cx={cx} cy={cy} r={i % 4 === 0 ? 0.7 : 0.4} fill="#F0EDE8" opacity={0.2 + (i % 5) * 0.06} />
+              <circle key={`mw-${i}`} cx={cx} cy={cy} r={i % 4 === 0 ? 0.7 : 0.4} fill="var(--text-primary)" opacity={0.2 + (i % 5) * 0.06} />
             ))}
           </g>
 
@@ -153,21 +153,21 @@ export function ConstellationBackground() {
             <circle cx="335" cy="495" r="12" fill="url(#gr)" style={{ animation: "gp2 6s ease-in-out infinite" }} />
             <circle cx="335" cy="495" r="2.8" fill="#A8D4FF" opacity="0.95" style={{ animation: "sb2 6s ease-in-out infinite" }} />
             <circle cx="340" cy="385" r="7" fill="url(#gw)" style={{ animation: "gp3 8s ease-in-out infinite" }} />
-            <circle cx="340" cy="385" r="2.2" fill="#F0EDE8" opacity="0.9" style={{ animation: "sb3 8s ease-in-out infinite" }} />
+            <circle cx="340" cy="385" r="2.2" fill="var(--text-primary)" opacity="0.9" style={{ animation: "sb3 8s ease-in-out infinite" }} />
             <circle cx="255" cy="430" r="5" fill="url(#gw)" style={{ animation: "gp3 5s ease-in-out infinite" }} />
-            <circle cx="255" cy="430" r="2" fill="#F0EDE8" opacity="0.85" />
+            <circle cx="255" cy="430" r="2" fill="var(--text-primary)" opacity="0.85" />
             <circle cx="285" cy="435" r="5" fill="url(#gw)" style={{ animation: "gp2 4.5s ease-in-out infinite" }} />
-            <circle cx="285" cy="435" r="2.2" fill="#F0EDE8" opacity="0.9" style={{ animation: "sb1 4.5s ease-in-out infinite" }} />
+            <circle cx="285" cy="435" r="2.2" fill="var(--text-primary)" opacity="0.9" style={{ animation: "sb1 4.5s ease-in-out infinite" }} />
             <circle cx="315" cy="430" r="5" fill="url(#gw)" style={{ animation: "gp3 5.5s ease-in-out infinite" }} />
-            <circle cx="315" cy="430" r="2" fill="#F0EDE8" opacity="0.85" />
+            <circle cx="315" cy="430" r="2" fill="var(--text-primary)" opacity="0.85" />
             <circle cx="240" cy="500" r="6" fill="url(#gw)" style={{ animation: "gp3 6.5s ease-in-out infinite" }} />
-            <circle cx="240" cy="500" r="1.8" fill="#F0EDE8" opacity="0.75" />
-            <circle cx="285" cy="355" r="1.5" fill="#F0EDE8" opacity="0.7" />
-            <circle cx="365" cy="365" r="1.3" fill="#F0EDE8" opacity="0.6" />
-            <circle cx="375" cy="340" r="1.2" fill="#F0EDE8" opacity="0.55" />
-            <circle cx="205" cy="360" r="1.3" fill="#F0EDE8" opacity="0.6" />
-            <circle cx="195" cy="400" r="1.2" fill="#F0EDE8" opacity="0.55" />
-            <text x="265" y="525" fontFamily="var(--font-mono)" fontSize="8" fill="#F0EDE8" letterSpacing="3" style={{ animation: "lf 10s ease-in-out infinite" }}>ORION</text>
+            <circle cx="240" cy="500" r="1.8" fill="var(--text-primary)" opacity="0.75" />
+            <circle cx="285" cy="355" r="1.5" fill="var(--text-primary)" opacity="0.7" />
+            <circle cx="365" cy="365" r="1.3" fill="var(--text-primary)" opacity="0.6" />
+            <circle cx="375" cy="340" r="1.2" fill="var(--text-primary)" opacity="0.55" />
+            <circle cx="205" cy="360" r="1.3" fill="var(--text-primary)" opacity="0.6" />
+            <circle cx="195" cy="400" r="1.2" fill="var(--text-primary)" opacity="0.55" />
+            <text x="265" y="525" fontFamily="var(--font-mono)" fontSize="8" fill="var(--text-primary)" letterSpacing="3" style={{ animation: "lf 10s ease-in-out infinite" }}>ORION</text>
           </g>
 
           {/* ══════ 2. URSA MAJOR — upper left ══════ */}
@@ -182,15 +182,15 @@ export function ConstellationBackground() {
               <line x1="168" y1="82" x2="192" y2="95" />
             </g>
             <circle cx="55" cy="100" r="6" fill="url(#gw)" style={{ animation: "gp2 7s ease-in-out infinite 1s" }} />
-            <circle cx="55" cy="100" r="2" fill="#F0EDE8" opacity="0.85" style={{ animation: "sb1 7s ease-in-out infinite 1s" }} />
-            <circle cx="95" cy="90" r="1.8" fill="#F0EDE8" opacity="0.8" style={{ animation: "sb2 6s ease-in-out infinite" }} />
-            <circle cx="105" cy="118" r="1.7" fill="#F0EDE8" opacity="0.8" style={{ animation: "sb3 5s ease-in-out infinite" }} />
-            <circle cx="65" cy="128" r="1.7" fill="#F0EDE8" opacity="0.8" />
-            <circle cx="135" cy="78" r="1.8" fill="#F0EDE8" opacity="0.8" />
+            <circle cx="55" cy="100" r="2" fill="var(--text-primary)" opacity="0.85" style={{ animation: "sb1 7s ease-in-out infinite 1s" }} />
+            <circle cx="95" cy="90" r="1.8" fill="var(--text-primary)" opacity="0.8" style={{ animation: "sb2 6s ease-in-out infinite" }} />
+            <circle cx="105" cy="118" r="1.7" fill="var(--text-primary)" opacity="0.8" style={{ animation: "sb3 5s ease-in-out infinite" }} />
+            <circle cx="65" cy="128" r="1.7" fill="var(--text-primary)" opacity="0.8" />
+            <circle cx="135" cy="78" r="1.8" fill="var(--text-primary)" opacity="0.8" />
             <circle cx="168" cy="82" r="7" fill="url(#gw)" style={{ animation: "gp3 6s ease-in-out infinite" }} />
-            <circle cx="168" cy="82" r="2" fill="#F0EDE8" opacity="0.85" style={{ animation: "sb1 6s ease-in-out infinite" }} />
-            <circle cx="192" cy="95" r="1.7" fill="#F0EDE8" opacity="0.8" />
-            <text x="70" y="148" fontFamily="var(--font-mono)" fontSize="6.5" fill="#F0EDE8" letterSpacing="2" style={{ animation: "lf 11s ease-in-out infinite 3s" }}>URSA MAJOR</text>
+            <circle cx="168" cy="82" r="2" fill="var(--text-primary)" opacity="0.85" style={{ animation: "sb1 6s ease-in-out infinite" }} />
+            <circle cx="192" cy="95" r="1.7" fill="var(--text-primary)" opacity="0.8" />
+            <text x="70" y="148" fontFamily="var(--font-mono)" fontSize="6.5" fill="var(--text-primary)" letterSpacing="2" style={{ animation: "lf 11s ease-in-out infinite 3s" }}>URSA MAJOR</text>
           </g>
 
           {/* ══════ 3. CASSIOPEIA — upper right ══════ */}
@@ -203,11 +203,11 @@ export function ConstellationBackground() {
             </g>
             <circle cx="380" cy="95" r="9" fill="url(#gg)" style={{ animation: "gp1 9s ease-in-out infinite" }} />
             <circle cx="380" cy="95" r="2.3" fill="#E8C84A" opacity="0.9" style={{ animation: "sb1 9s ease-in-out infinite" }} />
-            <circle cx="410" cy="68" r="1.8" fill="#F0EDE8" opacity="0.8" style={{ animation: "sb2 5s ease-in-out infinite" }} />
-            <circle cx="440" cy="100" r="2" fill="#F0EDE8" opacity="0.8" style={{ animation: "sb4 7s ease-in-out infinite" }} />
-            <circle cx="470" cy="70" r="1.7" fill="#F0EDE8" opacity="0.75" style={{ animation: "sb3 6s ease-in-out infinite" }} />
-            <circle cx="500" cy="98" r="1.5" fill="#F0EDE8" opacity="0.7" />
-            <text x="400" y="120" fontFamily="var(--font-mono)" fontSize="6.5" fill="#F0EDE8" letterSpacing="2" style={{ animation: "lf 12s ease-in-out infinite 2s" }}>CASSIOPEIA</text>
+            <circle cx="410" cy="68" r="1.8" fill="var(--text-primary)" opacity="0.8" style={{ animation: "sb2 5s ease-in-out infinite" }} />
+            <circle cx="440" cy="100" r="2" fill="var(--text-primary)" opacity="0.8" style={{ animation: "sb4 7s ease-in-out infinite" }} />
+            <circle cx="470" cy="70" r="1.7" fill="var(--text-primary)" opacity="0.75" style={{ animation: "sb3 6s ease-in-out infinite" }} />
+            <circle cx="500" cy="98" r="1.5" fill="var(--text-primary)" opacity="0.7" />
+            <text x="400" y="120" fontFamily="var(--font-mono)" fontSize="6.5" fill="var(--text-primary)" letterSpacing="2" style={{ animation: "lf 12s ease-in-out infinite 2s" }}>CASSIOPEIA</text>
           </g>
 
           {/* ══════ 4. GEMINI — upper center ══════ */}
@@ -224,14 +224,14 @@ export function ConstellationBackground() {
             <circle cx="230" cy="120" r="8" fill="url(#gg)" style={{ animation: "gp1 8s ease-in-out infinite 2s" }} />
             <circle cx="230" cy="120" r="2.2" fill="#E8C84A" opacity="0.9" style={{ animation: "sb1 8s ease-in-out infinite 2s" }} />
             <circle cx="258" cy="118" r="8" fill="url(#gw)" style={{ animation: "gp2 7s ease-in-out infinite 1s" }} />
-            <circle cx="258" cy="118" r="2.2" fill="#F0EDE8" opacity="0.9" style={{ animation: "sb2 7s ease-in-out infinite 1s" }} />
-            <circle cx="242" cy="152" r="1.4" fill="#F0EDE8" opacity="0.65" />
-            <circle cx="270" cy="148" r="1.4" fill="#F0EDE8" opacity="0.65" style={{ animation: "sb3 6s ease-in-out infinite" }} />
-            <circle cx="238" cy="182" r="1.3" fill="#F0EDE8" opacity="0.6" />
-            <circle cx="275" cy="178" r="1.3" fill="#F0EDE8" opacity="0.6" />
-            <circle cx="228" cy="205" r="1.2" fill="#F0EDE8" opacity="0.55" />
-            <circle cx="290" cy="200" r="1.2" fill="#F0EDE8" opacity="0.55" />
-            <text x="235" y="222" fontFamily="var(--font-mono)" fontSize="6.5" fill="#F0EDE8" letterSpacing="2" style={{ animation: "lf 11s ease-in-out infinite 3s" }}>GEMINI</text>
+            <circle cx="258" cy="118" r="2.2" fill="var(--text-primary)" opacity="0.9" style={{ animation: "sb2 7s ease-in-out infinite 1s" }} />
+            <circle cx="242" cy="152" r="1.4" fill="var(--text-primary)" opacity="0.65" />
+            <circle cx="270" cy="148" r="1.4" fill="var(--text-primary)" opacity="0.65" style={{ animation: "sb3 6s ease-in-out infinite" }} />
+            <circle cx="238" cy="182" r="1.3" fill="var(--text-primary)" opacity="0.6" />
+            <circle cx="275" cy="178" r="1.3" fill="var(--text-primary)" opacity="0.6" />
+            <circle cx="228" cy="205" r="1.2" fill="var(--text-primary)" opacity="0.55" />
+            <circle cx="290" cy="200" r="1.2" fill="var(--text-primary)" opacity="0.55" />
+            <text x="235" y="222" fontFamily="var(--font-mono)" fontSize="6.5" fill="var(--text-primary)" letterSpacing="2" style={{ animation: "lf 11s ease-in-out infinite 3s" }}>GEMINI</text>
           </g>
 
           {/* ══════ 5. TAURUS — left of Orion ══════ */}
@@ -246,13 +246,13 @@ export function ConstellationBackground() {
             </g>
             <circle cx="155" cy="325" r="10" fill="url(#gald)" style={{ animation: "gp1 7s ease-in-out infinite 4s" }} />
             <circle cx="155" cy="325" r="2.5" fill="#FF8844" opacity="0.9" style={{ animation: "sb1 7s ease-in-out infinite 4s" }} />
-            <circle cx="130" cy="310" r="1.5" fill="#F0EDE8" opacity="0.7" style={{ animation: "sb2 6s ease-in-out infinite" }} />
-            <circle cx="145" cy="350" r="1.3" fill="#F0EDE8" opacity="0.6" />
-            <circle cx="180" cy="340" r="1.4" fill="#F0EDE8" opacity="0.65" style={{ animation: "sb4 5s ease-in-out infinite" }} />
-            <circle cx="105" cy="290" r="1.4" fill="#F0EDE8" opacity="0.65" />
-            <circle cx="115" cy="330" r="1.3" fill="#F0EDE8" opacity="0.6" />
-            <circle cx="90" cy="322" r="1.3" fill="#F0EDE8" opacity="0.6" />
-            <text x="110" y="370" fontFamily="var(--font-mono)" fontSize="6.5" fill="#F0EDE8" letterSpacing="2" style={{ animation: "lf 10s ease-in-out infinite 5s" }}>TAURUS</text>
+            <circle cx="130" cy="310" r="1.5" fill="var(--text-primary)" opacity="0.7" style={{ animation: "sb2 6s ease-in-out infinite" }} />
+            <circle cx="145" cy="350" r="1.3" fill="var(--text-primary)" opacity="0.6" />
+            <circle cx="180" cy="340" r="1.4" fill="var(--text-primary)" opacity="0.65" style={{ animation: "sb4 5s ease-in-out infinite" }} />
+            <circle cx="105" cy="290" r="1.4" fill="var(--text-primary)" opacity="0.65" />
+            <circle cx="115" cy="330" r="1.3" fill="var(--text-primary)" opacity="0.6" />
+            <circle cx="90" cy="322" r="1.3" fill="var(--text-primary)" opacity="0.6" />
+            <text x="110" y="370" fontFamily="var(--font-mono)" fontSize="6.5" fill="var(--text-primary)" letterSpacing="2" style={{ animation: "lf 10s ease-in-out infinite 5s" }}>TAURUS</text>
           </g>
 
           {/* ══════ 6. CANIS MAJOR — below Orion ══════ */}
@@ -267,13 +267,13 @@ export function ConstellationBackground() {
             </g>
             <circle cx="220" cy="570" r="15" fill="url(#gs)" style={{ animation: "gp1 5s ease-in-out infinite" }} />
             <circle cx="220" cy="570" r="3.2" fill="#CCE0FF" opacity="1" style={{ animation: "sb1 5s ease-in-out infinite" }} />
-            <circle cx="240" cy="598" r="1.5" fill="#F0EDE8" opacity="0.65" style={{ animation: "sb3 6s ease-in-out infinite" }} />
-            <circle cx="225" cy="630" r="1.4" fill="#F0EDE8" opacity="0.6" />
-            <circle cx="270" cy="608" r="1.5" fill="#F0EDE8" opacity="0.65" style={{ animation: "sb4 7s ease-in-out infinite" }} />
-            <circle cx="285" cy="640" r="1.3" fill="#F0EDE8" opacity="0.55" />
-            <circle cx="295" cy="595" r="1.3" fill="#F0EDE8" opacity="0.55" />
-            <circle cx="212" cy="658" r="1.3" fill="#F0EDE8" opacity="0.55" />
-            <text x="198" y="678" fontFamily="var(--font-mono)" fontSize="6" fill="#F0EDE8" letterSpacing="1.5" style={{ animation: "lf 9s ease-in-out infinite 2s" }}>CANIS MAJOR</text>
+            <circle cx="240" cy="598" r="1.5" fill="var(--text-primary)" opacity="0.65" style={{ animation: "sb3 6s ease-in-out infinite" }} />
+            <circle cx="225" cy="630" r="1.4" fill="var(--text-primary)" opacity="0.6" />
+            <circle cx="270" cy="608" r="1.5" fill="var(--text-primary)" opacity="0.65" style={{ animation: "sb4 7s ease-in-out infinite" }} />
+            <circle cx="285" cy="640" r="1.3" fill="var(--text-primary)" opacity="0.55" />
+            <circle cx="295" cy="595" r="1.3" fill="var(--text-primary)" opacity="0.55" />
+            <circle cx="212" cy="658" r="1.3" fill="var(--text-primary)" opacity="0.55" />
+            <text x="198" y="678" fontFamily="var(--font-mono)" fontSize="6" fill="var(--text-primary)" letterSpacing="1.5" style={{ animation: "lf 9s ease-in-out infinite 2s" }}>CANIS MAJOR</text>
           </g>
 
           {/* ══════ 7. LEO — left center ══════ */}
@@ -289,16 +289,16 @@ export function ConstellationBackground() {
               <line x1="130" y1="455" x2="155" y2="442" />
             </g>
             <circle cx="45" cy="450" r="10" fill="url(#gw)" style={{ animation: "gp1 7.5s ease-in-out infinite" }} />
-            <circle cx="45" cy="450" r="2.5" fill="#F0EDE8" opacity="0.9" style={{ animation: "sb1 7.5s ease-in-out infinite" }} />
-            <circle cx="58" cy="430" r="1.5" fill="#F0EDE8" opacity="0.7" style={{ animation: "sb3 5s ease-in-out infinite" }} />
-            <circle cx="78" cy="418" r="1.4" fill="#F0EDE8" opacity="0.65" />
-            <circle cx="95" cy="428" r="1.5" fill="#F0EDE8" opacity="0.7" style={{ animation: "sb4 6s ease-in-out infinite" }} />
-            <circle cx="90" cy="448" r="1.4" fill="#F0EDE8" opacity="0.65" />
-            <circle cx="70" cy="458" r="1.3" fill="#F0EDE8" opacity="0.6" />
-            <circle cx="130" cy="455" r="1.4" fill="#F0EDE8" opacity="0.65" style={{ animation: "sb2 7s ease-in-out infinite" }} />
+            <circle cx="45" cy="450" r="2.5" fill="var(--text-primary)" opacity="0.9" style={{ animation: "sb1 7.5s ease-in-out infinite" }} />
+            <circle cx="58" cy="430" r="1.5" fill="var(--text-primary)" opacity="0.7" style={{ animation: "sb3 5s ease-in-out infinite" }} />
+            <circle cx="78" cy="418" r="1.4" fill="var(--text-primary)" opacity="0.65" />
+            <circle cx="95" cy="428" r="1.5" fill="var(--text-primary)" opacity="0.7" style={{ animation: "sb4 6s ease-in-out infinite" }} />
+            <circle cx="90" cy="448" r="1.4" fill="var(--text-primary)" opacity="0.65" />
+            <circle cx="70" cy="458" r="1.3" fill="var(--text-primary)" opacity="0.6" />
+            <circle cx="130" cy="455" r="1.4" fill="var(--text-primary)" opacity="0.65" style={{ animation: "sb2 7s ease-in-out infinite" }} />
             <circle cx="155" cy="442" r="6" fill="url(#gs)" style={{ animation: "gp3 8s ease-in-out infinite 2s" }} />
             <circle cx="155" cy="442" r="1.8" fill="#CCE0FF" opacity="0.8" style={{ animation: "sb2 8s ease-in-out infinite 2s" }} />
-            <text x="70" y="478" fontFamily="var(--font-mono)" fontSize="6.5" fill="#F0EDE8" letterSpacing="2" style={{ animation: "lf 10s ease-in-out infinite 6s" }}>LEO</text>
+            <text x="70" y="478" fontFamily="var(--font-mono)" fontSize="6.5" fill="var(--text-primary)" letterSpacing="2" style={{ animation: "lf 10s ease-in-out infinite 6s" }}>LEO</text>
           </g>
 
           {/* ══════ 8. SCORPIUS — lower left ══════ */}
@@ -315,15 +315,15 @@ export function ConstellationBackground() {
             </g>
             <circle cx="88" cy="692" r="12" fill="url(#ga)" style={{ animation: "gp1 8s ease-in-out infinite 1s" }} />
             <circle cx="88" cy="692" r="2.8" fill="#FF5533" opacity="0.95" style={{ animation: "sb1 8s ease-in-out infinite 1s" }} />
-            <circle cx="55" cy="640" r="1.4" fill="#F0EDE8" opacity="0.6" />
-            <circle cx="85" cy="635" r="1.5" fill="#F0EDE8" opacity="0.65" style={{ animation: "sb4 6s ease-in-out infinite" }} />
-            <circle cx="72" cy="658" r="1.6" fill="#F0EDE8" opacity="0.65" />
-            <circle cx="75" cy="725" r="1.5" fill="#F0EDE8" opacity="0.6" style={{ animation: "sb2 7s ease-in-out infinite" }} />
-            <circle cx="85" cy="755" r="1.3" fill="#F0EDE8" opacity="0.55" />
-            <circle cx="110" cy="775" r="1.4" fill="#F0EDE8" opacity="0.6" />
-            <circle cx="140" cy="778" r="1.3" fill="#F0EDE8" opacity="0.55" style={{ animation: "sb3 5.5s ease-in-out infinite" }} />
-            <circle cx="155" cy="760" r="1.4" fill="#F0EDE8" opacity="0.6" />
-            <text x="35" y="715" fontFamily="var(--font-mono)" fontSize="6.5" fill="#F0EDE8" letterSpacing="2" style={{ animation: "lf 11s ease-in-out infinite 4s" }}>SCORPIUS</text>
+            <circle cx="55" cy="640" r="1.4" fill="var(--text-primary)" opacity="0.6" />
+            <circle cx="85" cy="635" r="1.5" fill="var(--text-primary)" opacity="0.65" style={{ animation: "sb4 6s ease-in-out infinite" }} />
+            <circle cx="72" cy="658" r="1.6" fill="var(--text-primary)" opacity="0.65" />
+            <circle cx="75" cy="725" r="1.5" fill="var(--text-primary)" opacity="0.6" style={{ animation: "sb2 7s ease-in-out infinite" }} />
+            <circle cx="85" cy="755" r="1.3" fill="var(--text-primary)" opacity="0.55" />
+            <circle cx="110" cy="775" r="1.4" fill="var(--text-primary)" opacity="0.6" />
+            <circle cx="140" cy="778" r="1.3" fill="var(--text-primary)" opacity="0.55" style={{ animation: "sb3 5.5s ease-in-out infinite" }} />
+            <circle cx="155" cy="760" r="1.4" fill="var(--text-primary)" opacity="0.6" />
+            <text x="35" y="715" fontFamily="var(--font-mono)" fontSize="6.5" fill="var(--text-primary)" letterSpacing="2" style={{ animation: "lf 11s ease-in-out infinite 4s" }}>SCORPIUS</text>
           </g>
 
           {/* ══════ 9. LYRA — right center ══════ */}
@@ -337,11 +337,11 @@ export function ConstellationBackground() {
             </g>
             <circle cx="470" cy="420" r="12" fill="url(#gs)" style={{ animation: "gp1 6s ease-in-out infinite 2s" }} />
             <circle cx="470" cy="420" r="2.6" fill="#CCE0FF" opacity="0.95" style={{ animation: "sb1 6s ease-in-out infinite 2s" }} />
-            <circle cx="455" cy="450" r="1.4" fill="#F0EDE8" opacity="0.6" />
-            <circle cx="488" cy="450" r="1.3" fill="#F0EDE8" opacity="0.55" style={{ animation: "sb3 5s ease-in-out infinite" }} />
-            <circle cx="452" cy="478" r="1.2" fill="#F0EDE8" opacity="0.5" />
-            <circle cx="492" cy="478" r="1.2" fill="#F0EDE8" opacity="0.5" />
-            <text x="455" y="498" fontFamily="var(--font-mono)" fontSize="6.5" fill="#F0EDE8" letterSpacing="2" style={{ animation: "lf 9s ease-in-out infinite 5s" }}>LYRA</text>
+            <circle cx="455" cy="450" r="1.4" fill="var(--text-primary)" opacity="0.6" />
+            <circle cx="488" cy="450" r="1.3" fill="var(--text-primary)" opacity="0.55" style={{ animation: "sb3 5s ease-in-out infinite" }} />
+            <circle cx="452" cy="478" r="1.2" fill="var(--text-primary)" opacity="0.5" />
+            <circle cx="492" cy="478" r="1.2" fill="var(--text-primary)" opacity="0.5" />
+            <text x="455" y="498" fontFamily="var(--font-mono)" fontSize="6.5" fill="var(--text-primary)" letterSpacing="2" style={{ animation: "lf 9s ease-in-out infinite 5s" }}>LYRA</text>
           </g>
 
           {/* ══════ 10. CORONA BOREALIS — left of center ══════ */}
@@ -353,12 +353,12 @@ export function ConstellationBackground() {
               <line x1="210" y1="220" x2="230" y2="238" />
             </g>
             <circle cx="180" cy="215" r="9" fill="url(#gw)" style={{ animation: "gp2 7s ease-in-out infinite 3s" }} />
-            <circle cx="180" cy="215" r="2.3" fill="#F0EDE8" opacity="0.95" style={{ animation: "sb1 7s ease-in-out infinite 3s" }} />
-            <circle cx="120" cy="240" r="1.3" fill="#F0EDE8" opacity="0.55" />
-            <circle cx="148" cy="222" r="1.5" fill="#F0EDE8" opacity="0.65" style={{ animation: "sb4 6s ease-in-out infinite" }} />
-            <circle cx="210" cy="220" r="1.4" fill="#F0EDE8" opacity="0.6" style={{ animation: "sb2 8s ease-in-out infinite" }} />
-            <circle cx="230" cy="238" r="1.3" fill="#F0EDE8" opacity="0.55" />
-            <text x="132" y="258" fontFamily="var(--font-mono)" fontSize="5.5" fill="#F0EDE8" letterSpacing="1.5" style={{ animation: "lf 13s ease-in-out infinite 1s" }}>CORONA BOREALIS</text>
+            <circle cx="180" cy="215" r="2.3" fill="var(--text-primary)" opacity="0.95" style={{ animation: "sb1 7s ease-in-out infinite 3s" }} />
+            <circle cx="120" cy="240" r="1.3" fill="var(--text-primary)" opacity="0.55" />
+            <circle cx="148" cy="222" r="1.5" fill="var(--text-primary)" opacity="0.65" style={{ animation: "sb4 6s ease-in-out infinite" }} />
+            <circle cx="210" cy="220" r="1.4" fill="var(--text-primary)" opacity="0.6" style={{ animation: "sb2 8s ease-in-out infinite" }} />
+            <circle cx="230" cy="238" r="1.3" fill="var(--text-primary)" opacity="0.55" />
+            <text x="132" y="258" fontFamily="var(--font-mono)" fontSize="5.5" fill="var(--text-primary)" letterSpacing="1.5" style={{ animation: "lf 13s ease-in-out infinite 1s" }}>CORONA BOREALIS</text>
           </g>
 
           {/* ══════ 11. CYGNUS — right ══════ */}
@@ -369,12 +369,12 @@ export function ConstellationBackground() {
               <line x1="490" y1="340" x2="490" y2="365" />
             </g>
             <circle cx="490" cy="270" r="9" fill="url(#gw)" style={{ animation: "gp1 6.5s ease-in-out infinite 1s" }} />
-            <circle cx="490" cy="270" r="2.3" fill="#F0EDE8" opacity="0.9" style={{ animation: "sb1 6.5s ease-in-out infinite 1s" }} />
-            <circle cx="462" cy="300" r="1.5" fill="#F0EDE8" opacity="0.65" style={{ animation: "sb3 7s ease-in-out infinite" }} />
-            <circle cx="518" cy="308" r="1.5" fill="#F0EDE8" opacity="0.65" style={{ animation: "sb4 5.5s ease-in-out infinite" }} />
-            <circle cx="490" cy="340" r="1.4" fill="#F0EDE8" opacity="0.6" style={{ animation: "sb2 8s ease-in-out infinite" }} />
-            <circle cx="490" cy="365" r="1.3" fill="#F0EDE8" opacity="0.55" />
-            <text x="472" y="385" fontFamily="var(--font-mono)" fontSize="6.5" fill="#F0EDE8" letterSpacing="2" style={{ animation: "lf 10s ease-in-out infinite 7s" }}>CYGNUS</text>
+            <circle cx="490" cy="270" r="2.3" fill="var(--text-primary)" opacity="0.9" style={{ animation: "sb1 6.5s ease-in-out infinite 1s" }} />
+            <circle cx="462" cy="300" r="1.5" fill="var(--text-primary)" opacity="0.65" style={{ animation: "sb3 7s ease-in-out infinite" }} />
+            <circle cx="518" cy="308" r="1.5" fill="var(--text-primary)" opacity="0.65" style={{ animation: "sb4 5.5s ease-in-out infinite" }} />
+            <circle cx="490" cy="340" r="1.4" fill="var(--text-primary)" opacity="0.6" style={{ animation: "sb2 8s ease-in-out infinite" }} />
+            <circle cx="490" cy="365" r="1.3" fill="var(--text-primary)" opacity="0.55" />
+            <text x="472" y="385" fontFamily="var(--font-mono)" fontSize="6.5" fill="var(--text-primary)" letterSpacing="2" style={{ animation: "lf 10s ease-in-out infinite 7s" }}>CYGNUS</text>
           </g>
 
           {/* ══════ 12. PERSEUS — upper right ══════ */}
@@ -387,14 +387,14 @@ export function ConstellationBackground() {
               <line x1="445" y1="190" x2="422" y2="205" />
             </g>
             <circle cx="430" cy="160" r="7" fill="url(#gw)" style={{ animation: "gp2 7s ease-in-out infinite 3s" }} />
-            <circle cx="430" cy="160" r="2" fill="#F0EDE8" opacity="0.85" style={{ animation: "sb1 7s ease-in-out infinite 3s" }} />
-            <circle cx="445" cy="190" r="1.6" fill="#F0EDE8" opacity="0.7" style={{ animation: "sb2 6s ease-in-out infinite" }} />
-            <circle cx="438" cy="218" r="1.4" fill="#F0EDE8" opacity="0.6" />
+            <circle cx="430" cy="160" r="2" fill="var(--text-primary)" opacity="0.85" style={{ animation: "sb1 7s ease-in-out infinite 3s" }} />
+            <circle cx="445" cy="190" r="1.6" fill="var(--text-primary)" opacity="0.7" style={{ animation: "sb2 6s ease-in-out infinite" }} />
+            <circle cx="438" cy="218" r="1.4" fill="var(--text-primary)" opacity="0.6" />
             <circle cx="455" cy="242" r="7" fill="url(#gr)" style={{ animation: "gp1 2.87s ease-in-out infinite" }} />
             <circle cx="455" cy="242" r="2" fill="#A8D4FF" opacity="0.85" style={{ animation: "sb3 2.87s ease-in-out infinite" }} />
-            <circle cx="468" cy="198" r="1.3" fill="#F0EDE8" opacity="0.55" />
-            <circle cx="422" cy="205" r="1.3" fill="#F0EDE8" opacity="0.55" style={{ animation: "sb4 5s ease-in-out infinite" }} />
-            <text x="418" y="262" fontFamily="var(--font-mono)" fontSize="6.5" fill="#F0EDE8" letterSpacing="2" style={{ animation: "lf 12s ease-in-out infinite 4s" }}>PERSEUS</text>
+            <circle cx="468" cy="198" r="1.3" fill="var(--text-primary)" opacity="0.55" />
+            <circle cx="422" cy="205" r="1.3" fill="var(--text-primary)" opacity="0.55" style={{ animation: "sb4 5s ease-in-out infinite" }} />
+            <text x="418" y="262" fontFamily="var(--font-mono)" fontSize="6.5" fill="var(--text-primary)" letterSpacing="2" style={{ animation: "lf 12s ease-in-out infinite 4s" }}>PERSEUS</text>
           </g>
 
           {/* ══════ 13. AQUILA — right of center ══════ */}
@@ -406,12 +406,12 @@ export function ConstellationBackground() {
               <line x1="438" y1="525" x2="438" y2="568" />
             </g>
             <circle cx="438" cy="525" r="10" fill="url(#gw)" style={{ animation: "gp1 6s ease-in-out infinite 3s" }} />
-            <circle cx="438" cy="525" r="2.5" fill="#F0EDE8" opacity="0.95" style={{ animation: "sb1 6s ease-in-out infinite 3s" }} />
-            <circle cx="420" cy="550" r="1.5" fill="#F0EDE8" opacity="0.6" style={{ animation: "sb2 7s ease-in-out infinite" }} />
-            <circle cx="456" cy="550" r="1.5" fill="#F0EDE8" opacity="0.6" />
-            <circle cx="438" cy="500" r="1.3" fill="#F0EDE8" opacity="0.55" />
-            <circle cx="438" cy="568" r="1.2" fill="#F0EDE8" opacity="0.5" />
-            <text x="420" y="588" fontFamily="var(--font-mono)" fontSize="6.5" fill="#F0EDE8" letterSpacing="2" style={{ animation: "lf 10s ease-in-out infinite 6s" }}>AQUILA</text>
+            <circle cx="438" cy="525" r="2.5" fill="var(--text-primary)" opacity="0.95" style={{ animation: "sb1 6s ease-in-out infinite 3s" }} />
+            <circle cx="420" cy="550" r="1.5" fill="var(--text-primary)" opacity="0.6" style={{ animation: "sb2 7s ease-in-out infinite" }} />
+            <circle cx="456" cy="550" r="1.5" fill="var(--text-primary)" opacity="0.6" />
+            <circle cx="438" cy="500" r="1.3" fill="var(--text-primary)" opacity="0.55" />
+            <circle cx="438" cy="568" r="1.2" fill="var(--text-primary)" opacity="0.5" />
+            <text x="420" y="588" fontFamily="var(--font-mono)" fontSize="6.5" fill="var(--text-primary)" letterSpacing="2" style={{ animation: "lf 10s ease-in-out infinite 6s" }}>AQUILA</text>
           </g>
 
           {/* ══════ 14. VIRGO — lower center ══════ */}
@@ -426,13 +426,13 @@ export function ConstellationBackground() {
             </g>
             <circle cx="328" cy="658" r="10" fill="url(#gs)" style={{ animation: "gp2 6.5s ease-in-out infinite 1s" }} />
             <circle cx="328" cy="658" r="2.5" fill="#CCE0FF" opacity="0.95" style={{ animation: "sb1 6.5s ease-in-out infinite 1s" }} />
-            <circle cx="310" cy="615" r="1.3" fill="#F0EDE8" opacity="0.55" />
-            <circle cx="332" cy="600" r="1.5" fill="#F0EDE8" opacity="0.65" style={{ animation: "sb3 7s ease-in-out infinite" }} />
-            <circle cx="318" cy="575" r="1.3" fill="#F0EDE8" opacity="0.55" />
-            <circle cx="355" cy="588" r="1.3" fill="#F0EDE8" opacity="0.55" style={{ animation: "sb4 5s ease-in-out infinite" }} />
-            <circle cx="345" cy="628" r="1.4" fill="#F0EDE8" opacity="0.6" />
-            <circle cx="372" cy="640" r="1.3" fill="#F0EDE8" opacity="0.55" />
-            <text x="310" y="680" fontFamily="var(--font-mono)" fontSize="6.5" fill="#F0EDE8" letterSpacing="2" style={{ animation: "lf 10s ease-in-out infinite 3s" }}>VIRGO</text>
+            <circle cx="310" cy="615" r="1.3" fill="var(--text-primary)" opacity="0.55" />
+            <circle cx="332" cy="600" r="1.5" fill="var(--text-primary)" opacity="0.65" style={{ animation: "sb3 7s ease-in-out infinite" }} />
+            <circle cx="318" cy="575" r="1.3" fill="var(--text-primary)" opacity="0.55" />
+            <circle cx="355" cy="588" r="1.3" fill="var(--text-primary)" opacity="0.55" style={{ animation: "sb4 5s ease-in-out infinite" }} />
+            <circle cx="345" cy="628" r="1.4" fill="var(--text-primary)" opacity="0.6" />
+            <circle cx="372" cy="640" r="1.3" fill="var(--text-primary)" opacity="0.55" />
+            <text x="310" y="680" fontFamily="var(--font-mono)" fontSize="6.5" fill="var(--text-primary)" letterSpacing="2" style={{ animation: "lf 10s ease-in-out infinite 3s" }}>VIRGO</text>
           </g>
 
           {/* ══════ 15. DRACO — upper far right ══════ */}
@@ -445,14 +445,14 @@ export function ConstellationBackground() {
               <line x1="520" y1="140" x2="540" y2="132" />
               <line x1="540" y1="132" x2="535" y2="148" />
             </g>
-            <circle cx="520" cy="140" r="1.5" fill="#F0EDE8" opacity="0.65" style={{ animation: "sb1 6s ease-in-out infinite" }} />
-            <circle cx="540" cy="132" r="1.3" fill="#F0EDE8" opacity="0.55" />
-            <circle cx="535" cy="148" r="1.3" fill="#F0EDE8" opacity="0.55" />
-            <circle cx="535" cy="165" r="1.4" fill="#F0EDE8" opacity="0.6" style={{ animation: "sb3 7s ease-in-out infinite" }} />
+            <circle cx="520" cy="140" r="1.5" fill="var(--text-primary)" opacity="0.65" style={{ animation: "sb1 6s ease-in-out infinite" }} />
+            <circle cx="540" cy="132" r="1.3" fill="var(--text-primary)" opacity="0.55" />
+            <circle cx="535" cy="148" r="1.3" fill="var(--text-primary)" opacity="0.55" />
+            <circle cx="535" cy="165" r="1.4" fill="var(--text-primary)" opacity="0.6" style={{ animation: "sb3 7s ease-in-out infinite" }} />
             <circle cx="528" cy="195" r="6" fill="url(#gg)" style={{ animation: "gp3 8s ease-in-out infinite 2s" }} />
             <circle cx="528" cy="195" r="1.8" fill="#E8C84A" opacity="0.8" style={{ animation: "sb2 8s ease-in-out infinite 2s" }} />
-            <circle cx="510" cy="215" r="1.3" fill="#F0EDE8" opacity="0.55" style={{ animation: "sb4 5.5s ease-in-out infinite" }} />
-            <text x="505" y="232" fontFamily="var(--font-mono)" fontSize="6.5" fill="#F0EDE8" letterSpacing="2" style={{ animation: "lf 11s ease-in-out infinite 5s" }}>DRACO</text>
+            <circle cx="510" cy="215" r="1.3" fill="var(--text-primary)" opacity="0.55" style={{ animation: "sb4 5.5s ease-in-out infinite" }} />
+            <text x="505" y="232" fontFamily="var(--font-mono)" fontSize="6.5" fill="var(--text-primary)" letterSpacing="2" style={{ animation: "lf 11s ease-in-out infinite 5s" }}>DRACO</text>
           </g>
 
           {/* ══════ SCATTERED FIELD STARS ══════ */}
@@ -465,7 +465,7 @@ export function ConstellationBackground() {
               [150,500],[410,580],[350,160],[200,700],[450,700],[100,400],[500,250],
               [250,550],[380,300],[160,280],[420,520],[300,740],[80,82],[490,85],
             ].map(([cx, cy], i) => (
-              <circle key={`fs-${i}`} cx={cx} cy={cy} r={0.4 + (i % 4) * 0.2} fill="#F0EDE8" opacity={0.15 + (i % 6) * 0.05} />
+              <circle key={`fs-${i}`} cx={cx} cy={cy} r={0.4 + (i % 4) * 0.2} fill="var(--text-primary)" opacity={0.15 + (i % 6) * 0.05} />
             ))}
           </g>
         </svg>
@@ -481,9 +481,9 @@ export function ConstellationBackground() {
       >
         <defs>
           <linearGradient id="mg" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#F0EDE8" stopOpacity="0" />
-            <stop offset="60%" stopColor="#F0EDE8" stopOpacity="0.6" />
-            <stop offset="100%" stopColor="#F0EDE8" stopOpacity="0.9" />
+            <stop offset="0%" stopColor="var(--text-primary)" stopOpacity="0" />
+            <stop offset="60%" stopColor="var(--text-primary)" stopOpacity="0.6" />
+            <stop offset="100%" stopColor="var(--text-primary)" stopOpacity="0.9" />
           </linearGradient>
         </defs>
         <g style={{ animation: "meteor-streak 14s ease-in-out infinite 3s" }}>

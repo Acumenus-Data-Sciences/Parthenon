@@ -12,11 +12,11 @@ interface DqCategoryHeatmapProps {
 }
 
 function getCellColor(rate: number): string {
-  if (rate >= 95) return "bg-[#2DD4BF]/40";
-  if (rate >= 90) return "bg-[#2DD4BF]/20";
-  if (rate >= 80) return "bg-[#C9A227]/30";
-  if (rate >= 70) return "bg-[#C9A227]/15";
-  return "bg-[#9B1B30]/30";
+  if (rate >= 95) return "bg-success/40";
+  if (rate >= 90) return "bg-success/20";
+  if (rate >= 80) return "bg-accent/30";
+  if (rate >= 70) return "bg-accent/15";
+  return "bg-primary/30";
 }
 
 export default function DqCategoryHeatmap({
@@ -43,7 +43,7 @@ export default function DqCategoryHeatmap({
       <table className="w-full text-xs">
         <thead>
           <tr>
-            <th className="sticky left-0 bg-[#151518] px-3 py-2 text-left text-[11px] text-[#888]">
+            <th className="sticky left-0 bg-surface-raised px-3 py-2 text-left text-[11px] text-[#888]">
               Category
             </th>
             {releases.map((r) => (
@@ -56,7 +56,7 @@ export default function DqCategoryHeatmap({
         <tbody>
           {categories.map((cat) => (
             <tr key={cat} className="border-t border-[#1a1a22]">
-              <td className="sticky left-0 bg-[#151518] px-3 py-1.5 text-[#ccc]">{cat}</td>
+              <td className="sticky left-0 bg-surface-raised px-3 py-1.5 text-[#ccc]">{cat}</td>
               {releases.map((r) => {
                 const rate = cellMap.get(`${r.id}-${cat}`);
                 return (
@@ -64,7 +64,7 @@ export default function DqCategoryHeatmap({
                     <button
                       type="button"
                       onClick={() => onCellClick?.(r.id, cat)}
-                      className={`block w-full rounded px-2 py-1.5 text-center text-[10px] font-mono transition-colors hover:ring-1 hover:ring-[#C9A227]/50 ${
+                      className={`block w-full rounded px-2 py-1.5 text-center text-[10px] font-mono transition-colors hover:ring-1 hover:ring-accent/50 ${
                         rate !== undefined ? getCellColor(rate) : "bg-[#1a1a22]"
                       } text-[#ccc]`}
                     >

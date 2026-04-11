@@ -37,7 +37,7 @@ export function AnnotationMarker({ sourceId, chartType, xValues }: AnnotationMar
             onMouseEnter={() => setHoveredX(xVal)}
             onMouseLeave={() => setHoveredX(null)}
           >
-            <div className="flex items-center gap-1 rounded-full bg-[#C9A227]/10 px-2 py-0.5 text-xs text-[#C9A227] cursor-pointer">
+            <div className="flex items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5 text-xs text-accent cursor-pointer">
               <MessageSquare size={10} />
               <span>{xVal}</span>
               {xAnnotations.length > 1 && (
@@ -46,12 +46,12 @@ export function AnnotationMarker({ sourceId, chartType, xValues }: AnnotationMar
             </div>
 
             {hoveredX === xVal && (
-              <div className="absolute bottom-full left-0 z-20 mb-1 w-56 rounded-lg border border-[#252530] bg-[#151518] p-2 shadow-xl">
+              <div className="absolute bottom-full left-0 z-20 mb-1 w-56 rounded-lg border border-[#252530] bg-surface-raised p-2 shadow-xl">
                 {xAnnotations.map((ann) => (
                   <div key={ann.id} className="border-b border-[#252530] py-1.5 last:border-0">
-                    <p className="text-xs text-[#F0EDE8]">{ann.annotation_text}</p>
+                    <p className="text-xs text-text-primary">{ann.annotation_text}</p>
                     {ann.creator && (
-                      <p className="text-[10px] text-[#8A857D] mt-0.5">{ann.creator.name}</p>
+                      <p className="text-[10px] text-text-muted mt-0.5">{ann.creator.name}</p>
                     )}
                   </div>
                 ))}

@@ -34,27 +34,27 @@ export function TemporalWindowEditor({
   };
 
   const inputClass = cn(
-    "w-20 rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-1.5 text-sm text-center",
-    "text-[#F0EDE8] focus:border-[#2DD4BF] focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40",
+    "w-20 rounded-lg border border-border-default bg-surface-base px-3 py-1.5 text-sm text-center",
+    "text-text-primary focus:border-success focus:outline-none focus:ring-1 focus:ring-success/40",
     "font-['IBM_Plex_Mono',monospace] tabular-nums",
   );
 
   const selectClass = cn(
-    "appearance-none rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-1.5 text-sm",
-    "text-[#F0EDE8] focus:border-[#2DD4BF] focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40",
+    "appearance-none rounded-lg border border-border-default bg-surface-base px-3 py-1.5 text-sm",
+    "text-text-primary focus:border-success focus:outline-none focus:ring-1 focus:ring-success/40",
     "cursor-pointer",
   );
 
   return (
     <div className="space-y-3">
-      <h5 className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
+      <h5 className="text-xs font-semibold uppercase tracking-wider text-text-muted">
         {label}
       </h5>
 
       <div className="grid grid-cols-2 gap-3">
         {/* Start */}
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-3 space-y-2">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-3 space-y-2">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
             Start
           </span>
           <div className="flex items-center gap-2">
@@ -67,7 +67,7 @@ export function TemporalWindowEditor({
               }
               className={inputClass}
             />
-            <span className="text-xs text-[#8A857D]">days</span>
+            <span className="text-xs text-text-muted">days</span>
             <select
               value={value.Start.Coeff}
               onChange={(e) => handleStartCoeff(Number(e.target.value))}
@@ -80,8 +80,8 @@ export function TemporalWindowEditor({
         </div>
 
         {/* End */}
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-3 space-y-2">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-3 space-y-2">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
             End
           </span>
           <div className="flex items-center gap-2">
@@ -94,7 +94,7 @@ export function TemporalWindowEditor({
               }
               className={inputClass}
             />
-            <span className="text-xs text-[#8A857D]">days</span>
+            <span className="text-xs text-text-muted">days</span>
             <select
               value={value.End.Coeff}
               onChange={(e) => handleEndCoeff(Number(e.target.value))}
@@ -116,9 +116,9 @@ export function TemporalWindowEditor({
             onChange={(e) =>
               onChange({ ...value, UseEventEnd: e.target.checked })
             }
-            className="rounded border-[#232328] bg-[#0E0E11] text-[#2DD4BF] focus:ring-[#2DD4BF]/40"
+            className="rounded border-border-default bg-surface-base text-success focus:ring-success/40"
           />
-          <span className="text-xs text-[#8A857D]">Use event end date</span>
+          <span className="text-xs text-text-muted">Use event end date</span>
         </label>
 
         <label className="flex items-center gap-2 cursor-pointer">
@@ -128,9 +128,9 @@ export function TemporalWindowEditor({
             onChange={(e) =>
               onChange({ ...value, UseIndexEnd: e.target.checked })
             }
-            className="rounded border-[#232328] bg-[#0E0E11] text-[#2DD4BF] focus:ring-[#2DD4BF]/40"
+            className="rounded border-border-default bg-surface-base text-success focus:ring-success/40"
           />
-          <span className="text-xs text-[#8A857D]">Use index end date</span>
+          <span className="text-xs text-text-muted">Use index end date</span>
         </label>
       </div>
     </div>

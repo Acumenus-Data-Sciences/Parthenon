@@ -94,12 +94,12 @@ export function ConceptSearchInline({ onSelect }: ConceptSearchInlineProps) {
           if (results.length > 0) setIsOpen(true);
         }}
         placeholder="Search OMOP concepts..."
-        className="w-full bg-[#1C1C20] border border-[#2E2E35] rounded px-3 py-1.5 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-[#2DD4BF]"
+        className="w-full bg-surface-overlay border border-[#2E2E35] rounded px-3 py-1.5 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-success"
       />
       {isLoading && (
         <div className="absolute right-3 top-[28px]">
           <svg
-            className="animate-spin h-4 w-4 text-[#2DD4BF]"
+            className="animate-spin h-4 w-4 text-success"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -110,13 +110,13 @@ export function ConceptSearchInline({ onSelect }: ConceptSearchInlineProps) {
         </div>
       )}
       {isOpen && results.length > 0 && (
-        <ul className="absolute z-50 w-full mt-1 max-h-60 overflow-auto bg-[#1C1C20] border border-[#2E2E35] rounded-lg shadow-lg">
+        <ul className="absolute z-50 w-full mt-1 max-h-60 overflow-auto bg-surface-overlay border border-[#2E2E35] rounded-lg shadow-lg">
           {results.map((concept) => (
             <li key={concept.concept_id}>
               <button
                 type="button"
                 onClick={() => handleSelect(concept)}
-                className="w-full text-left px-3 py-2 hover:bg-[#232328] transition-colors flex items-center gap-2"
+                className="w-full text-left px-3 py-2 hover:bg-surface-elevated transition-colors flex items-center gap-2"
               >
                 <span className="text-xs text-gray-500 font-mono min-w-[60px]">
                   {concept.concept_id}
@@ -127,7 +127,7 @@ export function ConceptSearchInline({ onSelect }: ConceptSearchInlineProps) {
                 <span className="text-[10px] text-gray-500">{concept.domain_id}</span>
                 <span className="text-[10px] text-gray-600">{concept.vocabulary_id}</span>
                 {concept.standard_concept === "S" && (
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-[#2DD4BF]/20 text-[#2DD4BF] font-medium">
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-success/20 text-success font-medium">
                     S
                   </span>
                 )}

@@ -87,15 +87,15 @@ export function DatabaseStep({ dialect, onChange }: Props) {
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="text-lg font-semibold text-[#F0EDE8]">Choose Database Type</h2>
-        <p className="mt-1 text-sm text-[#8A857D]">
+        <h2 className="text-lg font-semibold text-text-primary">Choose Database Type</h2>
+        <p className="mt-1 text-sm text-text-muted">
           Select the database engine your CDM is hosted on.
         </p>
       </div>
 
       {/* Supported */}
       <div className="space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-wider text-[#5A5650]">Supported</p>
+        <p className="text-xs font-semibold uppercase tracking-wider text-text-ghost">Supported</p>
         <div className="grid grid-cols-3 gap-2">
           {available.map((db) => {
             const isSelected = dialect === db.id;
@@ -106,8 +106,8 @@ export function DatabaseStep({ dialect, onChange }: Props) {
                 onClick={() => onChange(db.id)}
                 className={`relative flex flex-col items-center gap-2.5 rounded-xl border p-4 text-center transition-all ${
                   isSelected
-                    ? "border-[#C9A227] bg-[#C9A227]/5 shadow-[0_0_0_1px_#C9A227]"
-                    : "border-[#232328] bg-[#0E0E11] hover:border-[#323238] hover:bg-[#111114]"
+                    ? "border-accent bg-accent/5 shadow-[0_0_0_1px_var(--accent)]"
+                    : "border-border-default bg-surface-base hover:border-surface-highlight hover:bg-[#111114]"
                 }`}
               >
                 <div
@@ -122,15 +122,15 @@ export function DatabaseStep({ dialect, onChange }: Props) {
                   />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-[#F0EDE8]">{db.name}</p>
-                  <p className="text-[10px] text-[#5A5650] mt-0.5">{db.description}</p>
+                  <p className="text-xs font-semibold text-text-primary">{db.name}</p>
+                  <p className="text-[10px] text-text-ghost mt-0.5">{db.description}</p>
                 </div>
                 {isSelected && (
-                  <div className="absolute right-2 top-2 flex h-4 w-4 items-center justify-center rounded-full bg-[#C9A227]">
+                  <div className="absolute right-2 top-2 flex h-4 w-4 items-center justify-center rounded-full bg-accent">
                     <svg viewBox="0 0 10 10" className="w-2.5 h-2.5" fill="none">
                       <path
                         d="M2 5l2 2 4-4"
-                        stroke="#0E0E11"
+                        stroke="var(--surface-base)"
                         strokeWidth="1.5"
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -146,7 +146,7 @@ export function DatabaseStep({ dialect, onChange }: Props) {
 
       {/* Coming soon */}
       <div className="space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-wider text-[#5A5650]">Coming Soon</p>
+        <p className="text-xs font-semibold uppercase tracking-wider text-text-ghost">Coming Soon</p>
         <div className="grid grid-cols-4 gap-2">
           {comingSoon.map((db) => (
             <div
@@ -160,8 +160,8 @@ export function DatabaseStep({ dialect, onChange }: Props) {
                 <img src={db.icon} alt={db.name} className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-xs font-semibold text-[#F0EDE8]">{db.name}</p>
-                <span className="mt-0.5 inline-block rounded-full bg-[#232328] px-1.5 py-0.5 text-[9px] font-medium text-[#8A857D]">
+                <p className="text-xs font-semibold text-text-primary">{db.name}</p>
+                <span className="mt-0.5 inline-block rounded-full bg-surface-elevated px-1.5 py-0.5 text-[9px] font-medium text-text-muted">
                   Coming soon
                 </span>
               </div>

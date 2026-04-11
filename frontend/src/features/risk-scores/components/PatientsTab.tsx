@@ -43,7 +43,7 @@ export function PatientsTab({
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+        <Loader2 size={24} className="animate-spin text-text-muted" />
       </div>
     );
   }
@@ -51,12 +51,12 @@ export function PatientsTab({
   // Empty state (no execution selected)
   if (executionId == null) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
-        <div className="flex items-center justify-center w-14 h-14 rounded-full bg-[#1C1C20] mb-4">
-          <Users size={24} className="text-[#8A857D]" />
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
+        <div className="flex items-center justify-center w-14 h-14 rounded-full bg-surface-overlay mb-4">
+          <Users size={24} className="text-text-muted" />
         </div>
-        <h3 className="text-lg font-semibold text-[#F0EDE8]">No execution selected</h3>
-        <p className="mt-2 text-sm text-[#8A857D]">
+        <h3 className="text-lg font-semibold text-text-primary">No execution selected</h3>
+        <p className="mt-2 text-sm text-text-muted">
           Run an execution to view patient-level results.
         </p>
       </div>
@@ -73,7 +73,7 @@ export function PatientsTab({
             setFilterScoreId(e.target.value || undefined);
             setPage(1);
           }}
-          className="rounded-lg border border-[#2A2A2F] bg-[#141418] px-3 py-1.5 text-sm text-[#F0EDE8] focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]"
+          className="rounded-lg border border-[#2A2A2F] bg-[#141418] px-3 py-1.5 text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-success"
         >
           <option value="">All Scores</option>
           {scoreIds.map((sid) => (
@@ -90,8 +90,8 @@ export function PatientsTab({
             className={cn(
               "rounded-full px-3 py-1 text-xs font-medium transition-colors",
               filterTier == null
-                ? "bg-[#2DD4BF]/15 text-[#2DD4BF]"
-                : "bg-[#1C1C20] text-[#8A857D] hover:text-[#C5C0B8]",
+                ? "bg-success/15 text-success"
+                : "bg-surface-overlay text-text-muted hover:text-text-secondary",
             )}
           >
             All
@@ -104,12 +104,12 @@ export function PatientsTab({
               className={cn(
                 "rounded-full px-3 py-1 text-xs font-medium transition-colors",
                 filterTier === tier
-                  ? "text-[#0E0E11]"
-                  : "bg-[#1C1C20] text-[#8A857D] hover:text-[#C5C0B8]",
+                  ? "text-surface-base"
+                  : "bg-surface-overlay text-text-muted hover:text-text-secondary",
               )}
               style={
                 filterTier === tier
-                  ? { backgroundColor: TIER_COLORS[tier] ?? "#8A857D" }
+                  ? { backgroundColor: TIER_COLORS[tier] ?? "var(--text-muted)" }
                   : undefined
               }
             >
@@ -118,14 +118,14 @@ export function PatientsTab({
           ))}
         </div>
 
-        <span className="ml-auto text-sm text-[#5A5650]">
+        <span className="ml-auto text-sm text-text-ghost">
           Showing {total} patients
         </span>
       </div>
 
       {/* Bulk action bar */}
       {isFilterActive && patients.length > 0 && (
-        <div className="flex items-center gap-3 rounded-lg border border-[#2A2A2F] bg-[#1A1A1E] px-4 py-2">
+        <div className="flex items-center gap-3 rounded-lg border border-[#2A2A2F] bg-surface-overlay px-4 py-2">
           <button
             type="button"
             onClick={() =>
@@ -135,12 +135,12 @@ export function PatientsTab({
                 patients.map((r) => r.person_id),
               )
             }
-            className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-1.5 text-sm font-medium text-[#0E0E11] transition-colors hover:bg-[#2DD4BF]/80"
+            className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-1.5 text-sm font-medium text-surface-base transition-colors hover:bg-success/80"
           >
             <Users size={14} />
             Create Cohort from Filter
           </button>
-          <span className="text-xs text-[#8A857D]">
+          <span className="text-xs text-text-muted">
             {patients.length} patients on this page
           </span>
         </div>
@@ -148,14 +148,14 @@ export function PatientsTab({
 
       {/* Table */}
       {patients.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
-          <div className="flex items-center justify-center w-14 h-14 rounded-full bg-[#1C1C20] mb-4">
-            <Users size={24} className="text-[#8A857D]" />
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
+          <div className="flex items-center justify-center w-14 h-14 rounded-full bg-surface-overlay mb-4">
+            <Users size={24} className="text-text-muted" />
           </div>
-          <h3 className="text-lg font-semibold text-[#F0EDE8]">
+          <h3 className="text-lg font-semibold text-text-primary">
             No patient results available
           </h3>
-          <p className="mt-2 text-sm text-[#8A857D]">
+          <p className="mt-2 text-sm text-text-muted">
             {isFilterActive
               ? "Try adjusting your filters to see results."
               : "Execute the analysis to generate patient-level scores."}
@@ -165,12 +165,12 @@ export function PatientsTab({
         <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] overflow-hidden">
           <table className="w-full">
             <thead>
-              <tr className="bg-[#1A1A1E]">
+              <tr className="bg-surface-overlay">
                 {["Person ID", "Score", "Value", "Risk Tier", "Confidence", "Completeness", "Missing"].map(
                   (header) => (
                     <th
                       key={header}
-                      className="px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]"
+                      className="px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost"
                     >
                       {header}
                     </th>
@@ -180,7 +180,7 @@ export function PatientsTab({
             </thead>
             <tbody>
               {patients.map((r, i) => {
-                const tierColor = TIER_COLORS[r.risk_tier] ?? "#8A857D";
+                const tierColor = TIER_COLORS[r.risk_tier] ?? "var(--text-muted)";
                 const missingKeys = r.missing_components
                   ? Object.keys(r.missing_components)
                   : [];
@@ -189,8 +189,8 @@ export function PatientsTab({
                   <tr
                     key={r.id}
                     className={cn(
-                      "border-t border-[#1C1C20] transition-colors hover:bg-[#1C1C20]",
-                      i % 2 === 0 ? "bg-[#141418]" : "bg-[#1A1A1E]",
+                      "border-t border-surface-overlay transition-colors hover:bg-surface-overlay",
+                      i % 2 === 0 ? "bg-[#141418]" : "bg-surface-overlay",
                     )}
                   >
                     <td className="px-4 py-2.5">
@@ -199,16 +199,16 @@ export function PatientsTab({
                         onClick={() =>
                           window.open(`/profiles?person=${r.person_id}`, "_blank")
                         }
-                        className="inline-flex items-center gap-1 font-mono text-sm text-[#2DD4BF] hover:underline"
+                        className="inline-flex items-center gap-1 font-mono text-sm text-success hover:underline"
                       >
                         {r.person_id}
                         <ExternalLink size={12} className="opacity-50" />
                       </button>
                     </td>
-                    <td className="px-4 py-2.5 text-sm text-[#C5C0B8]">
+                    <td className="px-4 py-2.5 text-sm text-text-secondary">
                       {r.score_id}
                     </td>
-                    <td className="px-4 py-2.5 text-sm font-mono text-[#F0EDE8]">
+                    <td className="px-4 py-2.5 text-sm font-mono text-text-primary">
                       {r.score_value != null ? r.score_value.toFixed(1) : "\u2014"}
                     </td>
                     <td className="px-4 py-2.5">
@@ -222,13 +222,13 @@ export function PatientsTab({
                         {tierLabel(r.risk_tier)}
                       </span>
                     </td>
-                    <td className="px-4 py-2.5 text-sm text-[#C5C0B8]">
+                    <td className="px-4 py-2.5 text-sm text-text-secondary">
                       {(r.confidence * 100).toFixed(0)}%
                     </td>
-                    <td className="px-4 py-2.5 text-sm text-[#C5C0B8]">
+                    <td className="px-4 py-2.5 text-sm text-text-secondary">
                       {(r.completeness * 100).toFixed(0)}%
                     </td>
-                    <td className="px-4 py-2.5 text-xs text-[#8A857D] max-w-[200px] truncate">
+                    <td className="px-4 py-2.5 text-xs text-text-muted max-w-[200px] truncate">
                       {missingKeys.length > 0 ? missingKeys.join(", ") : "\u2014"}
                     </td>
                   </tr>
@@ -242,7 +242,7 @@ export function PatientsTab({
       {/* Pagination footer */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between px-1">
-          <p className="text-xs text-[#8A857D]">
+          <p className="text-xs text-text-muted">
             Showing {(page - 1) * perPage + 1} &ndash;{" "}
             {Math.min(page * perPage, total)} of {total}
           </p>
@@ -251,18 +251,18 @@ export function PatientsTab({
               type="button"
               onClick={() => setPage(Math.max(1, page - 1))}
               disabled={page <= 1}
-              className="inline-flex items-center justify-center w-8 h-8 rounded-md text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#232328] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="inline-flex items-center justify-center w-8 h-8 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-elevated transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <ChevronLeft size={16} />
             </button>
-            <span className="text-xs text-[#C5C0B8] px-2">
+            <span className="text-xs text-text-secondary px-2">
               {page} / {totalPages}
             </span>
             <button
               type="button"
               onClick={() => setPage(Math.min(totalPages, page + 1))}
               disabled={page >= totalPages}
-              className="inline-flex items-center justify-center w-8 h-8 rounded-md text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#232328] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="inline-flex items-center justify-center w-8 h-8 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-elevated transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <ChevronRight size={16} />
             </button>

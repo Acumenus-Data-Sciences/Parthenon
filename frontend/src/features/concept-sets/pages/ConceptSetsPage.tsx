@@ -74,8 +74,8 @@ export default function ConceptSetsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#F0EDE8]">Concept Sets</h1>
-          <p className="mt-1 text-sm text-[#8A857D]">
+          <h1 className="text-2xl font-bold text-text-primary">Concept Sets</h1>
+          <p className="mt-1 text-sm text-text-muted">
             Define and manage reusable concept sets for cohort definitions and
             analyses
           </p>
@@ -85,7 +85,7 @@ export default function ConceptSetsPage() {
           <button
             type="button"
             onClick={() => setShowBundle(true)}
-            className="inline-flex items-center gap-2 rounded-lg border border-[#2A2A30] bg-[#151518] px-4 py-2.5 text-sm font-medium text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#3A3A42] transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-4 py-2.5 text-sm font-medium text-text-muted hover:text-text-secondary hover:border-surface-highlight transition-colors"
           >
             <Stethoscope size={16} />
             From Bundle
@@ -93,7 +93,7 @@ export default function ConceptSetsPage() {
           <button
             type="button"
             onClick={() => setShowImport(true)}
-            className="inline-flex items-center gap-2 rounded-lg border border-[#2A2A30] bg-[#151518] px-4 py-2.5 text-sm font-medium text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#3A3A42] transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-4 py-2.5 text-sm font-medium text-text-muted hover:text-text-secondary hover:border-surface-highlight transition-colors"
           >
             <Upload size={16} />
             Import
@@ -102,7 +102,7 @@ export default function ConceptSetsPage() {
             type="button"
             onClick={handleCreate}
             disabled={isCreating}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2.5 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2.5 text-sm font-medium text-surface-base hover:bg-success transition-colors disabled:opacity-50"
           >
             {isCreating ? (
               <Loader2 size={16} className="animate-spin" />
@@ -123,7 +123,7 @@ export default function ConceptSetsPage() {
         <div className="relative max-w-md">
           <Search
             size={14}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost"
           />
           <input
             type="text"
@@ -132,9 +132,9 @@ export default function ConceptSetsPage() {
             placeholder="Search concept sets..."
             className={cn(
               "w-full rounded-lg pl-9 pr-8 py-2 text-sm",
-              "bg-[#0E0E11] border border-[#232328]",
-              "text-[#F0EDE8] placeholder:text-[#5A5650]",
-              "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+              "bg-surface-base border border-border-default",
+              "text-text-primary placeholder:text-text-ghost",
+              "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
               "transition-colors",
             )}
           />
@@ -142,7 +142,7 @@ export default function ConceptSetsPage() {
             <button
               type="button"
               onClick={() => setSearchInput("")}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-[#5A5650] hover:text-[#C5C0B8] transition-colors"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-text-ghost hover:text-text-secondary transition-colors"
             >
               <X size={14} />
             </button>

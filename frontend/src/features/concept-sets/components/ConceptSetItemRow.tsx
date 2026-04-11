@@ -40,9 +40,9 @@ function ToggleSwitch({
       onClick={() => onChange(!checked)}
       className={cn(
         "relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2DD4BF]/40",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success/40",
         "disabled:cursor-not-allowed disabled:opacity-50",
-        checked ? "bg-[#2DD4BF]" : "bg-[#323238]",
+        checked ? "bg-success" : "bg-surface-highlight",
       )}
     >
       <span
@@ -74,10 +74,10 @@ export function ConceptSetItemRow({
     <tr
       onClick={onRowClick}
       className={cn(
-        "border-t border-[#1C1C20] transition-colors hover:bg-[#1C1C20] cursor-pointer",
-        index % 2 === 0 ? "bg-[#151518]" : "bg-[#1A1A1E]",
-        isSelected && "bg-[#2DD4BF]/5",
-        isHighlighted && "border-l-2 border-l-[#2DD4BF]",
+        "border-t border-surface-overlay transition-colors hover:bg-surface-overlay cursor-pointer",
+        index % 2 === 0 ? "bg-surface-raised" : "bg-surface-overlay",
+        isSelected && "bg-success/5",
+        isHighlighted && "border-l-2 border-l-success",
       )}
     >
       {/* Checkbox */}
@@ -86,52 +86,52 @@ export function ConceptSetItemRow({
           type="checkbox"
           checked={isSelected ?? false}
           onChange={() => onSelectionChange?.(item.id)}
-          className="h-3.5 w-3.5 rounded border-[#323238] bg-[#0E0E11] text-[#2DD4BF] focus:ring-[#2DD4BF]/40 cursor-pointer"
+          className="h-3.5 w-3.5 rounded border-surface-highlight bg-surface-base text-success focus:ring-success/40 cursor-pointer"
         />
       </td>
 
       {/* Concept ID */}
       <td className="px-4 py-3 text-sm">
-        <span className="font-['IBM_Plex_Mono',monospace] text-xs tabular-nums text-[#C9A227]">
+        <span className="font-['IBM_Plex_Mono',monospace] text-xs tabular-nums text-accent">
           {item.concept_id}
         </span>
       </td>
 
       {/* Concept Name */}
-      <td className="px-4 py-3 text-sm text-[#F0EDE8]">
+      <td className="px-4 py-3 text-sm text-text-primary">
         {concept?.concept_name ?? "--"}
       </td>
 
       {/* Domain */}
       <td className="px-4 py-3">
         {concept?.domain_id ? (
-          <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#60A5FA]/15 text-[#60A5FA]">
+          <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-info/15 text-info">
             {concept.domain_id}
           </span>
         ) : (
-          <span className="text-sm text-[#5A5650]">--</span>
+          <span className="text-sm text-text-ghost">--</span>
         )}
       </td>
 
       {/* Vocabulary */}
       <td className="px-4 py-3">
         {concept?.vocabulary_id ? (
-          <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#C9A227]/15 text-[#C9A227]">
+          <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-accent/15 text-accent">
             {concept.vocabulary_id}
           </span>
         ) : (
-          <span className="text-sm text-[#5A5650]">--</span>
+          <span className="text-sm text-text-ghost">--</span>
         )}
       </td>
 
       {/* Standard */}
       <td className="px-4 py-3">
         {isStandard ? (
-          <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#2DD4BF]/15 text-[#2DD4BF]">
+          <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-success/15 text-success">
             Standard
           </span>
         ) : (
-          <span className="text-xs text-[#5A5650]">
+          <span className="text-xs text-text-ghost">
             {concept?.standard_concept ?? "--"}
           </span>
         )}
@@ -173,7 +173,7 @@ export function ConceptSetItemRow({
           type="button"
           onClick={() => onRemove(item.id)}
           disabled={isRemoving}
-          className="inline-flex items-center justify-center w-8 h-8 rounded-md text-[#8A857D] hover:text-[#E85A6B] hover:bg-[#232328] transition-colors disabled:opacity-50"
+          className="inline-flex items-center justify-center w-8 h-8 rounded-md text-text-muted hover:text-critical hover:bg-surface-elevated transition-colors disabled:opacity-50"
           title="Remove item"
         >
           {isRemoving ? (

@@ -17,14 +17,14 @@ export default function FreshnessCell({ daysSinceRefresh }: FreshnessCellProps) 
           isStale
             ? "text-[#e85d75]"
             : isWarning
-              ? "text-[#C9A227]"
+              ? "text-accent"
               : "text-[#888]"
         }
       >
         {daysSinceRefresh}d
       </span>
       {isStale && (
-        <span className="rounded bg-[#9B1B30]/20 px-1.5 py-0.5 text-[9px] font-bold uppercase text-[#e85d75]">
+        <span className="rounded bg-primary/20 px-1.5 py-0.5 text-[9px] font-bold uppercase text-[#e85d75]">
           STALE
         </span>
       )}

@@ -25,7 +25,7 @@ export default function ParetoChart({ data, top20Coverage }: ParetoChartProps) {
 
   return (
     <div>
-      <div className="mb-3 rounded-lg border border-[#C9A227]/30 bg-[#C9A227]/10 px-4 py-2 text-sm text-[#C9A227]">
+      <div className="mb-3 rounded-lg border border-accent/30 bg-accent/10 px-4 py-2 text-sm text-accent">
         Top 20 codes cover {top20Coverage.toFixed(1)}% of all unmapped records
       </div>
       <div className="h-72">
@@ -63,7 +63,7 @@ export default function ParetoChart({ data, top20Coverage }: ParetoChartProps) {
             <Bar
               yAxisId="count"
               dataKey="record_count"
-              fill="#2DD4BF"
+              fill="var(--success)"
               radius={[2, 2, 0, 0]}
               name="Records"
             />
@@ -71,7 +71,7 @@ export default function ParetoChart({ data, top20Coverage }: ParetoChartProps) {
               yAxisId="pct"
               type="monotone"
               dataKey="cumulative_percent"
-              stroke="#C9A227"
+              stroke="var(--accent)"
               strokeWidth={2}
               dot={false}
               name="Cumulative %"

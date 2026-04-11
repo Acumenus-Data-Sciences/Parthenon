@@ -36,7 +36,7 @@ export default function TemplateSelector({ onSelect }: TemplateSelectorProps) {
             key={t.id}
             type="button"
             onClick={() => handleSelect(t)}
-            className="rounded border border-[#333] bg-[#1a1a22] px-3 py-1.5 text-xs text-[#ccc] transition-colors hover:border-[#C9A227] hover:text-[#C9A227]"
+            className="rounded border border-[#333] bg-[#1a1a22] px-3 py-1.5 text-xs text-[#ccc] transition-colors hover:border-accent hover:text-accent"
             title={t.description ?? undefined}
           >
             {t.name}

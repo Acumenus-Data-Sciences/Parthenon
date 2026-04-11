@@ -4,7 +4,7 @@ export function ResultsSkeleton() {
       <div
         style={{
           background: "#0A0A0D",
-          border: "1px solid #232328",
+          border: "1px solid var(--surface-elevated)",
           borderRadius: "8px",
           overflow: "hidden",
         }}
@@ -12,7 +12,7 @@ export function ResultsSkeleton() {
         <div
           style={{
             padding: "8px 14px",
-            borderBottom: "1px solid #232328",
+            borderBottom: "1px solid var(--surface-elevated)",
             background: "#111115",
             height: "36px",
           }}
@@ -33,7 +33,7 @@ export function ResultsSkeleton() {
                 borderRadius: "4px",
                 width: `${w}%`,
                 background:
-                  "linear-gradient(90deg, #1C1C20 25%, #232328 50%, #1C1C20 75%)",
+                  "linear-gradient(90deg, var(--surface-overlay) 25%, var(--surface-elevated) 50%, var(--surface-overlay) 75%)",
                 backgroundSize: "200% 100%",
                 animation: "shimmer 1.5s infinite",
               }}
@@ -44,8 +44,8 @@ export function ResultsSkeleton() {
 
       <div
         style={{
-          background: "#151518",
-          border: "1px solid #232328",
+          background: "var(--surface-raised)",
+          border: "1px solid var(--surface-elevated)",
           borderRadius: "8px",
           padding: "16px",
           display: "flex",
@@ -61,7 +61,7 @@ export function ResultsSkeleton() {
               borderRadius: "4px",
               width: `${w}%`,
               background:
-                "linear-gradient(90deg, #1C1C20 25%, #232328 50%, #1C1C20 75%)",
+                "linear-gradient(90deg, var(--surface-overlay) 25%, var(--surface-elevated) 50%, var(--surface-overlay) 75%)",
               backgroundSize: "200% 100%",
               animation: "shimmer 1.5s infinite",
             }}

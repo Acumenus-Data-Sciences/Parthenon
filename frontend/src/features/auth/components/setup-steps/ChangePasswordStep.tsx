@@ -42,12 +42,12 @@ function StrengthBar({ password }: { password: string }) {
             key={i}
             className={cn(
               "h-1 flex-1 rounded-full transition-colors duration-300",
-              i <= score ? colors[score] : "bg-[#232328]",
+              i <= score ? colors[score] : "bg-surface-elevated",
             )}
           />
         ))}
       </div>
-      <p className="text-xs text-[#8A857D]">{labels[score] || "Too short"}</p>
+      <p className="text-xs text-text-muted">{labels[score] || "Too short"}</p>
     </div>
   );
 }
@@ -108,8 +108,8 @@ export function ChangePasswordStep({ onPasswordChanged }: Props) {
           <CheckCircle2 size={32} className="text-emerald-400" />
         </div>
         <div className="text-center">
-          <h3 className="text-lg font-semibold text-[#F0EDE8]">Password updated</h3>
-          <p className="mt-1 text-base text-[#8A857D]">
+          <h3 className="text-lg font-semibold text-text-primary">Password updated</h3>
+          <p className="mt-1 text-base text-text-muted">
             Your account is secured. Continue to the next step.
           </p>
         </div>
@@ -120,8 +120,8 @@ export function ChangePasswordStep({ onPasswordChanged }: Props) {
   return (
     <div className="space-y-5">
       <div>
-        <h3 className="text-lg font-semibold text-[#F0EDE8]">Secure Your Account</h3>
-        <p className="text-base text-[#8A857D]">
+        <h3 className="text-lg font-semibold text-text-primary">Secure Your Account</h3>
+        <p className="text-base text-text-muted">
           A temporary password was generated during installation. Set a permanent password before
           continuing.
         </p>
@@ -150,13 +150,13 @@ export function ChangePasswordStep({ onPasswordChanged }: Props) {
 
         {/* Current password */}
         <div>
-          <label className="mb-1 block text-sm font-medium uppercase tracking-wide text-[#8A857D]">
+          <label className="mb-1 block text-sm font-medium uppercase tracking-wide text-text-muted">
             Current (temporary) password
           </label>
           <div className="relative">
             <Lock
               size={13}
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost"
             />
             <input
               type="password"
@@ -165,20 +165,20 @@ export function ChangePasswordStep({ onPasswordChanged }: Props) {
               required
               autoFocus
               placeholder="Enter temporary password"
-              className="w-full rounded-md border border-[#232328] bg-[#0E0E11] py-2 pl-9 pr-3 text-base text-[#F0EDE8] placeholder:text-[#5A5650] focus:outline-none focus:ring-2 focus:ring-[#C9A227]/50"
+              className="w-full rounded-md border border-border-default bg-surface-base py-2 pl-9 pr-3 text-base text-text-primary placeholder:text-text-ghost focus:outline-none focus:ring-2 focus:ring-accent/50"
             />
           </div>
         </div>
 
         {/* New password */}
         <div>
-          <label className="mb-1 block text-sm font-medium uppercase tracking-wide text-[#8A857D]">
+          <label className="mb-1 block text-sm font-medium uppercase tracking-wide text-text-muted">
             New password
           </label>
           <div className="relative">
             <Lock
               size={13}
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost"
             />
             <input
               type={showNew ? "text" : "password"}
@@ -186,11 +186,11 @@ export function ChangePasswordStep({ onPasswordChanged }: Props) {
               onChange={(e) => setNewPw(e.target.value)}
               required
               placeholder="Min 8 characters"
-              className="w-full rounded-md border border-[#232328] bg-[#0E0E11] py-2 pl-9 pr-10 text-base text-[#F0EDE8] placeholder:text-[#5A5650] focus:outline-none focus:ring-2 focus:ring-[#C9A227]/50"
+              className="w-full rounded-md border border-border-default bg-surface-base py-2 pl-9 pr-10 text-base text-text-primary placeholder:text-text-ghost focus:outline-none focus:ring-2 focus:ring-accent/50"
             />
             <button
               type="button"
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-[#5A5650] hover:text-[#8A857D]"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-text-ghost hover:text-text-muted"
               onClick={() => setShowNew((v) => !v)}
             >
               {showNew ? <EyeOff size={14} /> : <Eye size={14} />}
@@ -201,13 +201,13 @@ export function ChangePasswordStep({ onPasswordChanged }: Props) {
 
         {/* Confirm */}
         <div>
-          <label className="mb-1 block text-sm font-medium uppercase tracking-wide text-[#8A857D]">
+          <label className="mb-1 block text-sm font-medium uppercase tracking-wide text-text-muted">
             Confirm new password
           </label>
           <div className="relative">
             <Lock
               size={13}
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost"
             />
             <input
               type="password"
@@ -216,10 +216,10 @@ export function ChangePasswordStep({ onPasswordChanged }: Props) {
               required
               placeholder="Repeat new password"
               className={cn(
-                "w-full rounded-md border bg-[#0E0E11] py-2 pl-9 pr-3 text-base text-[#F0EDE8] placeholder:text-[#5A5650] focus:outline-none focus:ring-2 focus:ring-[#C9A227]/50",
+                "w-full rounded-md border bg-surface-base py-2 pl-9 pr-3 text-base text-text-primary placeholder:text-text-ghost focus:outline-none focus:ring-2 focus:ring-accent/50",
                 confirmPw && newPw !== confirmPw
                   ? "border-red-500/50"
-                  : "border-[#232328]",
+                  : "border-border-default",
               )}
             />
           </div>
@@ -228,7 +228,7 @@ export function ChangePasswordStep({ onPasswordChanged }: Props) {
         <button
           type="submit"
           disabled={loading}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#C9A227] px-5 py-2.5 text-sm font-semibold text-[#0E0E11] transition-colors hover:bg-[#D4AE3A] disabled:opacity-50"
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-surface-base transition-colors hover:bg-[#D4AE3A] disabled:opacity-50"
         >
           {loading ? (
             <Loader2 size={14} className="animate-spin" />

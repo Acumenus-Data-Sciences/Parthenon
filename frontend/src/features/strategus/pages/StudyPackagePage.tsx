@@ -68,9 +68,9 @@ const STEP_LABELS = [
 ];
 
 const ROLE_COLORS: Record<SharedCohortRef["role"], string> = {
-  target: "text-[#2DD4BF] bg-[#2DD4BF]/10 border-[#2DD4BF]/30",
-  comparator: "text-[#C9A227] bg-[#C9A227]/10 border-[#C9A227]/30",
-  outcome: "text-[#9B1B30] bg-[#9B1B30]/10 border-[#9B1B30]/30",
+  target: "text-success bg-success/10 border-success/30",
+  comparator: "text-accent bg-accent/10 border-accent/30",
+  outcome: "text-primary bg-primary/10 border-primary/30",
 };
 
 function buildSpec(
@@ -113,27 +113,27 @@ function StepStudyInfo({
 }: StepStudyInfoProps) {
   return (
     <div className="space-y-5">
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-6">
-        <h2 className="mb-1 text-lg font-semibold text-[#F0EDE8]">Study Information</h2>
-        <p className="mb-5 text-sm text-[#8A857D]">
+      <div className="rounded-lg border border-border-default bg-surface-raised p-6">
+        <h2 className="mb-1 text-lg font-semibold text-text-primary">Study Information</h2>
+        <p className="mb-5 text-sm text-text-muted">
           Name your study package and provide an optional description.
         </p>
 
         <div className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-[#C5C0B8]">
-              Study Name <span className="text-[#9B1B30]">*</span>
+            <label className="mb-1.5 block text-sm font-medium text-text-secondary">
+              Study Name <span className="text-primary">*</span>
             </label>
             <input
               value={studyName}
               onChange={(e) => onNameChange(e.target.value)}
               placeholder="e.g., SGLT2i vs DPP4i Heart Failure Risk Study"
-              className="w-full rounded-lg border border-[#232328] bg-[#1C1C20] px-4 py-2.5 text-[#F0EDE8] placeholder-[#5A5650] transition-colors focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/40"
+              className="w-full rounded-lg border border-border-default bg-surface-overlay px-4 py-2.5 text-text-primary placeholder-text-ghost transition-colors focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/40"
             />
           </div>
 
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-[#C5C0B8]">
+            <label className="mb-1.5 block text-sm font-medium text-text-secondary">
               Description
             </label>
             <textarea
@@ -141,15 +141,15 @@ function StepStudyInfo({
               onChange={(e) => onDescChange(e.target.value)}
               placeholder="Briefly describe the study objectives, population, and expected outcomes..."
               rows={4}
-              className="w-full rounded-lg border border-[#232328] bg-[#1C1C20] px-4 py-2.5 text-[#F0EDE8] placeholder-[#5A5650] transition-colors focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/40 resize-none"
+              className="w-full rounded-lg border border-border-default bg-surface-overlay px-4 py-2.5 text-text-primary placeholder-text-ghost transition-colors focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/40 resize-none"
             />
           </div>
         </div>
       </div>
 
-      <div className="flex items-start gap-3 rounded-lg border border-[#232328] bg-[#151518]/60 p-4">
-        <Info size={16} className="mt-0.5 shrink-0 text-[#2DD4BF]" />
-        <p className="text-sm text-[#8A857D]">
+      <div className="flex items-start gap-3 rounded-lg border border-border-default bg-surface-raised/60 p-4">
+        <Info size={16} className="mt-0.5 shrink-0 text-success" />
+        <p className="text-sm text-text-muted">
           Strategus executes multi-analysis OHDSI study packages across one or more CDM data
           sources. Each analysis module runs independently and writes results to the configured
           output directory.
@@ -176,7 +176,7 @@ function StepSelectModules({
 }: StepSelectModulesProps) {
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center gap-2 py-16 text-[#8A857D]">
+      <div className="flex items-center justify-center gap-2 py-16 text-text-muted">
         <Loader2 size={18} className="animate-spin" />
         Loading available modules...
       </div>
@@ -185,9 +185,9 @@ function StepSelectModules({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-5">
-        <h2 className="mb-1 text-lg font-semibold text-[#F0EDE8]">Select Analysis Modules</h2>
-        <p className="mb-4 text-sm text-[#8A857D]">
+      <div className="rounded-lg border border-border-default bg-surface-raised p-5">
+        <h2 className="mb-1 text-lg font-semibold text-text-primary">Select Analysis Modules</h2>
+        <p className="mb-4 text-sm text-text-muted">
           Choose which OHDSI analysis modules to include. CohortGenerator is required and always
           included.
         </p>
@@ -209,12 +209,12 @@ function StepSelectModules({
                 className={[
                   "relative flex items-start gap-3 rounded-lg border p-4 text-left transition-all",
                   isForced
-                    ? "cursor-default border-[#2DD4BF]/30 bg-[#2DD4BF]/5"
+                    ? "cursor-default border-success/30 bg-success/5"
                     : isSelected
-                      ? "cursor-pointer border-[#C9A227]/40 bg-[#C9A227]/8 hover:border-[#C9A227]/60"
+                      ? "cursor-pointer border-accent/40 bg-accent/8 hover:border-accent/60"
                       : isAvailable
-                        ? "cursor-pointer border-[#232328] bg-[#1C1C20] hover:border-[#5A5650]"
-                        : "cursor-not-allowed border-[#232328] bg-[#1C1C20] opacity-40",
+                        ? "cursor-pointer border-border-default bg-surface-overlay hover:border-text-ghost"
+                        : "cursor-not-allowed border-border-default bg-surface-overlay opacity-40",
                 ].join(" ")}
               >
                 {/* Checkbox indicator */}
@@ -222,10 +222,10 @@ function StepSelectModules({
                   className={[
                     "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded",
                     isForced
-                      ? "bg-[#2DD4BF]/20 text-[#2DD4BF]"
+                      ? "bg-success/20 text-success"
                       : isSelected
-                        ? "bg-[#C9A227]/20 text-[#C9A227]"
-                        : "border border-[#5A5650]",
+                        ? "bg-accent/20 text-accent"
+                        : "border border-text-ghost",
                   ].join(" ")}
                 >
                   {(isForced || isSelected) && <Check size={12} />}
@@ -233,17 +233,17 @@ function StepSelectModules({
 
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <IconComp size={14} className={isForced ? "text-[#2DD4BF]" : isSelected ? "text-[#C9A227]" : "text-[#5A5650]"} />
-                    <span className={`text-sm font-medium ${isSelected || isForced ? "text-[#F0EDE8]" : "text-[#C5C0B8]"}`}>
+                    <IconComp size={14} className={isForced ? "text-success" : isSelected ? "text-accent" : "text-text-ghost"} />
+                    <span className={`text-sm font-medium ${isSelected || isForced ? "text-text-primary" : "text-text-secondary"}`}>
                       {mod.label}
                     </span>
                     {isForced && (
-                      <span className="rounded bg-[#2DD4BF]/15 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[#2DD4BF]">
+                      <span className="rounded bg-success/15 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-success">
                         Required
                       </span>
                     )}
                   </div>
-                  <p className="mt-1 text-xs text-[#5A5650]">{mod.description}</p>
+                  <p className="mt-1 text-xs text-text-ghost">{mod.description}</p>
                 </div>
               </button>
             );
@@ -251,8 +251,8 @@ function StepSelectModules({
         </div>
       </div>
 
-      <div className="flex items-center gap-2 text-sm text-[#8A857D]">
-        <CheckCircle2 size={14} className="text-[#2DD4BF]" />
+      <div className="flex items-center gap-2 text-sm text-text-muted">
+        <CheckCircle2 size={14} className="text-success" />
         <span>
           {selectedModules.length + 1} module{selectedModules.length !== 0 ? "s" : ""} selected
           (including CohortGenerator)
@@ -286,9 +286,9 @@ function StepSharedCohorts({ cohorts, onAdd, onRemove }: StepSharedCohortsProps)
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-5">
-        <h2 className="mb-1 text-lg font-semibold text-[#F0EDE8]">Shared Cohort Definitions</h2>
-        <p className="mb-4 text-sm text-[#8A857D]">
+      <div className="rounded-lg border border-border-default bg-surface-raised p-5">
+        <h2 className="mb-1 text-lg font-semibold text-text-primary">Shared Cohort Definitions</h2>
+        <p className="mb-4 text-sm text-text-muted">
           Add target, comparator, and outcome cohorts shared across all analysis modules.
         </p>
 
@@ -298,19 +298,19 @@ function StepSharedCohorts({ cohorts, onAdd, onRemove }: StepSharedCohortsProps)
             {cohorts.map((c) => (
               <div
                 key={c.cohortId}
-                className="flex items-center gap-3 rounded-lg border border-[#232328] bg-[#1C1C20] px-4 py-2.5"
+                className="flex items-center gap-3 rounded-lg border border-border-default bg-surface-overlay px-4 py-2.5"
               >
                 <span
                   className={`rounded border px-2 py-0.5 text-xs font-medium capitalize ${ROLE_COLORS[c.role]}`}
                 >
                   {c.role}
                 </span>
-                <span className="flex-1 text-sm text-[#F0EDE8]">{c.cohortName}</span>
-                <span className="font-mono text-xs text-[#5A5650]">#{c.cohortId}</span>
+                <span className="flex-1 text-sm text-text-primary">{c.cohortName}</span>
+                <span className="font-mono text-xs text-text-ghost">#{c.cohortId}</span>
                 <button
                   type="button"
                   onClick={() => onRemove(c.cohortId)}
-                  className="text-[#5A5650] transition-colors hover:text-[#9B1B30]"
+                  className="text-text-ghost transition-colors hover:text-primary"
                 >
                   <X size={14} />
                 </button>
@@ -324,7 +324,7 @@ function StepSharedCohorts({ cohorts, onAdd, onRemove }: StepSharedCohortsProps)
           <select
             value={role}
             onChange={(e) => setRole(e.target.value as SharedCohortRef["role"])}
-            className="rounded-lg border border-[#232328] bg-[#1C1C20] px-3 py-2 text-sm text-[#C5C0B8] focus:border-[#C9A227] focus:outline-none"
+            className="rounded-lg border border-border-default bg-surface-overlay px-3 py-2 text-sm text-text-secondary focus:border-accent focus:outline-none"
           >
             <option value="target">Target</option>
             <option value="comparator">Comparator</option>
@@ -333,7 +333,7 @@ function StepSharedCohorts({ cohorts, onAdd, onRemove }: StepSharedCohortsProps)
           <button
             type="button"
             onClick={() => setShowPicker((v) => !v)}
-            className="flex items-center gap-2 rounded-lg border border-[#232328] bg-[#1C1C20] px-4 py-2 text-sm text-[#C5C0B8] transition-colors hover:border-[#C9A227] hover:text-[#C9A227]"
+            className="flex items-center gap-2 rounded-lg border border-border-default bg-surface-overlay px-4 py-2 text-sm text-text-secondary transition-colors hover:border-accent hover:text-accent"
           >
             <Plus size={14} />
             Add Cohort
@@ -342,25 +342,25 @@ function StepSharedCohorts({ cohorts, onAdd, onRemove }: StepSharedCohortsProps)
 
         {/* Cohort picker */}
         {showPicker && (
-          <div className="mt-3 rounded-lg border border-[#232328] bg-[#0E0E11]">
-            <div className="border-b border-[#232328] p-3">
+          <div className="mt-3 rounded-lg border border-border-default bg-surface-base">
+            <div className="border-b border-border-default p-3">
               <input
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search cohort definitions..."
-                className="w-full rounded-md border border-[#232328] bg-[#1C1C20] px-3 py-2 text-sm text-[#F0EDE8] placeholder-[#5A5650] focus:border-[#C9A227] focus:outline-none"
+                className="w-full rounded-md border border-border-default bg-surface-overlay px-3 py-2 text-sm text-text-primary placeholder-text-ghost focus:border-accent focus:outline-none"
                 autoFocus
               />
             </div>
             <div className="max-h-56 overflow-y-auto">
               {isLoading && (
-                <div className="flex items-center justify-center gap-2 py-6 text-[#8A857D]">
+                <div className="flex items-center justify-center gap-2 py-6 text-text-muted">
                   <Loader2 size={14} className="animate-spin" />
                   Loading cohorts...
                 </div>
               )}
               {!isLoading && availableCohorts.length === 0 && (
-                <div className="py-6 text-center text-sm text-[#5A5650]">
+                <div className="py-6 text-center text-sm text-text-ghost">
                   No cohort definitions found.
                 </div>
               )}
@@ -388,13 +388,13 @@ function StepSharedCohorts({ cohorts, onAdd, onRemove }: StepSharedCohortsProps)
                       "flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors",
                       alreadyAdded
                         ? "cursor-default opacity-40"
-                        : "hover:bg-[#1C1C20]",
+                        : "hover:bg-surface-overlay",
                     ].join(" ")}
                   >
-                    <span className="font-mono text-xs text-[#5A5650]">#{cd.id}</span>
-                    <span className="flex-1 text-sm text-[#F0EDE8]">{cd.name}</span>
+                    <span className="font-mono text-xs text-text-ghost">#{cd.id}</span>
+                    <span className="flex-1 text-sm text-text-primary">{cd.name}</span>
                     {alreadyAdded && (
-                      <span className="text-xs text-[#2DD4BF]">Added</span>
+                      <span className="text-xs text-success">Added</span>
                     )}
                   </button>
                 );
@@ -405,9 +405,9 @@ function StepSharedCohorts({ cohorts, onAdd, onRemove }: StepSharedCohortsProps)
       </div>
 
       {cohorts.length === 0 && (
-        <div className="flex items-start gap-3 rounded-lg border border-[#C9A227]/20 bg-[#C9A227]/5 p-4">
-          <AlertTriangle size={15} className="mt-0.5 shrink-0 text-[#C9A227]" />
-          <p className="text-sm text-[#C9A227]/80">
+        <div className="flex items-start gap-3 rounded-lg border border-accent/20 bg-accent/5 p-4">
+          <AlertTriangle size={15} className="mt-0.5 shrink-0 text-accent" />
+          <p className="text-sm text-accent/80">
             No cohorts added yet. Most analysis modules require at least one target cohort.
           </p>
         </div>
@@ -445,8 +445,8 @@ function StepReview({
   return (
     <div className="space-y-4">
       {/* Summary card */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-5">
-        <h2 className="mb-4 text-lg font-semibold text-[#F0EDE8]">Study Package Summary</h2>
+      <div className="rounded-lg border border-border-default bg-surface-raised p-5">
+        <h2 className="mb-4 text-lg font-semibold text-text-primary">Study Package Summary</h2>
 
         <div className="space-y-3">
           <SummaryRow label="Study Name" value={studyName || "—"} />
@@ -462,7 +462,7 @@ function StepReview({
                   return (
                     <span
                       key={m}
-                      className="rounded bg-[#1C1C20] border border-[#232328] px-2 py-0.5 text-xs text-[#C5C0B8]"
+                      className="rounded bg-surface-overlay border border-border-default px-2 py-0.5 text-xs text-text-secondary"
                     >
                       {meta?.label ?? m}
                     </span>
@@ -475,7 +475,7 @@ function StepReview({
             label="Cohorts"
             value={
               cohorts.length === 0 ? (
-                <span className="text-[#5A5650]">None configured</span>
+                <span className="text-text-ghost">None configured</span>
               ) : (
                 <div className="mt-1 space-y-1">
                   {cohorts.map((c) => (
@@ -485,7 +485,7 @@ function StepReview({
                       >
                         {c.role}
                       </span>
-                      <span className="text-[#C5C0B8]">{c.cohortName}</span>
+                      <span className="text-text-secondary">{c.cohortName}</span>
                     </div>
                   ))}
                 </div>
@@ -496,11 +496,11 @@ function StepReview({
       </div>
 
       {/* Validate button */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-5">
+      <div className="rounded-lg border border-border-default bg-surface-raised p-5">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-sm font-semibold text-[#F0EDE8]">Validate Specification</h3>
-            <p className="mt-0.5 text-xs text-[#8A857D]">
+            <h3 className="text-sm font-semibold text-text-primary">Validate Specification</h3>
+            <p className="mt-0.5 text-xs text-text-muted">
               Check the analysis spec for module configuration issues before executing.
             </p>
           </div>
@@ -508,7 +508,7 @@ function StepReview({
             type="button"
             onClick={onValidate}
             disabled={isValidating || !studyName.trim()}
-            className="flex items-center gap-2 rounded-lg bg-[#1C1C20] border border-[#232328] px-4 py-2 text-sm font-medium text-[#C5C0B8] transition-colors hover:border-[#C9A227] hover:text-[#C9A227] disabled:opacity-50"
+            className="flex items-center gap-2 rounded-lg bg-surface-overlay border border-border-default px-4 py-2 text-sm font-medium text-text-secondary transition-colors hover:border-accent hover:text-accent disabled:opacity-50"
           >
             {isValidating ? (
               <Loader2 size={14} className="animate-spin" />
@@ -521,8 +521,8 @@ function StepReview({
 
         {/* Validation results */}
         {validationError && (
-          <div className="mt-4 rounded-lg border border-[#9B1B30]/30 bg-[#9B1B30]/10 p-4">
-            <div className="flex items-center gap-2 text-sm text-[#9B1B30]">
+          <div className="mt-4 rounded-lg border border-primary/30 bg-primary/10 p-4">
+            <div className="flex items-center gap-2 text-sm text-primary">
               <XCircle size={14} />
               Validation failed: {validationError}
             </div>
@@ -534,8 +534,8 @@ function StepReview({
             <div
               className={`flex items-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium ${
                 validation.validation === "passed"
-                  ? "border-[#2DD4BF]/30 bg-[#2DD4BF]/10 text-[#2DD4BF]"
-                  : "border-[#9B1B30]/30 bg-[#9B1B30]/10 text-[#9B1B30]"
+                  ? "border-success/30 bg-success/10 text-success"
+                  : "border-primary/30 bg-primary/10 text-primary"
               }`}
             >
               {validation.validation === "passed" ? (
@@ -548,7 +548,7 @@ function StepReview({
 
             {validation.issues.length > 0 && (
               <div className="space-y-2">
-                <p className="text-xs font-medium uppercase tracking-wide text-[#8A857D]">
+                <p className="text-xs font-medium uppercase tracking-wide text-text-muted">
                   Issues
                 </p>
                 {validation.issues.map((issue, i) => (
@@ -556,8 +556,8 @@ function StepReview({
                     key={i}
                     className={`rounded-lg border px-4 py-2.5 text-sm ${
                       issue.severity === "error"
-                        ? "border-[#9B1B30]/30 bg-[#9B1B30]/10 text-red-300"
-                        : "border-[#C9A227]/30 bg-[#C9A227]/10 text-yellow-300"
+                        ? "border-primary/30 bg-primary/10 text-red-300"
+                        : "border-accent/30 bg-accent/10 text-yellow-300"
                     }`}
                   >
                     <span className="font-mono text-xs opacity-70 uppercase">
@@ -571,13 +571,13 @@ function StepReview({
 
             {validation.warnings.length > 0 && (
               <div className="space-y-2">
-                <p className="text-xs font-medium uppercase tracking-wide text-[#8A857D]">
+                <p className="text-xs font-medium uppercase tracking-wide text-text-muted">
                   Warnings
                 </p>
                 {validation.warnings.map((w, i) => (
                   <div
                     key={i}
-                    className="rounded-lg border border-[#C9A227]/20 bg-[#C9A227]/5 px-4 py-2.5 text-sm text-yellow-200/80"
+                    className="rounded-lg border border-accent/20 bg-accent/5 px-4 py-2.5 text-sm text-yellow-200/80"
                   >
                     <span className="font-mono text-xs opacity-70">{w.module}</span> — {w.message}
                   </div>
@@ -600,8 +600,8 @@ function SummaryRow({
 }) {
   return (
     <div className="flex gap-4">
-      <span className="w-28 shrink-0 text-sm text-[#8A857D]">{label}</span>
-      <div className="flex-1 text-sm text-[#F0EDE8]">{value}</div>
+      <span className="w-28 shrink-0 text-sm text-text-muted">{label}</span>
+      <div className="flex-1 text-sm text-text-primary">{value}</div>
     </div>
   );
 }
@@ -628,19 +628,19 @@ function StepExecute({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-5">
-        <h2 className="mb-1 text-lg font-semibold text-[#F0EDE8]">Execute Study Package</h2>
-        <p className="mb-5 text-sm text-[#8A857D]">
+      <div className="rounded-lg border border-border-default bg-surface-raised p-5">
+        <h2 className="mb-1 text-lg font-semibold text-text-primary">Execute Study Package</h2>
+        <p className="mb-5 text-sm text-text-muted">
           Select a CDM data source and execute "{studyName}" across all configured modules.
         </p>
 
         <div className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-[#C5C0B8]">
+            <label className="mb-1.5 block text-sm font-medium text-text-secondary">
               Target Data Source
             </label>
             {sourcesLoading ? (
-              <div className="flex items-center gap-2 text-sm text-[#8A857D]">
+              <div className="flex items-center gap-2 text-sm text-text-muted">
                 <Loader2 size={14} className="animate-spin" /> Loading sources...
               </div>
             ) : (
@@ -649,7 +649,7 @@ function StepExecute({
                 onChange={(e) =>
                   setSelectedSourceId(e.target.value ? Number(e.target.value) : "")
                 }
-                className="w-full rounded-lg border border-[#232328] bg-[#1C1C20] px-3 py-2.5 text-sm text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none"
+                className="w-full rounded-lg border border-border-default bg-surface-overlay px-3 py-2.5 text-sm text-text-primary focus:border-accent focus:outline-none"
               >
                 <option value="">— Select a source —</option>
                 {sources.map((s) => (
@@ -665,7 +665,7 @@ function StepExecute({
             type="button"
             disabled={!selectedSourceId || isExecuting}
             onClick={() => selectedSourceId && onExecute(Number(selectedSourceId))}
-            className="flex items-center gap-2 rounded-lg bg-[#9B1B30] px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#9B1B30]/80 disabled:opacity-50"
+            className="flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary/80 disabled:opacity-50"
           >
             {isExecuting ? (
               <Loader2 size={15} className="animate-spin" />
@@ -679,24 +679,24 @@ function StepExecute({
 
       {/* In-progress indicator */}
       {isExecuting && (
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-5">
-          <div className="flex items-center gap-3 text-[#C9A227]">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-5">
+          <div className="flex items-center gap-3 text-accent">
             <Loader2 size={18} className="animate-spin" />
             <span className="text-sm font-medium">Study package is running…</span>
           </div>
-          <p className="mt-2 text-xs text-[#8A857D]">
+          <p className="mt-2 text-xs text-text-muted">
             Strategus is orchestrating module execution. This may take several minutes depending
             on dataset size and number of modules.
           </p>
-          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[#232328]">
-            <div className="h-full w-1/3 animate-pulse rounded-full bg-[#C9A227]/60" />
+          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-surface-elevated">
+            <div className="h-full w-1/3 animate-pulse rounded-full bg-accent/60" />
           </div>
         </div>
       )}
 
       {/* Error */}
       {executeError && (
-        <div className="rounded-lg border border-[#9B1B30]/30 bg-[#9B1B30]/10 p-4">
+        <div className="rounded-lg border border-primary/30 bg-primary/10 p-4">
           <div className="flex items-start gap-2 text-sm text-red-300">
             <XCircle size={15} className="mt-0.5 shrink-0" />
             <span>Execution failed: {executeError}</span>
@@ -706,11 +706,11 @@ function StepExecute({
 
       {/* Success result */}
       {result && (
-        <div className="rounded-lg border border-[#2DD4BF]/30 bg-[#2DD4BF]/8 p-5">
-          <div className="mb-4 flex items-center gap-2 text-[#2DD4BF]">
+        <div className="rounded-lg border border-success/30 bg-success/8 p-5">
+          <div className="mb-4 flex items-center gap-2 text-success">
             <CheckCircle2 size={18} />
             <span className="font-semibold">Execution Complete</span>
-            <span className="ml-auto font-mono text-xs text-[#8A857D]">
+            <span className="ml-auto font-mono text-xs text-text-muted">
               {result.elapsed_seconds.toFixed(1)}s
             </span>
           </div>
@@ -722,20 +722,20 @@ function StepExecute({
           </div>
 
           <div className="mt-4">
-            <p className="mb-1 text-xs text-[#8A857D]">Output Directory</p>
-            <code className="block rounded bg-[#1C1C20] px-3 py-2 text-xs text-[#C5C0B8] break-all">
+            <p className="mb-1 text-xs text-text-muted">Output Directory</p>
+            <code className="block rounded bg-surface-overlay px-3 py-2 text-xs text-text-secondary break-all">
               {result.output_directory}
             </code>
           </div>
 
           {result.modules_executed.length > 0 && (
             <div className="mt-4">
-              <p className="mb-2 text-xs text-[#8A857D]">Modules Executed</p>
+              <p className="mb-2 text-xs text-text-muted">Modules Executed</p>
               <div className="flex flex-wrap gap-1.5">
                 {result.modules_executed.map((m) => (
                   <span
                     key={m}
-                    className="flex items-center gap-1 rounded bg-[#2DD4BF]/15 px-2 py-0.5 text-xs text-[#2DD4BF]"
+                    className="flex items-center gap-1 rounded bg-success/15 px-2 py-0.5 text-xs text-success"
                   >
                     <Check size={10} />
                     {m}
@@ -760,11 +760,11 @@ function ResultStat({
   accent: "teal" | "gold";
 }) {
   return (
-    <div className="rounded-lg border border-[#232328] bg-[#1C1C20] p-3">
-      <p className="text-xs text-[#8A857D]">{label}</p>
+    <div className="rounded-lg border border-border-default bg-surface-overlay p-3">
+      <p className="text-xs text-text-muted">{label}</p>
       <p
         className={`mt-1 text-lg font-bold ${
-          accent === "teal" ? "text-[#2DD4BF]" : "text-[#C9A227]"
+          accent === "teal" ? "text-success" : "text-accent"
         }`}
       >
         {value}
@@ -947,12 +947,12 @@ export default function StudyPackagePage() {
       {/* ── Page header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#9B1B30]/20">
-            <Package className="h-5 w-5 text-[#9B1B30]" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20">
+            <Package className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-[#F0EDE8]">Study Packages</h1>
-            <p className="text-sm text-[#8A857D]">
+            <h1 className="text-2xl font-bold text-text-primary">Study Packages</h1>
+            <p className="text-sm text-text-muted">
               Build and execute Strategus multi-analysis OHDSI study packages
             </p>
           </div>
@@ -970,7 +970,7 @@ export default function StudyPackagePage() {
           <button
             type="button"
             onClick={() => importRef.current?.click()}
-            className="flex items-center gap-1.5 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#C5C0B8] transition-colors hover:border-[#5A5650] hover:text-[#F0EDE8]"
+            className="flex items-center gap-1.5 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-secondary transition-colors hover:border-text-ghost hover:text-text-primary"
           >
             <Upload size={14} />
             Import JSON
@@ -978,7 +978,7 @@ export default function StudyPackagePage() {
           <button
             type="button"
             onClick={handleExport}
-            className="flex items-center gap-1.5 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#C5C0B8] transition-colors hover:border-[#5A5650] hover:text-[#F0EDE8]"
+            className="flex items-center gap-1.5 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-secondary transition-colors hover:border-text-ghost hover:text-text-primary"
           >
             <Download size={14} />
             Export JSON
@@ -1000,20 +1000,20 @@ export default function StudyPackagePage() {
                 className={[
                   "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors",
                   isActive
-                    ? "bg-[#9B1B30]/15 text-[#F0EDE8] font-medium"
+                    ? "bg-primary/15 text-text-primary font-medium"
                     : isDone
-                      ? "cursor-pointer text-[#2DD4BF] hover:bg-[#1C1C20]"
-                      : "cursor-default text-[#5A5650]",
+                      ? "cursor-pointer text-success hover:bg-surface-overlay"
+                      : "cursor-default text-text-ghost",
                 ].join(" ")}
               >
                 <span
                   className={[
                     "flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold",
                     isActive
-                      ? "bg-[#9B1B30] text-white"
+                      ? "bg-primary text-white"
                       : isDone
-                        ? "bg-[#2DD4BF]/20 text-[#2DD4BF]"
-                        : "bg-[#232328] text-[#5A5650]",
+                        ? "bg-success/20 text-success"
+                        : "bg-surface-elevated text-text-ghost",
                   ].join(" ")}
                 >
                   {isDone ? <Check size={10} /> : i + 1}
@@ -1023,7 +1023,7 @@ export default function StudyPackagePage() {
               {i < STEP_LABELS.length - 1 && (
                 <ChevronRight
                   size={14}
-                  className={isDone ? "text-[#2DD4BF]/50" : "text-[#232328]"}
+                  className={isDone ? "text-success/50" : "text-surface-elevated"}
                 />
               )}
             </div>
@@ -1101,12 +1101,12 @@ export default function StudyPackagePage() {
       </div>
 
       {/* ── Navigation buttons */}
-      <div className="flex items-center justify-between border-t border-[#232328] pt-4">
+      <div className="flex items-center justify-between border-t border-border-default pt-4">
         <button
           type="button"
           onClick={goPrev}
           disabled={step === 0}
-          className="flex items-center gap-2 rounded-lg border border-[#232328] px-4 py-2 text-sm text-[#C5C0B8] transition-colors hover:border-[#5A5650] hover:text-[#F0EDE8] disabled:opacity-30"
+          className="flex items-center gap-2 rounded-lg border border-border-default px-4 py-2 text-sm text-text-secondary transition-colors hover:border-text-ghost hover:text-text-primary disabled:opacity-30"
         >
           <ChevronLeft size={15} />
           Back
@@ -1117,7 +1117,7 @@ export default function StudyPackagePage() {
             type="button"
             onClick={goNext}
             disabled={!canAdvance()}
-            className="flex items-center gap-2 rounded-lg bg-[#9B1B30] px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-[#9B1B30]/80 disabled:opacity-40"
+            className="flex items-center gap-2 rounded-lg bg-primary px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/80 disabled:opacity-40"
           >
             Next
             <ChevronRight size={15} />

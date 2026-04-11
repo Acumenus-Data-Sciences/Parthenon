@@ -10,10 +10,10 @@ const SEGMENTS: {
   label: string;
   color: string;
 }[] = [
-  { key: "auto_accepted", label: "Auto-Accepted", color: "#2DD4BF" },
+  { key: "auto_accepted", label: "Auto-Accepted", color: "var(--success)" },
   { key: "quick_review", label: "Quick Review", color: "#E5A84B" },
-  { key: "full_review", label: "Full Review", color: "#E85A6B" },
-  { key: "unmappable", label: "Unmappable", color: "#5A5650" },
+  { key: "full_review", label: "Full Review", color: "var(--critical)" },
+  { key: "unmappable", label: "Unmappable", color: "var(--text-ghost)" },
 ];
 
 export function ReviewStatsBar({ stats, onSegmentClick }: ReviewStatsBarProps) {
@@ -22,13 +22,13 @@ export function ReviewStatsBar({ stats, onSegmentClick }: ReviewStatsBarProps) {
   return (
     <div className="space-y-3">
       {/* Progress info */}
-      <div className="flex items-center justify-between text-xs text-[#8A857D]">
+      <div className="flex items-center justify-between text-xs text-text-muted">
         <span>
-          <span className="text-[#F0EDE8] font-medium tabular-nums">
+          <span className="text-text-primary font-medium tabular-nums">
             {stats.reviewed}
           </span>{" "}
           of{" "}
-          <span className="text-[#C5C0B8] tabular-nums">{stats.total}</span>{" "}
+          <span className="text-text-secondary tabular-nums">{stats.total}</span>{" "}
           reviewed
         </span>
         <span className="tabular-nums">
@@ -37,7 +37,7 @@ export function ReviewStatsBar({ stats, onSegmentClick }: ReviewStatsBarProps) {
       </div>
 
       {/* Stacked bar */}
-      <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-[#232328]">
+      <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-surface-elevated">
         {SEGMENTS.map(({ key, color }) => {
           const count = stats[key];
           if (count <= 0) return null;
@@ -61,7 +61,7 @@ export function ReviewStatsBar({ stats, onSegmentClick }: ReviewStatsBarProps) {
         {SEGMENTS.map(({ key, label, color }) => (
           <div
             key={key}
-            className="flex items-center gap-1.5 text-xs transition-colors hover:text-[#F0EDE8] cursor-pointer"
+            className="flex items-center gap-1.5 text-xs transition-colors hover:text-text-primary cursor-pointer"
             onClick={() => onSegmentClick?.(key)}
             role="button"
             tabIndex={0}
@@ -71,8 +71,8 @@ export function ReviewStatsBar({ stats, onSegmentClick }: ReviewStatsBarProps) {
               className="inline-block h-2.5 w-2.5 rounded-sm shrink-0"
               style={{ backgroundColor: color }}
             />
-            <span className="text-[#8A857D]">{label}</span>
-            <span className="font-medium text-[#C5C0B8] tabular-nums font-['IBM_Plex_Mono',monospace]">
+            <span className="text-text-muted">{label}</span>
+            <span className="font-medium text-text-secondary tabular-nums font-['IBM_Plex_Mono',monospace]">
               {stats[key]}
             </span>
           </div>

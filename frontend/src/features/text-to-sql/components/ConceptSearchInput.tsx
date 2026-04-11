@@ -96,7 +96,7 @@ export function ConceptSearchInput({
             left: "10px",
             top: "50%",
             transform: "translateY(-50%)",
-            color: "#8A857D",
+            color: "var(--text-muted)",
             pointerEvents: "none",
           }}
         />
@@ -106,19 +106,19 @@ export function ConceptSearchInput({
           onChange={handleInputChange}
           onFocus={(e) => {
             if (suggestions.length > 0) setShowDropdown(true);
-            e.currentTarget.style.borderColor = "#9B1B30";
+            e.currentTarget.style.borderColor = "var(--primary)";
           }}
           onBlur={(e) => {
-            e.currentTarget.style.borderColor = "#232328";
+            e.currentTarget.style.borderColor = "var(--surface-elevated)";
           }}
           placeholder={placeholder}
           style={{
             width: "100%",
-            background: "#0E0E11",
-            border: "1px solid #232328",
+            background: "var(--surface-base)",
+            border: "1px solid var(--surface-elevated)",
             borderRadius: "8px",
             padding: "10px 12px 10px 32px",
-            color: "#F0EDE8",
+            color: "var(--text-primary)",
             fontSize: "13px",
             boxSizing: "border-box",
             outline: "none",
@@ -133,7 +133,7 @@ export function ConceptSearchInput({
               right: "10px",
               top: "50%",
               transform: "translateY(-50%)",
-              color: "#8A857D",
+              color: "var(--text-muted)",
               animation: "spin 1s linear infinite",
             }}
           />
@@ -149,8 +149,8 @@ export function ConceptSearchInput({
             right: 0,
             zIndex: 100,
             marginTop: "4px",
-            background: "#151518",
-            border: "1px solid #232328",
+            background: "var(--surface-raised)",
+            border: "1px solid var(--surface-elevated)",
             borderRadius: "8px",
             overflow: "hidden",
             maxHeight: "240px",
@@ -170,14 +170,14 @@ export function ConceptSearchInput({
                 padding: "8px 12px",
                 background: "none",
                 border: "none",
-                borderBottom: "1px solid #1C1C20",
+                borderBottom: "1px solid var(--surface-overlay)",
                 cursor: "pointer",
                 textAlign: "left",
                 fontFamily: "inherit",
                 transition: "background 100ms",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = "#1C1C20";
+                e.currentTarget.style.background = "var(--surface-overlay)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.background = "none";
@@ -194,7 +194,7 @@ export function ConceptSearchInput({
                   style={{
                     fontSize: "12px",
                     fontWeight: 600,
-                    color: "#F0EDE8",
+                    color: "var(--text-primary)",
                     flex: 1,
                   }}
                 >
@@ -204,7 +204,7 @@ export function ConceptSearchInput({
                   style={{
                     fontFamily: "'IBM Plex Mono', monospace",
                     fontSize: "11px",
-                    color: "#2DD4BF",
+                    color: "var(--success)",
                     flexShrink: 0,
                   }}
                 >
@@ -216,7 +216,7 @@ export function ConceptSearchInput({
                   display: "flex",
                   gap: "8px",
                   fontSize: "11px",
-                  color: "#8A857D",
+                  color: "var(--text-muted)",
                 }}
               >
                 <span>{concept.domain_id}</span>

@@ -19,11 +19,11 @@ interface SchemaDensityHeatmapProps {
 }
 
 const DOMAIN_COLORS: Record<string, string> = {
-  Condition: "#9B1B30",
-  Drug: "#2DD4BF",
-  Measurement: "#C9A227",
-  Procedure: "#60a5fa",
-  Observation: "#a78bfa",
+  Condition: "var(--primary)",
+  Drug: "var(--success)",
+  Measurement: "var(--accent)",
+  Procedure: "var(--info)",
+  Observation: "var(--domain-observation)",
   Device: "#71717a",
 };
 

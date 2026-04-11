@@ -5,7 +5,7 @@ interface SwimLaneTimelineProps {
 }
 
 const LANE_COLORS = [
-  "#2DD4BF", "#C9A227", "#9B1B30", "#6366F1", "#EC4899",
+  "var(--success)", "var(--accent)", "var(--primary)", "#6366F1", "#EC4899",
   "#F59E0B", "#10B981", "#8B5CF6", "#EF4444", "#3B82F6",
 ];
 
@@ -43,7 +43,7 @@ export default function SwimLaneTimeline({ data }: SwimLaneTimelineProps) {
                     className="h-4 w-4 rounded-full border-2 transition-transform group-hover:scale-125"
                     style={{ backgroundColor: color, borderColor: `${color}66` }}
                   />
-                  <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-[#0E0E11] px-2 py-1 text-[10px] text-[#ccc] opacity-0 shadow-lg group-hover:opacity-100 transition-opacity border border-[#252530]">
+                  <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-surface-base px-2 py-1 text-[10px] text-[#ccc] opacity-0 shadow-lg group-hover:opacity-100 transition-opacity border border-[#252530]">
                     {release.name}
                     <br />
                     <span className="text-[#666]">{new Date(release.date).toLocaleDateString()}</span>

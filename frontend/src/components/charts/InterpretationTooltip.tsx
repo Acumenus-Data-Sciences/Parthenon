@@ -46,7 +46,7 @@ export function InterpretationTooltip({
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className="inline-flex items-center text-[#8A857D] transition-colors hover:text-[#C5C0B8]"
+        className="inline-flex items-center text-text-muted transition-colors hover:text-text-secondary"
         aria-label={`What does ${metric} mean?`}
         data-testid="interpretation-tooltip-trigger"
       >
@@ -56,11 +56,11 @@ export function InterpretationTooltip({
       {open && (
         <div
           data-testid="interpretation-tooltip-popover"
-          className="absolute left-6 top-0 z-50 w-64 rounded-lg border border-[#323238] bg-[#1A1A1E] px-3 py-2 shadow-lg"
+          className="absolute left-6 top-0 z-50 w-64 rounded-lg border border-surface-highlight bg-surface-overlay px-3 py-2 shadow-lg"
         >
-          <p className="text-xs font-semibold text-[#F0EDE8]">{metric}</p>
-          <p className="mt-1 text-xs text-[#C5C0B8]">{plain}</p>
-          <p className="mt-1 text-xs italic text-[#8A857D]">{technical}</p>
+          <p className="text-xs font-semibold text-text-primary">{metric}</p>
+          <p className="mt-1 text-xs text-text-secondary">{plain}</p>
+          <p className="mt-1 text-xs italic text-text-muted">{technical}</p>
         </div>
       )}
     </span>

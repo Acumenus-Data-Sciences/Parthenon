@@ -62,7 +62,7 @@ export default function ArrivalForecastChart({
   const effectiveTarget = targetCount ?? null;
 
   return (
-    <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
+    <div className="rounded-lg border border-[#252530] bg-surface-raised p-4">
       <div className="mb-3 flex items-center justify-between">
         <div>
           <h4 className="text-sm font-medium text-white">
@@ -71,12 +71,12 @@ export default function ArrivalForecastChart({
           <p className="text-[11px] text-[#666]">
             Monthly rate: {forecast.monthly_rate > 0 ? `+${forecast.monthly_rate}` : forecast.monthly_rate} patients/month
             {forecast.months_to_target !== null && forecast.months_to_target > 0 && (
-              <span className="ml-2 text-[#C9A227]">
+              <span className="ml-2 text-accent">
                 Target reached in ~{forecast.months_to_target} months
               </span>
             )}
             {forecast.months_to_target === 0 && (
-              <span className="ml-2 text-[#2DD4BF]">Target already reached</span>
+              <span className="ml-2 text-success">Target already reached</span>
             )}
           </p>
         </div>
@@ -135,7 +135,7 @@ export default function ArrivalForecastChart({
             <Area
               dataKey="upper"
               stroke="none"
-              fill="#C9A227"
+              fill="var(--accent)"
               fillOpacity={0.1}
               name="confidenceBand"
               connectNulls={false}
@@ -143,7 +143,7 @@ export default function ArrivalForecastChart({
             <Area
               dataKey="lower"
               stroke="none"
-              fill="#151518"
+              fill="var(--surface-raised)"
               fillOpacity={1}
               legendType="none"
               connectNulls={false}
@@ -153,9 +153,9 @@ export default function ArrivalForecastChart({
             <Line
               dataKey="historical"
               type="monotone"
-              stroke="#2DD4BF"
+              stroke="var(--success)"
               strokeWidth={2}
-              dot={{ fill: "#2DD4BF", r: 2 }}
+              dot={{ fill: "var(--success)", r: 2 }}
               connectNulls={false}
               name="historical"
             />
@@ -164,7 +164,7 @@ export default function ArrivalForecastChart({
             <Line
               dataKey="projected"
               type="monotone"
-              stroke="#C9A227"
+              stroke="var(--accent)"
               strokeWidth={2}
               strokeDasharray="6 3"
               dot={false}

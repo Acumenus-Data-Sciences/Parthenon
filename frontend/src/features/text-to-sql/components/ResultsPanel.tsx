@@ -35,9 +35,9 @@ function getErrorMessage(error: unknown, fallback: string): string {
 
 function ComplexityBadge({ level }: { level: "low" | "medium" | "high" }) {
   const styles: Record<string, string> = {
-    low: "bg-[#2DD4BF]/15 text-[#2DD4BF] border-[#2DD4BF]/30",
-    medium: "bg-[#C9A227]/15 text-[#C9A227] border-[#C9A227]/30",
-    high: "bg-[#9B1B30]/20 text-[#9B1B30] border-[#9B1B30]/30",
+    low: "bg-success/15 text-success border-success/30",
+    medium: "bg-accent/15 text-accent border-accent/30",
+    high: "bg-primary/20 text-primary border-primary/30",
   };
   return (
     <span
@@ -59,9 +59,9 @@ function SafetyBadge({ safety }: { safety: "safe" | "unsafe" | "unknown" }) {
           gap: "5px",
           padding: "3px 10px",
           borderRadius: "20px",
-          border: "1px solid #2DD4BF40",
-          background: "#2DD4BF12",
-          color: "#2DD4BF",
+          border: "1px solid var(--success)40",
+          background: "color-mix(in srgb, var(--success) 7%, transparent)",
+          color: "var(--success)",
           fontSize: "12px",
           fontWeight: 600,
         }}
@@ -80,9 +80,9 @@ function SafetyBadge({ safety }: { safety: "safe" | "unsafe" | "unknown" }) {
           gap: "5px",
           padding: "3px 10px",
           borderRadius: "20px",
-          border: "1px solid #C9A22740",
-          background: "#C9A22710",
-          color: "#C9A227",
+          border: "1px solid color-mix(in srgb, var(--accent) 25%, transparent)",
+          background: "color-mix(in srgb, var(--accent) 6%, transparent)",
+          color: "var(--accent)",
           fontSize: "12px",
           fontWeight: 600,
         }}
@@ -100,8 +100,8 @@ function SafetyBadge({ safety }: { safety: "safe" | "unsafe" | "unknown" }) {
         gap: "5px",
         padding: "3px 10px",
         borderRadius: "20px",
-        border: "1px solid #9B1B3050",
-        background: "#9B1B3018",
+        border: "1px solid color-mix(in srgb, var(--primary) 31%, transparent)",
+        background: "color-mix(in srgb, var(--primary) 9%, transparent)",
         color: "#F87171",
         fontSize: "12px",
         fontWeight: 600,
@@ -164,8 +164,8 @@ export function ResultsPanel({
       {result.source_type === "library" && result.query && (
         <div
           style={{
-            background: "#151518",
-            border: "1px solid #2DD4BF30",
+            background: "var(--surface-raised)",
+            border: "1px solid var(--success)30",
             borderRadius: "8px",
             padding: "14px 16px",
           }}
@@ -178,16 +178,16 @@ export function ResultsPanel({
               marginBottom: "6px",
             }}
           >
-            <Database size={15} style={{ color: "#2DD4BF" }} />
+            <Database size={15} style={{ color: "var(--success)" }} />
             <span
-              style={{ fontSize: "13px", fontWeight: 600, color: "#F0EDE8" }}
+              style={{ fontSize: "13px", fontWeight: 600, color: "var(--text-primary)" }}
             >
               Query Library Match
             </span>
             <span
               style={{
                 fontSize: "11px",
-                color: "#8A857D",
+                color: "var(--text-muted)",
                 textTransform: "uppercase",
                 marginLeft: "auto",
               }}
@@ -199,7 +199,7 @@ export function ResultsPanel({
             style={{
               fontSize: "14px",
               fontWeight: 600,
-              color: "#C5C0B8",
+              color: "var(--text-secondary)",
               marginBottom: "4px",
             }}
           >
@@ -209,7 +209,7 @@ export function ResultsPanel({
             style={{
               margin: 0,
               fontSize: "12px",
-              color: "#8A857D",
+              color: "var(--text-muted)",
               lineHeight: "1.5",
             }}
           >
@@ -222,8 +222,8 @@ export function ResultsPanel({
       {selectedLibrary?.parameters && selectedLibrary.parameters.length > 0 && (
         <div
           style={{
-            background: "#151518",
-            border: "1px solid #232328",
+            background: "var(--surface-raised)",
+            border: "1px solid var(--surface-elevated)",
             borderRadius: "8px",
             padding: "16px",
             display: "flex",
@@ -235,7 +235,7 @@ export function ResultsPanel({
             style={{
               fontSize: "11px",
               fontWeight: 600,
-              color: "#8A857D",
+              color: "var(--text-muted)",
               textTransform: "uppercase",
               letterSpacing: "0.5px",
             }}
@@ -262,7 +262,7 @@ export function ResultsPanel({
                   style={{
                     fontSize: "12px",
                     fontWeight: 600,
-                    color: "#C5C0B8",
+                    color: "var(--text-secondary)",
                   }}
                 >
                   {parameter.label}
@@ -281,11 +281,11 @@ export function ResultsPanel({
                   }
                   style={{
                     width: "100%",
-                    background: "#0E0E11",
-                    border: "1px solid #232328",
+                    background: "var(--surface-base)",
+                    border: "1px solid var(--surface-elevated)",
                     borderRadius: "8px",
                     padding: "10px 12px",
-                    color: "#F0EDE8",
+                    color: "var(--text-primary)",
                     fontSize: "13px",
                     boxSizing: "border-box",
                   }}
@@ -294,7 +294,7 @@ export function ResultsPanel({
                   <span
                     style={{
                       fontSize: "11px",
-                      color: "#8A857D",
+                      color: "var(--text-muted)",
                       lineHeight: "1.4",
                     }}
                   >
@@ -314,9 +314,9 @@ export function ResultsPanel({
                 gap: "8px",
                 padding: "8px 16px",
                 borderRadius: "8px",
-                border: `1px solid ${renderSuccess ? "#2DD4BF40" : "#232328"}`,
-                background: renderSuccess ? "#2DD4BF12" : "#1C1C20",
-                color: renderSuccess ? "#2DD4BF" : "#C5C0B8",
+                border: `1px solid ${renderSuccess ? "color-mix(in srgb, var(--success) 25%, transparent)" : "var(--surface-elevated)"}`,
+                background: renderSuccess ? "color-mix(in srgb, var(--success) 7%, transparent)" : "var(--surface-overlay)",
+                color: renderSuccess ? "var(--success)" : "var(--text-secondary)",
                 fontSize: "13px",
                 cursor: isRenderPending ? "not-allowed" : "pointer",
                 transition: "all 300ms",
@@ -340,8 +340,8 @@ export function ResultsPanel({
               style={{
                 padding: "10px 12px",
                 borderRadius: "6px",
-                border: "1px solid #9B1B3040",
-                background: "#9B1B3015",
+                border: "1px solid color-mix(in srgb, var(--primary) 25%, transparent)",
+                background: "color-mix(in srgb, var(--primary) 8%, transparent)",
                 color: "#F87171",
                 fontSize: "12px",
               }}
@@ -361,7 +361,7 @@ export function ResultsPanel({
           style={{
             fontSize: "11px",
             fontWeight: 600,
-            color: "#8A857D",
+            color: "var(--text-muted)",
             textTransform: "uppercase",
             letterSpacing: "0.5px",
             marginBottom: "8px",
@@ -387,9 +387,9 @@ export function ResultsPanel({
             style={{
               padding: "3px 10px",
               borderRadius: "20px",
-              border: "1px solid #C9A22740",
-              background: "#C9A22710",
-              color: "#C9A227",
+              border: "1px solid color-mix(in srgb, var(--accent) 25%, transparent)",
+              background: "color-mix(in srgb, var(--accent) 6%, transparent)",
+              color: "var(--accent)",
               fontSize: "12px",
               fontWeight: 600,
             }}
@@ -406,7 +406,7 @@ export function ResultsPanel({
             style={{
               fontSize: "11px",
               fontWeight: 600,
-              color: "#8A857D",
+              color: "var(--text-muted)",
               textTransform: "uppercase",
               letterSpacing: "0.5px",
               marginBottom: "7px",
@@ -421,9 +421,9 @@ export function ResultsPanel({
                 style={{
                   padding: "3px 10px",
                   borderRadius: "5px",
-                  border: "1px solid #232328",
-                  background: "#1C1C20",
-                  color: "#C9A227",
+                  border: "1px solid var(--surface-elevated)",
+                  background: "var(--surface-overlay)",
+                  color: "var(--accent)",
                   fontFamily: "'IBM Plex Mono', monospace",
                   fontSize: "11px",
                 }}
@@ -439,8 +439,8 @@ export function ResultsPanel({
       {result.explanation && (
         <div
           style={{
-            background: "#151518",
-            border: "1px solid #232328",
+            background: "var(--surface-raised)",
+            border: "1px solid var(--surface-elevated)",
             borderRadius: "8px",
             padding: "16px",
           }}
@@ -449,7 +449,7 @@ export function ResultsPanel({
             style={{
               fontSize: "11px",
               fontWeight: 600,
-              color: "#8A857D",
+              color: "var(--text-muted)",
               textTransform: "uppercase",
               letterSpacing: "0.5px",
               marginBottom: "8px",
@@ -460,7 +460,7 @@ export function ResultsPanel({
           <p
             style={{
               fontSize: "13px",
-              color: "#C5C0B8",
+              color: "var(--text-secondary)",
               lineHeight: "1.65",
               margin: 0,
             }}
@@ -481,9 +481,9 @@ export function ResultsPanel({
             gap: "7px",
             padding: "8px 18px",
             borderRadius: "7px",
-            border: "1px solid #232328",
-            background: "#1C1C20",
-            color: "#C5C0B8",
+            border: "1px solid var(--surface-elevated)",
+            background: "var(--surface-overlay)",
+            color: "var(--text-secondary)",
             fontSize: "13px",
             fontWeight: 500,
             cursor: validateMutation.isPending ? "not-allowed" : "pointer",
@@ -493,13 +493,13 @@ export function ResultsPanel({
           }}
           onMouseEnter={(e) => {
             if (!validateMutation.isPending) {
-              e.currentTarget.style.background = "#232328";
-              e.currentTarget.style.borderColor = "#2DD4BF40";
+              e.currentTarget.style.background = "var(--surface-elevated)";
+              e.currentTarget.style.borderColor = "color-mix(in srgb, var(--success) 25%, transparent)";
             }
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.background = "#1C1C20";
-            e.currentTarget.style.borderColor = "#232328";
+            e.currentTarget.style.background = "var(--surface-overlay)";
+            e.currentTarget.style.borderColor = "var(--surface-elevated)";
           }}
         >
           {validateMutation.isPending ? (
@@ -508,7 +508,7 @@ export function ResultsPanel({
               style={{ animation: "spin 1s linear infinite" }}
             />
           ) : (
-            <ShieldCheck size={14} style={{ color: "#2DD4BF" }} />
+            <ShieldCheck size={14} style={{ color: "var(--success)" }} />
           )}
           {validateMutation.isPending ? "Validating\u2026" : "Validate SQL"}
         </button>
@@ -517,8 +517,8 @@ export function ResultsPanel({
           <div
             style={{
               marginTop: "12px",
-              background: "#151518",
-              border: `1px solid ${validation.valid ? "#2DD4BF30" : "#9B1B3030"}`,
+              background: "var(--surface-raised)",
+              border: `1px solid ${validation.valid ? "color-mix(in srgb, var(--success) 19%, transparent)" : "color-mix(in srgb, var(--primary) 19%, transparent)"}`,
               borderRadius: "8px",
               padding: "14px 16px",
               display: "flex",
@@ -530,7 +530,7 @@ export function ResultsPanel({
               style={{ display: "flex", alignItems: "center", gap: "8px" }}
             >
               {validation.valid ? (
-                <ShieldCheck size={15} style={{ color: "#2DD4BF" }} />
+                <ShieldCheck size={15} style={{ color: "var(--success)" }} />
               ) : (
                 <ShieldAlert size={15} style={{ color: "#F87171" }} />
               )}
@@ -538,7 +538,7 @@ export function ResultsPanel({
                 style={{
                   fontSize: "13px",
                   fontWeight: 600,
-                  color: validation.valid ? "#2DD4BF" : "#F87171",
+                  color: validation.valid ? "var(--success)" : "#F87171",
                 }}
               >
                 {validation.valid ? "Valid SQL" : "Validation Failed"}
@@ -548,9 +548,9 @@ export function ResultsPanel({
                   style={{
                     padding: "1px 8px",
                     borderRadius: "20px",
-                    border: "1px solid #2DD4BF30",
-                    background: "#2DD4BF10",
-                    color: "#2DD4BF",
+                    border: "1px solid var(--success)30",
+                    background: "color-mix(in srgb, var(--success) 6%, transparent)",
+                    color: "var(--success)",
                     fontSize: "11px",
                     fontWeight: 600,
                     marginLeft: "auto",
@@ -571,9 +571,9 @@ export function ResultsPanel({
                     style={{
                       padding: "2px 8px",
                       borderRadius: "4px",
-                      border: "1px solid #232328",
-                      background: "#1C1C20",
-                      color: "#C5C0B8",
+                      border: "1px solid var(--surface-elevated)",
+                      background: "var(--surface-overlay)",
+                      color: "var(--text-secondary)",
                       fontFamily: "'IBM Plex Mono', monospace",
                       fontSize: "11px",
                     }}
@@ -597,9 +597,9 @@ export function ResultsPanel({
                     style={{
                       padding: "7px 10px",
                       borderRadius: "5px",
-                      border: "1px solid #C9A22730",
-                      background: "#C9A22710",
-                      color: "#C9A227",
+                      border: "1px solid color-mix(in srgb, var(--accent) 19%, transparent)",
+                      background: "color-mix(in srgb, var(--accent) 6%, transparent)",
+                      color: "var(--accent)",
                       fontSize: "12px",
                       lineHeight: "1.5",
                     }}
@@ -618,8 +618,8 @@ export function ResultsPanel({
               marginTop: "12px",
               padding: "10px 14px",
               borderRadius: "6px",
-              border: "1px solid #9B1B3040",
-              background: "#9B1B3015",
+              border: "1px solid color-mix(in srgb, var(--primary) 25%, transparent)",
+              background: "color-mix(in srgb, var(--primary) 8%, transparent)",
               color: "#F87171",
               fontSize: "13px",
             }}

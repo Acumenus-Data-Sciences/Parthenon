@@ -19,7 +19,7 @@ export function HelpSlideOver({ helpKey, onClose }: HelpSlideOverProps) {
     >
       {isLoading && (
         <div className="flex items-center justify-center py-12">
-          <Loader2 size={24} className="animate-spin text-[#2DD4BF]" />
+          <Loader2 size={24} className="animate-spin text-success" />
         </div>
       )}
 
@@ -32,24 +32,24 @@ export function HelpSlideOver({ helpKey, onClose }: HelpSlideOverProps) {
       {data && (
         <div className="space-y-6">
           {/* Description */}
-          <p className="text-sm leading-relaxed text-[#C5C0B8]">
+          <p className="text-sm leading-relaxed text-text-secondary">
             {data.description}
           </p>
 
           {/* Tips */}
           {data.tips.length > 0 && (
             <div>
-              <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#5A5650]">
+              <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-text-ghost">
                 <Lightbulb size={13} />
                 Tips
               </div>
               <ul className="space-y-2">
                 {data.tips.map((tip, i) => (
                   <li key={i} className="flex items-start gap-2.5">
-                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#2DD4BF]/15 text-xs font-semibold text-[#2DD4BF]">
+                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-success/15 text-xs font-semibold text-success">
                       {i + 1}
                     </span>
-                    <span className="text-sm text-[#8A857D]">{tip}</span>
+                    <span className="text-sm text-text-muted">{tip}</span>
                   </li>
                 ))}
               </ul>
@@ -57,12 +57,12 @@ export function HelpSlideOver({ helpKey, onClose }: HelpSlideOverProps) {
           )}
 
           {/* Links */}
-          <div className="flex flex-col gap-2 border-t border-[#1E1E24] pt-4">
+          <div className="flex flex-col gap-2 border-t border-border-subtle pt-4">
             {data.docs_url && (
               <button
                 type="button"
                 onClick={() => window.open(data.docs_url ?? undefined, "_blank", "noopener,noreferrer")}
-                className="inline-flex items-center gap-2 text-sm text-[#2DD4BF] hover:text-[#26B8A5] transition-colors cursor-pointer"
+                className="inline-flex items-center gap-2 text-sm text-success hover:text-[#26B8A5] transition-colors cursor-pointer"
               >
                 <BookOpen size={14} />
                 Read full documentation
@@ -74,7 +74,7 @@ export function HelpSlideOver({ helpKey, onClose }: HelpSlideOverProps) {
                 href={data.video_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-[#2DD4BF] hover:text-[#26B8A5] transition-colors"
+                className="inline-flex items-center gap-2 text-sm text-success hover:text-[#26B8A5] transition-colors"
               >
                 <ExternalLink size={14} />
                 Watch video tutorial

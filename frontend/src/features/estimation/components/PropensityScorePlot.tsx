@@ -27,8 +27,8 @@ export function PropensityScorePlot({
   const plotW = width - padding.left - padding.right;
   const plotH = height - padding.top - padding.bottom;
 
-  const TARGET_COLOR = "#2DD4BF";
-  const COMPARATOR_COLOR = "#C9A227";
+  const TARGET_COLOR = "var(--success)";
+  const COMPARATOR_COLOR = "var(--accent)";
 
   // Normalize to density (proportions)
   const totalTarget = data.reduce((s, d) => s + d.targetCount, 0) || 1;
@@ -92,11 +92,11 @@ export function PropensityScorePlot({
         width={width}
         height={height}
         viewBox={`0 0 ${width} ${height}`}
-        className="text-[#F0EDE8]"
+        className="text-text-primary"
         role="img"
         aria-label="Propensity score distribution"
       >
-        <rect width={width} height={height} fill="#151518" rx={8} />
+        <rect width={width} height={height} fill="var(--surface-raised)" rx={8} />
 
         {/* Grid */}
         {xTicks.map((v) => (
@@ -106,14 +106,14 @@ export function PropensityScorePlot({
               y1={padding.top}
               x2={toX(v)}
               y2={padding.top + plotH}
-              stroke="#232328"
+              stroke="var(--border-default)"
               strokeWidth={0.5}
             />
             <text
               x={toX(v)}
               y={padding.top + plotH + 16}
               textAnchor="middle"
-              fill="#5A5650"
+              fill="var(--text-ghost)"
               fontSize={10}
             >
               {v.toFixed(1)}
@@ -154,7 +154,7 @@ export function PropensityScorePlot({
           width={plotW}
           height={plotH}
           fill="none"
-          stroke="#323238"
+          stroke="var(--border-default)"
           strokeWidth={1}
         />
 
@@ -168,8 +168,8 @@ export function PropensityScorePlot({
             width={160}
             height={auc !== undefined ? 56 : 42}
             rx={4}
-            fill="#0E0E11"
-            stroke="#232328"
+            fill="var(--surface-base)"
+            stroke="var(--border-default)"
             strokeWidth={1}
           />
           <line
@@ -180,7 +180,7 @@ export function PropensityScorePlot({
             stroke={TARGET_COLOR}
             strokeWidth={2.5}
           />
-          <text x={34} y={18} fill="#C5C0B8" fontSize={11}>
+          <text x={34} y={18} fill="var(--text-secondary)" fontSize={11}>
             {targetLabel}
           </text>
           <line
@@ -191,14 +191,14 @@ export function PropensityScorePlot({
             stroke={COMPARATOR_COLOR}
             strokeWidth={2.5}
           />
-          <text x={34} y={36} fill="#C5C0B8" fontSize={11}>
+          <text x={34} y={36} fill="var(--text-secondary)" fontSize={11}>
             {comparatorLabel}
           </text>
           {auc !== undefined && (
             <text
               x={8}
               y={52}
-              fill="#8A857D"
+              fill="var(--text-muted)"
               fontSize={10}
               fontFamily="IBM Plex Mono, monospace"
             >
@@ -212,7 +212,7 @@ export function PropensityScorePlot({
           x={padding.left + plotW / 2}
           y={height - 8}
           textAnchor="middle"
-          fill="#8A857D"
+          fill="var(--text-muted)"
           fontSize={11}
           fontWeight={600}
         >
@@ -222,7 +222,7 @@ export function PropensityScorePlot({
           x={14}
           y={padding.top + plotH / 2}
           textAnchor="middle"
-          fill="#8A857D"
+          fill="var(--text-muted)"
           fontSize={11}
           fontWeight={600}
           transform={`rotate(-90 14 ${padding.top + plotH / 2})`}

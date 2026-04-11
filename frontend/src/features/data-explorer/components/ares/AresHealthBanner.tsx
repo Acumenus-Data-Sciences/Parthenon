@@ -8,8 +8,8 @@ interface AresHealthBannerProps {
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col items-center gap-1">
-      <span className="text-2xl font-bold text-[#F0EDE8]">{value}</span>
-      <span className="text-xs uppercase tracking-wider text-[#8A857D]">{label}</span>
+      <span className="text-2xl font-bold text-text-primary">{value}</span>
+      <span className="text-xs uppercase tracking-wider text-text-muted">{label}</span>
     </div>
   );
 }
@@ -21,7 +21,7 @@ export function AresHealthBanner({
   annotationCount,
 }: AresHealthBannerProps) {
   return (
-    <div className="rounded-xl border border-[#252530] bg-gradient-to-r from-[#151518] via-[#1a1a22] to-[#151518] p-6">
+    <div className="rounded-xl border border-[#252530] bg-gradient-to-r from-surface-raised via-[#1a1a22] to-surface-raised p-6">
       <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
         <Stat label="Sources" value={String(sourceCount)} />
         <Stat label="Avg DQ Score" value={avgDqScore != null ? `${avgDqScore}%` : "--"} />

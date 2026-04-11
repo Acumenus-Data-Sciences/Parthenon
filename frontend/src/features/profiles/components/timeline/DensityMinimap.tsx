@@ -29,7 +29,7 @@ export function DensityMinimap({
   onMinimapClick,
 }: DensityMinimapProps) {
   return (
-    <div className="relative bg-[#0E0E11] border-b border-[#1C1C20]" style={{ height: 32 }}>
+    <div className="relative bg-surface-base border-b border-surface-overlay" style={{ height: 32 }}>
       <svg
         width="100%"
         height={32}
@@ -45,7 +45,7 @@ export function DensityMinimap({
             y={0}
             width={Math.max(bucket.x2 - bucket.x1 - 0.5, 0.5)}
             height={32}
-            fill="#2DD4BF"
+            fill="var(--success)"
             opacity={0.08 + bucket.intensity * 0.55}
           />
         ))}
@@ -71,9 +71,9 @@ export function DensityMinimap({
           rx={1}
         />
         {/* Axis line */}
-        <line x1={LABEL_WIDTH} x2={svgWidth} y1={31} y2={31} stroke="#1C1C20" strokeWidth={1} />
+        <line x1={LABEL_WIDTH} x2={svgWidth} y1={31} y2={31} stroke="var(--surface-overlay)" strokeWidth={1} />
         {/* Label */}
-        <text x={4} y={19} className="fill-[#3A3A40]" style={{ fontSize: 8 }}>
+        <text x={4} y={19} className="fill-surface-highlight" style={{ fontSize: 8 }}>
           activity
         </text>
       </svg>

@@ -8,10 +8,10 @@ export function CriteriaStep() {
       <div className="pb-5">
         <InclusionRulesStep />
       </div>
-      <div className="border-t border-[#2A2A30] pb-5 pt-5">
+      <div className="border-t border-border-default pb-5 pt-5">
         <DemographicsStep />
       </div>
-      <div className="border-t border-[#2A2A30] pt-5">
+      <div className="border-t border-border-default pt-5">
         <RiskScoresStep />
       </div>
     </div>

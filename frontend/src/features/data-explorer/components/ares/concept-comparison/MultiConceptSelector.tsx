@@ -3,7 +3,7 @@ import { X } from "lucide-react";
 import { useConceptSearch } from "../../../hooks/useNetworkData";
 import type { ConceptSearchResult } from "../../../types/ares";
 
-const CONCEPT_COLORS = ["#2DD4BF", "#C9A227", "#e85d75", "#7c8aed", "#59c990"];
+const CONCEPT_COLORS = ["var(--success)", "var(--accent)", "#e85d75", "#7c8aed", "#59c990"];
 
 interface MultiConceptSelectorProps {
   selectedConcepts: ConceptSearchResult[];
@@ -73,7 +73,7 @@ export default function MultiConceptSelector({
             }}
             onFocus={() => setShowDropdown(true)}
             className="w-full rounded-lg border border-[#333] bg-[#1a1a22] px-4 py-2 text-sm text-white
-                       placeholder-[#555] focus:border-[#C9A227] focus:outline-none"
+                       placeholder-[#555] focus:border-accent focus:outline-none"
           />
           {isLoading && (
             <span className="absolute right-3 top-2.5 text-xs text-[#555]">Searching...</span>

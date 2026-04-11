@@ -222,19 +222,19 @@ export default function UnifiedAnalysisPicker({
         {/* Search & filter — shared across both tabs */}
         <div className="flex gap-3 mb-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#5A5650]" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-ghost" />
             <input
               type="text"
               placeholder={activeTab === "all" ? "Search analyses..." : "Search studies..."}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 bg-[#151518] border border-[#232328] rounded-lg text-sm text-[#F0EDE8] placeholder-[#5A5650] focus:outline-none focus:border-[#C9A227]"
+              className="w-full pl-9 pr-3 py-2 bg-surface-raised border border-border-default rounded-lg text-sm text-text-primary placeholder-text-ghost focus:outline-none focus:border-accent"
             />
           </div>
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="bg-[#151518] border border-[#232328] rounded-lg px-3 py-2 text-sm text-[#F0EDE8] focus:outline-none focus:border-[#C9A227]"
+            className="bg-surface-raised border border-border-default rounded-lg px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-accent"
           >
             {TYPE_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -245,14 +245,14 @@ export default function UnifiedAnalysisPicker({
         </div>
 
         {/* Tab bar */}
-        <div className="flex border-b border-[#232328] mb-4">
+        <div className="flex border-b border-border-default mb-4">
           <button
             type="button"
             onClick={() => setActiveTab("all")}
             className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
               activeTab === "all"
-                ? "border-[#C9A227] text-[#C9A227]"
-                : "border-transparent text-[#5A5650] hover:text-[#F0EDE8]"
+                ? "border-accent text-accent"
+                : "border-transparent text-text-ghost hover:text-text-primary"
             }`}
           >
             All Analyses
@@ -262,8 +262,8 @@ export default function UnifiedAnalysisPicker({
             onClick={() => setActiveTab("studies")}
             className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
               activeTab === "studies"
-                ? "border-[#C9A227] text-[#C9A227]"
-                : "border-transparent text-[#5A5650] hover:text-[#F0EDE8]"
+                ? "border-accent text-accent"
+                : "border-transparent text-text-ghost hover:text-text-primary"
             }`}
           >
             From Studies
@@ -275,11 +275,11 @@ export default function UnifiedAnalysisPicker({
             {/* Analysis list — cap visible height at ~12 items */}
             <div className="overflow-y-auto space-y-1" style={{ maxHeight: "540px" }}>
               {loadingAnalyses ? (
-                <p className="text-sm text-[#5A5650] text-center py-8">
+                <p className="text-sm text-text-ghost text-center py-8">
                   Loading analyses...
                 </p>
               ) : filteredAnalyses.length === 0 ? (
-                <p className="text-sm text-[#5A5650] text-center py-8">
+                <p className="text-sm text-text-ghost text-center py-8">
                   No completed analyses found
                 </p>
               ) : (
@@ -295,26 +295,26 @@ export default function UnifiedAnalysisPicker({
                       onClick={() => handleToggle(item)}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors ${
                         selected
-                          ? "bg-[#151518] border border-[#C9A227]"
-                          : "bg-[#151518] border border-[#232328] hover:border-[#5A5650]"
+                          ? "bg-surface-raised border border-accent"
+                          : "bg-surface-raised border border-border-default hover:border-text-ghost"
                       }`}
                     >
                       <div
                         className={`shrink-0 w-5 h-5 rounded border flex items-center justify-center ${
                           selected
-                            ? "bg-[#C9A227] border-[#C9A227]"
-                            : "border-[#5A5650]"
+                            ? "bg-accent border-accent"
+                            : "border-text-ghost"
                         }`}
                       >
                         {selected && (
-                          <Check className="w-3.5 h-3.5 text-[#0E0E11]" />
+                          <Check className="w-3.5 h-3.5 text-surface-base" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-[#F0EDE8] truncate">
+                        <p className="text-sm text-text-primary truncate">
                           {item.name}
                         </p>
-                        <p className="text-xs text-[#5A5650]">
+                        <p className="text-xs text-text-ghost">
                           {TYPE_LABELS[item.type] ?? item.type}
                           {item.latest_execution?.completed_at &&
                             ` \u00B7 ${new Date(
@@ -333,11 +333,11 @@ export default function UnifiedAnalysisPicker({
         {activeTab === "studies" && (
           <div className="overflow-y-auto space-y-2" style={{ maxHeight: "540px" }}>
             {loadingStudies ? (
-              <p className="text-sm text-[#5A5650] text-center py-8">
+              <p className="text-sm text-text-ghost text-center py-8">
                 Loading studies...
               </p>
             ) : filteredStudies.length === 0 ? (
-              <p className="text-sm text-[#5A5650] text-center py-8">
+              <p className="text-sm text-text-ghost text-center py-8">
                 {search || typeFilter ? "No studies match your filters" : "No studies found"}
               </p>
             ) : (
@@ -347,7 +347,7 @@ export default function UnifiedAnalysisPicker({
                 return (
                   <div
                     key={study.id}
-                    className="bg-[#151518] border border-[#232328] rounded-lg"
+                    className="bg-surface-raised border border-border-default rounded-lg"
                   >
                     <button
                       type="button"
@@ -355,19 +355,19 @@ export default function UnifiedAnalysisPicker({
                       className="w-full flex items-center gap-2 px-3 py-2.5 text-left"
                     >
                       {expanded ? (
-                        <ChevronDown className="w-4 h-4 text-[#5A5650]" />
+                        <ChevronDown className="w-4 h-4 text-text-ghost" />
                       ) : (
-                        <ChevronRight className="w-4 h-4 text-[#5A5650]" />
+                        <ChevronRight className="w-4 h-4 text-text-ghost" />
                       )}
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-[#F0EDE8] truncate">
+                        <p className="text-sm text-text-primary truncate">
                           {study.title}
                         </p>
                       </div>
                     </button>
                     {studyAnalyses.length > 0 && (
-                      <div className="flex items-center justify-between px-3 py-1.5 border-t border-[#232328]">
-                        <span className="text-xs text-[#5A5650]">
+                      <div className="flex items-center justify-between px-3 py-1.5 border-t border-border-default">
+                        <span className="text-xs text-text-ghost">
                           {studyAnalyses.length} completed{" "}
                           {studyAnalyses.length === 1 ? "analysis" : "analyses"}
                         </span>
@@ -377,7 +377,7 @@ export default function UnifiedAnalysisPicker({
                             e.stopPropagation();
                             handleSelectAllFromStudy(study);
                           }}
-                          className="text-xs font-medium text-[#C9A227] hover:text-[#d4ad2f] transition-colors"
+                          className="text-xs font-medium text-accent hover:text-[#d4ad2f] transition-colors"
                         >
                           {studyAnalyses.every((sa) =>
                             isSelected(selections, sa.analysis!.latest_execution!.id)
@@ -388,7 +388,7 @@ export default function UnifiedAnalysisPicker({
                       </div>
                     )}
                     {expanded && studyAnalyses.length > 0 && (
-                      <div className="border-t border-[#232328] px-3 py-2 space-y-1">
+                      <div className="border-t border-border-default px-3 py-2 space-y-1">
                         {studyAnalyses.map((sa) => {
                           const exec = sa.analysis!.latest_execution!;
                           const selected = isSelected(selections, exec.id);
@@ -418,26 +418,26 @@ export default function UnifiedAnalysisPicker({
                               }
                               className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
                                 selected
-                                  ? "border border-[#C9A227] bg-[#0E0E11]"
-                                  : "border border-transparent hover:bg-[#0E0E11]"
+                                  ? "border border-accent bg-surface-base"
+                                  : "border border-transparent hover:bg-surface-base"
                               }`}
                             >
                               <div
                                 className={`shrink-0 w-5 h-5 rounded border flex items-center justify-center ${
                                   selected
-                                    ? "bg-[#C9A227] border-[#C9A227]"
-                                    : "border-[#5A5650]"
+                                    ? "bg-accent border-accent"
+                                    : "border-text-ghost"
                                 }`}
                               >
                                 {selected && (
-                                  <Check className="w-3.5 h-3.5 text-[#0E0E11]" />
+                                  <Check className="w-3.5 h-3.5 text-surface-base" />
                                 )}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm text-[#F0EDE8] truncate">
+                                <p className="text-sm text-text-primary truncate">
                                   {sa.analysis!.name}
                                 </p>
-                                <p className="text-xs text-[#5A5650]">
+                                <p className="text-xs text-text-ghost">
                                   {TYPE_LABELS[sa.analysis_type] ??
                                     sa.analysis_type}
                                 </p>
@@ -456,7 +456,7 @@ export default function UnifiedAnalysisPicker({
       </div>
 
       {/* Sidebar */}
-      <div className="w-64 shrink-0 flex flex-col border-l border-[#232328]">
+      <div className="w-64 shrink-0 flex flex-col border-l border-border-default">
         <div className="flex-1 overflow-hidden">
           <AnalysisPickerCart
             selections={selections}
@@ -464,11 +464,11 @@ export default function UnifiedAnalysisPicker({
           />
         </div>
         {selections.length > 0 && (
-          <div className="p-3 border-t border-[#232328]">
+          <div className="p-3 border-t border-border-default">
             <button
               type="button"
               onClick={onNext}
-              className="w-full px-4 py-2 bg-[#C9A227] text-[#0E0E11] font-medium text-sm rounded-lg hover:bg-[#d4ad2f] transition-colors"
+              className="w-full px-4 py-2 bg-accent text-surface-base font-medium text-sm rounded-lg hover:bg-accent transition-colors"
             >
               Configure Document &rarr;
             </button>

@@ -16,11 +16,11 @@ export function ContextPanel({ conceptId, diseaseName }: ContextPanelProps) {
   const activeLayerList = layers.filter((l) => activeLayers.has(l.id));
 
   return (
-    <div className="flex w-56 flex-col gap-3 overflow-y-auto border-l border-[#232328] bg-[#0E0E11] p-3">
+    <div className="flex w-56 flex-col gap-3 overflow-y-auto border-l border-border-default bg-surface-base p-3">
       {/* Disease info */}
-      <div className="rounded-lg border border-[#232328] bg-[#141418] p-3">
-        <h3 className="text-xs font-semibold text-[#C9A227]">{diseaseName}</h3>
-        <p className="mt-1 text-[10px] text-[#5A5650]">
+      <div className="rounded-lg border border-border-default bg-[#141418] p-3">
+        <h3 className="text-xs font-semibold text-accent">{diseaseName}</h3>
+        <p className="mt-1 text-[10px] text-text-ghost">
           {activeLayerList.length} analysis layer
           {activeLayerList.length !== 1 ? "s" : ""} active
         </p>
@@ -35,7 +35,7 @@ export function ContextPanel({ conceptId, diseaseName }: ContextPanelProps) {
             </h3>
             <button
               onClick={() => setSelectedRegion(null, null)}
-              className="rounded p-0.5 text-[#5A5650] hover:text-[#E8E4DC]"
+              className="rounded p-0.5 text-text-ghost hover:text-[#E8E4DC]"
             >
               <X className="h-3 w-3" />
             </button>
@@ -61,8 +61,8 @@ export function ContextPanel({ conceptId, diseaseName }: ContextPanelProps) {
           })}
 
           {/* Research actions */}
-          <div className="rounded-lg border border-[#232328] bg-[#141418] p-3">
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#5A5650]">
+          <div className="rounded-lg border border-border-default bg-[#141418] p-3">
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-text-ghost">
               Research Actions
             </h3>
             <div className="space-y-2">
@@ -72,7 +72,7 @@ export function ContextPanel({ conceptId, diseaseName }: ContextPanelProps) {
                     `/studies/create?region=${selectedFips}&region_name=${encodeURIComponent(selectedName ?? "")}`
                   )
                 }
-                className="flex w-full items-center gap-2 rounded border border-[#232328] bg-[#0E0E11] px-3 py-2 text-xs text-[#C9A227] hover:border-[#C9A227]/50"
+                className="flex w-full items-center gap-2 rounded border border-border-default bg-surface-base px-3 py-2 text-xs text-accent hover:border-accent/50"
               >
                 <FlaskConical className="h-3 w-3" />
                 Create Study
@@ -81,7 +81,7 @@ export function ContextPanel({ conceptId, diseaseName }: ContextPanelProps) {
                 onClick={() =>
                   navigate(`/cohort-definitions?region=${selectedFips}`)
                 }
-                className="flex w-full items-center gap-2 rounded border border-[#232328] bg-[#0E0E11] px-3 py-2 text-xs text-[#2DD4BF] hover:border-[#2DD4BF]/50"
+                className="flex w-full items-center gap-2 rounded border border-border-default bg-surface-base px-3 py-2 text-xs text-success hover:border-success/50"
               >
                 <Search className="h-3 w-3" />
                 Browse Cohorts
@@ -93,8 +93,8 @@ export function ContextPanel({ conceptId, diseaseName }: ContextPanelProps) {
 
       {/* Prompt when no region selected */}
       {!selectedFips && activeLayerList.length > 0 && (
-        <div className="rounded-lg border border-[#232328] bg-[#141418] p-3 text-center">
-          <p className="text-xs text-[#5A5650]">
+        <div className="rounded-lg border border-border-default bg-[#141418] p-3 text-center">
+          <p className="text-xs text-text-ghost">
             Click a region on the map to see layer details
           </p>
         </div>

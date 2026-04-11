@@ -11,12 +11,12 @@ const statusConfig: Record<
   ExecutionStatus,
   { icon: typeof Clock; color: string; label: string }
 > = {
-  pending: { icon: Clock, color: "#8A857D", label: "Pending" },
-  queued: { icon: Clock, color: "#60A5FA", label: "Queued" },
+  pending: { icon: Clock, color: "var(--text-muted)", label: "Pending" },
+  queued: { icon: Clock, color: "var(--info)", label: "Queued" },
   running: { icon: Loader2, color: "#F59E0B", label: "Running" },
-  completed: { icon: CheckCircle2, color: "#2DD4BF", label: "Completed" },
-  failed: { icon: XCircle, color: "#E85A6B", label: "Failed" },
-  cancelled: { icon: Ban, color: "#8A857D", label: "Cancelled" },
+  completed: { icon: CheckCircle2, color: "var(--success)", label: "Completed" },
+  failed: { icon: XCircle, color: "var(--critical)", label: "Failed" },
+  cancelled: { icon: Ban, color: "var(--text-muted)", label: "Cancelled" },
 };
 
 interface ExecutionStatusBadgeProps {

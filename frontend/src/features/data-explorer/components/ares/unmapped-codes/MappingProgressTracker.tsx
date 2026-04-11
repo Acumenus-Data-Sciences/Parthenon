@@ -7,10 +7,10 @@ interface MappingProgressProps {
 }
 
 const SEGMENTS = [
-  { key: "mapped" as const, label: "Mapped", color: "#2DD4BF" },
-  { key: "deferred" as const, label: "Deferred", color: "#C9A227" },
+  { key: "mapped" as const, label: "Mapped", color: "var(--success)" },
+  { key: "deferred" as const, label: "Deferred", color: "var(--accent)" },
   { key: "excluded" as const, label: "Excluded", color: "#666" },
-  { key: "pending" as const, label: "Pending", color: "#9B1B30" },
+  { key: "pending" as const, label: "Pending", color: "var(--primary)" },
 ];
 
 export default function MappingProgressTracker({
@@ -24,7 +24,7 @@ export default function MappingProgressTracker({
 
   if (total === 0) {
     return (
-      <div className="rounded-lg border border-[#252530] bg-[#151518] p-4 text-center text-sm text-[#555]">
+      <div className="rounded-lg border border-[#252530] bg-surface-raised p-4 text-center text-sm text-[#555]">
         No unmapped codes to track.
       </div>
     );
@@ -33,7 +33,7 @@ export default function MappingProgressTracker({
   const completionPct = total > 0 ? ((mapped + deferred + excluded) / total) * 100 : 0;
 
   return (
-    <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
+    <div className="rounded-lg border border-[#252530] bg-surface-raised p-4">
       <div className="mb-2 flex items-center justify-between">
         <h4 className="text-sm font-medium text-white">Mapping Progress</h4>
         <span className="text-xs text-[#888]">{completionPct.toFixed(1)}% reviewed</span>

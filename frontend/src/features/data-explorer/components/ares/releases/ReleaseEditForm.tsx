@@ -30,13 +30,13 @@ export function ReleaseEditForm({ release, onSave, onCancel, isSaving }: Release
   };
 
   const inputClass =
-    "w-full rounded-lg border border-[#252530] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8] placeholder-[#8A857D] focus:border-[#C9A227] focus:outline-none";
+    "w-full rounded-lg border border-[#252530] bg-surface-base px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:border-accent focus:outline-none";
 
   return (
     <div className="mt-3 space-y-3 border-t border-[#252530] pt-3">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
-          <label className="mb-1 block text-[10px] uppercase text-[#8A857D]">Release Name</label>
+          <label className="mb-1 block text-[10px] uppercase text-text-muted">Release Name</label>
           <input
             type="text"
             value={form.release_name ?? ""}
@@ -46,7 +46,7 @@ export function ReleaseEditForm({ release, onSave, onCancel, isSaving }: Release
           />
         </div>
         <div>
-          <label className="mb-1 block text-[10px] uppercase text-[#8A857D]">CDM Version</label>
+          <label className="mb-1 block text-[10px] uppercase text-text-muted">CDM Version</label>
           <input
             type="text"
             value={form.cdm_version ?? ""}
@@ -56,7 +56,7 @@ export function ReleaseEditForm({ release, onSave, onCancel, isSaving }: Release
           />
         </div>
         <div>
-          <label className="mb-1 block text-[10px] uppercase text-[#8A857D]">Vocabulary Version</label>
+          <label className="mb-1 block text-[10px] uppercase text-text-muted">Vocabulary Version</label>
           <input
             type="text"
             value={form.vocabulary_version ?? ""}
@@ -66,7 +66,7 @@ export function ReleaseEditForm({ release, onSave, onCancel, isSaving }: Release
           />
         </div>
         <div>
-          <label className="mb-1 block text-[10px] uppercase text-[#8A857D]">ETL Version</label>
+          <label className="mb-1 block text-[10px] uppercase text-text-muted">ETL Version</label>
           <input
             type="text"
             value={form.etl_version ?? ""}
@@ -77,7 +77,7 @@ export function ReleaseEditForm({ release, onSave, onCancel, isSaving }: Release
         </div>
       </div>
       <div>
-        <label className="mb-1 block text-[10px] uppercase text-[#8A857D]">Notes</label>
+        <label className="mb-1 block text-[10px] uppercase text-text-muted">Notes</label>
         <textarea
           value={form.notes ?? ""}
           onChange={(e) => setForm({ ...form, notes: e.target.value })}
@@ -91,14 +91,14 @@ export function ReleaseEditForm({ release, onSave, onCancel, isSaving }: Release
           type="button"
           onClick={handleSubmit}
           disabled={isSaving}
-          className="rounded-lg bg-[#C9A227] px-4 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#e0b82e] disabled:opacity-50 transition-colors"
+          className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-surface-base hover:bg-[#e0b82e] disabled:opacity-50 transition-colors"
         >
           {isSaving ? "Saving..." : "Save"}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-lg border border-[#252530] px-4 py-2 text-sm text-[#8A857D] hover:text-[#F0EDE8] transition-colors"
+          className="rounded-lg border border-[#252530] px-4 py-2 text-sm text-text-muted hover:text-text-primary transition-colors"
         >
           Cancel
         </button>

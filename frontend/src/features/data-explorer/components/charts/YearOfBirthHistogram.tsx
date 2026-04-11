@@ -43,9 +43,9 @@ function CustomTooltip({
   const bar = payload.find((p) => p.dataKey === "count");
   return (
     <div className={TOOLTIP_CLS}>
-      <p className="text-xs text-[#8A857D]">Year: {label}</p>
+      <p className="text-xs text-text-muted">Year: {label}</p>
       {bar && (
-        <p className="mt-0.5 font-['IBM_Plex_Mono',monospace] text-xs text-[#F0EDE8]">
+        <p className="mt-0.5 font-['IBM_Plex_Mono',monospace] text-xs text-text-primary">
           {bar.value.toLocaleString()} persons
         </p>
       )}

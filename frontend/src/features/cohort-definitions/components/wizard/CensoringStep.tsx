@@ -8,11 +8,11 @@ export function CensoringStep() {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <div className="mb-1 text-[13px] font-medium text-[#C5C0B8]">
+        <div className="mb-1 text-[13px] font-medium text-text-secondary">
           Censoring Events{" "}
-          <span className="text-[11px] text-[#5A5650]">(optional)</span>
+          <span className="text-[11px] text-text-ghost">(optional)</span>
         </div>
-        <p className="text-[13px] text-[#8A857D]">
+        <p className="text-[13px] text-text-muted">
           Are there specific events that should end a patient's follow-up early? For example,
           death, organ transplant, or switching to a different treatment.
         </p>

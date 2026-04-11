@@ -23,10 +23,10 @@ const PLOT_HEIGHT = HEIGHT - MARGIN.top - MARGIN.bottom;
 function getBubbleColor(hr: number, ciLower: number, ciUpper: number): string {
   if (ciLower > 1 || ciUpper < 1) {
     // CI does not span null
-    return hr < 1 ? "#2DD4BF" : "#E85A6B";
+    return hr < 1 ? "var(--success)" : "var(--critical)";
   }
   // CI spans null
-  return "#8A857D";
+  return "var(--text-muted)";
 }
 
 export function SiteHeterogeneityMap({ sites, pooledHr }: SiteHeterogeneityMapProps) {
@@ -64,8 +64,8 @@ export function SiteHeterogeneityMap({ sites, pooledHr }: SiteHeterogeneityMapPr
   });
 
   return (
-    <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-      <h3 className="text-sm font-semibold text-[#F0EDE8] mb-3">Site Heterogeneity Map</h3>
+    <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+      <h3 className="text-sm font-semibold text-text-primary mb-3">Site Heterogeneity Map</h3>
       <svg
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
         className="w-full"
@@ -77,7 +77,7 @@ export function SiteHeterogeneityMap({ sites, pooledHr }: SiteHeterogeneityMapPr
           y1={MARGIN.top}
           x2={nullX}
           y2={HEIGHT - MARGIN.bottom}
-          stroke="#C9A227"
+          stroke="var(--accent)"
           strokeWidth={1}
           strokeDasharray="6,4"
           opacity={0.6}
@@ -86,7 +86,7 @@ export function SiteHeterogeneityMap({ sites, pooledHr }: SiteHeterogeneityMapPr
         {/* Pooled HR diamond marker */}
         <polygon
           points={`${pooledX},${centerY - 8} ${pooledX + 6},${centerY} ${pooledX},${centerY + 8} ${pooledX - 6},${centerY}`}
-          fill="#C9A227"
+          fill="var(--accent)"
           opacity={0.9}
         />
 
@@ -116,7 +116,7 @@ export function SiteHeterogeneityMap({ sites, pooledHr }: SiteHeterogeneityMapPr
                 r={r}
                 fill={color}
                 opacity={hoveredIndex === idx ? 0.9 : 0.6}
-                stroke={hoveredIndex === idx ? "#F0EDE8" : "none"}
+                stroke={hoveredIndex === idx ? "var(--text-primary)" : "none"}
                 strokeWidth={hoveredIndex === idx ? 1.5 : 0}
                 aria-label={site.site_name}
                 onMouseEnter={() => setHoveredIndex(idx)}
@@ -144,16 +144,16 @@ export function SiteHeterogeneityMap({ sites, pooledHr }: SiteHeterogeneityMapPr
                 height={52}
                 rx={4}
                 fill="#1E1E22"
-                stroke="#3A3A40"
+                stroke="var(--surface-highlight)"
                 strokeWidth={1}
               />
-              <text x={tooltipX + 8} y={tooltipY - 38} fill="#F0EDE8" fontSize={10} fontWeight="bold">
+              <text x={tooltipX + 8} y={tooltipY - 38} fill="var(--text-primary)" fontSize={10} fontWeight="bold">
                 {site.site_name}
               </text>
-              <text x={tooltipX + 8} y={tooltipY - 24} fill="#C5C0B8" fontSize={9} fontFamily="monospace">
+              <text x={tooltipX + 8} y={tooltipY - 24} fill="var(--text-secondary)" fontSize={9} fontFamily="monospace">
                 HR {fmt(site.hr, 3)} [{fmt(site.ci_lower, 3)}, {fmt(site.ci_upper, 3)}]
               </text>
-              <text x={tooltipX + 8} y={tooltipY - 11} fill="#8A857D" fontSize={9} fontFamily="monospace">
+              <text x={tooltipX + 8} y={tooltipY - 11} fill="var(--text-muted)" fontSize={9} fontFamily="monospace">
                 Weight: {fmt(site.weight, 1)}%
               </text>
             </g>
@@ -166,7 +166,7 @@ export function SiteHeterogeneityMap({ sites, pooledHr }: SiteHeterogeneityMapPr
           y1={HEIGHT - MARGIN.bottom}
           x2={WIDTH - MARGIN.right}
           y2={HEIGHT - MARGIN.bottom}
-          stroke="#3A3A40"
+          stroke="var(--surface-highlight)"
           strokeWidth={1}
         />
 
@@ -180,13 +180,13 @@ export function SiteHeterogeneityMap({ sites, pooledHr }: SiteHeterogeneityMapPr
                 y1={HEIGHT - MARGIN.bottom}
                 x2={x}
                 y2={HEIGHT - MARGIN.bottom + 5}
-                stroke="#5A5650"
+                stroke="var(--text-ghost)"
                 strokeWidth={1}
               />
               <text
                 x={x}
                 y={HEIGHT - MARGIN.bottom + 18}
-                fill="#5A5650"
+                fill="var(--text-ghost)"
                 fontSize={10}
                 textAnchor="middle"
                 fontFamily="monospace"
@@ -201,7 +201,7 @@ export function SiteHeterogeneityMap({ sites, pooledHr }: SiteHeterogeneityMapPr
         <text
           x={MARGIN.left + PLOT_WIDTH / 2}
           y={HEIGHT - 3}
-          fill="#5A5650"
+          fill="var(--text-ghost)"
           fontSize={10}
           textAnchor="middle"
         >

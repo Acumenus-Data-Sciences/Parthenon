@@ -10,10 +10,10 @@ import DiversityTrendsChart from "./DiversityTrendsChart";
 type DiversityTab = "overview" | "pyramid" | "dap" | "pooled" | "geographic" | "trends";
 
 const RATING_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  very_high: { bg: "bg-[#2DD4BF]/10", text: "text-[#2DD4BF]", border: "border-[#2DD4BF]/30" },
-  high: { bg: "bg-[#C9A227]/10", text: "text-[#C9A227]", border: "border-[#C9A227]/30" },
+  very_high: { bg: "bg-success/10", text: "text-success", border: "border-success/30" },
+  high: { bg: "bg-accent/10", text: "text-accent", border: "border-accent/30" },
   moderate: { bg: "bg-amber-500/10", text: "text-amber-400", border: "border-amber-500/30" },
-  low: { bg: "bg-[#9B1B30]/10", text: "text-[#9B1B30]", border: "border-[#9B1B30]/30" },
+  low: { bg: "bg-primary/10", text: "text-primary", border: "border-primary/30" },
 };
 
 function RatingCard({ source }: { source: DiversitySource }) {
@@ -21,7 +21,7 @@ function RatingCard({ source }: { source: DiversitySource }) {
   return (
     <div className={`rounded-lg border ${colors.border} ${colors.bg} p-3`}>
       <p className={`text-xl font-semibold ${colors.text}`}>{source.simpson_index.toFixed(2)}</p>
-      <p className="mt-0.5 truncate text-xs text-[#8A857D]" title={source.source_name}>
+      <p className="mt-0.5 truncate text-xs text-text-muted" title={source.source_name}>
         {source.source_name}
       </p>
       <p className={`mt-0.5 text-[10px] font-medium uppercase ${colors.text}`}>
@@ -32,7 +32,7 @@ function RatingCard({ source }: { source: DiversitySource }) {
 }
 
 const DEMO_COLORS = [
-  "#2DD4BF", "#C9A227", "#9B1B30", "#6366F1", "#EC4899",
+  "var(--success)", "var(--accent)", "var(--primary)", "#6366F1", "#EC4899",
   "#F59E0B", "#10B981", "#8B5CF6", "#EF4444", "#3B82F6",
 ];
 
@@ -132,7 +132,7 @@ export default function DiversityView() {
       </p>
 
       {/* Tab bar */}
-      <div className="mb-4 flex gap-1 rounded-lg border border-[#252530] bg-[#0E0E11] p-1">
+      <div className="mb-4 flex gap-1 rounded-lg border border-[#252530] bg-surface-base p-1">
         {tabs.map((tab) => (
           <button
             key={tab.key}
@@ -140,7 +140,7 @@ export default function DiversityView() {
             onClick={() => setActiveTab(tab.key)}
             className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
               activeTab === tab.key
-                ? "bg-[#252530] text-[#C9A227]"
+                ? "bg-[#252530] text-accent"
                 : "text-[#888] hover:text-[#ccc]"
             }`}
           >
@@ -160,7 +160,7 @@ export default function DiversityView() {
       {activeTab === "overview" && (
         <div className="space-y-4">
           {diversity.map((source: DiversitySource) => (
-            <div key={source.source_id} className="rounded-lg border border-[#252530] bg-[#151518] p-4">
+            <div key={source.source_id} className="rounded-lg border border-[#252530] bg-surface-raised p-4">
               <div className="mb-3 flex items-center justify-between">
                 <h3 className="text-sm font-medium text-white">{source.source_name}</h3>
                 <span className="text-xs text-[#888]">{source.person_count.toLocaleString()} persons</span>
@@ -186,7 +186,7 @@ export default function DiversityView() {
           <select
             value={pyramidSourceId ?? ""}
             onChange={(e) => setPyramidSourceId(e.target.value ? Number(e.target.value) : null)}
-            className="rounded-lg border border-[#252530] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none"
+            className="rounded-lg border border-[#252530] bg-surface-raised px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none"
           >
             <option value="">Select a source</option>
             {diversity.map((s) => (
@@ -204,7 +204,7 @@ export default function DiversityView() {
 
       {activeTab === "dap" && (
         <div className="space-y-4">
-          <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
+          <div className="rounded-lg border border-[#252530] bg-surface-raised p-4">
             <h3 className="mb-2 text-sm font-medium text-white">FDA DAP Enrollment Gap Analysis</h3>
             <p className="mb-3 text-xs text-[#666]">
               Compares source demographics against US Census 2020 benchmarks to identify enrollment gaps.
@@ -216,7 +216,7 @@ export default function DiversityView() {
 
       {activeTab === "pooled" && (
         <div className="space-y-4">
-          <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
+          <div className="rounded-lg border border-[#252530] bg-surface-raised p-4">
             <h3 className="mb-2 text-sm font-medium text-white">Pooled Demographics</h3>
             <p className="mb-3 text-xs text-[#666]">
               Select multiple sources to see weighted-merged demographic profiles.
@@ -237,8 +237,8 @@ export default function DiversityView() {
                     }
                     className={`rounded-full px-3 py-1 text-xs transition-colors ${
                       isSelected
-                        ? "bg-[#C9A227]/20 text-[#C9A227] border border-[#C9A227]/50"
-                        : "bg-[#252530] text-[#888] border border-[#252530] hover:border-[#C9A227]/30"
+                        ? "bg-accent/20 text-accent border border-accent/50"
+                        : "bg-[#252530] text-[#888] border border-[#252530] hover:border-accent/30"
                     }`}
                   >
                     {s.source_name}
@@ -267,7 +267,7 @@ export default function DiversityView() {
           <select
             value={trendsSourceId ?? ""}
             onChange={(e) => setTrendsSourceId(e.target.value ? Number(e.target.value) : null)}
-            className="rounded-lg border border-[#252530] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none"
+            className="rounded-lg border border-[#252530] bg-surface-raised px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none"
           >
             <option value="">Select a source</option>
             {diversity.map((s) => (
@@ -281,7 +281,7 @@ export default function DiversityView() {
             />
           )}
           {trendsSourceId && trendsData && trendsData.releases.length === 0 && (
-            <div className="rounded-lg border border-dashed border-[#323238] bg-[#151518] py-12 text-center">
+            <div className="rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-12 text-center">
               <p className="text-sm text-[#666]">No releases found for this source. Create releases to track diversity trends.</p>
             </div>
           )}

@@ -28,14 +28,14 @@ export default function ImagingStudyPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Loader2 size={28} className="animate-spin text-[#2DD4BF]" />
+        <Loader2 size={28} className="animate-spin text-success" />
       </div>
     );
   }
 
   if (!study) {
     return (
-      <div className="flex items-center justify-center py-24 text-[#8A857D]">
+      <div className="flex items-center justify-center py-24 text-text-muted">
         Study not found.
       </div>
     );
@@ -59,7 +59,7 @@ export default function ImagingStudyPage() {
       {/* Back nav */}
       <Link
         to={`/imaging${location.search}`}
-        className="inline-flex items-center gap-1.5 text-sm text-[#8A857D] hover:text-[#F0EDE8] transition-colors"
+        className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-text-primary transition-colors"
       >
         <ArrowLeft size={14} />
         Back to Imaging
@@ -68,12 +68,12 @@ export default function ImagingStudyPage() {
       {/* Header */}
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-9 h-9 rounded-md bg-[#60A5FA]/12 flex-shrink-0">
-            <ScanLine size={18} style={{ color: "#60A5FA" }} />
+          <div className="flex items-center justify-center w-9 h-9 rounded-md bg-info/12 flex-shrink-0">
+            <ScanLine size={18} style={{ color: "var(--info)" }} />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-[#F0EDE8]">DICOM Study</h1>
-            <p className="text-sm text-[#5A5650] font-mono mt-0.5 truncate max-w-xl">
+            <h1 className="text-xl font-bold text-text-primary">DICOM Study</h1>
+            <p className="text-sm text-text-ghost font-mono mt-0.5 truncate max-w-xl">
               {study.study_instance_uid}
             </p>
           </div>
@@ -83,7 +83,7 @@ export default function ImagingStudyPage() {
             type="button"
             onClick={() => indexSeries.mutate(studyId)}
             disabled={indexSeries.isPending}
-            className="inline-flex items-center gap-2 rounded-lg border border-[#2A2A30] bg-[#151518] px-4 py-2 text-sm font-medium text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#3A3A42] disabled:opacity-50 transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-4 py-2 text-sm font-medium text-text-muted hover:text-text-secondary hover:border-surface-highlight disabled:opacity-50 transition-colors"
           >
             {indexSeries.isPending ? (
               <Loader2 size={14} className="animate-spin" />
@@ -97,7 +97,7 @@ export default function ImagingStudyPage() {
               type="button"
               onClick={() => extractNlp.mutate(studyId)}
               disabled={extractNlp.isPending}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] disabled:opacity-50 transition-colors"
+              className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base hover:bg-success disabled:opacity-50 transition-colors"
             >
               {extractNlp.isPending ? (
                 <Loader2 size={14} className="animate-spin" />
@@ -111,19 +111,19 @@ export default function ImagingStudyPage() {
       </div>
 
       {indexSeries.isSuccess && (
-        <div className="rounded-lg border border-[#2DD4BF]/30 bg-[#2DD4BF]/10 px-4 py-3 text-sm text-[#2DD4BF]">
+        <div className="rounded-lg border border-success/30 bg-success/10 px-4 py-3 text-sm text-success">
           Indexed {(indexSeries.data as { indexed: number }).indexed} series.
         </div>
       )}
       {extractNlp.isSuccess && (
-        <div className="rounded-lg border border-[#2DD4BF]/30 bg-[#2DD4BF]/10 px-4 py-3 text-sm text-[#2DD4BF]">
+        <div className="rounded-lg border border-success/30 bg-success/10 px-4 py-3 text-sm text-success">
           Extracted {(extractNlp.data as { extracted: number }).extracted} findings,{" "}
           {(extractNlp.data as { mapped: number }).mapped} OMOP-mapped.
         </div>
       )}
 
       {/* Tab bar */}
-      <div className="flex gap-0 border-b border-[#232328]">
+      <div className="flex gap-0 border-b border-border-default">
         {STUDY_TABS.map((tab) => (
           <button
             key={tab.id}
@@ -131,8 +131,8 @@ export default function ImagingStudyPage() {
             onClick={() => setActiveTab(tab.id)}
             className={`inline-flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px ${
               activeTab === tab.id
-                ? "border-[#2DD4BF] text-[#2DD4BF]"
-                : "border-transparent text-[#5A5650] hover:text-[#8A857D]"
+                ? "border-success text-success"
+                : "border-transparent text-text-ghost hover:text-text-muted"
             }`}
           >
             <tab.icon size={14} />
@@ -155,11 +155,11 @@ export default function ImagingStudyPage() {
         />
       )}
       {activeTab === "viewer" && study.status !== "indexed" && (
-        <div className="rounded-lg border border-[#E85A6B]/30 bg-[#E85A6B]/10 px-4 py-8 text-center">
-          <p className="text-sm text-[#E85A6B]">
+        <div className="rounded-lg border border-critical/30 bg-critical/10 px-4 py-8 text-center">
+          <p className="text-sm text-critical">
             This study has no DICOM data in the PACS server (status: {study.status}).
           </p>
-          <p className="text-xs text-[#8A857D] mt-1">
+          <p className="text-xs text-text-muted mt-1">
             Only studies indexed from Orthanc can be viewed in OHIF.
           </p>
         </div>
@@ -168,13 +168,13 @@ export default function ImagingStudyPage() {
       {activeTab !== "viewer" && (
       <>
       {/* Metadata */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-        <h2 className="text-sm font-semibold text-[#F0EDE8] mb-4">Study Metadata</h2>
+      <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+        <h2 className="text-sm font-semibold text-text-primary mb-4">Study Metadata</h2>
         <dl className="grid grid-cols-2 gap-x-8 gap-y-2.5">
           {fields.map(({ label, value }) => (
             <div key={label} className="flex gap-3">
-              <dt className="text-[#5A5650] text-xs w-36 shrink-0 pt-0.5">{label}</dt>
-              <dd className="text-xs font-medium text-[#C5C0B8] break-all">{String(value)}</dd>
+              <dt className="text-text-ghost text-xs w-36 shrink-0 pt-0.5">{label}</dt>
+              <dd className="text-xs font-medium text-text-secondary break-all">{String(value)}</dd>
             </div>
           ))}
         </dl>
@@ -182,22 +182,22 @@ export default function ImagingStudyPage() {
 
       {/* Series */}
       {study.series && study.series.length > 0 && (
-        <div className="rounded-lg border border-[#232328] bg-[#151518]">
-          <div className="px-4 py-3 border-b border-[#232328] flex items-center gap-2">
-            <Layers size={14} className="text-[#60A5FA]" />
-            <h2 className="text-sm font-semibold text-[#F0EDE8]">
+        <div className="rounded-lg border border-border-default bg-surface-raised">
+          <div className="px-4 py-3 border-b border-border-default flex items-center gap-2">
+            <Layers size={14} className="text-info" />
+            <h2 className="text-sm font-semibold text-text-primary">
               Series ({study.series.length})
             </h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#232328]">
+                <tr className="border-b border-border-default">
                   {["#", "Modality", "Description", "Images", "Slice Thickness", "Manufacturer"].map(
                     (h) => (
                       <th
                         key={h}
-                        className="px-4 py-2.5 text-left text-[10px] font-medium text-[#5A5650] uppercase tracking-wider"
+                        className="px-4 py-2.5 text-left text-[10px] font-medium text-text-ghost uppercase tracking-wider"
                       >
                         {h}
                       </th>
@@ -207,17 +207,17 @@ export default function ImagingStudyPage() {
               </thead>
               <tbody className="divide-y divide-[#1E1E23]">
                 {study.series.map((s: ImagingSeries) => (
-                  <tr key={s.id} className="hover:bg-[#1A1A1F] transition-colors">
-                    <td className="px-4 py-3 text-[#8A857D] text-xs">{s.series_number ?? "—"}</td>
-                    <td className="px-4 py-3 text-xs font-semibold text-[#C5C0B8]">
+                  <tr key={s.id} className="hover:bg-surface-overlay transition-colors">
+                    <td className="px-4 py-3 text-text-muted text-xs">{s.series_number ?? "—"}</td>
+                    <td className="px-4 py-3 text-xs font-semibold text-text-secondary">
                       {s.modality ?? "—"}
                     </td>
-                    <td className="px-4 py-3 text-[#8A857D] text-xs">{s.series_description ?? "—"}</td>
-                    <td className="px-4 py-3 text-[#C5C0B8] text-xs">{s.num_images}</td>
-                    <td className="px-4 py-3 text-[#8A857D] text-xs">
+                    <td className="px-4 py-3 text-text-muted text-xs">{s.series_description ?? "—"}</td>
+                    <td className="px-4 py-3 text-text-secondary text-xs">{s.num_images}</td>
+                    <td className="px-4 py-3 text-text-muted text-xs">
                       {s.slice_thickness_mm !== null ? `${s.slice_thickness_mm} mm` : "—"}
                     </td>
-                    <td className="px-4 py-3 text-[#5A5650] text-xs">
+                    <td className="px-4 py-3 text-text-ghost text-xs">
                       {[s.manufacturer, s.manufacturer_model].filter(Boolean).join(" · ") || "—"}
                     </td>
                   </tr>
@@ -230,19 +230,19 @@ export default function ImagingStudyPage() {
 
       {/* Features */}
       {features && features.total > 0 && (
-        <div className="rounded-lg border border-[#232328] bg-[#151518]">
-          <div className="px-4 py-3 border-b border-[#232328] flex items-center gap-2">
-            <Brain size={14} className="text-[#A78BFA]" />
-            <h2 className="text-sm font-semibold text-[#F0EDE8]">AI Features ({features.total})</h2>
+        <div className="rounded-lg border border-border-default bg-surface-raised">
+          <div className="px-4 py-3 border-b border-border-default flex items-center gap-2">
+            <Brain size={14} className="text-[var(--domain-observation)]" />
+            <h2 className="text-sm font-semibold text-text-primary">AI Features ({features.total})</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#232328]">
+                <tr className="border-b border-border-default">
                   {["Finding", "Type", "Body Site", "Value", "Confidence", "OMOP"].map((h) => (
                     <th
                       key={h}
-                      className="px-4 py-2.5 text-left text-[10px] font-medium text-[#5A5650] uppercase tracking-wider"
+                      className="px-4 py-2.5 text-left text-[10px] font-medium text-text-ghost uppercase tracking-wider"
                     >
                       {h}
                     </th>
@@ -251,23 +251,23 @@ export default function ImagingStudyPage() {
               </thead>
               <tbody className="divide-y divide-[#1E1E23]">
                 {features.data.map((f: ImagingFeature) => (
-                  <tr key={f.id} className="hover:bg-[#1A1A1F] transition-colors">
-                    <td className="px-4 py-3 font-medium text-[#F0EDE8] text-xs">{f.feature_name}</td>
+                  <tr key={f.id} className="hover:bg-surface-overlay transition-colors">
+                    <td className="px-4 py-3 font-medium text-text-primary text-xs">{f.feature_name}</td>
                     <td className="px-4 py-3">
-                      <span className="inline-block rounded-full px-2 py-0.5 text-[10px] font-medium bg-[#232328] text-[#8A857D]">
+                      <span className="inline-block rounded-full px-2 py-0.5 text-[10px] font-medium bg-surface-elevated text-text-muted">
                         {f.feature_type}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-[#8A857D] text-xs">{f.body_site ?? "—"}</td>
-                    <td className="px-4 py-3 text-[#C5C0B8] text-xs">
+                    <td className="px-4 py-3 text-text-muted text-xs">{f.body_site ?? "—"}</td>
+                    <td className="px-4 py-3 text-text-secondary text-xs">
                       {f.value_as_number !== null
                         ? `${f.value_as_number} ${f.unit_source_value ?? ""}`
                         : f.value_as_string ?? "—"}
                     </td>
-                    <td className="px-4 py-3 text-xs text-[#8A857D]">
+                    <td className="px-4 py-3 text-xs text-text-muted">
                       {f.confidence !== null ? `${Math.round(f.confidence * 100)}%` : "—"}
                     </td>
-                    <td className="px-4 py-3 text-xs font-mono text-[#5A5650]">
+                    <td className="px-4 py-3 text-xs font-mono text-text-ghost">
                       {f.value_concept_id ?? "—"}
                     </td>
                   </tr>

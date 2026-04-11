@@ -33,9 +33,9 @@ function CustomTooltip({
   if (!active || !payload?.length) return null;
   const item = payload[0].payload;
   return (
-    <div className="max-w-xs rounded-lg border border-[#323238] bg-[#1A1A1E] px-3 py-2 shadow-lg">
-      <p className="text-sm font-medium text-[#F0EDE8]">{item.name}</p>
-      <p className="font-['IBM_Plex_Mono',monospace] text-xs text-[#2DD4BF]">
+    <div className="max-w-xs rounded-lg border border-surface-highlight bg-surface-overlay px-3 py-2 shadow-lg">
+      <p className="text-sm font-medium text-text-primary">{item.name}</p>
+      <p className="font-['IBM_Plex_Mono',monospace] text-xs text-success">
         {item.count.toLocaleString()} subjects
       </p>
     </div>
@@ -57,8 +57,8 @@ export function CohortSizeComparison({
   const chartHeight = Math.max(chartData.length * barHeight + 40, 120);
 
   return (
-    <div className="rounded-xl border border-[#232328] bg-[#151518] p-4">
-      <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
+    <div className="rounded-xl border border-border-default bg-surface-raised p-4">
+      <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-muted">
         Cohort Size Comparison
       </h4>
       <ResponsiveContainer width="100%" height={chartHeight}>
@@ -72,8 +72,8 @@ export function CohortSizeComparison({
             type="number"
             tickFormatter={formatCompact}
             tick={{ fill: "#d4d4d8", fontSize: 10 }}
-            axisLine={{ stroke: "#323238" }}
-            tickLine={{ stroke: "#323238" }}
+            axisLine={{ stroke: "var(--border-default)" }}
+            tickLine={{ stroke: "var(--border-default)" }}
           />
           <YAxis
             type="category"
@@ -91,15 +91,15 @@ export function CohortSizeComparison({
             {chartData.map((entry) => (
               <Cell
                 key={`cell-${entry.id}`}
-                fill={entry.id === primaryId ? "#C9A227" : "#2DD4BF"}
+                fill={entry.id === primaryId ? "var(--accent)" : "var(--success)"}
               />
             ))}
           </Bar>
         </BarChart>
       </ResponsiveContainer>
       {primaryId != null && (
-        <p className="mt-1 text-[10px] text-[#8A857D]">
-          <span className="inline-block w-2.5 h-2.5 rounded-sm bg-[#C9A227] mr-1 align-middle" />
+        <p className="mt-1 text-[10px] text-text-muted">
+          <span className="inline-block w-2.5 h-2.5 rounded-sm bg-accent mr-1 align-middle" />
           Gold = primary cohort
         </p>
       )}

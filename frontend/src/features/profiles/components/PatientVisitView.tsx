@@ -11,9 +11,9 @@ const DOMAIN_CONFIG: Record<
   ClinicalDomain,
   { label: string; color: string; plural: string }
 > = {
-  condition: { label: "Condition", plural: "Conditions", color: "#E85A6B" },
-  drug: { label: "Drug", plural: "Drugs", color: "#2DD4BF" },
-  procedure: { label: "Procedure", plural: "Procedures", color: "#C9A227" },
+  condition: { label: "Condition", plural: "Conditions", color: "var(--critical)" },
+  drug: { label: "Drug", plural: "Drugs", color: "var(--success)" },
+  procedure: { label: "Procedure", plural: "Procedures", color: "var(--accent)" },
   measurement: { label: "Measurement", plural: "Measurements", color: "#818CF8" },
   observation: { label: "Observation", plural: "Observations", color: "#94A3B8" },
   visit: { label: "Visit", plural: "Visits", color: "#F59E0B" },
@@ -68,7 +68,7 @@ function EventRow({ event }: { event: ClinicalEvent }) {
     (event.value_as_concept && event.value_as_concept !== "");
 
   return (
-    <div className="flex items-start gap-3 py-1.5 border-t border-[#1C1C20]">
+    <div className="flex items-start gap-3 py-1.5 border-t border-surface-overlay">
       <span
         className="mt-0.5 shrink-0 w-1.5 h-1.5 rounded-full"
         style={{ backgroundColor: cfg.color, marginTop: 5 }}
@@ -77,15 +77,15 @@ function EventRow({ event }: { event: ClinicalEvent }) {
         {event.concept_id ? (
           <Link
             to={`/vocabulary?concept=${event.concept_id}`}
-            className="text-xs text-[#F0EDE8] hover:text-[#C9A227] transition-colors"
+            className="text-xs text-text-primary hover:text-accent transition-colors"
           >
             {event.concept_name}
           </Link>
         ) : (
-          <span className="text-xs text-[#F0EDE8]">{event.concept_name}</span>
+          <span className="text-xs text-text-primary">{event.concept_name}</span>
         )}
         {showValue && (
-          <span className="ml-2 text-[10px] text-[#C9A227]">
+          <span className="ml-2 text-[10px] text-accent">
             {event.value != null ? String(event.value) : ""}
             {event.unit ? ` ${event.unit}` : ""}
             {event.value_as_concept && event.value_as_concept !== ""
@@ -94,12 +94,12 @@ function EventRow({ event }: { event: ClinicalEvent }) {
           </span>
         )}
         {event.route && (
-          <span className="ml-2 text-[10px] text-[#5A5650]">
+          <span className="ml-2 text-[10px] text-text-ghost">
             via {event.route}
           </span>
         )}
       </div>
-      <div className="text-[10px] text-[#5A5650] shrink-0">
+      <div className="text-[10px] text-text-ghost shrink-0">
         <span
           className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px]"
           style={{
@@ -141,11 +141,11 @@ function VisitCard({ visitGroup }: { visitGroup: VisitGroup }) {
   ];
 
   return (
-    <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+    <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
       <button
         type="button"
         onClick={() => setExpanded((p) => !p)}
-        className="w-full flex items-start gap-3 p-4 hover:bg-[#1A1A1E] transition-colors text-left"
+        className="w-full flex items-start gap-3 p-4 hover:bg-surface-overlay transition-colors text-left"
       >
         {/* Visit type icon */}
         <div
@@ -158,16 +158,16 @@ function VisitCard({ visitGroup }: { visitGroup: VisitGroup }) {
         <div className="flex-1 min-w-0">
           {/* Visit name + dates */}
           <div className="flex items-start justify-between gap-2">
-            <p className="text-sm font-semibold text-[#F0EDE8]">
+            <p className="text-sm font-semibold text-text-primary">
               {visit.concept_name}
             </p>
-            <span className="text-xs text-[#8A857D] shrink-0">
+            <span className="text-xs text-text-muted shrink-0">
               {formatDate(visit.start_date)}
               {visit.end_date && visit.end_date !== visit.start_date
                 ? ` – ${formatDate(visit.end_date)}`
                 : ""}
               {durationDays > 0 && (
-                <span className="ml-1 text-[10px] text-[#5A5650]">
+                <span className="ml-1 text-[10px] text-text-ghost">
                   ({durationDays}d)
                 </span>
               )}
@@ -188,7 +188,7 @@ function VisitCard({ visitGroup }: { visitGroup: VisitGroup }) {
                 ))}
             </div>
           ) : (
-            <p className="text-[11px] text-[#5A5650] mt-1">
+            <p className="text-[11px] text-text-ghost mt-1">
               No associated events
             </p>
           )}
@@ -196,7 +196,7 @@ function VisitCard({ visitGroup }: { visitGroup: VisitGroup }) {
 
         {/* Expand chevron */}
         {events.length > 0 && (
-          <span className="text-[#5A5650] shrink-0 mt-1">
+          <span className="text-text-ghost shrink-0 mt-1">
             {expanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
           </span>
         )}
@@ -204,7 +204,7 @@ function VisitCard({ visitGroup }: { visitGroup: VisitGroup }) {
 
       {/* Expanded event list */}
       {expanded && events.length > 0 && (
-        <div className="px-4 pb-3 border-t border-[#232328]">
+        <div className="px-4 pb-3 border-t border-border-default">
           {domainOrder
             .filter((d) => byDomain.has(d))
             .map((d) => {
@@ -270,10 +270,10 @@ export function PatientVisitView({ events }: PatientVisitViewProps) {
 
   if (visitGroups.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
-        <Hospital size={24} className="text-[#5A5650] mb-3" />
-        <p className="text-sm text-[#8A857D]">No visit data available</p>
-        <p className="text-xs text-[#5A5650] mt-1">
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
+        <Hospital size={24} className="text-text-ghost mb-3" />
+        <p className="text-sm text-text-muted">No visit data available</p>
+        <p className="text-xs text-text-ghost mt-1">
           Visit occurrences are required to use this view
         </p>
       </div>
@@ -284,7 +284,7 @@ export function PatientVisitView({ events }: PatientVisitViewProps) {
     <div className="space-y-3">
       {/* Visit count summary */}
       <div className="flex items-center justify-between px-1">
-        <span className="text-xs text-[#8A857D]">
+        <span className="text-xs text-text-muted">
           {visitGroups.length} visits ·{" "}
           {visitGroups.reduce((s, g) => s + g.events.length, 0)} associated events
           {unassociated.length > 0 && ` · ${unassociated.length} unassociated`}
@@ -298,23 +298,23 @@ export function PatientVisitView({ events }: PatientVisitViewProps) {
 
       {/* Unassociated events */}
       {unassociated.length > 0 && (
-        <div className="rounded-lg border border-dashed border-[#323238] bg-[#151518] overflow-hidden">
+        <div className="rounded-lg border border-dashed border-surface-highlight bg-surface-raised overflow-hidden">
           <button
             type="button"
             onClick={() => setShowUnassociated((p) => !p)}
-            className="w-full flex items-center justify-between px-4 py-3 hover:bg-[#1A1A1E] transition-colors"
+            className="w-full flex items-center justify-between px-4 py-3 hover:bg-surface-overlay transition-colors"
           >
-            <span className="text-xs text-[#8A857D]">
+            <span className="text-xs text-text-muted">
               {unassociated.length} events not associated with any visit
             </span>
             {showUnassociated ? (
-              <ChevronDown size={14} className="text-[#5A5650]" />
+              <ChevronDown size={14} className="text-text-ghost" />
             ) : (
-              <ChevronRight size={14} className="text-[#5A5650]" />
+              <ChevronRight size={14} className="text-text-ghost" />
             )}
           </button>
           {showUnassociated && (
-            <div className="px-4 pb-3 border-t border-[#232328]">
+            <div className="px-4 pb-3 border-t border-border-default">
               {unassociated.map((e, i) => (
                 <EventRow key={i} event={e} />
               ))}

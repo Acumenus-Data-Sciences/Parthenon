@@ -621,7 +621,7 @@ export function AbbyPanel() {
               zIndex: 10,
               display: "flex",
               flexDirection: "column",
-              background: "#0E0E11",
+              background: "var(--surface-base)",
             }}
           >
             {/* History header */}

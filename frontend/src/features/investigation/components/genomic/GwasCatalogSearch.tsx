@@ -49,7 +49,7 @@ export function GwasCatalogSearch({
       <div className="flex items-center gap-2">
         <span
           className="text-xs font-semibold uppercase tracking-wide"
-          style={{ color: "#2DD4BF" }}
+          style={{ color: "var(--success)" }}
         >
           GWAS Catalog
         </span>
@@ -90,7 +90,7 @@ export function GwasCatalogSearch({
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
             <div
               className="w-3.5 h-3.5 border-2 border-zinc-600 rounded-full animate-spin"
-              style={{ borderTopColor: "#2DD4BF" }}
+              style={{ borderTopColor: "var(--success)" }}
             />
           </div>
         )}
@@ -98,7 +98,7 @@ export function GwasCatalogSearch({
 
       {/* States */}
       {isError && (
-        <p className="text-xs text-[#9B1B30] px-1">
+        <p className="text-xs text-primary px-1">
           {error instanceof Error ? error.message : "Search failed. Please try again."}
         </p>
       )}

@@ -14,7 +14,7 @@ export default function CriteriaImpactChart({ impacts, baselinePassed, totalSour
   const maxImpact = Math.max(...impacts.map((i) => i.impact), 1);
 
   return (
-    <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
+    <div className="rounded-lg border border-[#252530] bg-surface-raised p-4">
       <h4 className="mb-1 text-sm font-medium text-white">Criteria Impact Analysis</h4>
       <p className="mb-3 text-[11px] text-[#666]">
         Shows how many additional sources would pass if each criterion were removed. Baseline: {baselinePassed}/{totalSources} passing.
@@ -23,7 +23,7 @@ export default function CriteriaImpactChart({ impacts, baselinePassed, totalSour
       <div className="space-y-2">
         {impacts.map((impact) => {
           const barWidth = maxImpact > 0 ? (impact.impact / maxImpact) * 100 : 0;
-          const color = impact.impact >= 3 ? "#9B1B30" : impact.impact >= 1 ? "#C9A227" : "#2DD4BF";
+          const color = impact.impact >= 3 ? "var(--primary)" : impact.impact >= 1 ? "var(--accent)" : "var(--success)";
 
           return (
             <div key={impact.criterion} className="flex items-center gap-3">

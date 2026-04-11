@@ -46,36 +46,36 @@ export function ConfigurationTab({
         <div className="space-y-4">
           {/* Target Cohorts */}
           <div>
-            <span className="text-xs text-[#8A857D]">Target Cohorts</span>
+            <span className="text-xs text-text-muted">Target Cohorts</span>
             <div className="mt-1 flex flex-wrap gap-2">
               {design_json.targetCohortIds.map((id) => (
                 <span
                   key={id}
-                  className="rounded-full bg-[#60A5FA]/10 px-2.5 py-0.5 text-xs font-medium text-[#60A5FA]"
+                  className="rounded-full bg-info/10 px-2.5 py-0.5 text-xs font-medium text-info"
                 >
                   Cohort {id}
                 </span>
               ))}
               {design_json.targetCohortIds.length === 0 && (
-                <span className="text-xs text-[#5A5650]">None selected</span>
+                <span className="text-xs text-text-ghost">None selected</span>
               )}
             </div>
           </div>
 
           {/* Selected Scores */}
           <div>
-            <span className="text-xs text-[#8A857D]">Selected Scores</span>
+            <span className="text-xs text-text-muted">Selected Scores</span>
             <div className="mt-1 flex flex-wrap gap-2">
               {design_json.scoreIds.map((id) => (
                 <span
                   key={id}
-                  className="rounded-full bg-[#2DD4BF]/10 px-2.5 py-0.5 text-xs font-medium text-[#2DD4BF]"
+                  className="rounded-full bg-success/10 px-2.5 py-0.5 text-xs font-medium text-success"
                 >
                   {id}
                 </span>
               ))}
               {design_json.scoreIds.length === 0 && (
-                <span className="text-xs text-[#5A5650]">None selected</span>
+                <span className="text-xs text-text-ghost">None selected</span>
               )}
             </div>
           </div>
@@ -84,19 +84,19 @@ export function ConfigurationTab({
           {(design_json.minCompleteness !== undefined ||
             design_json.storePatientLevel !== undefined) && (
             <div>
-              <span className="text-xs text-[#8A857D]">Parameters</span>
+              <span className="text-xs text-text-muted">Parameters</span>
               <div className="mt-1 space-y-1">
                 {design_json.minCompleteness !== undefined && (
-                  <div className="flex items-center gap-2 text-xs text-[#C5C0B8]">
-                    <span className="text-[#5A5650]">Min Completeness:</span>
+                  <div className="flex items-center gap-2 text-xs text-text-secondary">
+                    <span className="text-text-ghost">Min Completeness:</span>
                     <span className="font-['IBM_Plex_Mono',monospace]">
                       {design_json.minCompleteness}
                     </span>
                   </div>
                 )}
                 {design_json.storePatientLevel !== undefined && (
-                  <div className="flex items-center gap-2 text-xs text-[#C5C0B8]">
-                    <span className="text-[#5A5650]">
+                  <div className="flex items-center gap-2 text-xs text-text-secondary">
+                    <span className="text-text-ghost">
                       Store Patient Level:
                     </span>
                     <span className="font-['IBM_Plex_Mono',monospace]">
@@ -117,12 +117,12 @@ export function ConfigurationTab({
         </h3>
 
         {executions.length === 0 ? (
-          <p className="text-sm text-[#5A5650]">No executions yet</p>
+          <p className="text-sm text-text-ghost">No executions yet</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-[#2A2A2F] text-xs text-[#8A857D]">
+                <tr className="border-b border-[#2A2A2F] text-xs text-text-muted">
                   <th className="pb-2 pr-4 font-medium">#</th>
                   <th className="pb-2 pr-4 font-medium">Status</th>
                   <th className="pb-2 pr-4 font-medium">Started</th>
@@ -133,7 +133,7 @@ export function ConfigurationTab({
               <tbody>
                 {executions.map((execution, index) => {
                   const statusColor =
-                    ANALYSIS_STATUS_COLORS[execution.status] ?? "#8A857D";
+                    ANALYSIS_STATUS_COLORS[execution.status] ?? "var(--text-muted)";
                   const duration =
                     execution.started_at && execution.completed_at
                       ? formatDuration(
@@ -147,7 +147,7 @@ export function ConfigurationTab({
                       key={execution.id}
                       className="border-b border-[#2A2A2F]/50 last:border-b-0"
                     >
-                      <td className="py-2.5 pr-4 font-['IBM_Plex_Mono',monospace] text-xs text-[#5A5650]">
+                      <td className="py-2.5 pr-4 font-['IBM_Plex_Mono',monospace] text-xs text-text-ghost">
                         {index + 1}
                       </td>
                       <td className="py-2.5 pr-4">
@@ -161,14 +161,14 @@ export function ConfigurationTab({
                           {execution.status}
                         </span>
                       </td>
-                      <td className="py-2.5 pr-4 text-xs text-[#C5C0B8]">
+                      <td className="py-2.5 pr-4 text-xs text-text-secondary">
                         {formatDatetime(execution.created_at)}
                       </td>
-                      <td className="py-2.5 pr-4 font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
+                      <td className="py-2.5 pr-4 font-['IBM_Plex_Mono',monospace] text-xs text-text-secondary">
                         {duration}
                       </td>
                       <td className="py-2.5">
-                        <span className="text-xs text-[#5A5650]">
+                        <span className="text-xs text-text-ghost">
                           #{index + 1}
                         </span>
                       </td>
@@ -185,7 +185,7 @@ export function ConfigurationTab({
       <button
         type="button"
         onClick={onReRun}
-        className="flex items-center gap-2 rounded-lg bg-[#9B1B30] px-4 py-2 text-sm font-medium text-white hover:bg-[#B42240] transition-colors"
+        className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-[#B42240] transition-colors"
       >
         <RefreshCw className="h-4 w-4" />
         Re-run Analysis

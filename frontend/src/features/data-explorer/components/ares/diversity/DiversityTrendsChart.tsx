@@ -19,9 +19,9 @@ interface DiversityTrendsChartProps {
 }
 
 const DIMENSION_CONFIG: Record<DimensionKey, { label: string; color: string; dataKey: string }> = {
-  composite: { label: "Composite", color: "#C9A227", dataKey: "composite_index" },
-  gender: { label: "Gender", color: "#2DD4BF", dataKey: "gender_index" },
-  race: { label: "Race", color: "#9B1B30", dataKey: "race_index" },
+  composite: { label: "Composite", color: "var(--accent)", dataKey: "composite_index" },
+  gender: { label: "Gender", color: "var(--success)", dataKey: "gender_index" },
+  race: { label: "Race", color: "var(--primary)", dataKey: "race_index" },
   ethnicity: { label: "Ethnicity", color: "#6366F1", dataKey: "ethnicity_index" },
 };
 
@@ -30,7 +30,7 @@ export default function DiversityTrendsChart({ data, sourceName }: DiversityTren
 
   if (data.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[#323238] bg-[#151518] py-12">
+      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-surface-highlight bg-surface-raised py-12">
         <p className="text-sm text-[#666]">No release data available for diversity trends.</p>
       </div>
     );
@@ -43,7 +43,7 @@ export default function DiversityTrendsChart({ data, sourceName }: DiversityTren
   };
 
   return (
-    <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
+    <div className="rounded-lg border border-[#252530] bg-surface-raised p-4">
       <div className="mb-3 flex items-center justify-between">
         <div>
           <h3 className="text-sm font-medium text-white">Diversity Trends: {sourceName}</h3>

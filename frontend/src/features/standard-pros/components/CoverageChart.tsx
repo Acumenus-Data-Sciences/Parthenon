@@ -28,7 +28,7 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
       .map(([domain, count]) => ({
         domain,
         count,
-        fill: DOMAIN_COLORS[domain] ?? "#5A5650",
+        fill: DOMAIN_COLORS[domain] ?? "var(--text-ghost)",
       }));
   }, [instruments]);
 
@@ -52,8 +52,8 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
     const withLoinc = instruments.filter((i) => i.hasLoinc).length;
     const without = instruments.length - withLoinc;
     return [
-      { name: "Has LOINC", value: withLoinc, fill: "#2DD4BF" },
-      { name: "No LOINC", value: without, fill: "#5A5650" },
+      { name: "Has LOINC", value: withLoinc, fill: "var(--success)" },
+      { name: "No LOINC", value: without, fill: "var(--text-ghost)" },
     ];
   }, [instruments]);
 
@@ -62,7 +62,7 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
     const without = instruments.length - withSnomed;
     return [
       { name: "Has SNOMED", value: withSnomed, fill: "#F59E0B" },
-      { name: "No SNOMED", value: without, fill: "#5A5650" },
+      { name: "No SNOMED", value: without, fill: "var(--text-ghost)" },
     ];
   }, [instruments]);
 
@@ -70,8 +70,8 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
     const pub = instruments.filter((i) => i.license === "public").length;
     const prop = instruments.length - pub;
     return [
-      { name: "Public Domain", value: pub, fill: "#2DD4BF" },
-      { name: "Proprietary", value: prop, fill: "#C9A227" },
+      { name: "Public Domain", value: pub, fill: "var(--success)" },
+      { name: "Proprietary", value: prop, fill: "var(--accent)" },
     ];
   }, [instruments]);
 
@@ -79,7 +79,7 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Domain distribution */}
       <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-5">
-        <h3 className="text-sm font-medium text-[#F0EDE8] mb-4">
+        <h3 className="text-sm font-medium text-text-primary mb-4">
           Instruments by Clinical Domain
         </h3>
         <ResponsiveContainer width="100%" height={Math.max(320, domainData.length * 28)}>
@@ -90,14 +90,14 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
           >
             <XAxis
               type="number"
-              tick={{ fill: "#8A857D", fontSize: 11 }}
+              tick={{ fill: "var(--text-muted)", fontSize: 11 }}
               axisLine={{ stroke: "#2A2A2F" }}
               tickLine={false}
             />
             <YAxis
               type="category"
               dataKey="domain"
-              tick={{ fill: "#8A857D", fontSize: 10 }}
+              tick={{ fill: "var(--text-muted)", fontSize: 10 }}
               axisLine={false}
               tickLine={false}
               width={120}
@@ -109,7 +109,7 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
                 borderRadius: 8,
                 fontSize: 12,
               }}
-              labelStyle={{ color: "#F0EDE8" }}
+              labelStyle={{ color: "var(--text-primary)" }}
               formatter={
                 ((value: number) => [
                   `${value} instrument${value !== 1 ? "s" : ""}`,
@@ -130,7 +130,7 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
       <div className="space-y-4">
         {/* OMOP Coverage */}
         <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-5">
-          <h3 className="text-sm font-medium text-[#F0EDE8] mb-3">
+          <h3 className="text-sm font-medium text-text-primary mb-3">
             OMOP Concept Coverage
           </h3>
           <div className="flex items-center gap-6">
@@ -161,9 +161,9 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
                       className="w-2.5 h-2.5 rounded-full"
                       style={{ backgroundColor: entry.fill }}
                     />
-                    <span className="text-[#C5C0B8]">{entry.name}</span>
+                    <span className="text-text-secondary">{entry.name}</span>
                   </div>
-                  <span className="font-['IBM_Plex_Mono',monospace] text-[#F0EDE8]">
+                  <span className="font-['IBM_Plex_Mono',monospace] text-text-primary">
                     {entry.value}
                   </span>
                 </div>
@@ -174,7 +174,7 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
 
         {/* LOINC Coverage */}
         <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-5">
-          <h3 className="text-sm font-medium text-[#F0EDE8] mb-3">
+          <h3 className="text-sm font-medium text-text-primary mb-3">
             LOINC Code Availability
           </h3>
           <div className="flex items-center gap-6">
@@ -205,9 +205,9 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
                       className="w-2.5 h-2.5 rounded-full"
                       style={{ backgroundColor: entry.fill }}
                     />
-                    <span className="text-[#C5C0B8]">{entry.name}</span>
+                    <span className="text-text-secondary">{entry.name}</span>
                   </div>
-                  <span className="font-['IBM_Plex_Mono',monospace] text-[#F0EDE8]">
+                  <span className="font-['IBM_Plex_Mono',monospace] text-text-primary">
                     {entry.value}
                   </span>
                 </div>
@@ -218,7 +218,7 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
 
         {/* SNOMED Coverage */}
         <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-5">
-          <h3 className="text-sm font-medium text-[#F0EDE8] mb-3">
+          <h3 className="text-sm font-medium text-text-primary mb-3">
             SNOMED CT Coverage
           </h3>
           <div className="flex items-center gap-6">
@@ -249,9 +249,9 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
                       className="w-2.5 h-2.5 rounded-full"
                       style={{ backgroundColor: entry.fill }}
                     />
-                    <span className="text-[#C5C0B8]">{entry.name}</span>
+                    <span className="text-text-secondary">{entry.name}</span>
                   </div>
-                  <span className="font-['IBM_Plex_Mono',monospace] text-[#F0EDE8]">
+                  <span className="font-['IBM_Plex_Mono',monospace] text-text-primary">
                     {entry.value}
                   </span>
                 </div>
@@ -262,7 +262,7 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
 
         {/* License breakdown */}
         <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-5">
-          <h3 className="text-sm font-medium text-[#F0EDE8] mb-3">
+          <h3 className="text-sm font-medium text-text-primary mb-3">
             License Distribution
           </h3>
           <div className="flex items-center gap-6">
@@ -293,9 +293,9 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
                       className="w-2.5 h-2.5 rounded-full"
                       style={{ backgroundColor: entry.fill }}
                     />
-                    <span className="text-[#C5C0B8]">{entry.name}</span>
+                    <span className="text-text-secondary">{entry.name}</span>
                   </div>
-                  <span className="font-['IBM_Plex_Mono',monospace] text-[#F0EDE8]">
+                  <span className="font-['IBM_Plex_Mono',monospace] text-text-primary">
                     {entry.value}
                   </span>
                 </div>

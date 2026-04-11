@@ -19,7 +19,7 @@ export function HelpButton({ helpKey, className }: HelpButtonProps) {
         title="Help"
         className={
           className ??
-          "flex h-7 w-7 items-center justify-center rounded-md text-[#5A5650] hover:text-[#8A857D] hover:bg-[#1E1E24] transition-colors"
+          "flex h-7 w-7 items-center justify-center rounded-md text-text-ghost hover:text-text-muted hover:bg-border-subtle transition-colors"
         }
       >
         <HelpCircle size={16} />

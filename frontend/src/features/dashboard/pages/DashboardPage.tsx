@@ -33,16 +33,16 @@ import { HelpButton } from "@/features/help";
 
 // Domain table → display config
 const DOMAIN_CONFIG: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
-  condition_occurrence: { label: "Conditions", icon: <HeartPulse size={14} />, color: "#E85A6B" },
-  drug_exposure: { label: "Drug Exposures", icon: <Pill size={14} />, color: "#60A5FA" },
-  procedure_occurrence: { label: "Procedures", icon: <Syringe size={14} />, color: "#C9A227" },
-  measurement: { label: "Measurements", icon: <Microscope size={14} />, color: "#2DD4BF" },
-  observation: { label: "Observations", icon: <Eye size={14} />, color: "#A78BFA" },
+  condition_occurrence: { label: "Conditions", icon: <HeartPulse size={14} />, color: "var(--critical)" },
+  drug_exposure: { label: "Drug Exposures", icon: <Pill size={14} />, color: "var(--info)" },
+  procedure_occurrence: { label: "Procedures", icon: <Syringe size={14} />, color: "var(--accent)" },
+  measurement: { label: "Measurements", icon: <Microscope size={14} />, color: "var(--success)" },
+  observation: { label: "Observations", icon: <Eye size={14} />, color: "var(--domain-observation)" },
   visit_occurrence: { label: "Visits", icon: <CalendarDays size={14} />, color: "#F97316" },
   drug_era: { label: "Drug Eras", icon: <Pill size={14} />, color: "#38BDF8" },
   condition_era: { label: "Condition Eras", icon: <HeartPulse size={14} />, color: "#FB7185" },
   device_exposure: { label: "Devices", icon: <Stethoscope size={14} />, color: "#4ADE80" },
-  death: { label: "Deaths", icon: <Skull size={14} />, color: "#8A857D" },
+  death: { label: "Deaths", icon: <Skull size={14} />, color: "var(--text-muted)" },
 };
 
 export function DashboardPage() {
@@ -78,7 +78,7 @@ export function DashboardPage() {
   const genderSegments = demographics?.gender.map((g) => ({
     label: g.concept_name,
     value: g.count,
-    color: GENDER_COLORS[g.concept_name] ?? "#8A857D",
+    color: GENDER_COLORS[g.concept_name] ?? "var(--text-muted)",
   })) ?? [];
 
   // Domain counts for the CDM breakdown panel
@@ -196,7 +196,7 @@ export function DashboardPage() {
                   label="Persons"
                   value={formatCompact(personCount)}
                   sparkline={sparklineValues}
-                  sparkColor="#2DD4BF"
+                  sparkColor="var(--success)"
                   onClick={() => navigate(`/data-explorer/${sourceId}`)}
                 />
                 <CdmMetricCard

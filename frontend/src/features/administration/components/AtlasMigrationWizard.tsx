@@ -96,9 +96,9 @@ function StepIndicator({ currentStep }: { currentStep: number }) {
               <div
                 className={cn(
                   "flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold transition-all shrink-0",
-                  isCompleted && "bg-[#C9A227] text-[#0E0E11]",
-                  isActive && "border-2 border-[#C9A227] bg-[#C9A227]/10 text-[#C9A227]",
-                  isPending && "border-2 border-[#323238] text-[#5A5650] bg-transparent",
+                  isCompleted && "bg-accent text-surface-base",
+                  isActive && "border-2 border-accent bg-accent/10 text-accent",
+                  isPending && "border-2 border-surface-highlight text-text-ghost bg-transparent",
                 )}
               >
                 {isCompleted ? <Check size={14} strokeWidth={3} /> : index + 1}
@@ -106,9 +106,9 @@ function StepIndicator({ currentStep }: { currentStep: number }) {
               <span
                 className={cn(
                   "text-xs font-medium whitespace-nowrap",
-                  isCompleted && "text-[#C9A227]",
-                  isActive && "text-[#F0EDE8]",
-                  isPending && "text-[#5A5650]",
+                  isCompleted && "text-accent",
+                  isActive && "text-text-primary",
+                  isPending && "text-text-ghost",
                 )}
               >
                 {s.label}
@@ -120,7 +120,7 @@ function StepIndicator({ currentStep }: { currentStep: number }) {
                 <div
                   className={cn(
                     "h-[2px] w-full rounded-full",
-                    isCompleted ? "bg-[#C9A227]" : "bg-[#323238]",
+                    isCompleted ? "bg-accent" : "bg-surface-highlight",
                   )}
                 />
               </div>
@@ -148,14 +148,14 @@ function ConnectStep({
   testing: boolean;
 }) {
   const inputCls =
-    "w-full px-3 py-2.5 text-sm bg-[#0E0E11] border border-[#232328] rounded-lg text-[#F0EDE8] placeholder-[#5A5650] focus:outline-none focus:border-[#C9A227]/50 focus:ring-1 focus:ring-[#C9A227]/30";
-  const labelCls = "block text-xs font-medium text-[#8A857D] mb-1.5";
+    "w-full px-3 py-2.5 text-sm bg-surface-base border border-border-default rounded-lg text-text-primary placeholder-text-ghost focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/30";
+  const labelCls = "block text-xs font-medium text-text-muted mb-1.5";
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-[#F0EDE8]">Connect to Atlas WebAPI</h2>
-        <p className="mt-1 text-sm text-[#8A857D]">
+        <h2 className="text-xl font-bold text-text-primary">Connect to Atlas WebAPI</h2>
+        <p className="mt-1 text-sm text-text-muted">
           Enter the base URL of your existing OHDSI WebAPI instance. Parthenon will connect and
           inventory all available entities for migration.
         </p>
@@ -165,7 +165,7 @@ function ConnectStep({
         <div>
           <label className={labelCls}>WebAPI Base URL</label>
           <div className="relative">
-            <Globe size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]" />
+            <Globe size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost" />
             <input
               className={`${inputCls} pl-9`}
               type="url"
@@ -194,7 +194,7 @@ function ConnectStep({
           <div>
             <label className={labelCls}>Credentials (username:password)</label>
             <div className="relative">
-              <Shield size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]" />
+              <Shield size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost" />
               <input
                 className={`${inputCls} pl-9`}
                 type="password"
@@ -210,7 +210,7 @@ function ConnectStep({
           <div>
             <label className={labelCls}>Bearer Token</label>
             <div className="relative">
-              <Shield size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]" />
+              <Shield size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost" />
               <input
                 className={`${inputCls} pl-9`}
                 type="password"
@@ -226,7 +226,7 @@ function ConnectStep({
           type="button"
           onClick={onTest}
           disabled={testing || !config.webapi_url}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#C9A227] px-5 py-2.5 text-sm font-semibold text-[#0E0E11] hover:bg-[#D4AE3A] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-surface-base hover:bg-[#D4AE3A] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {testing ? <Loader2 size={14} className="animate-spin" /> : <Globe size={14} />}
           Test Connection
@@ -237,8 +237,8 @@ function ConnectStep({
             className={cn(
               "flex items-start gap-3 rounded-lg border px-4 py-3 text-sm",
               testResult.success
-                ? "border-[#2DD4BF]/20 bg-[#2DD4BF]/5 text-[#2DD4BF]"
-                : "border-[#E85A6B]/20 bg-[#E85A6B]/5 text-[#E85A6B]",
+                ? "border-success/20 bg-success/5 text-success"
+                : "border-critical/20 bg-critical/5 text-critical",
             )}
           >
             {testResult.success ? <CheckCircle2 size={18} className="mt-0.5 shrink-0" /> : <XCircle size={18} className="mt-0.5 shrink-0" />}
@@ -269,10 +269,10 @@ function DiscoverStep({
   if (discovering) {
     return (
       <div className="flex flex-col items-center justify-center py-16 gap-4">
-        <Loader2 size={32} className="animate-spin text-[#C9A227]" />
+        <Loader2 size={32} className="animate-spin text-accent" />
         <div className="text-center">
-          <p className="text-base font-semibold text-[#F0EDE8]">Discovering entities...</p>
-          <p className="mt-1 text-sm text-[#5A5650]">Querying all WebAPI endpoints in parallel</p>
+          <p className="text-base font-semibold text-text-primary">Discovering entities...</p>
+          <p className="mt-1 text-sm text-text-ghost">Querying all WebAPI endpoints in parallel</p>
         </div>
       </div>
     );
@@ -280,7 +280,7 @@ function DiscoverStep({
 
   if (error) {
     return (
-      <div className="flex items-center gap-3 rounded-lg border border-[#E85A6B]/20 bg-[#E85A6B]/5 px-4 py-3 text-sm text-[#E85A6B]">
+      <div className="flex items-center gap-3 rounded-lg border border-critical/20 bg-critical/5 px-4 py-3 text-sm text-critical">
         <XCircle size={18} /> {error}
       </div>
     );
@@ -295,9 +295,9 @@ function DiscoverStep({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-[#F0EDE8]">Atlas Inventory</h2>
-        <p className="mt-1 text-sm text-[#8A857D]">
-          Found <span className="font-semibold text-[#C9A227]">{totalCount}</span> migratable entities
+        <h2 className="text-xl font-bold text-text-primary">Atlas Inventory</h2>
+        <p className="mt-1 text-sm text-text-muted">
+          Found <span className="font-semibold text-accent">{totalCount}</span> migratable entities
           across {ENTITY_TYPES.filter((et) => (discovery[et.key]?.count ?? 0) > 0).length} categories.
           {discovery.sources?.count > 0 && (
             <> Also found {discovery.sources.count} data source(s).</>
@@ -312,8 +312,8 @@ function DiscoverStep({
           return (
             <Panel key={et.key} className={cn("text-center py-5", count === 0 && "opacity-40")}>
               <Icon size={24} className={cn("mx-auto mb-2", et.color)} />
-              <p className="text-2xl font-bold text-[#F0EDE8]">{count}</p>
-              <p className="text-xs text-[#8A857D] mt-1">{et.label}</p>
+              <p className="text-2xl font-bold text-text-primary">{count}</p>
+              <p className="text-xs text-text-muted mt-1">{et.label}</p>
             </Panel>
           );
         })}
@@ -363,23 +363,23 @@ function SelectStep({
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-[#F0EDE8]">Select Entities to Migrate</h2>
-          <p className="mt-1 text-sm text-[#8A857D]">
+          <h2 className="text-xl font-bold text-text-primary">Select Entities to Migrate</h2>
+          <p className="mt-1 text-sm text-text-muted">
             Choose which entities to import. Dependencies are resolved automatically.
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button type="button" onClick={selectAll} className="px-3 py-1.5 text-xs font-medium text-[#C9A227] hover:bg-[#C9A227]/10 rounded-md transition-colors">
+          <button type="button" onClick={selectAll} className="px-3 py-1.5 text-xs font-medium text-accent hover:bg-accent/10 rounded-md transition-colors">
             Select All
           </button>
-          <button type="button" onClick={() => setSelected({ ...EMPTY_SELECTION })} className="px-3 py-1.5 text-xs font-medium text-[#5A5650] hover:text-[#8A857D] rounded-md transition-colors">
+          <button type="button" onClick={() => setSelected({ ...EMPTY_SELECTION })} className="px-3 py-1.5 text-xs font-medium text-text-ghost hover:text-text-muted rounded-md transition-colors">
             Deselect All
           </button>
         </div>
       </div>
 
       {(selected.estimations.length > 0 || selected.predictions.length > 0 || selected.characterizations.length > 0 || selected.incidence_rates.length > 0 || selected.pathways.length > 0) && (
-        <div className="flex items-start gap-2 rounded-lg border border-[#C9A227]/20 bg-[#C9A227]/5 px-4 py-3 text-xs text-[#C9A227]">
+        <div className="flex items-start gap-2 rounded-lg border border-accent/20 bg-accent/5 px-4 py-3 text-xs text-accent">
           <AlertCircle size={14} className="mt-0.5 shrink-0" />
           <p>
             Analysis entities may reference cohort definitions and concept sets by ID.
@@ -408,8 +408,8 @@ function SelectStep({
               >
                 <div className="flex items-center gap-3">
                   <Icon size={18} className={et.color} />
-                  <span className="text-sm font-semibold text-[#F0EDE8]">{et.label}</span>
-                  <span className="text-xs text-[#5A5650]">{selectedCount}/{items.length} selected</span>
+                  <span className="text-sm font-semibold text-text-primary">{et.label}</span>
+                  <span className="text-xs text-text-ghost">{selectedCount}/{items.length} selected</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -417,12 +417,12 @@ function SelectStep({
                     onClick={(e) => { e.stopPropagation(); toggleAll(et.key, items); }}
                     className={cn(
                       "px-2 py-1 text-[10px] font-medium rounded transition-colors",
-                      allSelected ? "bg-[#C9A227]/15 text-[#C9A227]" : "bg-[#232328] text-[#8A857D] hover:text-[#C5C0B8]",
+                      allSelected ? "bg-accent/15 text-accent" : "bg-surface-elevated text-text-muted hover:text-text-secondary",
                     )}
                   >
                     {allSelected ? "Deselect All" : "Select All"}
                   </button>
-                  {isExpanded ? <ChevronDown size={14} className="text-[#5A5650]" /> : <ChevronRight size={14} className="text-[#5A5650]" />}
+                  {isExpanded ? <ChevronDown size={14} className="text-text-ghost" /> : <ChevronRight size={14} className="text-text-ghost" />}
                 </div>
               </button>
 
@@ -434,10 +434,10 @@ function SelectStep({
                         type="checkbox"
                         checked={selected[et.key].includes(item.id)}
                         onChange={() => toggleOne(et.key, item.id)}
-                        className="accent-[#C9A227] w-3.5 h-3.5"
+                        className="accent-accent w-3.5 h-3.5"
                       />
-                      <span className="text-sm text-[#C5C0B8] truncate flex-1">{item.name}</span>
-                      <span className="text-[10px] text-[#5A5650] font-mono shrink-0">#{item.id}</span>
+                      <span className="text-sm text-text-secondary truncate flex-1">{item.name}</span>
+                      <span className="text-[10px] text-text-ghost font-mono shrink-0">#{item.id}</span>
                     </label>
                   ))}
                 </div>
@@ -447,8 +447,8 @@ function SelectStep({
         })}
       </div>
 
-      <div className="text-sm text-[#8A857D]">
-        <span className="font-semibold text-[#C9A227]">{totalSelected}</span> entities selected for migration
+      <div className="text-sm text-text-muted">
+        <span className="font-semibold text-accent">{totalSelected}</span> entities selected for migration
       </div>
     </div>
   );
@@ -460,8 +460,8 @@ function ImportStep({ migration }: { migration: AtlasMigration | null }) {
   if (!migration) {
     return (
       <div className="flex flex-col items-center justify-center py-16 gap-4">
-        <Loader2 size={32} className="animate-spin text-[#C9A227]" />
-        <p className="text-base font-semibold text-[#F0EDE8]">Starting migration...</p>
+        <Loader2 size={32} className="animate-spin text-accent" />
+        <p className="text-base font-semibold text-text-primary">Starting migration...</p>
       </div>
     );
   }
@@ -474,10 +474,10 @@ function ImportStep({ migration }: { migration: AtlasMigration | null }) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-bold text-[#F0EDE8]">
+        <h2 className="text-xl font-bold text-text-primary">
           {isRunning ? "Importing Entities..." : migration.status === "completed" ? "Migration Complete" : "Migration Failed"}
         </h2>
-        <p className="mt-1 text-sm text-[#8A857D]">
+        <p className="mt-1 text-sm text-text-muted">
           {isRunning && migration.current_step ? migration.current_step
             : migration.status === "completed" ? "All selected entities have been processed."
               : migration.error_message ?? "An error occurred during migration."}
@@ -485,13 +485,13 @@ function ImportStep({ migration }: { migration: AtlasMigration | null }) {
       </div>
 
       <div>
-        <div className="flex items-center justify-between text-xs text-[#8A857D] mb-1.5">
+        <div className="flex items-center justify-between text-xs text-text-muted mb-1.5">
           <span>{progress}% complete</span>
           <span>{migration.imported_entities + migration.skipped_entities + migration.failed_entities} / {migration.total_entities}</span>
         </div>
-        <div className="h-2.5 w-full rounded-full bg-[#232328] overflow-hidden">
+        <div className="h-2.5 w-full rounded-full bg-surface-elevated overflow-hidden">
           <div
-            className={cn("h-full rounded-full transition-all duration-500", migration.status === "failed" ? "bg-[#E85A6B]" : "bg-[#C9A227]")}
+            className={cn("h-full rounded-full transition-all duration-500", migration.status === "failed" ? "bg-critical" : "bg-accent")}
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -499,22 +499,22 @@ function ImportStep({ migration }: { migration: AtlasMigration | null }) {
 
       <div className="grid grid-cols-3 gap-3">
         <Panel className="text-center py-3">
-          <p className="text-lg font-bold text-[#2DD4BF]">{migration.imported_entities}</p>
-          <p className="text-[10px] text-[#8A857D] uppercase tracking-wider">Imported</p>
+          <p className="text-lg font-bold text-success">{migration.imported_entities}</p>
+          <p className="text-[10px] text-text-muted uppercase tracking-wider">Imported</p>
         </Panel>
         <Panel className="text-center py-3">
-          <p className="text-lg font-bold text-[#C9A227]">{migration.skipped_entities}</p>
-          <p className="text-[10px] text-[#8A857D] uppercase tracking-wider">Skipped</p>
+          <p className="text-lg font-bold text-accent">{migration.skipped_entities}</p>
+          <p className="text-[10px] text-text-muted uppercase tracking-wider">Skipped</p>
         </Panel>
         <Panel className="text-center py-3">
-          <p className="text-lg font-bold text-[#E85A6B]">{migration.failed_entities}</p>
-          <p className="text-[10px] text-[#8A857D] uppercase tracking-wider">Failed</p>
+          <p className="text-lg font-bold text-critical">{migration.failed_entities}</p>
+          <p className="text-[10px] text-text-muted uppercase tracking-wider">Failed</p>
         </Panel>
       </div>
 
       {migration.mapping_summary && Object.keys(migration.mapping_summary).length > 0 && (
-        <div className="rounded-lg border border-[#232328] overflow-hidden">
-          <div className="px-3 py-2 bg-[#1E1E23]/50 text-[10px] font-medium text-[#5A5650] uppercase tracking-wider grid grid-cols-5 gap-2">
+        <div className="rounded-lg border border-border-default overflow-hidden">
+          <div className="px-3 py-2 bg-[#1E1E23]/50 text-[10px] font-medium text-text-ghost uppercase tracking-wider grid grid-cols-5 gap-2">
             <span className="col-span-2">Entity Type</span>
             <span className="text-center">Imported</span>
             <span className="text-center">Skipped</span>
@@ -522,24 +522,24 @@ function ImportStep({ migration }: { migration: AtlasMigration | null }) {
           </div>
           {Object.entries(migration.mapping_summary).map(([type, stats]) => (
             <div key={type} className="px-3 py-2 border-t border-[#1E1E23] grid grid-cols-5 gap-2 text-xs">
-              <span className="col-span-2 text-[#C5C0B8] capitalize">{type.replace(/_/g, " ")}</span>
-              <span className="text-center text-[#2DD4BF]">{stats.imported}</span>
-              <span className="text-center text-[#C9A227]">{stats.skipped}</span>
-              <span className={cn("text-center", stats.failed > 0 ? "text-[#E85A6B]" : "text-[#5A5650]")}>{stats.failed}</span>
+              <span className="col-span-2 text-text-secondary capitalize">{type.replace(/_/g, " ")}</span>
+              <span className="text-center text-success">{stats.imported}</span>
+              <span className="text-center text-accent">{stats.skipped}</span>
+              <span className={cn("text-center", stats.failed > 0 ? "text-critical" : "text-text-ghost")}>{stats.failed}</span>
             </div>
           ))}
         </div>
       )}
 
       {migration.error_message && (
-        <div className="flex items-start gap-2 rounded-lg border border-[#E85A6B]/20 bg-[#E85A6B]/5 px-4 py-3 text-sm text-[#E85A6B]">
+        <div className="flex items-start gap-2 rounded-lg border border-critical/20 bg-critical/5 px-4 py-3 text-sm text-critical">
           <XCircle size={16} className="mt-0.5 shrink-0" />
           <p>{migration.error_message}</p>
         </div>
       )}
 
       {isRunning && (
-        <div className="flex items-center justify-center gap-2 text-xs text-[#5A5650]">
+        <div className="flex items-center justify-center gap-2 text-xs text-text-ghost">
           <Loader2 size={12} className="animate-spin" /> Polling for updates...
         </div>
       )}
@@ -565,52 +565,52 @@ function SummaryStep({
       <div className="text-center py-4">
         {migration.status === "completed" && migration.failed_entities === 0 ? (
           <>
-            <CheckCircle2 size={48} className="mx-auto text-[#2DD4BF] mb-3" />
-            <h2 className="text-xl font-bold text-[#F0EDE8]">Migration Successful</h2>
+            <CheckCircle2 size={48} className="mx-auto text-success mb-3" />
+            <h2 className="text-xl font-bold text-text-primary">Migration Successful</h2>
           </>
         ) : migration.status === "completed" ? (
           <>
-            <AlertCircle size={48} className="mx-auto text-[#C9A227] mb-3" />
-            <h2 className="text-xl font-bold text-[#F0EDE8]">Migration Completed with Warnings</h2>
+            <AlertCircle size={48} className="mx-auto text-accent mb-3" />
+            <h2 className="text-xl font-bold text-text-primary">Migration Completed with Warnings</h2>
           </>
         ) : (
           <>
-            <XCircle size={48} className="mx-auto text-[#E85A6B] mb-3" />
-            <h2 className="text-xl font-bold text-[#F0EDE8]">Migration Failed</h2>
+            <XCircle size={48} className="mx-auto text-critical mb-3" />
+            <h2 className="text-xl font-bold text-text-primary">Migration Failed</h2>
           </>
         )}
-        <p className="mt-2 text-sm text-[#8A857D]">
-          From <span className="font-mono text-[#C5C0B8]">{migration.webapi_url}</span>
+        <p className="mt-2 text-sm text-text-muted">
+          From <span className="font-mono text-text-secondary">{migration.webapi_url}</span>
         </p>
       </div>
 
       <div className="grid grid-cols-4 gap-3">
         <Panel className="text-center py-4">
-          <p className="text-2xl font-bold text-[#F0EDE8]">{migration.total_entities}</p>
-          <p className="text-[10px] text-[#8A857D] uppercase tracking-wider mt-1">Total</p>
+          <p className="text-2xl font-bold text-text-primary">{migration.total_entities}</p>
+          <p className="text-[10px] text-text-muted uppercase tracking-wider mt-1">Total</p>
         </Panel>
         <Panel className="text-center py-4">
-          <p className="text-2xl font-bold text-[#2DD4BF]">{migration.imported_entities}</p>
-          <p className="text-[10px] text-[#8A857D] uppercase tracking-wider mt-1">Imported</p>
+          <p className="text-2xl font-bold text-success">{migration.imported_entities}</p>
+          <p className="text-[10px] text-text-muted uppercase tracking-wider mt-1">Imported</p>
         </Panel>
         <Panel className="text-center py-4">
-          <p className="text-2xl font-bold text-[#C9A227]">{migration.skipped_entities}</p>
-          <p className="text-[10px] text-[#8A857D] uppercase tracking-wider mt-1">Skipped</p>
+          <p className="text-2xl font-bold text-accent">{migration.skipped_entities}</p>
+          <p className="text-[10px] text-text-muted uppercase tracking-wider mt-1">Skipped</p>
         </Panel>
         <Panel className="text-center py-4">
-          <p className="text-2xl font-bold text-[#E85A6B]">{migration.failed_entities}</p>
-          <p className="text-[10px] text-[#8A857D] uppercase tracking-wider mt-1">Failed</p>
+          <p className="text-2xl font-bold text-critical">{migration.failed_entities}</p>
+          <p className="text-[10px] text-text-muted uppercase tracking-wider mt-1">Failed</p>
         </Panel>
       </div>
 
-      <div className="flex items-center justify-center gap-2 text-xs text-[#5A5650]">
+      <div className="flex items-center justify-center gap-2 text-xs text-text-ghost">
         <Clock size={12} />
         Duration: {formatDuration(migration.started_at, migration.completed_at)}
       </div>
 
       {migration.import_results && (
-        <div className="rounded-lg border border-[#232328] overflow-hidden">
-          <div className="px-3 py-2 bg-[#1E1E23]/50 text-[10px] font-medium text-[#5A5650] uppercase tracking-wider grid grid-cols-5 gap-2">
+        <div className="rounded-lg border border-border-default overflow-hidden">
+          <div className="px-3 py-2 bg-[#1E1E23]/50 text-[10px] font-medium text-text-ghost uppercase tracking-wider grid grid-cols-5 gap-2">
             <span className="col-span-2">Category</span>
             <span className="text-center">Imported</span>
             <span className="text-center">Skipped</span>
@@ -618,17 +618,17 @@ function SummaryStep({
           </div>
           {Object.entries(migration.import_results).map(([type, stats]) => (
             <div key={type} className="px-3 py-2 border-t border-[#1E1E23] grid grid-cols-5 gap-2 text-xs">
-              <span className="col-span-2 text-[#C5C0B8] capitalize">{type.replace(/_/g, " ")}</span>
-              <span className="text-center text-[#2DD4BF]">{stats.imported}</span>
-              <span className="text-center text-[#C9A227]">{stats.skipped}</span>
-              <span className={cn("text-center", stats.failed > 0 ? "text-[#E85A6B]" : "text-[#5A5650]")}>{stats.failed}</span>
+              <span className="col-span-2 text-text-secondary capitalize">{type.replace(/_/g, " ")}</span>
+              <span className="text-center text-success">{stats.imported}</span>
+              <span className="text-center text-accent">{stats.skipped}</span>
+              <span className={cn("text-center", stats.failed > 0 ? "text-critical" : "text-text-ghost")}>{stats.failed}</span>
             </div>
           ))}
         </div>
       )}
 
       {migration.error_message && (
-        <div className="flex items-start gap-2 rounded-lg border border-[#E85A6B]/20 bg-[#E85A6B]/5 px-4 py-3 text-sm text-[#E85A6B]">
+        <div className="flex items-start gap-2 rounded-lg border border-critical/20 bg-critical/5 px-4 py-3 text-sm text-critical">
           <XCircle size={16} className="mt-0.5 shrink-0" />
           <p>{migration.error_message}</p>
         </div>
@@ -640,7 +640,7 @@ function SummaryStep({
             type="button"
             onClick={onRetry}
             disabled={retrying}
-            className="inline-flex items-center gap-2 rounded-lg border border-[#C9A227]/30 px-4 py-2.5 text-sm font-medium text-[#C9A227] hover:bg-[#C9A227]/10 transition-colors disabled:opacity-40"
+            className="inline-flex items-center gap-2 rounded-lg border border-accent/30 px-4 py-2.5 text-sm font-medium text-accent hover:bg-accent/10 transition-colors disabled:opacity-40"
           >
             {retrying ? <Loader2 size={14} className="animate-spin" /> : <ArrowRight size={14} />}
             Retry Failed ({migration.failed_entities})
@@ -649,7 +649,7 @@ function SummaryStep({
         <button
           type="button"
           onClick={onClose}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#C9A227] px-5 py-2.5 text-sm font-semibold text-[#0E0E11] hover:bg-[#D4AE3A] transition-colors"
+          className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-surface-base hover:bg-[#D4AE3A] transition-colors"
         >
           <Check size={14} />
           Done
@@ -802,8 +802,8 @@ export function AtlasMigrationWizard({ onClose }: Props) {
         }
       `}</style>
 
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0E0E11]/90 backdrop-blur-sm">
-        <div className="relative mx-4 flex w-full max-w-4xl flex-col rounded-2xl border border-[#232328] bg-[#151518] shadow-2xl max-h-[90vh]">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-surface-base/90 backdrop-blur-sm">
+        <div className="relative mx-4 flex w-full max-w-4xl flex-col rounded-2xl border border-border-default bg-surface-raised shadow-2xl max-h-[90vh]">
 
           {/* Dismiss button — matches SetupWizard placement */}
           {canDismiss && (
@@ -811,7 +811,7 @@ export function AtlasMigrationWizard({ onClose }: Props) {
               type="button"
               onClick={onClose}
               title="Close — return any time via Administration"
-              className="absolute right-4 top-4 z-10 rounded-md p-1.5 text-[#5A5650] hover:text-[#8A857D] transition-colors"
+              className="absolute right-4 top-4 z-10 rounded-md p-1.5 text-text-ghost hover:text-text-muted transition-colors"
             >
               <X size={18} />
             </button>
@@ -848,14 +848,14 @@ export function AtlasMigrationWizard({ onClose }: Props) {
 
           {/* Navigation footer — hidden on import + summary (matches SetupWizard: hidden on last step) */}
           {currentStep < 3 && (
-            <div className="flex items-center justify-between border-t border-[#232328] px-8 py-4">
+            <div className="flex items-center justify-between border-t border-border-default px-8 py-4">
               <button
                 type="button"
                 onClick={handlePrev}
                 disabled={isFirstStep}
                 className={cn(
                   "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
-                  isFirstStep ? "cursor-not-allowed text-[#323238]" : "text-[#8A857D] hover:text-[#C5C0B8]",
+                  isFirstStep ? "cursor-not-allowed text-surface-highlight" : "text-text-muted hover:text-text-secondary",
                 )}
               >
                 <ArrowLeft size={14} />
@@ -867,7 +867,7 @@ export function AtlasMigrationWizard({ onClose }: Props) {
                 onClick={handleNext}
                 disabled={!canNext}
                 className={cn(
-                  "inline-flex items-center gap-2 rounded-lg bg-[#C9A227] px-5 py-2 text-sm font-semibold text-[#0E0E11]",
+                  "inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2 text-sm font-semibold text-surface-base",
                   "hover:bg-[#D4AE3A] transition-colors disabled:opacity-40 disabled:cursor-not-allowed",
                 )}
               >

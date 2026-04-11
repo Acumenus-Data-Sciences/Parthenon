@@ -30,7 +30,7 @@ const TABS: { id: TabId; label: string }[] = [
 function TabFallback() {
   return (
     <div className="flex items-center justify-center py-20">
-      <Loader2 size={20} className="animate-spin text-[#8A857D]" />
+      <Loader2 size={20} className="animate-spin text-text-muted" />
     </div>
   );
 }
@@ -72,8 +72,8 @@ export default function DataExplorerPage() {
       {/* Header bar */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[#F0EDE8]">Data Explorer</h1>
-          <p className="mt-1 text-sm text-[#8A857D]">
+          <h1 className="text-2xl font-bold text-text-primary">Data Explorer</h1>
+          <p className="mt-1 text-sm text-text-muted">
             Explore Achilles characterization results and data quality
           </p>
         </div>
@@ -84,7 +84,7 @@ export default function DataExplorerPage() {
       </div>
 
       {/* Tab navigation */}
-      <div className="flex items-center gap-1 border-b border-[#232328]">
+      <div className="flex items-center gap-1 border-b border-border-default">
         {TABS.map((tab) => (
           <button
             key={tab.id}
@@ -93,13 +93,13 @@ export default function DataExplorerPage() {
             className={cn(
               "relative px-4 py-2.5 text-sm uppercase tracking-wide transition-colors",
               activeTab === tab.id
-                ? "text-[#F0EDE8] font-medium"
-                : "text-[#8A857D] hover:text-[#C5C0B8]",
+                ? "text-text-primary font-medium"
+                : "text-text-muted hover:text-text-secondary",
             )}
           >
             {tab.label}
             {activeTab === tab.id && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#C9A227]" />
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent" />
             )}
           </button>
         ))}
@@ -111,11 +111,11 @@ export default function DataExplorerPage() {
           <AresTab />
         </Suspense>
       ) : !sourceId || sourceId <= 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[#323238] bg-[#151518] py-20">
-          <p className="text-lg font-semibold text-[#F0EDE8]">
+        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-surface-highlight bg-surface-raised py-20">
+          <p className="text-lg font-semibold text-text-primary">
             Select a data source
           </p>
-          <p className="mt-2 text-sm text-[#8A857D]">
+          <p className="mt-2 text-sm text-text-muted">
             Choose a CDM source from the dropdown above to explore its data
           </p>
         </div>

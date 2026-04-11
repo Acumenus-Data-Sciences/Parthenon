@@ -5,23 +5,23 @@ import type { ExtendedCoverageCell } from "../../../types/ares";
 import TemporalCoverageBar from "./TemporalCoverageBar";
 
 function getCellColor(hasData: boolean, density: number): string {
-  if (!hasData) return "bg-[#9B1B30]/20";
-  if (density >= 5) return "bg-[#2DD4BF]/30";
-  if (density >= 1) return "bg-[#C9A227]/20";
-  return "bg-[#2DD4BF]/10";
+  if (!hasData) return "bg-primary/20";
+  if (density >= 5) return "bg-success/30";
+  if (density >= 1) return "bg-accent/20";
+  return "bg-success/10";
 }
 
 function getCellTextColor(hasData: boolean, density: number): string {
-  if (!hasData) return "text-[#9B1B30]";
-  if (density >= 5) return "text-[#2DD4BF]";
-  if (density >= 1) return "text-[#C9A227]";
-  return "text-[#2DD4BF]/70";
+  if (!hasData) return "text-primary";
+  if (density >= 5) return "text-success";
+  if (density >= 1) return "text-accent";
+  return "text-success/70";
 }
 
 function getExpectedIcon(expected: boolean, hasData: boolean): { icon: string; color: string; title: string } {
-  if (expected && hasData) return { icon: "check", color: "text-[#2DD4BF]", title: "Expected and present" };
-  if (expected && !hasData) return { icon: "!", color: "text-[#9B1B30]", title: "Expected but missing" };
-  if (!expected && hasData) return { icon: "+", color: "text-[#C9A227]", title: "Unexpected bonus data" };
+  if (expected && hasData) return { icon: "check", color: "text-success", title: "Expected and present" };
+  if (expected && !hasData) return { icon: "!", color: "text-primary", title: "Expected but missing" };
+  if (!expected && hasData) return { icon: "+", color: "text-accent", title: "Unexpected bonus data" };
   return { icon: "--", color: "text-[#555]", title: "Not expected, not present" };
 }
 
@@ -88,7 +88,7 @@ export default function CoverageMatrixView() {
           type="button"
           onClick={handleExport}
           disabled={isExporting}
-          className="flex items-center gap-1.5 rounded-lg border border-[#252530] bg-[#151518] px-3 py-1.5 text-xs text-[#888] transition-colors hover:border-[#C9A227]/30 hover:text-[#C9A227] disabled:opacity-50"
+          className="flex items-center gap-1.5 rounded-lg border border-[#252530] bg-surface-raised px-3 py-1.5 text-xs text-[#888] transition-colors hover:border-accent/30 hover:text-accent disabled:opacity-50"
         >
           {isExporting ? "Exporting..." : "Export CSV"}
         </button>
@@ -107,7 +107,7 @@ export default function CoverageMatrixView() {
             onClick={() => setViewMode(mode)}
             className={`rounded px-2 py-1 text-xs transition-colors ${
               viewMode === mode
-                ? "bg-[#C9A227]/20 text-[#C9A227]"
+                ? "bg-accent/20 text-accent"
                 : "text-[#888] hover:text-white"
             }`}
           >
@@ -119,7 +119,7 @@ export default function CoverageMatrixView() {
           type="button"
           onClick={() => setShowExpected(!showExpected)}
           className={`rounded px-2 py-1 text-xs transition-colors ${
-            showExpected ? "bg-[#C9A227]/20 text-[#C9A227]" : "text-[#888] hover:text-white"
+            showExpected ? "bg-accent/20 text-accent" : "text-[#888] hover:text-white"
           }`}
         >
           Expected vs Actual
@@ -139,7 +139,7 @@ export default function CoverageMatrixView() {
                   <th
                     key={domain}
                     className={`px-3 py-2 text-center text-[11px] font-medium uppercase text-[#888] ${
-                      isObsPeriod ? "border-x-2 border-[#C9A227]/30 bg-[#C9A227]/5" : ""
+                      isObsPeriod ? "border-x-2 border-accent/30 bg-accent/5" : ""
                     } ${hoveredCol === domain ? "bg-[#1a1a22]" : ""}`}
                   >
                     {domain.replace(/_/g, " ")}
@@ -168,7 +168,7 @@ export default function CoverageMatrixView() {
                     hoveredRow === rowIdx ? "bg-[#1a1a22]" : ""
                   }`}
                 >
-                  <td className="sticky left-0 bg-[#151518] px-3 py-2 text-xs font-medium text-white">
+                  <td className="sticky left-0 bg-surface-raised px-3 py-2 text-xs font-medium text-white">
                     <div className="flex flex-col">
                       <span>{source.name}</span>
                       {sourceType && (
@@ -190,7 +190,7 @@ export default function CoverageMatrixView() {
                         onMouseEnter={() => setHoveredCol(domain)}
                         onMouseLeave={() => setHoveredCol(null)}
                         className={`px-2 py-1.5 text-center ${
-                          isObsPeriod ? "border-x-2 border-[#C9A227]/30 bg-[#C9A227]/5" : ""
+                          isObsPeriod ? "border-x-2 border-accent/30 bg-accent/5" : ""
                         } ${hoveredCol === domain ? "bg-[#1a1a22]" : ""}`}
                       >
                         <div
@@ -237,17 +237,17 @@ export default function CoverageMatrixView() {
             })}
             {/* Domain summary row */}
             <tr className="border-t-2 border-[#333] bg-[#1a1a22]">
-              <td className="sticky left-0 bg-[#1a1a22] px-3 py-2 text-xs font-medium text-[#C9A227]">
+              <td className="sticky left-0 bg-[#1a1a22] px-3 py-2 text-xs font-medium text-accent">
                 Network Total
               </td>
               {matrix.domains.map((domain) => (
                 <td key={domain} className="px-2 py-1.5 text-center">
-                  <span className="text-xs font-mono text-[#C9A227]">
+                  <span className="text-xs font-mono text-accent">
                     {(matrix.domain_totals?.[domain] ?? 0).toLocaleString()}
                   </span>
                 </td>
               ))}
-              <td className="px-2 py-1.5 text-center text-xs font-mono text-[#C9A227]">--</td>
+              <td className="px-2 py-1.5 text-center text-xs font-mono text-accent">--</td>
             </tr>
           </tbody>
         </table>

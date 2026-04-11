@@ -13,10 +13,10 @@ interface ProjectListViewProps {
 }
 
 const STATUS_STYLES: Record<IngestionProject["status"], { label: string; classes: string }> = {
-  draft: { label: "Draft", classes: "bg-[#2A2A30] text-[#8A857D]" },
+  draft: { label: "Draft", classes: "bg-surface-accent text-text-muted" },
   profiling: { label: "Profiling", classes: "bg-blue-900/30 text-blue-400 animate-pulse" },
-  ready: { label: "Ready", classes: "bg-teal-900/30 text-[#2DD4BF]" },
-  mapping: { label: "Mapping", classes: "bg-amber-900/30 text-[#C9A227]" },
+  ready: { label: "Ready", classes: "bg-teal-900/30 text-success" },
+  mapping: { label: "Mapping", classes: "bg-amber-900/30 text-accent" },
   completed: { label: "Completed", classes: "bg-green-900/30 text-green-400" },
   failed: { label: "Failed", classes: "bg-red-900/30 text-red-400" },
 };
@@ -75,11 +75,11 @@ export function ProjectListView({ onSelectProject }: ProjectListViewProps) {
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-[#F0EDE8]">Ingestion Projects</h2>
+        <h2 className="text-lg font-semibold text-text-primary">Ingestion Projects</h2>
         <button
           type="button"
           onClick={() => setShowForm((v) => !v)}
-          className="flex items-center gap-2 rounded-md bg-[#9B1B30] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#B22040]"
+          className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#B22040]"
         >
           <Plus size={16} />
           New Project
@@ -88,13 +88,13 @@ export function ProjectListView({ onSelectProject }: ProjectListViewProps) {
 
       {/* Inline create form */}
       {showForm && (
-        <div className="flex items-center gap-3 rounded-lg border border-[#232328] bg-[#151518] p-4">
+        <div className="flex items-center gap-3 rounded-lg border border-border-default bg-surface-raised p-4">
           <input
             type="text"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             placeholder="Project name..."
-            className="flex-1 rounded-md border border-[#323238] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8] placeholder-[#5A5650] focus:border-[#C9A227] focus:outline-none"
+            className="flex-1 rounded-md border border-surface-highlight bg-surface-base px-3 py-2 text-sm text-text-primary placeholder-text-ghost focus:border-accent focus:outline-none"
             onKeyDown={(e) => {
               if (e.key === "Enter") handleCreate();
               if (e.key === "Escape") setShowForm(false);
@@ -105,7 +105,7 @@ export function ProjectListView({ onSelectProject }: ProjectListViewProps) {
             type="button"
             onClick={handleCreate}
             disabled={!newName.trim() || createMutation.isPending}
-            className="rounded-md bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] transition-colors hover:bg-[#26BCA8] disabled:opacity-50"
+            className="rounded-md bg-success px-4 py-2 text-sm font-medium text-surface-base transition-colors hover:bg-[#26BCA8] disabled:opacity-50"
           >
             {createMutation.isPending ? (
               <Loader2 size={16} className="animate-spin" />
@@ -116,7 +116,7 @@ export function ProjectListView({ onSelectProject }: ProjectListViewProps) {
           <button
             type="button"
             onClick={() => setShowForm(false)}
-            className="rounded-md px-3 py-2 text-sm text-[#8A857D] hover:text-[#F0EDE8] transition-colors"
+            className="rounded-md px-3 py-2 text-sm text-text-muted hover:text-text-primary transition-colors"
           >
             Cancel
           </button>
@@ -126,15 +126,15 @@ export function ProjectListView({ onSelectProject }: ProjectListViewProps) {
       {/* Loading */}
       {isLoading && (
         <div className="flex items-center justify-center py-16">
-          <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+          <Loader2 size={24} className="animate-spin text-text-muted" />
         </div>
       )}
 
       {/* Empty state */}
       {!isLoading && projects.length === 0 && (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-[#232328] bg-[#151518] py-16 text-center">
-          <FolderOpen size={40} className="mb-3 text-[#5A5650]" />
-          <p className="text-sm text-[#8A857D]">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-border-default bg-surface-raised py-16 text-center">
+          <FolderOpen size={40} className="mb-3 text-text-ghost" />
+          <p className="text-sm text-text-muted">
             No ingestion projects yet. Create one to start uploading source data.
           </p>
         </div>
@@ -142,26 +142,26 @@ export function ProjectListView({ onSelectProject }: ProjectListViewProps) {
 
       {/* Table */}
       {!isLoading && projects.length > 0 && (
-        <div className="overflow-hidden rounded-lg border border-[#232328]">
+        <div className="overflow-hidden rounded-lg border border-border-default">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-[#232328] bg-[#151518]">
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#8A857D]">
+              <tr className="border-b border-border-default bg-surface-raised">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-text-muted">
                   Name
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#8A857D]">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-text-muted">
                   Status
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-[#8A857D]">
+                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-text-muted">
                   Files
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-[#8A857D]">
+                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-text-muted">
                   Size
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-[#8A857D]">
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-text-muted">
                   Created
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-[#8A857D]">
+                <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-text-muted">
                   Actions
                 </th>
               </tr>
@@ -173,9 +173,9 @@ export function ProjectListView({ onSelectProject }: ProjectListViewProps) {
                   <tr
                     key={project.id}
                     onClick={() => onSelectProject(project.id)}
-                    className="cursor-pointer border-b border-[#232328] bg-[#0E0E11] transition-colors hover:bg-[#1A1A1E]"
+                    className="cursor-pointer border-b border-border-default bg-surface-base transition-colors hover:bg-surface-overlay"
                   >
-                    <td className="px-4 py-3 text-sm font-medium text-[#F0EDE8]">
+                    <td className="px-4 py-3 text-sm font-medium text-text-primary">
                       {project.name}
                     </td>
                     <td className="px-4 py-3">
@@ -188,13 +188,13 @@ export function ProjectListView({ onSelectProject }: ProjectListViewProps) {
                         {status.label}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right text-sm text-[#8A857D]">
+                    <td className="px-4 py-3 text-right text-sm text-text-muted">
                       {project.file_count}
                     </td>
-                    <td className="px-4 py-3 text-right text-sm text-[#8A857D]">
+                    <td className="px-4 py-3 text-right text-sm text-text-muted">
                       {formatBytes(project.total_size_bytes)}
                     </td>
-                    <td className="px-4 py-3 text-sm text-[#8A857D]">
+                    <td className="px-4 py-3 text-sm text-text-muted">
                       {formatDate(project.created_at)}
                     </td>
                     <td className="px-4 py-3 text-right">
@@ -205,7 +205,7 @@ export function ProjectListView({ onSelectProject }: ProjectListViewProps) {
                             e.stopPropagation();
                             onSelectProject(project.id);
                           }}
-                          className="rounded-md px-2 py-1 text-xs text-[#2DD4BF] hover:bg-[#1C1C20] transition-colors"
+                          className="rounded-md px-2 py-1 text-xs text-success hover:bg-surface-overlay transition-colors"
                         >
                           Open
                         </button>
@@ -222,7 +222,7 @@ export function ProjectListView({ onSelectProject }: ProjectListViewProps) {
                             <button
                               type="button"
                               onClick={() => setConfirmDeleteId(null)}
-                              className="rounded-md px-2 py-1 text-xs text-[#8A857D] hover:bg-[#1C1C20] transition-colors"
+                              className="rounded-md px-2 py-1 text-xs text-text-muted hover:bg-surface-overlay transition-colors"
                             >
                               Cancel
                             </button>
@@ -234,7 +234,7 @@ export function ProjectListView({ onSelectProject }: ProjectListViewProps) {
                               e.stopPropagation();
                               setConfirmDeleteId(project.id);
                             }}
-                            className="rounded-md p-1 text-[#8A857D] hover:text-red-400 hover:bg-[#1C1C20] transition-colors"
+                            className="rounded-md p-1 text-text-muted hover:text-red-400 hover:bg-surface-overlay transition-colors"
                             aria-label="Delete project"
                           >
                             <Trash2 size={14} />

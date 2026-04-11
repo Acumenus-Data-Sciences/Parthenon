@@ -52,7 +52,7 @@ export function LeftRail({ pinCount, runCount }: LeftRailProps) {
   return (
     <div
       className="w-52 flex flex-col h-full border-r border-zinc-800"
-      style={{ backgroundColor: "#0E0E11" }}
+      style={{ backgroundColor: "var(--surface-base)" }}
     >
       <div className="px-3 py-4">
         <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-3 px-2">

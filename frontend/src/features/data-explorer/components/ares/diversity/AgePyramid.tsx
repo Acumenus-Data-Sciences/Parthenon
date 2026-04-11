@@ -22,7 +22,7 @@ export default function AgePyramid({ data, sourceName }: AgePyramidProps) {
   }));
 
   return (
-    <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
+    <div className="rounded-lg border border-[#252530] bg-surface-raised p-4">
       <h4 className="mb-3 text-sm font-medium text-white">{sourceName} -- Age Distribution</h4>
       <div className="h-72">
         <ResponsiveContainer width="100%" height="100%">

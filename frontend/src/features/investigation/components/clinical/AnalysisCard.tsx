@@ -10,9 +10,9 @@ function getIcon(name: string): IconComponent {
 }
 
 const GROUP_ACCENT: Record<ClinicalAnalysisGroup, string> = {
-  characterize: "#2DD4BF",
-  compare: "#9B1B30",
-  predict: "#C9A227",
+  characterize: "var(--success)",
+  compare: "var(--primary)",
+  predict: "var(--accent)",
 };
 
 interface AnalysisCardProps {

@@ -165,15 +165,15 @@ function ErrorGuidance({ error }: { error: string | null }) {
         marginTop: "10px",
         padding: "12px 14px",
         borderRadius: "8px",
-        border: "1px solid #C9A22730",
-        background: "#C9A22708",
+        border: "1px solid color-mix(in srgb, var(--accent) 19%, transparent)",
+        background: "color-mix(in srgb, var(--accent) 3%, transparent)",
       }}
     >
       <div
         style={{
           fontSize: "12px",
           fontWeight: 600,
-          color: "#C9A227",
+          color: "var(--accent)",
           marginBottom: "8px",
           display: "flex",
           alignItems: "center",
@@ -197,7 +197,7 @@ function ErrorGuidance({ error }: { error: string | null }) {
             key={i}
             style={{
               fontSize: "12px",
-              color: "#C5C0B8",
+              color: "var(--text-secondary)",
               lineHeight: "1.5",
             }}
           >
@@ -418,8 +418,8 @@ export function SqlRunnerModal({
           position: "relative",
           width: "min(95vw, 1100px)",
           maxHeight: "90vh",
-          background: "#0E0E11",
-          border: "1px solid #232328",
+          background: "var(--surface-base)",
+          border: "1px solid var(--surface-elevated)",
           borderRadius: "12px",
           display: "flex",
           flexDirection: "column",
@@ -433,13 +433,13 @@ export function SqlRunnerModal({
             alignItems: "center",
             gap: "10px",
             padding: "16px 20px",
-            borderBottom: "1px solid #232328",
+            borderBottom: "1px solid var(--surface-elevated)",
             background: "#111115",
           }}
         >
-          <Database size={18} style={{ color: "#2DD4BF" }} />
+          <Database size={18} style={{ color: "var(--success)" }} />
           <span
-            style={{ fontSize: "15px", fontWeight: 600, color: "#F0EDE8" }}
+            style={{ fontSize: "15px", fontWeight: 600, color: "var(--text-primary)" }}
           >
             SQL Query Runner
           </span>
@@ -454,9 +454,9 @@ export function SqlRunnerModal({
               width: "28px",
               height: "28px",
               borderRadius: "6px",
-              border: "1px solid #232328",
+              border: "1px solid var(--surface-elevated)",
               background: "none",
-              color: isRunning ? "#333" : "#8A857D",
+              color: isRunning ? "#333" : "var(--text-muted)",
               cursor: isRunning ? "not-allowed" : "pointer",
               transition: "all 150ms",
             }}
@@ -470,7 +470,7 @@ export function SqlRunnerModal({
           <div
             style={{
               padding: "20px",
-              borderBottom: "1px solid #232328",
+              borderBottom: "1px solid var(--surface-elevated)",
               display: "flex",
               flexDirection: "column",
               gap: "16px",
@@ -481,7 +481,7 @@ export function SqlRunnerModal({
                 style={{
                   fontSize: "14px",
                   fontWeight: 600,
-                  color: "#F0EDE8",
+                  color: "var(--text-primary)",
                   marginBottom: "4px",
                 }}
               >
@@ -490,7 +490,7 @@ export function SqlRunnerModal({
               <div
                 style={{
                   fontSize: "12px",
-                  color: "#8A857D",
+                  color: "var(--text-muted)",
                   lineHeight: "1.5",
                 }}
               >
@@ -518,7 +518,7 @@ export function SqlRunnerModal({
                     style={{
                       fontSize: "12px",
                       fontWeight: 600,
-                      color: "#C5C0B8",
+                      color: "var(--text-secondary)",
                     }}
                   >
                     {param.label}
@@ -532,11 +532,11 @@ export function SqlRunnerModal({
                       }
                       style={{
                         width: "100%",
-                        background: "#0E0E11",
-                        border: "1px solid #232328",
+                        background: "var(--surface-base)",
+                        border: "1px solid var(--surface-elevated)",
                         borderRadius: "8px",
                         padding: "10px 12px",
-                        color: "#F0EDE8",
+                        color: "var(--text-primary)",
                         fontSize: "13px",
                         boxSizing: "border-box",
                         outline: "none",
@@ -558,7 +558,7 @@ export function SqlRunnerModal({
                     <span
                       style={{
                         fontSize: "11px",
-                        color: "#8A857D",
+                        color: "var(--text-muted)",
                         lineHeight: "1.4",
                       }}
                     >
@@ -574,8 +574,8 @@ export function SqlRunnerModal({
                 style={{
                   padding: "10px 12px",
                   borderRadius: "6px",
-                  border: "1px solid #9B1B3040",
-                  background: "#9B1B3015",
+                  border: "1px solid color-mix(in srgb, var(--primary) 25%, transparent)",
+                  background: "color-mix(in srgb, var(--primary) 8%, transparent)",
                   color: "#F87171",
                   fontSize: "12px",
                 }}
@@ -595,8 +595,8 @@ export function SqlRunnerModal({
                   padding: "10px 22px",
                   borderRadius: "8px",
                   border: "none",
-                  background: renderMutation.isPending ? "#4A1020" : "#9B1B30",
-                  color: renderMutation.isPending ? "#C5C0B855" : "#F0EDE8",
+                  background: renderMutation.isPending ? "#4A1020" : "var(--primary)",
+                  color: renderMutation.isPending ? "color-mix(in srgb, var(--text-secondary) 33%, transparent)" : "var(--text-primary)",
                   fontSize: "14px",
                   fontWeight: 600,
                   cursor: renderMutation.isPending ? "not-allowed" : "pointer",
@@ -610,7 +610,7 @@ export function SqlRunnerModal({
                 }}
                 onMouseLeave={(e) => {
                   if (!renderMutation.isPending) {
-                    e.currentTarget.style.background = "#9B1B30";
+                    e.currentTarget.style.background = "var(--primary)";
                   }
                 }}
               >
@@ -635,7 +635,7 @@ export function SqlRunnerModal({
         <div
           style={{
             padding: "16px 20px",
-            borderBottom: "1px solid #232328",
+            borderBottom: "1px solid var(--surface-elevated)",
             display: "flex",
             alignItems: "center",
             gap: "12px",
@@ -646,7 +646,7 @@ export function SqlRunnerModal({
               <Loader2
                 size={18}
                 style={{
-                  color: "#2DD4BF",
+                  color: "var(--success)",
                   animation: "spin 1s linear infinite",
                 }}
               />
@@ -655,7 +655,7 @@ export function SqlRunnerModal({
                   style={{
                     fontSize: "13px",
                     fontWeight: 600,
-                    color: "#F0EDE8",
+                    color: "var(--text-primary)",
                   }}
                 >
                   {status
@@ -666,7 +666,7 @@ export function SqlRunnerModal({
                   <div
                     style={{
                       fontSize: "11px",
-                      color: "#8A857D",
+                      color: "var(--text-muted)",
                       marginTop: "2px",
                     }}
                   >
@@ -679,7 +679,7 @@ export function SqlRunnerModal({
                   marginLeft: "auto",
                   fontFamily: "'IBM Plex Mono', monospace",
                   fontSize: "13px",
-                  color: "#C9A227",
+                  color: "var(--accent)",
                   fontWeight: 600,
                 }}
               >
@@ -690,13 +690,13 @@ export function SqlRunnerModal({
 
           {isComplete && (
             <>
-              <CheckCircle2 size={18} style={{ color: "#2DD4BF" }} />
+              <CheckCircle2 size={18} style={{ color: "var(--success)" }} />
               <div>
                 <div
                   style={{
                     fontSize: "13px",
                     fontWeight: 600,
-                    color: "#2DD4BF",
+                    color: "var(--success)",
                   }}
                 >
                   Query completed
@@ -704,7 +704,7 @@ export function SqlRunnerModal({
                 <div
                   style={{
                     fontSize: "11px",
-                    color: "#8A857D",
+                    color: "var(--text-muted)",
                     marginTop: "2px",
                   }}
                 >
@@ -720,9 +720,9 @@ export function SqlRunnerModal({
                     gap: "4px",
                     padding: "3px 10px",
                     borderRadius: "20px",
-                    border: "1px solid #C9A22740",
-                    background: "#C9A22710",
-                    color: "#C9A227",
+                    border: "1px solid color-mix(in srgb, var(--accent) 25%, transparent)",
+                    background: "color-mix(in srgb, var(--accent) 6%, transparent)",
+                    color: "var(--accent)",
                     fontSize: "11px",
                     fontWeight: 600,
                   }}
@@ -780,12 +780,12 @@ export function SqlRunnerModal({
               style={{
                 padding: "8px 20px",
                 fontSize: "11px",
-                color: "#8A857D",
+                color: "var(--text-muted)",
                 fontWeight: 600,
                 letterSpacing: "0.5px",
                 textTransform: "uppercase",
                 background: "#111115",
-                borderBottom: "1px solid #232328",
+                borderBottom: "1px solid var(--surface-elevated)",
                 position: "sticky",
                 top: 0,
                 zIndex: 1,
@@ -813,13 +813,13 @@ export function SqlRunnerModal({
                         style={{
                           padding: "8px 12px",
                           textAlign: "left",
-                          color: "#C9A227",
+                          color: "var(--accent)",
                           fontWeight: 600,
                           fontSize: "11px",
                           textTransform: "uppercase",
                           letterSpacing: "0.3px",
-                          borderBottom: "2px solid #232328",
-                          background: "#0E0E11",
+                          borderBottom: "2px solid var(--surface-elevated)",
+                          background: "var(--surface-base)",
                           position: "sticky",
                           top: 0,
                           whiteSpace: "nowrap",
@@ -835,7 +835,7 @@ export function SqlRunnerModal({
                     <tr
                       key={i}
                       style={{
-                        background: i % 2 === 0 ? "#0E0E11" : "#111115",
+                        background: i % 2 === 0 ? "var(--surface-base)" : "#111115",
                       }}
                     >
                       {row.map((cell, j) => (
@@ -843,8 +843,8 @@ export function SqlRunnerModal({
                           key={j}
                           style={{
                             padding: "6px 12px",
-                            color: "#C5C0B8",
-                            borderBottom: "1px solid #1C1C20",
+                            color: "var(--text-secondary)",
+                            borderBottom: "1px solid var(--surface-overlay)",
                             whiteSpace: "nowrap",
                             maxWidth: "300px",
                             overflow: "hidden",
@@ -876,7 +876,7 @@ export function SqlRunnerModal({
             justifyContent: "flex-end",
             gap: "10px",
             padding: "14px 20px",
-            borderTop: "1px solid #232328",
+            borderTop: "1px solid var(--surface-elevated)",
             background: "#111115",
           }}
         >
@@ -889,9 +889,9 @@ export function SqlRunnerModal({
                 gap: "6px",
                 padding: "8px 18px",
                 borderRadius: "7px",
-                border: "1px solid #2DD4BF40",
-                background: "#2DD4BF12",
-                color: "#2DD4BF",
+                border: "1px solid var(--success)40",
+                background: "color-mix(in srgb, var(--success) 7%, transparent)",
+                color: "var(--success)",
                 fontSize: "13px",
                 fontWeight: 600,
                 cursor: "pointer",
@@ -899,10 +899,10 @@ export function SqlRunnerModal({
                 transition: "all 150ms",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = "#2DD4BF22";
+                e.currentTarget.style.background = "color-mix(in srgb, var(--success) 13%, transparent)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = "#2DD4BF12";
+                e.currentTarget.style.background = "color-mix(in srgb, var(--success) 7%, transparent)";
               }}
             >
               <Download size={14} />
@@ -915,9 +915,9 @@ export function SqlRunnerModal({
             style={{
               padding: "8px 18px",
               borderRadius: "7px",
-              border: "1px solid #232328",
-              background: "#1C1C20",
-              color: isRunning ? "#555" : "#C5C0B8",
+              border: "1px solid var(--surface-elevated)",
+              background: "var(--surface-overlay)",
+              color: isRunning ? "#555" : "var(--text-secondary)",
               fontSize: "13px",
               fontWeight: 500,
               cursor: isRunning ? "not-allowed" : "pointer",

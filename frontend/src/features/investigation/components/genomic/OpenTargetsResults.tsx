@@ -21,7 +21,7 @@ function ScoreBar({ score }: { score: number }) {
       <div className="flex-1 h-1.5 rounded-full bg-zinc-700/60 overflow-hidden">
         <div
           className="h-full rounded-full"
-          style={{ width: `${pct}%`, backgroundColor: "#C9A227" }}
+          style={{ width: `${pct}%`, backgroundColor: "var(--accent)" }}
         />
       </div>
       <span className="text-[10px] text-zinc-500 tabular-nums w-8 text-right">
@@ -56,8 +56,8 @@ function GeneCard({
 
   function getBadgeStyle(modality: string): string {
     const lower = modality.toLowerCase();
-    if (lower.includes("small")) return "border-[#2DD4BF]/40 text-[#2DD4BF]";
-    if (lower.includes("antibody")) return "border-[#9B1B30]/40 text-[#9B1B30]";
+    if (lower.includes("small")) return "border-success/40 text-success";
+    if (lower.includes("antibody")) return "border-primary/40 text-primary";
     return "border-zinc-600 text-zinc-400";
   }
 
@@ -83,7 +83,7 @@ function GeneCard({
     <div className="flex flex-col gap-2.5 p-4 rounded-xl bg-zinc-900/50 border border-zinc-800 hover:border-zinc-700 transition-colors">
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-col gap-0.5 min-w-0">
-          <span className="text-sm font-bold truncate" style={{ color: "#2DD4BF" }}>
+          <span className="text-sm font-bold truncate" style={{ color: "var(--success)" }}>
             {symbol}
           </span>
           {geneName && (
@@ -98,7 +98,7 @@ function GeneCard({
           )}
           <button
             onClick={handlePin}
-            className="text-[10px] px-2.5 py-1 rounded border border-zinc-600 text-zinc-400 hover:border-[#C9A227]/50 hover:text-[#C9A227] transition-colors whitespace-nowrap"
+            className="text-[10px] px-2.5 py-1 rounded border border-zinc-600 text-zinc-400 hover:border-accent/50 hover:text-accent transition-colors whitespace-nowrap"
           >
             Pin
           </button>
@@ -162,7 +162,7 @@ function DiseaseCard({
     <div className="flex flex-col gap-2.5 p-4 rounded-xl bg-zinc-900/50 border border-zinc-800 hover:border-zinc-700 transition-colors">
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-col gap-0.5 min-w-0">
-          <span className="text-sm font-bold leading-snug" style={{ color: "#9B1B30" }}>
+          <span className="text-sm font-bold leading-snug" style={{ color: "var(--primary)" }}>
             {name}
           </span>
           {description && (
@@ -171,7 +171,7 @@ function DiseaseCard({
         </div>
         <button
           onClick={handlePin}
-          className="flex-shrink-0 text-[10px] px-2.5 py-1 rounded border border-zinc-600 text-zinc-400 hover:border-[#C9A227]/50 hover:text-[#C9A227] transition-colors whitespace-nowrap"
+          className="flex-shrink-0 text-[10px] px-2.5 py-1 rounded border border-zinc-600 text-zinc-400 hover:border-accent/50 hover:text-accent transition-colors whitespace-nowrap"
         >
           Pin
         </button>

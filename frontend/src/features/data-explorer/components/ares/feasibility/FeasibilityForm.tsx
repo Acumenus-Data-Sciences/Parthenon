@@ -64,8 +64,8 @@ export default function FeasibilityForm({ onSubmit, isLoading }: FeasibilityForm
           placeholder="e.g. Diabetes Outcomes Study"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full rounded border border-[#333] bg-[#151518] px-3 py-2 text-sm text-white
-                     placeholder-[#555] focus:border-[#C9A227] focus:outline-none"
+          className="w-full rounded border border-[#333] bg-surface-raised px-3 py-2 text-sm text-white
+                     placeholder-[#555] focus:border-accent focus:outline-none"
         />
       </div>
 
@@ -79,7 +79,7 @@ export default function FeasibilityForm({ onSubmit, isLoading }: FeasibilityForm
               onClick={() => toggleDomain(d.id)}
               className={`rounded-full border px-3 py-1 text-xs transition-colors ${
                 selectedDomains.includes(d.id)
-                  ? "border-[#C9A227] bg-[#C9A227]/10 text-[#C9A227]"
+                  ? "border-accent bg-accent/10 text-accent"
                   : "border-[#333] text-[#888] hover:border-[#555]"
               }`}
             >
@@ -96,8 +96,8 @@ export default function FeasibilityForm({ onSubmit, isLoading }: FeasibilityForm
           placeholder="e.g. 1000"
           value={minPatients}
           onChange={(e) => setMinPatients(e.target.value)}
-          className="w-48 rounded border border-[#333] bg-[#151518] px-3 py-2 text-sm text-white
-                     placeholder-[#555] focus:border-[#C9A227] focus:outline-none"
+          className="w-48 rounded border border-[#333] bg-surface-raised px-3 py-2 text-sm text-white
+                     placeholder-[#555] focus:border-accent focus:outline-none"
         />
       </div>
 
@@ -105,8 +105,8 @@ export default function FeasibilityForm({ onSubmit, isLoading }: FeasibilityForm
         type="button"
         onClick={handleSubmit}
         disabled={!name.trim() || selectedDomains.length === 0 || isLoading}
-        className="rounded bg-[#C9A227] px-4 py-2 text-sm font-medium text-black
-                   hover:bg-[#d4ad2f] disabled:opacity-50"
+        className="rounded bg-accent px-4 py-2 text-sm font-medium text-black
+                   hover:bg-accent disabled:opacity-50"
       >
         {isLoading ? "Running..." : "Run Assessment"}
       </button>

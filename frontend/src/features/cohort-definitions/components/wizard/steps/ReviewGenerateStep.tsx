@@ -111,7 +111,7 @@ export function ReviewGenerateStep({ onClose }: Props) {
     <div className="flex flex-col gap-4">
       {/* Summary section */}
       <div>
-        <div className="mb-2 text-[13px] font-medium text-[#8A857D]">Cohort Summary</div>
+        <div className="mb-2 text-[13px] font-medium text-text-muted">Cohort Summary</div>
         <CohortSummary />
       </div>
 
@@ -120,7 +120,7 @@ export function ReviewGenerateStep({ onClose }: Props) {
         <button
           type="button"
           onClick={() => store.setStep(1)}
-          className="inline-flex items-center gap-1 rounded border border-[#2A2A30] px-2.5 py-1 text-[11px] text-[#8A857D] hover:border-[#3A3A42] hover:text-[#C5C0B8]"
+          className="inline-flex items-center gap-1 rounded border border-border-default px-2.5 py-1 text-[11px] text-text-muted hover:border-surface-highlight hover:text-text-secondary"
         >
           <Pencil size={10} />
           Edit Population
@@ -128,7 +128,7 @@ export function ReviewGenerateStep({ onClose }: Props) {
         <button
           type="button"
           onClick={() => store.setStep(2)}
-          className="inline-flex items-center gap-1 rounded border border-[#2A2A30] px-2.5 py-1 text-[11px] text-[#8A857D] hover:border-[#3A3A42] hover:text-[#C5C0B8]"
+          className="inline-flex items-center gap-1 rounded border border-border-default px-2.5 py-1 text-[11px] text-text-muted hover:border-surface-highlight hover:text-text-secondary"
         >
           <Pencil size={10} />
           Edit Criteria
@@ -136,7 +136,7 @@ export function ReviewGenerateStep({ onClose }: Props) {
         <button
           type="button"
           onClick={() => store.setStep(3)}
-          className="inline-flex items-center gap-1 rounded border border-[#2A2A30] px-2.5 py-1 text-[11px] text-[#8A857D] hover:border-[#3A3A42] hover:text-[#C5C0B8]"
+          className="inline-flex items-center gap-1 rounded border border-border-default px-2.5 py-1 text-[11px] text-text-muted hover:border-surface-highlight hover:text-text-secondary"
         >
           <Pencil size={10} />
           Edit Follow-up
@@ -146,10 +146,10 @@ export function ReviewGenerateStep({ onClose }: Props) {
       {/* Validation errors */}
       {errors.length > 0 && (
         <div className="rounded-lg border border-[rgba(155,27,48,0.3)] bg-[rgba(155,27,48,0.05)] px-4 py-3">
-          <div className="mb-1 text-[12px] font-medium text-[#E85A6B]">
+          <div className="mb-1 text-[12px] font-medium text-critical">
             Cannot generate &mdash; fix these issues:
           </div>
-          <ul className="list-inside list-disc text-[12px] text-[#E85A6B]">
+          <ul className="list-inside list-disc text-[12px] text-critical">
             {errors.map((e) => (
               <li key={e}>{e}</li>
             ))}
@@ -158,13 +158,13 @@ export function ReviewGenerateStep({ onClose }: Props) {
       )}
 
       {/* Generate section */}
-      <div className="border-t border-[#2A2A30] pt-5">
+      <div className="border-t border-border-default pt-5">
         <div className="flex items-center gap-3">
-          <span className="text-[13px] text-[#8A857D]">Run against:</span>
+          <span className="text-[13px] text-text-muted">Run against:</span>
           <select
             value={sourceId ?? ""}
             onChange={(e) => setSourceId(e.target.value ? parseInt(e.target.value, 10) : null)}
-            className="rounded-md border border-[#323238] bg-[#1C1C20] px-3 py-1.5 text-[13px] text-[#C5C0B8] outline-none focus:border-[#C9A227] focus:ring-1 focus:ring-[#C9A227]/15"
+            className="rounded-md border border-surface-highlight bg-surface-overlay px-3 py-1.5 text-[13px] text-text-secondary outline-none focus:border-accent focus:ring-1 focus:ring-accent/15"
             disabled={loadingSources}
           >
             <option value="">Select data source...</option>
@@ -178,7 +178,7 @@ export function ReviewGenerateStep({ onClose }: Props) {
             type="button"
             onClick={handleGenerate}
             disabled={isDisabled}
-            className="flex items-center gap-1.5 rounded-md bg-[#C9A227] px-4 py-1.5 text-[13px] font-semibold text-[#0E0E11] transition-colors hover:bg-[#B8922A] disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-md bg-accent px-4 py-1.5 text-[13px] font-semibold text-surface-base transition-colors hover:bg-[#B8922A] disabled:opacity-50"
           >
             {isRunning && <Loader2 size={14} className="animate-spin" />}
             Generate
@@ -191,10 +191,10 @@ export function ReviewGenerateStep({ onClose }: Props) {
         <div className="rounded-lg border border-[rgba(45,212,191,0.15)] bg-[rgba(45,212,191,0.05)] p-4">
           <div className="flex items-center gap-3">
             <div className="text-center">
-              <div className="text-[28px] font-bold text-[#2DD4BF]">
+              <div className="text-[28px] font-bold text-success">
                 {generation?.person_count?.toLocaleString() ?? 0}
               </div>
-              <div className="text-[11px] text-[#8A857D]">patients</div>
+              <div className="text-[11px] text-text-muted">patients</div>
             </div>
           </div>
         </div>
@@ -202,26 +202,26 @@ export function ReviewGenerateStep({ onClose }: Props) {
 
       {/* Error result */}
       {(generationStatus === "failed" || generateError) && (
-        <div className="rounded-lg border border-[rgba(155,27,48,0.3)] bg-[rgba(155,27,48,0.05)] px-4 py-3 text-[13px] text-[#E85A6B]">
+        <div className="rounded-lg border border-[rgba(155,27,48,0.3)] bg-[rgba(155,27,48,0.05)] px-4 py-3 text-[13px] text-critical">
           {generateError ?? "Generation failed. Check the expression and try again."}
         </div>
       )}
 
       {/* What's Next section */}
       {showWhatsNext && (
-        <div className="border-t border-[#2A2A30] pt-5">
-          <div className="mb-3 text-[13px] font-medium text-[#C9A227]">What&apos;s Next?</div>
+        <div className="border-t border-border-default pt-5">
+          <div className="mb-3 text-[13px] font-medium text-accent">What&apos;s Next?</div>
           <div className="flex flex-col gap-3">
             <button
               type="button"
               onClick={() => onClose()}
               className="rounded-lg border border-[rgba(45,212,191,0.2)] bg-[rgba(45,212,191,0.05)] p-4 text-left transition-colors hover:border-[rgba(45,212,191,0.4)]"
             >
-              <div className="flex items-center gap-2 text-[13px] font-medium text-[#2DD4BF]">
+              <div className="flex items-center gap-2 text-[13px] font-medium text-success">
                 <Check size={16} />
                 Done &mdash; Save &amp; Close
               </div>
-              <p className="mt-1 ml-[24px] text-[12px] text-[#8A857D]">
+              <p className="mt-1 ml-[24px] text-[12px] text-text-muted">
                 Cohort is saved and ready for use in analyses and studies.
               </p>
             </button>
@@ -234,11 +234,11 @@ export function ReviewGenerateStep({ onClose }: Props) {
               }}
               className="rounded-lg border border-[rgba(201,162,39,0.2)] bg-[rgba(201,162,39,0.05)] p-4 text-left transition-colors hover:border-[rgba(201,162,39,0.4)]"
             >
-              <div className="flex items-center gap-2 text-[13px] font-medium text-[#C9A227]">
+              <div className="flex items-center gap-2 text-[13px] font-medium text-accent">
                 <Wrench size={16} />
                 Open in Advanced Editor
               </div>
-              <p className="mt-1 ml-[24px] text-[12px] text-[#8A857D]">
+              <p className="mt-1 ml-[24px] text-[12px] text-text-muted">
                 Fine-tune with the full expression editor. Supports nested boolean logic, custom
                 temporal windows, and all advanced features.
               </p>
@@ -250,13 +250,13 @@ export function ReviewGenerateStep({ onClose }: Props) {
                 onClose();
                 navigate(createdId ? `/cohort-definitions/${createdId}` : "/cohort-definitions");
               }}
-              className="rounded-lg border border-[#2A2A30] bg-[#1C1C20] p-4 text-left transition-colors hover:border-[#3A3A42]"
+              className="rounded-lg border border-border-default bg-surface-overlay p-4 text-left transition-colors hover:border-surface-highlight"
             >
-              <div className="flex items-center gap-2 text-[13px] font-medium text-[#C5C0B8]">
+              <div className="flex items-center gap-2 text-[13px] font-medium text-text-secondary">
                 <BarChart3 size={16} />
                 View Diagnostics
               </div>
-              <p className="mt-1 ml-[24px] text-[12px] text-[#8A857D]">
+              <p className="mt-1 ml-[24px] text-[12px] text-text-muted">
                 See attrition chart, patient breakdown by age/gender, and detailed generation
                 statistics.
               </p>

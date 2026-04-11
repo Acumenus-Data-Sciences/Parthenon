@@ -107,17 +107,17 @@ export function ImportWizard() {
                 disabled={i >= state.step}
                 className={`flex items-center gap-1.5 rounded px-2 py-1 text-xs transition ${
                   isActive
-                    ? "bg-[#C9A227]/20 text-[#C9A227]"
+                    ? "bg-accent/20 text-accent"
                     : isDone
-                      ? "text-[#2DD4BF] hover:text-[#2DD4BF]/80 cursor-pointer"
-                      : "text-[#5A5650]"
+                      ? "text-success hover:text-success/80 cursor-pointer"
+                      : "text-text-ghost"
                 }`}
               >
                 <Icon className="h-3.5 w-3.5" />
                 {s.label}
               </button>
               {i < STEPS.length - 1 && (
-                <div className={`mx-1 h-px w-4 ${isDone ? "bg-[#2DD4BF]" : "bg-[#323238]"}`} />
+                <div className={`mx-1 h-px w-4 ${isDone ? "bg-success" : "bg-surface-highlight"}`} />
               )}
             </div>
           );

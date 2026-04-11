@@ -5,8 +5,8 @@ interface AnnotationTimelineProps {
 }
 
 const TAG_COLORS: Record<string, string> = {
-  data_event: "border-[#2DD4BF] bg-[#2DD4BF]/10 text-[#2DD4BF]",
-  research_note: "border-[#C9A227] bg-[#C9A227]/10 text-[#C9A227]",
+  data_event: "border-success bg-success/10 text-success",
+  research_note: "border-accent bg-accent/10 text-accent",
   action_item: "border-[#e85d75] bg-[#e85d75]/10 text-[#e85d75]",
   system: "border-[#7c8aed] bg-[#7c8aed]/10 text-[#7c8aed]",
 };
@@ -29,9 +29,9 @@ export default function AnnotationTimeline({ annotations }: AnnotationTimelinePr
       {sorted.map((ann) => (
         <div key={ann.id} className="relative mb-6">
           {/* Timeline dot */}
-          <div className="absolute -left-[31px] top-1 h-3 w-3 rounded-full border-2 border-[#252530] bg-[#C9A227]" />
+          <div className="absolute -left-[31px] top-1 h-3 w-3 rounded-full border-2 border-[#252530] bg-accent" />
 
-          <div className="rounded-lg border border-[#252530] bg-[#151518] p-3">
+          <div className="rounded-lg border border-[#252530] bg-surface-raised p-3">
             <div className="mb-1 flex items-center gap-2">
               <span className="text-xs text-[#666]">
                 {new Date(ann.created_at).toLocaleDateString()} at{" "}

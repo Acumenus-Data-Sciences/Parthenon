@@ -14,7 +14,7 @@ export function WikiPageView({
     return (
       <div className="flex h-full items-center justify-center p-8 text-center">
         <div>
-          <p className="text-sm text-[#8A857D]">Select a paper to view</p>
+          <p className="text-sm text-text-muted">Select a paper to view</p>
         </div>
       </div>
     );
@@ -26,25 +26,25 @@ export function WikiPageView({
   return (
     <div className="flex h-full flex-col overflow-hidden">
       {/* Header — clean, human-readable */}
-      <div className="border-b border-[#232328] bg-[#1C1C20] px-6 py-4">
+      <div className="border-b border-border-default bg-surface-overlay px-6 py-4">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
-            <h2 className="text-xl font-bold text-[#F0EDE8]">{page.title}</h2>
-            <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#8A857D]">
+            <h2 className="text-xl font-bold text-text-primary">{page.title}</h2>
+            <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-text-muted">
               {page.first_author && <span>{page.first_author}</span>}
               {page.publication_year && <span>{page.publication_year}</span>}
               {page.journal && <span className="truncate">{page.journal}</span>}
               {page.primary_domain && (
-                <span className="rounded bg-[#2DD4BF]/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.08em] text-[#2DD4BF]">
+                <span className="rounded bg-success/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.08em] text-success">
                   {page.primary_domain.replaceAll("-", " ")}
                 </span>
               )}
             </div>
-            <p className="mt-1.5 text-xs text-[#5A5650]">
+            <p className="mt-1.5 text-xs text-text-ghost">
               Last updated {new Date(page.updated_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
             </p>
             {(page.doi || page.pmid || page.pmcid) && (
-              <p className="mt-1 text-[11px] text-[#5A5650]">
+              <p className="mt-1 text-[11px] text-text-ghost">
                 {page.doi && <span>DOI {page.doi}</span>}
                 {page.pmid && <span>{page.doi ? " • " : ""}PMID {page.pmid}</span>}
                 {page.pmcid && <span>{page.doi || page.pmid ? " • " : ""}PMCID {page.pmcid}</span>}
@@ -56,7 +56,7 @@ export function WikiPageView({
             <button
               type="button"
               onClick={() => onViewSource(page.stored_filename!)}
-              className="inline-flex flex-shrink-0 items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#2DD4BF]/20 to-[#A78BFA]/20 border border-[#2DD4BF]/30 px-3 py-2 text-xs font-medium text-[#2DD4BF] transition-all hover:from-[#2DD4BF]/30 hover:to-[#A78BFA]/30"
+              className="inline-flex flex-shrink-0 items-center gap-1.5 rounded-lg bg-gradient-to-r from-success/20 to-[var(--domain-observation)]/20 border border-success/30 px-3 py-2 text-xs font-medium text-success transition-all hover:from-success/30 hover:to-[var(--domain-observation)]/30"
             >
               <FileType size={14} />
               View PDF
@@ -70,7 +70,7 @@ export function WikiPageView({
             {page.keywords
               .filter((kw) => kw !== "source" && kw !== "summary" && kw !== "pdf" && kw !== "text" && kw !== "markdown")
               .map((kw) => (
-                <span key={kw} className="inline-flex items-center rounded px-2 py-0.5 text-[10px] font-medium bg-[#60A5FA]/15 text-[#60A5FA]">
+                <span key={kw} className="inline-flex items-center rounded px-2 py-0.5 text-[10px] font-medium bg-info/15 text-info">
                   {kw}
                 </span>
               ))}
@@ -80,12 +80,12 @@ export function WikiPageView({
 
       {/* Lint warnings */}
       {pageIssues.length > 0 && (
-        <div className="border-b border-[#C9A227]/20 bg-[#C9A227]/5 px-6 py-2">
+        <div className="border-b border-accent/20 bg-accent/5 px-6 py-2">
           <div className="flex items-start gap-2">
-            <AlertTriangle size={14} className="mt-0.5 flex-shrink-0 text-[#C9A227]" />
+            <AlertTriangle size={14} className="mt-0.5 flex-shrink-0 text-accent" />
             <div className="space-y-0.5">
               {pageIssues.map((issue) => (
-                <p key={issue.message} className="text-xs text-[#C9A227]/80">{issue.message}</p>
+                <p key={issue.message} className="text-xs text-accent/80">{issue.message}</p>
               ))}
             </div>
           </div>

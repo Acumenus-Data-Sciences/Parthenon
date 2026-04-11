@@ -18,7 +18,7 @@ function formatDomain(domain: string): string {
 }
 
 const BAR_COLORS = [
-  "#2DD4BF", "#C9A227", "#9B1B30", "#6366F1", "#EC4899",
+  "var(--success)", "var(--accent)", "var(--primary)", "#6366F1", "#EC4899",
   "#F59E0B", "#10B981", "#8B5CF6", "#EF4444", "#3B82F6",
 ];
 
@@ -35,7 +35,7 @@ export default function CostDriversView({ sourceId }: CostDriversViewProps) {
 
   if (!data || !data.has_cost_data || data.drivers.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[#323238] bg-[#151518] py-12">
+      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-surface-highlight bg-surface-raised py-12">
         <p className="text-sm text-[#666]">No cost driver data available for this source.</p>
       </div>
     );
@@ -55,7 +55,7 @@ export default function CostDriversView({ sourceId }: CostDriversViewProps) {
         return (
           <div
             key={driver.concept_id}
-            className="group cursor-pointer rounded-lg border border-[#252530] bg-[#151518] p-3 transition-colors hover:border-[#C9A227]/30"
+            className="group cursor-pointer rounded-lg border border-[#252530] bg-surface-raised p-3 transition-colors hover:border-accent/30"
           >
             <div className="mb-1 flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -65,13 +65,13 @@ export default function CostDriversView({ sourceId }: CostDriversViewProps) {
                 </span>
               </div>
               <div className="flex items-center gap-3 text-xs">
-                <span className="font-semibold text-[#2DD4BF]">{formatCurrency(driver.total_cost)}</span>
-                <span className="text-[#C9A227]">{driver.pct_of_total}%</span>
+                <span className="font-semibold text-success">{formatCurrency(driver.total_cost)}</span>
+                <span className="text-accent">{driver.pct_of_total}%</span>
               </div>
             </div>
 
             {/* Horizontal bar */}
-            <div className="mb-1.5 h-4 w-full overflow-hidden rounded bg-[#0E0E11]">
+            <div className="mb-1.5 h-4 w-full overflow-hidden rounded bg-surface-base">
               <div
                 className="flex h-full items-center rounded transition-all duration-300"
                 style={{

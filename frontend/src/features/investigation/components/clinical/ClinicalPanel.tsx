@@ -60,7 +60,7 @@ function SubTabBar({ view, hasActiveExecution, onChange }: SubTabBarProps) {
             className={[
               "px-4 py-2.5 text-xs font-medium rounded-t transition-colors",
               view === tab.id
-                ? "text-[#2DD4BF] border-b-2 border-[#2DD4BF]"
+                ? "text-success border-b-2 border-success"
                 : "text-zinc-500 hover:text-zinc-300",
             ].join(" ")}
           >
@@ -333,7 +333,7 @@ export function ClinicalPanel({ investigation }: ClinicalPanelProps) {
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div className="flex flex-col" style={{ backgroundColor: "#0E0E11" }}>
+    <div className="flex flex-col" style={{ backgroundColor: "var(--surface-base)" }}>
       {/* Sub-tab navigation */}
       <SubTabBar
         view={view}
@@ -375,8 +375,8 @@ export function ClinicalPanel({ investigation }: ClinicalPanelProps) {
 
       {/* Inline execute error — shown below the panel body */}
       {executeError && (
-        <div className="mx-6 mb-4 flex items-start gap-3 rounded border border-[#9B1B30] bg-[#9B1B30]/10 px-4 py-3">
-          <AlertCircle size={15} className="mt-0.5 shrink-0 text-[#9B1B30]" />
+        <div className="mx-6 mb-4 flex items-start gap-3 rounded border border-primary bg-primary/10 px-4 py-3">
+          <AlertCircle size={15} className="mt-0.5 shrink-0 text-primary" />
           <div className="flex-1 min-w-0">
             <p className="text-xs font-medium text-[#e05c6e]">Analysis dispatch failed</p>
             <p className="text-xs text-zinc-400 mt-0.5 break-words">{executeError}</p>

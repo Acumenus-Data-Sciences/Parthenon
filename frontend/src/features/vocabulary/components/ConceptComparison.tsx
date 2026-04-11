@@ -33,29 +33,29 @@ function ConceptCard({
   };
 
   return (
-    <div className="flex-1 min-w-0 rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+    <div className="flex-1 min-w-0 rounded-lg border border-border-default bg-surface-raised overflow-hidden">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-[#232328] bg-[#1A1A1E]">
+      <div className="px-4 py-3 border-b border-border-default bg-surface-overlay">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <span className="font-['IBM_Plex_Mono',monospace] text-xs tabular-nums text-[#C9A227]">
+              <span className="font-['IBM_Plex_Mono',monospace] text-xs tabular-nums text-accent">
                 {c.concept_id}
               </span>
               {isStandard && (
-                <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-[#2DD4BF]/15 text-[#2DD4BF]">
+                <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-success/15 text-success">
                   Standard
                 </span>
               )}
             </div>
-            <h3 className="text-sm font-semibold text-[#F0EDE8] leading-snug truncate">
+            <h3 className="text-sm font-semibold text-text-primary leading-snug truncate">
               {c.concept_name}
             </h3>
           </div>
           <button
             type="button"
             onClick={onRemove}
-            className="shrink-0 p-1 rounded text-[#5A5650] hover:text-[#E85A6B] hover:bg-[#E85A6B]/10 transition-colors"
+            className="shrink-0 p-1 rounded text-text-ghost hover:text-critical hover:bg-critical/10 transition-colors"
           >
             <X size={14} />
           </button>
@@ -63,13 +63,13 @@ function ConceptCard({
       </div>
 
       {/* Fields */}
-      <div className="divide-y divide-[#232328]">
+      <div className="divide-y divide-border-default">
         {allFields.map((field) => (
           <div key={field} className="px-4 py-2 flex items-center justify-between gap-2">
-            <span className="text-[10px] uppercase tracking-wider text-[#5A5650] font-semibold shrink-0">
+            <span className="text-[10px] uppercase tracking-wider text-text-ghost font-semibold shrink-0">
               {field}
             </span>
-            <span className="text-xs text-[#F0EDE8] text-right truncate">
+            <span className="text-xs text-text-primary text-right truncate">
               {fieldValues[field] ?? "--"}
             </span>
           </div>
@@ -78,18 +78,18 @@ function ConceptCard({
 
       {/* Ancestors */}
       {entry.ancestors.length > 0 && (
-        <div className="border-t border-[#232328]">
-          <div className="px-4 py-2 bg-[#1C1C20]">
-            <span className="text-[10px] uppercase tracking-wider text-[#8A857D] font-semibold">
+        <div className="border-t border-border-default">
+          <div className="px-4 py-2 bg-surface-overlay">
+            <span className="text-[10px] uppercase tracking-wider text-text-muted font-semibold">
               Ancestors (2 levels)
             </span>
           </div>
           <div className="px-4 py-2 space-y-1">
             {entry.ancestors.map((a) => (
               <div key={a.concept_id} className="flex items-center gap-2">
-                <span className="text-[10px] text-[#5A5650]">L{a.min_levels_of_separation}</span>
-                <span className="text-xs text-[#F0EDE8] truncate">{a.concept_name}</span>
-                <span className="shrink-0 inline-flex items-center rounded px-1 py-0.5 text-[8px] font-medium bg-[#C9A227]/15 text-[#C9A227]">
+                <span className="text-[10px] text-text-ghost">L{a.min_levels_of_separation}</span>
+                <span className="text-xs text-text-primary truncate">{a.concept_name}</span>
+                <span className="shrink-0 inline-flex items-center rounded px-1 py-0.5 text-[8px] font-medium bg-accent/15 text-accent">
                   {a.vocabulary_id}
                 </span>
               </div>
@@ -100,19 +100,19 @@ function ConceptCard({
 
       {/* Key Relationships */}
       {entry.relationships.length > 0 && (
-        <div className="border-t border-[#232328]">
-          <div className="px-4 py-2 bg-[#1C1C20]">
-            <span className="text-[10px] uppercase tracking-wider text-[#8A857D] font-semibold">
+        <div className="border-t border-border-default">
+          <div className="px-4 py-2 bg-surface-overlay">
+            <span className="text-[10px] uppercase tracking-wider text-text-muted font-semibold">
               Relationships
             </span>
           </div>
           <div className="px-4 py-2 space-y-1 max-h-40 overflow-y-auto">
             {entry.relationships.slice(0, 10).map((r, i) => (
               <div key={`${r.relationship_id}-${r.concept_id_2}-${i}`} className="flex items-center gap-2">
-                <span className="shrink-0 inline-flex items-center rounded px-1 py-0.5 text-[8px] font-medium bg-[#A78BFA]/15 text-[#A78BFA]">
+                <span className="shrink-0 inline-flex items-center rounded px-1 py-0.5 text-[8px] font-medium bg-[var(--domain-observation)]/15 text-[var(--domain-observation)]">
                   {r.relationship_id}
                 </span>
-                <span className="text-xs text-[#F0EDE8] truncate">{r.concept_name}</span>
+                <span className="text-xs text-text-primary truncate">{r.concept_name}</span>
               </div>
             ))}
           </div>
@@ -166,20 +166,20 @@ function ConceptQuickSearch({
   return (
     <div className="space-y-2">
       <div className="relative">
-        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]" />
+        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost" />
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search concept to add..."
-          className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-[#232328] bg-[#1A1A1E] text-[#F0EDE8] placeholder:text-[#5A5650] focus:outline-none focus:border-[#C9A227]/50"
+          className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-border-default bg-surface-overlay text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-accent/50"
         />
         {searching && (
-          <Loader2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-[#8A857D]" />
+          <Loader2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-text-muted" />
         )}
       </div>
       {results.length > 0 && (
-        <div className="rounded-lg border border-[#232328] bg-[#1A1A1E] max-h-48 overflow-y-auto">
+        <div className="rounded-lg border border-border-default bg-surface-overlay max-h-48 overflow-y-auto">
           {results.map((c) => (
             <button
               key={c.concept_id}
@@ -189,11 +189,11 @@ function ConceptQuickSearch({
                 setQuery("");
                 setResults([]);
               }}
-              className="w-full px-3 py-2 text-left hover:bg-[#232328] transition-colors border-b border-[#232328] last:border-b-0"
+              className="w-full px-3 py-2 text-left hover:bg-surface-elevated transition-colors border-b border-border-default last:border-b-0"
             >
-              <span className="text-xs text-[#F0EDE8]">{c.concept_name}</span>
-              <span className="ml-2 text-[10px] text-[#C9A227]">{c.concept_id}</span>
-              <span className="ml-2 text-[10px] text-[#5A5650]">{c.vocabulary_id}</span>
+              <span className="text-xs text-text-primary">{c.concept_name}</span>
+              <span className="ml-2 text-[10px] text-accent">{c.concept_id}</span>
+              <span className="ml-2 text-[10px] text-text-ghost">{c.vocabulary_id}</span>
             </button>
           ))}
         </div>
@@ -242,8 +242,8 @@ export function ConceptComparison() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-2xl font-bold text-[#F0EDE8]">Compare Concepts</h1>
-        <p className="mt-1 text-sm text-[#8A857D]">
+        <h1 className="text-2xl font-bold text-text-primary">Compare Concepts</h1>
+        <p className="mt-1 text-sm text-text-muted">
           Side-by-side comparison of 2-4 OMOP concepts with attributes, ancestors, and relationships
         </p>
       </div>
@@ -261,23 +261,23 @@ export function ConceptComparison() {
       {/* Selected IDs pills */}
       {selectedIds.length > 0 && selectedIds.length < 2 && (
         <div className="flex items-center gap-2">
-          <span className="text-xs text-[#8A857D]">Selected:</span>
+          <span className="text-xs text-text-muted">Selected:</span>
           {selectedIds.map((id) => (
-            <span key={id} className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs bg-[#C9A227]/15 text-[#C9A227]">
+            <span key={id} className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs bg-accent/15 text-accent">
               {id}
               <button type="button" onClick={() => removeConcept(id)}>
                 <X size={10} />
               </button>
             </span>
           ))}
-          <span className="text-[10px] text-[#5A5650]">Add at least one more to compare</span>
+          <span className="text-[10px] text-text-ghost">Add at least one more to compare</span>
         </div>
       )}
 
       {/* Comparison cards */}
       {isLoading && selectedIds.length >= 2 && (
         <div className="flex items-center justify-center py-12">
-          <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+          <Loader2 size={24} className="animate-spin text-text-muted" />
         </div>
       )}
 
@@ -292,10 +292,10 @@ export function ConceptComparison() {
             />
           ))}
           {selectedIds.length < 4 && (
-            <div className="shrink-0 w-48 flex items-center justify-center rounded-lg border border-dashed border-[#232328] bg-[#151518]">
+            <div className="shrink-0 w-48 flex items-center justify-center rounded-lg border border-dashed border-border-default bg-surface-raised">
               <div className="text-center">
-                <Plus size={20} className="mx-auto text-[#323238] mb-2" />
-                <p className="text-[10px] text-[#5A5650]">Add concept</p>
+                <Plus size={20} className="mx-auto text-surface-highlight mb-2" />
+                <p className="text-[10px] text-text-ghost">Add concept</p>
               </div>
             </div>
           )}
@@ -303,10 +303,10 @@ export function ConceptComparison() {
       )}
 
       {selectedIds.length === 0 && (
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-12 text-center">
-          <Search size={32} className="mx-auto text-[#323238] mb-4" />
-          <p className="text-sm text-[#8A857D]">Search for concepts to compare</p>
-          <p className="mt-1 text-xs text-[#5A5650]">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-12 text-center">
+          <Search size={32} className="mx-auto text-surface-highlight mb-4" />
+          <p className="text-sm text-text-muted">Search for concepts to compare</p>
+          <p className="mt-1 text-xs text-text-ghost">
             Select 2-4 concepts to see a side-by-side comparison of their attributes, ancestors, and relationships
           </p>
         </div>
