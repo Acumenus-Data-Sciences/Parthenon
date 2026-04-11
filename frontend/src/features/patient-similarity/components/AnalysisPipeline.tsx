@@ -25,7 +25,7 @@ export function AnalysisPipeline({
   renderStepContent,
 }: AnalysisPipelineProps) {
   return (
-    <div className="px-5 py-4">
+    <div className="space-y-0">
       {steps.map((step) => {
         const status = getStepStatus(step.id);
         const result = getStepResult(step.id);
