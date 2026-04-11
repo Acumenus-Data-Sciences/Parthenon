@@ -121,7 +121,7 @@ export default function CohortDefinitionsPage() {
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder="Search cohort definitions..."
-            className="w-full rounded-lg pl-10 pr-8 py-2 text-sm bg-[#151518] border border-[#232328] text-[#F0EDE8] placeholder:text-[#5A5650] focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors"
+            className="w-full rounded-lg pl-10 pr-8 py-2 text-sm bg-[#151518] border border-[#232328] text-[#F0EDE8] placeholder:text-[#5A5650] focus:outline-none focus:border-[#C9A227] focus:ring-1 focus:ring-[#C9A227]/15 transition-colors"
           />
           {searchInput && (
             <button
