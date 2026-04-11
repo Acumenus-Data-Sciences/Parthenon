@@ -1221,16 +1221,24 @@ class PatientSimilarityController extends Controller
     }
 
     /**
-     * Resolve concept:NNN placeholders in PSM balance covariates to concept names.
+     * Resolve concept ID placeholders in PSM balance covariates to human-readable names.
+     *
+     * AI service formats: condition_NNN, drug_NNN, procedure_NNN, demographics_gender_NNN,
+     * demographics_age_norm, concept:NNN. Resolves NNN via vocab.concept where applicable.
      *
      * @param  array<string, mixed>  $result
      */
     private function resolveBalanceConceptNames(array &$result): void
     {
+        // Collect all concept IDs from any format: condition_NNN, drug_NNN, procedure_NNN,
+        // demographics_gender_NNN, concept:NNN
         $conceptIds = [];
+        $pattern = '/^(?:condition|drug|procedure|demographics_gender|concept:|demographics_race)_?:?(\d+)$/';
+
         foreach (['before', 'after'] as $phase) {
             foreach ($result['balance'][$phase] ?? [] as $row) {
-                if (preg_match('/^concept:(\d+)$/', $row['covariate'] ?? '', $m)) {
+                $cov = $row['covariate'] ?? '';
+                if (preg_match($pattern, $cov, $m)) {
                     $conceptIds[(int) $m[1]] = true;
                 }
             }
@@ -1246,9 +1254,30 @@ class PatientSimilarityController extends Controller
             ->pluck('concept_name', 'concept_id')
             ->all();
 
+        $genderLabels = [8507 => 'Male', 8532 => 'Female', 8551 => 'Unknown'];
+
         foreach (['before', 'after'] as $phase) {
             foreach ($result['balance'][$phase] ?? [] as &$row) {
-                if (preg_match('/^concept:(\d+)$/', $row['covariate'] ?? '', $m)) {
+                $cov = $row['covariate'] ?? '';
+
+                if ($cov === 'demographics_age_norm') {
+                    $row['covariate'] = 'Age (normalized)';
+                } elseif (preg_match('/^demographics_gender_(\d+)$/', $cov, $m)) {
+                    $cid = (int) $m[1];
+                    $row['covariate'] = 'Gender: '.($genderLabels[$cid] ?? ($names[$cid] ?? "Concept {$cid}"));
+                } elseif (preg_match('/^demographics_race_(\d+)$/', $cov, $m)) {
+                    $cid = (int) $m[1];
+                    $row['covariate'] = 'Race: '.($names[$cid] ?? "Concept {$cid}");
+                } elseif (preg_match('/^condition_(\d+)$/', $cov, $m)) {
+                    $cid = (int) $m[1];
+                    $row['covariate'] = $names[$cid] ?? "Condition {$cid}";
+                } elseif (preg_match('/^drug_(\d+)$/', $cov, $m)) {
+                    $cid = (int) $m[1];
+                    $row['covariate'] = $names[$cid] ?? "Drug {$cid}";
+                } elseif (preg_match('/^procedure_(\d+)$/', $cov, $m)) {
+                    $cid = (int) $m[1];
+                    $row['covariate'] = $names[$cid] ?? "Procedure {$cid}";
+                } elseif (preg_match('/^concept:(\d+)$/', $cov, $m)) {
                     $cid = (int) $m[1];
                     $row['covariate'] = $names[$cid] ?? "Concept {$cid}";
                 }
