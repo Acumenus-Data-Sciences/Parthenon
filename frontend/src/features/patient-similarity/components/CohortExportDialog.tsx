@@ -99,7 +99,7 @@ export function CohortExportDialog({
                     "w-full rounded-lg px-3 py-2 text-sm",
                     "bg-[#0E0E11] border border-[#232328]",
                     "text-[#F0EDE8] placeholder:text-[#5A5650]",
-                    "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+                    "focus:outline-none focus:border-[#C9A227] focus:ring-1 focus:ring-[#C9A227]/15",
                   )}
                 />
               </div>
@@ -118,7 +118,7 @@ export function CohortExportDialog({
                     "w-full rounded-lg px-3 py-2 text-sm resize-none",
                     "bg-[#0E0E11] border border-[#232328]",
                     "text-[#F0EDE8] placeholder:text-[#5A5650]",
-                    "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+                    "focus:outline-none focus:border-[#C9A227] focus:ring-1 focus:ring-[#C9A227]/15",
                   )}
                 />
               </div>
