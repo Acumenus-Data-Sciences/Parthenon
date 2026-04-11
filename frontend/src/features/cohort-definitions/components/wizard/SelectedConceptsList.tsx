@@ -22,8 +22,8 @@ export function SelectedConceptsList({
   if (concepts.length === 0) return null;
 
   return (
-    <div className="border-t border-[#222] pt-3">
-      <div className="mb-2 text-[11px] uppercase tracking-wider text-[#666]">
+    <div className="border-t border-[#2A2A30] pt-3">
+      <div className="mb-2 text-[11px] uppercase tracking-wider text-[#5A5650]">
         Selected ({concepts.length})
       </div>
       <div className="flex flex-col gap-1.5">
@@ -36,7 +36,7 @@ export function SelectedConceptsList({
               <span className="mr-2 font-mono text-[11px] text-[#C9A227]">
                 {entry.concept.concept_id}
               </span>
-              <span className="text-[13px] text-[#ccc]">
+              <span className="text-[13px] text-[#C5C0B8]">
                 {entry.concept.concept_name}
               </span>
               <span className="ml-2 rounded bg-[rgba(155,27,48,0.2)] px-1.5 py-0.5 text-[10px] text-[#E85A6B]">
@@ -49,7 +49,7 @@ export function SelectedConceptsList({
             <div className="flex items-center gap-3">
               {onUpdateOptions && (
                 <>
-                  <label className="flex items-center gap-1 text-[11px] text-[#888]">
+                  <label className="flex items-center gap-1 text-[11px] text-[#8A857D]">
                     <input
                       type="checkbox"
                       checked={entry.includeDescendants}
@@ -63,7 +63,7 @@ export function SelectedConceptsList({
                     Descendants
                   </label>
                   {showFirstOccurrence && (
-                    <label className="flex items-center gap-1 text-[11px] text-[#888]">
+                    <label className="flex items-center gap-1 text-[11px] text-[#8A857D]">
                       <input
                         type="checkbox"
                         checked={entry.firstOccurrenceOnly}
@@ -82,7 +82,7 @@ export function SelectedConceptsList({
               <button
                 type="button"
                 onClick={() => onRemove(entry.concept.concept_id)}
-                className="text-[#444] hover:text-[#E85A6B]"
+                className="text-[#323238] hover:text-[#E85A6B]"
               >
                 <X size={14} />
               </button>

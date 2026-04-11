@@ -24,8 +24,8 @@ export function CohortSummary() {
   const hasDescendants = s.entryConcepts.some((e) => e.includeDescendants);
 
   return (
-    <div className="rounded-lg bg-[#1a1a2e] p-4 text-[13px] leading-[1.8] text-[#ccc]">
-      <div className="mb-2 text-[11px] uppercase tracking-wider text-[#666]">
+    <div className="rounded-lg bg-[#1C1C20] p-4 text-[13px] leading-[1.8] text-[#C5C0B8]">
+      <div className="mb-2 text-[11px] uppercase tracking-wider text-[#5A5650]">
         Your cohort definition reads as:
       </div>
 
@@ -35,9 +35,9 @@ export function CohortSummary() {
         <strong className="text-[#C9A227]">
           {entryNames.length > 0 ? entryNames.join(", ") : "(no entry events)"}
         </strong>
-        {hasDescendants && <span className="text-[#888]"> (or any sub-type)</span>}
+        {hasDescendants && <span className="text-[#8A857D]"> (or any sub-type)</span>}
         {", "}
-        <span className="text-[#666]">
+        <span className="text-[#5A5650]">
           using {s.qualifiedLimit.toLowerCase()} qualifying event
           {s.qualifiedLimit === "All" ? "s" : ""}
         </span>

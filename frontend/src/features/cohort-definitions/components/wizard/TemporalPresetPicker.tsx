@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import type { TemporalWindow } from "../../types/cohortExpression";
 import {
   TEMPORAL_PRESETS,
@@ -64,13 +65,13 @@ export function TemporalPresetPicker({ value, onChange }: TemporalPresetPickerPr
               className={`rounded-md p-2.5 text-left transition-colors ${
                 isSelected
                   ? "border border-[rgba(45,212,191,0.3)] bg-[rgba(45,212,191,0.05)]"
-                  : "border border-[#2a2a3a] bg-[#0E0E11] hover:border-[#444]"
+                  : "border border-[#2A2A30] bg-[#0E0E11] hover:border-[#323238]"
               }`}
             >
-              <div className={`text-[13px] font-medium ${isSelected ? "text-[#2DD4BF]" : "text-[#ccc]"}`}>
+              <div className={`text-[13px] font-medium ${isSelected ? "text-[#2DD4BF]" : "text-[#C5C0B8]"}`}>
                 {preset.label}
               </div>
-              <div className="text-[11px] text-[#666]">{preset.description}</div>
+              <div className="text-[11px] text-[#5A5650]">{preset.description}</div>
             </button>
           );
         })}
@@ -83,16 +84,16 @@ export function TemporalPresetPicker({ value, onChange }: TemporalPresetPickerPr
           setIsCustom(true);
           handleCustomChange(startDays, startDir, endDays, endDir);
         }}
-        className={`text-[12px] ${isCustom ? "text-[#C9A227]" : "text-[#555] hover:text-[#888]"}`}
+        className={`text-[12px] ${isCustom ? "text-[#C9A227]" : "text-[#5A5650] hover:text-[#8A857D]"}`}
       >
-        {isCustom ? "▾ Custom range" : "▸ Custom range..."}
+        {isCustom ? <><ChevronDown size={12} className="inline" /> Custom range</> : <><ChevronRight size={12} className="inline" /> Custom range...</>}
       </button>
 
       {/* Custom range inputs */}
       {isCustom && (
-        <div className="rounded-md bg-[#1a1a2e] p-3">
+        <div className="rounded-md bg-[#1C1C20] p-3">
           <div className="flex flex-wrap items-center gap-1.5 text-[13px]">
-            <span className="text-[#ccc]">between</span>
+            <span className="text-[#C5C0B8]">between</span>
             <input
               type="number"
               min={0}
@@ -100,20 +101,20 @@ export function TemporalPresetPicker({ value, onChange }: TemporalPresetPickerPr
               onChange={(e) =>
                 handleCustomChange(Math.max(0, parseInt(e.target.value) || 0), startDir, endDays, endDir)
               }
-              className="w-[50px] rounded border border-[#444] bg-[#0E0E11] px-2 py-1 text-center text-[#C9A227] outline-none focus:border-[#C9A227]"
+              className="w-[50px] rounded border border-[#323238] bg-[#0E0E11] px-2 py-1 text-center text-[#C9A227] outline-none focus:border-[#C9A227]"
             />
-            <span className="text-[#ccc]">days</span>
+            <span className="text-[#C5C0B8]">days</span>
             <select
               value={startDir}
               onChange={(e) =>
                 handleCustomChange(startDays, e.target.value as TemporalDirection, endDays, endDir)
               }
-              className="rounded border border-[#444] bg-[#0E0E11] px-2 py-1 text-[#2DD4BF] outline-none"
+              className="rounded border border-[#323238] bg-[#0E0E11] px-2 py-1 text-[#2DD4BF] outline-none"
             >
               <option value="before">before</option>
               <option value="after">after</option>
             </select>
-            <span className="text-[#ccc]">and</span>
+            <span className="text-[#C5C0B8]">and</span>
             <input
               type="number"
               min={0}
@@ -121,20 +122,20 @@ export function TemporalPresetPicker({ value, onChange }: TemporalPresetPickerPr
               onChange={(e) =>
                 handleCustomChange(startDays, startDir, Math.max(0, parseInt(e.target.value) || 0), endDir)
               }
-              className="w-[50px] rounded border border-[#444] bg-[#0E0E11] px-2 py-1 text-center text-[#C9A227] outline-none focus:border-[#C9A227]"
+              className="w-[50px] rounded border border-[#323238] bg-[#0E0E11] px-2 py-1 text-center text-[#C9A227] outline-none focus:border-[#C9A227]"
             />
-            <span className="text-[#ccc]">days</span>
+            <span className="text-[#C5C0B8]">days</span>
             <select
               value={endDir}
               onChange={(e) =>
                 handleCustomChange(startDays, startDir, endDays, e.target.value as TemporalDirection)
               }
-              className="rounded border border-[#444] bg-[#0E0E11] px-2 py-1 text-[#2DD4BF] outline-none"
+              className="rounded border border-[#323238] bg-[#0E0E11] px-2 py-1 text-[#2DD4BF] outline-none"
             >
               <option value="before">before</option>
               <option value="after">after</option>
             </select>
-            <span className="text-[#ccc]">cohort entry</span>
+            <span className="text-[#C5C0B8]">cohort entry</span>
           </div>
         </div>
       )}
@@ -142,8 +143,8 @@ export function TemporalPresetPicker({ value, onChange }: TemporalPresetPickerPr
       {/* Live preview */}
       {value !== undefined && (
         <div className="rounded-md border border-[rgba(45,212,191,0.15)] bg-[rgba(45,212,191,0.05)] px-3 py-2">
-          <span className="text-[11px] text-[#666]">READS AS: </span>
-          <span className="text-[13px] text-[#ccc]">
+          <span className="text-[11px] text-[#5A5650]">READS AS: </span>
+          <span className="text-[13px] text-[#C5C0B8]">
             &ldquo;{describeWindow(value)}&rdquo;
           </span>
         </div>
