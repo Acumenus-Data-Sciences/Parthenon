@@ -68,7 +68,7 @@ function SharedFeaturePills({ category, icon, label }: {
 
   return (
     <div className="space-y-1.5">
-      <div className="flex items-center gap-1.5 text-[10px] font-semibold text-[#5A5650] uppercase tracking-wider">
+      <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#5A5650] uppercase tracking-[0.5px]">
         {icon}
         {label}
         <span className="text-[#8A857D] font-normal normal-case">
@@ -145,8 +145,8 @@ export function SimilarPatientTable({
 
   if (patients.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
-        <p className="text-sm text-[#8A857D]">No similar patients found.</p>
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <p className="text-sm text-[#8A857D]">No similar patients found for the given criteria.</p>
       </div>
     );
   }
@@ -155,37 +155,37 @@ export function SimilarPatientTable({
     <div className="rounded-lg border border-[#232328] overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-[#151518] border-b border-[#232328]">
+          <thead className="sticky top-0 z-20">
+            <tr className="bg-[#1C1C20] border-b border-[#2A2A30]">
               <th className="px-2 py-2.5 w-8" />
-              <th className="px-3 py-2.5 text-left text-[10px] font-semibold text-[#5A5650] uppercase tracking-wider w-12">
+              <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#5A5650] uppercase tracking-[0.5px] w-12">
                 #
               </th>
-              <th className="px-3 py-2.5 text-left text-[10px] font-semibold text-[#5A5650] uppercase tracking-wider">
+              <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#5A5650] uppercase tracking-[0.5px]">
                 Score
               </th>
-              <th className="px-3 py-2.5 text-left text-[10px] font-semibold text-[#5A5650] uppercase tracking-wider">
+              <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#5A5650] uppercase tracking-[0.5px]">
                 Patient
               </th>
-              <th className="px-3 py-2.5 text-left text-[10px] font-semibold text-[#5A5650] uppercase tracking-wider">
+              <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#5A5650] uppercase tracking-[0.5px]">
                 Demographics
               </th>
-              <th className="px-3 py-2.5 text-left text-[10px] font-semibold text-[#5A5650] uppercase tracking-wider">
+              <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#5A5650] uppercase tracking-[0.5px]">
                 Conditions
               </th>
-              <th className="px-3 py-2.5 text-left text-[10px] font-semibold text-[#5A5650] uppercase tracking-wider">
+              <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#5A5650] uppercase tracking-[0.5px]">
                 Labs
               </th>
-              <th className="px-3 py-2.5 text-left text-[10px] font-semibold text-[#5A5650] uppercase tracking-wider">
+              <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#5A5650] uppercase tracking-[0.5px]">
                 Drugs
               </th>
-              <th className="px-3 py-2.5 text-left text-[10px] font-semibold text-[#5A5650] uppercase tracking-wider">
+              <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#5A5650] uppercase tracking-[0.5px]">
                 Procedures
               </th>
-              <th className="px-3 py-2.5 text-left text-[10px] font-semibold text-[#5A5650] uppercase tracking-wider">
+              <th className="px-3 py-2.5 text-left text-[11px] font-semibold text-[#5A5650] uppercase tracking-[0.5px]">
                 Genomics
               </th>
-              <th className="px-3 py-2.5 text-right text-[10px] font-semibold text-[#5A5650] uppercase tracking-wider w-20">
+              <th className="px-3 py-2.5 text-right text-[11px] font-semibold text-[#5A5650] uppercase tracking-[0.5px] w-20">
                 Compare
               </th>
             </tr>
@@ -207,7 +207,7 @@ export function SimilarPatientTable({
                 <Fragment key={rowKey}>
                   <tr
                     className={cn(
-                      "border-b border-[#1C1C20] transition-colors",
+                      "border-b border-[#2A2A30]/50 transition-colors",
                       hasDetails ? "cursor-pointer hover:bg-[#1C1C20]/50" : "hover:bg-[#1C1C20]/30",
                       isExpanded && "bg-[#1C1C20]/30",
                     )}
@@ -292,7 +292,7 @@ export function SimilarPatientTable({
                   </tr>
                   {/* Expanded detail row */}
                   {isExpanded && hasDetails && (
-                    <tr className="border-b border-[#1C1C20] bg-[#131316]">
+                    <tr className="border-b border-[#2A2A30]/50 bg-[#0E0E11]">
                       <td />
                       <td colSpan={10} className="px-4 py-3">
                         <div className="space-y-3">
@@ -304,7 +304,7 @@ export function SimilarPatientTable({
                           )}
 
                           <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-                            <div className="rounded-md border border-[#232328] bg-[#151518] px-3 py-2">
+                            <div className="rounded-md border border-[#2A2A30] bg-[#0E0E11] px-3 py-2">
                               <div className="text-[10px] uppercase tracking-wider text-[#5A5650]">
                                 Anchor Date
                               </div>
@@ -312,7 +312,7 @@ export function SimilarPatientTable({
                                 {formatAnchorDate(patient.anchor_date)}
                               </div>
                             </div>
-                            <div className="rounded-md border border-[#232328] bg-[#151518] px-3 py-2">
+                            <div className="rounded-md border border-[#2A2A30] bg-[#0E0E11] px-3 py-2">
                               <div className="text-[10px] uppercase tracking-wider text-[#5A5650]">
                                 Conditions
                               </div>
@@ -320,7 +320,7 @@ export function SimilarPatientTable({
                                 {patient.condition_count ?? "\u2014"}
                               </div>
                             </div>
-                            <div className="rounded-md border border-[#232328] bg-[#151518] px-3 py-2">
+                            <div className="rounded-md border border-[#2A2A30] bg-[#0E0E11] px-3 py-2">
                               <div className="text-[10px] uppercase tracking-wider text-[#5A5650]">
                                 Labs
                               </div>
@@ -328,7 +328,7 @@ export function SimilarPatientTable({
                                 {patient.lab_count ?? "\u2014"}
                               </div>
                             </div>
-                            <div className="rounded-md border border-[#232328] bg-[#151518] px-3 py-2">
+                            <div className="rounded-md border border-[#2A2A30] bg-[#0E0E11] px-3 py-2">
                               <div className="text-[10px] uppercase tracking-wider text-[#5A5650]">
                                 Vector Version
                               </div>
