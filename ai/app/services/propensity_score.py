@@ -177,7 +177,7 @@ class PropensityScoreService:
         ps_clipped = np.clip(ps, 0.001, 0.999)
         numerator = ps_clipped * (1.0 - prev)
         denominator = numerator + (1.0 - ps_clipped) * prev
-        return (numerator / denominator).astype(np.float64)
+        return np.asarray((numerator / denominator), dtype=np.float64)
 
     @staticmethod
     def match_patients(

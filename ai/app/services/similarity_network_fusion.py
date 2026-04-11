@@ -159,7 +159,7 @@ def knn_filter(W: np.ndarray, k: int = 20) -> np.ndarray:
     row_sums = np.where(row_sums == 0, 1.0, row_sums)
     S = S / row_sums
 
-    return S
+    return np.asarray(S)
 
 
 def _row_normalize(P: np.ndarray) -> np.ndarray:
@@ -311,8 +311,8 @@ def compute_modality_contributions(
         if w_norm == 0:
             raw_weights.append(0.0)
         else:
-            corr = float(np.sum(W * fused)) / (w_norm * fused_norm)
-            raw_weights.append(max(corr, 0.0))
+            corr: float = float(np.sum(W * fused)) / float(w_norm * fused_norm)
+            raw_weights.append(corr if corr > 0.0 else 0.0)
 
     total = sum(raw_weights)
     if total == 0:
