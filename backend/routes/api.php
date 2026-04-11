@@ -1273,14 +1273,14 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve'])->group(funct
 
 // WADO-URI: requires auth — use token query param for Cornerstone3D XHR compatibility
 Route::prefix('v1/imaging')->middleware(['auth:sanctum', 'source.resolve'])->group(function () {
-    Route::get('/wado/{sopUid}', [ImagingController::class, 'wado']);
+    Route::get('/wado/{sopUid}', [ImagingController::class, 'wado'])->middleware('permission:imaging.view');
 });
 
 // ── Phase 5: Radiogenomics ────────────────────────────────────────────────
 Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve'])->group(function () {
     Route::prefix('radiogenomics')->group(function () {
-        Route::get('/patients/{personId}', [RadiogenomicsController::class, 'patientPanel']);
-        Route::get('/variant-drug-interactions', [RadiogenomicsController::class, 'variantDrugInteractions']);
+        Route::get('/patients/{personId}', [RadiogenomicsController::class, 'patientPanel'])->middleware('permission:genomics.view');
+        Route::get('/variant-drug-interactions', [RadiogenomicsController::class, 'variantDrugInteractions'])->middleware('permission:genomics.view');
     });
 });
 
