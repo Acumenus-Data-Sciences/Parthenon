@@ -18,6 +18,7 @@ import { CovariateBalancePanel } from '../components/CovariateBalancePanel';
 import { PsmPanel } from '../components/PsmPanel';
 import { LandscapePanel } from '../components/LandscapePanel';
 import { HeadToHeadDrawer } from '../components/HeadToHeadDrawer';
+import { SimilarityModeToggle } from '../components/SimilarityModeToggle';
 import { CentroidProfilePanel } from '../components/CentroidProfilePanel';
 import { SimilarPatientsPanel } from '../components/SimilarPatientsPanel';
 import type {
@@ -59,6 +60,7 @@ export default function PatientSimilarityWorkspace() {
   const [ageMin, setAgeMin] = useState(0);
   const [ageMax, setAgeMax] = useState(150);
   const [gender, setGender] = useState('');
+  const [similarityMode, setSimilarityMode] = useState<'auto' | 'interpretable' | 'embedding'>('auto');
 
   const pipeline = usePipeline();
   const compareMutation = useCompareCohorts();
@@ -408,7 +410,24 @@ export default function PatientSimilarityWorkspace() {
   const steps = (pipeline as unknown as { steps: import('../types/pipeline').StepDefinition[] }).steps;
 
   return (
-    <div className="flex h-full flex-col overflow-hidden bg-[#0E0E11]">
+    <div className="space-y-6">
+      {/* Page header */}
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="page-title">Patient Similarity</h1>
+          <p className="page-subtitle">
+            Compare cohort profiles, find similar patients, and run propensity score matching across OMOP CDM sources
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <SimilarityModeToggle
+            mode={similarityMode}
+            onChange={setSimilarityMode}
+          />
+        </div>
+      </div>
+
+      {/* Toolbar */}
       <CohortSelectorBar
         mode={pipeline.mode}
         sourceId={sourceId}
@@ -423,18 +442,18 @@ export default function PatientSimilarityWorkspace() {
         isRunning={compareMutation.isPending || cohortSimilarityMutation.isPending}
       />
 
-      <div className="flex-1 overflow-y-auto">
-        <AnalysisPipeline
-          steps={steps}
-          expandedSteps={pipeline.expandedSteps}
-          getStepStatus={pipeline.getStepStatus}
-          getStepResult={pipeline.getStepResult}
-          onToggleStep={pipeline.toggleStep}
-          onRunStep={handleRunStep}
-          renderStepContent={renderStepContent}
-        />
-      </div>
+      {/* Analysis pipeline */}
+      <AnalysisPipeline
+        steps={steps}
+        expandedSteps={pipeline.expandedSteps}
+        getStepStatus={pipeline.getStepStatus}
+        getStepResult={pipeline.getStepResult}
+        onToggleStep={pipeline.toggleStep}
+        onRunStep={handleRunStep}
+        renderStepContent={renderStepContent}
+      />
 
+      {/* Drawers */}
       <SettingsDrawer
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
