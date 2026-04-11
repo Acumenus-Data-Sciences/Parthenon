@@ -4,14 +4,9 @@ import { cn } from "@/lib/utils";
 import { useCohortWizardStore } from "../../stores/cohortWizardStore";
 import { BasicsChapter } from "./BasicsChapter";
 import { SpecializedChapter } from "./SpecializedChapter";
-// These step components will be created in Task 3 — stub imports expected to fail until then
-// @ts-expect-error Step component not yet created
 import { PopulationStep } from "./steps/PopulationStep";
-// @ts-expect-error Step component not yet created
 import { CriteriaStep } from "./steps/CriteriaStep";
-// @ts-expect-error Step component not yet created
 import { FollowUpStep } from "./steps/FollowUpStep";
-// @ts-expect-error Step component not yet created
 import { ReviewGenerateStep } from "./steps/ReviewGenerateStep";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
