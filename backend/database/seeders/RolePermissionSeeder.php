@@ -75,6 +75,12 @@ class RolePermissionSeeder extends Seeder
         // ── Patient similarity engine ────────────────────────────────────
         'patient-similarity' => ['view', 'compute'],
 
+        // ── DICOM imaging ───────────────────────────────────────────────
+        'imaging' => ['view', 'create', 'delete', 'run'],
+
+        // ── Genomics / variant analysis ─────────────────────────────────
+        'genomics' => ['view', 'upload', 'delete', 'run'],
+
         // ── AI-maintained wiki ───────────────────────────────────────────
         'wiki' => ['view', 'ingest', 'lint', 'manage'],
     ];
@@ -102,6 +108,8 @@ class RolePermissionSeeder extends Seeder
             'profiler.view', 'profiler.scan', 'profiler.delete',
             'etl.view', 'etl.create', 'etl.delete', 'etl.export',
             'surveys.view', 'surveys.create', 'surveys.edit', 'surveys.delete',
+            'imaging.view', 'imaging.create', 'imaging.delete', 'imaging.run',
+            'genomics.view', 'genomics.upload', 'genomics.delete', 'genomics.run',
             'wiki.view', 'wiki.ingest', 'wiki.lint', 'wiki.manage',
         ],
 
@@ -121,6 +129,8 @@ class RolePermissionSeeder extends Seeder
             'etl.view', 'etl.create', 'etl.export',
             'surveys.view', 'surveys.create', 'surveys.edit',
             'patient-similarity.view',
+            'imaging.view', 'imaging.create', 'imaging.run',
+            'genomics.view', 'genomics.upload', 'genomics.run',
             'wiki.view', 'wiki.ingest', 'wiki.lint',
         ],
 
@@ -137,6 +147,8 @@ class RolePermissionSeeder extends Seeder
             'profiler.view', 'profiler.scan',
             'etl.view', 'etl.create', 'etl.export',
             'patient-similarity.compute',
+            'imaging.view', 'imaging.create', 'imaging.run',
+            'genomics.view', 'genomics.upload', 'genomics.run',
             'wiki.view', 'wiki.ingest', 'wiki.lint', 'wiki.manage',
         ],
 
@@ -166,6 +178,8 @@ class RolePermissionSeeder extends Seeder
             'etl.view',
             'surveys.view',
             'patient-similarity.view',
+            'imaging.view',
+            'genomics.view',
             'wiki.view',
         ],
     ];

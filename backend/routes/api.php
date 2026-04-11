@@ -1172,102 +1172,102 @@ Route::prefix('v1')->group(function () {
 // ── Phase 15: Genomics ────────────────────────────────────────────────────────
 Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve'])->group(function () {
     Route::prefix('genomics')->group(function () {
-        Route::get('/stats', [GenomicsController::class, 'stats']);
+        Route::get('/stats', [GenomicsController::class, 'stats'])->middleware('permission:genomics.view');
 
         // VCF / MAF uploads
-        Route::get('/uploads', [GenomicsController::class, 'indexUploads']);
-        Route::post('/uploads', [GenomicsController::class, 'uploadFile']);
-        Route::get('/uploads/{upload}', [GenomicsController::class, 'showUpload']);
-        Route::delete('/uploads/{upload}', [GenomicsController::class, 'destroyUpload']);
-        Route::post('/uploads/{upload}/match-persons', [GenomicsController::class, 'matchPersons']);
-        Route::post('/uploads/{upload}/import', [GenomicsController::class, 'importToOmop']);
+        Route::get('/uploads', [GenomicsController::class, 'indexUploads'])->middleware('permission:genomics.view');
+        Route::post('/uploads', [GenomicsController::class, 'uploadFile'])->middleware('permission:genomics.upload');
+        Route::get('/uploads/{upload}', [GenomicsController::class, 'showUpload'])->middleware('permission:genomics.view');
+        Route::delete('/uploads/{upload}', [GenomicsController::class, 'destroyUpload'])->middleware('permission:genomics.delete');
+        Route::post('/uploads/{upload}/match-persons', [GenomicsController::class, 'matchPersons'])->middleware('permission:genomics.run');
+        Route::post('/uploads/{upload}/import', [GenomicsController::class, 'importToOmop'])->middleware('permission:genomics.run');
 
         // Analysis suite
-        Route::get('/analysis/survival', [GenomicsController::class, 'survivalAnalysis']);
-        Route::get('/analysis/treatment-matrix', [GenomicsController::class, 'treatmentMatrix']);
-        Route::get('/analysis/characterization', [GenomicsController::class, 'characterization']);
+        Route::get('/analysis/survival', [GenomicsController::class, 'survivalAnalysis'])->middleware('permission:genomics.view');
+        Route::get('/analysis/treatment-matrix', [GenomicsController::class, 'treatmentMatrix'])->middleware('permission:genomics.view');
+        Route::get('/analysis/characterization', [GenomicsController::class, 'characterization'])->middleware('permission:genomics.view');
 
         // Tumor Board
-        Route::get('/tumor-board/{personId}', [GenomicsController::class, 'tumorBoard']);
+        Route::get('/tumor-board/{personId}', [GenomicsController::class, 'tumorBoard'])->middleware('permission:genomics.view');
 
         // Variants
-        Route::get('/variants', [GenomicsController::class, 'indexVariants']);
-        Route::get('/variants/{variant}', [GenomicsController::class, 'showVariant']);
+        Route::get('/variants', [GenomicsController::class, 'indexVariants'])->middleware('permission:genomics.view');
+        Route::get('/variants/{variant}', [GenomicsController::class, 'showVariant'])->middleware('permission:genomics.view');
 
         // ClinVar reference database
-        Route::get('/clinvar/status', [GenomicsController::class, 'clinvarStatus']);
-        Route::get('/clinvar/search', [GenomicsController::class, 'clinvarSearch']);
-        Route::post('/clinvar/sync', [GenomicsController::class, 'clinvarSync']);
-        Route::post('/uploads/{upload}/annotate-clinvar', [GenomicsController::class, 'annotateClinVar']);
+        Route::get('/clinvar/status', [GenomicsController::class, 'clinvarStatus'])->middleware('permission:genomics.view');
+        Route::get('/clinvar/search', [GenomicsController::class, 'clinvarSearch'])->middleware('permission:genomics.view');
+        Route::post('/clinvar/sync', [GenomicsController::class, 'clinvarSync'])->middleware('permission:genomics.run');
+        Route::post('/uploads/{upload}/annotate-clinvar', [GenomicsController::class, 'annotateClinVar'])->middleware('permission:genomics.run');
 
         // Cohort criteria
-        Route::get('/criteria', [GenomicsController::class, 'indexCriteria']);
-        Route::post('/criteria', [GenomicsController::class, 'storeCriterion']);
-        Route::put('/criteria/{criterion}', [GenomicsController::class, 'updateCriterion']);
-        Route::delete('/criteria/{criterion}', [GenomicsController::class, 'destroyCriterion']);
+        Route::get('/criteria', [GenomicsController::class, 'indexCriteria'])->middleware('permission:genomics.view');
+        Route::post('/criteria', [GenomicsController::class, 'storeCriterion'])->middleware('permission:genomics.upload');
+        Route::put('/criteria/{criterion}', [GenomicsController::class, 'updateCriterion'])->middleware('permission:genomics.upload');
+        Route::delete('/criteria/{criterion}', [GenomicsController::class, 'destroyCriterion'])->middleware('permission:genomics.delete');
     });
 });
 
 // ── Phase 16: DICOM Imaging ───────────────────────────────────────────────────
 Route::prefix('v1')->middleware(['auth:sanctum', 'source.resolve'])->group(function () {
     Route::prefix('imaging')->group(function () {
-        Route::get('/stats', [ImagingController::class, 'stats']);
+        Route::get('/stats', [ImagingController::class, 'stats'])->middleware('permission:imaging.view');
 
         // Studies
-        Route::get('/studies', [ImagingController::class, 'indexStudies']);
-        Route::get('/studies/{study}', [ImagingController::class, 'showStudy']);
-        Route::post('/studies/index-from-dicomweb', [ImagingController::class, 'indexFromDicomweb']);
-        Route::post('/studies/{study}/index-series', [ImagingController::class, 'indexSeries']);
-        Route::post('/studies/{study}/extract-nlp', [ImagingController::class, 'extractNlp']);
+        Route::get('/studies', [ImagingController::class, 'indexStudies'])->middleware('permission:imaging.view');
+        Route::get('/studies/{study}', [ImagingController::class, 'showStudy'])->middleware('permission:imaging.view');
+        Route::post('/studies/index-from-dicomweb', [ImagingController::class, 'indexFromDicomweb'])->middleware('permission:imaging.run');
+        Route::post('/studies/{study}/index-series', [ImagingController::class, 'indexSeries'])->middleware('permission:imaging.run');
+        Route::post('/studies/{study}/extract-nlp', [ImagingController::class, 'extractNlp'])->middleware('permission:imaging.run');
 
         // Features
-        Route::get('/features', [ImagingController::class, 'indexFeatures']);
+        Route::get('/features', [ImagingController::class, 'indexFeatures'])->middleware('permission:imaging.view');
 
         // Cohort criteria
-        Route::get('/criteria', [ImagingController::class, 'indexCriteria']);
-        Route::post('/criteria', [ImagingController::class, 'storeCriterion']);
-        Route::delete('/criteria/{criterion}', [ImagingController::class, 'destroyCriterion']);
+        Route::get('/criteria', [ImagingController::class, 'indexCriteria'])->middleware('permission:imaging.view');
+        Route::post('/criteria', [ImagingController::class, 'storeCriterion'])->middleware('permission:imaging.create');
+        Route::delete('/criteria/{criterion}', [ImagingController::class, 'destroyCriterion'])->middleware('permission:imaging.delete');
 
         // Population analytics
-        Route::get('/analytics/population', [ImagingController::class, 'populationAnalytics']);
+        Route::get('/analytics/population', [ImagingController::class, 'populationAnalytics'])->middleware('permission:imaging.view');
 
         // Local DICOM import (from import_dicom.py — external Python script)
-        Route::post('/import-local', [ImagingController::class, 'importLocal']);
+        Route::post('/import-local', [ImagingController::class, 'importLocal'])->middleware('permission:imaging.create');
         // UI-triggered import (PHP-native DICOM reader, no Python required)
-        Route::post('/import-local/trigger', [ImagingController::class, 'triggerLocalImport']);
+        Route::post('/import-local/trigger', [ImagingController::class, 'triggerLocalImport'])->middleware('permission:imaging.create');
 
         // Instance listing (for viewer navigation)
-        Route::get('/studies/{study}/instances', [ImagingController::class, 'listInstances']);
+        Route::get('/studies/{study}/instances', [ImagingController::class, 'listInstances'])->middleware('permission:imaging.view');
 
         // ── Imaging Outcomes Research ──────────────────────────────────────
         // Patient timelines
-        Route::get('/patients', [ImagingTimelineController::class, 'listPatientsWithImaging']);
-        Route::get('/patients/{personId}/timeline', [ImagingTimelineController::class, 'patientTimeline']);
-        Route::get('/patients/{personId}/studies', [ImagingTimelineController::class, 'patientStudies']);
+        Route::get('/patients', [ImagingTimelineController::class, 'listPatientsWithImaging'])->middleware('permission:imaging.view');
+        Route::get('/patients/{personId}/timeline', [ImagingTimelineController::class, 'patientTimeline'])->middleware('permission:imaging.view');
+        Route::get('/patients/{personId}/studies', [ImagingTimelineController::class, 'patientStudies'])->middleware('permission:imaging.view');
 
         // Study ↔ person linking
-        Route::post('/studies/{study}/link-person', [ImagingTimelineController::class, 'linkPerson']);
-        Route::post('/studies/bulk-link', [ImagingTimelineController::class, 'bulkLinkPerson']);
-        Route::post('/studies/auto-link', [ImagingTimelineController::class, 'autoLink']);
-        Route::post('/studies/link-by-condition', [ImagingTimelineController::class, 'linkByCondition']);
+        Route::post('/studies/{study}/link-person', [ImagingTimelineController::class, 'linkPerson'])->middleware('permission:imaging.create');
+        Route::post('/studies/bulk-link', [ImagingTimelineController::class, 'bulkLinkPerson'])->middleware('permission:imaging.create');
+        Route::post('/studies/auto-link', [ImagingTimelineController::class, 'autoLink'])->middleware('permission:imaging.run');
+        Route::post('/studies/link-by-condition', [ImagingTimelineController::class, 'linkByCondition'])->middleware('permission:imaging.run');
 
         // Measurements
-        Route::get('/studies/{study}/measurements', [ImagingTimelineController::class, 'studyMeasurements']);
-        Route::post('/studies/{study}/measurements', [ImagingTimelineController::class, 'storeMeasurement']);
-        Route::put('/measurements/{measurement}', [ImagingTimelineController::class, 'updateMeasurement']);
-        Route::delete('/measurements/{measurement}', [ImagingTimelineController::class, 'destroyMeasurement']);
-        Route::get('/patients/{personId}/measurements', [ImagingTimelineController::class, 'patientMeasurements']);
-        Route::get('/patients/{personId}/measurements/trends', [ImagingTimelineController::class, 'measurementTrends']);
+        Route::get('/studies/{study}/measurements', [ImagingTimelineController::class, 'studyMeasurements'])->middleware('permission:imaging.view');
+        Route::post('/studies/{study}/measurements', [ImagingTimelineController::class, 'storeMeasurement'])->middleware('permission:imaging.create');
+        Route::put('/measurements/{measurement}', [ImagingTimelineController::class, 'updateMeasurement'])->middleware('permission:imaging.create');
+        Route::delete('/measurements/{measurement}', [ImagingTimelineController::class, 'destroyMeasurement'])->middleware('permission:imaging.delete');
+        Route::get('/patients/{personId}/measurements', [ImagingTimelineController::class, 'patientMeasurements'])->middleware('permission:imaging.view');
+        Route::get('/patients/{personId}/measurements/trends', [ImagingTimelineController::class, 'measurementTrends'])->middleware('permission:imaging.view');
 
         // AI-powered measurement extraction
-        Route::post('/studies/{study}/ai-extract', [ImagingTimelineController::class, 'aiExtractMeasurements']);
-        Route::get('/studies/{study}/suggest-template', [ImagingTimelineController::class, 'suggestTemplate']);
+        Route::post('/studies/{study}/ai-extract', [ImagingTimelineController::class, 'aiExtractMeasurements'])->middleware('permission:imaging.run');
+        Route::post('/studies/{study}/suggest-template', [ImagingTimelineController::class, 'suggestTemplate'])->middleware('permission:imaging.view');
 
         // Response assessments
-        Route::get('/patients/{personId}/response-assessments', [ImagingTimelineController::class, 'patientResponseAssessments']);
-        Route::post('/patients/{personId}/response-assessments', [ImagingTimelineController::class, 'storeResponseAssessment']);
-        Route::post('/patients/{personId}/compute-response', [ImagingTimelineController::class, 'computeResponse']);
-        Route::post('/patients/{personId}/assess-preview', [ImagingTimelineController::class, 'assessPreview']);
+        Route::get('/patients/{personId}/response-assessments', [ImagingTimelineController::class, 'patientResponseAssessments'])->middleware('permission:imaging.view');
+        Route::post('/patients/{personId}/response-assessments', [ImagingTimelineController::class, 'storeResponseAssessment'])->middleware('permission:imaging.create');
+        Route::post('/patients/{personId}/compute-response', [ImagingTimelineController::class, 'computeResponse'])->middleware('permission:imaging.run');
+        Route::post('/patients/{personId}/assess-preview', [ImagingTimelineController::class, 'assessPreview'])->middleware('permission:imaging.view');
     });
 });
 

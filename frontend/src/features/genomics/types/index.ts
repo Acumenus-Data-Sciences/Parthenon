@@ -1,4 +1,5 @@
-export type FileFormat = 'vcf' | 'maf' | 'cbio_maf' | 'fhir_genomics';
+export type FileFormat = 'vcf' | 'maf' | 'cbio_maf' | 'fhir_genomics' | 'foundation_one';
+export type UploadableFileFormat = Exclude<FileFormat, 'foundation_one'>;
 export type GenomeBuild = 'GRCh38' | 'GRCh37' | 'hg38' | 'hg19';
 export type UploadStatus = 'pending' | 'parsing' | 'mapped' | 'review' | 'imported' | 'failed';
 export type MappingStatus = 'mapped' | 'unmapped' | 'review';
@@ -23,6 +24,8 @@ export interface GenomicUpload {
   created_at: string;
   updated_at: string;
   creator?: { id: number; name: string };
+  omop_context?: GenomicUploadOmopContextXref | null;
+  omop_genomic_test_map?: OmopGenomicTestMap | null;
 }
 
 export interface GenomicVariant {
@@ -52,7 +55,71 @@ export interface GenomicVariant {
   cosmic_id: string | null;
   measurement_concept_id: number;
   mapping_status: MappingStatus;
+  omop_measurement_id?: number | null;
+  omop_xref?: GenomicVariantOmopXref | null;
   created_at: string;
+}
+
+export interface GenomicUploadOmopContextXref {
+  upload_id: number;
+  source_id: number;
+  person_id: number | null;
+  sample_id: string | null;
+  procedure_occurrence_id: number | null;
+  visit_occurrence_id: number | null;
+  care_site_id: number | null;
+  specimen_id: number | null;
+  genomic_test_id: number | null;
+  source_strategy: string;
+  mapping_status: string;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OmopGenomicTestMap {
+  upload_id: number;
+  genomic_test_id: number | null;
+  care_site_id: number | null;
+  genomic_test_name: string | null;
+  genomic_test_version: string | null;
+  reference_genome: string | null;
+  sequencing_device: string | null;
+  library_preparation: string | null;
+  target_capture: string | null;
+  read_type: string | null;
+  read_length: number | null;
+  quality_control_tools: string | null;
+  total_reads: number | null;
+  mean_target_coverage: number | null;
+  per_target_base_cover_100x: number | null;
+  alignment_tools: string | null;
+  variant_calling_tools: string | null;
+  chromosome_corrdinate: string | null;
+  annotation_tools: string | null;
+  annotation_databases: string | null;
+  backfill_run_id: number | null;
+  mapping_status: string;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GenomicVariantOmopXref {
+  variant_id: number;
+  variant_occurrence_id: number | null;
+  procedure_occurrence_id: number | null;
+  specimen_id: number | null;
+  reference_specimen_id: number | null;
+  target_gene1_id: string | null;
+  target_gene1_symbol: string | null;
+  target_gene2_id: string | null;
+  target_gene2_symbol: string | null;
+  backfill_run_id: number | null;
+  mapping_status: string;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface GenomicCohortCriterion {
@@ -70,6 +137,9 @@ export interface GenomicCohortCriterion {
 export interface GenomicsStats {
   total_uploads: number;
   total_variants: number;
+  omop_context_uploads: number;
+  omop_variant_occurrences: number;
+  excluded_benchmark_uploads: number;
   mapped_variants: number;
   review_required: number;
   uploads_by_status: Record<string, number>;

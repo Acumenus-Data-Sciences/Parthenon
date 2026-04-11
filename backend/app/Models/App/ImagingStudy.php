@@ -39,6 +39,12 @@ class ImagingStudy extends Model
         return $this->hasMany(ImagingSeries::class, 'study_id');
     }
 
+    /** @return HasMany<ImagingProcedureOmopXref, $this> */
+    public function omopProcedureXrefs(): HasMany
+    {
+        return $this->hasMany(ImagingProcedureOmopXref::class, 'study_id');
+    }
+
     /** @return HasMany<ImagingFeature, $this> */
     public function features(): HasMany
     {

@@ -15,7 +15,7 @@ import {
   syncClinVar,
   annotateClinVar,
 } from "../api/genomicsApi";
-import type { FileFormat, GenomeBuild, CriteriaType } from "../types";
+import type { UploadableFileFormat, GenomeBuild, CriteriaType } from "../types";
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Stats
@@ -50,7 +50,7 @@ export function useUploadVariantFile() {
     mutationFn: (payload: {
       source_id: number;
       file: File;
-      file_format: FileFormat;
+      file_format: UploadableFileFormat;
       genome_build?: GenomeBuild;
       sample_id?: string;
     }) => uploadVariantFile(payload),
@@ -76,9 +76,10 @@ export function useMatchPersons() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => matchPersons(id),
-    onSuccess: (_, id) => {
-      qc.invalidateQueries({ queryKey: ["genomics", "uploads", id] });
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["genomics", "uploads"] });
       qc.invalidateQueries({ queryKey: ["genomics", "variants"] });
+      qc.invalidateQueries({ queryKey: ["genomics", "stats"] });
     },
   });
 }

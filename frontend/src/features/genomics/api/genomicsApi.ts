@@ -5,7 +5,7 @@ import type {
   GenomicCohortCriterion,
   GenomicsStats,
   PaginatedResponse,
-  FileFormat,
+  UploadableFileFormat,
   GenomeBuild,
   CriteriaType,
   ClinVarVariant,
@@ -40,7 +40,7 @@ export async function listUploads(params?: {
 export async function uploadVariantFile(payload: {
   source_id: number;
   file: File;
-  file_format: FileFormat;
+  file_format: UploadableFileFormat;
   genome_build?: GenomeBuild;
   sample_id?: string;
 }): Promise<GenomicUpload> {

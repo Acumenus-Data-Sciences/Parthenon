@@ -3,9 +3,9 @@ import { X, Upload, AlertCircle, CheckCircle2, Loader2, Dna } from "lucide-react
 import { useQuery } from "@tanstack/react-query";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { useUploadVariantFile } from "../hooks/useGenomics";
-import type { FileFormat, GenomeBuild } from "../types";
+import type { UploadableFileFormat, GenomeBuild } from "../types";
 
-const FORMAT_INFO: Record<FileFormat, { label: string; ext: string; desc: string }> = {
+const FORMAT_INFO: Record<UploadableFileFormat, { label: string; ext: string; desc: string }> = {
   vcf: {
     label: "VCF",
     ext: ".vcf, .vcf.gz",
@@ -35,7 +35,7 @@ interface Props {
 
 export function UploadDialog({ onClose, sourceId }: Props) {
   const [file, setFile] = useState<File | null>(null);
-  const [format, setFormat] = useState<FileFormat>("vcf");
+  const [format, setFormat] = useState<UploadableFileFormat>("vcf");
   const [build, setBuild] = useState<GenomeBuild>("GRCh38");
   const [sampleId, setSampleId] = useState("");
   const [selectedSourceId, setSelectedSourceId] = useState<number | undefined>(sourceId);
@@ -158,7 +158,7 @@ export function UploadDialog({ onClose, sourceId }: Props) {
           <div>
             <label className="block text-xs text-[#8A857D] mb-1.5">File Format</label>
             <div className="grid grid-cols-2 gap-2">
-              {(Object.keys(FORMAT_INFO) as FileFormat[]).map((f) => (
+              {(Object.keys(FORMAT_INFO) as UploadableFileFormat[]).map((f) => (
                 <button
                   key={f}
                   type="button"

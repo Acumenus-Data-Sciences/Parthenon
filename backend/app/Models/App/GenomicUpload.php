@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class GenomicUpload extends Model
 {
@@ -55,5 +56,17 @@ class GenomicUpload extends Model
     public function variants(): HasMany
     {
         return $this->hasMany(GenomicVariant::class, 'upload_id');
+    }
+
+    /** @return HasOne<GenomicUploadOmopContextXref, $this> */
+    public function omopContext(): HasOne
+    {
+        return $this->hasOne(GenomicUploadOmopContextXref::class, 'upload_id');
+    }
+
+    /** @return HasOne<OmopGenomicTestMap, $this> */
+    public function omopGenomicTestMap(): HasOne
+    {
+        return $this->hasOne(OmopGenomicTestMap::class, 'upload_id');
     }
 }

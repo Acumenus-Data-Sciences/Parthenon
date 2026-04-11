@@ -4,6 +4,7 @@ namespace App\Models\App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class GenomicVariant extends Model
 {
@@ -69,5 +70,11 @@ class GenomicVariant extends Model
     public function source(): BelongsTo
     {
         return $this->belongsTo(Source::class);
+    }
+
+    /** @return HasOne<GenomicVariantOmopXref, $this> */
+    public function omopXref(): HasOne
+    {
+        return $this->hasOne(GenomicVariantOmopXref::class, 'variant_id');
     }
 }

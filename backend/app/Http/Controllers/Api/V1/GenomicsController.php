@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Context\SourceContext;
 use App\Http\Controllers\Controller;
 use App\Jobs\ParseGenomicUploadJob;
 use App\Models\App\ClinVarSyncLog;
 use App\Models\App\ClinVarVariant;
 use App\Models\App\GenomicCohortCriterion;
 use App\Models\App\GenomicUpload;
+use App\Models\App\GenomicUploadOmopContextXref;
 use App\Models\App\GenomicVariant;
-use App\Models\App\Source;
+use App\Models\App\GenomicVariantOmopXref;
+use App\Models\App\OmopGenomicTestMap;
 use App\Services\Genomics\ClinVarAnnotationService;
 use App\Services\Genomics\ClinVarSyncService;
 use App\Services\Genomics\OmopMeasurementWriterService;
@@ -17,6 +20,7 @@ use App\Services\Genomics\PersonMatcherService;
 use App\Services\Genomics\TumorBoardService;
 use App\Services\Genomics\VariantOutcomeService;
 use App\Services\Genomics\VcfParserService;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -43,9 +47,23 @@ class GenomicsController extends Controller
 
     public function stats(): JsonResponse
     {
+        // OMOP bridge stats degrade gracefully if extension tables are absent (fresh install)
+        try {
+            $omopContextUploads = GenomicUploadOmopContextXref::whereNotNull('genomic_test_id')->count();
+            $omopVariantOccurrences = GenomicVariantOmopXref::whereNotNull('variant_occurrence_id')->count();
+            $excludedBenchmarkUploads = OmopGenomicTestMap::where('mapping_status', 'excluded_benchmark')->count();
+        } catch (QueryException) {
+            $omopContextUploads = 0;
+            $omopVariantOccurrences = 0;
+            $excludedBenchmarkUploads = 0;
+        }
+
         $stats = [
             'total_uploads' => GenomicUpload::count(),
             'total_variants' => GenomicVariant::count(),
+            'omop_context_uploads' => $omopContextUploads,
+            'omop_variant_occurrences' => $omopVariantOccurrences,
+            'excluded_benchmark_uploads' => $excludedBenchmarkUploads,
             'mapped_variants' => GenomicVariant::where('mapping_status', 'mapped')->count(),
             'review_required' => GenomicVariant::where('mapping_status', 'review')->count(),
             'uploads_by_status' => GenomicUpload::selectRaw('status, count(*) as count')
@@ -69,6 +87,7 @@ class GenomicsController extends Controller
     public function indexUploads(Request $request): JsonResponse
     {
         $query = GenomicUpload::with(['creator:id,name'])
+            ->with(['omopContext', 'omopGenomicTestMap'])
             ->orderByDesc('created_at');
 
         if ($request->filled('source_id')) {
@@ -137,7 +156,7 @@ class GenomicsController extends Controller
 
     public function showUpload(GenomicUpload $upload): JsonResponse
     {
-        $upload->load('creator:id,name');
+        $upload->load(['creator:id,name', 'omopContext', 'omopGenomicTestMap']);
 
         return response()->json(['data' => $upload]);
     }
@@ -160,6 +179,7 @@ class GenomicsController extends Controller
     public function indexVariants(Request $request): JsonResponse
     {
         $query = GenomicVariant::orderByRaw('CASE WHEN gene_symbol IS NOT NULL THEN 0 ELSE 1 END')
+            ->with('omopXref')
             ->orderByRaw('CASE WHEN clinvar_significance IS NOT NULL THEN 0 ELSE 1 END')
             ->orderBy('gene_symbol');
 
@@ -186,6 +206,8 @@ class GenomicsController extends Controller
 
     public function showVariant(GenomicVariant $variant): JsonResponse
     {
+        $variant->load('omopXref');
+
         return response()->json(['data' => $variant]);
     }
 
@@ -200,7 +222,8 @@ class GenomicsController extends Controller
     public function matchPersons(GenomicUpload $upload): JsonResponse
     {
         $source = $upload->source;
-        $connectionName = 'cdm'; // resolved from source daimon in full implementation
+        $ctx = app(SourceContext::class);
+        $connectionName = $ctx->source !== null ? $ctx->cdmConnection() : 'omop';
         $schema = 'omop';
 
         $result = $this->matcher->matchUpload($upload, $connectionName, $schema);

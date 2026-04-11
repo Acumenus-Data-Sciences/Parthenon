@@ -51,6 +51,7 @@ class ImagingTimelineController extends Controller
     public function patientStudies(int $personId): JsonResponse
     {
         $studies = ImagingStudy::where('person_id', $personId)
+            ->with(['series.omopXref', 'omopProcedureXrefs'])
             ->withCount('measurements')
             ->orderBy('study_date')
             ->get();

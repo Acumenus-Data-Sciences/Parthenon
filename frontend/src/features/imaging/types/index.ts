@@ -32,6 +32,7 @@ export interface ImagingStudy {
   created_at: string;
   updated_at: string;
   series?: ImagingSeries[];
+  omop_procedure_xrefs?: ImagingProcedureOmopXref[];
   measurements_count?: number;
 }
 
@@ -47,7 +48,38 @@ export interface ImagingSeries {
   slice_thickness_mm: number | null;
   manufacturer: string | null;
   manufacturer_model: string | null;
+  image_occurrence_id: number | null;
   created_at: string;
+  updated_at: string;
+  omop_xref?: ImagingSeriesOmopXref | null;
+}
+
+export interface ImagingSeriesOmopXref {
+  series_id: number;
+  image_occurrence_id: number | null;
+  procedure_occurrence_id: number | null;
+  visit_occurrence_id: number | null;
+  modality_concept_id: number | null;
+  anatomic_site_concept_id: number | null;
+  backfill_run_id: number | null;
+  mapping_status: string;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ImagingProcedureOmopXref {
+  study_id: number;
+  modality: string;
+  procedure_occurrence_id: number;
+  procedure_concept_id: number;
+  procedure_type_concept_id: number;
+  source_strategy: string;
+  source_procedure_occurrence_id: number | null;
+  visit_occurrence_id: number | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface ImagingFeature {
@@ -81,6 +113,9 @@ export interface ImagingCohortCriterion {
 
 export interface ImagingStats {
   total_studies: number;
+  omop_linked_studies: number;
+  total_series: number;
+  omop_linked_series: number;
   total_features: number;
   studies_by_modality: Record<string, number>;
   features_by_type: Record<string, number>;

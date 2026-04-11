@@ -12,6 +12,7 @@ use App\Models\App\PacsConnection;
 use App\Services\Imaging\DicomFileService;
 use App\Services\Imaging\DicomwebService;
 use App\Services\Imaging\RadiologyNlpService;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -35,8 +36,20 @@ class ImagingController extends Controller
 
     public function stats(): JsonResponse
     {
+        // OMOP linkage stats degrade gracefully if image_occurrence_id column is absent (pre-migration)
+        try {
+            $omopLinkedStudies = ImagingStudy::whereNotNull('image_occurrence_id')->count();
+            $omopLinkedSeries = ImagingSeries::whereNotNull('image_occurrence_id')->count();
+        } catch (QueryException) {
+            $omopLinkedStudies = 0;
+            $omopLinkedSeries = 0;
+        }
+
         $stats = [
             'total_studies' => ImagingStudy::count(),
+            'omop_linked_studies' => $omopLinkedStudies,
+            'total_series' => ImagingSeries::count(),
+            'omop_linked_series' => $omopLinkedSeries,
             'total_features' => ImagingFeature::count(),
             'studies_by_modality' => ImagingStudy::selectRaw('modality, count(*) as count')
                 ->whereNotNull('modality')
@@ -138,7 +151,7 @@ class ImagingController extends Controller
 
     public function showStudy(ImagingStudy $study): JsonResponse
     {
-        $study->load('series');
+        $study->load(['series.omopXref', 'omopProcedureXrefs']);
 
         return response()->json(['data' => $study]);
     }
