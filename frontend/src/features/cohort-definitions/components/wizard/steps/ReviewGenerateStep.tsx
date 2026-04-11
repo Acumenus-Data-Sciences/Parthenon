@@ -4,7 +4,7 @@ import { Check, Wrench, BarChart3, Loader2, Pencil } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useCohortWizardStore } from "../../../stores/cohortWizardStore";
 import { useCreateCohortDefinition, useGenerateCohort } from "../../../hooks/useCohortDefinitions";
-import { useCohortGeneration } from "../../../hooks/useCohortGeneration";
+import { getCohortGenerations } from "../../../api/cohortApi";
 import { fetchSources } from "@/features/data-sources/api/sourcesApi";
 import { CohortSummary } from "../CohortSummary";
 import type { Source } from "@/types/models";
@@ -22,7 +22,6 @@ export function ReviewGenerateStep({ onClose }: Props) {
   const store = useCohortWizardStore();
   const createdId = useCohortWizardStore((s) => s.createdId);
   const [sourceId, setSourceId] = useState<number | null>(null);
-  const [genId, setGenId] = useState<number | null>(null);
 
   const { data: sources, isLoading: loadingSources } = useQuery({
     queryKey: ["sources"],
@@ -33,7 +32,26 @@ export function ReviewGenerateStep({ onClose }: Props) {
   const generateMutation = useGenerateCohort();
   const [generating, setGenerating] = useState(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
-  const { data: generation } = useCohortGeneration(createdId, genId);
+
+  // Poll generations for this definition. The backend job creates a separate
+  // generation record, so we watch the full list and prefer the completed one.
+  const { data: generations } = useQuery({
+    queryKey: ["cohort-definitions", createdId, "generations"],
+    queryFn: () => getCohortGenerations(createdId!),
+    enabled: createdId != null && createdId > 0,
+    refetchInterval: (query) => {
+      const items = query.state.data ?? [];
+      const hasTerminal = items.some((g) =>
+        ["completed", "failed", "cancelled"].includes(g.status),
+      );
+      return hasTerminal ? false : 2000;
+    },
+  });
+  // Prefer the completed/failed generation over the queued placeholder
+  const generation =
+    generations?.find((g) => ["completed", "failed"].includes(g.status)) ??
+    generations?.[0] ??
+    null;
 
   // ── Validation ────────────────────────────────────────────────────────────
 
@@ -65,11 +83,10 @@ export function ReviewGenerateStep({ onClose }: Props) {
       });
       store.setCreatedId(def.id);
 
-      const gen = await generateMutation.mutateAsync({
+      await generateMutation.mutateAsync({
         defId: def.id,
         sourceId,
       });
-      setGenId(gen.id);
     } catch (err) {
       console.error("Failed to generate cohort:", err);
       setGenerateError("Failed to generate cohort. Please try again.");
