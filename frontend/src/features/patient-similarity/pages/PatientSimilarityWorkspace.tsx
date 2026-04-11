@@ -48,7 +48,8 @@ function buildBalanceSummary(covariates: CovariateBalanceRow[]): string {
 export default function PatientSimilarityWorkspace() {
   const { activeSourceId, setActiveSource } = useSourceStore();
 
-  const [sourceId, setSourceId] = useState<number | null>(activeSourceId);
+  const [sourceIdOverride, setSourceIdOverride] = useState<number | null>(null);
+  const sourceId = sourceIdOverride ?? activeSourceId;
   const [targetCohortId, setTargetCohortId] = useState<number | null>(null);
   const [comparatorCohortId, setComparatorCohortId] = useState<number | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -106,7 +107,7 @@ export default function PatientSimilarityWorkspace() {
 
   const handleSourceChange = useCallback(
     (id: number) => {
-      setSourceId(id);
+      setSourceIdOverride(id);
       setActiveSource(id);
       setTargetCohortId(null);
       setComparatorCohortId(null);
