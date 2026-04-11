@@ -342,7 +342,7 @@ export default function PatientSimilarityWorkspace() {
             <SimilarPatientsPanel
               result={searchResult}
               sourceId={sourceId ?? 0}
-              onContinue={() => pipeline.expandStep('landscape')}
+              onContinue={() => handleRunStep('landscape')}
             />
           );
         }
@@ -378,7 +378,7 @@ export default function PatientSimilarityWorkspace() {
             <PsmPanel
               result={psmData}
               onExportMatched={() => { /* TODO: export matched cohort */ }}
-              onContinue={() => pipeline.expandStep('landscape')}
+              onContinue={() => handleRunStep('landscape')}
             />
           );
         }

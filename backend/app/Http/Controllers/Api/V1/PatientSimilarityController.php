@@ -1207,11 +1207,53 @@ class PatientSimilarityController extends Controller
                 return response()->json(['error' => $detail], $response->status());
             }
 
-            return response()->json(['data' => $response->json()]);
+            $result = $response->json();
+
+            // Resolve concept IDs to names in balance covariates
+            $this->resolveBalanceConceptNames($result);
+
+            return response()->json(['data' => $result]);
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Propensity score matching failed: '.$e->getMessage(),
             ], 500);
+        }
+    }
+
+    /**
+     * Resolve concept:NNN placeholders in PSM balance covariates to concept names.
+     *
+     * @param  array<string, mixed>  $result
+     */
+    private function resolveBalanceConceptNames(array &$result): void
+    {
+        $conceptIds = [];
+        foreach (['before', 'after'] as $phase) {
+            foreach ($result['balance'][$phase] ?? [] as $row) {
+                if (preg_match('/^concept:(\d+)$/', $row['covariate'] ?? '', $m)) {
+                    $conceptIds[(int) $m[1]] = true;
+                }
+            }
+        }
+
+        if ($conceptIds === []) {
+            return;
+        }
+
+        $names = $this->vocab()
+            ->table('concept')
+            ->whereIn('concept_id', array_keys($conceptIds))
+            ->pluck('concept_name', 'concept_id')
+            ->all();
+
+        foreach (['before', 'after'] as $phase) {
+            foreach ($result['balance'][$phase] ?? [] as &$row) {
+                if (preg_match('/^concept:(\d+)$/', $row['covariate'] ?? '', $m)) {
+                    $cid = (int) $m[1];
+                    $row['covariate'] = $names[$cid] ?? "Concept {$cid}";
+                }
+            }
+            unset($row);
         }
     }
 
