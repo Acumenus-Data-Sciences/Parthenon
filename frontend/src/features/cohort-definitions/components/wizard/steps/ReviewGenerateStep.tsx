@@ -42,7 +42,7 @@ export function ReviewGenerateStep({ onClose }: Props) {
   // ── Generate handler ──────────────────────────────────────────────────────
 
   const handleGenerate = () => {
-    if (!sourceId) return;
+    if (!sourceId || createMutation.isPending || generateMutation.isPending || createdId) return;
 
     let expression;
     try {
@@ -81,7 +81,7 @@ export function ReviewGenerateStep({ onClose }: Props) {
     generationStatus === "pending";
 
   const isDisabled = !sourceId || isRunning || !store.name || store.entryConcepts.length === 0;
-  const showWhatsNext = generationStatus === "completed" || createdId !== null;
+  const showWhatsNext = generationStatus === "completed";
 
   // ── Render ────────────────────────────────────────────────────────────────
 
