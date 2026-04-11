@@ -10,14 +10,16 @@ Creates 4 note types per patient (3 for non-surgical):
 
 Total: ~1,230 notes for 361 patients.
 
-Idempotent: skips (person_id, note_class_concept_id) pairs that already exist.
-Resume-safe: commits every 10 notes.
+Idempotent: skips generated notes by person, type, class, and title.
+Resume-safe: commits after each note by default.
 
-Run: python3 scripts/pancreatic/generate_notes.py [--force]
+Run: python3 scripts/pancreatic/generate_notes.py [--force] [--limit N] [--patient-id ID]
 """
 
 import argparse
 import logging
+import os
+import re
 import sys
 import time
 from dataclasses import dataclass
@@ -32,7 +34,18 @@ import requests
 
 DB_CONN = "host=localhost dbname=parthenon user=claude_dev"
 OLLAMA_URL = "http://localhost:11434/api/generate"
-MODEL_NAME = "MedAIBase/MedGemma1.5:4b"
+MODEL_NAME = os.environ.get("PANCREAS_NOTE_MODEL", "MedAIBase/MedGemma1.5:4b")
+OLLAMA_TIMEOUT_SECONDS = int(os.environ.get("PANCREAS_NOTE_TIMEOUT_SECONDS", "600"))
+OLLAMA_NUM_PREDICT = int(os.environ.get("PANCREAS_NOTE_NUM_PREDICT", "768"))
+OLLAMA_NUM_CTX = int(os.environ.get("PANCREAS_NOTE_NUM_CTX", "4096"))
+OLLAMA_NUM_GPU = int(os.environ.get("PANCREAS_NOTE_NUM_GPU", "999"))
+OLLAMA_TEMPERATURE = float(os.environ.get("PANCREAS_NOTE_TEMPERATURE", "0.25"))
+OLLAMA_REPEAT_PENALTY = float(os.environ.get("PANCREAS_NOTE_REPEAT_PENALTY", "1.2"))
+REJECTED_NOTES_DIR = os.environ.get("PANCREAS_NOTE_REJECTED_DIR")
+DEFAULT_TEMPLATE_NOTE_TYPES = os.environ.get(
+    "PANCREAS_NOTE_TEMPLATE_TYPES",
+    "consultation,pathology,operative,progress",
+)
 
 # OMOP Concept IDs
 ENGLISH = 4180186
@@ -63,9 +76,75 @@ ABSENT_CONCEPT = 4132135    # wild-type
 ONDANSETRON = 1000560
 
 NOTE_SOURCE_VALUE = "medgemma-generated"
-COMMIT_INTERVAL = 10
+COMMIT_INTERVAL = int(os.environ.get("PANCREAS_NOTE_COMMIT_INTERVAL", "1"))
 MIN_WORD_COUNT = 50
+MIN_WORDS_BY_NOTE_KEY = {
+    "consultation": 130,
+    "pathology": 220,
+    "operative": 250,
+    "progress": 250,
+}
 PROGRESS_INTERVAL = 10
+ExistingNoteKey = tuple[int, int, int, str]
+
+GENERAL_NOTE_GUARDRAILS = (
+    "Output only the clinical note body. Do not use Markdown code fences. Do not "
+    "include patient name, MRN, date of birth, placeholder bracket text, example "
+    "values, or instructions to replace fields. If a detail is not present in the "
+    "Patient Data, write 'not documented' rather than inventing it. Do not add "
+    "disclaimers. Do not repeat sentences, sections, molecular profiles, or outcomes. "
+    "Do not invent vital signs, physical exam findings, review-of-systems negatives, "
+    "chemotherapy cycle numbers, regimen schedules, toxicity grades, or new symptoms."
+)
+PATHOLOGY_GUARDRAILS = (
+    " Do not mention immunohistochemistry, stains, tumor dimensions, lymph node "
+    "counts, margin distances, or pathologic stage unless explicitly present in "
+    "the Patient Data; use 'not documented' for unavailable pathology details. Keep "
+    "the pathology report to 180-320 words and stop after the PATHOLOGIC STAGING section."
+)
+PLACEHOLDER_RE = re.compile(
+    r"\[[^\]]*(?:redacted|not provided|current|your name|patient name|mrn|"
+    r"insert|replace|assume|identifier|date redacted|e\.g\.|number|specific)"
+    r"[^\]]*\]",
+    re.IGNORECASE,
+)
+IDENTIFIER_LINE_RE = re.compile(
+    r"^\s*\*{0,2}(?:patient name|patient|mrn|medical record number|date of birth|dob)"
+    r"\*{0,2}\s*:\s*not documented\.?\s*$",
+    re.IGNORECASE,
+)
+PATHOLOGY_UNSUPPORTED_DETAIL_RE = re.compile(
+    r"\b(?:CK7|CK20|CDX2|MUC\d*|GPC\d*|S100|HMB-?45|TTF-?1|Napsin|"
+    r"synaptophysin|chromogranin|PAS-positive|immunohistochem\w*|IHC)\b",
+    re.IGNORECASE,
+)
+PATHOLOGY_UNSUPPORTED_GROSS_DETAIL_RE = re.compile(
+    r"\b(?:"
+    r"\d+(?:\.\d+)?\s*x\s*\d+(?:\.\d+)?|"
+    r"\d+(?:\.\d+)?\s*(?:cm|mm)\b|"
+    r"pT\d|pN\d|pM\d|AJCC|"
+    r"(?:one|two|three|four|five|six|seven|eight|nine|ten|\d+)\s+of\s+\d+\s+"
+    r"(?:regional\s+)?lymph\s+nodes?|"
+    r"lymph\s+nodes?\s+(?:are|were|is)\s+(?:identified|positive|negative|submitted|involved)|"
+    r"lymphovascular\s+invasion\s+is\s+(?:identified|present|not\s+identified|absent)|"
+    r"perineural\s+invasion\s+is\s+(?:identified|present|not\s+identified|absent)|"
+    r"margins?\s+(?:are|is|appears?|were)\s+(?:negative|positive|involved|clear)|"
+    r"(?:gastric|stomach|posterior|anterior|uncinate)\s+margin|"
+    r"(?:duodenum|common\s+bile\s+duct|spleen|stomach|gallbladder)\s+"
+    r"(?:is|appears|measures|shows|contains|involves|involved)|"
+    r"moderately\s+differentiated|poorly\s+differentiated|well\s+differentiated|"
+    r"serially\s+sectioned|submitted\s+for\s+microscopic\s+examination|"
+    r"desmoplastic\s+stromal\s+reaction\s+is\s+present"
+    r")\b",
+    re.IGNORECASE,
+)
+UNSUPPORTED_CLINICAL_DETAIL_RE = re.compile(
+    r"\b(?:BP\s*\d|HR\s*\d|RR\s*\d|Temp(?:erature)?\s*\d|"
+    r"vital signs are stable|clear to auscultation|regular rate and rhythm|"
+    r"denies fever|denies chills|denies chest pain|denies shortness of breath|"
+    r"first cycle|cycle\s+\d+|mild nausea|grade\s+\d+)\b",
+    re.IGNORECASE,
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -115,10 +194,14 @@ NOTE_TYPES = [
         note_class_concept_id=PATHOLOGY_REPORT_CLASS,
         system_prompt=(
             "You are a pathologist writing a surgical pathology report for a pancreatic "
-            "specimen. Write a realistic pathology report with sections: SPECIMEN, GROSS "
-            "DESCRIPTION, MICROSCOPIC DESCRIPTION, DIAGNOSIS, PATHOLOGIC STAGING (if "
-            "surgical specimen). Use the provided patient data. Be specific about margins, "
-            "lymph nodes, differentiation grade. Write in standard pathology report style."
+            "specimen. Write a concise source-faithful pathology report with exactly these "
+            "sections: SPECIMEN, GROSS DESCRIPTION, MICROSCOPIC DESCRIPTION, DIAGNOSIS, "
+            "PATHOLOGIC STAGING. Use the provided patient data. Write 1-3 sentences per "
+            "section in standard pathology report style. If source fields do not state "
+            "gross measurements, margin status, lymph node status, grade, stage, invasion, "
+            "immunohistochemistry, or stains, explicitly write not documented for those "
+            "items. Do not infer typical findings from the procedure name. Do not include "
+            "molecular profile or outcome sections."
         ),
     ),
     NoteType(
@@ -145,7 +228,8 @@ NOTE_TYPES = [
             "treatment. Write a realistic progress note with sections: INTERVAL HISTORY, "
             "CURRENT REGIMEN AND CYCLE, TOXICITIES, LABORATORY REVIEW, PHYSICAL "
             "EXAMINATION, ASSESSMENT AND PLAN. Use the provided patient data. Include "
-            "specific lab values and toxicity grading."
+            "specific lab values. Do not invent cycle numbers or toxicity grades; write "
+            "not documented when those details are absent."
         ),
     ),
 ]
@@ -399,19 +483,283 @@ def build_context_string(ctx: PatientContext) -> str:
         lines.append(f"Molecular profile: {profile}")
     if ctx.procedures:
         lines.append(f"Procedures: {', '.join(ctx.procedures)}")
-    lines.append(f"Outcome: {ctx.outcome}")
 
     return "\n".join(lines)
+
+
+def build_pathology_note(ctx: PatientContext) -> str:
+    """Build an honest pathology note from structured fields only."""
+    specimen_type = "Pancreatic specimen"
+    procedure_text = ", ".join(ctx.procedures)
+    procedure_lower = procedure_text.lower()
+    if "pancreaticoduodenectomy" in procedure_lower or "pancreatoduodenectomy" in procedure_lower:
+        specimen_type = "Pancreaticoduodenectomy specimen"
+    elif "distal pancreatectomy" in procedure_lower:
+        specimen_type = "Distal pancreatectomy specimen"
+    elif procedure_text:
+        specimen_type = f"Pancreatic specimen associated with: {procedure_text}"
+
+    molecular_profile = "not documented"
+    if ctx.genomics:
+        molecular_profile = ", ".join(f"{gene}: {variant}" for gene, variant in ctx.genomics.items())
+
+    return "\n\n".join(
+        [
+            (
+                "SPECIMEN\n"
+                f"{specimen_type}. Primary tumor location from structured data: "
+                f"{ctx.tumor_location}. Exact container labeling and specimen dimensions "
+                "are not documented in the structured source."
+            ),
+            (
+                "GROSS DESCRIPTION\n"
+                "Gross tumor size, margin distances, lymph node count, vascular invasion, "
+                "and perineural invasion are not documented in the structured source. "
+                "No additional gross measurements are inferred."
+            ),
+            (
+                "MICROSCOPIC DESCRIPTION\n"
+                "Structured diagnosis is pancreatic ductal adenocarcinoma. Histologic grade, "
+                "lymphovascular invasion, perineural invasion, treatment effect, and regional "
+                "lymph node involvement are not documented in the structured source. "
+                "No ancillary marker or special stain findings are documented."
+            ),
+            (
+                "DIAGNOSIS\n"
+                f"Pancreatic ductal adenocarcinoma, {ctx.tumor_location}. Clinical subgroup "
+                f"from structured data: {ctx.subgroup}. Associated structured molecular "
+                f"profile: {molecular_profile}."
+            ),
+            (
+                "PATHOLOGIC STAGING\n"
+                "Pathologic TNM stage, margin status, and lymph node stage are not documented "
+                "in the structured source. Clinical stage/subgroup from structured data is "
+                f"{ctx.subgroup}. No pathologic staging values are inferred."
+            ),
+        ]
+    )
+
+
+def _format_list(values: list[str], fallback: str = "not documented") -> str:
+    return ", ".join(values) if values else fallback
+
+
+def _format_labs(values: list[str], max_items: int = 12) -> str:
+    if not values:
+        return "not documented"
+    selected = values[:max_items]
+    suffix = "" if len(values) <= max_items else f"; additional labs documented: {len(values) - max_items}"
+    return "; ".join(selected) + suffix
+
+
+def _format_genomics(values: dict[str, str]) -> str:
+    if not values:
+        return "not documented"
+    return ", ".join(f"{gene}: {variant}" for gene, variant in values.items())
+
+
+def build_consultation_note(ctx: PatientContext) -> str:
+    """Build a source-faithful oncology consultation note."""
+    return "\n\n".join(
+        [
+            "CHIEF COMPLAINT\nPancreatic ductal adenocarcinoma.",
+            (
+                "HISTORY OF PRESENT ILLNESS\n"
+                f"{ctx.age}-year-old {ctx.sex.lower()} with pancreatic ductal adenocarcinoma "
+                f"in the {ctx.tumor_location}. Structured diagnosis date is "
+                f"{ctx.diagnosis_date.isoformat()}, and clinical subgroup is {ctx.subgroup}. "
+                "Presenting symptoms and disease tempo beyond the structured condition list "
+                "are not documented."
+            ),
+            f"PAST MEDICAL HISTORY\n{_format_list(ctx.comorbidities)}.",
+            f"MEDICATIONS\n{_format_list(ctx.medications)}.",
+            "REVIEW OF SYSTEMS\nNot documented in the structured source.",
+            "PHYSICAL EXAMINATION\nNot documented in the structured source.",
+            f"LABORATORY REVIEW\n{_format_labs(ctx.labs)}.",
+            f"MOLECULAR PROFILE\n{_format_genomics(ctx.genomics)}.",
+            (
+                "ASSESSMENT AND PLAN\n"
+                f"Pancreatic ductal adenocarcinoma, {ctx.tumor_location}, clinical subgroup "
+                f"{ctx.subgroup}. Continue oncology evaluation using documented systemic "
+                "therapy, laboratory trends, procedure history, and molecular profile. "
+                "Specific treatment intent, cycle number, and performance status are not "
+                "documented in the structured source."
+            ),
+        ]
+    )
+
+
+def build_progress_note(ctx: PatientContext) -> str:
+    """Build a source-faithful chemotherapy progress note."""
+    return "\n\n".join(
+        [
+            (
+                "INTERVAL HISTORY\n"
+                f"{ctx.age}-year-old {ctx.sex.lower()} with pancreatic ductal adenocarcinoma "
+                f"in the {ctx.tumor_location}. Diagnosis date is {ctx.diagnosis_date.isoformat()}, "
+                f"and clinical subgroup is {ctx.subgroup}. Interval symptoms, performance "
+                "status, and treatment response are not documented in the structured source."
+            ),
+            (
+                "CURRENT REGIMEN AND CYCLE\n"
+                f"Documented antineoplastic and supportive medications: {_format_list(ctx.medications)}. "
+                "Cycle number, day in cycle, dose modifications, and treatment intent are not documented "
+                "in the structured source."
+            ),
+            "TOXICITIES\nTreatment-related toxicity grade and attribution are not documented in the structured source.",
+            f"LABORATORY REVIEW\n{_format_labs(ctx.labs, max_items=18)}.",
+            "PHYSICAL EXAMINATION\nNot documented in the structured source.",
+            f"MOLECULAR PROFILE\n{_format_genomics(ctx.genomics)}.",
+            (
+                "ASSESSMENT AND PLAN\n"
+                f"Pancreatic ductal adenocarcinoma, {ctx.tumor_location}, clinical subgroup "
+                f"{ctx.subgroup}. Continue structured-data review of documented therapy, "
+                "laboratory findings, and procedures. Additional clinical decisions are not "
+                "inferred when absent from the source."
+            ),
+        ]
+    )
+
+
+def build_operative_note(ctx: PatientContext) -> str:
+    """Build a source-faithful operative note."""
+    procedure_text = _format_list(ctx.procedures)
+    return "\n\n".join(
+        [
+            f"PREOPERATIVE DIAGNOSIS\nPancreatic ductal adenocarcinoma, {ctx.tumor_location}.",
+            f"POSTOPERATIVE DIAGNOSIS\nPancreatic ductal adenocarcinoma, {ctx.tumor_location}.",
+            f"PROCEDURE PERFORMED\n{procedure_text}.",
+            "SURGEON\nNot documented.",
+            "ANESTHESIA\nNot documented.",
+            "FINDINGS\nNo structured intraoperative finding narrative is available.",
+            "TECHNIQUE\nDetailed operative technique is unavailable in the structured extract.",
+            "ESTIMATED BLOOD LOSS\nUnavailable.",
+            f"SPECIMENS\nPancreatic specimen associated with documented procedures: {procedure_text}.",
+            "COMPLICATIONS\nUnavailable.",
+            "DISPOSITION\nUnavailable.",
+        ]
+    )
+
+
+def build_template_note(ctx: PatientContext, note_key: str) -> Optional[str]:
+    if note_key == "consultation":
+        return build_consultation_note(ctx)
+    if note_key == "pathology":
+        return build_pathology_note(ctx)
+    if note_key == "operative":
+        return build_operative_note(ctx)
+    if note_key == "progress":
+        return build_progress_note(ctx)
+    return None
 
 
 # ── MedGemma integration ──────────────────────────────────────────────────
 
 
+def _clean_note_text(text: str) -> str:
+    """Remove common small-model formatting artifacts without changing content."""
+    cleaned = text.strip()
+    if cleaned.startswith("```"):
+        lines = cleaned.splitlines()
+        if lines:
+            lines = lines[1:]
+        if lines and lines[-1].strip() == "```":
+            lines = lines[:-1]
+        cleaned = "\n".join(lines).strip()
+    cleaned = cleaned.replace("```pathology", "").replace("```", "").strip()
+    cleaned = PLACEHOLDER_RE.sub("not documented", cleaned)
+    cleaned = re.sub(r"\s+\((?:Assum(?:e|ing)|e\.g\.)[^)]*\)", "", cleaned, flags=re.IGNORECASE)
+
+    lines: list[str] = []
+    for line in cleaned.splitlines():
+        if IDENTIFIER_LINE_RE.match(line):
+            continue
+        lines.append(line.rstrip())
+    return "\n".join(lines).strip()
+
+
+def _note_quality_issues(text: str, note_key: str) -> list[str]:
+    issues: list[str] = []
+    if "```" in text:
+        issues.append("contains Markdown code fence")
+    if PLACEHOLDER_RE.search(text):
+        issues.append("contains placeholder bracket text")
+    if re.search(r"\bas an ai\b|\blanguage model\b", text, re.IGNORECASE):
+        issues.append("contains model disclaimer")
+    if note_key == "pathology" and PATHOLOGY_UNSUPPORTED_DETAIL_RE.search(text):
+        issues.append("contains unsupported immunohistochemistry/stain detail")
+    if note_key == "pathology" and PATHOLOGY_UNSUPPORTED_GROSS_DETAIL_RE.search(text):
+        issues.append("contains unsupported pathology gross, margin, staging, or invasion detail")
+    if note_key in {"consultation", "progress"} and UNSUPPORTED_CLINICAL_DETAIL_RE.search(text):
+        issues.append("contains unsupported vital sign, exam, cycle, or toxicity detail")
+    repeated_fragments = _repeated_fragments(text)
+    if repeated_fragments:
+        issues.append(f"contains repeated text: {', '.join(repeated_fragments[:2])}")
+    return issues
+
+
+def _repeated_fragments(text: str) -> list[str]:
+    fragments = re.split(r"[\n.;]+", text)
+    counts: dict[str, int] = {}
+    for fragment in fragments:
+        normalized = re.sub(r"\s+", " ", fragment).strip().lower()
+        if len(normalized) < 28:
+            continue
+        counts[normalized] = counts.get(normalized, 0) + 1
+    return [fragment for fragment, count in counts.items() if count >= 3]
+
+
+def _write_rejected_note_debug(
+    text: str,
+    note_key: str,
+    reason: str,
+    person_id: Optional[int] = None,
+) -> None:
+    """Persist rejected LLM output when PANCREAS_NOTE_REJECTED_DIR is set."""
+    if not REJECTED_NOTES_DIR:
+        return
+    try:
+        os.makedirs(REJECTED_NOTES_DIR, exist_ok=True)
+        timestamp = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
+        person_fragment = f"person-{person_id}" if person_id is not None else "person-unknown"
+        safe_reason = re.sub(r"[^a-zA-Z0-9_.-]+", "-", reason).strip("-")[:80]
+        path = os.path.join(
+            REJECTED_NOTES_DIR,
+            f"{timestamp}-{person_fragment}-{note_key}-{safe_reason}.txt",
+        )
+        with open(path, "w", encoding="utf-8") as out:
+            out.write(f"model: {MODEL_NAME}\n")
+            out.write(f"note_key: {note_key}\n")
+            out.write(f"person_id: {person_id if person_id is not None else 'not documented'}\n")
+            out.write(f"reason: {reason}\n")
+            out.write(f"word_count: {len(text.split())}\n")
+            out.write("\n--- note text ---\n")
+            out.write(text)
+            out.write("\n")
+        log.info("Rejected note debug written to %s", path)
+    except OSError as e:
+        log.warning("Could not write rejected note debug output: %s", e)
+
+
 def generate_note_text(
-    system_prompt: str, patient_data: str, retry: bool = True
+    system_prompt: str,
+    patient_data: str,
+    note_key: str,
+    person_id: Optional[int] = None,
+    retry: bool = True,
+    quality_hint: str = "",
 ) -> Optional[str]:
     """Generate a clinical note via MedGemma through Ollama."""
-    prompt = f"{system_prompt}\n\nPatient Data:\n{patient_data}\n\nWrite the clinical note now:"
+    guardrails = GENERAL_NOTE_GUARDRAILS
+    if note_key == "pathology":
+        guardrails += PATHOLOGY_GUARDRAILS
+    prompt = (
+        f"{system_prompt}\n\nAdditional constraints:\n{guardrails}\n\n"
+        f"Patient Data:\n{patient_data}\n\n"
+    )
+    if quality_hint:
+        prompt += f"Quality repair instruction: {quality_hint}\n\n"
+    prompt += "Write the clinical note now:"
 
     try:
         resp = requests.post(
@@ -420,21 +768,60 @@ def generate_note_text(
                 "model": MODEL_NAME,
                 "prompt": prompt,
                 "stream": False,
-                "options": {"temperature": 0.7, "num_predict": 1024},
+                "options": {
+                    "temperature": OLLAMA_TEMPERATURE,
+                    "num_ctx": OLLAMA_NUM_CTX,
+                    "num_gpu": OLLAMA_NUM_GPU,
+                    "num_predict": OLLAMA_NUM_PREDICT,
+                    "repeat_penalty": OLLAMA_REPEAT_PENALTY,
+                },
             },
-            timeout=120,
+            timeout=OLLAMA_TIMEOUT_SECONDS,
         )
         resp.raise_for_status()
-        text = resp.json().get("response", "").strip()
+        text = _clean_note_text(resp.json().get("response", "").strip())
 
         # Check minimum word count
-        if len(text.split()) < MIN_WORD_COUNT:
+        min_words = MIN_WORDS_BY_NOTE_KEY.get(note_key, MIN_WORD_COUNT)
+        if len(text.split()) < min_words:
+            reason = f"too_short_{len(text.split())}_of_{min_words}"
+            _write_rejected_note_debug(text, note_key, reason, person_id)
             if retry:
                 log.warning(
                     "Note too short (%d words), retrying...", len(text.split())
                 )
-                return generate_note_text(system_prompt, patient_data, retry=False)
+                return generate_note_text(
+                    system_prompt,
+                    patient_data,
+                    note_key,
+                    person_id=person_id,
+                    retry=False,
+                    quality_hint=(
+                        f"The previous {note_key} note was too short. Write a complete "
+                        f"note with at least {min_words} words while staying concise."
+                    ),
+                )
             log.warning("Note still too short after retry (%d words), skipping", len(text.split()))
+            return None
+
+        quality_issues = _note_quality_issues(text, note_key)
+        if quality_issues:
+            reason = "quality_" + "_".join(re.sub(r"[^a-zA-Z0-9]+", "-", issue) for issue in quality_issues)
+            _write_rejected_note_debug(text, note_key, reason, person_id)
+            if retry:
+                log.warning("Note quality issues (%s), retrying...", "; ".join(quality_issues))
+                return generate_note_text(
+                    system_prompt,
+                    patient_data,
+                    note_key,
+                    person_id=person_id,
+                    retry=False,
+                    quality_hint=(
+                        "The previous output was rejected because it "
+                        f"{'; '.join(quality_issues)}. Regenerate without those defects."
+                    ),
+                )
+            log.warning("Note still has quality issues after retry: %s", "; ".join(quality_issues))
             return None
 
         return text
@@ -450,17 +837,21 @@ def generate_note_text(
 # ── Note insertion ─────────────────────────────────────────────────────────
 
 
-def get_existing_notes(cur: psycopg2.extensions.cursor) -> set[tuple[int, int]]:
-    """Get (person_id, note_class_concept_id) pairs already generated."""
+def get_existing_notes(cur: psycopg2.extensions.cursor) -> set[ExistingNoteKey]:
+    """Get generated-note keys already present in the CDM.
+
+    Consultation and progress notes both use the outpatient note class, so the
+    note key must include type and title as well as class.
+    """
     cur.execute(
         """
-        SELECT person_id, note_class_concept_id
+        SELECT person_id, note_type_concept_id, note_class_concept_id, note_title
         FROM pancreas.note
         WHERE note_source_value = %s
         """,
         (NOTE_SOURCE_VALUE,),
     )
-    return {(r[0], r[1]) for r in cur.fetchall()}
+    return {(r[0], r[1], r[2], r[3]) for r in cur.fetchall()}
 
 
 def get_next_note_id(cur: psycopg2.extensions.cursor) -> int:
@@ -522,6 +913,8 @@ def insert_note(
 
 
 def main() -> None:
+    global COMMIT_INTERVAL, MODEL_NAME, OLLAMA_NUM_CTX, OLLAMA_NUM_GPU, OLLAMA_NUM_PREDICT, OLLAMA_TIMEOUT_SECONDS
+
     parser = argparse.ArgumentParser(
         description="Generate clinical notes for pancreatic cancer patients using MedGemma."
     )
@@ -530,7 +923,90 @@ def main() -> None:
         action="store_true",
         help="Delete all existing generated notes and regenerate from scratch.",
     )
+    parser.add_argument(
+        "--force-note-types",
+        default=None,
+        help=(
+            "Comma-separated generated note type keys to delete before regenerating; "
+            "useful for a pathology-only 27B refresh."
+        ),
+    )
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help="Generate notes for at most this many patients; useful for smoke tests.",
+    )
+    parser.add_argument(
+        "--patient-id",
+        type=int,
+        default=None,
+        help="Generate notes for one patient only.",
+    )
+    parser.add_argument(
+        "--model",
+        default=MODEL_NAME,
+        help="Ollama model name to use for note generation.",
+    )
+    parser.add_argument(
+        "--timeout-seconds",
+        type=int,
+        default=OLLAMA_TIMEOUT_SECONDS,
+        help="Read timeout for each Ollama note generation request.",
+    )
+    parser.add_argument(
+        "--num-predict",
+        type=int,
+        default=OLLAMA_NUM_PREDICT,
+        help="Ollama num_predict value for each generated note.",
+    )
+    parser.add_argument(
+        "--num-ctx",
+        type=int,
+        default=OLLAMA_NUM_CTX,
+        help="Ollama num_ctx value; keep modest for better 27B GPU residency.",
+    )
+    parser.add_argument(
+        "--num-gpu",
+        type=int,
+        default=OLLAMA_NUM_GPU,
+        help="Ollama num_gpu value; high values ask Ollama to place all layers on GPU.",
+    )
+    parser.add_argument(
+        "--commit-interval",
+        type=int,
+        default=COMMIT_INTERVAL,
+        help="Commit after this many inserted notes.",
+    )
+    parser.add_argument(
+        "--note-types",
+        default=None,
+        help="Comma-separated note type keys to generate, e.g. consultation,progress.",
+    )
+    parser.add_argument(
+        "--template-note-types",
+        default=DEFAULT_TEMPLATE_NOTE_TYPES,
+        help=(
+            "Comma-separated note type keys to build from structured templates instead "
+            "of LLM generation. Defaults to all note types for source-faithful output."
+        ),
+    )
     args = parser.parse_args()
+    MODEL_NAME = args.model
+    OLLAMA_TIMEOUT_SECONDS = args.timeout_seconds
+    OLLAMA_NUM_PREDICT = args.num_predict
+    OLLAMA_NUM_CTX = args.num_ctx
+    OLLAMA_NUM_GPU = args.num_gpu
+    COMMIT_INTERVAL = args.commit_interval
+    valid_note_types = {nt.key for nt in NOTE_TYPES}
+
+    force_note_types: set[str] = set()
+    if args.force_note_types:
+        force_note_types = {key.strip() for key in args.force_note_types.split(",") if key.strip()}
+        invalid_force_note_types = sorted(force_note_types - valid_note_types)
+        if invalid_force_note_types:
+            log.error("Invalid force note type(s): %s", ", ".join(invalid_force_note_types))
+            sys.exit(1)
 
     log.info("Connecting to database...")
     conn = psycopg2.connect(DB_CONN)
@@ -566,6 +1042,23 @@ def main() -> None:
         deleted = cur.rowcount
         conn.commit()
         log.info("Deleted %d existing notes.", deleted)
+    elif force_note_types:
+        force_note_titles = [nt.title for nt in NOTE_TYPES if nt.key in force_note_types]
+        log.info(
+            "--force-note-types: deleting generated %s notes...",
+            ", ".join(sorted(force_note_types)),
+        )
+        cur.execute(
+            """
+            DELETE FROM pancreas.note
+            WHERE note_source_value = %s
+              AND note_title = ANY(%s)
+            """,
+            (NOTE_SOURCE_VALUE, force_note_titles),
+        )
+        deleted = cur.rowcount
+        conn.commit()
+        log.info("Deleted %d existing notes for selected note type(s).", deleted)
 
     # Get existing notes for resume support
     existing = get_existing_notes(cur)
@@ -573,6 +1066,25 @@ def main() -> None:
 
     # Get all patients
     patient_ids = get_all_patients(cur)
+    if args.patient_id is not None:
+        patient_ids = [pid for pid in patient_ids if pid == args.patient_id]
+        if not patient_ids:
+            log.error("Patient %d was not found in pancreas.person.", args.patient_id)
+            sys.exit(1)
+    if args.limit is not None:
+        patient_ids = patient_ids[:args.limit]
+    allowed_note_types: Optional[set[str]] = None
+    if args.note_types:
+        allowed_note_types = {key.strip() for key in args.note_types.split(",") if key.strip()}
+        invalid_note_types = sorted(allowed_note_types - valid_note_types)
+        if invalid_note_types:
+            log.error("Invalid note type(s): %s", ", ".join(invalid_note_types))
+            sys.exit(1)
+    template_note_types = {key.strip() for key in args.template_note_types.split(",") if key.strip()}
+    invalid_template_note_types = sorted(template_note_types - valid_note_types)
+    if invalid_template_note_types:
+        log.error("Invalid template note type(s): %s", ", ".join(invalid_template_note_types))
+        sys.exit(1)
     total_patients = len(patient_ids)
     log.info("Found %d patients.", total_patients)
 
@@ -594,12 +1106,21 @@ def main() -> None:
         is_surgical = ctx.surgery_visit_id is not None
 
         for nt in NOTE_TYPES:
+            if allowed_note_types is not None and nt.key not in allowed_note_types:
+                continue
+
             # Skip operative notes for non-surgical patients
             if nt.surgical_only and not is_surgical:
                 continue
 
             # Skip if already exists (resume support)
-            if (person_id, nt.note_class_concept_id) in existing:
+            existing_key = (
+                person_id,
+                nt.note_type_concept_id,
+                nt.note_class_concept_id,
+                nt.title,
+            )
+            if existing_key in existing:
                 notes_skipped += 1
                 continue
 
@@ -622,7 +1143,35 @@ def main() -> None:
 
             # Generate the note
             gen_start = time.time()
-            text = generate_note_text(nt.system_prompt, patient_data)
+            if nt.key in template_note_types:
+                text = build_pathology_note(ctx)
+                if nt.key != "pathology":
+                    text = build_template_note(ctx, nt.key)
+                quality_issues = _note_quality_issues(text, nt.key)
+                if quality_issues:
+                    log.warning(
+                        "Template quality issues for person %d %s: %s",
+                        person_id,
+                        nt.key,
+                        "; ".join(quality_issues),
+                    )
+                    text = None
+            else:
+                text = generate_note_text(nt.system_prompt, patient_data, nt.key, person_id=person_id)
+                if text is None:
+                    fallback_text = build_template_note(ctx, nt.key)
+                    if fallback_text is not None:
+                        fallback_issues = _note_quality_issues(fallback_text, nt.key)
+                        if fallback_issues:
+                            log.warning(
+                                "Template fallback quality issues for person %d %s: %s",
+                                person_id,
+                                nt.key,
+                                "; ".join(fallback_issues),
+                            )
+                        else:
+                            log.info("  person=%d %s: using structured template fallback", person_id, nt.key)
+                            text = fallback_text
             gen_elapsed = time.time() - gen_start
             if text is not None:
                 log.info(
@@ -638,6 +1187,7 @@ def main() -> None:
 
             # Insert
             insert_note(cur, next_note_id, person_id, note_date, nt, text, visit_id)
+            existing.add(existing_key)
             next_note_id += 1
             notes_generated += 1
             notes_by_type[nt.key] += 1
