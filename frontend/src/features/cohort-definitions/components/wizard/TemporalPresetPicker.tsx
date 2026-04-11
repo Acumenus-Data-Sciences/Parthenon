@@ -1,0 +1,153 @@
+import { useState } from "react";
+import type { TemporalWindow } from "../../types/cohortExpression";
+import {
+  TEMPORAL_PRESETS,
+  buildCustomWindow,
+  describeWindow,
+  coeffToDirection,
+  type TemporalDirection,
+} from "../../utils/temporalPresets";
+
+interface TemporalPresetPickerProps {
+  value: TemporalWindow | null;
+  onChange: (window: TemporalWindow | null) => void;
+}
+
+export function TemporalPresetPicker({ value, onChange }: TemporalPresetPickerProps) {
+  const [isCustom, setIsCustom] = useState(false);
+  const [startDays, setStartDays] = useState(value?.Start?.Days ?? 30);
+  const [startDir, setStartDir] = useState<TemporalDirection>(
+    value?.Start ? coeffToDirection(value.Start.Coeff) : "before",
+  );
+  const [endDays, setEndDays] = useState(value?.End?.Days ?? 30);
+  const [endDir, setEndDir] = useState<TemporalDirection>(
+    value?.End ? coeffToDirection(value.End.Coeff) : "after",
+  );
+
+  const handlePreset = (preset: (typeof TEMPORAL_PRESETS)[number]) => {
+    setIsCustom(false);
+    onChange(preset.window);
+    if (preset.window) {
+      setStartDays(preset.window.Start.Days);
+      setStartDir(coeffToDirection(preset.window.Start.Coeff));
+      setEndDays(preset.window.End.Days);
+      setEndDir(coeffToDirection(preset.window.End.Coeff));
+    }
+  };
+
+  const handleCustomChange = (
+    sd: number,
+    sDir: TemporalDirection,
+    ed: number,
+    eDir: TemporalDirection,
+  ) => {
+    setStartDays(sd);
+    setStartDir(sDir);
+    setEndDays(ed);
+    setEndDir(eDir);
+    onChange(buildCustomWindow(sd, sDir, ed, eDir));
+  };
+
+  return (
+    <div className="flex flex-col gap-3">
+      {/* Presets */}
+      <div className="grid grid-cols-3 gap-2">
+        {TEMPORAL_PRESETS.map((preset) => {
+          const isSelected =
+            !isCustom &&
+            JSON.stringify(value) === JSON.stringify(preset.window);
+          return (
+            <button
+              key={preset.key}
+              type="button"
+              onClick={() => handlePreset(preset)}
+              className={`rounded-md p-2.5 text-left transition-colors ${
+                isSelected
+                  ? "border border-[rgba(45,212,191,0.3)] bg-[rgba(45,212,191,0.05)]"
+                  : "border border-[#2a2a3a] bg-[#0E0E11] hover:border-[#444]"
+              }`}
+            >
+              <div className={`text-[13px] font-medium ${isSelected ? "text-[#2DD4BF]" : "text-[#ccc]"}`}>
+                {preset.label}
+              </div>
+              <div className="text-[11px] text-[#666]">{preset.description}</div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Custom toggle */}
+      <button
+        type="button"
+        onClick={() => {
+          setIsCustom(true);
+          handleCustomChange(startDays, startDir, endDays, endDir);
+        }}
+        className={`text-[12px] ${isCustom ? "text-[#C9A227]" : "text-[#555] hover:text-[#888]"}`}
+      >
+        {isCustom ? "▾ Custom range" : "▸ Custom range..."}
+      </button>
+
+      {/* Custom range inputs */}
+      {isCustom && (
+        <div className="rounded-md bg-[#1a1a2e] p-3">
+          <div className="flex flex-wrap items-center gap-1.5 text-[13px]">
+            <span className="text-[#ccc]">between</span>
+            <input
+              type="number"
+              min={0}
+              value={startDays}
+              onChange={(e) =>
+                handleCustomChange(Math.max(0, parseInt(e.target.value) || 0), startDir, endDays, endDir)
+              }
+              className="w-[50px] rounded border border-[#444] bg-[#0E0E11] px-2 py-1 text-center text-[#C9A227] outline-none focus:border-[#C9A227]"
+            />
+            <span className="text-[#ccc]">days</span>
+            <select
+              value={startDir}
+              onChange={(e) =>
+                handleCustomChange(startDays, e.target.value as TemporalDirection, endDays, endDir)
+              }
+              className="rounded border border-[#444] bg-[#0E0E11] px-2 py-1 text-[#2DD4BF] outline-none"
+            >
+              <option value="before">before</option>
+              <option value="after">after</option>
+            </select>
+            <span className="text-[#ccc]">and</span>
+            <input
+              type="number"
+              min={0}
+              value={endDays}
+              onChange={(e) =>
+                handleCustomChange(startDays, startDir, Math.max(0, parseInt(e.target.value) || 0), endDir)
+              }
+              className="w-[50px] rounded border border-[#444] bg-[#0E0E11] px-2 py-1 text-center text-[#C9A227] outline-none focus:border-[#C9A227]"
+            />
+            <span className="text-[#ccc]">days</span>
+            <select
+              value={endDir}
+              onChange={(e) =>
+                handleCustomChange(startDays, startDir, endDays, e.target.value as TemporalDirection)
+              }
+              className="rounded border border-[#444] bg-[#0E0E11] px-2 py-1 text-[#2DD4BF] outline-none"
+            >
+              <option value="before">before</option>
+              <option value="after">after</option>
+            </select>
+            <span className="text-[#ccc]">cohort entry</span>
+          </div>
+        </div>
+      )}
+
+      {/* Live preview */}
+      {value !== undefined && (
+        <div className="rounded-md border border-[rgba(45,212,191,0.15)] bg-[rgba(45,212,191,0.05)] px-3 py-2">
+          <span className="text-[11px] text-[#666]">READS AS: </span>
+          <span className="text-[13px] text-[#ccc]">
+            &ldquo;{describeWindow(value)}&rdquo;
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
