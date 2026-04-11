@@ -1,3 +1,29 @@
+import { useCohortWizardStore } from "../../stores/cohortWizardStore";
+import { WizardConceptPicker } from "./WizardConceptPicker";
+
 export function CensoringStep() {
-  return <div className="text-[#888]">Chapter 4, Step 2: Censoring Events — implementation pending</div>;
+  const { censoringConcepts, addCensoringConcept, removeCensoringConcept } =
+    useCohortWizardStore();
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div>
+        <div className="mb-1 text-[13px] font-medium text-[#ccc]">
+          Step 2 of 2 — Censoring Events{" "}
+          <span className="text-[11px] text-[#555]">(optional)</span>
+        </div>
+        <p className="text-[13px] text-[#888]">
+          Are there specific events that should end a patient's follow-up early? For example,
+          death, organ transplant, or switching to a different treatment.
+        </p>
+      </div>
+
+      <WizardConceptPicker
+        concepts={censoringConcepts}
+        onAdd={(concept, domain) => addCensoringConcept(concept, domain)}
+        onRemove={removeCensoringConcept}
+        prompt="Search for censoring events..."
+      />
+    </div>
+  );
 }
