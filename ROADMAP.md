@@ -441,7 +441,7 @@ Parthenon is an open platform built for the research community. Whether you're a
 | v1.0.3 | March 30, 2026 | Foundation Release — public launch |
 | v1.0.4 | April 9, 2026 | Test Coverage & CI Hardening |
 | v1.0.4.1 | April 10, 2026 | Feature sprint: Cohort Wizard, Patient Similarity v2, OMOP Extension Bridge, Cohort Categorization |
-| v1.0.5 | TBD | Data Quality & Validation |
+| v1.0.5 | April 11, 2026 | Data Quality & Validation |
 | v1.0.6 | TBD | Performance Optimization |
 | v1.0.7 | TBD | UX Polish & Accessibility |
 | v1.0.8 | TBD | Documentation & Onboarding |
