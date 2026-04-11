@@ -1257,32 +1257,39 @@ class PatientSimilarityController extends Controller
         $genderLabels = [8507 => 'Male', 8532 => 'Female', 8551 => 'Unknown'];
 
         foreach (['before', 'after'] as $phase) {
-            foreach ($result['balance'][$phase] ?? [] as &$row) {
+            if (! isset($result['balance'][$phase])) {
+                continue;
+            }
+            foreach ($result['balance'][$phase] as $i => $row) {
                 $cov = $row['covariate'] ?? '';
+                $resolved = null;
 
                 if ($cov === 'demographics_age_norm') {
-                    $row['covariate'] = 'Age (normalized)';
+                    $resolved = 'Age (normalized)';
                 } elseif (preg_match('/^demographics_gender_(\d+)$/', $cov, $m)) {
                     $cid = (int) $m[1];
-                    $row['covariate'] = 'Gender: '.($genderLabels[$cid] ?? ($names[$cid] ?? "Concept {$cid}"));
+                    $resolved = 'Gender: '.($genderLabels[$cid] ?? ($names[$cid] ?? "Concept {$cid}"));
                 } elseif (preg_match('/^demographics_race_(\d+)$/', $cov, $m)) {
                     $cid = (int) $m[1];
-                    $row['covariate'] = 'Race: '.($names[$cid] ?? "Concept {$cid}");
+                    $resolved = 'Race: '.($names[$cid] ?? "Concept {$cid}");
                 } elseif (preg_match('/^condition_(\d+)$/', $cov, $m)) {
                     $cid = (int) $m[1];
-                    $row['covariate'] = $names[$cid] ?? "Condition {$cid}";
+                    $resolved = $names[$cid] ?? "Condition {$cid}";
                 } elseif (preg_match('/^drug_(\d+)$/', $cov, $m)) {
                     $cid = (int) $m[1];
-                    $row['covariate'] = $names[$cid] ?? "Drug {$cid}";
+                    $resolved = $names[$cid] ?? "Drug {$cid}";
                 } elseif (preg_match('/^procedure_(\d+)$/', $cov, $m)) {
                     $cid = (int) $m[1];
-                    $row['covariate'] = $names[$cid] ?? "Procedure {$cid}";
+                    $resolved = $names[$cid] ?? "Procedure {$cid}";
                 } elseif (preg_match('/^concept:(\d+)$/', $cov, $m)) {
                     $cid = (int) $m[1];
-                    $row['covariate'] = $names[$cid] ?? "Concept {$cid}";
+                    $resolved = $names[$cid] ?? "Concept {$cid}";
+                }
+
+                if ($resolved !== null) {
+                    $result['balance'][$phase][$i]['covariate'] = $resolved;
                 }
             }
-            unset($row);
         }
     }
 
