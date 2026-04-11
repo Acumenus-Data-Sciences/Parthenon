@@ -132,7 +132,7 @@ export function CohortSelectorBar({
           </button>
         </div>
 
-        {/* Target cohort dropdown */}
+        {/* Target cohort dropdown + banner */}
         <div className="flex-1 min-w-[160px]">
           <select
             value={targetCohortId ?? ""}
@@ -152,9 +152,22 @@ export function CohortSelectorBar({
               </option>
             ))}
           </select>
+          {showTargetBanner && (
+            <div className="mt-1.5 flex items-center gap-1.5">
+              <span className="text-[10px] font-medium text-[#9B1B30]">
+                {isCompareMode ? "Target:" : "Seed:"}
+              </span>
+              <GenerationStatusBanner
+                cohortDefinitionId={targetCohortId!}
+                sourceId={sourceId!}
+                profile={targetProfile}
+                isLoading={targetProfileLoading}
+              />
+            </div>
+          )}
         </div>
 
-        {/* Comparator cohort dropdown — hidden in expand mode */}
+        {/* Comparator cohort dropdown + banner — hidden in expand mode */}
         {isCompareMode && (
           <div className="flex-1 min-w-[160px]">
             <select
@@ -173,6 +186,19 @@ export function CohortSelectorBar({
                 </option>
               ))}
             </select>
+            {showComparatorBanner && (
+              <div className="mt-1.5 flex items-center gap-1.5">
+                <span className="text-[10px] font-medium text-[#2DD4BF]">
+                  Comparator:
+                </span>
+                <GenerationStatusBanner
+                  cohortDefinitionId={comparatorCohortId!}
+                  sourceId={sourceId!}
+                  profile={comparatorProfile}
+                  isLoading={comparatorProfileLoading}
+                />
+              </div>
+            )}
           </div>
         )}
 
@@ -205,37 +231,6 @@ export function CohortSelectorBar({
         </button>
       </div>
 
-      {/* Row 2 — generation status banners */}
-      {(showTargetBanner || showComparatorBanner) && (
-        <div className="flex gap-6 flex-wrap">
-          {showTargetBanner && (
-            <div className="flex-1 min-w-[200px]">
-              <span className="text-xs font-medium text-[#9B1B30] mr-2">
-                {isCompareMode ? "Target:" : "Seed:"}
-              </span>
-              <GenerationStatusBanner
-                cohortDefinitionId={targetCohortId!}
-                sourceId={sourceId!}
-                profile={targetProfile}
-                isLoading={targetProfileLoading}
-              />
-            </div>
-          )}
-          {showComparatorBanner && (
-            <div className="flex-1 min-w-[200px]">
-              <span className="text-xs font-medium text-[#2DD4BF] mr-2">
-                Comparator:
-              </span>
-              <GenerationStatusBanner
-                cohortDefinitionId={comparatorCohortId!}
-                sourceId={sourceId!}
-                profile={comparatorProfile}
-                isLoading={comparatorProfileLoading}
-              />
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 }
