@@ -404,8 +404,22 @@ if $DO_DB; then
   # interactive confirmation prompt, but we guard against destructive
   # migrations by requiring an explicit --db flag and the tripwire above.
   # To run migrations: ./deploy.sh --db  (never automatic in full deploy)
+  #
+  # Separation of duties: migrations run as parthenon_migrator (member of
+  # parthenon_owner → can ALTER/DROP app+results tables). Runtime continues
+  # to use parthenon_app (DML only, no DDL). If DB_MIGRATION_USERNAME is
+  # unset, fall back to DB_USERNAME so legacy setups still work.
+  MIG_USER=$(grep '^DB_MIGRATION_USERNAME=' "$ENV_FILE" 2>/dev/null | cut -d= -f2- | tr -d '"' | tr -d "'" | tail -1)
+  MIG_PW=$(grep   '^DB_MIGRATION_PASSWORD=' "$ENV_FILE" 2>/dev/null | cut -d= -f2- | tr -d '"' | tr -d "'" | tail -1)
   if $DB_ONLY && [ "${OWNERSHIP_BLOCKED:-0}" != "1" ]; then
-    if docker compose exec php php artisan migrate --force; then
+    if [ -n "$MIG_USER" ] && [ -n "$MIG_PW" ]; then
+      echo "   Migrating as: ${MIG_USER} (runtime app continues as DB_USERNAME from .env)"
+      MIGRATE_CMD=(docker compose exec -T -e "DB_USERNAME=${MIG_USER}" -e "DB_PASSWORD=${MIG_PW}" php php artisan migrate --force)
+    else
+      warn "DB_MIGRATION_USERNAME/PASSWORD not set in backend/.env — migrating as runtime user (NOT RECOMMENDED)"
+      MIGRATE_CMD=(docker compose exec php php artisan migrate --force)
+    fi
+    if "${MIGRATE_CMD[@]}"; then
       ok "Migrations applied"
     else
       fail "Migration failed"
