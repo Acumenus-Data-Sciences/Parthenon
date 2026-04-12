@@ -9,6 +9,30 @@ Phase 2: Drug concepts (RxNorm Clinical Drug, Ingredient, etc.) ~500K most commo
 Phase 3: Remaining standard concepts
 
 The script is resumable — it tracks progress in a checkpoint file and skips already-embedded concepts.
+
+──────────────────────────────────────────────────────────────────────────────
+CRITICAL: Embedding model lock-in
+──────────────────────────────────────────────────────────────────────────────
+The Hecate Rust binary hardcodes the OpenAI model name `text-embedding-3-large`
+in its embedding requests (Ollama's OpenAI-compat endpoint). It has NO env var
+to override this.
+
+To make Hecate work with a local model, Ollama must expose an alias named
+`text-embedding-3-large:latest` that actually points at the SAME model used
+to populate the Qdrant `meddra` collection. Currently: `embeddinggemma:300m`.
+
+Create/restore the alias:
+    ollama cp embeddinggemma:300m text-embedding-3-large:latest
+
+If the alias drifts to a different model (e.g. nomic-embed-text), query
+embeddings land in a different semantic space than the indexed vectors and
+every search returns garbage scores (~0.13) even though dimensions match.
+
+Re-running this bootstrap to rebuild the collection is the nuclear option
+(~2M concepts, hours of runtime). Fixing the alias is the 10-second option.
+
+See scripts/restore-hecate-alias.sh for a one-liner.
+──────────────────────────────────────────────────────────────────────────────
 """
 
 import argparse
@@ -29,7 +53,7 @@ OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434/api/embed")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "embeddinggemma:300m")
 QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
 PG_DSN = os.getenv("PG_DSN", "host=localhost dbname=parthenon user=claude_dev password=claude321$%")
-VECTOR_DIM = 768  # nomic-embed-text dimension
+VECTOR_DIM = 768  # embeddinggemma:300m dimension (also matches nomic-embed-text by coincidence)
 COLLECTION_NAME = "meddra"  # Hecate expects this name
 
 CHECKPOINT_DIR = Path(__file__).parent.parent / "output" / "hecate-bootstrap"
