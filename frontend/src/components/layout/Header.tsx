@@ -4,6 +4,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { useUiStore } from "@/stores/uiStore";
 import { useAbbyStore } from "@/stores/abbyStore";
 import { LogOut, User, Search, Bell, Settings, ChevronDown, Database, Star } from "lucide-react";
+import { ThemeToggle } from "./ThemeToggle";
 import AbbyAvatar from "@/features/commons/components/abby/AbbyAvatar";
 import { AboutAbbyModal } from "./AboutAbbyModal";
 import { useSourceStore } from "@/stores/sourceStore";
@@ -215,6 +216,8 @@ export function Header() {
               open={aboutAbbyOpen}
               onClose={() => setAboutAbbyOpen(false)}
             />
+
+            <ThemeToggle />
 
             <button
               className="btn btn-ghost btn-icon btn-sm"
