@@ -63,46 +63,49 @@ final class CohortCentroidBuilder
         $featureVectorVersion = null;
         $vectorCount = 0;
 
-        // For large cohorts, use a temp table to avoid PG's 65535 parameter limit
-        if (count($personIds) > 50000) {
-            $personIds = collect($personIds)->shuffle()->take(5000)->all();
+        // Cap cohort size to keep centroid build memory-bounded. 2000 samples
+        // is statistically sufficient for concept-set unions and z-score means
+        // on a feature vector; above that, Carbon+Eloquent hydration on JSON-
+        // cast columns (lab_vector, *_concepts, etc.) blows PHP's memory_limit.
+        if (count($personIds) > 2000) {
+            $personIds = collect($personIds)->shuffle()->take(2000)->all();
         }
 
-        $vectors = collect($personIds)
-            ->chunk(5000)
-            ->flatMap(fn ($chunk) => PatientFeatureVector::query()
+        // Stream rows via cursor() chunk-by-chunk so we never hold more than
+        // one chunk of hydrated models in memory at once.
+        foreach (collect($personIds)->chunk(500) as $chunk) {
+            $query = PatientFeatureVector::query()
                 ->forSource($source->id)
                 ->whereIn('person_id', $chunk->all())
-                ->orderBy('id')
-                ->get()
-            );
+                ->orderBy('id');
 
-        foreach ($vectors as $vector) {
-            $vectorCount++;
+            foreach ($query->cursor() as $vector) {
+                $vectorCount++;
 
-            if (is_numeric($vector->age_bucket)) {
-                $this->incrementCount($ageCounts, (int) $vector->age_bucket);
-            }
+                if (is_numeric($vector->age_bucket)) {
+                    $this->incrementCount($ageCounts, (int) $vector->age_bucket);
+                }
 
-            if (is_numeric($vector->gender_concept_id)) {
-                $this->incrementCount($genderCounts, (int) $vector->gender_concept_id);
-            }
+                if (is_numeric($vector->gender_concept_id)) {
+                    $this->incrementCount($genderCounts, (int) $vector->gender_concept_id);
+                }
 
-            if (is_numeric($vector->race_concept_id)) {
-                $this->incrementCount($raceCounts, (int) $vector->race_concept_id);
-            }
+                if (is_numeric($vector->race_concept_id)) {
+                    $this->incrementCount($raceCounts, (int) $vector->race_concept_id);
+                }
 
-            $this->accumulateIntSet($conditionConcepts, $vector->condition_concepts);
-            $this->accumulateIntSet($recentConditionConcepts, $vector->recent_condition_concepts);
-            $this->accumulateIntSet($drugConcepts, $vector->drug_concepts);
-            $this->accumulateIntSet($recentDrugConcepts, $vector->recent_drug_concepts);
-            $this->accumulateIntSet($procedureConcepts, $vector->procedure_concepts);
-            $this->accumulateIntSet($recentProcedureConcepts, $vector->recent_procedure_concepts);
-            $this->accumulateLabVector($labAccumulator, $vector->lab_vector);
-            $this->accumulateVariantGenes($variantGeneMap, $vector->variant_genes);
+                $this->accumulateIntSet($conditionConcepts, $vector->condition_concepts);
+                $this->accumulateIntSet($recentConditionConcepts, $vector->recent_condition_concepts);
+                $this->accumulateIntSet($drugConcepts, $vector->drug_concepts);
+                $this->accumulateIntSet($recentDrugConcepts, $vector->recent_drug_concepts);
+                $this->accumulateIntSet($procedureConcepts, $vector->procedure_concepts);
+                $this->accumulateIntSet($recentProcedureConcepts, $vector->recent_procedure_concepts);
+                $this->accumulateLabVector($labAccumulator, $vector->lab_vector);
+                $this->accumulateVariantGenes($variantGeneMap, $vector->variant_genes);
 
-            if (is_numeric($vector->version)) {
-                $featureVectorVersion = max((int) ($featureVectorVersion ?? 0), (int) $vector->version);
+                if (is_numeric($vector->version)) {
+                    $featureVectorVersion = max((int) ($featureVectorVersion ?? 0), (int) $vector->version);
+                }
             }
         }
 
