@@ -11,7 +11,7 @@ interface VocabularyBarChartProps {
 }
 
 const COLORS = [
-  "#2DD4BF", "#C9A227", "#9B1B30", "#7c8aed", "#e85d75",
+  "var(--success)", "var(--accent)", "var(--primary)", "#7c8aed", "var(--critical)",
   "#4ade80", "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4",
 ];
 
@@ -30,21 +30,21 @@ export default function VocabularyBarChart({ data }: VocabularyBarChartProps) {
         const color = COLORS[i % COLORS.length];
 
         return (
-          <div key={d.name} className="flex items-center gap-3 rounded-lg px-2 py-1.5 hover:bg-[#1A1A1E]">
+          <div key={d.name} className="flex items-center gap-3 rounded-lg px-2 py-1.5 hover:bg-surface-overlay">
             {/* Vocabulary name */}
             <div className="flex w-32 shrink-0 items-center gap-2">
               <span
                 className="inline-block h-2.5 w-2.5 shrink-0 rounded-sm"
                 style={{ backgroundColor: color }}
               />
-              <span className="truncate text-xs text-[#C5C0B8]" title={d.name}>
+              <span className="truncate text-xs text-text-secondary" title={d.name}>
                 {d.name}
               </span>
             </div>
 
             {/* Bar */}
             <div className="relative flex-1">
-              <div className="h-5 w-full rounded bg-[#0E0E11]">
+              <div className="h-5 w-full rounded bg-surface-base">
                 <div
                   className="h-5 rounded transition-all duration-300"
                   style={{
@@ -58,13 +58,13 @@ export default function VocabularyBarChart({ data }: VocabularyBarChartProps) {
 
             {/* Count + codes */}
             <div className="flex w-40 shrink-0 items-baseline justify-end gap-3">
-              <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
+              <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-secondary">
                 {formatCompact(d.value)}
               </span>
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#5A5650]">
+              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-text-ghost">
                 {d.code_count.toLocaleString()} codes
               </span>
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#5A5650]">
+              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-text-ghost">
                 {pct.toFixed(1)}%
               </span>
             </div>
@@ -74,21 +74,21 @@ export default function VocabularyBarChart({ data }: VocabularyBarChartProps) {
 
       {/* Total row */}
       {sorted.length > 1 && (
-        <div className="mt-1 flex items-center gap-3 border-t border-[#232328] px-2 pt-3">
+        <div className="mt-1 flex items-center gap-3 border-t border-border-default px-2 pt-3">
           <div className="w-32 shrink-0">
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
+            <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
               Total
             </span>
           </div>
           <div className="flex-1" />
           <div className="flex w-40 shrink-0 items-baseline justify-end gap-3">
-            <span className="font-['IBM_Plex_Mono',monospace] text-xs font-semibold text-[#F0EDE8]">
+            <span className="font-['IBM_Plex_Mono',monospace] text-xs font-semibold text-text-primary">
               {formatCompact(total)}
             </span>
-            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#5A5650]">
+            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-text-ghost">
               {sorted.reduce((s, d) => s + d.code_count, 0).toLocaleString()} codes
             </span>
-            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#5A5650]">
+            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-text-ghost">
               100%
             </span>
           </div>

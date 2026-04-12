@@ -82,7 +82,7 @@ export function CohortSelectorBar({
     comparatorCohortId > 0;
 
   return (
-    <div className="sticky top-0 z-10 bg-[#0E0E11] border-b border-[#2A2520] px-4 py-3 space-y-2">
+    <div className="sticky top-0 z-10 bg-surface-base border-b border-border-default px-4 py-3 space-y-2">
       {/* Row 1 — controls */}
       <div className="flex items-center gap-3 flex-wrap">
         {/* Data source dropdown */}
@@ -90,7 +90,7 @@ export function CohortSelectorBar({
           value={sourceId ?? ""}
           onChange={handleSourceChange}
           className={cn(
-            "rounded-md bg-[#1A1815] border border-[#2A2520] px-3 py-1.5 text-sm text-[#C5C0B8]",
+            "rounded-md bg-surface-overlay border border-border-default px-3 py-1.5 text-sm text-text-secondary",
             "focus:outline-none focus:ring-1 focus:ring-[#C9A227]/50",
             "min-w-[140px]",
           )}
@@ -105,15 +105,15 @@ export function CohortSelectorBar({
         </select>
 
         {/* Mode toggle */}
-        <div className="flex rounded-md overflow-hidden border border-[#2A2520]">
+        <div className="flex rounded-md overflow-hidden border border-border-default">
           <button
             type="button"
             onClick={() => onModeChange("compare")}
             className={cn(
               "px-3 py-1.5 text-xs font-medium transition-colors",
               isCompareMode
-                ? "bg-[#9B1B30] text-text-primary"
-                : "bg-[#1A1815] text-[#8A857D] hover:text-[#C5C0B8]",
+                ? "bg-primary text-text-primary"
+                : "bg-surface-overlay text-text-muted hover:text-text-secondary",
             )}
           >
             Compare Cohorts
@@ -124,8 +124,8 @@ export function CohortSelectorBar({
             className={cn(
               "px-3 py-1.5 text-xs font-medium transition-colors",
               !isCompareMode
-                ? "bg-[#2DD4BF] text-[#0E0E11]"
-                : "bg-[#1A1815] text-[#8A857D] hover:text-[#C5C0B8]",
+                ? "bg-success text-surface-base"
+                : "bg-surface-overlay text-text-muted hover:text-text-secondary",
             )}
           >
             Expand Cohort
@@ -138,7 +138,7 @@ export function CohortSelectorBar({
             value={targetCohortId ?? ""}
             onChange={handleTargetChange}
             className={cn(
-              "w-full rounded-md bg-[#1A1815] border border-[#9B1B30]/40 px-3 py-1.5 text-sm text-[#C5C0B8]",
+              "w-full rounded-md bg-surface-overlay border border-primary/40 px-3 py-1.5 text-sm text-text-secondary",
               "focus:outline-none focus:ring-1 focus:ring-[#9B1B30]/50",
             )}
             aria-label="Target cohort"
@@ -161,7 +161,7 @@ export function CohortSelectorBar({
               value={comparatorCohortId ?? ""}
               onChange={handleComparatorChange}
               className={cn(
-                "w-full rounded-md bg-[#1A1815] border border-[#2DD4BF]/40 px-3 py-1.5 text-sm text-[#C5C0B8]",
+                "w-full rounded-md bg-surface-overlay border border-success/40 px-3 py-1.5 text-sm text-text-secondary",
                 "focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/50",
               )}
               aria-label="Comparator cohort"
@@ -185,8 +185,8 @@ export function CohortSelectorBar({
             "px-4 py-1.5 rounded-md text-sm font-medium transition-colors shrink-0",
             "disabled:opacity-40 disabled:cursor-not-allowed",
             isCompareMode
-              ? "bg-[#9B1B30] text-text-primary hover:bg-[#7A1526]"
-              : "bg-[#2DD4BF] text-[#0E0E11] hover:bg-[#22A89A]",
+              ? "bg-primary text-text-primary hover:bg-primary-dark"
+              : "bg-success text-surface-base hover:bg-success-dark",
           )}
         >
           {isCompareMode ? "Compare" : "Find Similar"}
@@ -198,7 +198,7 @@ export function CohortSelectorBar({
           onClick={onOpenSettings}
           title="Analysis settings"
           className={cn(
-            "p-1.5 rounded-md text-[#8A857D] hover:text-[#C5C0B8] hover:bg-[#2A2520] transition-colors shrink-0",
+            "p-1.5 rounded-md text-text-muted hover:text-text-secondary hover:bg-surface-accent transition-colors shrink-0",
           )}
         >
           <Settings size={16} />
@@ -210,7 +210,7 @@ export function CohortSelectorBar({
         <div className="flex gap-6 flex-wrap">
           {showTargetBanner && (
             <div className="flex-1 min-w-[200px]">
-              <span className="text-xs font-medium text-[#9B1B30] mr-2">
+              <span className="text-xs font-medium text-primary mr-2">
                 {isCompareMode ? "Target:" : "Seed:"}
               </span>
               <GenerationStatusBanner
@@ -223,7 +223,7 @@ export function CohortSelectorBar({
           )}
           {showComparatorBanner && (
             <div className="flex-1 min-w-[200px]">
-              <span className="text-xs font-medium text-[#2DD4BF] mr-2">
+              <span className="text-xs font-medium text-success mr-2">
                 Comparator:
               </span>
               <GenerationStatusBanner

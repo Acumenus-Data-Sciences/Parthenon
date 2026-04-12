@@ -50,7 +50,7 @@ export default function SearchDropdown({ dataset, onSelect }: SearchDropdownProp
   return (
     <div className="relative">
       <div className="relative">
-        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]" />
+        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost" />
         <input
           ref={inputRef}
           type="text"
@@ -59,17 +59,17 @@ export default function SearchDropdown({ dataset, onSelect }: SearchDropdownProp
           onKeyDown={handleKeyDown}
           onFocus={() => { if (debouncedQuery.length >= 1) setIsOpen(true); }}
           placeholder="Search by Subject ID..."
-          className="w-full rounded-lg border border-border-default bg-surface-base pl-9 pr-3 py-2 text-sm text-[#C5C0B8] placeholder:text-[#5A5650] focus:outline-none focus:ring-1 focus:ring-[#9B1B30]/50 focus:border-[#9B1B30]"
+          className="w-full rounded-lg border border-border-default bg-surface-base pl-9 pr-3 py-2 text-sm text-text-secondary placeholder:text-text-ghost focus:outline-none focus:ring-1 focus:ring-[#9B1B30]/50 focus:border-primary"
         />
       </div>
 
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1 rounded-lg border border-[#323238] bg-[#1A1A1E] shadow-xl z-30 max-h-64 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-1 rounded-lg border border-surface-highlight bg-surface-overlay shadow-xl z-30 max-h-64 overflow-y-auto">
           {isLoading && (
-            <div className="px-3 py-4 text-center text-xs text-[#8A857D]">Searching...</div>
+            <div className="px-3 py-4 text-center text-xs text-text-muted">Searching...</div>
           )}
           {!isLoading && results && results.length === 0 && (
-            <div className="px-3 py-4 text-center text-xs text-[#8A857D]">No patients found</div>
+            <div className="px-3 py-4 text-center text-xs text-text-muted">No patients found</div>
           )}
           {results?.map((p, i) => (
             <button
@@ -77,13 +77,13 @@ export default function SearchDropdown({ dataset, onSelect }: SearchDropdownProp
               type="button"
               onClick={() => { onSelect(p.subject_id); setIsOpen(false); setQuery(''); }}
               className={`w-full flex items-center gap-3 px-3 py-2 text-left transition-colors
-                ${i === selectedIdx ? 'bg-[#2DD4BF]/10' : 'hover:bg-[#1A1A1E]'}
+                ${i === selectedIdx ? 'bg-success/10' : 'hover:bg-surface-overlay'}
                 focus:outline-none`}
             >
-              <span className="font-mono text-sm text-[#2DD4BF]">{p.subject_id}</span>
-              <span className="text-xs text-[#8A857D]">{p.gender}</span>
-              <span className="text-xs text-[#8A857D]">Age {p.anchor_age ?? '\u2014'}</span>
-              <span className="text-xs text-[#5A5650] ml-auto">{p.admission_count} adm</span>
+              <span className="font-mono text-sm text-success">{p.subject_id}</span>
+              <span className="text-xs text-text-muted">{p.gender}</span>
+              <span className="text-xs text-text-muted">Age {p.anchor_age ?? '\u2014'}</span>
+              <span className="text-xs text-text-ghost ml-auto">{p.admission_count} adm</span>
             </button>
           ))}
         </div>

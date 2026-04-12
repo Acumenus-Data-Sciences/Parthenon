@@ -144,14 +144,14 @@ export default function KaplanMeierCurve({
       .call(xAxis)
       .selectAll("text")
       .attr("font-size", "10px")
-      .attr("fill", "#555");
+      .attr("fill", "var(--text-ghost)");
 
     const yAxis = d3.axisLeft(yScale).ticks(5).tickFormat(d3.format(".1f"));
     g.append("g")
       .call(yAxis)
       .selectAll("text")
       .attr("font-size", "10px")
-      .attr("fill", "#555");
+      .attr("fill", "var(--text-ghost)");
 
     // Axis labels
     g.append("text")
@@ -159,7 +159,7 @@ export default function KaplanMeierCurve({
       .attr("y", plotHeight + 35)
       .attr("text-anchor", "middle")
       .attr("font-size", "12px")
-      .attr("fill", "#333")
+      .attr("fill", "var(--surface-highlight)")
       .attr("font-family", "sans-serif")
       .text(xLabel);
 
@@ -169,7 +169,7 @@ export default function KaplanMeierCurve({
       .attr("y", -42)
       .attr("text-anchor", "middle")
       .attr("font-size", "12px")
-      .attr("fill", "#333")
+      .attr("fill", "var(--surface-highlight)")
       .attr("font-family", "sans-serif")
       .text(yLabel);
 
@@ -194,7 +194,7 @@ export default function KaplanMeierCurve({
         .attr("y", ly)
         .attr("dominant-baseline", "central")
         .attr("font-size", "10px")
-        .attr("fill", "#333")
+        .attr("fill", "var(--surface-highlight)")
         .attr("font-family", "sans-serif")
         .text(curve.label);
     });
@@ -210,7 +210,7 @@ export default function KaplanMeierCurve({
         .attr("y", 12)
         .attr("font-size", "10px")
         .attr("font-weight", "bold")
-        .attr("fill", "#333")
+        .attr("fill", "var(--surface-highlight)")
         .attr("font-family", "sans-serif")
         .text("No. at risk");
 
@@ -243,7 +243,7 @@ export default function KaplanMeierCurve({
             .attr("y", rowY)
             .attr("text-anchor", "middle")
             .attr("font-size", "9px")
-            .attr("fill", "#555")
+            .attr("fill", "var(--text-ghost)")
             .attr("font-family", "monospace")
             .text(survPct);
         });
@@ -256,7 +256,7 @@ export default function KaplanMeierCurve({
           .attr("y", 12)
           .attr("text-anchor", "middle")
           .attr("font-size", "9px")
-          .attr("fill", "#777")
+          .attr("fill", "var(--text-muted)")
           .attr("font-family", "sans-serif")
           .text(t.toString());
       });

@@ -25,7 +25,7 @@ function CountBadge({ conceptId }: CountBadgeProps) {
   if (!data) return null;
 
   return (
-    <span className="text-[10px] font-medium text-[#C9A227] bg-yellow-900/20 border border-yellow-600/30 rounded px-1.5 py-0.5">
+    <span className="text-[10px] font-medium text-accent bg-yellow-900/20 border border-yellow-600/30 rounded px-1.5 py-0.5">
       {data.patient_count.toLocaleString()} pts
     </span>
   );
@@ -44,7 +44,7 @@ function ConceptRow({ entry, onChange, onRemove }: ConceptRowProps) {
     <div
       className={`rounded border px-3 py-2.5 transition-colors ${
         isExcluded
-          ? "border-[#9B1B30]/30 bg-[#9B1B30]/5"
+          ? "border-primary/30 bg-primary/5"
           : "border-border-default/50 bg-surface-raised/40"
       }`}
     >
@@ -56,7 +56,7 @@ function ConceptRow({ entry, onChange, onRemove }: ConceptRowProps) {
             </span>
             <CountBadge conceptId={concept.concept_id} />
             {isExcluded && (
-              <span className="text-[10px] font-semibold text-[#9B1B30] bg-[#9B1B30]/10 border border-[#9B1B30]/30 rounded px-1 py-0.5 leading-none">
+              <span className="text-[10px] font-semibold text-primary bg-primary/10 border border-primary/30 rounded px-1 py-0.5 leading-none">
                 Excluded
               </span>
             )}
@@ -69,7 +69,7 @@ function ConceptRow({ entry, onChange, onRemove }: ConceptRowProps) {
                 onChange={(e) =>
                   onChange({ ...entry, includeDescendants: e.target.checked })
                 }
-                className="rounded border-border-hover bg-surface-base text-[#2DD4BF] focus:ring-[#2DD4BF]/30 h-3 w-3"
+                className="rounded border-border-hover bg-surface-base text-success focus:ring-[#2DD4BF]/30 h-3 w-3"
               />
               <span className="text-[11px] text-text-muted">
                 Include descendants
@@ -82,7 +82,7 @@ function ConceptRow({ entry, onChange, onRemove }: ConceptRowProps) {
                 onChange={(e) =>
                   onChange({ ...entry, isExcluded: e.target.checked })
                 }
-                className="rounded border-border-hover bg-surface-base text-[#9B1B30] focus:ring-[#9B1B30]/30 h-3 w-3"
+                className="rounded border-border-hover bg-surface-base text-primary focus:ring-[#9B1B30]/30 h-3 w-3"
               />
               <span className="text-[11px] text-text-muted">Exclude</span>
             </label>
@@ -94,7 +94,7 @@ function ConceptRow({ entry, onChange, onRemove }: ConceptRowProps) {
         </div>
         <button
           onClick={onRemove}
-          className="shrink-0 text-text-ghost hover:text-[#9B1B30] transition-colors mt-0.5"
+          className="shrink-0 text-text-ghost hover:text-primary transition-colors mt-0.5"
           title="Remove from concept set"
           aria-label="Remove concept"
         >
@@ -160,7 +160,7 @@ export function ConceptSetBuilder({
           value={setName}
           onChange={(e) => onSetNameChange(e.target.value)}
           placeholder="Untitled concept set"
-          className="flex-1 min-w-0 bg-surface-base border border-border-default rounded px-2 py-1 text-xs text-text-primary placeholder-text-ghost focus:outline-none focus:border-[#2DD4BF]/60 focus:ring-1 focus:ring-[#2DD4BF]/20 transition-colors"
+          className="flex-1 min-w-0 bg-surface-base border border-border-default rounded px-2 py-1 text-xs text-text-primary placeholder-text-ghost focus:outline-none focus:border-success/60 focus:ring-1 focus:ring-[#2DD4BF]/20 transition-colors"
         />
         <button
           onClick={onNewSet}
@@ -177,7 +177,7 @@ export function ConceptSetBuilder({
           <select
             value={savedSets.find((s) => s.name === setName)?.id ?? ""}
             onChange={(e) => onSwitchSet(e.target.value)}
-            className="w-full bg-surface-base border border-border-default rounded px-2 py-1 text-[11px] text-text-secondary focus:outline-none focus:border-[#2DD4BF]/60 focus:ring-1 focus:ring-[#2DD4BF]/20 transition-colors cursor-pointer"
+            className="w-full bg-surface-base border border-border-default rounded px-2 py-1 text-[11px] text-text-secondary focus:outline-none focus:border-success/60 focus:ring-1 focus:ring-[#2DD4BF]/20 transition-colors cursor-pointer"
           >
             {savedSets.map((s) => (
               <option key={s.id} value={s.id}>

@@ -52,25 +52,25 @@ export default function FeasibilityForm({ onSubmit, isLoading }: FeasibilityForm
   };
 
   return (
-    <div className="rounded-lg border border-[#333] bg-[#1a1a22] p-4">
+    <div className="rounded-lg border border-border-default bg-surface-overlay p-4">
       <h3 className="mb-3 text-sm font-medium text-text-primary">New Feasibility Assessment</h3>
 
       <TemplateSelector onSelect={handleTemplateSelect} />
 
       <div className="mb-3">
-        <label className="mb-1 block text-xs text-[#888]">Assessment Name</label>
+        <label className="mb-1 block text-xs text-text-muted">Assessment Name</label>
         <input
           type="text"
           placeholder="e.g. Diabetes Outcomes Study"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full rounded border border-[#333] bg-[#151518] px-3 py-2 text-sm text-text-primary
-                     placeholder-[#555] focus:border-[#C9A227] focus:outline-none"
+          className="w-full rounded border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary
+                     placeholder-[#555] focus:border-accent focus:outline-none"
         />
       </div>
 
       <div className="mb-3">
-        <label className="mb-1 block text-xs text-[#888]">Required Domains</label>
+        <label className="mb-1 block text-xs text-text-muted">Required Domains</label>
         <div className="flex flex-wrap gap-2">
           {DOMAINS.map((d) => (
             <button
@@ -79,8 +79,8 @@ export default function FeasibilityForm({ onSubmit, isLoading }: FeasibilityForm
               onClick={() => toggleDomain(d.id)}
               className={`rounded-full border px-3 py-1 text-xs transition-colors ${
                 selectedDomains.includes(d.id)
-                  ? "border-[#C9A227] bg-[#C9A227]/10 text-[#C9A227]"
-                  : "border-[#333] text-[#888] hover:border-[#555]"
+                  ? "border-accent bg-accent/10 text-accent"
+                  : "border-border-default text-text-muted hover:border-surface-highlight"
               }`}
             >
               {d.label}
@@ -90,14 +90,14 @@ export default function FeasibilityForm({ onSubmit, isLoading }: FeasibilityForm
       </div>
 
       <div className="mb-4">
-        <label className="mb-1 block text-xs text-[#888]">Minimum Patient Count (optional)</label>
+        <label className="mb-1 block text-xs text-text-muted">Minimum Patient Count (optional)</label>
         <input
           type="number"
           placeholder="e.g. 1000"
           value={minPatients}
           onChange={(e) => setMinPatients(e.target.value)}
-          className="w-48 rounded border border-[#333] bg-[#151518] px-3 py-2 text-sm text-text-primary
-                     placeholder-[#555] focus:border-[#C9A227] focus:outline-none"
+          className="w-48 rounded border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary
+                     placeholder-[#555] focus:border-accent focus:outline-none"
         />
       </div>
 
@@ -105,8 +105,8 @@ export default function FeasibilityForm({ onSubmit, isLoading }: FeasibilityForm
         type="button"
         onClick={handleSubmit}
         disabled={!name.trim() || selectedDomains.length === 0 || isLoading}
-        className="rounded bg-[#C9A227] px-4 py-2 text-sm font-medium text-black
-                   hover:bg-[#d4ad2f] disabled:opacity-50"
+        className="rounded bg-accent px-4 py-2 text-sm font-medium text-black
+                   hover:bg-accent disabled:opacity-50"
       >
         {isLoading ? "Running..." : "Run Assessment"}
       </button>

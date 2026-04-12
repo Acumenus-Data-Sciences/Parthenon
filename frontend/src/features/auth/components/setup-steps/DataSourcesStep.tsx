@@ -25,16 +25,16 @@ type Source = {
 
 function EunomiaCallout() {
   return (
-    <div className="flex items-start gap-3 rounded-lg border border-[#818CF8]/30 bg-[#818CF8]/10 px-4 py-3">
-      <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[#818CF8]/20">
-        <FlaskConical size={13} className="text-[#818CF8]" />
+    <div className="flex items-start gap-3 rounded-lg border border-info/30 bg-info/10 px-4 py-3">
+      <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-info/20">
+        <FlaskConical size={13} className="text-info" />
       </div>
       <div className="text-base">
-        <p className="font-semibold text-[#C5C0B8]">
+        <p className="font-semibold text-text-secondary">
           Eunomia GiBleed Demo Dataset loaded
         </p>
-        <p className="mt-0.5 text-sm text-[#8A857D] leading-relaxed">
-          A synthetic OMOP CDM dataset with <strong className="text-[#C5C0B8]">2,694 patients</strong> and
+        <p className="mt-0.5 text-sm text-text-muted leading-relaxed">
+          A synthetic OMOP CDM dataset with <strong className="text-text-secondary">2,694 patients</strong> and
           gastrointestinal bleeding episodes. Safe to run cohort definitions and characterization analyses against — ideal
           for exploring Parthenon before connecting your real CDM.
         </p>
@@ -81,8 +81,8 @@ export function DataSourcesStep({ onConfigured }: Props) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-6 w-6 animate-spin text-[#C9A227]" />
-        <span className="ml-2 text-sm text-[#8A857D]">Loading data sources...</span>
+        <Loader2 className="h-6 w-6 animate-spin text-accent" />
+        <span className="ml-2 text-sm text-text-muted">Loading data sources...</span>
       </div>
     );
   }
@@ -93,8 +93,8 @@ export function DataSourcesStep({ onConfigured }: Props) {
   return (
     <div className="space-y-5">
       <div>
-        <h3 className="text-lg font-semibold text-[#F0EDE8]">Data Sources</h3>
-        <p className="text-base text-[#8A857D]">
+        <h3 className="text-lg font-semibold text-text-primary">Data Sources</h3>
+        <p className="text-base text-text-muted">
           Connect CDM databases to run cohort definitions and analyses against. You can also
           import sources from a legacy OHDSI WebAPI instance.
         </p>
@@ -106,22 +106,22 @@ export function DataSourcesStep({ onConfigured }: Props) {
       {/* Existing non-Eunomia sources */}
       {otherSources.length > 0 && (
         <div className="space-y-2">
-          <p className="text-sm font-medium uppercase tracking-wide text-[#8A857D]">
+          <p className="text-sm font-medium uppercase tracking-wide text-text-muted">
             Configured sources ({otherSources.length})
           </p>
           {otherSources.map((source) => (
             <div
               key={source.id}
-              className="flex items-center gap-3 rounded-lg border border-[#232328] bg-[#1A1A1E] px-4 py-3"
+              className="flex items-center gap-3 rounded-lg border border-border-default bg-surface-overlay px-4 py-3"
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-[#232328]">
-                <Database size={14} className="text-[#818CF8]" />
+              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-surface-elevated">
+                <Database size={14} className="text-info" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-base font-medium text-[#F0EDE8]">
+                <p className="truncate text-base font-medium text-text-primary">
                   {source.source_name}
                 </p>
-                <p className="text-sm text-[#8A857D]">
+                <p className="text-sm text-text-muted">
                   {source.source_key} &middot; {source.source_dialect}
                   {source.daimons && (
                     <span className="ml-1">
@@ -139,10 +139,10 @@ export function DataSourcesStep({ onConfigured }: Props) {
 
       {/* Empty state — no sources at all */}
       {sources.length === 0 && (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#1A1A1E] py-10">
-          <Database size={24} className="text-[#5A5650]" />
-          <h4 className="mt-3 text-sm font-semibold text-[#F0EDE8]">No data sources yet</h4>
-          <p className="mt-1 text-xs text-[#8A857D]">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-overlay py-10">
+          <Database size={24} className="text-text-ghost" />
+          <h4 className="mt-3 text-sm font-semibold text-text-primary">No data sources yet</h4>
+          <p className="mt-1 text-xs text-text-muted">
             Import from a legacy WebAPI instance or add sources from the Data Sources page later.
           </p>
         </div>
@@ -156,8 +156,8 @@ export function DataSourcesStep({ onConfigured }: Props) {
           className={cn(
             "inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition-colors",
             showImport
-              ? "border-[#C9A227]/40 text-[#C9A227]"
-              : "border-[#232328] text-[#8A857D] hover:text-[#C5C0B8]",
+              ? "border-accent/40 text-accent"
+              : "border-border-default text-text-muted hover:text-text-secondary",
           )}
         >
           <Upload size={14} />
@@ -165,26 +165,26 @@ export function DataSourcesStep({ onConfigured }: Props) {
         </button>
 
         {showImport && (
-          <div className="mt-3 space-y-3 rounded-lg border border-[#232328] bg-[#1A1A1E] p-4">
+          <div className="mt-3 space-y-3 rounded-lg border border-border-default bg-surface-overlay p-4">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
-                <label className="mb-1 block text-sm font-medium uppercase tracking-wide text-[#8A857D]">
+                <label className="mb-1 block text-sm font-medium uppercase tracking-wide text-text-muted">
                   WebAPI URL
                 </label>
                 <input
                   type="text"
-                  className="w-full rounded-md border border-[#232328] bg-[#0E0E11] px-3 py-2 font-mono text-base text-[#F0EDE8] placeholder:text-[#5A5650] focus:outline-none focus:ring-2 focus:ring-[#C9A227]/50"
+                  className="w-full rounded-md border border-border-default bg-surface-base px-3 py-2 font-mono text-base text-text-primary placeholder:text-text-ghost focus:outline-none focus:ring-2 focus:ring-[#C9A227]/50"
                   value={webApiUrl}
                   onChange={(e) => setWebApiUrl(e.target.value)}
                   placeholder="https://atlas.example.com/WebAPI"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium uppercase tracking-wide text-[#8A857D]">
+                <label className="mb-1 block text-sm font-medium uppercase tracking-wide text-text-muted">
                   Auth Type
                 </label>
                 <select
-                  className="w-full rounded-md border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8] focus:outline-none focus:ring-2 focus:ring-[#C9A227]/50"
+                  className="w-full rounded-md border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-[#C9A227]/50"
                   value={authType}
                   onChange={(e) => setAuthType(e.target.value as "none" | "basic" | "bearer")}
                 >
@@ -197,12 +197,12 @@ export function DataSourcesStep({ onConfigured }: Props) {
 
             {authType !== "none" && (
               <div>
-                <label className="mb-1 block text-sm font-medium uppercase tracking-wide text-[#8A857D]">
+                <label className="mb-1 block text-sm font-medium uppercase tracking-wide text-text-muted">
                   {authType === "basic" ? "Username:Password" : "Token"}
                 </label>
                 <input
                   type="password"
-                  className="w-full rounded-md border border-[#232328] bg-[#0E0E11] px-3 py-2 text-base text-[#F0EDE8] placeholder:text-[#5A5650] focus:outline-none focus:ring-2 focus:ring-[#C9A227]/50"
+                  className="w-full rounded-md border border-border-default bg-surface-base px-3 py-2 text-base text-text-primary placeholder:text-text-ghost focus:outline-none focus:ring-2 focus:ring-[#C9A227]/50"
                   value={authCredentials}
                   onChange={(e) => setAuthCredentials(e.target.value)}
                   placeholder={authType === "basic" ? "user:password" : "Bearer token"}
@@ -214,7 +214,7 @@ export function DataSourcesStep({ onConfigured }: Props) {
               type="button"
               onClick={handleImport}
               disabled={!webApiUrl.trim() || importMutation.isPending}
-              className="flex items-center gap-1.5 rounded-md bg-[#C9A227] px-4 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#D4AE3A] disabled:opacity-50"
+              className="flex items-center gap-1.5 rounded-md bg-accent px-4 py-2 text-sm font-medium text-surface-base hover:bg-accent-light disabled:opacity-50"
             >
               {importMutation.isPending && <Loader2 size={14} className="animate-spin" />}
               Import Sources
@@ -242,9 +242,9 @@ export function DataSourcesStep({ onConfigured }: Props) {
         )}
       </div>
 
-      <p className="text-sm text-[#5A5650]">
+      <p className="text-sm text-text-ghost">
         Manage data sources any time from{" "}
-        <span className="text-[#8A857D]">Settings → Data Sources</span>.
+        <span className="text-text-muted">Settings → Data Sources</span>.
       </p>
     </div>
   );

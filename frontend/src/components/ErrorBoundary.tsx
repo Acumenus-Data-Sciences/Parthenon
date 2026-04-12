@@ -39,23 +39,23 @@ export class ErrorBoundary extends Component<Props, State> {
     }
 
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0E0E11] p-8">
+      <div className="flex min-h-screen items-center justify-center bg-surface-base p-8">
         <div className="max-w-md space-y-4 text-center">
-          <AlertTriangle className="mx-auto h-12 w-12 text-[#C9A227]" />
-          <h1 className="text-xl font-semibold text-[#F0EDE8]">
+          <AlertTriangle className="mx-auto h-12 w-12 text-accent" />
+          <h1 className="text-xl font-semibold text-text-primary">
             Something went wrong
           </h1>
-          <p className="text-sm text-[#8A857D]">
+          <p className="text-sm text-text-muted">
             An unexpected error occurred. Try reloading the page.
           </p>
           {this.state.error && (
-            <pre className="mt-2 max-h-32 overflow-auto rounded-lg border border-[#232328] bg-[#151518] p-3 text-left text-xs text-[#9B1B30]">
+            <pre className="mt-2 max-h-32 overflow-auto rounded-lg border border-border-default bg-surface-raised p-3 text-left text-xs text-primary">
               {this.state.error.message}
             </pre>
           )}
           <button
             onClick={this.handleReload}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#C9A227] px-4 py-2 text-sm font-medium text-[#0E0E11] transition-colors hover:bg-[#C9A227]/90"
+            className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-surface-base transition-colors hover:bg-accent/90"
           >
             <RefreshCw size={14} />
             Reload page

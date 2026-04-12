@@ -36,7 +36,7 @@ export default function TemporalCoverageBar({
   const gEnd = parseYear(globalLatest ?? null) ?? endYear;
 
   if (startYear === null || endYear === null || gStart === null || gEnd === null) {
-    return <span className="text-[10px] text-[#555]">--</span>;
+    return <span className="text-[10px] text-text-ghost">--</span>;
   }
 
   const totalSpan = Math.max(gEnd - gStart, 1);
@@ -45,13 +45,13 @@ export default function TemporalCoverageBar({
 
   return (
     <div className="flex flex-col gap-0.5">
-      <div className="relative h-2 w-full rounded bg-[#1a1a22]" title={`${formatDate(earliest)} - ${formatDate(latest)}`}>
+      <div className="relative h-2 w-full rounded bg-surface-overlay" title={`${formatDate(earliest)} - ${formatDate(latest)}`}>
         <div
-          className="absolute top-0 h-2 rounded bg-[#2DD4BF]/50"
+          className="absolute top-0 h-2 rounded bg-success/50"
           style={{ left: `${leftPct}%`, width: `${Math.min(widthPct, 100 - leftPct)}%` }}
         />
       </div>
-      <div className="flex justify-between text-[9px] text-[#666]">
+      <div className="flex justify-between text-[9px] text-text-ghost">
         <span>{formatDate(earliest)}</span>
         <span>{formatDate(latest)}</span>
       </div>

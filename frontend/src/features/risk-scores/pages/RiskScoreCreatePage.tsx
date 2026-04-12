@@ -190,7 +190,7 @@ export default function RiskScoreCreatePage() {
       <div className="space-y-6">
         {/* Basics section */}
         <div className="panel space-y-4">
-          <h4 className="text-sm font-semibold text-[#C5C0B8]">Basics</h4>
+          <h4 className="text-sm font-semibold text-text-secondary">Basics</h4>
 
           {/* Name */}
           <div>
@@ -241,7 +241,7 @@ export default function RiskScoreCreatePage() {
         {/* Score Selection section */}
         {selectedCohortId != null && (
           <div className="panel space-y-4">
-            <h4 className="text-sm font-semibold text-[#C5C0B8]">
+            <h4 className="text-sm font-semibold text-text-secondary">
               Score Selection
             </h4>
 
@@ -250,7 +250,7 @@ export default function RiskScoreCreatePage() {
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className="h-20 animate-pulse rounded-lg bg-[#1A1A1F]"
+                    className="h-20 animate-pulse rounded-lg bg-surface-overlay"
                   />
                 ))}
               </div>
@@ -278,7 +278,7 @@ export default function RiskScoreCreatePage() {
                     className="btn btn-sm"
                     style={{
                       backgroundColor: "#2DD4BF15",
-                      color: "#2DD4BF",
+                      color: "var(--success)",
                       borderColor: "#2DD4BF40",
                     }}
                   >
@@ -302,7 +302,7 @@ export default function RiskScoreCreatePage() {
                     className="btn btn-sm"
                     style={{
                       backgroundColor: "#F59E0B15",
-                      color: "#F59E0B",
+                      color: "var(--warning)",
                       borderColor: "#F59E0B40",
                     }}
                   >
@@ -316,7 +316,7 @@ export default function RiskScoreCreatePage() {
                     Clear Selection
                   </button>
                   {selectedScoreIds.length > 0 && (
-                    <span className="text-xs text-[#8A857D] ml-2">
+                    <span className="text-xs text-text-muted ml-2">
                       {selectedScoreIds.length} score
                       {selectedScoreIds.length !== 1 ? "s" : ""} selected
                     </span>
@@ -326,7 +326,7 @@ export default function RiskScoreCreatePage() {
                 {/* Recommended tier */}
                 {groups && groups.recommended.length > 0 && (
                   <div>
-                    <h3 className="text-sm font-medium text-[#8A857D] uppercase tracking-wider mb-3">
+                    <h3 className="text-sm font-medium text-text-muted uppercase tracking-wider mb-3">
                       Recommended
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -346,7 +346,7 @@ export default function RiskScoreCreatePage() {
                 {/* Available tier */}
                 {groups && groups.available.length > 0 && (
                   <div>
-                    <h3 className="text-sm font-medium text-[#8A857D] uppercase tracking-wider mb-3">
+                    <h3 className="text-sm font-medium text-text-muted uppercase tracking-wider mb-3">
                       Available
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -366,7 +366,7 @@ export default function RiskScoreCreatePage() {
                 {/* Not Applicable tier */}
                 {groups && groups.notApplicable.length > 0 && (
                   <div>
-                    <h3 className="text-sm font-medium text-[#8A857D] uppercase tracking-wider mb-3">
+                    <h3 className="text-sm font-medium text-text-muted uppercase tracking-wider mb-3">
                       Not Applicable
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -400,18 +400,18 @@ export default function RiskScoreCreatePage() {
       <div className="space-y-4">
         {/* Analysis details */}
         <div className="panel">
-          <h4 className="text-sm font-semibold text-[#C5C0B8] mb-3">
+          <h4 className="text-sm font-semibold text-text-secondary mb-3">
             Analysis
           </h4>
           <div className="space-y-2 text-sm">
             <div>
-              <span className="text-[#5A5650]">Name:</span>
-              <p className="text-[#F0EDE8] font-medium">{name}</p>
+              <span className="text-text-ghost">Name:</span>
+              <p className="text-text-primary font-medium">{name}</p>
             </div>
             {description.trim() && (
               <div>
-                <span className="text-[#5A5650]">Description:</span>
-                <p className="text-[#C5C0B8] mt-0.5">{description}</p>
+                <span className="text-text-ghost">Description:</span>
+                <p className="text-text-secondary mt-0.5">{description}</p>
               </div>
             )}
           </div>
@@ -419,15 +419,15 @@ export default function RiskScoreCreatePage() {
 
         {/* Cohort */}
         <div className="panel">
-          <h4 className="text-sm font-semibold text-[#C5C0B8] mb-3">
+          <h4 className="text-sm font-semibold text-text-secondary mb-3">
             Target Cohort
           </h4>
           <div className="text-sm">
-            <span className="text-[#F0EDE8] font-medium">
+            <span className="text-text-primary font-medium">
               {recommendations?.cohort?.name ?? selectedCohort?.name ?? "---"}
             </span>
             {recommendations?.cohort?.person_count != null && (
-              <span className="ml-2 text-[#8A857D]">
+              <span className="ml-2 text-text-muted">
                 {recommendations.cohort.person_count.toLocaleString()} patients
               </span>
             )}
@@ -436,26 +436,26 @@ export default function RiskScoreCreatePage() {
 
         {/* Selected scores */}
         <div className="panel">
-          <h4 className="text-sm font-semibold text-[#C5C0B8] mb-3">
+          <h4 className="text-sm font-semibold text-text-secondary mb-3">
             Selected Scores ({selectedScoreIds.length})
           </h4>
           <div className="space-y-2">
             {selectedRecs.map((r) => (
               <div
                 key={r.score_id}
-                className="flex items-center justify-between rounded-lg border border-[#232328] bg-[#151518] px-4 py-3"
+                className="flex items-center justify-between rounded-lg border border-border-default bg-surface-raised px-4 py-3"
               >
                 <div>
-                  <span className="text-sm font-medium text-[#F0EDE8]">
+                  <span className="text-sm font-medium text-text-primary">
                     {r.score_name}
                   </span>
-                  <span className="ml-2 rounded bg-[#1A1A1F] px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-[#8A857D]">
+                  <span className="ml-2 rounded bg-surface-overlay px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-text-muted">
                     {r.category}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-[#5A5650]">Completeness:</span>
-                  <span className="font-['IBM_Plex_Mono',monospace] text-xs tabular-nums text-[#C5C0B8]">
+                  <span className="text-xs text-text-ghost">Completeness:</span>
+                  <span className="font-['IBM_Plex_Mono',monospace] text-xs tabular-nums text-text-secondary">
                     {r.expected_completeness != null
                       ? `${Math.round(r.expected_completeness * 100)}%`
                       : "N/A"}
@@ -464,7 +464,7 @@ export default function RiskScoreCreatePage() {
               </div>
             ))}
             {selectedRecs.length === 0 && selectedScoreIds.length > 0 && (
-              <p className="text-sm text-[#5A5650]">
+              <p className="text-sm text-text-ghost">
                 {selectedScoreIds.length} score
                 {selectedScoreIds.length !== 1 ? "s" : ""} selected
               </p>
@@ -491,7 +491,7 @@ export default function RiskScoreCreatePage() {
             type="button"
             onClick={() => handleCreate(true)}
             disabled={createMutation.isPending || executeMutation.isPending}
-            className="btn btn-primary bg-[#9B1B30] hover:bg-[#9B1B30]/80 border-[#9B1B30]"
+            className="btn btn-primary bg-primary hover:bg-primary/80 border-primary"
           >
             {executeMutation.isPending ? (
               <Loader2 size={14} className="animate-spin" />
@@ -503,8 +503,8 @@ export default function RiskScoreCreatePage() {
         </div>
 
         {createError && (
-          <div className="rounded-lg border border-[#E85A6B]/30 bg-[#E85A6B]/5 px-4 py-3 mt-4">
-            <p className="text-sm text-[#E85A6B]">{createError}</p>
+          <div className="rounded-lg border border-critical/30 bg-critical/5 px-4 py-3 mt-4">
+            <p className="text-sm text-critical">{createError}</p>
           </div>
         )}
       </div>
@@ -546,18 +546,18 @@ export default function RiskScoreCreatePage() {
                 className={cn(
                   "flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all w-full",
                   isActive &&
-                    "bg-[#2DD4BF]/10 text-[#2DD4BF] border border-[#2DD4BF]/30",
+                    "bg-success/10 text-success border border-success/30",
                   isDone &&
-                    "text-[#2DD4BF]/70 cursor-pointer hover:bg-[#2DD4BF]/5",
-                  !isActive && !isDone && "text-[#5A5650] cursor-not-allowed",
+                    "text-success/70 cursor-pointer hover:bg-success/5",
+                  !isActive && !isDone && "text-text-ghost cursor-not-allowed",
                 )}
               >
                 <div
                   className={cn(
                     "flex items-center justify-center w-6 h-6 rounded-full text-xs font-semibold shrink-0",
-                    isActive && "bg-[#2DD4BF] text-[#0E0E11]",
-                    isDone && "bg-[#2DD4BF]/20 text-[#2DD4BF]",
-                    !isActive && !isDone && "bg-[#232328] text-[#5A5650]",
+                    isActive && "bg-success text-surface-base",
+                    isDone && "bg-success/20 text-success",
+                    !isActive && !isDone && "bg-surface-elevated text-text-ghost",
                   )}
                 >
                   {isDone ? <Check size={12} /> : i + 1}
@@ -568,7 +568,7 @@ export default function RiskScoreCreatePage() {
                 <div
                   className={cn(
                     "h-px w-4 shrink-0 mx-1",
-                    i < step ? "bg-[#2DD4BF]/30" : "bg-[#232328]",
+                    i < step ? "bg-success/30" : "bg-surface-elevated",
                   )}
                 />
               )}
@@ -579,7 +579,7 @@ export default function RiskScoreCreatePage() {
 
       {/* Step Content */}
       <div>
-        <h3 className="text-base font-semibold text-[#F0EDE8] mb-4">
+        <h3 className="text-base font-semibold text-text-primary mb-4">
           {STEPS[step].label}
         </h3>
         {step === 0 && renderConfigure()}

@@ -51,7 +51,7 @@ function Sparkline({
             toY(Math.max(rangeLow, min)) - toY(Math.min(rangeHigh, max)),
             0,
           )}
-          fill="#22C55E"
+          fill="var(--success)"
           opacity={0.12}
         />
       )}
@@ -59,7 +59,7 @@ function Sparkline({
       <polyline
         points={points}
         fill="none"
-        stroke="#818CF8"
+        stroke="var(--info)"
         strokeWidth={1.5}
         strokeLinejoin="round"
         strokeLinecap="round"
@@ -70,7 +70,7 @@ function Sparkline({
           cx={toX(values.length - 1)}
           cy={toY(values[values.length - 1])}
           r={2.5}
-          fill="#818CF8"
+          fill="var(--info)"
         />
       )}
     </svg>
@@ -87,11 +87,11 @@ function RangeIndicator({
   rangeHigh: number | null;
 }) {
   if (rangeLow == null || rangeHigh == null) {
-    return <Minus size={12} className="text-[#5A5650]" />;
+    return <Minus size={12} className="text-text-ghost" />;
   }
   if (value < rangeLow) {
     return (
-      <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-[#818CF8]">
+      <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-info">
         <TrendingDown size={11} />
         Low
       </span>
@@ -99,14 +99,14 @@ function RangeIndicator({
   }
   if (value > rangeHigh) {
     return (
-      <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-[#E85A6B]">
+      <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-critical">
         <TrendingUp size={11} />
         High
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-[#22C55E]">
+    <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-success">
       <Minus size={11} />
       Normal
     </span>
@@ -124,14 +124,14 @@ function LabRow({ group }: { group: LabGroup }) {
   const trend = group.trend;
 
   return (
-    <div className="border-b border-[#1C1C20] last:border-0">
+    <div className="border-b border-border-subtle last:border-0">
       <button
         type="button"
         onClick={() => setExpanded((p) => !p)}
-        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[#1A1A1E] transition-colors text-left"
+        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-surface-overlay transition-colors text-left"
       >
         {/* Expand toggle */}
-        <span className="text-[#5A5650] shrink-0">
+        <span className="text-text-ghost shrink-0">
           {expanded ? (
             <ChevronDown size={14} />
           ) : (
@@ -141,13 +141,13 @@ function LabRow({ group }: { group: LabGroup }) {
 
         {/* Concept name */}
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-medium text-[#F0EDE8] truncate">
+          <p className="text-xs font-medium text-text-primary truncate">
             {group.conceptName}
           </p>
         </div>
 
         {/* Count */}
-        <span className="text-[10px] text-[#5A5650] shrink-0 w-8 text-right">
+        <span className="text-[10px] text-text-ghost shrink-0 w-8 text-right">
           ×{group.n}
         </span>
 
@@ -162,18 +162,18 @@ function LabRow({ group }: { group: LabGroup }) {
 
         {/* Latest value */}
         <div className="shrink-0 w-28 text-right">
-          <p className="text-sm font-bold text-[#F0EDE8]">
+          <p className="text-sm font-bold text-text-primary">
             {group.latestValue != null
               ? group.latestValue.toLocaleString(undefined, { maximumFractionDigits: 3 })
               : "—"}
             {group.unitName ? (
-              <span className="text-[10px] font-normal text-[#8A857D] ml-1">
+              <span className="text-[10px] font-normal text-text-muted ml-1">
                 {group.unitName}
               </span>
             ) : null}
           </p>
           {group.range != null && (
-            <p className="text-[9px] text-[#5A5650]">
+            <p className="text-[9px] text-text-ghost">
               ref: {group.range.low}–{group.range.high}
             </p>
           )}
@@ -182,11 +182,11 @@ function LabRow({ group }: { group: LabGroup }) {
         {/* Trend arrow */}
         <div className="shrink-0 w-6 flex justify-center">
           {trend === "up" ? (
-            <TrendingUp size={14} className="text-[#E85A6B]" />
+            <TrendingUp size={14} className="text-critical" />
           ) : trend === "down" ? (
-            <TrendingDown size={14} className="text-[#818CF8]" />
+            <TrendingDown size={14} className="text-info" />
           ) : (
-            <Minus size={14} className="text-[#5A5650]" />
+            <Minus size={14} className="text-text-ghost" />
           )}
         </div>
 
@@ -246,23 +246,23 @@ export function PatientLabPanel({ labGroups }: PatientLabPanelProps) {
 
   if (labGroups.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
-        <FlaskConical size={24} className="text-[#5A5650] mb-3" />
-        <p className="text-sm text-[#8A857D]">No lab measurements available</p>
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
+        <FlaskConical size={24} className="text-text-ghost mb-3" />
+        <p className="text-sm text-text-muted">No lab measurements available</p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+    <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between gap-3 px-4 py-2.5 bg-[#1C1C20] border-b border-[#232328]">
+      <div className="flex items-center justify-between gap-3 px-4 py-2.5 bg-surface-overlay border-b border-border-default">
         <div className="flex items-center gap-2">
-          <FlaskConical size={14} className="text-[#818CF8]" />
-          <span className="text-xs font-semibold text-[#F0EDE8]">
+          <FlaskConical size={14} className="text-info" />
+          <span className="text-xs font-semibold text-text-primary">
             Lab Panel
           </span>
-          <span className="text-[10px] text-[#5A5650]">
+          <span className="text-[10px] text-text-ghost">
             {labGroups.length} tests · {numericMeasurements} values
           </span>
         </div>
@@ -272,30 +272,30 @@ export function PatientLabPanel({ labGroups }: PatientLabPanelProps) {
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Filter tests..."
           className={cn(
-            "w-48 rounded-md border border-[#323238] bg-[#0E0E11] px-3 py-1 text-xs",
-            "text-[#F0EDE8] placeholder:text-[#5A5650]",
-            "focus:border-[#818CF8] focus:outline-none focus:ring-1 focus:ring-[#818CF8]/20",
+            "w-48 rounded-md border border-surface-highlight bg-surface-base px-3 py-1 text-xs",
+            "text-text-primary placeholder:text-text-ghost",
+            "focus:border-info focus:outline-none focus:ring-1 focus:ring-[#818CF8]/20",
           )}
         />
       </div>
 
       {/* Column headers */}
-      <div className="flex items-center gap-3 px-4 py-1.5 bg-[#151518] border-b border-[#232328]">
+      <div className="flex items-center gap-3 px-4 py-1.5 bg-surface-raised border-b border-border-default">
         <div className="w-5 shrink-0" />
-        <div className="flex-1 text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
+        <div className="flex-1 text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
           Test
         </div>
-        <div className="w-8 text-right text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
+        <div className="w-8 text-right text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
           N
         </div>
-        <div className="w-[100px] text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
+        <div className="w-[100px] text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
           Trend
         </div>
-        <div className="w-28 text-right text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
+        <div className="w-28 text-right text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
           Latest
         </div>
         <div className="w-6" />
-        <div className="w-14 text-right text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
+        <div className="w-14 text-right text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
           Status
         </div>
       </div>
@@ -303,7 +303,7 @@ export function PatientLabPanel({ labGroups }: PatientLabPanelProps) {
       {/* Lab rows */}
       {filtered.length === 0 ? (
         <div className="flex items-center justify-center h-24">
-          <p className="text-sm text-[#8A857D]">No tests match &quot;{search}&quot;</p>
+          <p className="text-sm text-text-muted">No tests match &quot;{search}&quot;</p>
         </div>
       ) : (
         filtered.map((group) => <LabRow key={group.conceptId} group={group} />)

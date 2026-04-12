@@ -38,13 +38,13 @@ const CDM_TABLE_ORDER = [
 ];
 
 const CDM_TABLE_COLORS: Record<string, string> = {
-  person: "#2DD4BF",
-  visit_occurrence: "#60A5FA",
-  condition_occurrence: "#F472B6",
-  drug_exposure: "#C9A227",
-  procedure_occurrence: "#A78BFA",
-  measurement: "#34D399",
-  observation: "#FB923C",
+  person: "var(--success)",
+  visit_occurrence: "var(--info)",
+  condition_occurrence: "var(--domain-procedure)",
+  drug_exposure: "var(--accent)",
+  procedure_occurrence: "var(--domain-observation)",
+  measurement: "var(--success)",
+  observation: "var(--domain-device)",
 };
 
 const EXAMPLE_BUNDLE = `{
@@ -82,8 +82,8 @@ type InputMode = "json" | "file";
 function HealthBadge({ status }: { status: FhirHealthStatus | undefined; isLoading: boolean; isError: boolean } & { isLoading: boolean; isError: boolean }) {
   if (status === undefined) {
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[#232328] text-[#8A857D]">
-        <span className="w-1.5 h-1.5 rounded-full bg-[#8A857D]" />
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-surface-elevated text-text-muted">
+        <span className="w-1.5 h-1.5 rounded-full bg-text-muted" />
         Unknown
       </span>
     );
@@ -96,14 +96,14 @@ function HealthBadge({ status }: { status: FhirHealthStatus | undefined; isLoadi
       className={cn(
         "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium",
         isHealthy
-          ? "bg-[#2DD4BF]/15 text-[#2DD4BF]"
-          : "bg-[#E85A6B]/15 text-[#E85A6B]",
+          ? "bg-success/15 text-success"
+          : "bg-critical/15 text-critical",
       )}
     >
       <span
         className={cn(
           "w-1.5 h-1.5 rounded-full",
-          isHealthy ? "bg-[#2DD4BF] animate-pulse" : "bg-[#E85A6B]",
+          isHealthy ? "bg-success animate-pulse" : "bg-critical",
         )}
       />
       {isHealthy ? "Service Online" : "Service Offline"}
@@ -133,13 +133,13 @@ function RecordsBarChart({ records }: RecordsBarChartProps) {
     <div className="space-y-2">
       {allEntries.map(({ table, count }) => {
         const pct = Math.max((count / max) * 100, 2);
-        const color = CDM_TABLE_COLORS[table] ?? "#8A857D";
+        const color = CDM_TABLE_COLORS[table] ?? "var(--text-muted)";
         return (
           <div key={table} className="flex items-center gap-3">
-            <span className="w-44 shrink-0 text-xs text-[#C5C0B8] font-mono truncate">
+            <span className="w-44 shrink-0 text-xs text-text-secondary font-mono truncate">
               {table}
             </span>
-            <div className="flex-1 h-4 rounded bg-[#1C1C20] overflow-hidden">
+            <div className="flex-1 h-4 rounded bg-surface-overlay overflow-hidden">
               <div
                 className="h-full rounded transition-all duration-500"
                 style={{ width: `${pct}%`, backgroundColor: color }}
@@ -168,31 +168,31 @@ function ErrorLog({ errors }: ErrorLogProps) {
   if (errors.length === 0) return null;
 
   return (
-    <div className="rounded-lg border border-[#E85A6B]/30 bg-[#E85A6B]/5">
+    <div className="rounded-lg border border-critical/30 bg-critical/5">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         className="flex w-full items-center gap-2 px-4 py-3 text-left"
       >
-        <AlertTriangle size={14} className="shrink-0 text-[#E85A6B]" />
-        <span className="flex-1 text-sm font-medium text-[#E85A6B]">
+        <AlertTriangle size={14} className="shrink-0 text-critical" />
+        <span className="flex-1 text-sm font-medium text-critical">
           {errors.length} resource{errors.length !== 1 ? "s" : ""} failed
         </span>
         {open ? (
-          <ChevronDown size={14} className="text-[#E85A6B]" />
+          <ChevronDown size={14} className="text-critical" />
         ) : (
-          <ChevronRight size={14} className="text-[#E85A6B]" />
+          <ChevronRight size={14} className="text-critical" />
         )}
       </button>
 
       {open && (
-        <div className="border-t border-[#E85A6B]/20 px-4 py-3 space-y-2">
+        <div className="border-t border-critical/20 px-4 py-3 space-y-2">
           {errors.map((err, i) => (
             <div key={i} className="flex items-start gap-2 text-xs">
-              <span className="shrink-0 px-1.5 py-0.5 rounded bg-[#E85A6B]/20 text-[#E85A6B] font-mono">
+              <span className="shrink-0 px-1.5 py-0.5 rounded bg-critical/20 text-critical font-mono">
                 {err.resource_type}
               </span>
-              <span className="text-[#C5C0B8] leading-relaxed">{err.message}</span>
+              <span className="text-text-secondary leading-relaxed">{err.message}</span>
             </div>
           ))}
         </div>
@@ -341,21 +341,21 @@ export default function FhirIngestionPanel() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <h2 className="text-xl font-bold text-[#F0EDE8]">
+            <h2 className="text-xl font-bold text-text-primary">
               FHIR → OMOP Ingestion
             </h2>
-            <span className="px-2 py-0.5 rounded text-xs font-bold tracking-wider bg-[#C9A227]/15 text-[#C9A227] border border-[#C9A227]/30">
+            <span className="px-2 py-0.5 rounded text-xs font-bold tracking-wider bg-accent/15 text-accent border border-accent/30">
               FHIR R4
             </span>
           </div>
-          <p className="mt-1 text-sm text-[#8A857D]">
+          <p className="mt-1 text-sm text-text-muted">
             Convert FHIR Bundle or NDJSON resources into OMOP CDM records
           </p>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
           {healthLoading ? (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[#232328] text-[#8A857D]">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-surface-elevated text-text-muted">
               <Loader2 size={10} className="animate-spin" />
               Checking…
             </span>
@@ -370,7 +370,7 @@ export default function FhirIngestionPanel() {
             type="button"
             onClick={() => void refetchHealth()}
             title="Refresh health"
-            className="p-1.5 rounded-md text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#232328] transition-colors"
+            className="p-1.5 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-elevated transition-colors"
           >
             <RefreshCw size={13} />
           </button>
@@ -378,9 +378,9 @@ export default function FhirIngestionPanel() {
       </div>
 
       {/* ── Input Mode Tabs ──────────────────────────────────────────── */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+      <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
         {/* Tab strip */}
-        <div className="flex border-b border-[#232328]">
+        <div className="flex border-b border-border-default">
           {(["json", "file"] as const).map((mode) => (
             <button
               key={mode}
@@ -393,8 +393,8 @@ export default function FhirIngestionPanel() {
               className={cn(
                 "flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors border-b-2",
                 inputMode === mode
-                  ? "border-[#9B1B30] text-[#F0EDE8] bg-[#1C1C20]"
-                  : "border-transparent text-[#8A857D] hover:text-[#C5C0B8] hover:bg-[#1A1A1E]",
+                  ? "border-primary text-text-primary bg-surface-overlay"
+                  : "border-transparent text-text-muted hover:text-text-secondary hover:bg-surface-overlay",
               )}
             >
               {mode === "json" ? (
@@ -411,7 +411,7 @@ export default function FhirIngestionPanel() {
         <div className="p-4">
           {inputMode === "json" ? (
             <div className="space-y-2">
-              <label className="block text-xs font-medium text-[#8A857D] uppercase tracking-wider">
+              <label className="block text-xs font-medium text-text-muted uppercase tracking-wider">
                 FHIR Bundle JSON
               </label>
               <textarea
@@ -424,14 +424,14 @@ export default function FhirIngestionPanel() {
                 rows={14}
                 spellCheck={false}
                 className={cn(
-                  "w-full rounded-md border bg-[#0E0E11] px-3 py-2.5 font-mono text-xs text-[#C5C0B8] placeholder-[#3A3A40] outline-none resize-y transition-colors",
+                  "w-full rounded-md border bg-surface-base px-3 py-2.5 font-mono text-xs text-text-secondary placeholder-[#3A3A40] outline-none resize-y transition-colors",
                   jsonError
-                    ? "border-[#E85A6B]/60 focus:border-[#E85A6B]"
-                    : "border-[#232328] focus:border-[#9B1B30]",
+                    ? "border-critical/60 focus:border-critical"
+                    : "border-border-default focus:border-primary",
                 )}
               />
               {jsonError && (
-                <p className="flex items-center gap-1.5 text-xs text-[#E85A6B]">
+                <p className="flex items-center gap-1.5 text-xs text-critical">
                   <AlertTriangle size={12} />
                   {jsonError}
                 </p>
@@ -439,7 +439,7 @@ export default function FhirIngestionPanel() {
             </div>
           ) : (
             <div className="space-y-3">
-              <label className="block text-xs font-medium text-[#8A857D] uppercase tracking-wider">
+              <label className="block text-xs font-medium text-text-muted uppercase tracking-wider">
                 FHIR File (.json or .ndjson)
               </label>
 
@@ -455,10 +455,10 @@ export default function FhirIngestionPanel() {
                 className={cn(
                   "flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed cursor-pointer transition-colors py-10",
                   isDragging
-                    ? "border-[#9B1B30] bg-[#9B1B30]/5"
+                    ? "border-primary bg-primary/5"
                     : fileName
-                      ? "border-[#2DD4BF]/40 bg-[#2DD4BF]/5"
-                      : "border-[#323238] bg-[#0E0E11] hover:border-[#5A5660] hover:bg-[#1A1A1E]",
+                      ? "border-success/40 bg-success/5"
+                      : "border-surface-highlight bg-surface-base hover:border-text-ghost hover:bg-surface-overlay",
                 )}
               >
                 <input
@@ -471,24 +471,24 @@ export default function FhirIngestionPanel() {
 
                 {fileName ? (
                   <>
-                    <CheckCircle2 size={28} className="text-[#2DD4BF]" />
+                    <CheckCircle2 size={28} className="text-success" />
                     <div className="text-center">
-                      <p className="text-sm font-medium text-[#F0EDE8]">
+                      <p className="text-sm font-medium text-text-primary">
                         {fileName}
                       </p>
-                      <p className="mt-0.5 text-xs text-[#8A857D]">
+                      <p className="mt-0.5 text-xs text-text-muted">
                         Click to replace
                       </p>
                     </div>
                   </>
                 ) : (
                   <>
-                    <Upload size={28} className="text-[#5A5660]" />
+                    <Upload size={28} className="text-text-ghost" />
                     <div className="text-center">
-                      <p className="text-sm font-medium text-[#C5C0B8]">
+                      <p className="text-sm font-medium text-text-secondary">
                         Drop a FHIR file here
                       </p>
-                      <p className="mt-0.5 text-xs text-[#8A857D]">
+                      <p className="mt-0.5 text-xs text-text-muted">
                         or click to browse — .json (Bundle) or .ndjson (batch)
                       </p>
                     </div>
@@ -497,7 +497,7 @@ export default function FhirIngestionPanel() {
               </div>
 
               {jsonError && (
-                <p className="flex items-center gap-1.5 text-xs text-[#E85A6B]">
+                <p className="flex items-center gap-1.5 text-xs text-critical">
                   <AlertTriangle size={12} />
                   {jsonError}
                 </p>
@@ -514,7 +514,7 @@ export default function FhirIngestionPanel() {
                 isPending ||
                 (inputMode === "json" ? !jsonText.trim() : !fileContent)
               }
-              className="inline-flex items-center gap-2 rounded-lg bg-[#9B1B30] px-5 py-2.5 text-sm font-semibold text-[#F0EDE8] hover:bg-[#B82D42] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-text-primary hover:bg-primary-light disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               {isPending ? (
                 <>
@@ -537,7 +537,7 @@ export default function FhirIngestionPanel() {
                   bundleMutation.reset();
                   batchMutation.reset();
                 }}
-                className="text-xs text-[#8A857D] hover:text-[#C5C0B8] transition-colors"
+                className="text-xs text-text-muted hover:text-text-secondary transition-colors"
               >
                 Clear results
               </button>
@@ -548,11 +548,11 @@ export default function FhirIngestionPanel() {
 
       {/* ── Mutation error ───────────────────────────────────────────── */}
       {mutationError && (
-        <div className="flex items-start gap-2 rounded-lg border border-[#E85A6B]/30 bg-[#E85A6B]/5 px-4 py-3">
-          <XCircle size={15} className="mt-0.5 shrink-0 text-[#E85A6B]" />
+        <div className="flex items-start gap-2 rounded-lg border border-critical/30 bg-critical/5 px-4 py-3">
+          <XCircle size={15} className="mt-0.5 shrink-0 text-critical" />
           <div className="text-sm">
-            <p className="font-medium text-[#E85A6B]">Ingestion failed</p>
-            <p className="mt-0.5 text-xs text-[#C5C0B8]">
+            <p className="font-medium text-critical">Ingestion failed</p>
+            <p className="mt-0.5 text-xs text-text-secondary">
               {mutationError instanceof Error
                 ? mutationError.message
                 : "An unexpected error occurred. Check the service logs."}
@@ -566,47 +566,47 @@ export default function FhirIngestionPanel() {
         <div className="space-y-4">
           {/* Summary cards */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div className="rounded-lg border border-[#232328] bg-[#151518] px-4 py-3">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+            <div className="rounded-lg border border-border-default bg-surface-raised px-4 py-3">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                 Status
               </p>
               <p
                 className={cn(
                   "mt-1 text-lg font-bold capitalize",
                   result.status === "ok" || result.status === "success"
-                    ? "text-[#2DD4BF]"
+                    ? "text-success"
                     : result.status === "partial"
-                      ? "text-[#C9A227]"
-                      : "text-[#E85A6B]",
+                      ? "text-accent"
+                      : "text-critical",
                 )}
               >
                 {result.status}
               </p>
             </div>
 
-            <div className="rounded-lg border border-[#232328] bg-[#151518] px-4 py-3">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+            <div className="rounded-lg border border-border-default bg-surface-raised px-4 py-3">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                 Resources Processed
               </p>
-              <p className="mt-1 text-lg font-bold tabular-nums text-[#F0EDE8]">
+              <p className="mt-1 text-lg font-bold tabular-nums text-text-primary">
                 {result.resources_processed.toLocaleString()}
               </p>
             </div>
 
-            <div className="rounded-lg border border-[#232328] bg-[#151518] px-4 py-3">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+            <div className="rounded-lg border border-border-default bg-surface-raised px-4 py-3">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                 CDM Records Created
               </p>
-              <p className="mt-1 text-lg font-bold tabular-nums text-[#2DD4BF]">
+              <p className="mt-1 text-lg font-bold tabular-nums text-success">
                 {totalRecords.toLocaleString()}
               </p>
             </div>
 
-            <div className="rounded-lg border border-[#232328] bg-[#151518] px-4 py-3">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+            <div className="rounded-lg border border-border-default bg-surface-raised px-4 py-3">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                 Elapsed
               </p>
-              <p className="mt-1 text-lg font-bold tabular-nums text-[#F0EDE8]">
+              <p className="mt-1 text-lg font-bold tabular-nums text-text-primary">
                 {result.elapsed_seconds.toFixed(2)}s
               </p>
             </div>
@@ -614,8 +614,8 @@ export default function FhirIngestionPanel() {
 
           {/* Per-table bar chart */}
           {totalRecords > 0 && (
-            <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-              <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
+            <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+              <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-text-muted">
                 CDM Records by Table
               </h3>
               <RecordsBarChart records={result.records_created} />
@@ -627,9 +627,9 @@ export default function FhirIngestionPanel() {
 
           {/* Success notice */}
           {result.errors.length === 0 && totalRecords > 0 && (
-            <div className="flex items-center gap-2 rounded-lg border border-[#2DD4BF]/20 bg-[#2DD4BF]/5 px-4 py-3">
-              <CheckCircle2 size={15} className="shrink-0 text-[#2DD4BF]" />
-              <p className="text-sm text-[#2DD4BF]">
+            <div className="flex items-center gap-2 rounded-lg border border-success/20 bg-success/5 px-4 py-3">
+              <CheckCircle2 size={15} className="shrink-0 text-success" />
+              <p className="text-sm text-success">
                 All resources ingested successfully — {totalRecords.toLocaleString()} CDM records created.
               </p>
             </div>
@@ -638,12 +638,12 @@ export default function FhirIngestionPanel() {
       )}
 
       {/* ── Footer link ──────────────────────────────────────────────── */}
-      <div className="flex items-center gap-2 text-xs text-[#5A5660]">
+      <div className="flex items-center gap-2 text-xs text-text-ghost">
         <Activity size={11} />
         <span>Configure FHIR Server connections in</span>
         <Link
           to="/admin/fhir-connections"
-          className="inline-flex items-center gap-0.5 text-[#C9A227] hover:text-[#D4AF40] transition-colors"
+          className="inline-flex items-center gap-0.5 text-accent hover:text-accent-light transition-colors"
         >
           Admin → FHIR Connections
           <ArrowRight size={11} />

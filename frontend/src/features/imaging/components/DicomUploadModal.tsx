@@ -198,17 +198,17 @@ export function DicomUploadModal({ open, onClose, onComplete }: DicomUploadModal
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-xl rounded-xl border border-[#232328] bg-[#151518] shadow-2xl">
+      <div className="w-full max-w-xl rounded-xl border border-border-default bg-surface-raised shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#232328] px-6 py-4">
+        <div className="flex items-center justify-between border-b border-border-default px-6 py-4">
           <div className="flex items-center gap-2">
-            <Upload size={16} className="text-[#60A5FA]" />
-            <h2 className="text-sm font-semibold text-[#F0EDE8]">Import DICOM Files</h2>
+            <Upload size={16} className="text-info" />
+            <h2 className="text-sm font-semibold text-text-primary">Import DICOM Files</h2>
           </div>
           <button
             onClick={handleClose}
             disabled={state === "uploading" || state === "indexing"}
-            className="rounded p-1 text-[#5A5650] hover:text-[#F0EDE8] disabled:opacity-30 transition-colors"
+            className="rounded p-1 text-text-ghost hover:text-text-primary disabled:opacity-30 transition-colors"
           >
             <X size={16} />
           </button>
@@ -223,14 +223,14 @@ export function DicomUploadModal({ open, onClose, onComplete }: DicomUploadModal
                 onDrop={handleDrop}
                 onDragOver={(e) => e.preventDefault()}
                 onClick={() => inputRef.current?.click()}
-                className="flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-[#2A2A30] bg-[#0E0E11] px-6 py-10 cursor-pointer hover:border-[#60A5FA]/50 transition-colors"
+                className="flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-border-default bg-surface-base px-6 py-10 cursor-pointer hover:border-info/50 transition-colors"
               >
-                <FileUp size={32} className="text-[#5A5650]" />
+                <FileUp size={32} className="text-text-ghost" />
                 <div className="text-center">
-                  <p className="text-sm text-[#C5C0B8]">
-                    Drag & drop DICOM files or <span className="text-[#60A5FA] underline">browse</span>
+                  <p className="text-sm text-text-secondary">
+                    Drag & drop DICOM files or <span className="text-info underline">browse</span>
                   </p>
-                  <p className="mt-1 text-[10px] text-[#5A5650]">
+                  <p className="mt-1 text-[10px] text-text-ghost">
                     .dcm files up to 2 GB each. Folders not supported — select files directly.
                   </p>
                 </div>
@@ -248,25 +248,25 @@ export function DicomUploadModal({ open, onClose, onComplete }: DicomUploadModal
               {files.length > 0 && (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs text-[#8A857D]">{files.length} file{files.length !== 1 ? "s" : ""} selected</p>
+                    <p className="text-xs text-text-muted">{files.length} file{files.length !== 1 ? "s" : ""} selected</p>
                     <button
                       onClick={() => setFiles([])}
-                      className="text-[10px] text-[#E85A6B] hover:underline"
+                      className="text-[10px] text-critical hover:underline"
                     >
                       Clear all
                     </button>
                   </div>
-                  <div className="max-h-32 overflow-y-auto rounded border border-[#232328] bg-[#0E0E11] divide-y divide-[#1A1A1E]">
+                  <div className="max-h-32 overflow-y-auto rounded border border-border-default bg-surface-base divide-y divide-border-subtle">
                     {files.slice(0, 50).map((f, i) => (
                       <div key={`${f.name}-${i}`} className="flex items-center justify-between px-3 py-1.5 text-xs">
-                        <span className="text-[#C5C0B8] truncate max-w-[360px] font-mono">{f.name}</span>
-                        <span className="text-[#5A5650] flex-shrink-0 ml-2">
+                        <span className="text-text-secondary truncate max-w-[360px] font-mono">{f.name}</span>
+                        <span className="text-text-ghost flex-shrink-0 ml-2">
                           {(f.size / (1024 * 1024)).toFixed(1)} MB
                         </span>
                       </div>
                     ))}
                     {files.length > 50 && (
-                      <div className="px-3 py-1.5 text-[10px] text-[#5A5650]">
+                      <div className="px-3 py-1.5 text-[10px] text-text-ghost">
                         … and {files.length - 50} more files
                       </div>
                     )}
@@ -279,8 +279,8 @@ export function DicomUploadModal({ open, onClose, onComplete }: DicomUploadModal
           {(state === "uploading" || state === "indexing") && (
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <Loader2 size={16} className="animate-spin text-[#60A5FA]" />
-                <span className="text-sm text-[#C5C0B8]">
+                <Loader2 size={16} className="animate-spin text-info" />
+                <span className="text-sm text-text-secondary">
                   {state === "uploading"
                     ? `Uploading to Orthanc… ${progress.uploaded + progress.failed}/${progress.total}`
                     : "Indexing studies…"}
@@ -288,18 +288,18 @@ export function DicomUploadModal({ open, onClose, onComplete }: DicomUploadModal
               </div>
               {state === "uploading" && progress.total > 0 && (
                 <>
-                  <div className="h-2 rounded-full bg-[#232328] overflow-hidden">
+                  <div className="h-2 rounded-full bg-surface-elevated overflow-hidden">
                     <div
-                      className="h-full bg-[#60A5FA] transition-all duration-300"
+                      className="h-full bg-info transition-all duration-300"
                       style={{ width: `${((progress.uploaded + progress.failed) / progress.total) * 100}%` }}
                     />
                   </div>
                   <div className="flex gap-4 text-xs">
-                    <span className="text-[#2DD4BF]">{progress.uploaded} uploaded</span>
-                    {progress.failed > 0 && <span className="text-[#E85A6B]">{progress.failed} failed</span>}
+                    <span className="text-success">{progress.uploaded} uploaded</span>
+                    {progress.failed > 0 && <span className="text-critical">{progress.failed} failed</span>}
                   </div>
                   {progress.currentFile && (
-                    <p className="text-[10px] text-[#5A5650] font-mono truncate">{progress.currentFile}</p>
+                    <p className="text-[10px] text-text-ghost font-mono truncate">{progress.currentFile}</p>
                   )}
                 </>
               )}
@@ -308,9 +308,9 @@ export function DicomUploadModal({ open, onClose, onComplete }: DicomUploadModal
 
           {state === "done" && (
             <div className="space-y-4">
-              <div className="flex items-start gap-3 rounded-lg border border-[#2DD4BF]/30 bg-[#2DD4BF]/10 px-4 py-3">
-                <CheckCircle2 size={16} className="text-[#2DD4BF] mt-0.5 flex-shrink-0" />
-                <div className="text-sm text-[#2DD4BF]">
+              <div className="flex items-start gap-3 rounded-lg border border-success/30 bg-success/10 px-4 py-3">
+                <CheckCircle2 size={16} className="text-success mt-0.5 flex-shrink-0" />
+                <div className="text-sm text-success">
                   <p className="font-medium">Import complete</p>
                   <p className="mt-1 text-xs opacity-80">
                     {progress.uploaded} file{progress.uploaded !== 1 ? "s" : ""} uploaded
@@ -326,10 +326,10 @@ export function DicomUploadModal({ open, onClose, onComplete }: DicomUploadModal
                   {studies.map((s) => (
                     <div
                       key={s.orthancId}
-                      className="flex gap-3 rounded-lg border border-[#232328] bg-[#0E0E11] p-3"
+                      className="flex gap-3 rounded-lg border border-border-default bg-surface-base p-3"
                     >
                       {/* Thumbnail */}
-                      <div className="w-20 h-20 rounded bg-[#1A1A1E] overflow-hidden flex-shrink-0">
+                      <div className="w-20 h-20 rounded bg-surface-overlay overflow-hidden flex-shrink-0">
                         {s.thumbnailInstanceId ? (
                           <img
                             src={`/orthanc/instances/${s.thumbnailInstanceId}/frames/0/preview`}
@@ -337,7 +337,7 @@ export function DicomUploadModal({ open, onClose, onComplete }: DicomUploadModal
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-[#5A5650]">
+                          <div className="w-full h-full flex items-center justify-center text-text-ghost">
                             <FileUp size={24} />
                           </div>
                         )}
@@ -345,13 +345,13 @@ export function DicomUploadModal({ open, onClose, onComplete }: DicomUploadModal
 
                       {/* Metadata */}
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-[#F0EDE8] truncate">
+                        <p className="text-sm font-medium text-text-primary truncate">
                           {s.patientName || "Unknown Patient"}
                         </p>
                         {s.studyDescription && (
-                          <p className="text-xs text-[#8A857D] truncate mt-0.5">{s.studyDescription}</p>
+                          <p className="text-xs text-text-muted truncate mt-0.5">{s.studyDescription}</p>
                         )}
-                        <div className="flex items-center gap-3 mt-2 text-[10px] text-[#5A5650]">
+                        <div className="flex items-center gap-3 mt-2 text-[10px] text-text-ghost">
                           {s.studyDate && <span>{s.studyDate}</span>}
                           <span>{s.seriesCount} series</span>
                           <span className="font-mono">{s.orthancId.substring(0, 8)}</span>
@@ -365,9 +365,9 @@ export function DicomUploadModal({ open, onClose, onComplete }: DicomUploadModal
           )}
 
           {state === "error" && (
-            <div className="flex items-start gap-3 rounded-lg border border-[#E85A6B]/30 bg-[#E85A6B]/10 px-4 py-3">
-              <AlertCircle size={16} className="text-[#E85A6B] mt-0.5 flex-shrink-0" />
-              <div className="text-sm text-[#E85A6B]">
+            <div className="flex items-start gap-3 rounded-lg border border-critical/30 bg-critical/10 px-4 py-3">
+              <AlertCircle size={16} className="text-critical mt-0.5 flex-shrink-0" />
+              <div className="text-sm text-critical">
                 <p className="font-medium">Import failed</p>
                 <p className="mt-1 text-xs opacity-80">{errorMsg}</p>
               </div>
@@ -376,19 +376,19 @@ export function DicomUploadModal({ open, onClose, onComplete }: DicomUploadModal
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 border-t border-[#232328] px-6 py-4">
+        <div className="flex items-center justify-end gap-3 border-t border-border-default px-6 py-4">
           {state === "idle" && (
             <>
               <button
                 onClick={handleClose}
-                className="rounded-lg border border-[#2A2A30] bg-[#151518] px-4 py-2 text-sm font-medium text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#3A3A42] transition-colors"
+                className="rounded-lg border border-border-default bg-surface-raised px-4 py-2 text-sm font-medium text-text-muted hover:text-text-secondary hover:border-surface-highlight transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={uploadFiles}
                 disabled={files.length === 0}
-                className="inline-flex items-center gap-2 rounded-lg bg-[#60A5FA] px-4 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#4E94E8] disabled:opacity-40 transition-colors"
+                className="inline-flex items-center gap-2 rounded-lg bg-info px-4 py-2 text-sm font-medium text-surface-base hover:bg-info-dark disabled:opacity-40 transition-colors"
               >
                 <Upload size={14} />
                 Upload {files.length > 0 ? `${files.length} files` : ""}
@@ -398,7 +398,7 @@ export function DicomUploadModal({ open, onClose, onComplete }: DicomUploadModal
           {(state === "done" || state === "error") && (
             <button
               onClick={handleClose}
-              className="rounded-lg bg-[#60A5FA] px-4 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#4E94E8] transition-colors"
+              className="rounded-lg bg-info px-4 py-2 text-sm font-medium text-surface-base hover:bg-info-dark transition-colors"
             >
               Close
             </button>

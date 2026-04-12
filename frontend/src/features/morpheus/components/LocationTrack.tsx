@@ -89,19 +89,19 @@ export default function LocationTrack({ transfers, icuStays }: LocationTrackProp
 
   if (!segments.length) {
     return (
-      <div className="flex items-center justify-center h-20 rounded-lg border border-dashed border-[#323238] bg-[#151518]">
-        <p className="text-sm text-[#8A857D]">No transfer data available</p>
+      <div className="flex items-center justify-center h-20 rounded-lg border border-dashed border-surface-highlight bg-surface-raised">
+        <p className="text-sm text-text-muted">No transfer data available</p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl border border-border-default/60 bg-[#111114] p-4">
-      <h3 className="text-xs font-semibold text-[#C5C0B8] mb-3">Location Track</h3>
+    <div className="rounded-xl border border-border-default/60 bg-surface-base p-4">
+      <h3 className="text-xs font-semibold text-text-secondary mb-3">Location Track</h3>
 
       {/* Timeline bar */}
       <div
-        className="relative h-10 bg-[#0E0E11] rounded-md overflow-hidden mb-2 focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30"
+        className="relative h-10 bg-surface-base rounded-md overflow-hidden mb-2 focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30"
         tabIndex={0}
         onKeyDown={handleKeyDown}
         role="img"
@@ -111,7 +111,7 @@ export default function LocationTrack({ transfers, icuStays }: LocationTrackProp
         {segments.map((seg) => (
           <div
             key={seg.id}
-            className="absolute top-0 h-full flex items-center justify-center text-[10px] font-medium text-text-primary overflow-hidden border-r border-[#0E0E11] cursor-default transition-opacity hover:opacity-100"
+            className="absolute top-0 h-full flex items-center justify-center text-[10px] font-medium text-text-primary overflow-hidden border-r border-surface-base cursor-default transition-opacity hover:opacity-100"
             style={{
               left: `${seg.leftPct}%`,
               width: `${seg.widthPct}%`,
@@ -130,10 +130,10 @@ export default function LocationTrack({ transfers, icuStays }: LocationTrackProp
       {/* ICU stays badges */}
       {icuStays.length > 0 && (
         <div className="flex items-center gap-2 mt-2">
-          <span className="text-[9px] text-[#5A5650] uppercase tracking-wider">ICU:</span>
+          <span className="text-[9px] text-text-ghost uppercase tracking-wider">ICU:</span>
           {icuStays.map((icu) => (
             <span key={icu.stay_id}
-              className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-[#9B1B30]/15 text-[#E85A6B] border border-[#9B1B30]/30">
+              className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-primary/15 text-critical border border-primary/30">
               {icu.first_careunit} — {Number(icu.los_days).toFixed(1)}d
             </span>
           ))}
@@ -141,28 +141,28 @@ export default function LocationTrack({ transfers, icuStays }: LocationTrackProp
       )}
 
       {/* Legend */}
-      <div className="flex flex-wrap gap-3 mt-2 text-[10px] text-[#8A857D]">
-        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#E85A6B]" /> ED</span>
-        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#9B1B30]" /> ICU</span>
-        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#C9A227]" /> Step-down</span>
-        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#2DD4BF]" /> Floor</span>
-        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#818CF8]" /> PACU</span>
+      <div className="flex flex-wrap gap-3 mt-2 text-[10px] text-text-muted">
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-critical" /> ED</span>
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-primary" /> ICU</span>
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-accent" /> Step-down</span>
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-success" /> Floor</span>
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-info" /> PACU</span>
       </div>
 
       {/* Tooltip */}
       {tooltip && (
         <div
-          className="fixed z-50 rounded-lg border border-[#323238] bg-[#1A1A1E] px-3 py-2 text-xs text-[#C5C0B8] shadow-xl pointer-events-none max-w-[280px]"
+          className="fixed z-50 rounded-lg border border-surface-highlight bg-surface-overlay px-3 py-2 text-xs text-text-secondary shadow-xl pointer-events-none max-w-[280px]"
           style={{ top: tooltip.y - 80, left: tooltip.x + 16 }}
         >
-          <div className="font-medium text-[#F0EDE8]">{tooltip.seg.careunit}</div>
-          <div className="text-[#8A857D] mt-0.5">
+          <div className="font-medium text-text-primary">{tooltip.seg.careunit}</div>
+          <div className="text-text-muted mt-0.5">
             {tooltip.seg.start.toLocaleString()}{tooltip.seg.end ? ` — ${tooltip.seg.end.toLocaleString()}` : ''}
           </div>
           {tooltip.seg.durationHours && (
-            <div className="text-[#8A857D]">Duration: {Number(tooltip.seg.durationHours).toFixed(1)}h</div>
+            <div className="text-text-muted">Duration: {Number(tooltip.seg.durationHours).toFixed(1)}h</div>
           )}
-          {tooltip.seg.isIcu && <div className="text-[#E85A6B] font-medium mt-0.5">ICU Stay</div>}
+          {tooltip.seg.isIcu && <div className="text-critical font-medium mt-0.5">ICU Stay</div>}
         </div>
       )}
     </div>

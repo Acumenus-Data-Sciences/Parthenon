@@ -105,41 +105,41 @@ export function WikiPageTree({
             onClick={() => onSelect(targetSlug)}
             className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left transition-colors ${
               isSelected
-                ? "bg-[#2DD4BF]/10 text-[#2DD4BF]"
-                : "text-[#C5C0B8] hover:bg-[#1C1C20]"
+                ? "bg-success/10 text-success"
+                : "text-text-secondary hover:bg-surface-overlay"
             }`}
           >
             {/* File type icon */}
             <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg ${
               source.sourceType === "pdf"
-                ? "bg-[#E85A6B]/10 text-[#E85A6B]"
-                : "bg-[#60A5FA]/10 text-[#60A5FA]"
+                ? "bg-critical/10 text-critical"
+                : "bg-info/10 text-info"
             }`}>
               {source.sourceType === "pdf" ? <FileType size={14} /> : <FileText size={14} />}
             </div>
 
             {/* Title + metadata */}
             <div className="min-w-0 flex-1">
-              <p className={`truncate text-sm font-medium ${isSelected ? "text-[#2DD4BF]" : "text-[#F0EDE8]"}`}>
+              <p className={`truncate text-sm font-medium ${isSelected ? "text-success" : "text-text-primary"}`}>
                 {source.title}
               </p>
               <div className="mt-0.5 flex items-center gap-2">
                 {source.sourceType && (
-                  <span className="text-[10px] font-medium uppercase text-[#5A5650]">
+                  <span className="text-[10px] font-medium uppercase text-text-ghost">
                     {TYPE_ICONS[source.sourceType] ?? source.sourceType}
                   </span>
                 )}
                 {source.firstAuthor && (
-                  <span className="truncate text-[10px] text-[#5A5650]">
+                  <span className="truncate text-[10px] text-text-ghost">
                     {source.firstAuthor}
                   </span>
                 )}
                 {source.publicationYear && (
-                  <span className="text-[10px] text-[#5A5650]">
+                  <span className="text-[10px] text-text-ghost">
                     {source.publicationYear}
                   </span>
                 )}
-                <span className="text-[10px] text-[#5A5650]">
+                <span className="text-[10px] text-text-ghost">
                   {new Date(source.updatedAt).toLocaleDateString()}
                 </span>
               </div>
@@ -147,7 +147,7 @@ export function WikiPageTree({
 
             {/* Lint warning */}
             {source.hasIssues && (
-              <AlertTriangle size={12} className="flex-shrink-0 text-[#C9A227]" />
+              <AlertTriangle size={12} className="flex-shrink-0 text-accent" />
             )}
           </button>
         );
@@ -155,8 +155,8 @@ export function WikiPageTree({
 
       {sources.length === 0 && (
         <div className="px-3 py-12 text-center">
-          <FileText size={24} className="mx-auto mb-2 text-[#323238]" />
-          <p className="text-xs text-[#5A5650]">
+          <FileText size={24} className="mx-auto mb-2 text-text-ghost" />
+          <p className="text-xs text-text-ghost">
             {searchQuery ? "No papers match this search." : "No papers ingested yet."}
           </p>
         </div>

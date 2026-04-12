@@ -15,13 +15,13 @@ export function RecordsBarChart({ records }: { records: Record<string, number> }
     <div className="space-y-2">
       {all.map(({ table, count }) => {
         const pct = Math.max((count / max) * 100, 2);
-        const color = CDM_TABLE_COLORS[table] ?? "#8A857D";
+        const color = CDM_TABLE_COLORS[table] ?? "var(--text-muted)";
         return (
           <div key={table} className="flex items-center gap-3">
-            <span className="w-44 shrink-0 text-xs text-[#C5C0B8] font-mono truncate">
+            <span className="w-44 shrink-0 text-xs text-text-secondary font-mono truncate">
               {table}
             </span>
-            <div className="flex-1 h-4 rounded bg-[#1C1C20] overflow-hidden">
+            <div className="flex-1 h-4 rounded bg-surface-overlay overflow-hidden">
               <div
                 className="h-full rounded transition-all duration-500"
                 style={{ width: `${pct}%`, backgroundColor: color }}

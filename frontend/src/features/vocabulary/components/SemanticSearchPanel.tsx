@@ -59,10 +59,10 @@ function ScoreBadge({ score }: { score: number }) {
   const pct = Math.round(score * 100);
   const colorClass =
     score > 0.8
-      ? "bg-[#2DD4BF]/15 text-[#2DD4BF]"
+      ? "bg-success/15 text-success"
       : score > 0.5
-        ? "bg-[#C9A227]/15 text-[#C9A227]"
-        : "bg-[#9B1B30]/15 text-[#E85A6B]";
+        ? "bg-accent/15 text-accent"
+        : "bg-primary/15 text-critical";
 
   return (
     <span
@@ -82,7 +82,7 @@ function ScoreBadge({ score }: { score: number }) {
 
 function DomainBadge({ domain }: { domain: string }) {
   return (
-    <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#60A5FA]/15 text-[#60A5FA]">
+    <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-info/15 text-info">
       {domain}
     </span>
   );
@@ -94,7 +94,7 @@ function DomainBadge({ domain }: { domain: string }) {
 
 function VocabBadge({ vocab }: { vocab: string }) {
   return (
-    <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#C9A227]/15 text-[#C9A227]">
+    <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-accent/15 text-accent">
       {vocab}
     </span>
   );
@@ -115,8 +115,8 @@ function StandardBadge({ value }: { value: string | null }) {
       className={cn(
         "inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium",
         isStandard
-          ? "bg-[#2DD4BF]/15 text-[#2DD4BF]"
-          : "bg-[#8A857D]/15 text-[#8A857D]",
+          ? "bg-success/15 text-success"
+          : "bg-text-muted/15 text-text-muted",
       )}
     >
       {isStandard ? "Standard" : "Classification"}
@@ -156,17 +156,17 @@ function ResultRow({
         if (e.key === "Enter" || e.key === " ") onSelectConcept?.(result.concept_id);
       }}
       className={cn(
-        "border-b border-[#232328] transition-colors cursor-pointer",
+        "border-b border-border-default transition-colors cursor-pointer",
         isSelected
-          ? "bg-[#2DD4BF]/10 border-l-2 border-l-[#2DD4BF]"
-          : "hover:bg-[#1C1C20]",
+          ? "bg-success/10 border-l-2 border-l-[#2DD4BF]"
+          : "hover:bg-surface-overlay",
       )}
     >
       <div className="flex flex-col gap-1.5 w-full px-4 py-3 text-left">
         {/* Top row: score + id + standard badge + add-to-set */}
         <div className="flex items-center gap-2">
           <ScoreBadge score={result.score} />
-          <span className="font-mono text-xs tabular-nums text-[#C9A227]">
+          <span className="font-mono text-xs tabular-nums text-accent">
             {result.concept_id}
           </span>
           <StandardBadge value={result.standard_concept} />
@@ -182,7 +182,7 @@ function ResultRow({
                   e.stopPropagation();
                   onAddToSetBuild?.(result.concept_id);
                 }}
-                className="ml-auto shrink-0 flex h-6 w-6 items-center justify-center rounded bg-teal-400 text-[#0E0E11] text-sm font-bold hover:bg-teal-300 transition-colors"
+                className="ml-auto shrink-0 flex h-6 w-6 items-center justify-center rounded bg-teal-400 text-surface-base text-sm font-bold hover:bg-teal-300 transition-colors"
               >
                 +
               </button>
@@ -194,7 +194,7 @@ function ResultRow({
                 e.stopPropagation();
                 onAddToSet(result.concept_id, result.concept_name);
               }}
-              className="ml-auto inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[9px] text-[#9B1B30] hover:text-[#C5384C] hover:bg-[#9B1B30]/10 transition-colors"
+              className="ml-auto inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[9px] text-primary hover:text-critical-dark hover:bg-primary/10 transition-colors"
             >
               <PlusCircle size={10} />
               Add to Set
@@ -203,7 +203,7 @@ function ResultRow({
         </div>
 
         {/* Concept name */}
-        <p className="text-sm font-medium text-[#F0EDE8] leading-snug">
+        <p className="text-sm font-medium text-text-primary leading-snug">
           {result.concept_name}
         </p>
 
@@ -212,7 +212,7 @@ function ResultRow({
           <DomainBadge domain={result.domain_id} />
           <VocabBadge vocab={result.vocabulary_id} />
           {result.concept_class_id && (
-            <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#8A857D]/15 text-[#8A857D]">
+            <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-text-muted/15 text-text-muted">
               {result.concept_class_id}
             </span>
           )}
@@ -385,14 +385,14 @@ export function SemanticSearchPanel({
   return (
     <div className="flex flex-col h-full">
       {/* Search header */}
-      <div className="px-4 py-4 border-b border-[#232328] space-y-3">
+      <div className="px-4 py-4 border-b border-border-default space-y-3">
         {/* Branding row */}
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1 rounded-full border border-[#2DD4BF]/40 bg-[#2DD4BF]/10 px-2.5 py-0.5 text-[10px] font-semibold tracking-wide text-[#2DD4BF]">
+          <span className="inline-flex items-center gap-1 rounded-full border border-success/40 bg-success/10 px-2.5 py-0.5 text-[10px] font-semibold tracking-wide text-success">
             <Sparkles className="h-3 w-3" />
             Powered by Hecate
           </span>
-          <span className="text-[10px] text-[#5A5650]">
+          <span className="text-[10px] text-text-ghost">
             vector-powered concept discovery
           </span>
         </div>
@@ -401,7 +401,7 @@ export function SemanticSearchPanel({
         <div className="relative">
           <Search
             size={14}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost"
           />
           <input
             ref={inputRef}
@@ -416,9 +416,9 @@ export function SemanticSearchPanel({
             placeholder="Enter a clinical term to search semantically..."
             className={cn(
               "w-full rounded-lg pl-9 pr-8 py-2.5 text-sm",
-              "bg-[#0E0E11] border border-[#232328]",
-              "text-[#F0EDE8] placeholder:text-[#5A5650]",
-              "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+              "bg-surface-base border border-border-default",
+              "text-text-primary placeholder:text-text-ghost",
+              "focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40",
               "transition-colors",
             )}
           />
@@ -429,7 +429,7 @@ export function SemanticSearchPanel({
                 setQuery("");
                 setShowSuggestions(false);
               }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-[#5A5650] hover:text-[#C5C0B8] transition-colors"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-text-ghost hover:text-text-secondary transition-colors"
             >
               <X size={14} />
             </button>
@@ -441,7 +441,7 @@ export function SemanticSearchPanel({
             query.length >= 2 && (
               <div
                 ref={suggestionsRef}
-                className="absolute z-50 top-full mt-1 w-full rounded-lg border border-[#232328] bg-[#16161A] shadow-xl overflow-hidden"
+                className="absolute z-50 top-full mt-1 w-full rounded-lg border border-border-default bg-surface-raised shadow-xl overflow-hidden"
               >
                 {suggestionItems.slice(0, 10).map((s: HecateAutocompleteResult, i: number) => (
                   <button
@@ -451,11 +451,11 @@ export function SemanticSearchPanel({
                     className={cn(
                       "flex items-center gap-2 w-full px-3 py-2 text-left text-sm transition-colors",
                       i === selectedSuggestionIdx
-                        ? "bg-[#2DD4BF]/10 text-[#F0EDE8]"
-                        : "text-[#C5C0B8] hover:bg-[#1C1C20]",
+                        ? "bg-success/10 text-text-primary"
+                        : "text-text-secondary hover:bg-surface-overlay",
                     )}
                   >
-                    <Sparkles size={10} className="shrink-0 text-[#2DD4BF]/50" />
+                    <Sparkles size={10} className="shrink-0 text-success/50" />
                     <span className="truncate">{s.concept_name}</span>
                     <DomainBadge domain={s.domain_id} />
                   </button>
@@ -473,9 +473,9 @@ export function SemanticSearchPanel({
               onChange={(e) => setDomainFilter(e.target.value)}
               className={cn(
                 "w-full rounded-lg px-3 py-1.5 text-xs appearance-none pr-6",
-                "bg-[#0E0E11] border border-[#232328]",
-                domainFilter ? "text-[#60A5FA]" : "text-[#8A857D]",
-                "focus:outline-none focus:border-[#2DD4BF]/50",
+                "bg-surface-base border border-border-default",
+                domainFilter ? "text-info" : "text-text-muted",
+                "focus:outline-none focus:border-success/50",
                 "transition-colors",
               )}
             >
@@ -488,7 +488,7 @@ export function SemanticSearchPanel({
             </select>
             <ChevronDown
               size={10}
-              className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[#5A5650]"
+              className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-text-ghost"
             />
           </div>
 
@@ -499,9 +499,9 @@ export function SemanticSearchPanel({
               onChange={(e) => setVocabFilter(e.target.value)}
               className={cn(
                 "w-full rounded-lg px-3 py-1.5 text-xs appearance-none pr-6",
-                "bg-[#0E0E11] border border-[#232328]",
-                vocabFilter ? "text-[#C9A227]" : "text-[#8A857D]",
-                "focus:outline-none focus:border-[#2DD4BF]/50",
+                "bg-surface-base border border-border-default",
+                vocabFilter ? "text-accent" : "text-text-muted",
+                "focus:outline-none focus:border-success/50",
                 "transition-colors",
               )}
             >
@@ -514,12 +514,12 @@ export function SemanticSearchPanel({
             </select>
             <ChevronDown
               size={10}
-              className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[#5A5650]"
+              className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-text-ghost"
             />
           </div>
 
           {/* Standard concept toggle: All / Standard / Classification */}
-          <div className="flex rounded-lg border border-[#232328] overflow-hidden shrink-0">
+          <div className="flex rounded-lg border border-border-default overflow-hidden shrink-0">
             {(
               [
                 { value: "all", label: "All" },
@@ -534,8 +534,8 @@ export function SemanticSearchPanel({
                 className={cn(
                   "px-2 py-1.5 text-[10px] font-medium transition-colors",
                   standardFilter === opt.value
-                    ? "bg-[#2DD4BF]/15 text-[#2DD4BF]"
-                    : "text-[#5A5650] hover:text-[#C5C0B8] bg-[#0E0E11]",
+                    ? "bg-success/15 text-success"
+                    : "text-text-ghost hover:text-text-secondary bg-surface-base",
                 )}
               >
                 {opt.label}
@@ -553,7 +553,7 @@ export function SemanticSearchPanel({
               setVocabFilter("");
               setStandardFilter("all");
             }}
-            className="text-[10px] text-[#E85A6B] hover:text-[#F06B7F] transition-colors"
+            className="text-[10px] text-critical hover:text-critical transition-colors"
           >
             Clear filters
           </button>
@@ -565,24 +565,24 @@ export function SemanticSearchPanel({
         {/* Loading state */}
         {isLoading && (
           <div className="flex items-center justify-center py-12">
-            <Loader2 size={18} className="animate-spin text-[#8A857D]" />
+            <Loader2 size={18} className="animate-spin text-text-muted" />
           </div>
         )}
 
         {/* Error state */}
         {isError && !isLoading && (
           <div className="flex flex-col items-center justify-center py-12 text-center px-4 space-y-3">
-            <p className="text-sm text-[#E85A6B]">
+            <p className="text-sm text-critical">
               Semantic search is unavailable.
             </p>
-            <p className="text-xs text-[#5A5650]">
+            <p className="text-xs text-text-ghost">
               Ensure the Hecate AI service is running and ChromaDB is
               initialized.
             </p>
             <button
               type="button"
               onClick={() => refetch()}
-              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-[#C5C0B8] border border-[#232328] hover:border-[#2DD4BF]/30 hover:text-[#2DD4BF] transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-text-secondary border border-border-default hover:border-success/30 hover:text-success transition-colors"
             >
               <RefreshCw size={12} />
               Retry
@@ -593,13 +593,13 @@ export function SemanticSearchPanel({
         {/* Empty state — no query */}
         {!isLoading && !isError && !showResults && (
           <div className="flex flex-col items-center justify-center py-16 text-center px-6 space-y-3">
-            <div className="w-10 h-10 rounded-full bg-[#2DD4BF]/10 flex items-center justify-center">
-              <Sparkles size={18} className="text-[#2DD4BF]/70" />
+            <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center">
+              <Sparkles size={18} className="text-success/70" />
             </div>
-            <p className="text-sm text-[#8A857D]">
+            <p className="text-sm text-text-muted">
               Enter a clinical term to search semantically
             </p>
-            <p className="text-xs text-[#5A5650] max-w-xs leading-relaxed">
+            <p className="text-xs text-text-ghost max-w-xs leading-relaxed">
               Hecate uses vector embeddings to find conceptually similar OMOP
               concepts, even when exact keyword matches fail.
             </p>
@@ -613,7 +613,7 @@ export function SemanticSearchPanel({
           results &&
           results.length === 0 && (
             <div className="flex flex-col items-center justify-center py-16 text-center px-4 space-y-2">
-              <p className="text-sm text-[#8A857D]">
+              <p className="text-sm text-text-muted">
                 No semantic matches found for &ldquo;{debouncedQuery}&rdquo;
               </p>
               {hasFilters && (
@@ -624,7 +624,7 @@ export function SemanticSearchPanel({
                     setVocabFilter("");
                     setStandardFilter("all");
                   }}
-                  className="text-xs text-[#2DD4BF] hover:text-[#26B8A5] transition-colors"
+                  className="text-xs text-success hover:text-success-dark transition-colors"
                 >
                   Try clearing filters
                 </button>
@@ -636,8 +636,8 @@ export function SemanticSearchPanel({
         {!isError && showResults && results && results.length > 0 && (
           <div>
             {/* Result count header */}
-            <div className="px-4 py-2 border-b border-[#232328] flex items-center justify-between">
-              <p className="text-[10px] text-[#5A5650]">
+            <div className="px-4 py-2 border-b border-border-default flex items-center justify-between">
+              <p className="text-[10px] text-text-ghost">
                 {results.length} semantic{" "}
                 {results.length === 1 ? "match" : "matches"}
                 {isFetching && !isLoading && (
@@ -647,8 +647,8 @@ export function SemanticSearchPanel({
                   </span>
                 )}
               </p>
-              <span className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-medium bg-[#2DD4BF]/10 text-[#2DD4BF]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#2DD4BF]" />
+              <span className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-medium bg-success/10 text-success">
+                <span className="w-1.5 h-1.5 rounded-full bg-success" />
                 Hecate
               </span>
             </div>

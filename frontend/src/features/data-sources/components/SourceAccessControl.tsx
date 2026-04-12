@@ -58,11 +58,11 @@ export function SourceAccessControl({ source }: SourceAccessControlProps) {
   const isRestricted = selectedRoles.length > 0;
 
   return (
-    <div className="space-y-3 rounded-lg border border-[#232328] bg-[#151518] p-4">
+    <div className="space-y-3 rounded-lg border border-border-default bg-surface-raised p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Shield size={14} className="text-[#818CF8]" />
-          <h4 className="text-xs font-semibold text-[#F0EDE8]">
+          <Shield size={14} className="text-info" />
+          <h4 className="text-xs font-semibold text-text-primary">
             Access Control
           </h4>
         </div>
@@ -70,15 +70,15 @@ export function SourceAccessControl({ source }: SourceAccessControlProps) {
           className={cn(
             "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium",
             isRestricted
-              ? "bg-[#818CF8]/10 text-[#818CF8]"
-              : "bg-[#2DD4BF]/10 text-[#2DD4BF]",
+              ? "bg-info/10 text-info"
+              : "bg-success/10 text-success",
           )}
         >
           {isRestricted ? "Restricted" : "Unrestricted"}
         </span>
       </div>
 
-      <p className="text-[11px] text-[#8A857D]">
+      <p className="text-[11px] text-text-muted">
         {isRestricted
           ? "Only users with the selected roles can access this source."
           : "All authenticated users can access this source. Select roles below to restrict."}
@@ -95,8 +95,8 @@ export function SourceAccessControl({ source }: SourceAccessControlProps) {
               className={cn(
                 "inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-xs font-medium transition-colors",
                 active
-                  ? "border-[#818CF8]/40 bg-[#818CF8]/10 text-[#818CF8]"
-                  : "border-[#232328] bg-[#0E0E11] text-[#8A857D] hover:text-[#C5C0B8]",
+                  ? "border-info/40 bg-info/10 text-info"
+                  : "border-border-default bg-surface-base text-text-muted hover:text-text-secondary",
               )}
             >
               {active ? <Check size={10} /> : <X size={10} className="opacity-30" />}
@@ -111,7 +111,7 @@ export function SourceAccessControl({ source }: SourceAccessControlProps) {
           type="button"
           onClick={handleSave}
           disabled={updateMutation.isPending}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-[#818CF8] px-3 py-1.5 text-xs font-medium text-text-primary transition-colors hover:bg-[#6366F1] disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-info px-3 py-1.5 text-xs font-medium text-text-primary transition-colors hover:bg-domain-observation disabled:opacity-50"
         >
           {updateMutation.isPending ? (
             <Loader2 size={12} className="animate-spin" />

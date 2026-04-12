@@ -67,13 +67,13 @@ export function MappingStep({ importId, headers, suggestions, mapping: initialMa
 
   return (
     <div className="space-y-4">
-      <div className="rounded border border-[#232328] bg-[#0E0E11]">
-        <div className="border-b border-[#232328] px-4 py-2">
-          <h3 className="text-sm font-medium text-[#E8E4DC]">Column Mapping</h3>
-          <p className="text-xs text-[#5A5650]">Map each source column to its purpose</p>
+      <div className="rounded border border-border-default bg-surface-base">
+        <div className="border-b border-border-default px-4 py-2">
+          <h3 className="text-sm font-medium text-text-primary">Column Mapping</h3>
+          <p className="text-xs text-text-ghost">Map each source column to its purpose</p>
         </div>
 
-        <div className="divide-y divide-[#232328]">
+        <div className="divide-y divide-border-default">
           {headers.map((col) => {
             const suggestion = getSuggestion(col);
             const current = mapping[col];
@@ -82,7 +82,7 @@ export function MappingStep({ importId, headers, suggestions, mapping: initialMa
               <div key={col} className="flex items-center gap-4 px-4 py-3">
                 {/* Column name */}
                 <div className="w-48 shrink-0">
-                  <span className="font-mono text-sm text-[#E8E4DC]">{col}</span>
+                  <span className="font-mono text-sm text-text-primary">{col}</span>
                   {suggestion && (
                     <div className="mt-0.5 flex items-center gap-1">
                       {confidenceBadge(suggestion.confidence)}
@@ -94,7 +94,7 @@ export function MappingStep({ importId, headers, suggestions, mapping: initialMa
                 <select
                   value={current?.purpose ?? "skip"}
                   onChange={(e) => handlePurposeChange(col, e.target.value as ColumnPurpose)}
-                  className="rounded border border-[#323238] bg-[#1C1C20] px-2 py-1 text-sm text-[#E8E4DC]"
+                  className="rounded border border-surface-highlight bg-surface-overlay px-2 py-1 text-sm text-text-primary"
                 >
                   {PURPOSE_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -103,7 +103,7 @@ export function MappingStep({ importId, headers, suggestions, mapping: initialMa
 
                 {/* Reasoning */}
                 {suggestion?.reasoning && (
-                  <span className="text-xs text-[#5A5650] truncate max-w-[200px]" title={suggestion.reasoning}>
+                  <span className="text-xs text-text-ghost truncate max-w-[200px]" title={suggestion.reasoning}>
                     {suggestion.reasoning}
                   </span>
                 )}
@@ -111,7 +111,7 @@ export function MappingStep({ importId, headers, suggestions, mapping: initialMa
                 {/* Ask Abby */}
                 <button
                   onClick={() => handleAskAbby(col)}
-                  className="ml-auto shrink-0 rounded border border-[#323238] p-1 text-[#5A5650] hover:text-[#C9A227]"
+                  className="ml-auto shrink-0 rounded border border-surface-highlight p-1 text-text-ghost hover:text-accent"
                   title="Ask Abby"
                 >
                   <MessageSquare className="h-3.5 w-3.5" />
@@ -124,12 +124,12 @@ export function MappingStep({ importId, headers, suggestions, mapping: initialMa
 
       {/* Abby answer panel */}
       {askingColumn && (
-        <div className="rounded border border-[#C9A227]/30 bg-[#C9A227]/5 p-3">
-          <p className="text-xs font-medium text-[#C9A227]">Abby on &quot;{askingColumn}&quot;:</p>
+        <div className="rounded border border-accent/30 bg-accent/5 p-3">
+          <p className="text-xs font-medium text-accent">Abby on &quot;{askingColumn}&quot;:</p>
           {askMutation.isPending ? (
-            <p className="mt-1 text-xs text-[#8A857D]">Thinking...</p>
+            <p className="mt-1 text-xs text-text-muted">Thinking...</p>
           ) : abbyAnswer ? (
-            <p className="mt-1 text-xs text-[#E8E4DC]">{abbyAnswer}</p>
+            <p className="mt-1 text-xs text-text-primary">{abbyAnswer}</p>
           ) : null}
         </div>
       )}
@@ -139,7 +139,7 @@ export function MappingStep({ importId, headers, suggestions, mapping: initialMa
         <button
           onClick={handleSave}
           disabled={saveMutation.isPending}
-          className="rounded bg-[#C9A227] px-4 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#C9A227]/90 disabled:opacity-50"
+          className="rounded bg-accent px-4 py-2 text-sm font-medium text-surface-base hover:bg-accent/90 disabled:opacity-50"
         >
           {saveMutation.isPending ? "Saving..." : "Continue"}
         </button>

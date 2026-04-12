@@ -14,12 +14,12 @@ import { Dna, FlaskConical, Zap, Blend, ShieldAlert, Pill, X, Check, type Lucide
 import type { GenomicCriterion, GenomicCriteriaType } from "../../cohort-definitions/types/cohortExpression";
 
 const CRITERIA_TYPES: { value: GenomicCriteriaType; label: string; icon: LucideIcon; color: string; desc: string }[] = [
-  { value: "gene_mutation", label: "Gene Mutation", icon: Dna, color: "#A78BFA", desc: "e.g. EGFR L858R, KRAS G12D" },
-  { value: "tmb", label: "Tumor Mutational Burden", icon: FlaskConical, color: "#2DD4BF", desc: "TMB-High / TMB-Low threshold" },
-  { value: "msi", label: "Microsatellite Instability", icon: Zap, color: "#F59E0B", desc: "MSI-H, MSI-L, or MSS" },
-  { value: "fusion", label: "Gene Fusion", icon: Blend, color: "#60A5FA", desc: "e.g. ALK rearrangement, BCR-ABL1" },
-  { value: "pathogenicity", label: "Pathogenicity Class", icon: ShieldAlert, color: "#E85A6B", desc: "ClinVar classification" },
-  { value: "treatment_episode", label: "Treatment Episode", icon: Pill, color: "#FB923C", desc: "HemOnc chemotherapy regimen" },
+  { value: "gene_mutation", label: "Gene Mutation", icon: Dna, color: "var(--domain-observation)", desc: "e.g. EGFR L858R, KRAS G12D" },
+  { value: "tmb", label: "Tumor Mutational Burden", icon: FlaskConical, color: "var(--success)", desc: "TMB-High / TMB-Low threshold" },
+  { value: "msi", label: "Microsatellite Instability", icon: Zap, color: "var(--warning)", desc: "MSI-H, MSI-L, or MSS" },
+  { value: "fusion", label: "Gene Fusion", icon: Blend, color: "var(--info)", desc: "e.g. ALK rearrangement, BCR-ABL1" },
+  { value: "pathogenicity", label: "Pathogenicity Class", icon: ShieldAlert, color: "var(--critical)", desc: "ClinVar classification" },
+  { value: "treatment_episode", label: "Treatment Episode", icon: Pill, color: "var(--domain-device)", desc: "HemOnc chemotherapy regimen" },
 ];
 
 const MSI_OPTIONS = [
@@ -108,7 +108,7 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
   };
 
   return (
-    <div className="rounded-lg border border-purple-700/40 bg-[#1A1A1E] p-4 space-y-4">
+    <div className="rounded-lg border border-purple-700/40 bg-surface-overlay p-4 space-y-4">
       <div className="flex items-center justify-between">
         <h4 className="text-sm font-semibold text-purple-300 flex items-center gap-1.5">
           <Dna size={14} />
@@ -131,7 +131,7 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
               className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-xs text-left transition-colors ${
                 type === ct.value
                   ? "border-purple-500/40 bg-purple-900/20 text-purple-200"
-                  : "border-[#232328] bg-[#151518] text-[#8A857D] hover:text-[#C5C0B8]"
+                  : "border-border-default bg-surface-raised text-text-muted hover:text-text-secondary"
               }`}
             >
               <Icon size={13} style={{ color: ct.color }} />
@@ -153,7 +153,7 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
               value={gene}
               onChange={(e) => setGene(e.target.value.toUpperCase())}
               placeholder="EGFR"
-              className="w-full bg-[#0E0E11] border border-[#232328] rounded px-2 py-1.5 text-xs text-text-primary placeholder-text-ghost focus:outline-none focus:border-purple-500"
+              className="w-full bg-surface-base border border-border-default rounded px-2 py-1.5 text-xs text-text-primary placeholder-text-ghost focus:outline-none focus:border-purple-500"
             />
           </div>
           <div>
@@ -162,7 +162,7 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
               value={hgvs}
               onChange={(e) => setHgvs(e.target.value)}
               placeholder="p.Leu858Arg"
-              className="w-full bg-[#0E0E11] border border-[#232328] rounded px-2 py-1.5 text-xs text-text-primary placeholder-text-ghost focus:outline-none focus:border-purple-500"
+              className="w-full bg-surface-base border border-border-default rounded px-2 py-1.5 text-xs text-text-primary placeholder-text-ghost focus:outline-none focus:border-purple-500"
             />
           </div>
         </div>
@@ -174,7 +174,7 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
           <select
             value={tmbOp}
             onChange={(e) => setTmbOp(e.target.value as typeof tmbOp)}
-            className="bg-[#0E0E11] border border-[#232328] rounded px-2 py-1.5 text-xs text-text-primary focus:outline-none focus:border-purple-500"
+            className="bg-surface-base border border-border-default rounded px-2 py-1.5 text-xs text-text-primary focus:outline-none focus:border-purple-500"
           >
             <option value="gte">≥</option>
             <option value="gt">&gt;</option>
@@ -185,7 +185,7 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
             type="number"
             value={tmbValue}
             onChange={(e) => setTmbValue(Number(e.target.value))}
-            className="w-20 bg-[#0E0E11] border border-[#232328] rounded px-2 py-1.5 text-xs text-text-primary focus:outline-none focus:border-purple-500"
+            className="w-20 bg-surface-base border border-border-default rounded px-2 py-1.5 text-xs text-text-primary focus:outline-none focus:border-purple-500"
           />
           <span className="text-xs text-text-ghost">mut/Mb</span>
         </div>
@@ -201,7 +201,7 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
               className={`px-3 py-2 rounded-lg border text-xs transition-colors ${
                 msiStatus === opt.value
                   ? "border-yellow-600/40 bg-yellow-900/20 text-yellow-200"
-                  : "border-[#232328] text-text-ghost hover:text-text-secondary"
+                  : "border-border-default text-text-ghost hover:text-text-secondary"
               }`}
             >
               {opt.label}
@@ -218,7 +218,7 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
               value={gene1}
               onChange={(e) => setGene1(e.target.value.toUpperCase())}
               placeholder="ALK"
-              className="w-full bg-[#0E0E11] border border-[#232328] rounded px-2 py-1.5 text-xs text-text-primary placeholder-text-ghost focus:outline-none focus:border-purple-500"
+              className="w-full bg-surface-base border border-border-default rounded px-2 py-1.5 text-xs text-text-primary placeholder-text-ghost focus:outline-none focus:border-purple-500"
             />
           </div>
           <div>
@@ -227,7 +227,7 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
               value={gene2}
               onChange={(e) => setGene2(e.target.value.toUpperCase())}
               placeholder="EML4"
-              className="w-full bg-[#0E0E11] border border-[#232328] rounded px-2 py-1.5 text-xs text-text-primary placeholder-text-ghost focus:outline-none focus:border-purple-500"
+              className="w-full bg-surface-base border border-border-default rounded px-2 py-1.5 text-xs text-text-primary placeholder-text-ghost focus:outline-none focus:border-purple-500"
             />
           </div>
         </div>
@@ -245,7 +245,7 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
                     e.target.checked ? [...prev, cls] : prev.filter((c) => c !== cls)
                   )
                 }
-                className="rounded border-[#232328] bg-[#0E0E11] text-purple-500 focus:ring-purple-500/40"
+                className="rounded border-border-default bg-surface-base text-purple-500 focus:ring-purple-500/40"
               />
               <span className="text-xs text-text-muted">{cls}</span>
             </label>
@@ -260,7 +260,7 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
             value={regimenName}
             onChange={(e) => setRegimenName(e.target.value)}
             placeholder="osimertinib"
-            className="w-full bg-[#0E0E11] border border-[#232328] rounded px-2 py-1.5 text-xs text-text-primary placeholder-text-ghost focus:outline-none focus:border-purple-500"
+            className="w-full bg-surface-base border border-border-default rounded px-2 py-1.5 text-xs text-text-primary placeholder-text-ghost focus:outline-none focus:border-purple-500"
           />
         </div>
       )}
@@ -273,7 +273,7 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
               type="checkbox"
               checked={exclude}
               onChange={(e) => setExclude(e.target.checked)}
-              className="rounded border-[#232328] bg-[#0E0E11] text-red-500 focus:ring-red-500/40"
+              className="rounded border-border-default bg-surface-base text-red-500 focus:ring-red-500/40"
             />
             <span className="text-xs text-text-muted">Exclude patients with this feature</span>
           </label>

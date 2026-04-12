@@ -66,15 +66,15 @@ export function GenerateStep() {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <div className="mb-1 text-[13px] font-medium text-[#ccc]">Step 2 of 3 — Generate Cohort</div>
+        <div className="mb-1 text-[13px] font-medium text-text-secondary">Step 2 of 3 — Generate Cohort</div>
       </div>
 
       <div className="flex items-center gap-3">
-        <span className="text-[13px] text-[#888]">Run against:</span>
+        <span className="text-[13px] text-text-muted">Run against:</span>
         <select
           value={sourceId ?? ""}
           onChange={(e) => setSourceId(e.target.value ? parseInt(e.target.value, 10) : null)}
-          className="rounded-md border border-[#444] bg-[#1a1a2e] px-3 py-1.5 text-[13px] text-[#ccc] outline-none focus:border-[#C9A227]"
+          className="rounded-md border border-border-default bg-surface-overlay px-3 py-1.5 text-[13px] text-text-secondary outline-none focus:border-accent"
           disabled={loadingSources}
         >
           <option value="">Select data source...</option>
@@ -88,7 +88,7 @@ export function GenerateStep() {
           type="button"
           onClick={handleGenerate}
           disabled={isDisabled}
-          className="flex items-center gap-1.5 rounded-md bg-[#C9A227] px-4 py-1.5 text-[13px] font-semibold text-[#0E0E11] transition-colors hover:bg-[#B8922A] disabled:opacity-50"
+          className="flex items-center gap-1.5 rounded-md bg-accent px-4 py-1.5 text-[13px] font-semibold text-surface-base transition-colors hover:bg-accent-dark disabled:opacity-50"
         >
           {isRunning && <Loader2 size={14} className="animate-spin" />}
           Generate
@@ -100,10 +100,10 @@ export function GenerateStep() {
         <div className="rounded-lg border border-[rgba(45,212,191,0.15)] bg-[rgba(45,212,191,0.05)] p-4">
           <div className="flex items-center gap-3">
             <div className="text-center">
-              <div className="text-[28px] font-bold text-[#2DD4BF]">
+              <div className="text-[28px] font-bold text-success">
                 {generation?.person_count?.toLocaleString() ?? 0}
               </div>
-              <div className="text-[11px] text-[#888]">patients</div>
+              <div className="text-[11px] text-text-muted">patients</div>
             </div>
           </div>
         </div>
@@ -111,7 +111,7 @@ export function GenerateStep() {
 
       {/* Error result */}
       {generationStatus === "failed" && (
-        <div className="rounded-lg border border-[rgba(155,27,48,0.3)] bg-[rgba(155,27,48,0.05)] px-4 py-3 text-[13px] text-[#E85A6B]">
+        <div className="rounded-lg border border-[rgba(155,27,48,0.3)] bg-[rgba(155,27,48,0.05)] px-4 py-3 text-[13px] text-critical">
           Generation failed. Check the expression and try again.
         </div>
       )}

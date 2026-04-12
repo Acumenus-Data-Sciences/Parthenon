@@ -65,9 +65,9 @@ export function ValidationChecklist({ investigation }: ValidationChecklistProps)
         <span
           className={`text-[10px] font-medium px-1.5 py-0.5 rounded border ${
             passed === total
-              ? "text-[#2DD4BF] bg-teal-900/20 border-teal-600/30"
+              ? "text-success bg-teal-900/20 border-teal-600/30"
               : passed === 0
-                ? "text-[#9B1B30] bg-red-900/10 border-red-700/30"
+                ? "text-primary bg-red-900/10 border-red-700/30"
                 : "text-amber-400 bg-amber-900/20 border-amber-600/30"
           }`}
         >
@@ -80,9 +80,9 @@ export function ValidationChecklist({ investigation }: ValidationChecklistProps)
         <div
           className={`h-full rounded-full transition-all duration-300 ${
             passed === total
-              ? "bg-[#2DD4BF]"
+              ? "bg-success"
               : passed === 0
-                ? "bg-[#9B1B30]"
+                ? "bg-primary"
                 : "bg-amber-500"
           }`}
           style={{ width: `${progressPct}%` }}
@@ -94,7 +94,7 @@ export function ValidationChecklist({ investigation }: ValidationChecklistProps)
         {checks.map((check) => (
           <li key={check.label} className="flex items-start gap-2">
             {check.pass ? (
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#2DD4BF] shrink-0 mt-0.5" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-success shrink-0 mt-0.5" />
             ) : (
               <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
             )}

@@ -8,7 +8,7 @@ export const TOOLSET_REGISTRY: ToolsetDescriptor[] = [
     description:
       "Unified workspace combining clinical phenotyping, HADES observational analytics, and genomic evidence (Open Targets, GWAS Catalog) into an exportable Evidence Dossier.",
     icon: "Dna",
-    accent: "#2DD4BF",
+    accent: "var(--success)",
     status: "available",
     route: "/workbench/investigation",
     badge: "Evidence Board",
@@ -20,7 +20,7 @@ export const TOOLSET_REGISTRY: ToolsetDescriptor[] = [
     description:
       "ICU-focused analytics leveraging MIMIC-IV data in OMOP CDM 5.4. ABCDEF Liberation Bundle compliance, ventilator weaning prediction, sedation monitoring, and inpatient outcome research.",
     icon: "BedDouble",
-    accent: "#9B1B30",
+    accent: "var(--primary)",
     status: "available",
     route: "/morpheus",
     badge: "MIMIC-IV",
@@ -32,7 +32,7 @@ export const TOOLSET_REGISTRY: ToolsetDescriptor[] = [
     description:
       "Reference implementation and SDK documentation for building custom toolsets that plug into the Parthenon Workbench. Service descriptors, result envelopes, and artifact patterns.",
     icon: "Blocks",
-    accent: "#C9A227",
+    accent: "var(--accent)",
     status: "available",
     route: "/workbench/community-sdk-demo",
   },

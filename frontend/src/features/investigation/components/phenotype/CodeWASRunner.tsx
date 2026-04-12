@@ -141,7 +141,7 @@ export function CodeWASRunner({ investigation, onPinFinding }: CodeWASRunnerProp
               setSelectedSourceId(e.target.value ? Number(e.target.value) : null)
             }
             disabled={sourcesLoading}
-            className="w-full bg-surface-raised/60 border border-border-default rounded px-3 py-1.5 text-xs text-text-primary focus:outline-none focus:border-[#2DD4BF]/60 disabled:opacity-50"
+            className="w-full bg-surface-raised/60 border border-border-default rounded px-3 py-1.5 text-xs text-text-primary focus:outline-none focus:border-success/60 disabled:opacity-50"
           >
             <option value="">
               {sourcesLoading ? "Loading sources…" : "Select a source…"}
@@ -162,7 +162,7 @@ export function CodeWASRunner({ investigation, onPinFinding }: CodeWASRunnerProp
             value={caseLabel}
             onChange={(e) => setCaseLabel(e.target.value)}
             placeholder="Case cohort name"
-            className="w-full bg-surface-raised/60 border border-border-default rounded px-3 py-1.5 text-xs text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-[#2DD4BF]/60"
+            className="w-full bg-surface-raised/60 border border-border-default rounded px-3 py-1.5 text-xs text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success/60"
           />
         </div>
 
@@ -174,7 +174,7 @@ export function CodeWASRunner({ investigation, onPinFinding }: CodeWASRunnerProp
             value={controlLabel}
             onChange={(e) => setControlLabel(e.target.value)}
             placeholder="General population"
-            className="w-full bg-surface-raised/60 border border-border-default rounded px-3 py-1.5 text-xs text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-[#2DD4BF]/60"
+            className="w-full bg-surface-raised/60 border border-border-default rounded px-3 py-1.5 text-xs text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success/60"
           />
         </div>
       </div>
@@ -184,7 +184,7 @@ export function CodeWASRunner({ investigation, onPinFinding }: CodeWASRunnerProp
         <button
           onClick={() => void handleRun()}
           disabled={isRunning || !selectedSourceId}
-          className="flex items-center gap-2 px-4 py-2 rounded bg-[#2DD4BF]/10 border border-[#2DD4BF]/40 text-[#2DD4BF] text-xs font-medium hover:bg-[#2DD4BF]/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 px-4 py-2 rounded bg-success/10 border border-success/40 text-success text-xs font-medium hover:bg-success/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isRunning ? (
             <>
@@ -217,7 +217,7 @@ export function CodeWASRunner({ investigation, onPinFinding }: CodeWASRunnerProp
 
       {/* Error */}
       {error && (
-        <div className="rounded border border-[#9B1B30]/40 bg-red-900/10 px-3 py-2.5 text-xs text-red-400">
+        <div className="rounded border border-primary/40 bg-red-900/10 px-3 py-2.5 text-xs text-red-400">
           {error}
         </div>
       )}

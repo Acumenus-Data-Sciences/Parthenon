@@ -79,7 +79,7 @@ export default function LabTimeSeriesChart({
             y={toY(rangeHigh)}
             width={chartW}
             height={Math.max(0, toY(rangeLow) - toY(rangeHigh))}
-            fill="#22C55E"
+            fill="var(--success)"
             opacity={0.08}
           />
         )}
@@ -87,7 +87,7 @@ export default function LabTimeSeriesChart({
         {/* Grid lines */}
         {[0.25, 0.5, 0.75].map((frac) => (
           <line key={frac} x1={padX} x2={padX + chartW} y1={padY + frac * chartH} y2={padY + frac * chartH}
-            stroke="#323238" strokeWidth={0.5} />
+            stroke="var(--surface-highlight)" strokeWidth={0.5} />
         ))}
 
         {/* Primary series */}
@@ -125,9 +125,9 @@ export default function LabTimeSeriesChart({
         {hoverIdx != null && sorted[hoverIdx] && (
           <g>
             <rect x={toX(sorted[hoverIdx].date) - 40} y={toY(sorted[hoverIdx].value) - 32}
-              width={80} height={24} rx={4} fill="#1A1A1E" stroke="#323238" />
+              width={80} height={24} rx={4} fill="var(--surface-overlay)" stroke="var(--surface-highlight)" />
             <text x={toX(sorted[hoverIdx].date)} y={toY(sorted[hoverIdx].value) - 16}
-              textAnchor="middle" fill="#C5C0B8" fontSize={10}>
+              textAnchor="middle" fill="var(--text-secondary)" fontSize={10}>
               {sorted[hoverIdx].value} {unit}
             </text>
           </g>
@@ -138,7 +138,7 @@ export default function LabTimeSeriesChart({
           const val = minVal + frac * valRange;
           return (
             <text key={frac} x={padX - 8} y={padY + (1 - frac) * chartH + 4}
-              textAnchor="end" fill="#5A5650" fontSize={9}>
+              textAnchor="end" fill="var(--text-ghost)" fontSize={9}>
               {val.toFixed(1)}
             </text>
           );
@@ -147,7 +147,7 @@ export default function LabTimeSeriesChart({
 
       {/* Legend */}
       {overlayData && overlayLabel && (
-        <div className="flex items-center gap-4 mt-1 text-[10px] text-[#8A857D]">
+        <div className="flex items-center gap-4 mt-1 text-[10px] text-text-muted">
           <span className="flex items-center gap-1">
             <span className="w-3 h-0.5 inline-block" style={{ backgroundColor: color }} /> Primary
           </span>

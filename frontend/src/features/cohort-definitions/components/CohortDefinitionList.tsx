@@ -41,19 +41,19 @@ function LatestGenerationBadge({
 }) {
   if (!generation) {
     return (
-      <span className="text-xs text-[#5A5650]">No generations</span>
+      <span className="text-xs text-text-ghost">No generations</span>
     );
   }
 
   const latest = generation;
 
   const config = {
-    pending: { icon: Clock, color: "#8A857D", label: "Pending" },
-    queued: { icon: Clock, color: "#C9A227", label: "Queued" },
-    running: { icon: Loader2, color: "#60A5FA", label: "Running" },
-    completed: { icon: CheckCircle2, color: "#2DD4BF", label: "Completed" },
-    failed: { icon: XCircle, color: "#E85A6B", label: "Failed" },
-    cancelled: { icon: Clock, color: "#8A857D", label: "Cancelled" },
+    pending: { icon: Clock, color: "var(--text-muted)", label: "Pending" },
+    queued: { icon: Clock, color: "var(--accent)", label: "Queued" },
+    running: { icon: Loader2, color: "var(--info)", label: "Running" },
+    completed: { icon: CheckCircle2, color: "var(--success)", label: "Completed" },
+    failed: { icon: XCircle, color: "var(--critical)", label: "Failed" },
+    cancelled: { icon: Clock, color: "var(--text-muted)", label: "Cancelled" },
   }[latest.status];
 
   const Icon = config.icon;
@@ -74,7 +74,7 @@ function LatestGenerationBadge({
         {config.label}
       </span>
       {latest.person_count !== null && (
-        <span className="inline-flex items-center gap-1 font-['IBM_Plex_Mono',monospace] text-xs text-[#2DD4BF]">
+        <span className="inline-flex items-center gap-1 font-['IBM_Plex_Mono',monospace] text-xs text-success">
           <Users size={10} />
           {latest.person_count.toLocaleString()}
         </span>
@@ -91,7 +91,7 @@ function SourceBadges({ sources }: { sources?: GenerationSource[] }) {
       {sources.map((s) => (
         <span
           key={s.source_id}
-          className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#60A5FA]/10 text-[#60A5FA] border border-[#60A5FA]/20"
+          className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium bg-info/10 text-info border border-info/20"
           title={`${s.person_count?.toLocaleString() ?? '?'} patients — ${s.completed_at ? new Date(s.completed_at).toLocaleDateString() : ''}`}
         >
           <Database size={8} />
@@ -106,14 +106,14 @@ function SourceBadges({ sources }: { sources?: GenerationSource[] }) {
 }
 
 function TierBadge({ tier }: { tier?: string | null }) {
-  if (!tier) return <span className="text-xs text-[#5A5650]">--</span>;
+  if (!tier) return <span className="text-xs text-text-ghost">--</span>;
   const config: Record<string, { color: string; label: string; Icon: typeof Shield }> = {
-    "study-ready": { color: "#2DD4BF", label: "Study-Ready", Icon: Shield },
-    validated: { color: "#C9A227", label: "Validated", Icon: Award },
-    draft: { color: "#6B7280", label: "Draft", Icon: FileText },
+    "study-ready": { color: "var(--success)", label: "Study-Ready", Icon: Shield },
+    validated: { color: "var(--accent)", label: "Validated", Icon: Award },
+    draft: { color: "var(--text-ghost)", label: "Draft", Icon: FileText },
   };
   const c = config[tier];
-  if (!c) return <span className="text-xs text-[#5A5650]">{tier}</span>;
+  if (!c) return <span className="text-xs text-text-ghost">{tier}</span>;
   return (
     <span
       className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium"
@@ -205,7 +205,7 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
     if (groupedLoading) {
       return (
         <div className="flex items-center justify-center h-64">
-          <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+          <Loader2 size={24} className="animate-spin text-text-muted" />
         </div>
       );
     }
@@ -215,15 +215,15 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
     return (
       <div className="space-y-4">
         {/* My / All toggle */}
-        <div className="flex items-center gap-1 rounded-lg bg-[#1C1C20] p-0.5 w-fit">
+        <div className="flex items-center gap-1 rounded-lg bg-surface-overlay p-0.5 w-fit">
           <button
             type="button"
             onClick={() => setMyOnly(true)}
             className={cn(
               "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
               myOnly
-                ? "bg-[#232328] text-[#F0EDE8] shadow-sm"
-                : "text-[#8A857D] hover:text-[#C5C0B8]",
+                ? "bg-surface-elevated text-text-primary shadow-sm"
+                : "text-text-muted hover:text-text-secondary",
             )}
           >
             <User size={12} />
@@ -235,8 +235,8 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
             className={cn(
               "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
               !myOnly
-                ? "bg-[#232328] text-[#F0EDE8] shadow-sm"
-                : "text-[#8A857D] hover:text-[#C5C0B8]",
+                ? "bg-surface-elevated text-text-primary shadow-sm"
+                : "text-text-muted hover:text-text-secondary",
             )}
           >
             <Globe size={12} />
@@ -245,10 +245,10 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
         </div>
 
         {groups.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
-            <Layers size={24} className="text-[#8A857D] mb-4" />
-            <h3 className="text-lg font-semibold text-[#F0EDE8]">No cohort definitions</h3>
-            <p className="mt-2 text-sm text-[#8A857D]">No definitions match the current filters.</p>
+          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
+            <Layers size={24} className="text-text-muted mb-4" />
+            <h3 className="text-lg font-semibold text-text-primary">No cohort definitions</h3>
+            <p className="mt-2 text-sm text-text-muted">No definitions match the current filters.</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -257,23 +257,23 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
               return (
                 <div
                   key={group.key}
-                  className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden"
+                  className="rounded-lg border border-border-default bg-surface-raised overflow-hidden"
                 >
                   {/* Group header */}
                   <button
                     type="button"
                     onClick={() => toggleGroup(group.key)}
-                    className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-[#1C1C20] transition-colors"
+                    className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-surface-overlay transition-colors"
                   >
                     {isExpanded ? (
-                      <ChevronDown size={14} className="text-[#8A857D] shrink-0" />
+                      <ChevronDown size={14} className="text-text-muted shrink-0" />
                     ) : (
-                      <ChevronRight size={14} className="text-[#8A857D] shrink-0" />
+                      <ChevronRight size={14} className="text-text-muted shrink-0" />
                     )}
-                    <span className="text-xs font-semibold uppercase tracking-wider text-[#C5C0B8]">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-text-secondary">
                       {group.label}
                     </span>
-                    <span className="rounded-full bg-[#232328] px-2 py-0.5 text-[10px] font-medium text-[#8A857D]">
+                    <span className="rounded-full bg-surface-elevated px-2 py-0.5 text-[10px] font-medium text-text-muted">
                       {group.count}
                     </span>
                   </button>
@@ -282,20 +282,20 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
                   {isExpanded && group.cohorts.length > 0 && (
                     <table className="w-full">
                       <thead>
-                        <tr className="bg-[#1C1C20]">
-                          <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
+                        <tr className="bg-surface-overlay">
+                          <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
                             Name
                           </th>
-                          <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
+                          <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
                             Tier
                           </th>
-                          <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
+                          <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
                             N
                           </th>
-                          <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
+                          <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
                             Sources
                           </th>
-                          <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
+                          <th className="px-4 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
                             Updated
                           </th>
                         </tr>
@@ -306,20 +306,20 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
                             key={def.id}
                             onClick={() => navigate(`/cohort-definitions/${def.id}`)}
                             className={cn(
-                              "border-t border-[#1C1C20] transition-colors hover:bg-[#1C1C20] cursor-pointer",
-                              i % 2 === 0 ? "bg-[#151518]" : "bg-[#1A1A1E]",
+                              "border-t border-border-subtle transition-colors hover:bg-surface-overlay cursor-pointer",
+                              i % 2 === 0 ? "bg-surface-raised" : "bg-surface-overlay",
                               def.deprecated_at && "opacity-60",
                             )}
                           >
                             <td className="px-4 py-2.5">
                               <div className="flex items-center gap-2">
                                 {def.is_public ? (
-                                  <Globe size={11} className="text-[#60A5FA] shrink-0" />
+                                  <Globe size={11} className="text-info shrink-0" />
                                 ) : (
-                                  <Lock size={11} className="text-[#5A5650] shrink-0" />
+                                  <Lock size={11} className="text-text-ghost shrink-0" />
                                 )}
                                 <p className={cn(
-                                  "text-sm font-medium text-[#F0EDE8] truncate max-w-[300px]",
+                                  "text-sm font-medium text-text-primary truncate max-w-[300px]",
                                   def.deprecated_at && "line-through",
                                 )}>
                                   {def.name}
@@ -332,18 +332,18 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
                             </td>
                             <td className="px-4 py-2.5">
                               {def.latest_generation?.person_count != null ? (
-                                <span className="inline-flex items-center gap-1 font-['IBM_Plex_Mono',monospace] text-xs text-[#2DD4BF]">
+                                <span className="inline-flex items-center gap-1 font-['IBM_Plex_Mono',monospace] text-xs text-success">
                                   <Users size={10} />
                                   {def.latest_generation.person_count.toLocaleString()}
                                 </span>
                               ) : (
-                                <span className="text-xs text-[#5A5650]">--</span>
+                                <span className="text-xs text-text-ghost">--</span>
                               )}
                             </td>
                             <td className="px-4 py-2.5">
                               <SourceBadges sources={def.generation_sources} />
                             </td>
-                            <td className="px-4 py-2.5 text-xs text-[#8A857D]">
+                            <td className="px-4 py-2.5 text-xs text-text-muted">
                               {formatDate(def.updated_at)}
                             </td>
                           </tr>
@@ -371,7 +371,7 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+        <Loader2 size={24} className="animate-spin text-text-muted" />
       </div>
     );
   }
@@ -379,21 +379,21 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
   if (error) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-[#E85A6B]">Failed to load cohort definitions</p>
+        <p className="text-critical">Failed to load cohort definitions</p>
       </div>
     );
   }
 
   if (items.length === 0 && page === 1) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
-        <div className="flex items-center justify-center w-14 h-14 rounded-full bg-[#1C1C20] mb-4">
-          <Layers size={24} className="text-[#8A857D]" />
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
+        <div className="flex items-center justify-center w-14 h-14 rounded-full bg-surface-overlay mb-4">
+          <Layers size={24} className="text-text-muted" />
         </div>
-        <h3 className="text-lg font-semibold text-[#F0EDE8]">
+        <h3 className="text-lg font-semibold text-text-primary">
           {search ? "No matching cohort definitions" : "No cohort definitions"}
         </h3>
-        <p className="mt-2 text-sm text-[#8A857D] max-w-md text-center">
+        <p className="mt-2 text-sm text-text-muted max-w-md text-center">
           {search
             ? `No results for "${search}". Try a different search term.`
             : "Cohort definitions let you define inclusion and exclusion criteria to identify patient populations for research studies."}
@@ -403,7 +403,7 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
             <button
               type="button"
               onClick={() => navigate("/cohort-definitions")}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2.5 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors"
+              className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2.5 text-sm font-medium text-surface-base hover:bg-success-dark transition-colors"
             >
               <Plus size={16} />
               New Cohort Definition
@@ -412,7 +412,7 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
               <button
                 type="button"
                 onClick={onCreateFromBundle}
-                className="inline-flex items-center gap-2 rounded-lg border border-[#2A2A30] bg-[#151518] px-4 py-2.5 text-sm font-medium text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#3A3A42] transition-colors"
+                className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-4 py-2.5 text-sm font-medium text-text-muted hover:text-text-secondary hover:border-surface-highlight transition-colors"
               >
                 <Stethoscope size={16} />
                 Create from Care Bundle
@@ -427,15 +427,15 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
   return (
     <div className="space-y-4">
       {/* My / All toggle */}
-      <div className="flex items-center gap-1 rounded-lg bg-[#1C1C20] p-0.5 w-fit">
+      <div className="flex items-center gap-1 rounded-lg bg-surface-overlay p-0.5 w-fit">
         <button
           type="button"
           onClick={() => setMyOnly(true)}
           className={cn(
             "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
             myOnly
-              ? "bg-[#232328] text-[#F0EDE8] shadow-sm"
-              : "text-[#8A857D] hover:text-[#C5C0B8]",
+              ? "bg-surface-elevated text-text-primary shadow-sm"
+              : "text-text-muted hover:text-text-secondary",
           )}
         >
           <User size={12} />
@@ -447,8 +447,8 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
           className={cn(
             "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
             !myOnly
-              ? "bg-[#232328] text-[#F0EDE8] shadow-sm"
-              : "text-[#8A857D] hover:text-[#C5C0B8]",
+              ? "bg-surface-elevated text-text-primary shadow-sm"
+              : "text-text-muted hover:text-text-secondary",
           )}
         >
           <Globe size={12} />
@@ -457,31 +457,31 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+      <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
         <table className="w-full">
           <thead>
-            <tr className="bg-[#1C1C20]">
-              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+            <tr className="bg-surface-overlay">
+              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                 Name
               </th>
-              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                 Tier
               </th>
               {!myOnly && (
-                <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                   Author
                 </th>
               )}
-              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                 Tags
               </th>
-              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                 Latest Generation
               </th>
-              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                 Generated Against
               </th>
-              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                 Created
               </th>
             </tr>
@@ -492,27 +492,27 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
                 key={def.id}
                 onClick={() => navigate(`/cohort-definitions/${def.id}`)}
                 className={cn(
-                  "border-t border-[#1C1C20] transition-colors hover:bg-[#1C1C20] cursor-pointer",
-                  i % 2 === 0 ? "bg-[#151518]" : "bg-[#1A1A1E]",
+                  "border-t border-border-subtle transition-colors hover:bg-surface-overlay cursor-pointer",
+                  i % 2 === 0 ? "bg-surface-raised" : "bg-surface-overlay",
                   def.deprecated_at && "opacity-60",
                 )}
               >
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
                     {def.is_public ? (
-                      <Globe size={12} className="text-[#60A5FA] shrink-0" />
+                      <Globe size={12} className="text-info shrink-0" />
                     ) : (
-                      <Lock size={12} className="text-[#5A5650] shrink-0" />
+                      <Lock size={12} className="text-text-ghost shrink-0" />
                     )}
                     <div className="min-w-0">
                       <p className={cn(
-                        "text-sm font-medium text-[#F0EDE8] truncate",
+                        "text-sm font-medium text-text-primary truncate",
                         def.deprecated_at && "line-through",
                       )}>
                         {def.name}
                       </p>
                       {def.description && (
-                        <p className="text-[10px] text-[#5A5650] truncate max-w-[250px]">
+                        <p className="text-[10px] text-text-ghost truncate max-w-[250px]">
                           {def.description}
                         </p>
                       )}
@@ -525,7 +525,7 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
                 </td>
                 {!myOnly && (
                   <td className="px-4 py-3">
-                    <p className="text-xs text-[#8A857D]">
+                    <p className="text-xs text-text-muted">
                       {def.author?.name ?? "--"}
                     </p>
                   </td>
@@ -535,7 +535,7 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
                     {def.tags?.map((tag) => (
                       <span
                         key={tag}
-                        className="inline-block rounded px-1.5 py-0.5 text-[10px] bg-[#1A1A1F] text-[#8A857D] border border-[#2A2A30]"
+                        className="inline-block rounded px-1.5 py-0.5 text-[10px] bg-surface-overlay text-text-muted border border-border-default"
                       >
                         {tag}
                       </span>
@@ -548,7 +548,7 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
                 <td className="px-4 py-3">
                   <SourceBadges sources={def.generation_sources} />
                 </td>
-                <td className="px-4 py-3 text-sm text-[#8A857D]">
+                <td className="px-4 py-3 text-sm text-text-muted">
                   {formatDate(def.created_at)}
                 </td>
               </tr>
@@ -560,11 +560,11 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between px-1">
-          <p className="text-xs text-[#8A857D] flex items-center gap-2">
+          <p className="text-xs text-text-muted flex items-center gap-2">
             Showing {(page - 1) * limit + 1} -{" "}
             {Math.min(page * limit, total)} of {total}
             {engine === "solr" && (
-              <span className="inline-flex items-center rounded-full bg-[#2DD4BF]/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-[#2DD4BF]">
+              <span className="inline-flex items-center rounded-full bg-success/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-success">
                 Solr
               </span>
             )}
@@ -574,18 +574,18 @@ export function CohortDefinitionList({ tags, search, isPublic, withGenerations, 
               type="button"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1}
-              className="inline-flex items-center justify-center w-8 h-8 rounded-md text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#232328] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="inline-flex items-center justify-center w-8 h-8 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-elevated transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <ChevronLeft size={16} />
             </button>
-            <span className="text-xs text-[#C5C0B8] px-2">
+            <span className="text-xs text-text-secondary px-2">
               {page} / {totalPages}
             </span>
             <button
               type="button"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page >= totalPages}
-              className="inline-flex items-center justify-center w-8 h-8 rounded-md text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#232328] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="inline-flex items-center justify-center w-8 h-8 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-elevated transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <ChevronRight size={16} />
             </button>

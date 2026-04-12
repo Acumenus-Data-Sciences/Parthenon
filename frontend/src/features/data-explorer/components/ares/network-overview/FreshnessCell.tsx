@@ -4,7 +4,7 @@ interface FreshnessCellProps {
 
 export default function FreshnessCell({ daysSinceRefresh }: FreshnessCellProps) {
   if (daysSinceRefresh === null) {
-    return <span className="text-[#555]">--</span>;
+    return <span className="text-text-ghost">--</span>;
   }
 
   const isStale = daysSinceRefresh > 30;
@@ -15,16 +15,16 @@ export default function FreshnessCell({ daysSinceRefresh }: FreshnessCellProps) 
       <span
         className={
           isStale
-            ? "text-[#e85d75]"
+            ? "text-critical"
             : isWarning
-              ? "text-[#C9A227]"
-              : "text-[#888]"
+              ? "text-accent"
+              : "text-text-muted"
         }
       >
         {daysSinceRefresh}d
       </span>
       {isStale && (
-        <span className="rounded bg-[#9B1B30]/20 px-1.5 py-0.5 text-[9px] font-bold uppercase text-[#e85d75]">
+        <span className="rounded bg-primary/20 px-1.5 py-0.5 text-[9px] font-bold uppercase text-critical">
           STALE
         </span>
       )}

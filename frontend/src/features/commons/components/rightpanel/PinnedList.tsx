@@ -20,7 +20,7 @@ export function PinnedList({ slug }: PinnedListProps) {
   if (pins.length === 0) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-2 px-5 text-center">
-        <div className="w-full rounded-2xl border border-dashed border-[#2b2b32] bg-[#111115] px-4 py-6">
+        <div className="w-full rounded-2xl border border-dashed border-border-default bg-surface-base px-4 py-6">
           <p className="text-[13px] font-medium text-muted-foreground">No pinned messages</p>
           <p className="mt-1 text-xs leading-5 text-muted-foreground/60">
             Pin important messages from the action menu
@@ -36,7 +36,7 @@ export function PinnedList({ slug }: PinnedListProps) {
         {pins.map((pin) => (
           <div
             key={pin.id}
-            className="group relative rounded-xl border border-[#25252b] bg-[#111115] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] transition-colors hover:border-[#31313a]"
+            className="group relative rounded-xl border border-border-default bg-surface-base p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] transition-colors hover:border-surface-highlight"
           >
             <div className="line-clamp-3 pr-6 text-xs font-medium leading-5 text-foreground">
               {pin.message.body}

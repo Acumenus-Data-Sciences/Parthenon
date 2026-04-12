@@ -89,25 +89,25 @@ export function EstimationResults({
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+        <Loader2 size={24} className="animate-spin text-text-muted" />
       </div>
     );
   }
 
   if (!execution || execution.status !== "completed") {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
-        <AlertCircle size={24} className="text-[#323238] mb-3" />
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
+        <AlertCircle size={24} className="text-text-ghost mb-3" />
+        <h3 className="text-sm font-semibold text-text-primary">
           No results available
         </h3>
-        <p className="mt-1 text-xs text-[#8A857D]">
+        <p className="mt-1 text-xs text-text-muted">
           {execution
             ? `Execution status: ${execution.status}`
             : "Execute the analysis to generate results."}
         </p>
         {execution?.fail_message && (
-          <p className="mt-2 text-xs text-[#E85A6B] max-w-md text-center">
+          <p className="mt-2 text-xs text-critical max-w-md text-center">
             {execution.fail_message}
           </p>
         )}
@@ -119,9 +119,9 @@ export function EstimationResults({
   const result = parsed ? normalizeResult(parsed) : null;
   if (!result) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
-        <AlertCircle size={24} className="text-[#323238] mb-3" />
-        <p className="text-sm text-[#8A857D]">
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
+        <AlertCircle size={24} className="text-text-ghost mb-3" />
+        <p className="text-sm text-text-muted">
           Execution completed but no results were returned.
         </p>
       </div>
@@ -132,13 +132,13 @@ export function EstimationResults({
   if (result.status === "r_not_implemented") {
     return (
       <div className="space-y-4">
-        <div className="flex items-start gap-3 rounded-lg border border-[#C9A227]/30 bg-[#C9A227]/5 p-4">
-          <Info size={18} className="text-[#C9A227] shrink-0 mt-0.5" />
+        <div className="flex items-start gap-3 rounded-lg border border-accent/30 bg-accent/5 p-4">
+          <Info size={18} className="text-accent shrink-0 mt-0.5" />
           <div>
-            <h3 className="text-sm font-semibold text-[#C9A227]">
+            <h3 className="text-sm font-semibold text-accent">
               R Sidecar Pending
             </h3>
-            <p className="mt-1 text-xs text-[#8A857D]">
+            <p className="mt-1 text-xs text-text-muted">
               {result.message ||
                 "The R execution environment is not yet available. Your study design has been validated and saved. Results will be available once the R sidecar is deployed."}
             </p>
@@ -146,8 +146,8 @@ export function EstimationResults({
         </div>
 
         {result.design_validated && (
-          <div className="rounded-lg border border-[#2DD4BF]/30 bg-[#2DD4BF]/5 p-4">
-            <p className="text-xs font-medium text-[#2DD4BF]">
+          <div className="rounded-lg border border-success/30 bg-success/5 p-4">
+            <p className="text-xs font-medium text-success">
               Design validated successfully
             </p>
           </div>
@@ -175,17 +175,17 @@ export function EstimationResults({
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-          <p className="text-xs font-medium text-[#8A857D]">Target Count</p>
-          <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-[#2DD4BF]">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+          <p className="text-xs font-medium text-text-muted">Target Count</p>
+          <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-success">
             {num(summary.target_count).toLocaleString()}
           </p>
         </div>
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-          <p className="text-xs font-medium text-[#8A857D]">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+          <p className="text-xs font-medium text-text-muted">
             Comparator Count
           </p>
-          <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-[#C9A227]">
+          <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-accent">
             {num(summary.comparator_count).toLocaleString()}
           </p>
         </div>
@@ -194,12 +194,12 @@ export function EstimationResults({
           .map(([name, count]) => (
             <div
               key={name}
-              className="rounded-lg border border-[#232328] bg-[#151518] p-4"
+              className="rounded-lg border border-border-default bg-surface-raised p-4"
             >
-              <p className="text-xs font-medium text-[#8A857D] truncate">
+              <p className="text-xs font-medium text-text-muted truncate">
                 {name}
               </p>
-              <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-[#F0EDE8]">
+              <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-text-primary">
                 {num(count).toLocaleString()}
               </p>
             </div>
@@ -208,8 +208,8 @@ export function EstimationResults({
 
       {/* Forest Plot */}
       {estimates.length > 0 && (
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-          <h3 className="text-sm font-semibold text-[#F0EDE8] mb-4">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+          <h3 className="text-sm font-semibold text-text-primary mb-4">
             Forest Plot
           </h3>
           <ForestPlot estimates={estimates} />
@@ -218,31 +218,31 @@ export function EstimationResults({
 
       {/* Estimates Table */}
       {estimates.length > 0 && (
-        <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
-          <div className="p-4 border-b border-[#232328]">
-            <h3 className="text-sm font-semibold text-[#F0EDE8]">
+        <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
+          <div className="p-4 border-b border-border-default">
+            <h3 className="text-sm font-semibold text-text-primary">
               Effect Estimates
             </h3>
           </div>
           <table className="w-full">
             <thead>
-              <tr className="bg-[#1C1C20]">
-                <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+              <tr className="bg-surface-overlay">
+                <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                   Outcome
                 </th>
-                <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                   HR
                 </th>
-                <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                   95% CI
                 </th>
-                <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                   P-value
                 </th>
-                <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                   Target Events
                 </th>
-                <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                   Comparator Events
                 </th>
               </tr>
@@ -254,10 +254,10 @@ export function EstimationResults({
                   <tr
                     key={est.outcome_id}
                     className={
-                      i % 2 === 0 ? "bg-[#151518]" : "bg-[#1A1A1E]"
+                      i % 2 === 0 ? "bg-surface-raised" : "bg-surface-overlay"
                     }
                   >
-                    <td className="px-4 py-3 text-sm text-[#F0EDE8]">
+                    <td className="px-4 py-3 text-sm text-text-primary">
                       {est.outcome_name}
                     </td>
                     <td className="px-4 py-3 text-right font-['IBM_Plex_Mono',monospace] text-sm">
@@ -265,15 +265,15 @@ export function EstimationResults({
                         className={
                           isSignificant
                             ? num(est.hazard_ratio) < 1
-                              ? "text-[#2DD4BF]"
-                              : "text-[#E85A6B]"
-                            : "text-[#C5C0B8]"
+                              ? "text-success"
+                              : "text-critical"
+                            : "text-text-secondary"
                         }
                       >
                         {fmt(est.hazard_ratio)}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#8A857D]">
+                    <td className="px-4 py-3 text-right font-['IBM_Plex_Mono',monospace] text-xs text-text-muted">
                       {fmt(est.ci_95_lower, 2)} -{" "}
                       {fmt(est.ci_95_upper, 2)}
                     </td>
@@ -281,8 +281,8 @@ export function EstimationResults({
                       <span
                         className={
                           isSignificant
-                            ? "text-[#C9A227]"
-                            : "text-[#5A5650]"
+                            ? "text-accent"
+                            : "text-text-ghost"
                         }
                       >
                         {num(est.p_value) < 0.001
@@ -290,10 +290,10 @@ export function EstimationResults({
                           : fmt(est.p_value)}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right text-xs text-[#8A857D]">
+                    <td className="px-4 py-3 text-right text-xs text-text-muted">
                       {num(est.target_outcomes).toLocaleString()}
                     </td>
-                    <td className="px-4 py-3 text-right text-xs text-[#8A857D]">
+                    <td className="px-4 py-3 text-right text-xs text-text-muted">
                       {num(est.comparator_outcomes).toLocaleString()}
                     </td>
                   </tr>
@@ -306,39 +306,39 @@ export function EstimationResults({
 
       {/* Propensity Score Diagnostics */}
       {ps && (
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-4">
-          <h3 className="text-sm font-semibold text-[#F0EDE8]">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
+          <h3 className="text-sm font-semibold text-text-primary">
             Propensity Score Diagnostics
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="rounded-lg border border-[#232328] bg-[#0E0E11] p-3">
-              <p className="text-xs font-medium text-[#8A857D]">PS AUC</p>
-              <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-[#2DD4BF]">
+            <div className="rounded-lg border border-border-default bg-surface-base p-3">
+              <p className="text-xs font-medium text-text-muted">PS AUC</p>
+              <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-success">
                 {fmt(ps.auc)}
               </p>
             </div>
-            <div className="rounded-lg border border-[#232328] bg-[#0E0E11] p-3">
-              <p className="text-xs font-medium text-[#8A857D]">
+            <div className="rounded-lg border border-border-default bg-surface-base p-3">
+              <p className="text-xs font-medium text-text-muted">
                 Before Matching SMD
               </p>
-              <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-sm text-[#C5C0B8]">
+              <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-sm text-text-secondary">
                 Mean:{" "}
                 {fmt(ps.mean_smd_before ?? ps.before_matching?.mean_smd ?? 0)}
               </p>
-              <p className="font-['IBM_Plex_Mono',monospace] text-sm text-[#C5C0B8]">
+              <p className="font-['IBM_Plex_Mono',monospace] text-sm text-text-secondary">
                 Max:{" "}
                 {fmt(ps.max_smd_before ?? ps.before_matching?.max_smd ?? 0)}
               </p>
             </div>
-            <div className="rounded-lg border border-[#232328] bg-[#0E0E11] p-3">
-              <p className="text-xs font-medium text-[#8A857D]">
+            <div className="rounded-lg border border-border-default bg-surface-base p-3">
+              <p className="text-xs font-medium text-text-muted">
                 After Matching SMD
               </p>
-              <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-sm text-[#2DD4BF]">
+              <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-sm text-success">
                 Mean:{" "}
                 {fmt(ps.mean_smd_after ?? ps.after_matching?.mean_smd ?? 0)}
               </p>
-              <p className="font-['IBM_Plex_Mono',monospace] text-sm text-[#2DD4BF]">
+              <p className="font-['IBM_Plex_Mono',monospace] text-sm text-success">
                 Max:{" "}
                 {fmt(ps.max_smd_after ?? ps.after_matching?.max_smd ?? 0)}
               </p>
@@ -348,7 +348,7 @@ export function EstimationResults({
           {/* PS Distribution Plot */}
           {ps.distribution && (
             <div className="mt-4">
-              <h4 className="text-xs font-semibold text-[#8A857D] mb-3">
+              <h4 className="text-xs font-semibold text-text-muted mb-3">
                 Propensity Score Distribution
               </h4>
               <PropensityScorePlot
@@ -371,8 +371,8 @@ export function EstimationResults({
       {km &&
         km.target &&
         km.target.length > 0 && (
-          <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-            <h3 className="text-sm font-semibold text-[#F0EDE8] mb-4">
+          <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+            <h3 className="text-sm font-semibold text-text-primary mb-4">
               Kaplan-Meier Survival Curves
             </h3>
             <KaplanMeierPlot
@@ -402,8 +402,8 @@ export function EstimationResults({
 
       {/* Attrition Diagram */}
       {attrition && attrition.length > 0 && (
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-          <h3 className="text-sm font-semibold text-[#F0EDE8] mb-4">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+          <h3 className="text-sm font-semibold text-text-primary mb-4">
             Attrition Diagram
           </h3>
           <AttritionDiagram
@@ -421,8 +421,8 @@ export function EstimationResults({
 
       {/* Love Plot (Covariate Balance Scatter) */}
       {covBalance && covBalance.length > 0 && (
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-          <h3 className="text-sm font-semibold text-[#F0EDE8] mb-4">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+          <h3 className="text-sm font-semibold text-text-primary mb-4">
             Covariate Balance — Love Plot
           </h3>
           <LovePlot data={covBalance} />
@@ -431,25 +431,25 @@ export function EstimationResults({
 
       {/* Covariate Balance Table */}
       {covBalance && covBalance.length > 0 && (
-        <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
-          <div className="p-4 border-b border-[#232328]">
-            <h3 className="text-sm font-semibold text-[#F0EDE8]">
+        <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
+          <div className="p-4 border-b border-border-default">
+            <h3 className="text-sm font-semibold text-text-primary">
               Top Covariate Balance (Before/After Matching)
             </h3>
           </div>
           <table className="w-full">
             <thead>
-              <tr className="bg-[#1C1C20]">
-                <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+              <tr className="bg-surface-overlay">
+                <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                   Covariate
                 </th>
-                <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                   SMD Before
                 </th>
-                <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                   SMD After
                 </th>
-                <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                   Balance
                 </th>
               </tr>
@@ -471,18 +471,18 @@ export function EstimationResults({
                   <tr
                     key={i}
                     className={
-                      i % 2 === 0 ? "bg-[#151518]" : "bg-[#1A1A1E]"
+                      i % 2 === 0 ? "bg-surface-raised" : "bg-surface-overlay"
                     }
                   >
-                    <td className="px-4 py-2.5 text-xs text-[#C5C0B8] max-w-[200px] truncate">
+                    <td className="px-4 py-2.5 text-xs text-text-secondary max-w-[200px] truncate">
                       {cv.covariate_name}
                     </td>
                     <td className="px-4 py-2.5 text-right font-['IBM_Plex_Mono',monospace] text-xs">
                       <span
                         className={
                           absBefore > 0.1
-                            ? "text-[#E85A6B]"
-                            : "text-[#8A857D]"
+                            ? "text-critical"
+                            : "text-text-muted"
                         }
                       >
                         {fmt(cv.smd_before)}
@@ -492,8 +492,8 @@ export function EstimationResults({
                       <span
                         className={
                           absAfter > 0.1
-                            ? "text-[#E85A6B]"
-                            : "text-[#2DD4BF]"
+                            ? "text-critical"
+                            : "text-success"
                         }
                       >
                         {fmt(cv.smd_after)}
@@ -501,13 +501,13 @@ export function EstimationResults({
                     </td>
                     <td className="px-4 py-2.5">
                       <div className="flex items-center gap-1">
-                        <div className="flex-1 h-2 rounded-full bg-[#0E0E11] relative">
+                        <div className="flex-1 h-2 rounded-full bg-surface-base relative">
                           <div
-                            className="absolute top-0 h-full rounded-full bg-[#E85A6B] opacity-40"
+                            className="absolute top-0 h-full rounded-full bg-critical opacity-40"
                             style={{ width: `${Math.min(beforeWidth, 100)}%` }}
                           />
                           <div
-                            className="absolute top-0 h-full rounded-full bg-[#2DD4BF]"
+                            className="absolute top-0 h-full rounded-full bg-success"
                             style={{ width: `${Math.min(afterWidth, 100)}%` }}
                           />
                         </div>
@@ -523,8 +523,8 @@ export function EstimationResults({
 
       {/* Negative Control / Systematic Error Plot */}
       {negControls && negControls.length > 0 && (
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-          <h3 className="text-sm font-semibold text-[#F0EDE8] mb-4">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+          <h3 className="text-sm font-semibold text-text-primary mb-4">
             Empirical Calibration — Systematic Error
           </h3>
           <div className="flex justify-center">
@@ -535,8 +535,8 @@ export function EstimationResults({
 
       {/* Power Analysis Table */}
       {result.power_analysis && result.power_analysis.length > 0 && (
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-          <h3 className="text-sm font-semibold text-[#F0EDE8] mb-4">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+          <h3 className="text-sm font-semibold text-text-primary mb-4">
             Statistical Power Analysis
           </h3>
           <PowerTable entries={result.power_analysis} />
@@ -545,22 +545,22 @@ export function EstimationResults({
 
       {/* Diagnostics / MDRR */}
       {(result.diagnostics || mdrr || ps?.equipoise) && (
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-4">
-          <h3 className="text-sm font-semibold text-[#F0EDE8]">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
+          <h3 className="text-sm font-semibold text-text-primary">
             Diagnostics
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {(result.diagnostics?.equipoise ?? ps?.equipoise) != null && (
-              <div className="rounded-lg border border-[#232328] bg-[#0E0E11] p-3">
-                <p className="text-xs font-medium text-[#8A857D]">Equipoise</p>
-                <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-[#C9A227]">
+              <div className="rounded-lg border border-border-default bg-surface-base p-3">
+                <p className="text-xs font-medium text-text-muted">Equipoise</p>
+                <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-accent">
                   {fmt(result.diagnostics?.equipoise ?? ps?.equipoise ?? 0)}
                 </p>
               </div>
             )}
             {mdrr && Object.keys(mdrr).length > 0 && (
-              <div className="rounded-lg border border-[#232328] bg-[#0E0E11] p-3">
-                <p className="text-xs font-medium text-[#8A857D]">
+              <div className="rounded-lg border border-border-default bg-surface-base p-3">
+                <p className="text-xs font-medium text-text-muted">
                   Min Detectable Relative Risk
                 </p>
                 <div className="mt-1 space-y-1">
@@ -569,10 +569,10 @@ export function EstimationResults({
                       key={outcomeId}
                       className="flex items-center justify-between"
                     >
-                      <span className="text-xs text-[#8A857D]">
+                      <span className="text-xs text-text-muted">
                         Outcome {outcomeId}
                       </span>
-                      <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
+                      <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-secondary">
                         {fmt(mdrr)}
                       </span>
                     </div>
@@ -581,8 +581,8 @@ export function EstimationResults({
               </div>
             )}
             {result.diagnostics?.power && (
-              <div className="rounded-lg border border-[#232328] bg-[#0E0E11] p-3">
-                <p className="text-xs font-medium text-[#8A857D]">
+              <div className="rounded-lg border border-border-default bg-surface-base p-3">
+                <p className="text-xs font-medium text-text-muted">
                   Statistical Power
                 </p>
                 <div className="mt-1 space-y-1">
@@ -592,10 +592,10 @@ export function EstimationResults({
                         key={name}
                         className="flex items-center justify-between"
                       >
-                        <span className="text-xs text-[#8A857D] truncate max-w-[150px]">
+                        <span className="text-xs text-text-muted truncate max-w-[150px]">
                           {name}
                         </span>
-                        <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
+                        <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-secondary">
                           {fmt(num(power) * 100, 1)}%
                         </span>
                       </div>

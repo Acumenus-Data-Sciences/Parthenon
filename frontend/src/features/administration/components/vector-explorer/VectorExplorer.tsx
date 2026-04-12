@@ -89,8 +89,8 @@ export default function VectorExplorer({
         <div className="flex flex-col items-center gap-3 py-12 text-center">
           <Loader2 className="h-6 w-6 animate-spin" style={{ color: collectionTheme.accent }} />
           <div>
-            <p className="text-sm font-medium text-[#C5C0B8]">Computing projection</p>
-            <p className="mt-1 text-xs text-[#5A5650]">
+            <p className="text-sm font-medium text-text-secondary">Computing projection</p>
+            <p className="mt-1 text-xs text-text-ghost">
               Running PCA→UMAP on {explorer.sampleSize === 0 ? "all" : explorer.sampleSize.toLocaleString()} vectors...
             </p>
           </div>
@@ -102,7 +102,7 @@ export default function VectorExplorer({
   if (!projectionData && !isFallback) {
     return (
       <Panel>
-        <p className="py-8 text-center text-sm text-[#5A5650]">
+        <p className="py-8 text-center text-sm text-text-ghost">
           Select a collection to visualize embeddings.
         </p>
       </Panel>
@@ -133,17 +133,17 @@ export default function VectorExplorer({
 
   if (isExpanded) {
     return createPortal(
-      <div className="fixed inset-0 flex bg-[#0A0A0F]" style={{ zIndex: 200 }}>
+      <div className="fixed inset-0 flex bg-surface-darkest" style={{ zIndex: 200 }}>
         <div className="flex flex-1 flex-col">
-          <div className="flex items-center justify-between border-b border-[#232328] bg-[#0E0E11] px-4 py-2">
+          <div className="flex items-center justify-between border-b border-border-default bg-surface-base px-4 py-2">
             <div className="flex items-center gap-4">
-              <h2 className="text-sm font-semibold text-[#F0EDE8]">Vector Explorer</h2>
+              <h2 className="text-sm font-semibold text-text-primary">Vector Explorer</h2>
               <div className="flex items-center gap-2">
                 <select
                   value={collectionName ?? ""}
                   onChange={(event) => onCollectionChange(event.target.value)}
                   disabled={loadingCollections}
-                  className="rounded border border-[#232328] bg-[#151518] px-2.5 py-1.5 text-sm text-[#E8E4DC] outline-none transition focus:border-[#C9A227]/50 disabled:opacity-50"
+                  className="rounded border border-border-default bg-surface-raised px-2.5 py-1.5 text-sm text-text-primary outline-none transition focus:border-accent/50 disabled:opacity-50"
                 >
                   {loadingCollections ? <option value="">Loading...</option> : null}
                   {collections.map((collection) => (
@@ -193,7 +193,7 @@ export default function VectorExplorer({
               />
               <button
                 onClick={() => explorer.setExpanded(false)}
-                className="rounded p-1.5 text-[#8A857D] hover:bg-[#151518] hover:text-[#F0EDE8]"
+                className="rounded p-1.5 text-text-muted hover:bg-surface-raised hover:text-text-primary"
               >
                 <Minimize2 className="h-4 w-4" />
               </button>
@@ -201,7 +201,7 @@ export default function VectorExplorer({
           </div>
 
           {activeMode === "qa" && quality && stats && (
-            <div className="border-b border-[#232328] px-4 py-1">
+            <div className="border-b border-border-default px-4 py-1">
               <QualitySummary
                 quality={quality}
                 stats={stats}
@@ -212,13 +212,13 @@ export default function VectorExplorer({
           )}
 
           {activeMode === "query" && (
-            <div className="border-b border-[#232328] px-4 py-3">
+            <div className="border-b border-border-default px-4 py-3">
               <form onSubmit={handleQuerySubmit} className="flex items-center gap-2">
                 <input
                   value={explorer.queryText}
                   onChange={(event) => explorer.setQueryText(event.target.value)}
                   placeholder="Search within the vector space"
-                  className="flex-1 rounded border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#C9A227]/50"
+                  className="flex-1 rounded border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary outline-none focus:border-accent/50"
                 />
                 <button
                   type="submit"
@@ -230,11 +230,11 @@ export default function VectorExplorer({
                 </button>
               </form>
               <div className="mt-2 flex items-center justify-between text-xs">
-                <span className="text-[#5A5650]">
+                <span className="text-text-ghost">
                   {visibleQueryCount} of {(explorer.queryResults?.items.length ?? 0).toLocaleString()} results visible in this projection
                 </span>
                 {explorer.queryError && (
-                  <span className="text-[#E85A6B]">{explorer.queryError}</span>
+                  <span className="text-critical">{explorer.queryError}</span>
                 )}
               </div>
             </div>
@@ -245,18 +245,18 @@ export default function VectorExplorer({
           </div>
 
           {isLoading && (
-            <div className="flex items-center gap-2 border-t border-[#232328] bg-[#0E0E11] px-4 py-1">
+            <div className="flex items-center gap-2 border-t border-border-default bg-surface-base px-4 py-1">
               <Loader2 className="h-3 w-3 animate-spin" style={{ color: collectionTheme.accent }} />
-              <span className="text-xs text-[#5A5650]">Recomputing projection...</span>
+              <span className="text-xs text-text-ghost">Recomputing projection...</span>
             </div>
           )}
         </div>
 
-        <div className="w-72 space-y-4 overflow-y-auto border-l border-[#232328] bg-[#0E0E11] p-4">
+        <div className="w-72 space-y-4 overflow-y-auto border-l border-border-default bg-surface-base p-4">
           {error && (
-            <div className="flex items-center gap-2 rounded border border-[#E85A6B]/30 bg-[#E85A6B]/10 px-3 py-2">
-              <WifiOff className="h-4 w-4 text-[#E85A6B]" />
-              <span className="text-xs text-[#E85A6B]">{error}</span>
+            <div className="flex items-center gap-2 rounded border border-critical/30 bg-critical/10 px-3 py-2">
+              <WifiOff className="h-4 w-4 text-critical" />
+              <span className="text-xs text-critical">{error}</span>
             </div>
           )}
 
@@ -272,8 +272,8 @@ export default function VectorExplorer({
             totalSampled={stats?.sampled ?? 0}
           />
 
-          <div className="space-y-1 border-t border-[#232328] pt-3">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
+          <div className="space-y-1 border-t border-border-default pt-3">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-text-muted">
               Overlays
             </h4>
             {[
@@ -305,17 +305,17 @@ export default function VectorExplorer({
                   disabled={!item.enabled}
                   className={`flex w-full items-center justify-between rounded border px-2 py-2 text-left transition-colors ${
                     item.enabled
-                      ? "border-[#232328] bg-[#111216] hover:bg-[#151518]"
-                      : "cursor-not-allowed border-[#232328]/60 bg-[#0E0E11] opacity-50"
+                      ? "border-border-default bg-surface-base hover:bg-surface-raised"
+                      : "cursor-not-allowed border-border-default/60 bg-surface-base opacity-50"
                   }`}
                 >
                   <div className="min-w-0">
-                    <div className="text-sm text-[#C5C0B8]">{item.label}</div>
-                    <div className="text-xs text-[#5A5650]">{item.help}</div>
+                    <div className="text-sm text-text-secondary">{item.label}</div>
+                    <div className="text-xs text-text-ghost">{item.help}</div>
                   </div>
                   <div
                     className={`relative h-5 w-9 rounded-full border transition-colors ${
-                      active ? "border-transparent" : "border-[#3A3630] bg-[#151518]"
+                      active ? "border-transparent" : "border-text-disabled bg-surface-raised"
                     }`}
                     style={
                       active
@@ -327,7 +327,7 @@ export default function VectorExplorer({
                       className="absolute top-0.5 h-3.5 w-3.5 rounded-full transition-all"
                       style={{
                         left: active ? "18px" : "2px",
-                        background: active ? collectionTheme.text : "#8A857D",
+                        background: active ? collectionTheme.text : "var(--text-muted)",
                       }}
                     />
                   </div>
@@ -338,7 +338,7 @@ export default function VectorExplorer({
 
           {activeMode === "clusters" && (
             <div>
-              <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
+              <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-text-muted">
                 Cluster Profile
               </h4>
               <ClusterProfile
@@ -349,7 +349,7 @@ export default function VectorExplorer({
           )}
 
           <div>
-            <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
+            <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-text-muted">
               Inspector
             </h4>
             <PointInspector
@@ -365,36 +365,36 @@ export default function VectorExplorer({
           </div>
 
           {stats && (
-            <div className="space-y-1 border-t border-[#232328] pt-3">
+            <div className="space-y-1 border-t border-border-default pt-3">
               <div className="flex justify-between text-xs">
-                <span className="text-[#5A5650]">Total vectors</span>
-                <span className="font-['IBM_Plex_Mono',monospace] text-[#8A857D]">
+                <span className="text-text-ghost">Total vectors</span>
+                <span className="font-['IBM_Plex_Mono',monospace] text-text-muted">
                   {stats.total_vectors.toLocaleString()}
                 </span>
               </div>
               <div className="flex justify-between text-xs">
-                <span className="text-[#5A5650]">Sampled</span>
-                <span className="font-['IBM_Plex_Mono',monospace] text-[#8A857D]">
+                <span className="text-text-ghost">Sampled</span>
+                <span className="font-['IBM_Plex_Mono',monospace] text-text-muted">
                   {stats.sampled.toLocaleString()}
                 </span>
               </div>
               <div className="flex justify-between text-xs">
-                <span className="text-[#5A5650]">Projection</span>
-                <span className="font-['IBM_Plex_Mono',monospace] text-[#8A857D]">
+                <span className="text-text-ghost">Projection</span>
+                <span className="font-['IBM_Plex_Mono',monospace] text-text-muted">
                   {explorer.dimensions}D
                 </span>
               </div>
               {stats.knn_neighbors ? (
                 <div className="flex justify-between text-xs">
-                  <span className="text-[#5A5650]">k-NN graph</span>
-                  <span className="font-['IBM_Plex_Mono',monospace] text-[#8A857D]">
+                  <span className="text-text-ghost">k-NN graph</span>
+                  <span className="font-['IBM_Plex_Mono',monospace] text-text-muted">
                     k={stats.knn_neighbors} · {edgeCount.toLocaleString()} edges
                   </span>
                 </div>
               ) : null}
               <div className="flex justify-between text-xs">
-                <span className="text-[#5A5650]">Source</span>
-                <span className="font-['IBM_Plex_Mono',monospace] text-[#8A857D]">
+                <span className="text-text-ghost">Source</span>
+                <span className="font-['IBM_Plex_Mono',monospace] text-text-muted">
                   {stats.source === "solr"
                     ? "Solr (cached)"
                     : stats.source === "fallback"
@@ -404,16 +404,16 @@ export default function VectorExplorer({
               </div>
               {stats.source !== "solr" && stats.source !== "fallback" && (
                 <div className="flex justify-between text-xs">
-                  <span className="text-[#5A5650]">Projection time</span>
-                  <span className="font-['IBM_Plex_Mono',monospace] text-[#8A857D]">
+                  <span className="text-text-ghost">Projection time</span>
+                  <span className="font-['IBM_Plex_Mono',monospace] text-text-muted">
                     {(stats.projection_time_ms / 1000).toFixed(1)}s
                   </span>
                 </div>
               )}
               {stats.indexed_at && (
                 <div className="flex justify-between text-xs">
-                  <span className="text-[#5A5650]">Indexed</span>
-                  <span className="font-['IBM_Plex_Mono',monospace] text-[#8A857D]">
+                  <span className="text-text-ghost">Indexed</span>
+                  <span className="font-['IBM_Plex_Mono',monospace] text-text-muted">
                     {new Date(stats.indexed_at).toLocaleDateString()}
                   </span>
                 </div>
@@ -429,12 +429,12 @@ export default function VectorExplorer({
   return (
     <Panel>
       <div className="mb-2 flex items-center justify-between">
-        <h3 className="text-base font-semibold text-[#F0EDE8]">
+        <h3 className="text-base font-semibold text-text-primary">
           {explorer.dimensions}D Semantic Map
         </h3>
         <div className="flex items-center gap-2">
           {stats && (
-            <span className="text-xs text-[#5A5650]">
+            <span className="text-xs text-text-ghost">
               {stats.sampled.toLocaleString()} pts
               {stats.source === "solr"
                 ? " · cached"
@@ -448,7 +448,7 @@ export default function VectorExplorer({
             onClick={explorer.refresh}
             disabled={isLoading}
             title="Re-compute projection"
-            className="rounded p-1 hover:bg-[#232328] disabled:opacity-40"
+            className="rounded p-1 hover:bg-surface-elevated disabled:opacity-40"
             style={{ color: collectionTheme.text }}
           >
             <RefreshCw className="h-3 w-3" />
@@ -464,7 +464,7 @@ export default function VectorExplorer({
         </div>
       </div>
       {error && (
-        <div className="mb-2 flex items-center gap-2 rounded bg-[#E85A6B]/10 px-2 py-1 text-xs text-[#E85A6B]">
+        <div className="mb-2 flex items-center gap-2 rounded bg-critical/10 px-2 py-1 text-xs text-critical">
           <WifiOff className="h-3 w-3" />
           {error}
         </div>
@@ -475,7 +475,7 @@ export default function VectorExplorer({
             value={explorer.queryText}
             onChange={(event) => explorer.setQueryText(event.target.value)}
             placeholder="Search within the vector space"
-            className="flex-1 rounded border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#C9A227]/50"
+            className="flex-1 rounded border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary outline-none focus:border-accent/50"
           />
           <button
             type="submit"
@@ -488,12 +488,12 @@ export default function VectorExplorer({
         </form>
       )}
       {activeMode === "query" && (explorer.queryError || explorer.queryResults) && (
-        <div className="mb-2 flex items-center justify-between text-xs text-[#5A5650]">
+        <div className="mb-2 flex items-center justify-between text-xs text-text-ghost">
           <span>
             {visibleQueryCount} of {(explorer.queryResults?.items.length ?? 0).toLocaleString()} results visible in this projection
           </span>
           {explorer.queryError && (
-            <span className="text-[#E85A6B]">{explorer.queryError}</span>
+            <span className="text-critical">{explorer.queryError}</span>
           )}
         </div>
       )}

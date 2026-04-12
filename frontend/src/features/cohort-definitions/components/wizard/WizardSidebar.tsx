@@ -21,26 +21,26 @@ function StatusIcon({ status, number }: { status: ChapterStatus; number: number 
   switch (status) {
     case "complete":
       return (
-        <div className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-[#2DD4BF]">
-          <Check size={12} className="text-[#0E0E11]" />
+        <div className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-success">
+          <Check size={12} className="text-surface-base" />
         </div>
       );
     case "warning":
       return (
-        <div className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-[#C9A227]">
-          <AlertCircle size={12} className="text-[#0E0E11]" />
+        <div className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-accent">
+          <AlertCircle size={12} className="text-surface-base" />
         </div>
       );
     case "in-progress":
       return (
-        <div className="flex h-[22px] w-[22px] items-center justify-center rounded-full border-2 border-[#C9A227]">
-          <Circle size={8} className="fill-[#C9A227] text-[#C9A227]" />
+        <div className="flex h-[22px] w-[22px] items-center justify-center rounded-full border-2 border-accent">
+          <Circle size={8} className="fill-[#C9A227] text-accent" />
         </div>
       );
     default:
       return (
-        <div className="flex h-[22px] w-[22px] items-center justify-center rounded-full border border-[#444]">
-          <span className="text-[11px] text-[#666]">{number}</span>
+        <div className="flex h-[22px] w-[22px] items-center justify-center rounded-full border border-border-default">
+          <span className="text-[11px] text-text-ghost">{number}</span>
         </div>
       );
   }
@@ -51,8 +51,8 @@ export function WizardSidebar() {
     useCohortWizardStore();
 
   return (
-    <div className="w-[240px] shrink-0 rounded-xl border border-[#2a2a3a] bg-[#12121a] p-5">
-      <div className="mb-4 text-[11px] uppercase tracking-widest text-[#666]">
+    <div className="w-[240px] shrink-0 rounded-xl border border-border-default bg-surface-base p-5">
+      <div className="mb-4 text-[11px] uppercase tracking-widest text-text-ghost">
         Wizard Progress
       </div>
       <div className="flex flex-col gap-5">
@@ -72,16 +72,16 @@ export function WizardSidebar() {
                 <span
                   className={`text-sm ${
                     isActive
-                      ? "font-semibold text-[#C9A227]"
+                      ? "font-semibold text-accent"
                       : status === "complete"
-                        ? "text-[#2DD4BF]"
-                        : "text-[#888]"
+                        ? "text-success"
+                        : "text-text-muted"
                   }`}
                 >
                   {ch.label}
                 </span>
                 {ch.optional && (
-                  <span className="rounded bg-[#1a1a2e] px-1.5 py-0.5 text-[10px] text-[#555]">
+                  <span className="rounded bg-surface-overlay px-1.5 py-0.5 text-[10px] text-text-ghost">
                     optional
                   </span>
                 )}
@@ -93,7 +93,7 @@ export function WizardSidebar() {
                     <div
                       key={step}
                       className={`text-[11px] ${
-                        isActiveStep ? "text-[#C9A227]" : "text-[#555]"
+                        isActiveStep ? "text-accent" : "text-text-ghost"
                       }`}
                     >
                       {isActiveStep ? "→ " : "· "}

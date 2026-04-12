@@ -136,7 +136,7 @@ export default function QueryVisuals({
         zIndexRange={[100, 0]}
         style={{ pointerEvents: "none" }}
       >
-        <div className="rounded border border-[#232328] bg-[#151518]/95 px-2 py-1 text-xs text-[#C5C0B8] shadow-xl backdrop-blur">
+        <div className="rounded border border-border-default bg-surface-raised/95 px-2 py-1 text-xs text-text-secondary shadow-xl backdrop-blur">
           Query anchor
         </div>
       </Html>

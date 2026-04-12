@@ -14,7 +14,7 @@ interface PointInspectorProps {
 export default function PointInspector({
   points,
   selectedIds,
-  accentColor = "#2DD4BF",
+  accentColor = "var(--success)",
   outlierIds,
   duplicateIds,
   orphanIds,
@@ -25,14 +25,14 @@ export default function PointInspector({
 
   if (selected.length === 0) {
     return (
-      <div className="text-sm text-[#5A5650]">Click a point to inspect.</div>
+      <div className="text-sm text-text-ghost">Click a point to inspect.</div>
     );
   }
 
   return (
     <div className="space-y-3">
       {error && (
-        <div className="rounded border border-[#E85A6B]/30 bg-[#E85A6B]/10 px-3 py-2 text-xs text-[#E85A6B]">
+        <div className="rounded border border-critical/30 bg-critical/10 px-3 py-2 text-xs text-critical">
           {error}
         </div>
       )}
@@ -44,7 +44,7 @@ export default function PointInspector({
         const isLoading = loadingIds?.has(point.id) ?? false;
 
         return (
-          <div key={point.id} className="rounded border border-[#232328] bg-[#0E0E11] p-3">
+          <div key={point.id} className="rounded border border-border-default bg-surface-base p-3">
             <div className="font-['IBM_Plex_Mono',monospace] text-xs" style={{ color: accentColor }}>
               {point.id}
             </div>
@@ -56,7 +56,7 @@ export default function PointInspector({
                     className="rounded-full px-2 py-0.5 text-xs font-medium"
                     style={{
                       background: f === "Outlier" ? "#E85A6B20" : f === "Duplicate" ? "#F59E0B20" : "#5A565020",
-                      color: f === "Outlier" ? "#E85A6B" : f === "Duplicate" ? "#F59E0B" : "#5A5650",
+                      color: f === "Outlier" ? "var(--critical)" : f === "Duplicate" ? "var(--warning)" : "var(--text-ghost)",
                     }}
                   >
                     {f}
@@ -68,16 +68,16 @@ export default function PointInspector({
               <div className="mt-2 space-y-1">
                 {Object.entries(point.metadata).map(([k, v]) => (
                   <div key={k} className="flex justify-between text-xs">
-                    <span className="text-[#8A857D]">{k}</span>
-                    <span className="max-w-[60%] truncate text-[#C5C0B8]">{String(v)}</span>
+                    <span className="text-text-muted">{k}</span>
+                    <span className="max-w-[60%] truncate text-text-secondary">{String(v)}</span>
                   </div>
                 ))}
               </div>
             )}
             {isLoading && (
-              <div className="mt-2 text-xs text-[#5A5650]">Loading full details...</div>
+              <div className="mt-2 text-xs text-text-ghost">Loading full details...</div>
             )}
-            <div className="mt-2 font-['IBM_Plex_Mono',monospace] text-xs text-[#5A5650]">
+            <div className="mt-2 font-['IBM_Plex_Mono',monospace] text-xs text-text-ghost">
               ({point.x.toFixed(3)}, {point.y.toFixed(3)}, {point.z.toFixed(3)})
             </div>
           </div>

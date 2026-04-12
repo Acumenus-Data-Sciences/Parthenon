@@ -16,9 +16,9 @@ import {
 
 function CampaignStatusBadge({ status }: { status: SurveyCampaignApi["status"] }) {
   const className = {
-    draft: "bg-[#C9A227]/10 text-[#C9A227]",
-    active: "bg-[#2DD4BF]/10 text-[#2DD4BF]",
-    closed: "bg-[#E85A6B]/10 text-[#E85A6B]",
+    draft: "bg-accent/10 text-accent",
+    active: "bg-success/10 text-success",
+    closed: "bg-critical/10 text-critical",
   }[status];
 
   return (
@@ -32,10 +32,10 @@ function BrokerMatchBadge({ status }: { status: string }) {
   const normalized = status.toLowerCase();
   const className =
     normalized === "submitted"
-      ? "bg-[#2DD4BF]/10 text-[#2DD4BF]"
+      ? "bg-success/10 text-success"
       : normalized === "registered"
-        ? "bg-[#60A5FA]/10 text-[#60A5FA]"
-        : "bg-[#C9A227]/10 text-[#C9A227]";
+        ? "bg-info/10 text-info"
+        : "bg-accent/10 text-accent";
 
   return (
     <span className={`inline-flex rounded-md px-2 py-1 text-[10px] font-medium uppercase tracking-wider ${className}`}>
@@ -54,11 +54,11 @@ function MetricTile({
   accent: string;
 }) {
   return (
-    <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-4">
+    <div className="rounded-xl border border-border-default bg-surface-raised p-4">
       <div className="text-lg font-semibold" style={{ color: accent }}>
         {value}
       </div>
-      <div className="mt-1 text-[10px] uppercase tracking-wider text-[#5A5650]">{label}</div>
+      <div className="mt-1 text-[10px] uppercase tracking-wider text-text-ghost">{label}</div>
     </div>
   );
 }
@@ -99,7 +99,7 @@ function RegisterParticipantModal({
       <button
         type="button"
         onClick={onClose}
-        className="rounded-lg border border-[#2A2A2F] px-4 py-2 text-sm text-[#8A857D] hover:text-[#F0EDE8]"
+        className="rounded-lg border border-border-default px-4 py-2 text-sm text-text-muted hover:text-text-primary"
       >
         Cancel
       </button>
@@ -113,7 +113,7 @@ function RegisterParticipantModal({
             notes: notes.trim().length > 0 ? notes.trim() : null,
           })
         }
-        className="rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] disabled:opacity-50"
+        className="rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base disabled:opacity-50"
       >
         {isSaving ? "Registering..." : "Register Participant"}
       </button>
@@ -129,13 +129,13 @@ function RegisterParticipantModal({
       footer={footer}
     >
       <div className="space-y-4">
-        <p className="text-sm leading-relaxed text-[#8A857D]">
+        <p className="text-sm leading-relaxed text-text-muted">
           Create a blinded registry entry that maps a respondent identifier to a patient record for this survey campaign.
         </p>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <label className="block">
-            <div className="mb-2 text-xs font-medium uppercase tracking-wider text-[#5A5650]">
+            <div className="mb-2 text-xs font-medium uppercase tracking-wider text-text-ghost">
               Respondent Identifier
             </div>
             <input
@@ -143,12 +143,12 @@ function RegisterParticipantModal({
               value={respondentIdentifier}
               onChange={(event) => setRespondentIdentifier(event.target.value)}
               placeholder="MRN, study code, or invite code"
-              className="w-full rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] placeholder:text-[#5A5650] focus:border-[#2DD4BF] focus:outline-none"
+              className="w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-success focus:outline-none"
             />
           </label>
 
           <label className="block">
-            <div className="mb-2 text-xs font-medium uppercase tracking-wider text-[#5A5650]">
+            <div className="mb-2 text-xs font-medium uppercase tracking-wider text-text-ghost">
               Person ID
             </div>
             <input
@@ -158,19 +158,19 @@ function RegisterParticipantModal({
               value={personId}
               onChange={(event) => setPersonId(event.target.value)}
               placeholder="Known OMOP person_id"
-              className="w-full rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] placeholder:text-[#5A5650] focus:border-[#2DD4BF] focus:outline-none"
+              className="w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-success focus:outline-none"
             />
           </label>
         </div>
 
         <label className="block">
-          <div className="mb-2 text-xs font-medium uppercase tracking-wider text-[#5A5650]">Notes</div>
+          <div className="mb-2 text-xs font-medium uppercase tracking-wider text-text-ghost">Notes</div>
           <textarea
             rows={4}
             value={notes}
             onChange={(event) => setNotes(event.target.value)}
             placeholder="Optional broker notes"
-            className="w-full rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] placeholder:text-[#5A5650] focus:border-[#2DD4BF] focus:outline-none"
+            className="w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-success focus:outline-none"
           />
         </label>
       </div>
@@ -223,7 +223,7 @@ function SendInvitationModal({
       <button
         type="button"
         onClick={onClose}
-        className="rounded-lg border border-[#2A2A2F] px-4 py-2 text-sm text-[#8A857D] hover:text-[#F0EDE8]"
+        className="rounded-lg border border-border-default px-4 py-2 text-sm text-text-muted hover:text-text-primary"
       >
         Cancel
       </button>
@@ -241,7 +241,7 @@ function SendInvitationModal({
             preferred_channel: "email",
           });
         }}
-        className="rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] disabled:opacity-50"
+        className="rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base disabled:opacity-50"
       >
         {isSending ? "Sending..." : "Send Invitation"}
       </button>
@@ -257,18 +257,18 @@ function SendInvitationModal({
       footer={footer}
     >
       <div className="space-y-4">
-        <p className="text-sm leading-relaxed text-[#8A857D]">
+        <p className="text-sm leading-relaxed text-text-muted">
           Send a one-time broker-managed survey link. Only the broker retains the delivery address and chain of custody.
         </p>
 
         <label className="block">
-          <div className="mb-2 text-xs font-medium uppercase tracking-wider text-[#5A5650]">
+          <div className="mb-2 text-xs font-medium uppercase tracking-wider text-text-ghost">
             Participant
           </div>
           <select
             value={selectedLinkId}
             onChange={(event) => setSelectedLinkId(event.target.value ? Number(event.target.value) : "")}
-            className="w-full rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] focus:border-[#2DD4BF] focus:outline-none"
+            className="w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary focus:border-success focus:outline-none"
           >
             <option value="">Select participant</option>
             {links.map((link) => (
@@ -280,7 +280,7 @@ function SendInvitationModal({
         </label>
 
         <label className="block">
-          <div className="mb-2 text-xs font-medium uppercase tracking-wider text-[#5A5650]">
+          <div className="mb-2 text-xs font-medium uppercase tracking-wider text-text-ghost">
             Delivery Email
           </div>
           <input
@@ -288,13 +288,13 @@ function SendInvitationModal({
             value={deliveryEmail}
             onChange={(event) => setDeliveryEmail(event.target.value)}
             placeholder="patient@example.org"
-            className="w-full rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] placeholder:text-[#5A5650] focus:border-[#2DD4BF] focus:outline-none"
+            className="w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-success focus:outline-none"
           />
         </label>
 
         {selectedLink?.latest_invitation && (
-          <div className="rounded-lg border border-[#2A2A2F] bg-[#101014] px-4 py-3 text-xs text-[#8A857D]">
-            Last invitation: <span className="text-[#F0EDE8]">{selectedLink.latest_invitation.delivery_status}</span>
+          <div className="rounded-lg border border-border-default bg-surface-base px-4 py-3 text-xs text-text-muted">
+            Last invitation: <span className="text-text-primary">{selectedLink.latest_invitation.delivery_status}</span>
             {" · "}token ending {selectedLink.latest_invitation.token_last_four}
           </div>
         )}
@@ -305,12 +305,12 @@ function SendInvitationModal({
 
 function UnauthorizedState() {
   return (
-    <div className="rounded-xl border border-[#E85A6B]/30 bg-[#E85A6B]/5 p-6">
-      <div className="flex items-center gap-2 text-[#E85A6B]">
+    <div className="rounded-xl border border-critical/30 bg-critical/5 p-6">
+      <div className="flex items-center gap-2 text-critical">
         <ShieldCheck size={16} />
         <h1 className="text-lg font-semibold">Honest Broker Access Required</h1>
       </div>
-      <p className="mt-2 text-sm leading-relaxed text-[#C5C0B8]">
+      <p className="mt-2 text-sm leading-relaxed text-text-secondary">
         This workspace is restricted to data stewards and administrators because it links blinded survey identities to patient records.
       </p>
     </div>
@@ -398,10 +398,10 @@ export default function HonestBrokerPage() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <ShieldCheck size={18} className="text-[#2DD4BF]" />
-              <h1 className="text-2xl font-bold text-[#F0EDE8]">Honest Broker</h1>
+              <ShieldCheck size={18} className="text-success" />
+              <h1 className="text-2xl font-bold text-text-primary">Honest Broker</h1>
             </div>
-            <p className="mt-2 max-w-3xl text-sm leading-relaxed text-[#8A857D]">
+            <p className="mt-2 max-w-3xl text-sm leading-relaxed text-text-muted">
               Register blinded survey participants, link them to OMOP `person_id` records, and monitor submission status without exposing raw respondent identities to researchers.
             </p>
           </div>
@@ -410,7 +410,7 @@ export default function HonestBrokerPage() {
             <button
               type="button"
               onClick={() => campaignsQuery.refetch()}
-              className="rounded-lg border border-[#2A2A2F] px-3 py-2 text-sm text-[#8A857D] hover:text-[#F0EDE8]"
+              className="rounded-lg border border-border-default px-3 py-2 text-sm text-text-muted hover:text-text-primary"
             >
               Refresh
             </button>
@@ -418,7 +418,7 @@ export default function HonestBrokerPage() {
               type="button"
               disabled={selectedCampaign == null}
               onClick={() => setShowRegisterModal(true)}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base disabled:opacity-50"
             >
               <UserPlus size={15} />
               Register Participant
@@ -427,7 +427,7 @@ export default function HonestBrokerPage() {
               type="button"
               disabled={selectedCampaign == null || currentLinks.length === 0}
               onClick={() => setShowInviteModal(true)}
-              className="inline-flex items-center gap-2 rounded-lg border border-[#2A2A2F] px-4 py-2 text-sm font-medium text-[#C5C0B8] hover:text-[#F0EDE8] disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg border border-border-default px-4 py-2 text-sm font-medium text-text-secondary hover:text-text-primary disabled:opacity-50"
             >
               <Send size={15} />
               Send Invite
@@ -436,35 +436,35 @@ export default function HonestBrokerPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-          <MetricTile label="Broker Campaigns" value={brokerCampaigns.length} accent="#2DD4BF" />
-          <MetricTile label="Registered Participants" value={registeredCount} accent="#60A5FA" />
-          <MetricTile label="Submitted" value={submittedCount} accent="#A78BFA" />
-          <MetricTile label="Invitations Sent" value={sentInvitationCount} accent="#C9A227" />
+          <MetricTile label="Broker Campaigns" value={brokerCampaigns.length} accent="var(--success)" />
+          <MetricTile label="Registered Participants" value={registeredCount} accent="var(--info)" />
+          <MetricTile label="Submitted" value={submittedCount} accent="var(--domain-observation)" />
+          <MetricTile label="Invitations Sent" value={sentInvitationCount} accent="var(--accent)" />
         </div>
 
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-[360px,minmax(0,1fr)]">
-          <section className="rounded-xl border border-[#2A2A2F] bg-[#141418]">
-            <div className="border-b border-[#232328] px-5 py-4">
+          <section className="rounded-xl border border-border-default bg-surface-raised">
+            <div className="border-b border-border-default px-5 py-4">
               <div className="flex items-center gap-2">
-                <Users size={16} className="text-[#2DD4BF]" />
-                <h2 className="text-sm font-semibold text-[#F0EDE8]">Campaign Registry</h2>
+                <Users size={16} className="text-success" />
+                <h2 className="text-sm font-semibold text-text-primary">Campaign Registry</h2>
               </div>
-              <p className="mt-1 text-xs leading-relaxed text-[#8A857D]">
+              <p className="mt-1 text-xs leading-relaxed text-text-muted">
                 Honest-broker-enabled campaigns only.
               </p>
             </div>
 
             <div className="max-h-[720px] space-y-3 overflow-y-auto p-4">
               {campaignsQuery.isLoading && (
-                <div className="flex items-center justify-center py-10 text-sm text-[#8A857D]">
+                <div className="flex items-center justify-center py-10 text-sm text-text-muted">
                   <Loader2 size={16} className="mr-2 animate-spin" />
                   Loading campaigns...
                 </div>
               )}
 
               {!campaignsQuery.isLoading && brokerCampaigns.length === 0 && (
-                <div className="rounded-lg border border-dashed border-[#2A2A2F] bg-[#101014] p-4 text-sm text-[#8A857D]">
-                  No honest-broker campaigns yet. Enable <span className="text-[#F0EDE8]">Require Honest Broker</span> on a survey campaign first.
+                <div className="rounded-lg border border-dashed border-border-default bg-surface-base p-4 text-sm text-text-muted">
+                  No honest-broker campaigns yet. Enable <span className="text-text-primary">Require Honest Broker</span> on a survey campaign first.
                 </div>
               )}
 
@@ -478,14 +478,14 @@ export default function HonestBrokerPage() {
                     onClick={() => setSelectedCampaignId(campaign.id)}
                     className={`w-full rounded-xl border p-4 text-left transition-colors ${
                       isSelected
-                        ? "border-[#2DD4BF]/50 bg-[#2DD4BF]/5"
-                        : "border-[#232328] bg-[#101014] hover:border-[#3A3A42]"
+                        ? "border-success/50 bg-success/5"
+                        : "border-border-default bg-surface-base hover:border-surface-highlight"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <div className="truncate text-sm font-semibold text-[#F0EDE8]">{campaign.name}</div>
-                        <div className="mt-1 text-xs text-[#C5C0B8]">
+                        <div className="truncate text-sm font-semibold text-text-primary">{campaign.name}</div>
+                        <div className="mt-1 text-xs text-text-secondary">
                           {campaign.instrument?.abbreviation ?? "Unknown"}{campaign.instrument?.name ? ` · ${campaign.instrument.name}` : ""}
                         </div>
                       </div>
@@ -493,17 +493,17 @@ export default function HonestBrokerPage() {
                     </div>
 
                     <div className="mt-3 grid grid-cols-3 gap-2">
-                      <div className="rounded-lg bg-[#151518] px-2 py-2">
-                        <div className="text-sm font-semibold text-[#2DD4BF]">{campaign.stats?.complete ?? 0}</div>
-                        <div className="text-[10px] uppercase tracking-wider text-[#5A5650]">Complete</div>
+                      <div className="rounded-lg bg-surface-raised px-2 py-2">
+                        <div className="text-sm font-semibold text-success">{campaign.stats?.complete ?? 0}</div>
+                        <div className="text-[10px] uppercase tracking-wider text-text-ghost">Complete</div>
                       </div>
-                      <div className="rounded-lg bg-[#151518] px-2 py-2">
-                        <div className="text-sm font-semibold text-[#C9A227]">{campaign.stats?.pending ?? 0}</div>
-                        <div className="text-[10px] uppercase tracking-wider text-[#5A5650]">Pending</div>
+                      <div className="rounded-lg bg-surface-raised px-2 py-2">
+                        <div className="text-sm font-semibold text-accent">{campaign.stats?.pending ?? 0}</div>
+                        <div className="text-[10px] uppercase tracking-wider text-text-ghost">Pending</div>
                       </div>
-                      <div className="rounded-lg bg-[#151518] px-2 py-2">
-                        <div className="text-sm font-semibold text-[#60A5FA]">{campaign.stats?.seeded_total ?? 0}</div>
-                        <div className="text-[10px] uppercase tracking-wider text-[#5A5650]">Seeded</div>
+                      <div className="rounded-lg bg-surface-raised px-2 py-2">
+                        <div className="text-sm font-semibold text-info">{campaign.stats?.seeded_total ?? 0}</div>
+                        <div className="text-[10px] uppercase tracking-wider text-text-ghost">Seeded</div>
                       </div>
                     </div>
                   </button>
@@ -513,23 +513,23 @@ export default function HonestBrokerPage() {
           </section>
 
           <section className="space-y-4">
-            <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-5">
+            <div className="rounded-xl border border-border-default bg-surface-raised p-5">
               {selectedCampaign == null ? (
-                <div className="text-sm text-[#8A857D]">Select a campaign to manage broker registrations.</div>
+                <div className="text-sm text-text-muted">Select a campaign to manage broker registrations.</div>
               ) : (
                 <>
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <h2 className="text-lg font-semibold text-[#F0EDE8]">{selectedCampaign.name}</h2>
+                        <h2 className="text-lg font-semibold text-text-primary">{selectedCampaign.name}</h2>
                         <CampaignStatusBadge status={selectedCampaign.status} />
                       </div>
-                      <p className="mt-1 text-sm text-[#C5C0B8]">
+                      <p className="mt-1 text-sm text-text-secondary">
                         {selectedCampaign.instrument?.abbreviation ?? "Unknown instrument"}
                         {selectedCampaign.instrument?.name ? ` · ${selectedCampaign.instrument.name}` : ""}
                       </p>
                       {selectedCampaign.description && (
-                        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-[#8A857D]">
+                        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-text-muted">
                           {selectedCampaign.description}
                         </p>
                       )}
@@ -548,7 +548,7 @@ export default function HonestBrokerPage() {
                                 toast.error("Failed to copy publish link");
                               }
                             }}
-                            className="inline-flex items-center gap-2 rounded-lg border border-[#2A2A2F] px-3 py-2 text-xs font-medium text-[#8A857D] hover:text-[#F0EDE8]"
+                            className="inline-flex items-center gap-2 rounded-lg border border-border-default px-3 py-2 text-xs font-medium text-text-muted hover:text-text-primary"
                           >
                             <Copy size={12} />
                             Copy Link
@@ -557,7 +557,7 @@ export default function HonestBrokerPage() {
                             href={publishLink}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-center gap-2 rounded-lg border border-[#2A2A2F] px-3 py-2 text-xs font-medium text-[#8A857D] hover:text-[#F0EDE8]"
+                            className="inline-flex items-center gap-2 rounded-lg border border-border-default px-3 py-2 text-xs font-medium text-text-muted hover:text-text-primary"
                           >
                             <ExternalLink size={12} />
                             Open Survey
@@ -568,118 +568,118 @@ export default function HonestBrokerPage() {
                   </div>
 
                     <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-4">
-                      <div className="rounded-lg border border-[#2A2A2F] bg-[#101014] px-4 py-3">
-                        <div className="text-xs font-semibold text-[#2DD4BF]">{registeredCount}</div>
-                        <div className="mt-1 text-[10px] uppercase tracking-wider text-[#5A5650]">Registered</div>
+                      <div className="rounded-lg border border-border-default bg-surface-base px-4 py-3">
+                        <div className="text-xs font-semibold text-success">{registeredCount}</div>
+                        <div className="mt-1 text-[10px] uppercase tracking-wider text-text-ghost">Registered</div>
                       </div>
-                      <div className="rounded-lg border border-[#2A2A2F] bg-[#101014] px-4 py-3">
-                      <div className="text-xs font-semibold text-[#A78BFA]">{submittedCount}</div>
-                      <div className="mt-1 text-[10px] uppercase tracking-wider text-[#5A5650]">Submitted</div>
+                      <div className="rounded-lg border border-border-default bg-surface-base px-4 py-3">
+                      <div className="text-xs font-semibold text-domain-observation">{submittedCount}</div>
+                      <div className="mt-1 text-[10px] uppercase tracking-wider text-text-ghost">Submitted</div>
                       </div>
-                      <div className="rounded-lg border border-[#2A2A2F] bg-[#101014] px-4 py-3">
-                      <div className="text-xs font-semibold text-[#60A5FA]">{sentInvitationCount}</div>
-                      <div className="mt-1 text-[10px] uppercase tracking-wider text-[#5A5650]">Invitations Sent</div>
+                      <div className="rounded-lg border border-border-default bg-surface-base px-4 py-3">
+                      <div className="text-xs font-semibold text-info">{sentInvitationCount}</div>
+                      <div className="mt-1 text-[10px] uppercase tracking-wider text-text-ghost">Invitations Sent</div>
                       </div>
-                    <div className="rounded-lg border border-[#2A2A2F] bg-[#101014] px-4 py-3">
-                      <div className="text-xs font-semibold text-[#C9A227]">
+                    <div className="rounded-lg border border-border-default bg-surface-base px-4 py-3">
+                      <div className="text-xs font-semibold text-accent">
                         {selectedCampaign.stats?.completion_rate ?? 0}%
                       </div>
-                      <div className="mt-1 text-[10px] uppercase tracking-wider text-[#5A5650]">Completion</div>
+                      <div className="mt-1 text-[10px] uppercase tracking-wider text-text-ghost">Completion</div>
                     </div>
                   </div>
                 </>
               )}
             </div>
 
-            <div className="rounded-xl border border-[#2A2A2F] bg-[#141418]">
-              <div className="flex flex-col gap-4 border-b border-[#232328] px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="rounded-xl border border-border-default bg-surface-raised">
+              <div className="flex flex-col gap-4 border-b border-border-default px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
-                  <h3 className="text-sm font-semibold text-[#F0EDE8]">Registered Participants</h3>
-                  <p className="mt-1 text-xs text-[#8A857D]">
+                  <h3 className="text-sm font-semibold text-text-primary">Registered Participants</h3>
+                  <p className="mt-1 text-xs text-text-muted">
                     De-identified registry entries for the selected survey campaign.
                   </p>
                 </div>
 
                 <div className="relative w-full lg:w-80">
-                  <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]" />
+                  <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost" />
                   <input
                     type="text"
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
                     placeholder="Search blinded id, person id, notes..."
-                    className="w-full rounded-lg border border-[#232328] bg-[#151518] py-2 pl-9 pr-3 text-sm text-[#F0EDE8] placeholder:text-[#5A5650] focus:border-[#2DD4BF] focus:outline-none"
+                    className="w-full rounded-lg border border-border-default bg-surface-raised py-2 pl-9 pr-3 text-sm text-text-primary placeholder:text-text-ghost focus:border-success focus:outline-none"
                   />
                 </div>
               </div>
 
               <div className="overflow-x-auto">
                 {linksQuery.isLoading && selectedCampaignId != null ? (
-                  <div className="flex items-center justify-center py-16 text-sm text-[#8A857D]">
+                  <div className="flex items-center justify-center py-16 text-sm text-text-muted">
                     <Loader2 size={16} className="mr-2 animate-spin" />
                     Loading registrations...
                   </div>
                 ) : filteredLinks.length === 0 ? (
-                  <div className="px-5 py-12 text-sm text-[#8A857D]">
+                  <div className="px-5 py-12 text-sm text-text-muted">
                     {selectedCampaign == null
                       ? "Select a campaign to review broker registrations."
                       : "No broker registrations match the current filter."}
                   </div>
                 ) : (
                   <table className="w-full min-w-[980px]">
-                    <thead className="bg-[#101014]">
+                    <thead className="bg-surface-base">
                       <tr>
-                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
+                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
                           Blinded Participant
                         </th>
-                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
+                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
                           Person ID
                         </th>
-                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
+                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
                           Conduct ID
                         </th>
-                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
+                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
                           Status
                         </th>
-                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
+                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
                           Submitted
                         </th>
-                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
+                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
                           Contact
                         </th>
-                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
+                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
                           Latest Invite
                         </th>
-                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
+                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
                           Notes
                         </th>
                       </tr>
                     </thead>
                     <tbody>
                       {filteredLinks.map((link: HonestBrokerLinkApi) => (
-                        <tr key={link.id} className="border-t border-[#232328]">
+                        <tr key={link.id} className="border-t border-border-default">
                           <td className="px-5 py-3">
-                            <div className="inline-flex items-center gap-2 rounded-lg bg-[#101014] px-3 py-1.5 text-xs font-medium text-[#F0EDE8]">
-                              <CheckCircle2 size={12} className="text-[#2DD4BF]" />
+                            <div className="inline-flex items-center gap-2 rounded-lg bg-surface-base px-3 py-1.5 text-xs font-medium text-text-primary">
+                              <CheckCircle2 size={12} className="text-success" />
                               {link.blinded_participant_id}
                             </div>
                           </td>
-                          <td className="px-5 py-3 text-sm text-[#C5C0B8]">{link.person_id ?? "—"}</td>
-                          <td className="px-5 py-3 text-sm text-[#C5C0B8]">{link.survey_conduct_id ?? "—"}</td>
+                          <td className="px-5 py-3 text-sm text-text-secondary">{link.person_id ?? "—"}</td>
+                          <td className="px-5 py-3 text-sm text-text-secondary">{link.survey_conduct_id ?? "—"}</td>
                           <td className="px-5 py-3">
                             <BrokerMatchBadge status={link.match_status} />
                           </td>
-                          <td className="px-5 py-3 text-sm text-[#C5C0B8]">
+                          <td className="px-5 py-3 text-sm text-text-secondary">
                             {link.submitted_at ? new Date(link.submitted_at).toLocaleString() : "Not yet"}
                           </td>
-                          <td className="px-5 py-3 text-sm text-[#C5C0B8]">
+                          <td className="px-5 py-3 text-sm text-text-secondary">
                             {link.contact?.delivery_email ?? "—"}
                           </td>
-                          <td className="px-5 py-3 text-sm text-[#C5C0B8]">
+                          <td className="px-5 py-3 text-sm text-text-secondary">
                             {link.latest_invitation
                               ? `${link.latest_invitation.delivery_status} · ${link.latest_invitation.token_last_four}`
                               : "—"}
                           </td>
-                          <td className="px-5 py-3 text-sm text-[#8A857D]">{link.notes ?? "—"}</td>
+                          <td className="px-5 py-3 text-sm text-text-muted">{link.notes ?? "—"}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -688,51 +688,51 @@ export default function HonestBrokerPage() {
               </div>
             </div>
 
-            <div className="rounded-xl border border-[#2A2A2F] bg-[#141418]">
-              <div className="border-b border-[#232328] px-5 py-4">
+            <div className="rounded-xl border border-border-default bg-surface-raised">
+              <div className="border-b border-border-default px-5 py-4">
                 <div className="flex items-center gap-2">
-                  <Mail size={16} className="text-[#C9A227]" />
-                  <h3 className="text-sm font-semibold text-[#F0EDE8]">Invitation Ledger</h3>
+                  <Mail size={16} className="text-accent" />
+                  <h3 className="text-sm font-semibold text-text-primary">Invitation Ledger</h3>
                 </div>
-                <p className="mt-1 text-xs text-[#8A857D]">
+                <p className="mt-1 text-xs text-text-muted">
                   Outbound and inbound chain of custody for broker-managed survey invitations.
                 </p>
               </div>
 
               <div className="overflow-x-auto">
                 {invitationsQuery.isLoading && selectedCampaignId != null ? (
-                  <div className="flex items-center justify-center py-12 text-sm text-[#8A857D]">
+                  <div className="flex items-center justify-center py-12 text-sm text-text-muted">
                     <Loader2 size={16} className="mr-2 animate-spin" />
                     Loading invitations...
                   </div>
                 ) : currentInvitations.length === 0 ? (
-                  <div className="px-5 py-12 text-sm text-[#8A857D]">
+                  <div className="px-5 py-12 text-sm text-text-muted">
                     No invitations sent for this campaign yet.
                   </div>
                 ) : (
                   <table className="w-full min-w-[980px]">
-                    <thead className="bg-[#101014]">
+                    <thead className="bg-surface-base">
                       <tr>
-                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">Blinded Participant</th>
-                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">Destination</th>
-                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">Status</th>
-                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">Sent</th>
-                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">Opened</th>
-                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">Submitted</th>
-                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">Reference</th>
-                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">Actions</th>
+                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">Blinded Participant</th>
+                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">Destination</th>
+                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">Status</th>
+                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">Sent</th>
+                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">Opened</th>
+                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">Submitted</th>
+                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">Reference</th>
+                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {currentInvitations.map((invitation: HonestBrokerInvitationApi) => (
-                        <tr key={invitation.id} className="border-t border-[#232328]">
-                          <td className="px-5 py-3 text-sm text-[#F0EDE8]">{invitation.link?.blinded_participant_id ?? "—"}</td>
-                          <td className="px-5 py-3 text-sm text-[#C5C0B8]">{invitation.contact?.delivery_email ?? "—"}</td>
-                          <td className="px-5 py-3 text-sm text-[#C5C0B8]">{invitation.delivery_status}</td>
-                          <td className="px-5 py-3 text-sm text-[#C5C0B8]">{invitation.sent_at ? new Date(invitation.sent_at).toLocaleString() : "—"}</td>
-                          <td className="px-5 py-3 text-sm text-[#C5C0B8]">{invitation.opened_at ? new Date(invitation.opened_at).toLocaleString() : "—"}</td>
-                          <td className="px-5 py-3 text-sm text-[#C5C0B8]">{invitation.submitted_at ? new Date(invitation.submitted_at).toLocaleString() : "—"}</td>
-                          <td className="px-5 py-3 text-sm text-[#8A857D]">…{invitation.token_last_four}</td>
+                        <tr key={invitation.id} className="border-t border-border-default">
+                          <td className="px-5 py-3 text-sm text-text-primary">{invitation.link?.blinded_participant_id ?? "—"}</td>
+                          <td className="px-5 py-3 text-sm text-text-secondary">{invitation.contact?.delivery_email ?? "—"}</td>
+                          <td className="px-5 py-3 text-sm text-text-secondary">{invitation.delivery_status}</td>
+                          <td className="px-5 py-3 text-sm text-text-secondary">{invitation.sent_at ? new Date(invitation.sent_at).toLocaleString() : "—"}</td>
+                          <td className="px-5 py-3 text-sm text-text-secondary">{invitation.opened_at ? new Date(invitation.opened_at).toLocaleString() : "—"}</td>
+                          <td className="px-5 py-3 text-sm text-text-secondary">{invitation.submitted_at ? new Date(invitation.submitted_at).toLocaleString() : "—"}</td>
+                          <td className="px-5 py-3 text-sm text-text-muted">…{invitation.token_last_four}</td>
                           <td className="px-5 py-3">
                             <div className="flex flex-wrap gap-2">
                               <button
@@ -748,7 +748,7 @@ export default function HonestBrokerPage() {
                                     },
                                   );
                                 }}
-                                className="inline-flex items-center gap-1 rounded-lg border border-[#2A2A2F] px-2.5 py-1.5 text-xs text-[#C5C0B8] hover:text-[#F0EDE8] disabled:opacity-50"
+                                className="inline-flex items-center gap-1 rounded-lg border border-border-default px-2.5 py-1.5 text-xs text-text-secondary hover:text-text-primary disabled:opacity-50"
                               >
                                 <RotateCw size={12} />
                                 Resend
@@ -768,7 +768,7 @@ export default function HonestBrokerPage() {
                                     },
                                   );
                                 }}
-                                className="inline-flex items-center gap-1 rounded-lg border border-[#E85A6B]/30 px-2.5 py-1.5 text-xs text-[#E85A6B] hover:bg-[#E85A6B]/10 disabled:opacity-50"
+                                className="inline-flex items-center gap-1 rounded-lg border border-critical/30 px-2.5 py-1.5 text-xs text-critical hover:bg-critical/10 disabled:opacity-50"
                               >
                                 <Ban size={12} />
                                 Revoke
@@ -783,48 +783,48 @@ export default function HonestBrokerPage() {
               </div>
             </div>
 
-            <div className="rounded-xl border border-[#2A2A2F] bg-[#141418]">
-              <div className="border-b border-[#232328] px-5 py-4">
+            <div className="rounded-xl border border-border-default bg-surface-raised">
+              <div className="border-b border-border-default px-5 py-4">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck size={16} className="text-[#60A5FA]" />
-                  <h3 className="text-sm font-semibold text-[#F0EDE8]">Audit Trail</h3>
+                  <ShieldCheck size={16} className="text-info" />
+                  <h3 className="text-sm font-semibold text-text-primary">Audit Trail</h3>
                 </div>
-                <p className="mt-1 text-xs text-[#8A857D]">
+                <p className="mt-1 text-xs text-text-muted">
                   Immutable broker-side chain of custody for participant registration, outbound invites, and inbound response events.
                 </p>
               </div>
 
               <div className="overflow-x-auto">
                 {auditLogsQuery.isLoading && selectedCampaignId != null ? (
-                  <div className="flex items-center justify-center py-12 text-sm text-[#8A857D]">
+                  <div className="flex items-center justify-center py-12 text-sm text-text-muted">
                     <Loader2 size={16} className="mr-2 animate-spin" />
                     Loading audit trail...
                   </div>
                 ) : currentAuditLogs.length === 0 ? (
-                  <div className="px-5 py-12 text-sm text-[#8A857D]">
+                  <div className="px-5 py-12 text-sm text-text-muted">
                     No broker audit events recorded yet.
                   </div>
                 ) : (
                   <table className="w-full min-w-[980px]">
-                    <thead className="bg-[#101014]">
+                    <thead className="bg-surface-base">
                       <tr>
-                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">Time</th>
-                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">Action</th>
-                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">Actor</th>
-                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">Participant</th>
-                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">Invite Ref</th>
-                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">Metadata</th>
+                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">Time</th>
+                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">Action</th>
+                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">Actor</th>
+                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">Participant</th>
+                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">Invite Ref</th>
+                        <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">Metadata</th>
                       </tr>
                     </thead>
                     <tbody>
                       {currentAuditLogs.map((entry: HonestBrokerAuditLogApi) => (
-                        <tr key={entry.id} className="border-t border-[#232328]">
-                          <td className="px-5 py-3 text-sm text-[#C5C0B8]">{new Date(entry.occurred_at).toLocaleString()}</td>
-                          <td className="px-5 py-3 text-sm text-[#F0EDE8]">{entry.action.replace(/_/g, " ")}</td>
-                          <td className="px-5 py-3 text-sm text-[#C5C0B8]">{entry.actor?.name ?? "System"}</td>
-                          <td className="px-5 py-3 text-sm text-[#C5C0B8]">{entry.link?.blinded_participant_id ?? "—"}</td>
-                          <td className="px-5 py-3 text-sm text-[#C5C0B8]">{entry.invitation?.token_last_four ? `…${entry.invitation.token_last_four}` : "—"}</td>
-                          <td className="px-5 py-3 text-xs text-[#8A857D] font-mono">
+                        <tr key={entry.id} className="border-t border-border-default">
+                          <td className="px-5 py-3 text-sm text-text-secondary">{new Date(entry.occurred_at).toLocaleString()}</td>
+                          <td className="px-5 py-3 text-sm text-text-primary">{entry.action.replace(/_/g, " ")}</td>
+                          <td className="px-5 py-3 text-sm text-text-secondary">{entry.actor?.name ?? "System"}</td>
+                          <td className="px-5 py-3 text-sm text-text-secondary">{entry.link?.blinded_participant_id ?? "—"}</td>
+                          <td className="px-5 py-3 text-sm text-text-secondary">{entry.invitation?.token_last_four ? `…${entry.invitation.token_last_four}` : "—"}</td>
+                          <td className="px-5 py-3 text-xs text-text-muted font-mono">
                             {entry.metadata ? JSON.stringify(entry.metadata) : "—"}
                           </td>
                         </tr>
@@ -836,26 +836,26 @@ export default function HonestBrokerPage() {
             </div>
 
             {selectedLink && (
-              <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-5">
-                <h3 className="text-sm font-semibold text-[#F0EDE8]">Latest Matching Record</h3>
+              <div className="rounded-xl border border-border-default bg-surface-raised p-5">
+                <h3 className="text-sm font-semibold text-text-primary">Latest Matching Record</h3>
                 <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-3">
-                  <div className="rounded-lg bg-[#101014] px-4 py-3">
-                    <div className="text-[10px] uppercase tracking-wider text-[#5A5650]">Blinded ID</div>
-                    <div className="mt-1 text-sm font-medium text-[#F0EDE8]">{selectedLink.blinded_participant_id}</div>
+                  <div className="rounded-lg bg-surface-base px-4 py-3">
+                    <div className="text-[10px] uppercase tracking-wider text-text-ghost">Blinded ID</div>
+                    <div className="mt-1 text-sm font-medium text-text-primary">{selectedLink.blinded_participant_id}</div>
                   </div>
-                  <div className="rounded-lg bg-[#101014] px-4 py-3">
-                    <div className="text-[10px] uppercase tracking-wider text-[#5A5650]">Person ID</div>
-                    <div className="mt-1 text-sm font-medium text-[#F0EDE8]">{selectedLink.person_id ?? "—"}</div>
+                  <div className="rounded-lg bg-surface-base px-4 py-3">
+                    <div className="text-[10px] uppercase tracking-wider text-text-ghost">Person ID</div>
+                    <div className="mt-1 text-sm font-medium text-text-primary">{selectedLink.person_id ?? "—"}</div>
                   </div>
-                  <div className="rounded-lg bg-[#101014] px-4 py-3">
-                    <div className="text-[10px] uppercase tracking-wider text-[#5A5650]">Created</div>
-                    <div className="mt-1 text-sm font-medium text-[#F0EDE8]">
+                  <div className="rounded-lg bg-surface-base px-4 py-3">
+                    <div className="text-[10px] uppercase tracking-wider text-text-ghost">Created</div>
+                    <div className="mt-1 text-sm font-medium text-text-primary">
                       {new Date(selectedLink.created_at).toLocaleString()}
                     </div>
                   </div>
-                  <div className="rounded-lg bg-[#101014] px-4 py-3">
-                    <div className="text-[10px] uppercase tracking-wider text-[#5A5650]">Delivery Email</div>
-                    <div className="mt-1 text-sm font-medium text-[#F0EDE8]">
+                  <div className="rounded-lg bg-surface-base px-4 py-3">
+                    <div className="text-[10px] uppercase tracking-wider text-text-ghost">Delivery Email</div>
+                    <div className="mt-1 text-sm font-medium text-text-primary">
                       {selectedLink.contact?.delivery_email ?? "Not recorded"}
                     </div>
                   </div>

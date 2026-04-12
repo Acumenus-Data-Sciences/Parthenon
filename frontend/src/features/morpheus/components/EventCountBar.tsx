@@ -34,12 +34,12 @@ export default function EventCountBar({ counts, onDomainClick }: EventCountBarPr
             onClick={() => onDomainClick?.(key)}
             disabled={!isClickable}
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-border-default bg-surface-darkest/70 shrink-0 transition-colors
-              ${isClickable ? 'cursor-pointer hover:bg-[#1A1A1E]' : ''}
+              ${isClickable ? 'cursor-pointer hover:bg-surface-overlay' : ''}
               focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30`}
           >
             <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color }} />
-            <span className="text-[11px] text-[#8A857D]">{label}</span>
-            <span className="text-[11px] font-semibold text-[#F0EDE8]">{count.toLocaleString()}</span>
+            <span className="text-[11px] text-text-muted">{label}</span>
+            <span className="text-[11px] font-semibold text-text-primary">{count.toLocaleString()}</span>
           </button>
         );
       })}

@@ -81,7 +81,7 @@ export default function EvidenceSynthesisDetailPage() {
   if (isLoading && !isNew) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+        <Loader2 size={24} className="animate-spin text-text-muted" />
       </div>
     );
   }
@@ -90,13 +90,13 @@ export default function EvidenceSynthesisDetailPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <p className="text-[#E85A6B]">
+          <p className="text-critical">
             Failed to load evidence synthesis
           </p>
           <button
             type="button"
             onClick={() => navigate("/analyses")}
-            className="mt-4 text-sm text-[#8A857D] hover:text-[#F0EDE8] transition-colors"
+            className="mt-4 text-sm text-text-muted hover:text-text-primary transition-colors"
           >
             Back to analyses
           </button>
@@ -113,16 +113,16 @@ export default function EvidenceSynthesisDetailPage() {
           <button
             type="button"
             onClick={() => navigate("/analyses")}
-            className="inline-flex items-center gap-1 text-sm text-[#8A857D] hover:text-[#F0EDE8] transition-colors mb-3"
+            className="inline-flex items-center gap-1 text-sm text-text-muted hover:text-text-primary transition-colors mb-3"
           >
             <ArrowLeft size={14} />
             Analyses
           </button>
-          <h1 className="text-2xl font-bold text-[#F0EDE8]">
+          <h1 className="text-2xl font-bold text-text-primary">
             {isNew ? "New Evidence Synthesis" : analysis?.name ?? "Evidence Synthesis"}
           </h1>
           {analysis?.description && (
-            <p className="mt-1 text-sm text-[#8A857D]">
+            <p className="mt-1 text-sm text-text-muted">
               {analysis.description}
             </p>
           )}
@@ -134,7 +134,7 @@ export default function EvidenceSynthesisDetailPage() {
               type="button"
               onClick={handleExecute}
               disabled={executeMutation.isPending || isRunning}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-[#2DD4BF] px-3 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-success px-3 py-2 text-sm font-medium text-surface-base hover:bg-success-dark transition-colors disabled:opacity-50"
             >
               {executeMutation.isPending || isRunning ? (
                 <Loader2 size={14} className="animate-spin" />
@@ -148,7 +148,7 @@ export default function EvidenceSynthesisDetailPage() {
               type="button"
               onClick={handleDelete}
               disabled={deleteMutation.isPending}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#8A857D] hover:text-[#E85A6B] hover:border-[#E85A6B]/30 transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-muted hover:text-critical hover:border-critical/30 transition-colors disabled:opacity-50"
             >
               {deleteMutation.isPending ? (
                 <Loader2 size={14} className="animate-spin" />
@@ -163,7 +163,7 @@ export default function EvidenceSynthesisDetailPage() {
 
       {/* Tab navigation */}
       {!isNew && (
-        <div className="flex items-center gap-1 border-b border-[#232328]">
+        <div className="flex items-center gap-1 border-b border-border-default">
           {(
             [
               { key: "design" as const, label: "Design" },
@@ -177,13 +177,13 @@ export default function EvidenceSynthesisDetailPage() {
               className={cn(
                 "relative px-4 py-2.5 text-sm font-medium transition-colors",
                 activeTab === tab.key
-                  ? "text-[#2DD4BF]"
-                  : "text-[#8A857D] hover:text-[#C5C0B8]",
+                  ? "text-success"
+                  : "text-text-muted hover:text-text-secondary",
               )}
             >
               {tab.label}
               {activeTab === tab.key && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2DD4BF]" />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-success" />
               )}
             </button>
           ))}
@@ -206,20 +206,20 @@ export default function EvidenceSynthesisDetailPage() {
           {/* Execution History */}
           {analysis?.executions && analysis.executions.length > 0 && (
             <div>
-              <h3 className="text-sm font-semibold text-[#F0EDE8] mb-3">
+              <h3 className="text-sm font-semibold text-text-primary mb-3">
                 Execution History
               </h3>
-              <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+              <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
                 <table className="w-full">
                   <thead>
-                    <tr className="bg-[#1C1C20]">
-                      <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                    <tr className="bg-surface-overlay">
+                      <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                         Status
                       </th>
-                      <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                      <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                         Started
                       </th>
-                      <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                      <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                         Completed
                       </th>
                     </tr>
@@ -234,12 +234,12 @@ export default function EvidenceSynthesisDetailPage() {
                           }
                         }}
                         className={cn(
-                          "border-t border-[#1C1C20] transition-colors",
+                          "border-t border-border-subtle transition-colors",
                           exec.status === "completed" &&
-                            "cursor-pointer hover:bg-[#1C1C20]",
+                            "cursor-pointer hover:bg-surface-overlay",
                           i % 2 === 0
-                            ? "bg-[#151518]"
-                            : "bg-[#1A1A1E]",
+                            ? "bg-surface-raised"
+                            : "bg-surface-overlay",
                           activeExecId === exec.id &&
                             "ring-1 ring-inset ring-[#2DD4BF]/30",
                         )}
@@ -249,14 +249,14 @@ export default function EvidenceSynthesisDetailPage() {
                             status={exec.status}
                           />
                         </td>
-                        <td className="px-4 py-3 text-xs text-[#8A857D]">
+                        <td className="px-4 py-3 text-xs text-text-muted">
                           {exec.started_at
                             ? new Date(
                                 exec.started_at,
                               ).toLocaleString()
                             : "--"}
                         </td>
-                        <td className="px-4 py-3 text-xs text-[#8A857D]">
+                        <td className="px-4 py-3 text-xs text-text-muted">
                           {exec.completed_at
                             ? new Date(
                                 exec.completed_at,

@@ -6,7 +6,7 @@ const COLOR_TEXT = "#d4d4d8";   // zinc-300
 const COLOR_AXIS = "#52525b";   // zinc-600
 const COLOR_GRID = "#52525b";   // zinc-600
 
-const DEFAULT_COLORS = ["#2DD4BF", "#9B1B30", "#C9A227", "#818cf8", "#fb923c"];
+const DEFAULT_COLORS = ["var(--success)", "var(--primary)", "var(--accent)", "#818cf8", "#fb923c"];
 
 const MARGIN = { top: 24, right: 24, bottom: 52, left: 60 };
 
@@ -223,7 +223,7 @@ export function KaplanMeierChart({
       .append("rect")
       .attr("rx", 4)
       .attr("ry", 4)
-      .attr("fill", "#18181b")
+      .attr("fill", "var(--surface-raised)")
       .attr("stroke", COLOR_AXIS)
       .attr("stroke-width", 0.5);
 

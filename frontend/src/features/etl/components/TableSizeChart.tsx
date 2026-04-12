@@ -11,17 +11,17 @@ export function TableSizeChart({ tables }: { tables: TableProfile[] }) {
   const maxRows = sorted[0]?.row_count ?? 1;
 
   return (
-    <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
-      <div className="px-4 py-3 bg-[#1C1C20] border-b border-[#232328] flex items-center gap-2">
-        <BarChart3 size={15} className="text-[#8A857D]" />
-        <h4 className="text-sm font-medium text-[#F0EDE8]">
+    <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
+      <div className="px-4 py-3 bg-surface-overlay border-b border-border-default flex items-center gap-2">
+        <BarChart3 size={15} className="text-text-muted" />
+        <h4 className="text-sm font-medium text-text-primary">
           Table Size Distribution
           {tables.length > 20 && (
-            <span className="font-normal text-[#5A5650] ml-1">(top 20)</span>
+            <span className="font-normal text-text-ghost ml-1">(top 20)</span>
           )}
         </h4>
       </div>
-      <div className="divide-y divide-[#1C1C20]">
+      <div className="divide-y divide-border-subtle">
         {sorted.map((table) => {
           const pct = maxRows > 0 ? (table.row_count / maxRows) * 100 : 0;
           const grade = scoreToGrade(tableNullScore(table));
@@ -36,19 +36,19 @@ export function TableSizeChart({ tables }: { tables: TableProfile[] }) {
               >
                 {grade.letter}
               </span>
-              <span className="w-40 shrink-0 font-mono text-xs text-[#C5C0B8] truncate">
+              <span className="w-40 shrink-0 font-mono text-xs text-text-secondary truncate">
                 {table.table_name}
               </span>
-              <div className="flex-1 h-2 rounded-full bg-[#232328] overflow-hidden">
+              <div className="flex-1 h-2 rounded-full bg-surface-elevated overflow-hidden">
                 <div
                   className="h-full rounded-full transition-all"
                   style={{
                     width: `${Math.max(pct, 1)}%`,
-                    backgroundColor: "#9B1B30",
+                    backgroundColor: "var(--primary)",
                   }}
                 />
               </div>
-              <span className="w-20 text-right tabular-nums text-xs text-[#8A857D]">
+              <span className="w-20 text-right tabular-nums text-xs text-text-muted">
                 {fmtNumber(table.row_count)}
               </span>
             </div>

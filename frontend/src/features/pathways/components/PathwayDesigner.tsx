@@ -100,13 +100,13 @@ export function PathwayDesigner({
   return (
     <div className="space-y-6">
       {/* Name & Description */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-4">
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">
+      <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
+        <h3 className="text-sm font-semibold text-text-primary">
           Basic Information
         </h3>
         <div className="space-y-3">
           <div>
-            <label className="block text-xs font-medium text-[#8A857D] mb-1">
+            <label className="block text-xs font-medium text-text-muted mb-1">
               Name
             </label>
             <input
@@ -115,14 +115,14 @@ export function PathwayDesigner({
               onChange={(e) => setName(e.target.value)}
               placeholder="Pathway analysis name"
               className={cn(
-                "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-                "text-[#F0EDE8] placeholder:text-[#5A5650]",
-                "focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
+                "text-text-primary placeholder:text-text-ghost",
+                "focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
               )}
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-[#8A857D] mb-1">
+            <label className="block text-xs font-medium text-text-muted mb-1">
               Description
             </label>
             <textarea
@@ -131,9 +131,9 @@ export function PathwayDesigner({
               placeholder="Optional description"
               rows={2}
               className={cn(
-                "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-                "text-[#F0EDE8] placeholder:text-[#5A5650] resize-none",
-                "focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
+                "text-text-primary placeholder:text-text-ghost resize-none",
+                "focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
               )}
             />
           </div>
@@ -141,15 +141,15 @@ export function PathwayDesigner({
       </div>
 
       {/* Target Cohort */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-3">
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">
+      <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
+        <h3 className="text-sm font-semibold text-text-primary">
           Target Cohort
         </h3>
-        <p className="text-xs text-[#8A857D]">
+        <p className="text-xs text-text-muted">
           Select the target cohort whose treatment pathways will be analyzed.
         </p>
         {loadingCohorts ? (
-          <Loader2 size={16} className="animate-spin text-[#8A857D]" />
+          <Loader2 size={16} className="animate-spin text-text-muted" />
         ) : (
           <select
             value={design.targetCohortId || ""}
@@ -160,8 +160,8 @@ export function PathwayDesigner({
               }))
             }
             className={cn(
-              "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-              "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+              "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
+              "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
             )}
           >
             <option value="">Select a target cohort...</option>
@@ -174,7 +174,7 @@ export function PathwayDesigner({
         )}
         {design.targetCohortId > 0 && (
           <div className="flex flex-wrap gap-2">
-            <span className="inline-flex items-center gap-1 rounded-full bg-[#2DD4BF]/10 px-2.5 py-1 text-xs text-[#2DD4BF]">
+            <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-1 text-xs text-success">
               {cohorts.find((c) => c.id === design.targetCohortId)?.name ??
                 `Cohort #${design.targetCohortId}`}
             </span>
@@ -183,17 +183,17 @@ export function PathwayDesigner({
       </div>
 
       {/* Event Cohorts */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-3">
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">
+      <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
+        <h3 className="text-sm font-semibold text-text-primary">
           Event Cohorts
         </h3>
-        <p className="text-xs text-[#8A857D]">
+        <p className="text-xs text-text-muted">
           Select the event cohorts whose sequences will be analyzed within the
           target cohort. These represent treatments, procedures, or conditions
           to track.
         </p>
         {loadingCohorts ? (
-          <Loader2 size={16} className="animate-spin text-[#8A857D]" />
+          <Loader2 size={16} className="animate-spin text-text-muted" />
         ) : (
           <>
             <select
@@ -203,8 +203,8 @@ export function PathwayDesigner({
                 e.target.value = "";
               }}
               className={cn(
-                "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-                "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
+                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
               )}
               defaultValue=""
             >
@@ -224,7 +224,7 @@ export function PathwayDesigner({
                   return (
                     <span
                       key={id}
-                      className="inline-flex items-center gap-1 rounded-full bg-[#C9A227]/10 px-2.5 py-1 text-xs text-[#C9A227]"
+                      className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2.5 py-1 text-xs text-accent"
                     >
                       {cohort?.name ?? `Cohort #${id}`}
                       <button
@@ -244,14 +244,14 @@ export function PathwayDesigner({
       </div>
 
       {/* Parameters */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-4">
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">
+      <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
+        <h3 className="text-sm font-semibold text-text-primary">
           Parameters
         </h3>
 
         {/* Max Depth */}
         <div>
-          <label className="block text-xs font-medium text-[#8A857D] mb-1">
+          <label className="block text-xs font-medium text-text-muted mb-1">
             Max Depth: {design.maxDepth}
           </label>
           <input
@@ -268,7 +268,7 @@ export function PathwayDesigner({
             }
             className="w-full accent-[#2DD4BF]"
           />
-          <div className="flex items-center justify-between text-[10px] text-[#5A5650]">
+          <div className="flex items-center justify-between text-[10px] text-text-ghost">
             <span>1</span>
             <span>10</span>
           </div>
@@ -276,7 +276,7 @@ export function PathwayDesigner({
 
         {/* Max Path Length */}
         <div>
-          <label className="block text-xs font-medium text-[#8A857D] mb-1">
+          <label className="block text-xs font-medium text-text-muted mb-1">
             Max Path Length: {design.maxPathLength}
           </label>
           <input
@@ -293,7 +293,7 @@ export function PathwayDesigner({
             }
             className="w-full accent-[#2DD4BF]"
           />
-          <div className="flex items-center justify-between text-[10px] text-[#5A5650]">
+          <div className="flex items-center justify-between text-[10px] text-text-ghost">
             <span>1</span>
             <span>10</span>
           </div>
@@ -301,7 +301,7 @@ export function PathwayDesigner({
 
         {/* Combination Window */}
         <div>
-          <label className="block text-xs font-medium text-[#8A857D] mb-1">
+          <label className="block text-xs font-medium text-text-muted mb-1">
             Combination Window (days)
           </label>
           <input
@@ -316,18 +316,18 @@ export function PathwayDesigner({
               }))
             }
             className={cn(
-              "w-32 rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-              "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+              "w-32 rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
+              "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
             )}
           />
-          <p className="mt-1 text-[10px] text-[#5A5650]">
+          <p className="mt-1 text-[10px] text-text-ghost">
             Events within this window are treated as occurring simultaneously.
           </p>
         </div>
 
         {/* Min Cell Count */}
         <div>
-          <label className="block text-xs font-medium text-[#8A857D] mb-1">
+          <label className="block text-xs font-medium text-text-muted mb-1">
             Minimum Cell Count
           </label>
           <input
@@ -342,8 +342,8 @@ export function PathwayDesigner({
               }))
             }
             className={cn(
-              "w-32 rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-              "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+              "w-32 rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
+              "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
             )}
           />
         </div>
@@ -355,7 +355,7 @@ export function PathwayDesigner({
           type="button"
           onClick={handleSave}
           disabled={isSaving || !name.trim()}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-5 py-2.5 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-lg bg-success px-5 py-2.5 text-sm font-medium text-surface-base hover:bg-success-dark transition-colors disabled:opacity-50"
         >
           {isSaving ? (
             <Loader2 size={14} className="animate-spin" />

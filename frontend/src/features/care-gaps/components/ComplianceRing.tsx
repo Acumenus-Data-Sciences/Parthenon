@@ -30,9 +30,9 @@ const SIZE_CONFIG: Record<
 };
 
 function getComplianceColor(pct: number): string {
-  if (pct >= 80) return "#2DD4BF"; // teal
-  if (pct >= 50) return "#C9A227"; // gold
-  return "#9B1B30"; // crimson
+  if (pct >= 80) return "var(--success)"; // teal
+  if (pct >= 50) return "var(--accent)"; // gold
+  return "var(--primary)"; // crimson
 }
 
 export function ComplianceRing({
@@ -77,7 +77,7 @@ export function ComplianceRing({
           cy={config.width / 2}
           r={radius}
           fill="none"
-          stroke="#232328"
+          stroke="var(--surface-elevated)"
           strokeWidth={config.stroke}
         />
         {/* Filled arc */}
@@ -112,7 +112,7 @@ export function ComplianceRing({
       {label && (
         <span
           className={cn(
-            "text-[#8A857D] font-medium text-center leading-tight",
+            "text-text-muted font-medium text-center leading-tight",
             config.labelSize,
           )}
         >

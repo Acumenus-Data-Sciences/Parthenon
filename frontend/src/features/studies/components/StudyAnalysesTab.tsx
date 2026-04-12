@@ -39,12 +39,12 @@ import type { ExecutionStatus } from "@/features/analyses/types/analysis";
 // ---------------------------------------------------------------------------
 
 const ANALYSIS_TYPE_META: Record<string, { label: string; icon: typeof BarChart3; color: string; detailPath: string }> = {
-  characterization: { label: "Characterization", icon: BarChart3, color: "#2DD4BF", detailPath: "/analyses/characterizations" },
-  "incidence-rate": { label: "Incidence Rate", icon: TrendingUp, color: "#60A5FA", detailPath: "/analyses/incidence-rates" },
-  incidence_rate: { label: "Incidence Rate", icon: TrendingUp, color: "#60A5FA", detailPath: "/analyses/incidence-rates" },
-  pathway: { label: "Pathway", icon: GitBranch, color: "#A78BFA", detailPath: "/analyses/pathways" },
-  estimation: { label: "Estimation", icon: Scale, color: "#F59E0B", detailPath: "/analyses/estimations" },
-  prediction: { label: "Prediction", icon: Brain, color: "#E85A6B", detailPath: "/analyses/predictions" },
+  characterization: { label: "Characterization", icon: BarChart3, color: "var(--success)", detailPath: "/analyses/characterizations" },
+  "incidence-rate": { label: "Incidence Rate", icon: TrendingUp, color: "var(--info)", detailPath: "/analyses/incidence-rates" },
+  incidence_rate: { label: "Incidence Rate", icon: TrendingUp, color: "var(--info)", detailPath: "/analyses/incidence-rates" },
+  pathway: { label: "Pathway", icon: GitBranch, color: "var(--domain-observation)", detailPath: "/analyses/pathways" },
+  estimation: { label: "Estimation", icon: Scale, color: "var(--warning)", detailPath: "/analyses/estimations" },
+  prediction: { label: "Prediction", icon: Brain, color: "var(--critical)", detailPath: "/analyses/predictions" },
 };
 
 const ADD_ANALYSIS_TYPES = [
@@ -136,7 +136,7 @@ export function StudyAnalysesTab({ studySlug }: StudyAnalysesTabProps) {
   }, {});
 
   if (isLoading) {
-    return <div className="flex items-center justify-center py-16"><Loader2 size={24} className="animate-spin text-[#8A857D]" /></div>;
+    return <div className="flex items-center justify-center py-16"><Loader2 size={24} className="animate-spin text-text-muted" /></div>;
   }
 
   return (
@@ -144,14 +144,14 @@ export function StudyAnalysesTab({ studySlug }: StudyAnalysesTabProps) {
       {/* Header with actions */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-semibold text-[#C5C0B8]">
+          <h3 className="text-sm font-semibold text-text-secondary">
             Analysis Pipeline ({analyses?.length ?? 0})
           </h3>
           {progress && progress.total > 0 && (
-            <div className="flex items-center gap-3 mt-1 text-xs text-[#5A5650]">
-              <span className="text-[#34D399]">{progress.completed} completed</span>
-              <span className="text-[#F59E0B]">{progress.running} running</span>
-              <span className="text-[#E85A6B]">{progress.failed} failed</span>
+            <div className="flex items-center gap-3 mt-1 text-xs text-text-ghost">
+              <span className="text-success">{progress.completed} completed</span>
+              <span className="text-warning">{progress.running} running</span>
+              <span className="text-critical">{progress.failed} failed</span>
               <span>{progress.pending} pending</span>
             </div>
           )}
@@ -159,7 +159,7 @@ export function StudyAnalysesTab({ studySlug }: StudyAnalysesTabProps) {
         <div className="flex items-center gap-2">
           {/* Source selector + Execute */}
           <div className="relative">
-            <Database size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#5A5650]" />
+            <Database size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-text-ghost" />
             <select
               value={sourceId ?? ""}
               onChange={(e) => setSourceId(Number(e.target.value) || null)}
@@ -189,9 +189,9 @@ export function StudyAnalysesTab({ studySlug }: StudyAnalysesTabProps) {
       {progress && progress.total > 0 && (
         <div className="progress-bar">
           <div className="flex h-full">
-            {progress.completed > 0 && <div style={{ width: `${(progress.completed / progress.total) * 100}%`, background: "#34D399" }} />}
-            {progress.running > 0 && <div style={{ width: `${(progress.running / progress.total) * 100}%`, background: "#F59E0B" }} />}
-            {progress.failed > 0 && <div style={{ width: `${(progress.failed / progress.total) * 100}%`, background: "#E85A6B" }} />}
+            {progress.completed > 0 && <div style={{ width: `${(progress.completed / progress.total) * 100}%`, background: "var(--success)" }} />}
+            {progress.running > 0 && <div style={{ width: `${(progress.running / progress.total) * 100}%`, background: "var(--warning)" }} />}
+            {progress.failed > 0 && <div style={{ width: `${(progress.failed / progress.total) * 100}%`, background: "var(--critical)" }} />}
           </div>
         </div>
       )}
@@ -199,7 +199,7 @@ export function StudyAnalysesTab({ studySlug }: StudyAnalysesTabProps) {
       {/* Add Analysis Panel */}
       {showAddPanel && (
         <div className="panel">
-          <h4 className="text-sm font-semibold text-[#C5C0B8] mb-3">Add Analysis to Study</h4>
+          <h4 className="text-sm font-semibold text-text-secondary mb-3">Add Analysis to Study</h4>
           <div className="flex items-end gap-3">
             <div className="flex-1">
               <label className="form-label">Analysis Type</label>
@@ -241,7 +241,7 @@ export function StudyAnalysesTab({ studySlug }: StudyAnalysesTabProps) {
       {/* Analysis Cards grouped by type */}
       {(!analyses || analyses.length === 0) ? (
         <div className="empty-state">
-          <BarChart3 size={24} className="text-[#323238] mb-2" />
+          <BarChart3 size={24} className="text-text-ghost mb-2" />
           <h3 className="empty-title">No analyses in this study</h3>
           <p className="empty-message">Add characterizations, estimations, predictions, and more to build your analysis pipeline</p>
         </div>
@@ -251,7 +251,7 @@ export function StudyAnalysesTab({ studySlug }: StudyAnalysesTabProps) {
             const meta = ANALYSIS_TYPE_META[type] ?? {
               label: type.replace(/_/g, " "),
               icon: BarChart3,
-              color: "#8A857D",
+              color: "var(--text-muted)",
               detailPath: "/analyses",
             };
             const Icon = meta.icon;
@@ -273,18 +273,18 @@ export function StudyAnalysesTab({ studySlug }: StudyAnalysesTabProps) {
                     const latestExec = entry.analysis?.latest_execution;
 
                     return (
-                      <div key={entry.id} className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+                      <div key={entry.id} className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
                         {/* Card header */}
                         <div
-                          className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-[#1C1C20] transition-colors"
+                          className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-surface-overlay transition-colors"
                           onClick={() => toggleExpand(entry.id)}
                         >
-                          <button type="button" className="text-[#5A5650]">
+                          <button type="button" className="text-text-ghost">
                             {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                           </button>
 
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm text-[#F0EDE8] font-medium truncate">
+                            <p className="text-sm text-text-primary font-medium truncate">
                               {entry.analysis?.name ?? `Analysis #${entry.analysis_id}`}
                             </p>
                           </div>
@@ -294,7 +294,7 @@ export function StudyAnalysesTab({ studySlug }: StudyAnalysesTabProps) {
                             {latestExec ? (
                               <ExecutionStatusBadge status={latestExec.status as ExecutionStatus} />
                             ) : (
-                              <span className="text-[10px] text-[#5A5650] flex items-center gap-1">
+                              <span className="text-[10px] text-text-ghost flex items-center gap-1">
                                 <Clock size={10} /> Not executed
                               </span>
                             )}
@@ -305,7 +305,7 @@ export function StudyAnalysesTab({ studySlug }: StudyAnalysesTabProps) {
                             <button
                               type="button"
                               onClick={() => navigate(`${meta.detailPath}/${entry.analysis_id}`)}
-                              className="p-1.5 text-[#5A5650] hover:text-[#2DD4BF] transition-colors"
+                              className="p-1.5 text-text-ghost hover:text-success transition-colors"
                               title="Open analysis detail"
                             >
                               <ExternalLink size={13} />
@@ -318,7 +318,7 @@ export function StudyAnalysesTab({ studySlug }: StudyAnalysesTabProps) {
                                 }
                               }}
                               disabled={removeMutation.isPending}
-                              className="p-1.5 text-[#5A5650] hover:text-[#E85A6B] transition-colors"
+                              className="p-1.5 text-text-ghost hover:text-critical transition-colors"
                               title="Remove from study"
                             >
                               <X size={13} />
@@ -328,34 +328,34 @@ export function StudyAnalysesTab({ studySlug }: StudyAnalysesTabProps) {
 
                         {/* Expanded detail */}
                         {expanded && (
-                          <div className="border-t border-[#232328] px-4 py-3 bg-[#0E0E11]">
+                          <div className="border-t border-border-default px-4 py-3 bg-surface-base">
                             <div className="grid grid-cols-2 gap-4 text-xs">
                               <div>
-                                <span className="text-[#5A5650] uppercase tracking-wider">Type</span>
-                                <p className="text-[#C5C0B8] mt-0.5 capitalize">{meta.label}</p>
+                                <span className="text-text-ghost uppercase tracking-wider">Type</span>
+                                <p className="text-text-secondary mt-0.5 capitalize">{meta.label}</p>
                               </div>
                               <div>
-                                <span className="text-[#5A5650] uppercase tracking-wider">Analysis ID</span>
-                                <p className="text-[#C5C0B8] mt-0.5 font-['IBM_Plex_Mono',monospace]">{entry.analysis_id}</p>
+                                <span className="text-text-ghost uppercase tracking-wider">Analysis ID</span>
+                                <p className="text-text-secondary mt-0.5 font-['IBM_Plex_Mono',monospace]">{entry.analysis_id}</p>
                               </div>
                               {latestExec && (
                                 <>
                                   <div>
-                                    <span className="text-[#5A5650] uppercase tracking-wider">Last Run</span>
-                                    <p className="text-[#C5C0B8] mt-0.5">
+                                    <span className="text-text-ghost uppercase tracking-wider">Last Run</span>
+                                    <p className="text-text-secondary mt-0.5">
                                       {latestExec.started_at ? new Date(latestExec.started_at).toLocaleString() : "—"}
                                     </p>
                                   </div>
                                   <div>
-                                    <span className="text-[#5A5650] uppercase tracking-wider">Completed</span>
-                                    <p className="text-[#C5C0B8] mt-0.5">
+                                    <span className="text-text-ghost uppercase tracking-wider">Completed</span>
+                                    <p className="text-text-secondary mt-0.5">
                                       {latestExec.completed_at ? new Date(latestExec.completed_at).toLocaleString() : "—"}
                                     </p>
                                   </div>
                                   {latestExec.fail_message && (
                                     <div className="col-span-2">
-                                      <span className="text-[#5A5650] uppercase tracking-wider">Error</span>
-                                      <p className="text-[#E85A6B] mt-0.5 font-mono text-[11px]">{latestExec.fail_message}</p>
+                                      <span className="text-text-ghost uppercase tracking-wider">Error</span>
+                                      <p className="text-critical mt-0.5 font-mono text-[11px]">{latestExec.fail_message}</p>
                                     </div>
                                   )}
                                 </>

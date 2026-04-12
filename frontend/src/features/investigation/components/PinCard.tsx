@@ -44,7 +44,7 @@ export function PinCard({ pin, onDelete, onToggleKeyFinding }: PinCardProps) {
                 size={11}
                 className={
                   pin.is_key_finding
-                    ? "text-[#C9A227] fill-[#C9A227]"
+                    ? "text-accent fill-[#C9A227]"
                     : "text-text-ghost fill-none"
                 }
               />

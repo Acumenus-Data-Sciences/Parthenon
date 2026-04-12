@@ -78,9 +78,9 @@ export const LabTrendChart = ({
             <ReferenceArea
               y1={range.low}
               y2={range.high}
-              fill="#2DD4BF"
+              fill="var(--success)"
               fillOpacity={0.12}
-              stroke="#2DD4BF"
+              stroke="var(--success)"
               strokeOpacity={0.35}
               strokeDasharray="2 2"
               ifOverflow="extendDomain"

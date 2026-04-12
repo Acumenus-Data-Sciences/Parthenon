@@ -30,9 +30,9 @@ interface MetricCardProps {
 
 function MetricCard({ label, value, favorable, unfavorable }: MetricCardProps) {
   const valueClass = unfavorable
-    ? "text-[#9B1B30]"
+    ? "text-primary"
     : favorable
-      ? "text-[#2DD4BF]"
+      ? "text-success"
       : "text-text-primary";
 
   return (
@@ -68,7 +68,7 @@ function PinButton({ onClick }: PinButtonProps) {
     <button
       type="button"
       onClick={onClick}
-      className="flex items-center gap-1.5 rounded-md border border-border-default bg-surface-raised/60 px-2.5 py-1 text-xs text-text-muted transition hover:border-[#C9A227]/60 hover:text-[#C9A227]"
+      className="flex items-center gap-1.5 rounded-md border border-border-default bg-surface-raised/60 px-2.5 py-1 text-xs text-text-muted transition hover:border-accent/60 hover:text-accent"
     >
       <Pin className="h-3 w-3" />
       Pin to Dossier
@@ -195,7 +195,7 @@ function IncidenceRateResults({
 
       {/* Rate card */}
       <div className="flex flex-col gap-1 rounded-lg border border-border-default bg-surface-base/60 p-4">
-        <span className="text-3xl font-bold text-[#2DD4BF]">
+        <span className="text-3xl font-bold text-success">
           {rate != null ? rate.toFixed(4) : "—"}
         </span>
         <span className="text-xs text-text-ghost">per person-year</span>
@@ -259,10 +259,10 @@ function EstimationResults({
     kmData?.target_curve || kmData?.comparator_curve
       ? [
           ...(kmData?.target_curve
-            ? [{ label: "Target", color: "#2DD4BF", points: kmData.target_curve }]
+            ? [{ label: "Target", color: "var(--success)", points: kmData.target_curve }]
             : []),
           ...(kmData?.comparator_curve
-            ? [{ label: "Comparator", color: "#9B1B30", points: kmData.comparator_curve }]
+            ? [{ label: "Comparator", color: "var(--primary)", points: kmData.comparator_curve }]
             : []),
         ]
       : undefined;
@@ -287,9 +287,9 @@ function EstimationResults({
         <span
           className={`text-3xl font-bold leading-none ${
             hrFavorable
-              ? "text-[#2DD4BF]"
+              ? "text-success"
               : hrUnfavorable
-                ? "text-[#9B1B30]"
+                ? "text-primary"
                 : "text-text-primary"
           }`}
         >
@@ -388,7 +388,7 @@ function PredictionResults({
       {/* AUC card */}
       <div className="flex flex-col gap-1 rounded-lg border border-border-default bg-surface-base/60 p-4">
         <span
-          className={`text-3xl font-bold leading-none ${aucFavorable ? "text-[#2DD4BF]" : "text-text-primary"}`}
+          className={`text-3xl font-bold leading-none ${aucFavorable ? "text-success" : "text-text-primary"}`}
         >
           {aucDisplay}
         </span>
@@ -462,9 +462,9 @@ function SccsResults({
         <span
           className={`text-3xl font-bold leading-none ${
             irrFavorable
-              ? "text-[#2DD4BF]"
+              ? "text-success"
               : irrUnfavorable
-                ? "text-[#9B1B30]"
+                ? "text-primary"
                 : "text-text-primary"
           }`}
         >
@@ -530,9 +530,9 @@ function EvidenceSynthesisResults({
         <span
           className={`text-3xl font-bold leading-none ${
             hrFavorable
-              ? "text-[#2DD4BF]"
+              ? "text-success"
               : hrUnfavorable
-                ? "text-[#9B1B30]"
+                ? "text-primary"
                 : "text-text-primary"
           }`}
         >

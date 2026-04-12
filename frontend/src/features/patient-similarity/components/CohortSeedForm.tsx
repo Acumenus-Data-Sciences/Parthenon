@@ -83,7 +83,7 @@ export function CohortSeedForm({
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* Source Selector */}
       <div>
-        <label className="block text-[10px] text-[#5A5650] uppercase tracking-wider mb-1.5">
+        <label className="block text-[10px] text-text-ghost uppercase tracking-wider mb-1.5">
           Data Source
         </label>
         <select
@@ -91,9 +91,9 @@ export function CohortSeedForm({
           onChange={(e) => onSourceChange(parseInt(e.target.value, 10))}
           className={cn(
             "w-full rounded-lg px-3 py-2 text-sm",
-            "bg-[#0E0E11] border border-[#232328]",
-            "text-[#F0EDE8]",
-            "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+            "bg-surface-base border border-border-default",
+            "text-text-primary",
+            "focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40",
           )}
         >
           <option value={0}>Select source...</option>
@@ -107,11 +107,11 @@ export function CohortSeedForm({
 
       {/* Cohort Selector */}
       <div>
-        <label className="block text-[10px] text-[#5A5650] uppercase tracking-wider mb-1.5">
+        <label className="block text-[10px] text-text-ghost uppercase tracking-wider mb-1.5">
           Seed Cohort
         </label>
         {cohortsLoading ? (
-          <div className="flex items-center gap-2 text-xs text-[#5A5650] py-2">
+          <div className="flex items-center gap-2 text-xs text-text-ghost py-2">
             <Loader2 size={12} className="animate-spin" />
             Loading cohorts...
           </div>
@@ -123,9 +123,9 @@ export function CohortSeedForm({
             }
             className={cn(
               "w-full rounded-lg px-3 py-2 text-sm",
-              "bg-[#0E0E11] border border-[#232328]",
-              "text-[#F0EDE8]",
-              "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+              "bg-surface-base border border-border-default",
+              "text-text-primary",
+              "focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40",
             )}
           >
             <option value={0}>Select a cohort...</option>
@@ -156,7 +156,7 @@ export function CohortSeedForm({
       {/* Dimension Weight Sliders */}
       {dimensions && dimensions.length > 0 && (
         <div>
-          <label className="block text-[10px] text-[#5A5650] uppercase tracking-wider mb-2">
+          <label className="block text-[10px] text-text-ghost uppercase tracking-wider mb-2">
             Dimension Weights
           </label>
           <div className="space-y-3">
@@ -165,8 +165,8 @@ export function CohortSeedForm({
               .map((dim) => (
                 <div key={dim.key}>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-[#C5C0B8]">{dim.name}</span>
-                    <span className="text-[10px] font-medium text-[#2DD4BF] tabular-nums">
+                    <span className="text-xs text-text-secondary">{dim.name}</span>
+                    <span className="text-[10px] font-medium text-success tabular-nums">
                       {(weights[dim.key] ?? dim.default_weight).toFixed(1)}
                     </span>
                   </div>
@@ -179,7 +179,7 @@ export function CohortSeedForm({
                     onChange={(e) =>
                       handleWeightChange(dim.key, parseFloat(e.target.value))
                     }
-                    className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-[#232328] accent-[#2DD4BF]"
+                    className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-surface-elevated accent-[#2DD4BF]"
                   />
                 </div>
               ))}
@@ -189,7 +189,7 @@ export function CohortSeedForm({
 
       {/* Filters */}
       <div className="space-y-3">
-        <label className="block text-[10px] text-[#5A5650] uppercase tracking-wider">
+        <label className="block text-[10px] text-text-ghost uppercase tracking-wider">
           Filters (optional)
         </label>
         <div className="flex items-center gap-2">
@@ -200,12 +200,12 @@ export function CohortSeedForm({
             placeholder="Min age"
             className={cn(
               "w-1/2 rounded-lg px-3 py-1.5 text-xs",
-              "bg-[#0E0E11] border border-[#232328]",
-              "text-[#F0EDE8] placeholder:text-[#5A5650]",
-              "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+              "bg-surface-base border border-border-default",
+              "text-text-primary placeholder:text-text-ghost",
+              "focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40",
             )}
           />
-          <span className="text-[#5A5650] text-xs">-</span>
+          <span className="text-text-ghost text-xs">-</span>
           <input
             type="text"
             value={ageMax}
@@ -213,9 +213,9 @@ export function CohortSeedForm({
             placeholder="Max age"
             className={cn(
               "w-1/2 rounded-lg px-3 py-1.5 text-xs",
-              "bg-[#0E0E11] border border-[#232328]",
-              "text-[#F0EDE8] placeholder:text-[#5A5650]",
-              "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+              "bg-surface-base border border-border-default",
+              "text-text-primary placeholder:text-text-ghost",
+              "focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40",
             )}
           />
         </div>
@@ -224,9 +224,9 @@ export function CohortSeedForm({
           onChange={(e) => setGender(e.target.value)}
           className={cn(
             "w-full rounded-lg px-3 py-1.5 text-xs",
-            "bg-[#0E0E11] border border-[#232328]",
-            "text-[#F0EDE8]",
-            "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+            "bg-surface-base border border-border-default",
+            "text-text-primary",
+            "focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40",
           )}
         >
           <option value="">Any gender</option>
@@ -243,7 +243,7 @@ export function CohortSeedForm({
         }
         className={cn(
           "w-full flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors",
-          "bg-[#9B1B30] text-text-primary hover:bg-[#B22040]",
+          "bg-primary text-text-primary hover:bg-primary-light",
           "disabled:opacity-50 disabled:cursor-not-allowed",
         )}
       >

@@ -176,10 +176,10 @@ export function ExecutionTracker({
       "Analysis failed. Check logs for details.";
 
     return (
-      <div className="flex items-start gap-3 rounded-lg border border-[#9B1B30]/50 bg-[#9B1B30]/10 px-4 py-3">
-        <LucideIcons.AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#9B1B30]" />
+      <div className="flex items-start gap-3 rounded-lg border border-primary/50 bg-primary/10 px-4 py-3">
+        <LucideIcons.AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
         <div className="flex flex-col gap-1">
-          <span className="text-sm font-medium text-[#9B1B30]">
+          <span className="text-sm font-medium text-primary">
             {status === "cancelled" ? "Analysis cancelled" : "Analysis failed"}
           </span>
           <span className="text-xs text-text-muted">{failMessage}</span>

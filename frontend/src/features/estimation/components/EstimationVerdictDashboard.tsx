@@ -48,10 +48,10 @@ export function EstimationVerdictDashboard({
     verdict === "protective" ? "\u2193" : verdict === "harmful" ? "\u2191" : "\u2194";
   const directionColor =
     verdict === "protective"
-      ? "text-[#2DD4BF]"
+      ? "text-success"
       : verdict === "harmful"
-        ? "text-[#E85A6B]"
-        : "text-[#8A857D]";
+        ? "text-critical"
+        : "text-text-muted";
 
   // Total target events across all outcomes
   const targetEvents = estimates.reduce(
@@ -62,7 +62,7 @@ export function EstimationVerdictDashboard({
   return (
     <div
       data-testid="estimation-verdict-dashboard"
-      className="rounded-lg border border-[#232328] bg-[#0E0E11] p-6 space-y-5"
+      className="rounded-lg border border-border-default bg-surface-base p-6 space-y-5"
     >
       {/* Top row: large HR + verdict badge */}
       <div className="flex flex-wrap items-center gap-6">
@@ -80,7 +80,7 @@ export function EstimationVerdictDashboard({
           >
             {fmt(hr, 2)}
           </span>
-          <span className="text-sm text-[#8A857D]">HR</span>
+          <span className="text-sm text-text-muted">HR</span>
         </div>
 
         {/* Significance verdict badge */}
@@ -95,24 +95,24 @@ export function EstimationVerdictDashboard({
       {/* P-values row */}
       <div className="flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-[#8A857D]">p-value:</span>
-          <span className="font-['IBM_Plex_Mono',monospace] text-sm text-[#F0EDE8]">
+          <span className="text-xs font-medium text-text-muted">p-value:</span>
+          <span className="font-['IBM_Plex_Mono',monospace] text-sm text-text-primary">
             {fmtP(pValue)}
           </span>
         </div>
         {calibratedP !== null && (
           <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-[#8A857D]">
+            <span className="text-xs font-medium text-text-muted">
               calibrated p:
             </span>
             <span
               data-testid="calibrated-p"
-              className="font-['IBM_Plex_Mono',monospace] text-sm text-[#C9A227]"
+              className="font-['IBM_Plex_Mono',monospace] text-sm text-accent"
             >
               {fmtP(calibratedP)}
             </span>
             {/* Visual indicator of shift direction */}
-            <span className="text-xs text-[#5A5650]">
+            <span className="text-xs text-text-ghost">
               ({calibratedP > pValue ? "\u2191" : "\u2193"} from uncalibrated)
             </span>
           </div>
@@ -121,7 +121,7 @@ export function EstimationVerdictDashboard({
 
       {/* CI bar visualization */}
       <div>
-        <span className="text-xs font-medium text-[#8A857D] mb-1 block">
+        <span className="text-xs font-medium text-text-muted mb-1 block">
           95% Confidence Interval
         </span>
         <CIBar
@@ -133,7 +133,7 @@ export function EstimationVerdictDashboard({
           width={400}
           height={32}
         />
-        <span className="text-xs text-[#5A5650] mt-0.5 block font-['IBM_Plex_Mono',monospace]">
+        <span className="text-xs text-text-ghost mt-0.5 block font-['IBM_Plex_Mono',monospace]">
           {fmt(ciLower, 2)} - {fmt(ciUpper, 2)}
         </span>
       </div>

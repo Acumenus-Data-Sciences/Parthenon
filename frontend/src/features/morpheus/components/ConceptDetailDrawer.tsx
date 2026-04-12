@@ -46,10 +46,10 @@ function Row({ icon: Icon, label, value, mono }: {
 }) {
   return (
     <div className="flex items-start gap-2 py-1">
-      {Icon && <Icon size={12} className="mt-0.5 text-[#5A5650] shrink-0" />}
+      {Icon && <Icon size={12} className="mt-0.5 text-text-ghost shrink-0" />}
       <div className="min-w-0">
-        <div className="text-[10px] uppercase tracking-wider text-[#5A5650]">{label}</div>
-        <div className={`text-sm text-[#C5C0B8] ${mono ? 'font-mono text-[#2DD4BF]' : ''}`}>{value ?? '\u2014'}</div>
+        <div className="text-[10px] uppercase tracking-wider text-text-ghost">{label}</div>
+        <div className={`text-sm text-text-secondary ${mono ? 'font-mono text-success' : ''}`}>{value ?? '\u2014'}</div>
       </div>
     </div>
   );
@@ -59,20 +59,20 @@ function RangeIndicator({ value, low, high }: { value: number; low: number | nul
   if (low == null && high == null) return null;
   if (low != null && value < low) {
     return (
-      <span className="inline-flex items-center gap-1 text-[#818CF8]">
+      <span className="inline-flex items-center gap-1 text-info">
         <TrendingDown size={12} /> Below range ({low})
       </span>
     );
   }
   if (high != null && value > high) {
     return (
-      <span className="inline-flex items-center gap-1 text-[#E85A6B]">
+      <span className="inline-flex items-center gap-1 text-critical">
         <TrendingUp size={12} /> Above range ({high})
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1 text-[#22C55E]">
+    <span className="inline-flex items-center gap-1 text-success">
       <Minus size={12} /> Normal ({low}&ndash;{high})
     </span>
   );
@@ -90,14 +90,14 @@ function MiniSparkline({ values, currentIdx }: { values: number[]; currentIdx?: 
 
   return (
     <svg width={w} height={h} className="my-1">
-      <polyline points={points} fill="none" stroke="#818CF8" strokeWidth={1.5} />
+      <polyline points={points} fill="none" stroke="var(--info)" strokeWidth={1.5} />
       {currentIdx != null && currentIdx < recent.length && (
         <circle
           cx={(currentIdx / (recent.length - 1)) * w}
           cy={h - ((recent[currentIdx] - min) / range) * h}
           r={3}
-          fill="#F0EDE8"
-          stroke="#818CF8"
+          fill="var(--text-primary)"
+          stroke="var(--info)"
           strokeWidth={1}
         />
       )}
@@ -131,13 +131,13 @@ export default function ConceptDetailDrawer({ event, onClose, dataset }: Concept
 
       {/* Drawer */}
       <div
-        className="fixed right-0 top-0 z-50 flex h-full w-[360px] flex-col border-l bg-[#0E0E11]"
+        className="fixed right-0 top-0 z-50 flex h-full w-[360px] flex-col border-l bg-surface-base"
         style={{ borderLeftColor: color, borderLeftWidth: 3 }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#323238] px-4 py-3">
-          <h3 className="text-sm font-semibold text-[#F0EDE8] truncate">{event.concept_name}</h3>
-          <button type="button" onClick={onClose} className="text-[#5A5650] hover:text-[#C5C0B8] transition-colors focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30 rounded">
+        <div className="flex items-center justify-between border-b border-surface-highlight px-4 py-3">
+          <h3 className="text-sm font-semibold text-text-primary truncate">{event.concept_name}</h3>
+          <button type="button" onClick={onClose} className="text-text-ghost hover:text-text-secondary transition-colors focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30 rounded">
             <X size={16} />
           </button>
         </div>
@@ -147,23 +147,23 @@ export default function ConceptDetailDrawer({ event, onClose, dataset }: Concept
           {/* Dual Code Display */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <div className="text-[10px] uppercase tracking-wider text-[#5A5650] mb-1">Source Code</div>
+              <div className="text-[10px] uppercase tracking-wider text-text-ghost mb-1">Source Code</div>
               {event.source_code ? (
                 <>
-                  <div className="font-mono text-sm text-[#C9A227]">{event.source_code}</div>
-                  <div className="text-[10px] text-[#5A5650]">{event.source_vocabulary}</div>
+                  <div className="font-mono text-sm text-accent">{event.source_code}</div>
+                  <div className="text-[10px] text-text-ghost">{event.source_vocabulary}</div>
                 </>
               ) : (
-                <div className="text-xs text-[#5A5650]">&mdash;</div>
+                <div className="text-xs text-text-ghost">&mdash;</div>
               )}
             </div>
             <div>
-              <div className="text-[10px] uppercase tracking-wider text-[#5A5650] mb-1">OMOP Concept</div>
+              <div className="text-[10px] uppercase tracking-wider text-text-ghost mb-1">OMOP Concept</div>
               {event.concept_id ? (
                 <>
-                  <div className="font-mono text-sm text-[#2DD4BF]">{event.concept_id}</div>
-                  <div className="text-[10px] text-[#5A5650]">{event.standard_concept_name}</div>
-                  <span className="inline-block mt-1 rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#22C55E]/10 text-[#22C55E]">Mapped</span>
+                  <div className="font-mono text-sm text-success">{event.concept_id}</div>
+                  <div className="text-[10px] text-text-ghost">{event.standard_concept_name}</div>
+                  <span className="inline-block mt-1 rounded px-1.5 py-0.5 text-[10px] font-medium bg-success/10 text-success">Mapped</span>
                 </>
               ) : (
                 <span className="inline-block rounded px-1.5 py-0.5 text-[10px] font-medium bg-yellow-500/10 text-yellow-400">Unmapped</span>
@@ -173,7 +173,7 @@ export default function ConceptDetailDrawer({ event, onClose, dataset }: Concept
 
           {/* Current Occurrence */}
           <div>
-            <div className="text-[10px] font-semibold uppercase tracking-wider text-[#8A857D] mb-2">Occurrence Details</div>
+            <div className="text-[10px] font-semibold uppercase tracking-wider text-text-muted mb-2">Occurrence Details</div>
             {event.start_date && <Row icon={Tag} label="Date" value={`${event.start_date}${event.end_date ? ` \u2013 ${event.end_date}` : ''}`} />}
             {numericValue != null && !isNaN(numericValue) && (
               <>
@@ -190,8 +190,8 @@ export default function ConceptDetailDrawer({ event, onClose, dataset }: Concept
 
           {/* Patient History */}
           <div>
-            <div className="text-[10px] font-semibold uppercase tracking-wider text-[#8A857D] mb-2">This Patient</div>
-            <div className="text-xs text-[#C5C0B8]">
+            <div className="text-[10px] font-semibold uppercase tracking-wider text-text-muted mb-2">This Patient</div>
+            <div className="text-xs text-text-secondary">
               {event.occurrenceCount} occurrence{event.occurrenceCount !== 1 ? 's' : ''}
             </div>
             {event.sparklineValues.length > 1 && (
@@ -202,12 +202,12 @@ export default function ConceptDetailDrawer({ event, onClose, dataset }: Concept
           {/* Population Context */}
           {popStats && (
             <div>
-              <div className="text-[10px] font-semibold uppercase tracking-wider text-[#8A857D] mb-2">Dataset Population</div>
-              <div className="text-xs text-[#C5C0B8]">
+              <div className="text-[10px] font-semibold uppercase tracking-wider text-text-muted mb-2">Dataset Population</div>
+              <div className="text-xs text-text-secondary">
                 {popStats.patient_count.toLocaleString()} of {popStats.total_patients.toLocaleString()} patients ({popStats.percentage}%)
               </div>
               {popStats.mean_value != null && (
-                <div className="text-xs text-[#8A857D] mt-1">
+                <div className="text-xs text-text-muted mt-1">
                   Mean: {popStats.mean_value} | Median: {popStats.median_value}
                 </div>
               )}
@@ -215,19 +215,19 @@ export default function ConceptDetailDrawer({ event, onClose, dataset }: Concept
           )}
           {!popStats && event.concept_id && (
             <div>
-              <div className="text-[10px] font-semibold uppercase tracking-wider text-[#8A857D] mb-2">Dataset Population</div>
-              <div className="text-xs text-[#5A5650]">Population data not available</div>
+              <div className="text-[10px] font-semibold uppercase tracking-wider text-text-muted mb-2">Dataset Population</div>
+              <div className="text-xs text-text-ghost">Population data not available</div>
             </div>
           )}
         </div>
 
         {/* Footer Actions */}
-        <div className="border-t border-[#323238] px-4 py-3 space-y-2">
+        <div className="border-t border-surface-highlight px-4 py-3 space-y-2">
           {event.concept_id && (
             <Link
               to={`/vocabulary?concept=${event.concept_id}`}
               onClick={onClose}
-              className="flex items-center justify-center gap-1.5 w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-xs text-[#2DD4BF] transition-colors hover:bg-surface-raised focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30"
+              className="flex items-center justify-center gap-1.5 w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-xs text-success transition-colors hover:bg-surface-raised focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30"
               title="View concept in Vocabulary Browser"
             >
               <ExternalLink size={12} /> View in Vocabulary Browser

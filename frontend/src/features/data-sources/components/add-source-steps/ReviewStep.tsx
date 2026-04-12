@@ -13,8 +13,8 @@ interface Props {
 
 function SummaryCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-[#232328] bg-[#0E0E11] p-4 space-y-2">
-      <h4 className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">{title}</h4>
+    <div className="rounded-lg border border-border-default bg-surface-base p-4 space-y-2">
+      <h4 className="text-xs font-semibold uppercase tracking-wider text-text-muted">{title}</h4>
       {children}
     </div>
   );
@@ -24,8 +24,8 @@ function SummaryRow({ label, value, mono }: { label: string; value: string; mono
   if (!value) return null;
   return (
     <div className="flex items-start justify-between gap-4 text-sm">
-      <span className="text-[#5A5650] shrink-0">{label}</span>
-      <span className={`text-right break-all ${mono ? "font-mono text-[#C9A227] text-xs" : "text-[#C5C0B8]"}`}>
+      <span className="text-text-ghost shrink-0">{label}</span>
+      <span className={`text-right break-all ${mono ? "font-mono text-accent text-xs" : "text-text-secondary"}`}>
         {value}
       </span>
     </div>
@@ -76,8 +76,8 @@ export function ReviewStep({ dialect, connection: c, daimons, onSubmit, isLoadin
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="text-lg font-semibold text-[#F0EDE8]">Review & Add Source</h2>
-        <p className="mt-1 text-sm text-[#8A857D]">
+        <h2 className="text-lg font-semibold text-text-primary">Review & Add Source</h2>
+        <p className="mt-1 text-sm text-text-muted">
           Confirm the settings below, then click Add Source.
         </p>
       </div>
@@ -105,9 +105,9 @@ export function ReviewStep({ dialect, connection: c, daimons, onSubmit, isLoadin
               const Icon = DAIMON_ICONS[type as keyof typeof DAIMON_ICONS];
               return (
                 <div key={type} className="flex items-center gap-2 text-sm">
-                  <Icon size={12} className="text-[#5A5650] shrink-0" />
-                  <span className="text-[#5A5650] capitalize w-20 shrink-0">{type}</span>
-                  <span className="font-mono text-[#C9A227] text-xs">{qualifier}</span>
+                  <Icon size={12} className="text-text-ghost shrink-0" />
+                  <span className="text-text-ghost capitalize w-20 shrink-0">{type}</span>
+                  <span className="font-mono text-accent text-xs">{qualifier}</span>
                 </div>
               );
             })}
@@ -115,8 +115,8 @@ export function ReviewStep({ dialect, connection: c, daimons, onSubmit, isLoadin
         </div>
 
         {/* Right: what happens next */}
-        <div className="rounded-lg border border-[#232328] bg-[#0E0E11] p-4 space-y-3">
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">What happens next</h4>
+        <div className="rounded-lg border border-border-default bg-surface-base p-4 space-y-3">
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-text-muted">What happens next</h4>
           <ul className="space-y-2">
             {[
               "Source is registered in the Parthenon database",
@@ -125,8 +125,8 @@ export function ReviewStep({ dialect, connection: c, daimons, onSubmit, isLoadin
               "Users with access can select it in Data Explorer",
               "Run Achilles in the R service to populate characterization data",
             ].map((item, i) => (
-              <li key={i} className="flex items-start gap-2 text-xs text-[#8A857D]">
-                <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#C9A227]/10 text-[#C9A227] font-semibold text-[9px]">
+              <li key={i} className="flex items-start gap-2 text-xs text-text-muted">
+                <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent font-semibold text-[9px]">
                   {i + 1}
                 </span>
                 {item}
@@ -137,7 +137,7 @@ export function ReviewStep({ dialect, connection: c, daimons, onSubmit, isLoadin
       </div>
 
       {error && (
-        <div className="rounded-lg border border-[#E85A6B]/30 bg-[#E85A6B]/10 px-4 py-3 text-sm text-[#E85A6B]">
+        <div className="rounded-lg border border-critical/30 bg-critical/10 px-4 py-3 text-sm text-critical">
           {error}
         </div>
       )}
@@ -146,7 +146,7 @@ export function ReviewStep({ dialect, connection: c, daimons, onSubmit, isLoadin
         type="button"
         onClick={onSubmit}
         disabled={isLoading}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#C9353F] px-4 py-3 text-sm font-semibold text-text-primary hover:bg-[#D94550] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+        className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary-light px-4 py-3 text-sm font-semibold text-text-primary hover:bg-critical disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
       >
         {isLoading && <Loader2 size={14} className="animate-spin" />}
         {isLoading ? "Adding Source…" : "Add Source"}

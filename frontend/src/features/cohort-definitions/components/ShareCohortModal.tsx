@@ -52,7 +52,7 @@ export function ShareCohortModal({ cohortId, open, onClose }: Props) {
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-[#2A2A30] bg-[#151518] px-4 py-2 text-sm text-[#8A857D] hover:text-[#C5C0B8] transition-colors"
+            className="rounded-lg border border-border-default bg-surface-raised px-4 py-2 text-sm text-text-muted hover:text-text-secondary transition-colors"
           >
             Close
           </button>
@@ -61,7 +61,7 @@ export function ShareCohortModal({ cohortId, open, onClose }: Props) {
               type="button"
               onClick={handleGenerate}
               disabled={loading}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base hover:bg-success-dark transition-colors disabled:opacity-50"
             >
               {loading && <Loader2 size={14} className="animate-spin" />}
               Generate Link
@@ -71,21 +71,21 @@ export function ShareCohortModal({ cohortId, open, onClose }: Props) {
       }
     >
       <div className="space-y-4">
-        <p className="text-xs text-[#8A857D]">
+        <p className="text-xs text-text-muted">
           Generate a read-only link to share this cohort definition with
           collaborators. No account required to view.
         </p>
 
         {/* Expiry picker */}
         <div>
-          <label className="block text-xs font-medium text-[#8A857D] mb-1.5">
+          <label className="block text-xs font-medium text-text-muted mb-1.5">
             Link expires after
           </label>
           <select
             value={days}
             onChange={(e) => setDays(Number(e.target.value))}
             disabled={!!result}
-            className="rounded-lg bg-[#0E0E11] border border-[#2A2A30] px-3 py-2 text-sm text-[#C5C0B8] focus:outline-none focus:border-[#2DD4BF]/50 disabled:opacity-50"
+            className="rounded-lg bg-surface-base border border-border-default px-3 py-2 text-sm text-text-secondary focus:outline-none focus:border-success/50 disabled:opacity-50"
           >
             <option value={7}>7 days</option>
             <option value={14}>14 days</option>
@@ -98,29 +98,29 @@ export function ShareCohortModal({ cohortId, open, onClose }: Props) {
         {/* Generated link */}
         {result && frontendUrl && (
           <div className="space-y-2">
-            <label className="block text-xs font-medium text-[#8A857D]">
+            <label className="block text-xs font-medium text-text-muted">
               Share link
             </label>
             <div className="flex items-center gap-2">
               <input
                 readOnly
                 value={frontendUrl}
-                className="flex-1 rounded-lg bg-[#0E0E11] border border-[#2A2A30] px-3 py-2 text-xs text-[#C5C0B8] focus:outline-none truncate"
+                className="flex-1 rounded-lg bg-surface-base border border-border-default px-3 py-2 text-xs text-text-secondary focus:outline-none truncate"
               />
               <button
                 type="button"
                 onClick={handleCopy}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-[#2A2A30] bg-[#151518] px-3 py-2 text-xs text-[#8A857D] hover:text-[#C5C0B8] transition-colors shrink-0"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-xs text-text-muted hover:text-text-secondary transition-colors shrink-0"
               >
                 {copied ? (
-                  <CheckCheck size={13} className="text-[#2DD4BF]" />
+                  <CheckCheck size={13} className="text-success" />
                 ) : (
                   <Copy size={13} />
                 )}
                 {copied ? "Copied!" : "Copy"}
               </button>
             </div>
-            <p className="text-[10px] text-[#5A5650]">
+            <p className="text-[10px] text-text-ghost">
               Expires:{" "}
               {new Date(result.expires_at).toLocaleDateString(undefined, {
                 year: "numeric",
@@ -131,7 +131,7 @@ export function ShareCohortModal({ cohortId, open, onClose }: Props) {
           </div>
         )}
 
-        {error && <p className="text-xs text-[#E85A6B]">{error}</p>}
+        {error && <p className="text-xs text-critical">{error}</p>}
       </div>
     </Modal>
   );

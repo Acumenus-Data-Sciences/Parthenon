@@ -112,19 +112,19 @@ export default function ConnectDatabaseModal({
   if (!isOpen) return null;
 
   const inputCls =
-    "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8] placeholder-[#5A5650] focus:border-[#2DD4BF]/50 focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30";
+    "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary placeholder-[#5A5650] focus:border-success/50 focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30";
 
   return (
     <>
       <div className="fixed inset-0 z-40 bg-black/50" onClick={onClose} />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="w-full max-w-2xl rounded-xl border border-[#232328] bg-[#151518] shadow-2xl max-h-[85vh] flex flex-col">
-          <div className="flex items-center justify-between px-6 py-4 border-b border-[#232328]">
+        <div className="w-full max-w-2xl rounded-xl border border-border-default bg-surface-raised shadow-2xl max-h-[85vh] flex flex-col">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-border-default">
             <div className="flex items-center gap-3">
-              <Database size={20} className="text-[#2DD4BF]" />
-              <h2 className="text-lg font-semibold text-[#F0EDE8]">Connect to Database</h2>
+              <Database size={20} className="text-success" />
+              <h2 className="text-lg font-semibold text-text-primary">Connect to Database</h2>
             </div>
-            <button type="button" onClick={onClose} className="p-1 text-[#5A5650] hover:text-[#F0EDE8]">
+            <button type="button" onClick={onClose} className="p-1 text-text-ghost hover:text-text-primary">
               <X size={18} />
             </button>
           </div>
@@ -132,7 +132,7 @@ export default function ConnectDatabaseModal({
           <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2">
-                <label className="block text-xs font-medium text-[#8A857D] mb-1">Database Type</label>
+                <label className="block text-xs font-medium text-text-muted mb-1">Database Type</label>
                 <select className={inputCls} value={dbms} onChange={(e) => handleDialectChange(e.target.value)}>
                   {DIALECT_OPTIONS.map((d) => (
                     <option key={d.value} value={d.value}>{d.label}</option>
@@ -140,27 +140,27 @@ export default function ConnectDatabaseModal({
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-[#8A857D] mb-1">Host / IP</label>
+                <label className="block text-xs font-medium text-text-muted mb-1">Host / IP</label>
                 <input className={inputCls} value={host} onChange={(e) => setHost(e.target.value)} placeholder="localhost" />
               </div>
               <div>
-                <label className="block text-xs font-medium text-[#8A857D] mb-1">Port</label>
+                <label className="block text-xs font-medium text-text-muted mb-1">Port</label>
                 <input className={inputCls} type="number" value={port} onChange={(e) => setPort(Number(e.target.value))} />
               </div>
               <div>
-                <label className="block text-xs font-medium text-[#8A857D] mb-1">Username</label>
+                <label className="block text-xs font-medium text-text-muted mb-1">Username</label>
                 <input className={inputCls} value={user} onChange={(e) => setUser(e.target.value)} />
               </div>
               <div>
-                <label className="block text-xs font-medium text-[#8A857D] mb-1">Password</label>
+                <label className="block text-xs font-medium text-text-muted mb-1">Password</label>
                 <input className={inputCls} type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
               </div>
               <div>
-                <label className="block text-xs font-medium text-[#8A857D] mb-1">Database</label>
+                <label className="block text-xs font-medium text-text-muted mb-1">Database</label>
                 <input className={inputCls} value={database} onChange={(e) => setDatabase(e.target.value)} placeholder="parthenon" />
               </div>
               <div>
-                <label className="block text-xs font-medium text-[#8A857D] mb-1">Schema</label>
+                <label className="block text-xs font-medium text-text-muted mb-1">Schema</label>
                 <input className={inputCls} value={schema} onChange={(e) => setSchema(e.target.value)} placeholder="public" />
               </div>
             </div>
@@ -170,46 +170,46 @@ export default function ConnectDatabaseModal({
                 type="button"
                 onClick={handleTestConnection}
                 disabled={!host || !database || !schema || isConnecting}
-                className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF]/15 px-4 py-2 text-sm font-medium text-[#2DD4BF] hover:bg-[#2DD4BF]/25 disabled:opacity-40 transition-colors"
+                className="inline-flex items-center gap-2 rounded-lg bg-success/15 px-4 py-2 text-sm font-medium text-success hover:bg-success/25 disabled:opacity-40 transition-colors"
               >
                 {isConnecting ? <Loader2 size={14} className="animate-spin" /> : <Database size={14} />}
                 Test Connection
               </button>
               {connected && (
-                <span className="flex items-center gap-1 text-sm text-[#2DD4BF]">
+                <span className="flex items-center gap-1 text-sm text-success">
                   <CheckCircle2 size={14} /> Connected — {tables.length} tables found
                 </span>
               )}
             </div>
 
             {error && (
-              <div className="flex items-start gap-2 rounded-lg bg-[#E85A6B]/10 border border-[#E85A6B]/30 px-3 py-2">
-                <AlertTriangle size={14} className="text-[#E85A6B] mt-0.5 shrink-0" />
-                <p className="text-sm text-[#E85A6B]">{error}</p>
+              <div className="flex items-start gap-2 rounded-lg bg-critical/10 border border-critical/30 px-3 py-2">
+                <AlertTriangle size={14} className="text-critical mt-0.5 shrink-0" />
+                <p className="text-sm text-critical">{error}</p>
               </div>
             )}
 
             {connected && tables.length > 0 && (
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-[#8A857D]">
+                  <span className="text-sm font-medium text-text-muted">
                     Select Tables ({selectedTables.size} / {tables.length})
                   </span>
-                  <button type="button" onClick={handleSelectAll} className="text-xs text-[#2DD4BF] hover:text-[#2DD4BF]/80">
+                  <button type="button" onClick={handleSelectAll} className="text-xs text-success hover:text-success/80">
                     {selectedTables.size === tables.length ? "Deselect All" : "Select All"}
                   </button>
                 </div>
-                <div className="max-h-60 overflow-y-auto rounded-lg border border-[#232328] divide-y divide-[#1E1E23]">
+                <div className="max-h-60 overflow-y-auto rounded-lg border border-border-default divide-y divide-border-subtle">
                   {tables.map((t) => (
-                    <label key={t.name} className="flex items-center gap-3 px-3 py-2 hover:bg-[#1C1C20] cursor-pointer transition-colors">
+                    <label key={t.name} className="flex items-center gap-3 px-3 py-2 hover:bg-surface-overlay cursor-pointer transition-colors">
                       <input
                         type="checkbox"
                         checked={selectedTables.has(t.name)}
                         onChange={() => handleToggleTable(t.name)}
-                        className="rounded border-[#323238] bg-[#0E0E11] text-[#2DD4BF] focus:ring-[#2DD4BF]/30"
+                        className="rounded border-surface-highlight bg-surface-base text-success focus:ring-[#2DD4BF]/30"
                       />
-                      <span className="text-sm text-[#F0EDE8] flex-1">{t.name}</span>
-                      <span className="text-xs text-[#5A5650] font-mono">
+                      <span className="text-sm text-text-primary flex-1">{t.name}</span>
+                      <span className="text-xs text-text-ghost font-mono">
                         {t.column_count} cols
                         {t.row_count != null && ` · ${t.row_count.toLocaleString()} rows`}
                       </span>
@@ -220,15 +220,15 @@ export default function ConnectDatabaseModal({
             )}
           </div>
 
-          <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-[#232328]">
-            <button type="button" onClick={onClose} className="rounded-lg border border-[#323238] px-4 py-2 text-sm text-[#8A857D] hover:text-[#F0EDE8] transition-colors">
+          <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border-default">
+            <button type="button" onClick={onClose} className="rounded-lg border border-surface-highlight px-4 py-2 text-sm text-text-muted hover:text-text-primary transition-colors">
               Cancel
             </button>
             <button
               type="button"
               onClick={handleConfirm}
               disabled={selectedTables.size === 0}
-              className="rounded-lg bg-[#9B1B30] px-4 py-2 text-sm font-medium text-[#F0EDE8] hover:bg-[#B82D42] disabled:opacity-40 transition-colors"
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-text-primary hover:bg-primary-light disabled:opacity-40 transition-colors"
             >
               Confirm ({selectedTables.size} tables)
             </button>

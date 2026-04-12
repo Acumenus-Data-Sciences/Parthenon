@@ -126,36 +126,36 @@ export function OnboardingModal() {
         options={{
           buttons: ["back", "close", "primary", "skip"],
           showProgress: true,
-          primaryColor: "#C9A227",
-          backgroundColor: "#1A1A1E",
-          textColor: "#C5C0B8",
+          primaryColor: "var(--accent)",
+          backgroundColor: "var(--surface-overlay)",
+          textColor: "var(--text-secondary)",
           overlayColor: "rgba(0,0,0,0.65)",
           zIndex: 10000,
         }}
         styles={{
           buttonPrimary: {
-            backgroundColor: "#C9A227",
-            color: "#0E0E11",
+            backgroundColor: "var(--accent)",
+            color: "var(--surface-base)",
           },
           buttonBack: {
-            color: "#8A857D",
+            color: "var(--text-muted)",
           },
           buttonSkip: {
-            color: "#8A857D",
+            color: "var(--text-muted)",
           },
         }}
       />
 
       {/* Full-screen welcome overlay — only shown if tour not running */}
       {!runTour && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0E0E11]/90 backdrop-blur-sm">
-          <div className="relative mx-4 w-full max-w-2xl rounded-2xl border border-[#232328] bg-[#151518] p-8 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-surface-base/90 backdrop-blur-sm">
+          <div className="relative mx-4 w-full max-w-2xl rounded-2xl border border-border-default bg-surface-raised p-8 shadow-2xl">
             {/* Skip button */}
             <button
               type="button"
               onClick={markComplete}
               disabled={completing}
-              className="absolute right-4 top-4 rounded-md p-1.5 text-[#5A5650] hover:text-[#8A857D] transition-colors"
+              className="absolute right-4 top-4 rounded-md p-1.5 text-text-ghost hover:text-text-muted transition-colors"
               aria-label="Skip onboarding"
             >
               <X size={18} />
@@ -163,10 +163,10 @@ export function OnboardingModal() {
 
             {/* Header */}
             <div className="mb-6 text-center">
-              <h1 className="text-2xl font-bold text-[#F0EDE8]">
+              <h1 className="text-2xl font-bold text-text-primary">
                 Welcome to Parthenon
               </h1>
-              <p className="mt-2 text-sm text-[#8A857D]">
+              <p className="mt-2 text-sm text-text-muted">
                 A modern OMOP outcomes research platform. Let's get you started.
               </p>
             </div>
@@ -181,15 +181,15 @@ export function OnboardingModal() {
                     type="button"
                     onClick={() => handleCardClick(card.href)}
                     className={cn(
-                      "group flex flex-col items-start rounded-xl border border-[#232328] bg-[#1A1A1E] p-4",
-                      "hover:border-[#323238] hover:bg-[#1F1F24] transition-colors text-left",
+                      "group flex flex-col items-start rounded-xl border border-border-default bg-surface-overlay p-4",
+                      "hover:border-surface-highlight hover:bg-surface-overlay transition-colors text-left",
                     )}
                   >
                     <div className={cn("mb-3 rounded-lg p-2", card.bg)}>
                       <Icon size={18} className={card.color} />
                     </div>
-                    <p className="text-sm font-semibold text-[#F0EDE8]">{card.title}</p>
-                    <p className="mt-1 text-xs text-[#8A857D]">{card.description}</p>
+                    <p className="text-sm font-semibold text-text-primary">{card.title}</p>
+                    <p className="mt-1 text-xs text-text-muted">{card.description}</p>
                   </button>
                 );
               })}
@@ -202,8 +202,8 @@ export function OnboardingModal() {
                 onClick={startTour}
                 disabled={completing}
                 className={cn(
-                  "inline-flex items-center gap-2 rounded-lg bg-[#C9A227] px-6 py-3 text-sm font-semibold text-[#0E0E11]",
-                  "hover:bg-[#D4AE3A] transition-colors disabled:opacity-50",
+                  "inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-surface-base",
+                  "hover:bg-accent-light transition-colors disabled:opacity-50",
                 )}
               >
                 {completing ? (
@@ -219,7 +219,7 @@ export function OnboardingModal() {
                 type="button"
                 onClick={markComplete}
                 disabled={completing}
-                className="text-xs text-[#5A5650] hover:text-[#8A857D] transition-colors"
+                className="text-xs text-text-ghost hover:text-text-muted transition-colors"
               >
                 I'm already familiar — skip
               </button>

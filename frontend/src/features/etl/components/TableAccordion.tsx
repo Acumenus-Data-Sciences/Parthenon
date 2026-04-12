@@ -33,13 +33,13 @@ export function TableAccordion({
   const grade = scoreToGrade(tableNullScore(table));
 
   return (
-    <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+    <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
       <button
         type="button"
         onClick={() => setOpen((p) => !p)}
-        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-[#1C1C20] transition-colors"
+        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-surface-overlay transition-colors"
       >
-        <span className="text-[#8A857D]">
+        <span className="text-text-muted">
           {open ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
         </span>
         <span
@@ -48,10 +48,10 @@ export function TableAccordion({
         >
           {grade.letter}
         </span>
-        <span className="flex-1 text-sm font-medium text-[#F0EDE8] font-mono">
+        <span className="flex-1 text-sm font-medium text-text-primary font-mono">
           {table.table_name}
         </span>
-        <span className="flex items-center gap-3 text-xs text-[#8A857D]">
+        <span className="flex items-center gap-3 text-xs text-text-muted">
           <span className="flex items-center gap-1">
             <Rows3 size={12} />
             {fmtNumber(table.row_count)}
@@ -61,13 +61,13 @@ export function TableAccordion({
             {table.column_count}
           </span>
           {highNullCols.length > 0 && (
-            <span className="flex items-center gap-1 text-[#C9A227]">
+            <span className="flex items-center gap-1 text-accent">
               <AlertTriangle size={12} />
               {highNullCols.length} high-null
             </span>
           )}
           {lowCardCols.length > 0 && (
-            <span className="flex items-center gap-1 text-[#60A5FA]">
+            <span className="flex items-center gap-1 text-info">
               <Activity size={12} />
               {lowCardCols.length} low-card
             </span>
@@ -76,15 +76,15 @@ export function TableAccordion({
       </button>
 
       {open && (
-        <div className="border-t border-[#232328] overflow-x-auto">
+        <div className="border-t border-border-default overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
-              <tr className="bg-[#1C1C20]">
+              <tr className="bg-surface-overlay">
                 {["Column", "Type", "Null %", "Distinct", "Sample Values"].map(
                   (header) => (
                     <th
                       key={header}
-                      className="px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]"
+                      className="px-4 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted"
                     >
                       {header}
                     </th>
@@ -99,17 +99,17 @@ export function TableAccordion({
                   <tr
                     key={col.name}
                     className={cn(
-                      "border-t border-[#1C1C20]",
-                      i % 2 === 0 ? "bg-[#151518]" : "bg-[#1A1A1E]",
+                      "border-t border-border-subtle",
+                      i % 2 === 0 ? "bg-surface-raised" : "bg-surface-overlay",
                       isHighNull && "bg-[rgba(232,90,107,0.04)]",
                     )}
                   >
-                    <td className="px-4 py-2.5 font-mono text-[#C5C0B8]">
+                    <td className="px-4 py-2.5 font-mono text-text-secondary">
                       <div className="flex items-center gap-1.5">
                         {isHighNull && (
                           <AlertTriangle
                             size={11}
-                            className="text-[#E85A6B] shrink-0"
+                            className="text-critical shrink-0"
                           />
                         )}
                         {col.name}
@@ -126,7 +126,7 @@ export function TableAccordion({
                     <td className="px-4 py-2.5">
                       <NullBar pct={nullPct(col)} />
                     </td>
-                    <td className="px-4 py-2.5 tabular-nums text-[#8A857D]">
+                    <td className="px-4 py-2.5 tabular-nums text-text-muted">
                       {fmtNumberFull(col.unique_count)}
                     </td>
                     <td className="px-4 py-2.5">

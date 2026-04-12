@@ -72,7 +72,7 @@ export function CreateFromBundleModal({
       size="md"
     >
       <div className="space-y-4">
-        <p className="text-xs text-[#8A857D]">
+        <p className="text-xs text-text-muted">
           Select a disease bundle to auto-generate a cohort definition with
           condition criteria and quality measure inclusion rules.
         </p>
@@ -81,7 +81,7 @@ export function CreateFromBundleModal({
         <div className="relative">
           <Search
             size={14}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost"
           />
           <input
             type="text"
@@ -90,27 +90,27 @@ export function CreateFromBundleModal({
             placeholder="Filter bundles..."
             className={cn(
               "w-full rounded-lg pl-9 pr-3 py-2 text-sm",
-              "bg-[#0E0E11] border border-[#232328]",
-              "text-[#F0EDE8] placeholder:text-[#5A5650]",
-              "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+              "bg-surface-base border border-border-default",
+              "text-text-primary placeholder:text-text-ghost",
+              "focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40",
             )}
           />
         </div>
 
         {/* Bundle list */}
-        <div className="rounded-lg border border-[#232328] bg-[#0E0E11] max-h-64 overflow-y-auto">
+        <div className="rounded-lg border border-border-default bg-surface-base max-h-64 overflow-y-auto">
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
-              <Loader2 size={16} className="animate-spin text-[#8A857D]" />
+              <Loader2 size={16} className="animate-spin text-text-muted" />
             </div>
           ) : filtered.length === 0 ? (
             <div className="py-6 text-center">
-              <p className="text-xs text-[#5A5650]">
+              <p className="text-xs text-text-ghost">
                 {filter ? "No matching bundles" : "No care bundles found"}
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-[#232328]">
+            <div className="divide-y divide-border-default">
               {filtered.map((bundle: ConditionBundle) => {
                 const isSelected = selectedId === bundle.id;
                 return (
@@ -124,37 +124,37 @@ export function CreateFromBundleModal({
                     className={cn(
                       "w-full px-4 py-3 text-left transition-colors",
                       isSelected
-                        ? "bg-[#2DD4BF]/10 border-l-2 border-l-[#2DD4BF]"
-                        : "hover:bg-[#1C1C20]",
+                        ? "bg-success/10 border-l-2 border-l-[#2DD4BF]"
+                        : "hover:bg-surface-overlay",
                     )}
                   >
                     <div className="flex items-center justify-between">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <Stethoscope size={12} className="text-[#8A857D] shrink-0" />
-                          <p className="text-sm text-[#F0EDE8] truncate">
+                          <Stethoscope size={12} className="text-text-muted shrink-0" />
+                          <p className="text-sm text-text-primary truncate">
                             {bundle.condition_name}
                           </p>
-                          <span className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#1A1A1F] text-[#8A857D] border border-[#2A2A30]">
+                          <span className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium bg-surface-overlay text-text-muted border border-border-default">
                             {bundle.bundle_code}
                           </span>
                         </div>
                         <div className="flex items-center gap-3 mt-1">
                           {bundle.disease_category && (
-                            <span className="text-[10px] text-[#5A5650]">
+                            <span className="text-[10px] text-text-ghost">
                               {bundle.disease_category}
                             </span>
                           )}
-                          <span className="text-[10px] text-[#5A5650]">
+                          <span className="text-[10px] text-text-ghost">
                             {bundle.bundle_size} measures
                           </span>
-                          <span className="text-[10px] text-[#5A5650]">
+                          <span className="text-[10px] text-text-ghost">
                             {bundle.omop_concept_ids.length} concepts
                           </span>
                         </div>
                       </div>
                       {isSelected && (
-                        <CheckCircle2 size={14} className="shrink-0 text-[#2DD4BF]" />
+                        <CheckCircle2 size={14} className="shrink-0 text-success" />
                       )}
                     </div>
                   </button>
@@ -166,10 +166,10 @@ export function CreateFromBundleModal({
 
         {/* Options (visible when a bundle is selected) */}
         {selectedBundle && (
-          <div className="space-y-3 rounded-lg border border-[#232328] bg-[#151518] p-4">
+          <div className="space-y-3 rounded-lg border border-border-default bg-surface-raised p-4">
             {/* Name */}
             <div>
-              <label className="block text-[10px] uppercase tracking-wider text-[#5A5650] mb-1">
+              <label className="block text-[10px] uppercase tracking-wider text-text-ghost mb-1">
                 Cohort Name
               </label>
               <input
@@ -178,9 +178,9 @@ export function CreateFromBundleModal({
                 onChange={(e) => setName(e.target.value)}
                 className={cn(
                   "w-full rounded-lg px-3 py-2 text-sm",
-                  "bg-[#0E0E11] border border-[#232328]",
-                  "text-[#F0EDE8] placeholder:text-[#5A5650]",
-                  "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
+                  "bg-surface-base border border-border-default",
+                  "text-text-primary placeholder:text-text-ghost",
+                  "focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40",
                 )}
               />
             </div>
@@ -193,7 +193,7 @@ export function CreateFromBundleModal({
                 onClick={() => setIncludeMeasures(!includeMeasures)}
                 className={cn(
                   "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full transition-colors",
-                  includeMeasures ? "bg-[#2DD4BF]" : "bg-[#323238]",
+                  includeMeasures ? "bg-success" : "bg-surface-highlight",
                 )}
               >
                 <span
@@ -203,7 +203,7 @@ export function CreateFromBundleModal({
                   )}
                 />
               </div>
-              <span className="text-xs text-[#C5C0B8]">
+              <span className="text-xs text-text-secondary">
                 Include quality measure criteria as inclusion rules
               </span>
             </label>
@@ -213,7 +213,7 @@ export function CreateFromBundleModal({
               type="button"
               onClick={handleCreate}
               disabled={createMutation.isPending}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2.5 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors disabled:opacity-50"
+              className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-success px-4 py-2.5 text-sm font-medium text-surface-base hover:bg-success-dark transition-colors disabled:opacity-50"
             >
               {createMutation.isPending ? (
                 <Loader2 size={16} className="animate-spin" />

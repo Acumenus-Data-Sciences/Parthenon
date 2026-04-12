@@ -60,31 +60,31 @@ export function InclusionRuleEditor({
   };
 
   const inputClass = cn(
-    "w-16 rounded-lg border border-[#232328] bg-[#0E0E11] px-2 py-1 text-sm text-center",
-    "text-[#F0EDE8] focus:border-[#2DD4BF] focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40",
+    "w-16 rounded-lg border border-border-default bg-surface-base px-2 py-1 text-sm text-center",
+    "text-text-primary focus:border-success focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40",
     "font-['IBM_Plex_Mono',monospace] tabular-nums",
   );
 
   const selectClass = cn(
-    "appearance-none rounded-lg border border-[#232328] bg-[#0E0E11] px-2 py-1 text-sm",
-    "text-[#F0EDE8] focus:border-[#2DD4BF] focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40",
+    "appearance-none rounded-lg border border-border-default bg-surface-base px-2 py-1 text-sm",
+    "text-text-primary focus:border-success focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40",
     "cursor-pointer",
   );
 
   return (
-    <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+    <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
       {/* Header */}
       <div
-        className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-[#1C1C20] transition-colors"
+        className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-surface-overlay transition-colors"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center gap-3">
           {isExpanded ? (
-            <ChevronDown size={14} className="text-[#8A857D]" />
+            <ChevronDown size={14} className="text-text-muted" />
           ) : (
-            <ChevronRight size={14} className="text-[#8A857D]" />
+            <ChevronRight size={14} className="text-text-muted" />
           )}
-          <span className="text-xs font-medium text-[#5A5650]">
+          <span className="text-xs font-medium text-text-ghost">
             #{index + 1}
           </span>
           {domainInfo && (
@@ -99,9 +99,9 @@ export function InclusionRuleEditor({
               {domainInfo.label}
             </span>
           )}
-          <span className="text-sm text-[#C5C0B8]">
+          <span className="text-sm text-text-secondary">
             {OCCURRENCE_TYPES.find((t) => t.value === occurrence.Type)?.label}{" "}
-            <span className="font-['IBM_Plex_Mono',monospace] text-[#2DD4BF]">
+            <span className="font-['IBM_Plex_Mono',monospace] text-success">
               {occurrence.Count}
             </span>{" "}
             occurrence{occurrence.Count !== 1 ? "s" : ""}
@@ -114,7 +114,7 @@ export function InclusionRuleEditor({
             e.stopPropagation();
             onRemove();
           }}
-          className="inline-flex items-center justify-center w-7 h-7 rounded-md text-[#8A857D] hover:text-[#E85A6B] hover:bg-[#E85A6B]/10 transition-colors"
+          className="inline-flex items-center justify-center w-7 h-7 rounded-md text-text-muted hover:text-critical hover:bg-critical/10 transition-colors"
         >
           <Trash2 size={12} />
         </button>
@@ -122,14 +122,14 @@ export function InclusionRuleEditor({
 
       {/* Expanded content */}
       {isExpanded && (
-        <div className="border-t border-[#232328] px-4 py-4 space-y-4">
+        <div className="border-t border-border-default px-4 py-4 space-y-4">
           {/* Occurrence */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
+            <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
               Occurrence
             </label>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-[#8A857D]">Having</span>
+              <span className="text-xs text-text-muted">Having</span>
               <select
                 value={occurrence.Type}
                 onChange={(e) =>
@@ -156,7 +156,7 @@ export function InclusionRuleEditor({
                 }
                 className={inputClass}
               />
-              <span className="text-xs text-[#8A857D]">
+              <span className="text-xs text-text-muted">
                 occurrence{occurrence.Count !== 1 ? "s" : ""} of
               </span>
               {domainInfo && (
@@ -202,9 +202,9 @@ export function InclusionRuleEditor({
               onChange={(e) =>
                 onChange({ ...rule, RestrictVisit: e.target.checked })
               }
-              className="rounded border-[#232328] bg-[#0E0E11] text-[#2DD4BF] focus:ring-[#2DD4BF]/40"
+              className="rounded border-border-default bg-surface-base text-success focus:ring-[#2DD4BF]/40"
             />
-            <span className="text-xs text-[#8A857D]">
+            <span className="text-xs text-text-muted">
               Restrict to same visit as index event
             </span>
           </label>

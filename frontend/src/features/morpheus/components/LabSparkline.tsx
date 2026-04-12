@@ -37,15 +37,15 @@ export default function LabSparkline({ values, rangeLow, rangeHigh, width = 100,
           y={toY(rangeHigh)}
           width={vw - 2 * pad}
           height={Math.max(0, toY(rangeLow) - toY(rangeHigh))}
-          fill="#22C55E"
+          fill="var(--success)"
           opacity={0.12}
           rx={1}
         />
       )}
       {/* Value line */}
-      <polyline points={points} fill="none" stroke="#818CF8" strokeWidth={1.5} vectorEffect="non-scaling-stroke" />
+      <polyline points={points} fill="none" stroke="var(--info)" strokeWidth={1.5} vectorEffect="non-scaling-stroke" />
       {/* Latest point */}
-      <circle cx={toX(values.length - 1)} cy={toY(values[values.length - 1])} r={2} fill="#F0EDE8" stroke="#818CF8" strokeWidth={1} vectorEffect="non-scaling-stroke" />
+      <circle cx={toX(values.length - 1)} cy={toY(values[values.length - 1])} r={2} fill="var(--text-primary)" stroke="var(--info)" strokeWidth={1} vectorEffect="non-scaling-stroke" />
     </svg>
   );
 }

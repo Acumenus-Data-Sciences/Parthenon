@@ -15,7 +15,7 @@ const QUADRANTS = {
   sw: { label: "Less Costly, Less Effective", sub: "Trade-off" },
 } as const;
 
-const POINT_COLORS = [CHART.accent, CHART.gold, CHART.crimson, CHART.blue, "#A855F7", "#34D399"];
+const POINT_COLORS = [CHART.accent, CHART.gold, CHART.crimson, CHART.blue, "#A855F7", "var(--success)"];
 
 export default function CostEffectivenessPlane({ results, wtp = 50000 }: Props) {
   // Filter to only incremental results (non-base-case scenarios)
@@ -37,7 +37,7 @@ export default function CostEffectivenessPlane({ results, wtp = 50000 }: Props) 
   if (points.length === 0) {
     return (
       <ChartCard title="Cost-Effectiveness Plane" subtitle="No incremental results available">
-        <div className="h-64 flex items-center justify-center text-sm text-[#5A5650]">
+        <div className="h-64 flex items-center justify-center text-sm text-text-ghost">
           Run the analysis with intervention scenarios to see the CE plane.
         </div>
       </ChartCard>
@@ -97,10 +97,10 @@ export default function CostEffectivenessPlane({ results, wtp = 50000 }: Props) 
     >
       <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto" role="img" aria-label="Cost-effectiveness plane scatter plot">
         {/* Quadrant fills */}
-        <rect x={scaleX(0)} y={margin.top} width={scaleX(padX) - scaleX(0)} height={scaleY(0) - margin.top} fill="#2DD4BF" opacity={0.03} />
-        <rect x={margin.left} y={margin.top} width={scaleX(0) - margin.left} height={scaleY(0) - margin.top} fill="#E85A6B" opacity={0.04} />
-        <rect x={scaleX(0)} y={scaleY(0)} width={scaleX(padX) - scaleX(0)} height={margin.top + plotH - scaleY(0)} fill="#2DD4BF" opacity={0.06} />
-        <rect x={margin.left} y={scaleY(0)} width={scaleX(0) - margin.left} height={margin.top + plotH - scaleY(0)} fill="#C9A227" opacity={0.03} />
+        <rect x={scaleX(0)} y={margin.top} width={scaleX(padX) - scaleX(0)} height={scaleY(0) - margin.top} fill="var(--success)" opacity={0.03} />
+        <rect x={margin.left} y={margin.top} width={scaleX(0) - margin.left} height={scaleY(0) - margin.top} fill="var(--critical)" opacity={0.04} />
+        <rect x={scaleX(0)} y={scaleY(0)} width={scaleX(padX) - scaleX(0)} height={margin.top + plotH - scaleY(0)} fill="var(--success)" opacity={0.06} />
+        <rect x={margin.left} y={scaleY(0)} width={scaleX(0) - margin.left} height={margin.top + plotH - scaleY(0)} fill="var(--accent)" opacity={0.03} />
 
         {/* Grid lines */}
         {xTicks.map((v) => (
@@ -233,9 +233,9 @@ export default function CostEffectivenessPlane({ results, wtp = 50000 }: Props) 
         {points.map((p, i) => (
           <div key={i} className="flex items-center gap-1.5 text-xs">
             <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: p.color }} />
-            <span className="text-[#C5C0B8]">{p.label}</span>
+            <span className="text-text-secondary">{p.label}</span>
             {p.nmb !== null && (
-              <span className={`font-mono text-[10px] ${p.nmb >= 0 ? "text-[#2DD4BF]" : "text-[#E85A6B]"}`}>
+              <span className={`font-mono text-[10px] ${p.nmb >= 0 ? "text-success" : "text-critical"}`}>
                 NMB: ${formatCompact(p.nmb)}
               </span>
             )}

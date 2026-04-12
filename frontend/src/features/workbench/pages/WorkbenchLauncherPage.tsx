@@ -65,7 +65,7 @@ export default function WorkbenchLauncherPage() {
           <Link
             to="/workbench/investigation/new"
             className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-text-primary transition-colors hover:opacity-90"
-            style={{ backgroundColor: "#9B1B30" }}
+            style={{ backgroundColor: "var(--primary)" }}
           >
             New Investigation
           </Link>
@@ -84,7 +84,7 @@ export default function WorkbenchLauncherPage() {
             <Link
               to="/workbench/investigation/new"
               className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-text-primary transition-colors hover:opacity-90"
-              style={{ backgroundColor: "#9B1B30" }}
+              style={{ backgroundColor: "var(--primary)" }}
             >
               Create Investigation
             </Link>
@@ -122,7 +122,7 @@ export default function WorkbenchLauncherPage() {
           Want to build a custom toolset?{" "}
           <a
             href="/workbench/community-sdk-demo"
-            className="text-[#C9A227] hover:underline"
+            className="text-accent hover:underline"
           >
             View the Community SDK reference
           </a>

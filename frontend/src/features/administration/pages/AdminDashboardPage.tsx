@@ -92,8 +92,8 @@ function StatusDotInline({ status }: { status: "healthy" | "degraded" | "down" |
 function Stat({ label, value, warn }: { label: string; value: string | number; warn?: boolean }) {
   return (
     <div className="flex items-center justify-between gap-2">
-      <span className="text-[11px] text-[#5A5650] whitespace-nowrap">{label}</span>
-      <span className={`text-[11px] font-mono font-medium ${warn ? "text-red-400" : "text-[#F0EDE8]"}`}>
+      <span className="text-[11px] text-text-ghost whitespace-nowrap">{label}</span>
+      <span className={`text-[11px] font-mono font-medium ${warn ? "text-red-400" : "text-text-primary"}`}>
         {value}
       </span>
     </div>
@@ -168,10 +168,10 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {/* Platform Health */}
         <Link to="/admin/system-health" className="block">
-          <div className={`rounded-lg border ${overallBorder} bg-[#151518] p-4 hover:bg-[#1A1A1F] transition-colors h-full`}>
+          <div className={`rounded-lg border ${overallBorder} bg-surface-raised p-4 hover:bg-surface-overlay transition-colors h-full`}>
             <div className="flex items-center gap-2 mb-3">
               <Activity size={14} className="text-emerald-400" />
-              <span className="text-xs font-semibold text-[#F0EDE8]">Platform</span>
+              <span className="text-xs font-semibold text-text-primary">Platform</span>
               <span className={`ml-auto text-[10px] font-medium px-1.5 py-0.5 rounded ${
                 allHealthy ? "bg-emerald-500/15 text-emerald-400" : hasDown ? "bg-red-500/15 text-red-400" : "bg-amber-500/15 text-amber-400"
               }`}>
@@ -197,10 +197,10 @@ export default function AdminDashboardPage() {
 
         {/* Users & Access */}
         <Link to="/admin/users" className="block">
-          <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 hover:bg-[#1A1A1F] transition-colors h-full">
+          <div className="rounded-lg border border-border-default bg-surface-raised p-4 hover:bg-surface-overlay transition-colors h-full">
             <div className="flex items-center gap-2 mb-3">
               <Users size={14} className="text-blue-400" />
-              <span className="text-xs font-semibold text-[#F0EDE8]">Users & Access</span>
+              <span className="text-xs font-semibold text-text-primary">Users & Access</span>
             </div>
             <div className="space-y-1.5">
               <Stat label="Total users" value={usersPage?.total ?? "—"} />
@@ -213,10 +213,10 @@ export default function AdminDashboardPage() {
 
         {/* Data Sources */}
         <Link to="/data-sources" className="block">
-          <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 hover:bg-[#1A1A1F] transition-colors h-full">
+          <div className="rounded-lg border border-border-default bg-surface-raised p-4 hover:bg-surface-overlay transition-colors h-full">
             <div className="flex items-center gap-2 mb-3">
               <Database size={14} className="text-violet-400" />
-              <span className="text-xs font-semibold text-[#F0EDE8]">Data Sources</span>
+              <span className="text-xs font-semibold text-text-primary">Data Sources</span>
               <span className="ml-auto text-[10px] font-medium px-1.5 py-0.5 rounded bg-violet-500/15 text-violet-400">
                 {cdmSources.length} CDM{cdmSources.length !== 1 ? "s" : ""}
               </span>
@@ -224,16 +224,16 @@ export default function AdminDashboardPage() {
             <div className="space-y-1.5">
               {cdmSources.slice(0, 4).map((s) => (
                 <div key={s.id} className="flex items-center justify-between gap-2">
-                  <span className="text-[11px] text-[#5A5650] truncate">{s.source_name}</span>
+                  <span className="text-[11px] text-text-ghost truncate">{s.source_name}</span>
                   <CircleDot size={8} className="shrink-0 text-violet-400/40" />
                 </div>
               ))}
               {cdmSources.length === 0 && (
-                <span className="text-[11px] text-[#5A5650]">No CDM sources configured</span>
+                <span className="text-[11px] text-text-ghost">No CDM sources configured</span>
               )}
               {solr && (
                 <>
-                  <div className="border-t border-[#232328] mt-2 pt-1.5" />
+                  <div className="border-t border-border-default mt-2 pt-1.5" />
                   <Stat label="Solr" value={`${formatCompact(solrDocs)} docs / ${solrCores} cores`} />
                 </>
               )}
@@ -243,10 +243,10 @@ export default function AdminDashboardPage() {
 
         {/* AI & Research */}
         <Link to="/admin/ai-providers" className="block">
-          <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 hover:bg-[#1A1A1F] transition-colors h-full">
+          <div className="rounded-lg border border-border-default bg-surface-raised p-4 hover:bg-surface-overlay transition-colors h-full">
             <div className="flex items-center gap-2 mb-3">
               <FlaskConical size={14} className="text-orange-400" />
-              <span className="text-xs font-semibold text-[#F0EDE8]">AI & Research</span>
+              <span className="text-xs font-semibold text-text-primary">AI & Research</span>
             </div>
             <div className="space-y-1.5">
               <Stat
@@ -300,18 +300,18 @@ export default function AdminDashboardPage() {
         {/* Setup Wizard — superadmin only, button not link */}
         {isSuperAdmin() && (
           <button type="button" onClick={openSetupWizard} className="block text-left">
-            <Panel className="group h-full cursor-pointer transition-colors hover:border-[#C9A227]/50">
+            <Panel className="group h-full cursor-pointer transition-colors hover:border-accent/50">
               <div className="flex h-full flex-col justify-between">
                 <div>
-                  <div className="inline-flex rounded-md bg-[#C9A227]/10 p-2">
-                    <Wand2 className="h-5 w-5 text-[#C9A227]" />
+                  <div className="inline-flex rounded-md bg-accent/10 p-2">
+                    <Wand2 className="h-5 w-5 text-accent" />
                   </div>
                   <h3 className="mt-4 text-base font-semibold text-foreground">Platform Setup Wizard</h3>
                   <p className="mt-1 text-sm text-muted-foreground">
                     Re-run the guided setup — health check, AI provider, authentication, and data sources.
                   </p>
                 </div>
-                <div className="mt-4 flex items-center gap-1 text-sm font-medium text-[#C9A227] opacity-0 transition-opacity group-hover:opacity-100">
+                <div className="mt-4 flex items-center gap-1 text-sm font-medium text-accent opacity-0 transition-opacity group-hover:opacity-100">
                   Open wizard <ArrowRight className="h-4 w-4" />
                 </div>
               </div>

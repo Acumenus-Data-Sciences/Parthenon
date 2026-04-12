@@ -53,8 +53,8 @@ export function ConceptBrowser({ onSelectConcept }: ConceptBrowserProps) {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-[#232328]">
-        <h3 className="text-sm font-semibold text-[#F0EDE8] mb-2">
+      <div className="px-4 py-3 border-b border-border-default">
+        <h3 className="text-sm font-semibold text-text-primary mb-2">
           Concept Browser
         </h3>
 
@@ -62,7 +62,7 @@ export function ConceptBrowser({ onSelectConcept }: ConceptBrowserProps) {
         <div className="relative">
           <Search
             size={14}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost"
           />
           <input
             type="text"
@@ -71,9 +71,9 @@ export function ConceptBrowser({ onSelectConcept }: ConceptBrowserProps) {
             placeholder="Search concepts..."
             className={cn(
               "w-full rounded-lg pl-9 pr-8 py-2 text-sm",
-              "bg-[#0E0E11] border border-[#232328]",
-              "text-[#F0EDE8] placeholder:text-[#5A5650]",
-              "focus:outline-none focus:border-[#9B1B30] focus:ring-1 focus:ring-[#9B1B30]/40",
+              "bg-surface-base border border-border-default",
+              "text-text-primary placeholder:text-text-ghost",
+              "focus:outline-none focus:border-primary focus:ring-1 focus:ring-[#9B1B30]/40",
               "transition-colors",
             )}
           />
@@ -84,7 +84,7 @@ export function ConceptBrowser({ onSelectConcept }: ConceptBrowserProps) {
                 setQuery("");
                 setDebouncedQuery("");
               }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-[#5A5650] hover:text-[#C5C0B8] transition-colors"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-text-ghost hover:text-text-secondary transition-colors"
             >
               <X size={14} />
             </button>
@@ -96,23 +96,23 @@ export function ConceptBrowser({ onSelectConcept }: ConceptBrowserProps) {
       <div className="flex-1 overflow-y-auto">
         {isLoading || isFetching ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 size={18} className="animate-spin text-[#8A857D]" />
+            <Loader2 size={18} className="animate-spin text-text-muted" />
           </div>
         ) : !debouncedQuery || debouncedQuery.length < 2 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center px-4">
-            <Search size={24} className="text-[#323238] mb-3" />
-            <p className="text-xs text-[#5A5650]">
+            <Search size={24} className="text-text-ghost mb-3" />
+            <p className="text-xs text-text-ghost">
               Type at least 2 characters to search OMOP concepts
             </p>
           </div>
         ) : !results || results.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center px-4">
-            <p className="text-xs text-[#5A5650]">
+            <p className="text-xs text-text-ghost">
               No concepts found for &ldquo;{debouncedQuery}&rdquo;
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-[#232328]">
+          <div className="divide-y divide-border-default">
             {results.map((concept) => {
               const isStandard = concept.standard_concept === "S";
 
@@ -123,31 +123,31 @@ export function ConceptBrowser({ onSelectConcept }: ConceptBrowserProps) {
                   onClick={() =>
                     onSelectConcept(concept.concept_id, concept.concept_name)
                   }
-                  className="flex flex-col gap-1 w-full px-4 py-3 text-left hover:bg-[#1C1C20] transition-colors"
+                  className="flex flex-col gap-1 w-full px-4 py-3 text-left hover:bg-surface-overlay transition-colors"
                 >
                   <div className="flex items-center gap-2">
                     <span
                       className={cn(
                         "font-['IBM_Plex_Mono',monospace] text-xs tabular-nums",
-                        isStandard ? "text-[#C9A227]" : "text-[#8A857D]",
+                        isStandard ? "text-accent" : "text-text-muted",
                       )}
                     >
                       {concept.concept_id}
                     </span>
                     {isStandard && (
-                      <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-[#2DD4BF]/15 text-[#2DD4BF]">
+                      <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-success/15 text-success">
                         S
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-[#F0EDE8] leading-snug">
+                  <p className="text-sm text-text-primary leading-snug">
                     {concept.concept_name}
                   </p>
                   <div className="flex items-center gap-1.5">
-                    <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#60A5FA]/15 text-[#60A5FA]">
+                    <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-info/15 text-info">
                       {concept.domain_id}
                     </span>
-                    <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#C9A227]/15 text-[#C9A227]">
+                    <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-accent/15 text-accent">
                       {concept.vocabulary_id}
                     </span>
                   </div>

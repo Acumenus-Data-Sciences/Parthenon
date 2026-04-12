@@ -39,13 +39,13 @@ export function SqlBlock({ sql, safety, libraryEntry, libraryParams, dialect }: 
               justifyContent: "space-between",
               padding: "8px 14px",
               borderBottom: "1px solid #232328",
-              background: "#111115",
+              background: "var(--surface-base)",
             }}
           >
             <span
               style={{
                 fontSize: "11px",
-                color: "#8A857D",
+                color: "var(--text-muted)",
                 fontFamily:
                   "var(--font-mono, 'IBM Plex Mono', monospace)",
                 letterSpacing: "0.5px",
@@ -65,7 +65,7 @@ export function SqlBlock({ sql, safety, libraryEntry, libraryParams, dialect }: 
                   borderRadius: "5px",
                   border: "1px solid #2DD4BF30",
                   background: "#2DD4BF0A",
-                  color: sql ? "#2DD4BF" : "#555",
+                  color: sql ? "var(--success)" : "var(--text-ghost)",
                   fontSize: "12px",
                   cursor: sql ? "pointer" : "not-allowed",
                   transition: "all 150ms",
@@ -94,8 +94,8 @@ export function SqlBlock({ sql, safety, libraryEntry, libraryParams, dialect }: 
                   padding: "3px 10px",
                   borderRadius: "5px",
                   border: "1px solid #232328",
-                  background: copied ? "#2DD4BF10" : "#1C1C20",
-                  color: copied ? "#2DD4BF" : "#8A857D",
+                  background: copied ? "#2DD4BF10" : "var(--surface-overlay)",
+                  color: copied ? "var(--success)" : "var(--text-muted)",
                   fontSize: "12px",
                   cursor: "pointer",
                   transition: "all 150ms",
@@ -115,7 +115,7 @@ export function SqlBlock({ sql, safety, libraryEntry, libraryParams, dialect }: 
                 "'IBM Plex Mono', 'Fira Code', 'Cascadia Code', monospace",
               fontSize: "13px",
               lineHeight: "1.65",
-              color: "#C5C0B8",
+              color: "var(--text-secondary)",
               overflowX: "auto",
               whiteSpace: "pre-wrap",
               wordBreak: "break-word",

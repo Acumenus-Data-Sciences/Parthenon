@@ -82,7 +82,7 @@ export default function AttritionDiagram({
         .attr("text-anchor", "end")
         .attr("dominant-baseline", "central")
         .attr("font-size", "11px")
-        .attr("fill", "#333")
+        .attr("fill", "var(--surface-highlight)")
         .attr("font-family", "sans-serif")
         .text(step.label);
 
@@ -94,7 +94,7 @@ export default function AttritionDiagram({
         .attr("dominant-baseline", "central")
         .attr("font-size", "12px")
         .attr("font-weight", "bold")
-        .attr("fill", "#333")
+        .attr("fill", "var(--surface-highlight)")
         .attr("font-family", "sans-serif")
         .text(`n = ${step.count.toLocaleString()}`);
 
@@ -124,7 +124,7 @@ export default function AttritionDiagram({
           .attr("x2", plotWidth / 2)
           .attr("y1", arrowY1)
           .attr("y2", arrowY2)
-          .attr("stroke", "#999")
+          .attr("stroke", "var(--text-muted)")
           .attr("stroke-width", 1);
 
         // Arrow pointing right to exclusion text
@@ -157,7 +157,7 @@ export default function AttritionDiagram({
           .attr("x2", plotWidth / 2)
           .attr("y1", arrowY1 + 2)
           .attr("y2", arrowY2 - 2)
-          .attr("stroke", "#999")
+          .attr("stroke", "var(--text-muted)")
           .attr("stroke-width", 1)
           .attr("marker-end", "url(#arrowhead-gray)");
       }
@@ -181,7 +181,7 @@ export default function AttritionDiagram({
     };
 
     addMarker("arrowhead-red", "#d32f2f");
-    addMarker("arrowhead-gray", "#999");
+    addMarker("arrowhead-gray", "var(--text-muted)");
   }, [steps, width, computedHeight, plotWidth]);
 
   return <svg ref={svgRef} />;

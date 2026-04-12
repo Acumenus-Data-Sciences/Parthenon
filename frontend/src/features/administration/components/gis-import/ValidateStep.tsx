@@ -21,8 +21,8 @@ export function ValidateStep({ importId, onComplete, onBack }: Props) {
   if (validate.isPending) {
     return (
       <div className="flex flex-col items-center py-8">
-        <Loader2 className="mb-2 h-8 w-8 animate-spin text-[#C9A227]" />
-        <p className="text-sm text-[#8A857D]">Validating...</p>
+        <Loader2 className="mb-2 h-8 w-8 animate-spin text-accent" />
+        <p className="text-sm text-text-muted">Validating...</p>
       </div>
     );
   }
@@ -40,8 +40,8 @@ export function ValidateStep({ importId, onComplete, onBack }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="rounded border border-[#232328] bg-[#0E0E11] p-4">
-        <h3 className="mb-3 text-sm font-medium text-[#E8E4DC]">Validation Results</h3>
+      <div className="rounded border border-border-default bg-surface-base p-4">
+        <h3 className="mb-3 text-sm font-medium text-text-primary">Validation Results</h3>
         <div className="grid grid-cols-2 gap-4">
           <Stat label="Total Rows" value={result.total_rows} />
           <Stat label="Unique Geographies" value={result.unique_geographies} />
@@ -64,13 +64,13 @@ export function ValidateStep({ importId, onComplete, onBack }: Props) {
       <div className="flex justify-between">
         <button
           onClick={onBack}
-          className="rounded border border-[#323238] px-4 py-2 text-sm text-[#8A857D] hover:border-[#5A5650]"
+          className="rounded border border-surface-highlight px-4 py-2 text-sm text-text-muted hover:border-text-ghost"
         >
           Back to Mapping
         </button>
         <button
           onClick={() => onComplete(result)}
-          className="rounded bg-[#C9A227] px-4 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#C9A227]/90"
+          className="rounded bg-accent px-4 py-2 text-sm font-medium text-surface-base hover:bg-accent/90"
         >
           Proceed with Import
         </button>
@@ -82,8 +82,8 @@ export function ValidateStep({ importId, onComplete, onBack }: Props) {
 function Stat({ label, value, color }: { label: string; value: string | number; color?: string }) {
   return (
     <div>
-      <p className="text-xs text-[#5A5650]">{label}</p>
-      <p className={`text-lg font-semibold ${color ?? "text-[#E8E4DC]"}`}>{value}</p>
+      <p className="text-xs text-text-ghost">{label}</p>
+      <p className={`text-lg font-semibold ${color ?? "text-text-primary"}`}>{value}</p>
     </div>
   );
 }

@@ -13,7 +13,7 @@ export function ResultsSkeleton() {
           style={{
             padding: "8px 14px",
             borderBottom: "1px solid #232328",
-            background: "#111115",
+            background: "var(--surface-base)",
             height: "36px",
           }}
         />
@@ -44,7 +44,7 @@ export function ResultsSkeleton() {
 
       <div
         style={{
-          background: "#151518",
+          background: "var(--surface-raised)",
           border: "1px solid #232328",
           borderRadius: "8px",
           padding: "16px",

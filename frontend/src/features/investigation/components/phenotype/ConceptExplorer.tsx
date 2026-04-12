@@ -17,9 +17,9 @@ const DOMAIN_OPTIONS = [
 ];
 
 const DOMAIN_BADGE_CLASSES: Record<string, string> = {
-  Condition: "bg-[#9B1B30]/20 text-[#9B1B30] border border-[#9B1B30]/30",
+  Condition: "bg-primary/20 text-primary border border-primary/30",
   Drug: "bg-teal-900/30 text-teal-400 border border-teal-500/30",
-  Measurement: "bg-yellow-900/30 text-[#C9A227] border border-yellow-600/30",
+  Measurement: "bg-yellow-900/30 text-accent border border-yellow-600/30",
   Procedure: "bg-blue-900/30 text-blue-400 border border-blue-500/30",
   Observation: "bg-purple-900/30 text-purple-400 border border-purple-500/30",
   Device: "bg-orange-900/30 text-orange-400 border border-orange-500/30",
@@ -61,7 +61,7 @@ function ConceptCard({
     <div
       className={`group cursor-pointer rounded border px-3 py-2.5 transition-colors ${
         isSelected
-          ? "border-[#2DD4BF]/40 bg-[#2DD4BF]/5"
+          ? "border-success/40 bg-success/5"
           : "border-border-default/50 bg-surface-raised/40 hover:border-border-hover hover:bg-surface-raised/70"
       }`}
       onClick={() => onSelect(concept)}
@@ -73,7 +73,7 @@ function ConceptCard({
               {concept.concept_name}
             </span>
             {concept.standard_concept === "S" && (
-              <span className="text-[10px] font-semibold text-[#2DD4BF] bg-teal-900/30 border border-teal-500/30 rounded px-1.5 py-0.5 leading-none">
+              <span className="text-[10px] font-semibold text-success bg-teal-900/30 border border-teal-500/30 rounded px-1.5 py-0.5 leading-none">
                 Standard
               </span>
             )}
@@ -97,7 +97,7 @@ function ConceptCard({
           </div>
         </div>
         <button
-          className="shrink-0 rounded px-2 py-1 text-xs font-medium text-[#2DD4BF] border border-teal-500/30 bg-teal-900/20 opacity-0 group-hover:opacity-100 hover:bg-teal-900/40 transition-all"
+          className="shrink-0 rounded px-2 py-1 text-xs font-medium text-success border border-teal-500/30 bg-teal-900/20 opacity-0 group-hover:opacity-100 hover:bg-teal-900/40 transition-all"
           onClick={(e) => {
             e.stopPropagation();
             onAdd(concept);
@@ -161,7 +161,7 @@ export function ConceptExplorer({ onAddConcept }: ConceptExplorerProps) {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             placeholder="Search concepts… (min 2 chars)"
-            className="w-full rounded border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary placeholder-text-ghost focus:border-[#2DD4BF]/50 focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/20"
+            className="w-full rounded border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary placeholder-text-ghost focus:border-success/50 focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/20"
           />
           {isFetching && (
             <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
@@ -172,7 +172,7 @@ export function ConceptExplorer({ onAddConcept }: ConceptExplorerProps) {
         <select
           value={selectedDomain}
           onChange={(e) => setSelectedDomain(e.target.value)}
-          className="rounded border border-border-default bg-surface-base px-2 py-2 text-xs text-text-secondary focus:border-[#2DD4BF]/50 focus:outline-none"
+          className="rounded border border-border-default bg-surface-base px-2 py-2 text-xs text-text-secondary focus:border-success/50 focus:outline-none"
         >
           {DOMAIN_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>

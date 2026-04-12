@@ -155,7 +155,7 @@ export default function ConceptSetDetailPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+        <Loader2 size={24} className="animate-spin text-text-muted" />
       </div>
     );
   }
@@ -164,11 +164,11 @@ export default function ConceptSetDetailPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <p className="text-[#E85A6B]">Failed to load concept set</p>
+          <p className="text-critical">Failed to load concept set</p>
           <button
             type="button"
             onClick={() => navigate("/concept-sets")}
-            className="mt-4 text-sm text-[#8A857D] hover:text-[#F0EDE8] transition-colors"
+            className="mt-4 text-sm text-text-muted hover:text-text-primary transition-colors"
           >
             Back to list
           </button>
@@ -186,7 +186,7 @@ export default function ConceptSetDetailPage() {
           <button
             type="button"
             onClick={() => navigate("/concept-sets")}
-            className="inline-flex items-center gap-1 text-sm text-[#8A857D] hover:text-[#F0EDE8] transition-colors mb-3"
+            className="inline-flex items-center gap-1 text-sm text-text-muted hover:text-text-primary transition-colors mb-3"
           >
             <ArrowLeft size={14} />
             Concept Sets
@@ -208,7 +208,7 @@ export default function ConceptSetDetailPage() {
                 }}
                 autoFocus
                 className={cn(
-                  "text-2xl font-bold bg-transparent border-b-2 border-[#2DD4BF] text-[#F0EDE8]",
+                  "text-2xl font-bold bg-transparent border-b-2 border-success text-text-primary",
                   "focus:outline-none px-0 py-0",
                 )}
               />
@@ -216,7 +216,7 @@ export default function ConceptSetDetailPage() {
                 type="button"
                 onClick={handleSaveName}
                 disabled={updateMutation.isPending}
-                className="inline-flex items-center justify-center w-8 h-8 rounded-md text-[#2DD4BF] hover:bg-[#2DD4BF]/10 transition-colors"
+                className="inline-flex items-center justify-center w-8 h-8 rounded-md text-success hover:bg-success/10 transition-colors"
               >
                 {updateMutation.isPending ? (
                   <Loader2 size={14} className="animate-spin" />
@@ -228,7 +228,7 @@ export default function ConceptSetDetailPage() {
           ) : (
             <h1
               onClick={() => setIsEditingName(true)}
-              className="text-2xl font-bold text-[#F0EDE8] cursor-pointer hover:text-[#2DD4BF] transition-colors"
+              className="text-2xl font-bold text-text-primary cursor-pointer hover:text-success transition-colors"
               title="Click to edit"
             >
               {conceptSet.name}
@@ -252,15 +252,15 @@ export default function ConceptSetDetailPage() {
                 autoFocus
                 placeholder="Add a description..."
                 className={cn(
-                  "flex-1 text-sm bg-transparent border-b border-[#2DD4BF] text-[#C5C0B8]",
-                  "placeholder:text-[#5A5650] focus:outline-none px-0 py-0",
+                  "flex-1 text-sm bg-transparent border-b border-success text-text-secondary",
+                  "placeholder:text-text-ghost focus:outline-none px-0 py-0",
                 )}
               />
               <button
                 type="button"
                 onClick={handleSaveDescription}
                 disabled={updateMutation.isPending}
-                className="inline-flex items-center justify-center w-8 h-8 rounded-md text-[#2DD4BF] hover:bg-[#2DD4BF]/10 transition-colors"
+                className="inline-flex items-center justify-center w-8 h-8 rounded-md text-success hover:bg-success/10 transition-colors"
               >
                 {updateMutation.isPending ? (
                   <Loader2 size={14} className="animate-spin" />
@@ -275,8 +275,8 @@ export default function ConceptSetDetailPage() {
               className={cn(
                 "mt-1 text-sm cursor-pointer transition-colors",
                 conceptSet.description
-                  ? "text-[#8A857D] hover:text-[#C5C0B8]"
-                  : "text-[#5A5650] hover:text-[#8A857D]",
+                  ? "text-text-muted hover:text-text-secondary"
+                  : "text-text-ghost hover:text-text-muted",
               )}
               title="Click to edit"
             >
@@ -290,7 +290,7 @@ export default function ConceptSetDetailPage() {
               {conceptSet.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#C9A227]/15 text-[#C9A227]"
+                  className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-accent/15 text-accent"
                 >
                   {tag}
                 </span>
@@ -305,7 +305,7 @@ export default function ConceptSetDetailPage() {
             type="button"
             onClick={handleDuplicate}
             disabled={copyMutation.isPending}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#8A857D] hover:text-[#C5C0B8] transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-muted hover:text-text-secondary transition-colors disabled:opacity-50"
           >
             {copyMutation.isPending ? (
               <Loader2 size={14} className="animate-spin" />
@@ -318,7 +318,7 @@ export default function ConceptSetDetailPage() {
           <button
             type="button"
             onClick={handleExport}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#8A857D] hover:text-[#C5C0B8] transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-muted hover:text-text-secondary transition-colors"
           >
             <Download size={14} />
             Export
@@ -331,8 +331,8 @@ export default function ConceptSetDetailPage() {
             className={cn(
               "inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition-colors",
               conceptSet.is_public
-                ? "border-[#2DD4BF]/30 bg-[#2DD4BF]/10 text-[#2DD4BF]"
-                : "border-[#232328] bg-[#151518] text-[#8A857D] hover:text-[#C5C0B8]",
+                ? "border-success/30 bg-success/10 text-success"
+                : "border-border-default bg-surface-raised text-text-muted hover:text-text-secondary",
             )}
           >
             {conceptSet.is_public ? (
@@ -347,7 +347,7 @@ export default function ConceptSetDetailPage() {
             type="button"
             onClick={handleDelete}
             disabled={deleteMutation.isPending}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#8A857D] hover:text-[#E85A6B] hover:border-[#E85A6B]/30 transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-muted hover:text-critical hover:border-critical/30 transition-colors disabled:opacity-50"
           >
             {deleteMutation.isPending ? (
               <Loader2 size={14} className="animate-spin" />
@@ -390,8 +390,8 @@ export default function ConceptSetDetailPage() {
             {conceptIds.length > 0 && (
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <Sparkles size={16} className="text-[#C9A227]" />
-                  <h2 className="text-sm font-semibold text-[#F0EDE8]">
+                  <Sparkles size={16} className="text-accent" />
+                  <h2 className="text-sm font-semibold text-text-primary">
                     Recommended Concepts
                   </h2>
                 </div>

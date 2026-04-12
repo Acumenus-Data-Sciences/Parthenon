@@ -72,20 +72,20 @@ export function CohortWizard() {
   return (
     <div className="flex gap-6 p-6">
       <WizardSidebar />
-      <div className="min-w-0 flex-1 rounded-xl border border-[#2a2a3a] bg-[#12121a] p-6">
+      <div className="min-w-0 flex-1 rounded-xl border border-border-default bg-surface-base p-6">
         <div className="mb-5 flex items-center justify-between">
           <div>
-            <h3 className="m-0 text-[#C9A227]">
+            <h3 className="m-0 text-accent">
               Chapter {currentChapter}: {header?.title}
             </h3>
-            <p className="mt-1 text-[13px] text-[#666]">{header?.subtitle}</p>
+            <p className="mt-1 text-[13px] text-text-ghost">{header?.subtitle}</p>
           </div>
           <div className="flex gap-2">
             {!isFirstStep && (
               <button
                 type="button"
                 onClick={goBack}
-                className="flex items-center gap-1 rounded-md border border-[#333] px-3.5 py-1.5 text-[12px] text-[#888] transition-colors hover:border-[#555] hover:text-[#ccc]"
+                className="flex items-center gap-1 rounded-md border border-border-default px-3.5 py-1.5 text-[12px] text-text-muted transition-colors hover:border-surface-highlight hover:text-text-secondary"
               >
                 <ArrowLeft size={14} />
                 Back
@@ -95,7 +95,7 @@ export function CohortWizard() {
               <button
                 type="button"
                 onClick={goNext}
-                className="flex items-center gap-1 rounded-md bg-[#C9A227] px-3.5 py-1.5 text-[12px] font-semibold text-[#0E0E11] transition-colors hover:bg-[#B8922A]"
+                className="flex items-center gap-1 rounded-md bg-accent px-3.5 py-1.5 text-[12px] font-semibold text-surface-base transition-colors hover:bg-accent-dark"
               >
                 Next
                 <ArrowRight size={14} />

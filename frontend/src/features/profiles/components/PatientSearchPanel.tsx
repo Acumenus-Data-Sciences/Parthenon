@@ -78,21 +78,21 @@ export function PatientSearchPanel({
       {/* Source selector — only shown when not controlled externally */}
       {externalSourceId === undefined && (
         <div>
-          <label className="block text-xs font-medium text-[#8A857D] mb-1">
+          <label className="block text-xs font-medium text-text-muted mb-1">
             Data Source
           </label>
           <div className="relative">
             <Database
               size={12}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost"
             />
             <select
               value={internalSourceId ?? ""}
               onChange={(e) => setInternalSourceId(Number(e.target.value) || null)}
               disabled={loadingSources}
               className={cn(
-                "w-full appearance-none rounded-lg border border-[#232328] bg-[#0E0E11] pl-8 pr-8 py-2 text-sm",
-                "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                "w-full appearance-none rounded-lg border border-border-default bg-surface-base pl-8 pr-8 py-2 text-sm",
+                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
               )}
             >
               <option value="">Select a data source...</option>
@@ -104,7 +104,7 @@ export function PatientSearchPanel({
             </select>
             <ChevronDown
               size={12}
-              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-text-ghost"
             />
           </div>
         </div>
@@ -115,7 +115,7 @@ export function PatientSearchPanel({
         <div className="relative">
           <Search
             size={14}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost"
           />
           <input
             ref={inputRef}
@@ -134,16 +134,16 @@ export function PatientSearchPanel({
             disabled={!sourceId}
             className={cn(
               "w-full rounded-lg border pl-9 pr-8 py-2.5 text-sm transition-colors",
-              "bg-[#0E0E11] text-[#F0EDE8] placeholder:text-[#5A5650]",
+              "bg-surface-base text-text-primary placeholder:text-text-ghost",
               !sourceId
-                ? "border-[#232328] opacity-50 cursor-not-allowed"
-                : "border-[#232328] focus:border-[#2DD4BF] focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30",
+                ? "border-border-default opacity-50 cursor-not-allowed"
+                : "border-border-default focus:border-success focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30",
             )}
           />
           {/* Loading / clear */}
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
             {(isLoading || isFetching) && query.trim() ? (
-              <Loader2 size={13} className="animate-spin text-[#5A5650]" />
+              <Loader2 size={13} className="animate-spin text-text-ghost" />
             ) : query ? (
               <button
                 type="button"
@@ -152,7 +152,7 @@ export function PatientSearchPanel({
                   setIsOpen(false);
                   inputRef.current?.focus();
                 }}
-                className="text-[#5A5650] hover:text-[#C5C0B8] transition-colors"
+                className="text-text-ghost hover:text-text-secondary transition-colors"
               >
                 <X size={13} />
               </button>
@@ -163,13 +163,13 @@ export function PatientSearchPanel({
         {/* Search type hints */}
         {sourceId && !query && (
           <div className="flex items-center gap-3 mt-1.5 px-1">
-            <span className="inline-flex items-center gap-1 text-[10px] text-[#5A5650]">
+            <span className="inline-flex items-center gap-1 text-[10px] text-text-ghost">
               <Hash size={9} /> Person ID
             </span>
-            <span className="inline-flex items-center gap-1 text-[10px] text-[#5A5650]">
+            <span className="inline-flex items-center gap-1 text-[10px] text-text-ghost">
               <CreditCard size={9} /> MRN / Source Value
             </span>
-            <span className="text-[10px] text-[#3A3A40]">
+            <span className="text-[10px] text-text-disabled">
               (names not in OMOP CDM)
             </span>
           </div>
@@ -180,57 +180,57 @@ export function PatientSearchPanel({
           <div
             className={cn(
               "absolute left-0 right-0 top-full mt-1 z-50",
-              "rounded-lg border border-[#323238] bg-[#0E0E11] shadow-2xl overflow-hidden",
+              "rounded-lg border border-surface-highlight bg-surface-base shadow-2xl overflow-hidden",
             )}
           >
             {isLoading && !results ? (
               <div className="flex items-center justify-center py-6">
-                <Loader2 size={18} className="animate-spin text-[#8A857D]" />
+                <Loader2 size={18} className="animate-spin text-text-muted" />
               </div>
             ) : !hasResults ? (
               <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
-                <User size={20} className="text-[#323238] mb-2" />
-                <p className="text-sm text-[#8A857D]">
+                <User size={20} className="text-text-ghost mb-2" />
+                <p className="text-sm text-text-muted">
                   No patients found for &ldquo;{query}&rdquo;
                 </p>
-                <p className="mt-1 text-xs text-[#5A5650]">
+                <p className="mt-1 text-xs text-text-ghost">
                   Try a different person ID or MRN
                 </p>
               </div>
             ) : (
               <div>
-                <div className="px-3 py-1.5 border-b border-[#1C1C20]">
-                  <p className="text-[10px] text-[#5A5650]">
+                <div className="px-3 py-1.5 border-b border-border-subtle">
+                  <p className="text-[10px] text-text-ghost">
                     {results.length} result{results.length !== 1 ? "s" : ""}
                     {results.length === 20 ? " (showing first 20)" : ""}
                   </p>
                 </div>
-                <div className="max-h-72 overflow-y-auto divide-y divide-[#1C1C20]">
+                <div className="max-h-72 overflow-y-auto divide-y divide-border-subtle">
                   {results.map((person) => (
                     <button
                       key={person.person_id}
                       type="button"
                       onClick={() => handleSelect(person.person_id)}
-                      className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-[#1C1C20] transition-colors text-left"
+                      className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-surface-overlay transition-colors text-left"
                     >
                       {/* Avatar */}
-                      <div className="flex items-center justify-center w-7 h-7 rounded-full bg-[#2DD4BF]/10 shrink-0">
-                        <User size={13} className="text-[#2DD4BF]" />
+                      <div className="flex items-center justify-center w-7 h-7 rounded-full bg-success/10 shrink-0">
+                        <User size={13} className="text-success" />
                       </div>
 
                       {/* Info */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-semibold text-[#2DD4BF] font-['IBM_Plex_Mono',monospace]">
+                          <span className="text-sm font-semibold text-success font-['IBM_Plex_Mono',monospace]">
                             #{person.person_id}
                           </span>
-                          <span className="text-xs text-[#8A857D]">
+                          <span className="text-xs text-text-muted">
                             {person.gender} · {computeAge(person.year_of_birth)} yrs ({person.year_of_birth})
                           </span>
                         </div>
                         {person.person_source_value && (
-                          <p className="text-xs text-[#5A5650] truncate mt-0.5">
-                            <span className="text-[#3A3A40]">MRN:</span>{" "}
+                          <p className="text-xs text-text-ghost truncate mt-0.5">
+                            <span className="text-text-disabled">MRN:</span>{" "}
                             {person.person_source_value}
                           </p>
                         )}
@@ -238,7 +238,7 @@ export function PatientSearchPanel({
 
                       {/* Race tag */}
                       {person.race && person.race !== "Unknown" && (
-                        <span className="text-[10px] text-[#5A5650] shrink-0">
+                        <span className="text-[10px] text-text-ghost shrink-0">
                           {person.race}
                         </span>
                       )}

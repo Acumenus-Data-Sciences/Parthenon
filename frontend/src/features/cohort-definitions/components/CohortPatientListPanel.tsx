@@ -45,9 +45,9 @@ function SortIcon({
 }) {
   if (sortKey !== col) return <ArrowUpDown size={11} className="opacity-30" />;
   return sortDir === "asc" ? (
-    <ArrowUp size={11} className="text-[#2DD4BF]" />
+    <ArrowUp size={11} className="text-success" />
   ) : (
-    <ArrowDown size={11} className="text-[#2DD4BF]" />
+    <ArrowDown size={11} className="text-success" />
   );
 }
 
@@ -195,10 +195,10 @@ export function CohortPatientListPanel({
   // No generation sources at all
   if (!generationSources || generationSources.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
-        <AlertCircle size={28} className="text-[#5A5650] mb-3" />
-        <p className="text-sm text-[#8A857D] mb-1">No cohort generated yet</p>
-        <p className="text-xs text-[#5A5650]">
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
+        <AlertCircle size={28} className="text-text-ghost mb-3" />
+        <p className="text-sm text-text-muted mb-1">No cohort generated yet</p>
+        <p className="text-xs text-text-ghost">
           Generate this cohort on a data source first to view patient members.
         </p>
       </div>
@@ -208,10 +208,10 @@ export function CohortPatientListPanel({
   // No completed generations with patients
   if (completedSources.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
-        <AlertCircle size={28} className="text-[#5A5650] mb-3" />
-        <p className="text-sm text-[#8A857D] mb-1">No patients in cohort</p>
-        <p className="text-xs text-[#5A5650]">
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
+        <AlertCircle size={28} className="text-text-ghost mb-3" />
+        <p className="text-sm text-text-muted mb-1">No patients in cohort</p>
+        <p className="text-xs text-text-ghost">
           The cohort has been generated but contains 0 patients on all sources.
         </p>
       </div>
@@ -222,14 +222,14 @@ export function CohortPatientListPanel({
     <div className="space-y-4">
       {/* Source selector (only if multiple sources) */}
       {completedSources.length > 1 && (
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-          <label className="block text-xs font-medium text-[#8A857D] mb-1.5">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+          <label className="block text-xs font-medium text-text-muted mb-1.5">
             Data Source
           </label>
           <div className="relative max-w-xs">
             <Database
               size={12}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost"
             />
             <select
               value={sourceId ?? ""}
@@ -238,8 +238,8 @@ export function CohortPatientListPanel({
                 setPage(1);
               }}
               className={cn(
-                "w-full appearance-none rounded-lg border border-[#232328] bg-[#0E0E11] pl-8 pr-8 py-2 text-sm",
-                "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                "w-full appearance-none rounded-lg border border-border-default bg-surface-base pl-8 pr-8 py-2 text-sm",
+                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
               )}
             >
               <option value="">Select a data source...</option>
@@ -252,7 +252,7 @@ export function CohortPatientListPanel({
             </select>
             <ChevronDown
               size={12}
-              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-text-ghost"
             />
           </div>
         </div>
@@ -260,13 +260,13 @@ export function CohortPatientListPanel({
 
       {/* Single-source info banner */}
       {completedSources.length === 1 && (
-        <div className="flex items-center gap-2 text-xs text-[#8A857D]">
-          <Database size={12} className="text-[#5A5650]" />
+        <div className="flex items-center gap-2 text-xs text-text-muted">
+          <Database size={12} className="text-text-ghost" />
           <span>
             {completedSources[0].source_name ?? completedSources[0].source_key ?? `Source #${completedSources[0].source_id}`}
           </span>
           {completedSources[0].person_count != null && (
-            <span className="text-[#2DD4BF] font-medium">
+            <span className="text-success font-medium">
               {completedSources[0].person_count.toLocaleString()} patients
             </span>
           )}
@@ -275,9 +275,9 @@ export function CohortPatientListPanel({
 
       {/* Prompt to select source */}
       {!sourceId && completedSources.length > 1 && (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-12">
-          <Users size={24} className="text-[#5A5650] mb-3" />
-          <p className="text-sm text-[#8A857D]">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-12">
+          <Users size={24} className="text-text-ghost mb-3" />
+          <p className="text-sm text-text-muted">
             Select a data source above to view cohort members
           </p>
         </div>
@@ -288,18 +288,18 @@ export function CohortPatientListPanel({
         <div className="space-y-3">
           {loadingMembers ? (
             <div className="flex items-center justify-center h-48">
-              <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+              <Loader2 size={24} className="animate-spin text-text-muted" />
             </div>
           ) : membersError ? (
             <div className="flex items-center justify-center h-32">
-              <p className="text-[#E85A6B] text-sm">
+              <p className="text-critical text-sm">
                 Failed to load cohort members
               </p>
             </div>
           ) : rawMembers.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-12">
-              <Users size={24} className="text-[#5A5650] mb-3" />
-              <p className="text-sm text-[#8A857D]">
+            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-12">
+              <Users size={24} className="text-text-ghost mb-3" />
+              <p className="text-sm text-text-muted">
                 No members found in this cohort
               </p>
             </div>
@@ -308,9 +308,9 @@ export function CohortPatientListPanel({
               {/* Stats + toolbar */}
               <div className="flex items-center justify-between gap-3 flex-wrap">
                 {stats && (
-                  <div className="flex items-center gap-4 text-xs text-[#8A857D]">
+                  <div className="flex items-center gap-4 text-xs text-text-muted">
                     <span>
-                      <span className="font-semibold text-[#F0EDE8]">
+                      <span className="font-semibold text-text-primary">
                         {total.toLocaleString()}
                       </span>{" "}
                       total members
@@ -318,7 +318,7 @@ export function CohortPatientListPanel({
                     {stats.meanYear && (
                       <span>
                         Mean birth year:{" "}
-                        <span className="font-semibold text-[#F0EDE8]">
+                        <span className="font-semibold text-text-primary">
                           {stats.meanYear}
                         </span>
                       </span>
@@ -329,7 +329,7 @@ export function CohortPatientListPanel({
                       .map(([g, n]) => (
                         <span key={g}>
                           {g}:{" "}
-                          <span className="font-semibold text-[#F0EDE8]">
+                          <span className="font-semibold text-text-primary">
                             {((n / stats.totalPage) * 100).toFixed(0)}%
                           </span>
                         </span>
@@ -341,7 +341,7 @@ export function CohortPatientListPanel({
                   <div className="relative">
                     <Search
                       size={11}
-                      className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#5A5650]"
+                      className="absolute left-2.5 top-1/2 -translate-y-1/2 text-text-ghost"
                     />
                     <input
                       type="text"
@@ -349,9 +349,9 @@ export function CohortPatientListPanel({
                       onChange={(e) => setSearchId(e.target.value)}
                       placeholder="Filter by ID..."
                       className={cn(
-                        "w-36 rounded-md border border-[#323238] bg-[#0E0E11] pl-7 pr-2 py-1.5 text-xs",
-                        "text-[#F0EDE8] placeholder:text-[#5A5650]",
-                        "focus:border-[#C9A227] focus:outline-none",
+                        "w-36 rounded-md border border-surface-highlight bg-surface-base pl-7 pr-2 py-1.5 text-xs",
+                        "text-text-primary placeholder:text-text-ghost",
+                        "focus:border-accent focus:outline-none",
                       )}
                     />
                   </div>
@@ -362,14 +362,14 @@ export function CohortPatientListPanel({
                     className={cn(
                       "inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-xs transition-colors",
                       showFilters
-                        ? "border-[#C9A227] text-[#C9A227] bg-[#C9A227]/10"
-                        : "border-[#323238] text-[#8A857D] hover:text-[#F0EDE8]",
+                        ? "border-accent text-accent bg-accent/10"
+                        : "border-surface-highlight text-text-muted hover:text-text-primary",
                     )}
                   >
                     <SlidersHorizontal size={12} />
                     Filters
                     {(filterGender || filterBirthYearMin || filterBirthYearMax) && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#C9A227]" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-accent" />
                     )}
                   </button>
 
@@ -377,7 +377,7 @@ export function CohortPatientListPanel({
                     type="button"
                     onClick={handleExportCsv}
                     disabled={members.length === 0}
-                    className="inline-flex items-center gap-1 rounded-md border border-[#323238] px-3 py-1.5 text-xs text-[#8A857D] hover:text-[#F0EDE8] hover:border-[#5A5650] transition-colors disabled:opacity-40"
+                    className="inline-flex items-center gap-1 rounded-md border border-surface-highlight px-3 py-1.5 text-xs text-text-muted hover:text-text-primary hover:border-text-ghost transition-colors disabled:opacity-40"
                   >
                     <Download size={12} />
                     CSV
@@ -387,18 +387,18 @@ export function CohortPatientListPanel({
 
               {/* Filter row */}
               {showFilters && (
-                <div className="flex items-center gap-3 rounded-lg border border-[#323238] bg-[#151518] px-4 py-3 flex-wrap">
-                  <span className="text-xs font-medium text-[#8A857D]">
+                <div className="flex items-center gap-3 rounded-lg border border-surface-highlight bg-surface-raised px-4 py-3 flex-wrap">
+                  <span className="text-xs font-medium text-text-muted">
                     Filters:
                   </span>
                   <div>
-                    <label className="text-[10px] text-[#5A5650] block mb-0.5">
+                    <label className="text-[10px] text-text-ghost block mb-0.5">
                       Gender
                     </label>
                     <select
                       value={filterGender}
                       onChange={(e) => setFilterGender(e.target.value)}
-                      className="rounded border border-[#323238] bg-[#0E0E11] px-2 py-1 text-xs text-[#F0EDE8] focus:outline-none"
+                      className="rounded border border-surface-highlight bg-surface-base px-2 py-1 text-xs text-text-primary focus:outline-none"
                     >
                       <option value="">All</option>
                       {uniqueGenders.map((g) => (
@@ -410,7 +410,7 @@ export function CohortPatientListPanel({
                   </div>
                   <div className="flex items-end gap-1.5">
                     <div>
-                      <label className="text-[10px] text-[#5A5650] block mb-0.5">
+                      <label className="text-[10px] text-text-ghost block mb-0.5">
                         Birth year &ge;
                       </label>
                       <input
@@ -418,11 +418,11 @@ export function CohortPatientListPanel({
                         value={filterBirthYearMin}
                         onChange={(e) => setFilterBirthYearMin(e.target.value)}
                         placeholder="e.g. 1950"
-                        className="w-24 rounded border border-[#323238] bg-[#0E0E11] px-2 py-1 text-xs text-[#F0EDE8] focus:outline-none"
+                        className="w-24 rounded border border-surface-highlight bg-surface-base px-2 py-1 text-xs text-text-primary focus:outline-none"
                       />
                     </div>
                     <div>
-                      <label className="text-[10px] text-[#5A5650] block mb-0.5">
+                      <label className="text-[10px] text-text-ghost block mb-0.5">
                         Birth year &le;
                       </label>
                       <input
@@ -430,7 +430,7 @@ export function CohortPatientListPanel({
                         value={filterBirthYearMax}
                         onChange={(e) => setFilterBirthYearMax(e.target.value)}
                         placeholder="e.g. 2000"
-                        className="w-24 rounded border border-[#323238] bg-[#0E0E11] px-2 py-1 text-xs text-[#F0EDE8] focus:outline-none"
+                        className="w-24 rounded border border-surface-highlight bg-surface-base px-2 py-1 text-xs text-text-primary focus:outline-none"
                       />
                     </div>
                   </div>
@@ -442,7 +442,7 @@ export function CohortPatientListPanel({
                         setFilterBirthYearMin("");
                         setFilterBirthYearMax("");
                       }}
-                      className="text-xs text-[#E85A6B] hover:underline"
+                      className="text-xs text-critical hover:underline"
                     >
                       Clear filters
                     </button>
@@ -451,10 +451,10 @@ export function CohortPatientListPanel({
               )}
 
               {/* Table */}
-              <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+              <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
                 <table className="w-full">
                   <thead>
-                    <tr className="bg-[#1C1C20]">
+                    <tr className="bg-surface-overlay">
                       {(
                         [
                           { key: "subject_id", label: "Person ID" },
@@ -469,7 +469,7 @@ export function CohortPatientListPanel({
                           className="px-4 py-2.5 text-left cursor-pointer select-none group"
                           onClick={() => handleSort(col.key)}
                         >
-                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-[#8A857D] group-hover:text-[#C5C0B8] transition-colors">
+                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-text-muted group-hover:text-text-secondary transition-colors">
                             {col.label}
                             <SortIcon
                               col={col.key}
@@ -486,7 +486,7 @@ export function CohortPatientListPanel({
                       <tr>
                         <td
                           colSpan={5}
-                          className="px-4 py-8 text-center text-sm text-[#8A857D]"
+                          className="px-4 py-8 text-center text-sm text-text-muted"
                         >
                           No members match the current filters
                         </td>
@@ -499,23 +499,23 @@ export function CohortPatientListPanel({
                             handleSelectPerson(sourceId!, member.subject_id)
                           }
                           className={cn(
-                            "border-t border-[#1C1C20] transition-colors hover:bg-[#1C1C20] cursor-pointer",
-                            i % 2 === 0 ? "bg-[#151518]" : "bg-[#1A1A1E]",
+                            "border-t border-border-subtle transition-colors hover:bg-surface-overlay cursor-pointer",
+                            i % 2 === 0 ? "bg-surface-raised" : "bg-surface-overlay",
                           )}
                         >
-                          <td className="px-4 py-3 text-sm font-medium text-[#2DD4BF]">
+                          <td className="px-4 py-3 text-sm font-medium text-success">
                             {member.subject_id}
                           </td>
-                          <td className="px-4 py-3 text-xs text-[#C5C0B8]">
+                          <td className="px-4 py-3 text-xs text-text-secondary">
                             {member.gender ?? "--"}
                           </td>
-                          <td className="px-4 py-3 text-xs text-[#C5C0B8]">
+                          <td className="px-4 py-3 text-xs text-text-secondary">
                             {member.year_of_birth ?? "--"}
                           </td>
-                          <td className="px-4 py-3 text-xs text-[#8A857D]">
+                          <td className="px-4 py-3 text-xs text-text-muted">
                             {formatDate(member.cohort_start_date)}
                           </td>
-                          <td className="px-4 py-3 text-xs text-[#8A857D]">
+                          <td className="px-4 py-3 text-xs text-text-muted">
                             {formatDate(member.cohort_end_date)}
                           </td>
                         </tr>
@@ -528,7 +528,7 @@ export function CohortPatientListPanel({
               {/* Pagination */}
               {totalPages > 1 && (
                 <div className="flex items-center justify-between px-1">
-                  <p className="text-xs text-[#8A857D]">
+                  <p className="text-xs text-text-muted">
                     Showing {(page - 1) * perPage + 1} –{" "}
                     {Math.min(page * perPage, total)} of {total.toLocaleString()}
                   </p>
@@ -537,18 +537,18 @@ export function CohortPatientListPanel({
                       type="button"
                       onClick={() => setPage(Math.max(1, page - 1))}
                       disabled={page <= 1}
-                      className="inline-flex items-center justify-center w-8 h-8 rounded-md text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#232328] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="inline-flex items-center justify-center w-8 h-8 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-elevated transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       <ChevronLeft size={16} />
                     </button>
-                    <span className="text-xs text-[#C5C0B8] px-2">
+                    <span className="text-xs text-text-secondary px-2">
                       {page} / {totalPages}
                     </span>
                     <button
                       type="button"
                       onClick={() => setPage(Math.min(totalPages, page + 1))}
                       disabled={page >= totalPages}
-                      className="inline-flex items-center justify-center w-8 h-8 rounded-md text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#232328] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="inline-flex items-center justify-center w-8 h-8 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-elevated transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       <ChevronRight size={16} />
                     </button>

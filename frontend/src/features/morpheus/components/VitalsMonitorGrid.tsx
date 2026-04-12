@@ -75,8 +75,8 @@ export default function VitalsMonitorGrid({ vitals }: VitalsMonitorGridProps) {
 
   if (series.size === 0) {
     return (
-      <div className="flex items-center justify-center h-32 rounded-lg border border-dashed border-[#323238] bg-[#151518]">
-        <p className="text-sm text-[#8A857D]">No vital signs data available</p>
+      <div className="flex items-center justify-center h-32 rounded-lg border border-dashed border-surface-highlight bg-surface-raised">
+        <p className="text-sm text-text-muted">No vital signs data available</p>
       </div>
     );
   }
@@ -110,7 +110,7 @@ export default function VitalsMonitorGrid({ vitals }: VitalsMonitorGridProps) {
       {/* Timeline Chart */}
       <div className="rounded-xl border border-border-default bg-surface-darkest/70 p-4">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-sm font-semibold text-[#F0EDE8]">Vital Signs Timeline</span>
+          <span className="text-sm font-semibold text-text-primary">Vital Signs Timeline</span>
           <div className="flex items-center gap-3">
             {GRID_ORDER.map((cat) => {
               const config = VITAL_TYPE_CONFIGS[cat];
@@ -139,7 +139,7 @@ export default function VitalsMonitorGrid({ vitals }: VitalsMonitorGridProps) {
         {/* Render primary visible series chart */}
         {(() => {
           const visible = GRID_ORDER.filter((c) => visibleSeries.has(c) && series.has(c));
-          if (visible.length === 0) return <div className="text-xs text-[#5A5650] text-center py-4">Select a vital to display</div>;
+          if (visible.length === 0) return <div className="text-xs text-text-ghost text-center py-4">Select a vital to display</div>;
           const primary = visible[0];
           const pSeries = series.get(primary);
           const pConfig = VITAL_TYPE_CONFIGS[primary];

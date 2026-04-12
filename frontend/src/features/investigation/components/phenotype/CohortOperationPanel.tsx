@@ -21,7 +21,7 @@ const OPERATION_OPTIONS: OperationOption[] = [
   { id: "subtract", label: "Subtract", description: "Patients in primary only" },
 ];
 
-const CIRCLE_COLORS = ["#2DD4BF", "#9B1B30", "#C9A227"];
+const CIRCLE_COLORS = ["var(--success)", "var(--primary)", "var(--accent)"];
 
 export interface CohortOperationPanelProps {
   selectedCohorts: Array<{ id: number; name: string; count: number }>;
@@ -126,7 +126,7 @@ export function CohortOperationPanel({
     : [];
 
   return (
-    <div className="flex flex-col gap-5 rounded-xl border border-border-default/50 bg-[#0E0E11] p-4">
+    <div className="flex flex-col gap-5 rounded-xl border border-border-default/50 bg-surface-base p-4">
       {/* Header */}
       <div>
         <h3 className="text-sm font-semibold text-text-primary">Cohort Set Operations</h3>
@@ -150,7 +150,7 @@ export function CohortOperationPanel({
               onClick={() => setOperationType(opt.id)}
               className={`flex flex-col items-start rounded-full border px-4 py-1.5 text-left transition-colors ${
                 operationType === opt.id
-                  ? "border-[#2DD4BF]/60 bg-teal-900/20 text-[#2DD4BF]"
+                  ? "border-success/60 bg-teal-900/20 text-success"
                   : "border-border-default bg-surface-raised/50 text-text-muted hover:border-border-hover hover:text-text-secondary"
               }`}
             >
@@ -165,7 +165,7 @@ export function CohortOperationPanel({
 
       {/* 3. Venn diagram */}
       {vennCircles.length >= 2 && (
-        <div className="flex justify-center rounded-lg border border-border-default bg-[#151518] py-4">
+        <div className="flex justify-center rounded-lg border border-border-default bg-surface-raised py-4">
           <VennDiagram
             circles={vennCircles}
             operation={operationType}
@@ -185,7 +185,7 @@ export function CohortOperationPanel({
             setSelectedSourceId(e.target.value ? Number(e.target.value) : null)
           }
           disabled={sourcesLoading}
-          className="w-full rounded border border-border-default bg-surface-raised/60 px-3 py-1.5 text-xs text-text-primary focus:border-[#2DD4BF]/60 focus:outline-none disabled:opacity-50"
+          className="w-full rounded border border-border-default bg-surface-raised/60 px-3 py-1.5 text-xs text-text-primary focus:border-success/60 focus:outline-none disabled:opacity-50"
         >
           <option value="">
             {sourcesLoading ? "Loading sources…" : "Select a CDM source…"}
@@ -204,7 +204,7 @@ export function CohortOperationPanel({
           onClick={() => void handleExecute()}
           disabled={isRunning || !selectedSourceId}
           className="flex items-center gap-2 rounded px-5 py-2 text-sm font-medium text-text-primary transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-          style={{ backgroundColor: "#9B1B30" }}
+          style={{ backgroundColor: "var(--primary)" }}
         >
           {isRunning ? (
             <>
@@ -233,7 +233,7 @@ export function CohortOperationPanel({
 
       {/* Error */}
       {error && (
-        <div className="rounded border border-[#9B1B30]/40 bg-red-900/10 px-3 py-2.5 text-xs text-red-400">
+        <div className="rounded border border-primary/40 bg-red-900/10 px-3 py-2.5 text-xs text-red-400">
           {error}
         </div>
       )}
@@ -249,8 +249,8 @@ export function CohortOperationPanel({
 
           {/* Result count badge */}
           <div className="flex items-center gap-3">
-            <div className="flex flex-col items-center justify-center rounded-xl border border-[#2DD4BF]/30 bg-teal-900/10 px-6 py-3">
-              <span className="text-3xl font-bold tabular-nums text-[#2DD4BF]">
+            <div className="flex flex-col items-center justify-center rounded-xl border border-success/30 bg-teal-900/10 px-6 py-3">
+              <span className="text-3xl font-bold tabular-nums text-success">
                 {result.result_count.toLocaleString()}
               </span>
               <span className="mt-0.5 text-[11px] text-text-muted">
@@ -262,7 +262,7 @@ export function CohortOperationPanel({
               </span>
             </div>
             {result.handoff_ready && (
-              <span className="rounded border border-[#2DD4BF]/30 bg-teal-900/10 px-2 py-1 text-[11px] text-[#2DD4BF]">
+              <span className="rounded border border-success/30 bg-teal-900/10 px-2 py-1 text-[11px] text-success">
                 Handoff ready
               </span>
             )}
@@ -270,8 +270,8 @@ export function CohortOperationPanel({
 
           {/* Attrition funnel */}
           {result.attrition.length > 0 && (
-            <div className="rounded-lg border border-border-default bg-[#151518] p-4">
-              <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
+            <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+              <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-muted">
                 Attrition
               </h4>
               <AttritionFunnel steps={result.attrition} totalLabel="Input Population" />
@@ -321,7 +321,7 @@ export function CohortOperationPanel({
                   });
                 }
               }}
-              className="rounded border border-border-default bg-surface-raised/40 px-4 py-2 text-xs text-text-secondary transition-colors hover:border-[#C9A227]/50 hover:bg-[#C9A227]/10 hover:text-[#C9A227] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-border-default disabled:hover:bg-surface-raised/40 disabled:hover:text-text-ghost"
+              className="rounded border border-border-default bg-surface-raised/40 px-4 py-2 text-xs text-text-secondary transition-colors hover:border-accent/50 hover:bg-accent/10 hover:text-accent disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-border-default disabled:hover:bg-surface-raised/40 disabled:hover:text-text-ghost"
               title={!onPinFinding ? "Pin not available" : !result ? "Run an operation first" : "Pin this result to the dossier"}
             >
               Pin to Dossier

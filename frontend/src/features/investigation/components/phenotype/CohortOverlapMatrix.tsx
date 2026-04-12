@@ -64,7 +64,7 @@ export function CohortOverlapMatrix({ cohorts }: CohortOverlapMatrixProps) {
                   key={`cell-${row.id}-${col.id}`}
                   className={`px-1.5 py-1.5 text-center border border-border-hover/40 ${
                     isDiag
-                      ? "bg-[#9B1B30]/20 text-text-primary font-medium"
+                      ? "bg-primary/20 text-text-primary font-medium"
                       : "bg-surface-base text-text-ghost"
                   }`}
                   title={

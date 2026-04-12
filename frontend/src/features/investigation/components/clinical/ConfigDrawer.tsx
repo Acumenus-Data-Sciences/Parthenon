@@ -42,7 +42,7 @@ function SelectInput({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       disabled={disabled}
-      className="w-full bg-surface-raised/60 border border-border-default rounded px-3 py-1.5 text-xs text-text-primary focus:outline-none focus:border-[#2DD4BF]/60 disabled:opacity-50"
+      className="w-full bg-surface-raised/60 border border-border-default rounded px-3 py-1.5 text-xs text-text-primary focus:outline-none focus:border-success/60 disabled:opacity-50"
     >
       {children}
     </select>
@@ -67,7 +67,7 @@ function NumberInput({
       min={min}
       aria-label={label}
       onChange={(e) => onChange(Number(e.target.value))}
-      className="w-full bg-surface-raised/60 border border-border-default rounded px-3 py-1.5 text-xs text-text-primary focus:outline-none focus:border-[#2DD4BF]/60"
+      className="w-full bg-surface-raised/60 border border-border-default rounded px-3 py-1.5 text-xs text-text-primary focus:outline-none focus:border-success/60"
     />
   );
 }
@@ -312,7 +312,7 @@ export function ConfigDrawer({
                     <span className="text-xs text-text-secondary group-hover:text-text-primary transition-colors flex items-center gap-1.5">
                       {c.name}
                       {investigationCohortIds.has(c.id) && (
-                        <span className="text-[10px] px-1 py-0.5 rounded bg-[#2DD4BF]/10 text-[#2DD4BF] border border-[#2DD4BF]/20">
+                        <span className="text-[10px] px-1 py-0.5 rounded bg-success/10 text-success border border-success/20">
                           From investigation
                         </span>
                       )}
@@ -585,7 +585,7 @@ export function ConfigDrawer({
             <button
               onClick={handleExecute}
               disabled={analysisType === "evidence_synthesis" || isPending}
-              className="px-5 py-2 rounded text-xs font-medium text-text-primary bg-[#9B1B30] hover:bg-[#b02035] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-w-[110px] justify-center"
+              className="px-5 py-2 rounded text-xs font-medium text-text-primary bg-primary hover:bg-primary-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-w-[110px] justify-center"
             >
               {isPending ? (
                 <>

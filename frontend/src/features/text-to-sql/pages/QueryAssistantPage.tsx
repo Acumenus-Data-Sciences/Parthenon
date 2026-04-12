@@ -69,14 +69,14 @@ export default function QueryAssistantPage() {
             flexShrink: 0,
           }}
         >
-          <MessageSquareCode size={22} style={{ color: "#9B1B30" }} />
+          <MessageSquareCode size={22} style={{ color: "var(--primary)" }} />
         </div>
         <div style={{ flex: 1 }}>
           <h1
             style={{
               fontSize: "22px",
               fontWeight: 700,
-              color: "#F0EDE8",
+              color: "var(--text-primary)",
               margin: 0,
             }}
           >
@@ -85,7 +85,7 @@ export default function QueryAssistantPage() {
           <p
             style={{
               fontSize: "13px",
-              color: "#8A857D",
+              color: "var(--text-muted)",
               margin: "2px 0 0",
             }}
           >
@@ -107,7 +107,7 @@ export default function QueryAssistantPage() {
             <span
               style={{
                 fontSize: "11px",
-                color: "#8A857D",
+                color: "var(--text-muted)",
                 textTransform: "uppercase",
                 letterSpacing: "0.5px",
                 fontWeight: 600,
@@ -121,11 +121,11 @@ export default function QueryAssistantPage() {
                 onChange={(e) => handleDialectChange(e.target.value)}
                 style={{
                   appearance: "none",
-                  background: "#151518",
+                  background: "var(--surface-raised)",
                   border: "1px solid #232328",
                   borderRadius: "8px",
                   padding: "7px 32px 7px 12px",
-                  color: "#F0EDE8",
+                  color: "var(--text-primary)",
                   fontSize: "13px",
                   fontWeight: 500,
                   cursor: "pointer",
@@ -134,10 +134,10 @@ export default function QueryAssistantPage() {
                   transition: "border-color 150ms",
                 }}
                 onFocus={(e) => {
-                  e.currentTarget.style.borderColor = "#9B1B30";
+                  e.currentTarget.style.borderColor = "var(--primary)";
                 }}
                 onBlur={(e) => {
-                  e.currentTarget.style.borderColor = "#232328";
+                  e.currentTarget.style.borderColor = "var(--surface-elevated)";
                 }}
               >
                 {dialects.map((d) => (
@@ -153,7 +153,7 @@ export default function QueryAssistantPage() {
                   right: "10px",
                   top: "50%",
                   transform: "translateY(-50%)",
-                  color: "#8A857D",
+                  color: "var(--text-muted)",
                   pointerEvents: "none",
                 }}
               />
@@ -169,7 +169,7 @@ export default function QueryAssistantPage() {
                   borderRadius: "20px",
                   border: "1px solid #C9A22730",
                   background: "#C9A22708",
-                  color: "#C9A227",
+                  color: "var(--accent)",
                   fontSize: "10px",
                   fontWeight: 600,
                   cursor: "default",
@@ -237,8 +237,8 @@ function TabButton({
         padding: "10px 20px",
         background: "none",
         border: "none",
-        borderBottom: `2px solid ${active ? "#9B1B30" : "transparent"}`,
-        color: active ? "#F0EDE8" : "#8A857D",
+        borderBottom: `2px solid ${active ? "var(--primary)" : "transparent"}`,
+        color: active ? "var(--text-primary)" : "var(--text-muted)",
         fontSize: "14px",
         fontWeight: active ? 600 : 500,
         cursor: "pointer",
@@ -248,13 +248,13 @@ function TabButton({
       }}
       onMouseEnter={(e) => {
         if (!active) {
-          e.currentTarget.style.color = "#C5C0B8";
-          e.currentTarget.style.borderBottomColor = "#333";
+          e.currentTarget.style.color = "var(--text-secondary)";
+          e.currentTarget.style.borderBottomColor = "var(--surface-highlight)";
         }
       }}
       onMouseLeave={(e) => {
         if (!active) {
-          e.currentTarget.style.color = "#8A857D";
+          e.currentTarget.style.color = "var(--text-muted)";
           e.currentTarget.style.borderBottomColor = "transparent";
         }
       }}

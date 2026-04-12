@@ -115,11 +115,11 @@ export const CATEGORY_ORDER = [
 ] as const;
 
 export const TIER_COLORS: Record<string, string> = {
-  low: "#2DD4BF",
-  intermediate: "#C9A227",
-  high: "#F59E0B",
-  very_high: "#9B1B30",
-  uncomputable: "#5A5650",
+  low: "var(--success)",
+  intermediate: "var(--accent)",
+  high: "var(--warning)",
+  very_high: "var(--primary)",
+  uncomputable: "var(--text-ghost)",
 };
 
 export const TIER_ORDER = [
@@ -271,9 +271,9 @@ export interface CreateCohortResponse {
 }
 
 export const ANALYSIS_STATUS_COLORS: Record<string, string> = {
-  draft: "#8A857D",
-  pending: "#C9A227",
-  running: "#F59E0B",
-  completed: "#2DD4BF",
-  failed: "#E85A6B",
+  draft: "var(--text-muted)",
+  pending: "var(--accent)",
+  running: "var(--warning)",
+  completed: "var(--success)",
+  failed: "var(--critical)",
 };

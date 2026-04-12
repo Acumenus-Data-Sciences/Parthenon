@@ -7,22 +7,22 @@ interface AlertBannerProps {
 
 const SEVERITY_STYLES = {
   critical: {
-    border: "border-[#9B1B30]",
-    bg: "bg-[#9B1B30]/10",
+    border: "border-primary",
+    bg: "bg-primary/10",
     icon: XCircle,
-    iconColor: "text-[#e85d75]",
+    iconColor: "text-critical",
   },
   warning: {
-    border: "border-[#C9A227]",
-    bg: "bg-[#C9A227]/10",
+    border: "border-accent",
+    bg: "bg-accent/10",
     icon: AlertTriangle,
-    iconColor: "text-[#C9A227]",
+    iconColor: "text-accent",
   },
   info: {
-    border: "border-[#2DD4BF]",
-    bg: "bg-[#2DD4BF]/10",
+    border: "border-success",
+    bg: "bg-success/10",
     icon: Info,
-    iconColor: "text-[#2DD4BF]",
+    iconColor: "text-success",
   },
 };
 
@@ -40,7 +40,7 @@ export default function AlertBanner({ alerts }: AlertBannerProps) {
             className={`flex items-center gap-3 rounded-lg border ${style.border} ${style.bg} px-4 py-2`}
           >
             <Icon size={16} className={style.iconColor} />
-            <span className="text-sm text-[#ccc]">{alert.message}</span>
+            <span className="text-sm text-text-secondary">{alert.message}</span>
           </div>
         );
       })}

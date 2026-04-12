@@ -171,26 +171,26 @@ export default function OhifViewer({
   const ohifMprUrl = `/ohif/viewer?StudyInstanceUIDs=${encodeURIComponent(studyInstanceUid)}&hangingProtocolId=${encodeURIComponent("@ohif/mnGrid")}`;
 
   return (
-    <div ref={containerRef} className={`relative rounded-lg border border-[#1E1E23] overflow-hidden ${className}`}>
+    <div ref={containerRef} className={`relative rounded-lg border border-border-subtle overflow-hidden ${className}`}>
       {loading && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#0E0E11]">
-          <div className="flex flex-col items-center gap-3 text-[#8A857D]">
-            <Loader2 size={28} className="animate-spin text-[#2DD4BF]" />
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-surface-base">
+          <div className="flex flex-col items-center gap-3 text-text-muted">
+            <Loader2 size={28} className="animate-spin text-success" />
             <p className="text-sm">Loading OHIF Viewer…</p>
           </div>
         </div>
       )}
 
       {error && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#0E0E11]">
-          <div className="flex flex-col items-center gap-3 text-[#E85A6B]">
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-surface-base">
+          <div className="flex flex-col items-center gap-3 text-critical">
             <AlertCircle size={28} />
             <p className="text-sm">Failed to load OHIF Viewer</p>
             <a
               href={ohifUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs text-[#2DD4BF] hover:underline"
+              className="inline-flex items-center gap-1.5 text-xs text-success hover:underline"
             >
               Open in new tab <ExternalLink size={12} />
             </a>
@@ -230,7 +230,7 @@ export default function OhifViewer({
             type="button"
             onClick={saveAllPending}
             disabled={saving}
-            className="inline-flex items-center gap-1.5 rounded-md bg-[#2DD4BF] px-3 py-1.5 text-xs font-semibold text-[#0E0E11] hover:bg-[#26B8A5] disabled:opacity-50 transition-colors shadow-lg"
+            className="inline-flex items-center gap-1.5 rounded-md bg-success px-3 py-1.5 text-xs font-semibold text-surface-base hover:bg-success-dark disabled:opacity-50 transition-colors shadow-lg"
           >
             {saving ? <Loader2 size={11} className="animate-spin" /> : <Save size={11} />}
             Save {pending.length} measurement{pending.length > 1 ? "s" : ""}
@@ -239,7 +239,7 @@ export default function OhifViewer({
 
         {/* Saved indicator */}
         {savedCount > 0 && pending.length === 0 && (
-          <div className="inline-flex items-center gap-1 rounded-md bg-[#0E0E11]/80 px-2 py-1 text-[10px] text-[#2DD4BF] backdrop-blur-sm">
+          <div className="inline-flex items-center gap-1 rounded-md bg-surface-base/80 px-2 py-1 text-[10px] text-success backdrop-blur-sm">
             <CheckCircle2 size={10} />
             {savedCount} saved
           </div>
@@ -247,8 +247,8 @@ export default function OhifViewer({
 
         {/* Bridge status */}
         {bridgeReady && !loading && (
-          <div className="inline-flex items-center gap-1 rounded-md bg-[#0E0E11]/80 px-2 py-1 text-[10px] text-[#2DD4BF]/50 backdrop-blur-sm">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#2DD4BF]" />
+          <div className="inline-flex items-center gap-1 rounded-md bg-surface-base/80 px-2 py-1 text-[10px] text-success/50 backdrop-blur-sm">
+            <span className="w-1.5 h-1.5 rounded-full bg-success" />
             Bridge
           </div>
         )}
@@ -259,7 +259,7 @@ export default function OhifViewer({
             href={ohifMprUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 rounded-md bg-[#0E0E11]/80 px-2 py-1 text-[10px] text-[#60A5FA] hover:text-[#93C5FD] transition-colors backdrop-blur-sm"
+            className="inline-flex items-center gap-1 rounded-md bg-surface-base/80 px-2 py-1 text-[10px] text-info hover:text-info transition-colors backdrop-blur-sm"
             title="Open OHIF in MPR layout"
           >
             MPR
@@ -272,7 +272,7 @@ export default function OhifViewer({
             href={ohifUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 rounded-md bg-[#0E0E11]/80 px-2 py-1 text-[10px] text-[#5A5650] hover:text-[#8A857D] transition-colors backdrop-blur-sm"
+            className="inline-flex items-center gap-1 rounded-md bg-surface-base/80 px-2 py-1 text-[10px] text-text-ghost hover:text-text-muted transition-colors backdrop-blur-sm"
             title="Open OHIF in new tab"
           >
             <ExternalLink size={10} />

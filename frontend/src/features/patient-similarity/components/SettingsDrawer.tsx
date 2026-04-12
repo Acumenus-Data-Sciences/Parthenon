@@ -68,16 +68,16 @@ function SettingsForm({
   }
 
   function weightColor(v: number): string {
-    if (v === 0) return 'text-[#5A5650]';
-    if (v <= 2.5) return 'text-[#2DD4BF]';
-    return 'text-[#C9A227]';
+    if (v === 0) return 'text-text-ghost';
+    if (v <= 2.5) return 'text-success';
+    return 'text-accent';
   }
 
   const footer = (
     <button
       type="button"
       onClick={handleApply}
-      className="w-full rounded-md bg-[#9B1B30] px-4 py-2 text-sm font-semibold text-text-primary transition-colors hover:bg-[#7d1526] focus:outline-none focus:ring-2 focus:ring-[#9B1B30] focus:ring-offset-2 focus:ring-offset-[#1A1A1F]"
+      className="w-full rounded-md bg-primary px-4 py-2 text-sm font-semibold text-text-primary transition-colors hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-[#9B1B30] focus:ring-offset-2 focus:ring-offset-[#1A1A1F]"
     >
       Apply &amp; Re-run Pipeline
     </button>
@@ -89,13 +89,13 @@ function SettingsForm({
         {/* ── Dimension Weights ──────────────────────────────────── */}
         <section>
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-[#C9A227]">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-accent">
               Dimension Weights
             </h3>
             <button
               type="button"
               onClick={handleResetDefaults}
-              className="flex items-center gap-1 rounded px-2 py-1 text-xs text-[#5A5650] transition-colors hover:text-[#C9A227]"
+              className="flex items-center gap-1 rounded px-2 py-1 text-xs text-text-ghost transition-colors hover:text-accent"
             >
               <RotateCcw size={12} />
               Reset defaults
@@ -103,7 +103,7 @@ function SettingsForm({
           </div>
 
           {dimensions.length === 0 && (
-            <p className="text-sm text-[#5A5650]">Loading dimensions…</p>
+            <p className="text-sm text-text-ghost">Loading dimensions…</p>
           )}
 
           <div className="space-y-4">
@@ -112,7 +112,7 @@ function SettingsForm({
               return (
                 <div key={dim.key}>
                   <div className="mb-1 flex items-center justify-between">
-                    <label htmlFor={`weight-${dim.key}`} className="text-sm text-[#B0A898]">
+                    <label htmlFor={`weight-${dim.key}`} className="text-sm text-text-secondary">
                       {dim.name}
                     </label>
                     <span className={`font-mono text-sm font-semibold ${weightColor(val)}`}>
@@ -127,7 +127,7 @@ function SettingsForm({
                     step={0.5}
                     value={val}
                     onChange={(e) => handleWeightChange(dim.key, parseFloat(e.target.value))}
-                    className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-[#2A2A2F] accent-[#C9A227]"
+                    className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-surface-accent accent-[#C9A227]"
                   />
                 </div>
               );
@@ -137,17 +137,17 @@ function SettingsForm({
 
         {/* ── Demographic Filters ────────────────────────────────── */}
         <section>
-          <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[#C9A227]">
+          <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-accent">
             Demographic Filters
           </h3>
 
           <div className="space-y-4">
             {/* Age range */}
             <div>
-              <p className="mb-2 text-sm text-[#B0A898]">Age Range</p>
+              <p className="mb-2 text-sm text-text-secondary">Age Range</p>
               <div className="flex items-center gap-3">
                 <div className="flex-1">
-                  <label htmlFor="age-min" className="mb-1 block text-xs text-[#5A5650]">
+                  <label htmlFor="age-min" className="mb-1 block text-xs text-text-ghost">
                     Min
                   </label>
                   <input
@@ -159,12 +159,12 @@ function SettingsForm({
                     onChange={(e) =>
                       onAgeMinChange(Math.max(0, parseInt(e.target.value, 10) || 0))
                     }
-                    className="w-full rounded border border-[#2A2A2F] bg-[#16161A] px-3 py-1.5 text-sm text-[#E8E3DC] focus:border-[#C9A227] focus:outline-none"
+                    className="w-full rounded border border-border-default bg-surface-raised px-3 py-1.5 text-sm text-text-primary focus:border-accent focus:outline-none"
                   />
                 </div>
-                <span className="mt-4 text-[#5A5650]">—</span>
+                <span className="mt-4 text-text-ghost">—</span>
                 <div className="flex-1">
-                  <label htmlFor="age-max" className="mb-1 block text-xs text-[#5A5650]">
+                  <label htmlFor="age-max" className="mb-1 block text-xs text-text-ghost">
                     Max
                   </label>
                   <input
@@ -176,7 +176,7 @@ function SettingsForm({
                     onChange={(e) =>
                       onAgeMaxChange(Math.min(150, parseInt(e.target.value, 10) || 150))
                     }
-                    className="w-full rounded border border-[#2A2A2F] bg-[#16161A] px-3 py-1.5 text-sm text-[#E8E3DC] focus:border-[#C9A227] focus:outline-none"
+                    className="w-full rounded border border-border-default bg-surface-raised px-3 py-1.5 text-sm text-text-primary focus:border-accent focus:outline-none"
                   />
                 </div>
               </div>
@@ -184,14 +184,14 @@ function SettingsForm({
 
             {/* Gender */}
             <div>
-              <label htmlFor="gender-select" className="mb-1 block text-sm text-[#B0A898]">
+              <label htmlFor="gender-select" className="mb-1 block text-sm text-text-secondary">
                 Gender
               </label>
               <select
                 id="gender-select"
                 value={gender}
                 onChange={(e) => onGenderChange(e.target.value)}
-                className="w-full rounded border border-[#2A2A2F] bg-[#16161A] px-3 py-1.5 text-sm text-[#E8E3DC] focus:border-[#C9A227] focus:outline-none"
+                className="w-full rounded border border-border-default bg-surface-raised px-3 py-1.5 text-sm text-text-primary focus:border-accent focus:outline-none"
               >
                 <option value="">All</option>
                 <option value="8507">Male</option>

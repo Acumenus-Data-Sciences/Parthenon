@@ -41,17 +41,17 @@ export default function ConnectDatabaseColumn({ project }: ConnectDatabaseColumn
     const tables = project.selected_tables ?? [];
     return (
       <div className="space-y-3">
-        <div className="flex items-center gap-2 text-sm text-[#2DD4BF]">
+        <div className="flex items-center gap-2 text-sm text-success">
           <Database size={14} />
           <span className="font-medium">
             {config?.dbms?.toUpperCase()} — {config?.host}/{config?.database} — {config?.schema}
           </span>
         </div>
 
-        <div className="rounded-lg border border-[#232328] divide-y divide-[#1E1E23] max-h-48 overflow-y-auto">
+        <div className="rounded-lg border border-border-default divide-y divide-border-subtle max-h-48 overflow-y-auto">
           {tables.map((t) => (
-            <div key={t} className="flex items-center gap-2 px-3 py-1.5 text-sm text-[#C5C0B8]">
-              <Database size={12} className="text-[#5A5650]" />
+            <div key={t} className="flex items-center gap-2 px-3 py-1.5 text-sm text-text-secondary">
+              <Database size={12} className="text-text-ghost" />
               {t}
             </div>
           ))}
@@ -61,14 +61,14 @@ export default function ConnectDatabaseColumn({ project }: ConnectDatabaseColumn
           <button
             type="button"
             onClick={() => setModalOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-md border border-[#323238] px-3 py-1.5 text-xs text-[#8A857D] hover:text-[#F0EDE8] transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-md border border-surface-highlight px-3 py-1.5 text-xs text-text-muted hover:text-text-primary transition-colors"
           >
             <Pencil size={12} /> Change
           </button>
           <button
             type="button"
             onClick={handleDisconnect}
-            className="inline-flex items-center gap-1.5 rounded-md border border-[#323238] px-3 py-1.5 text-xs text-[#8A857D] hover:text-[#E85A6B] transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-md border border-surface-highlight px-3 py-1.5 text-xs text-text-muted hover:text-critical transition-colors"
           >
             <Unplug size={12} /> Disconnect
           </button>
@@ -76,7 +76,7 @@ export default function ConnectDatabaseColumn({ project }: ConnectDatabaseColumn
             type="button"
             onClick={handleStageDb}
             disabled={stageMutation.isPending}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-[#9B1B30] px-4 py-1.5 text-xs font-medium text-[#F0EDE8] hover:bg-[#B82D42] disabled:opacity-40 transition-colors ml-auto"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-1.5 text-xs font-medium text-text-primary hover:bg-primary-light disabled:opacity-40 transition-colors ml-auto"
           >
             {stageMutation.isPending ? <Loader2 size={12} className="animate-spin" /> : <Database size={12} />}
             Profile & Stage
@@ -84,7 +84,7 @@ export default function ConnectDatabaseColumn({ project }: ConnectDatabaseColumn
         </div>
 
         {stageMutation.isError && (
-          <p className="text-xs text-[#E85A6B]">
+          <p className="text-xs text-critical">
             {stageMutation.error instanceof Error ? stageMutation.error.message : "Staging failed"}
           </p>
         )}
@@ -104,17 +104,17 @@ export default function ConnectDatabaseColumn({ project }: ConnectDatabaseColumn
 
   return (
     <div className="flex flex-col items-center justify-center py-10">
-      <div className="w-14 h-14 rounded-full bg-[#2DD4BF]/10 flex items-center justify-center mb-4">
-        <Database size={24} className="text-[#2DD4BF]" />
+      <div className="w-14 h-14 rounded-full bg-success/10 flex items-center justify-center mb-4">
+        <Database size={24} className="text-success" />
       </div>
       <button
         type="button"
         onClick={() => setModalOpen(true)}
-        className="rounded-lg bg-[#2DD4BF]/15 px-5 py-2.5 text-sm font-medium text-[#2DD4BF] hover:bg-[#2DD4BF]/25 transition-colors"
+        className="rounded-lg bg-success/15 px-5 py-2.5 text-sm font-medium text-success hover:bg-success/25 transition-colors"
       >
         Connect to Database
       </button>
-      <p className="mt-2 text-xs text-[#5A5650]">Connect to any supported database to browse and select tables</p>
+      <p className="mt-2 text-xs text-text-ghost">Connect to any supported database to browse and select tables</p>
 
       <ConnectDatabaseModal
         isOpen={modalOpen}

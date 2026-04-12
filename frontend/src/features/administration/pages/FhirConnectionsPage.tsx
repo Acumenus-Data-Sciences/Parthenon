@@ -40,13 +40,13 @@ const VENDOR_LABELS: Record<string, string> = {
 };
 
 const STATUS_BADGE: Record<string, string> = {
-  completed: "bg-[#2DD4BF]/15 text-[#2DD4BF]",
+  completed: "bg-success/15 text-success",
   running: "bg-blue-400/15 text-blue-400",
   pending: "bg-amber-400/15 text-amber-400",
   exporting: "bg-blue-400/15 text-blue-400",
   downloading: "bg-indigo-400/15 text-indigo-400",
   processing: "bg-violet-400/15 text-violet-400",
-  failed: "bg-[#E85A6B]/15 text-[#E85A6B]",
+  failed: "bg-critical/15 text-critical",
 };
 
 function formatDate(iso: string | null): string {
@@ -74,29 +74,29 @@ function SyncRunRow({ run }: { run: FhirSyncRun }) {
   const isActive = ["pending", "exporting", "downloading", "processing"].includes(run.status);
 
   return (
-    <div className="flex items-center gap-3 px-3 py-2 border-b border-[#1E1E23] last:border-0 text-xs">
-      <span className={`px-1.5 py-0.5 rounded-full font-medium min-w-[80px] text-center ${STATUS_BADGE[run.status] ?? "bg-[#232328] text-[#8A857D]"}`}>
+    <div className="flex items-center gap-3 px-3 py-2 border-b border-border-subtle last:border-0 text-xs">
+      <span className={`px-1.5 py-0.5 rounded-full font-medium min-w-[80px] text-center ${STATUS_BADGE[run.status] ?? "bg-surface-elevated text-text-muted"}`}>
         {isActive && <Loader2 size={10} className="inline animate-spin mr-1" />}
         {run.status}
       </span>
-      <span className="text-[#5A5650] min-w-[90px]">{formatDate(run.created_at)}</span>
-      <span className="text-[#5A5650] min-w-[60px]">{formatDuration(run.started_at, run.finished_at)}</span>
-      <div className="flex items-center gap-3 text-[#8A857D]">
+      <span className="text-text-ghost min-w-[90px]">{formatDate(run.created_at)}</span>
+      <span className="text-text-ghost min-w-[60px]">{formatDuration(run.started_at, run.finished_at)}</span>
+      <div className="flex items-center gap-3 text-text-muted">
         <span title="Extracted"><Download size={10} className="inline mr-0.5" />{run.records_extracted.toLocaleString()}</span>
         <span title="Mapped"><BarChart3 size={10} className="inline mr-0.5" />{run.records_mapped.toLocaleString()}</span>
         <span title="Written"><FileText size={10} className="inline mr-0.5" />{run.records_written.toLocaleString()}</span>
         {run.records_failed > 0 && (
-          <span className="text-[#E85A6B]" title="Failed"><XCircle size={10} className="inline mr-0.5" />{run.records_failed.toLocaleString()}</span>
+          <span className="text-critical" title="Failed"><XCircle size={10} className="inline mr-0.5" />{run.records_failed.toLocaleString()}</span>
         )}
         {run.mapping_coverage != null && (
           <span title="Mapping coverage">{run.mapping_coverage}%</span>
         )}
       </div>
       {run.triggered_by_user && (
-        <span className="ml-auto text-[#5A5650]">by {run.triggered_by_user.name}</span>
+        <span className="ml-auto text-text-ghost">by {run.triggered_by_user.name}</span>
       )}
       {run.error_message && (
-        <span className="ml-auto text-[#E85A6B] truncate max-w-[200px]" title={run.error_message}>{run.error_message}</span>
+        <span className="ml-auto text-critical truncate max-w-[200px]" title={run.error_message}>{run.error_message}</span>
       )}
     </div>
   );
@@ -117,16 +117,16 @@ function SyncRunsPanel({ connectionId }: { connectionId: number }) {
   const displayRuns = liveRuns ?? runs;
 
   if (isLoading) {
-    return <div className="flex items-center gap-2 py-2 text-xs text-[#5A5650]"><Loader2 size={12} className="animate-spin" /> Loading sync history...</div>;
+    return <div className="flex items-center gap-2 py-2 text-xs text-text-ghost"><Loader2 size={12} className="animate-spin" /> Loading sync history...</div>;
   }
 
   if (!displayRuns || displayRuns.length === 0) {
-    return <p className="text-xs text-[#5A5650] py-2">No sync runs yet.</p>;
+    return <p className="text-xs text-text-ghost py-2">No sync runs yet.</p>;
   }
 
   return (
-    <div className="mt-2 rounded-md border border-[#1E1E23] bg-[#0E0E11]/50 overflow-hidden">
-      <div className="px-3 py-1.5 bg-[#1E1E23]/50 text-[10px] font-medium text-[#5A5650] uppercase tracking-wider flex items-center gap-3">
+    <div className="mt-2 rounded-md border border-border-subtle bg-surface-base/50 overflow-hidden">
+      <div className="px-3 py-1.5 bg-surface-overlay/50 text-[10px] font-medium text-text-ghost uppercase tracking-wider flex items-center gap-3">
         <span className="min-w-[80px]">Status</span>
         <span className="min-w-[90px]">Started</span>
         <span className="min-w-[60px]">Duration</span>
@@ -200,18 +200,18 @@ function ConnectionDialog({
   const pending = create.isPending || update.isPending;
 
   const inputCls =
-    "w-full px-3 py-2 text-sm bg-[#0E0E11] border border-[#232328] rounded-lg text-[#F0EDE8] placeholder-[#5A5650] focus:outline-none focus:border-[#2DD4BF]/50 focus:ring-1 focus:ring-[#2DD4BF]/30";
-  const labelCls = "block text-xs font-medium text-[#8A857D] mb-1";
+    "w-full px-3 py-2 text-sm bg-surface-base border border-border-default rounded-lg text-text-primary placeholder-[#5A5650] focus:outline-none focus:border-success/50 focus:ring-1 focus:ring-[#2DD4BF]/30";
+  const labelCls = "block text-xs font-medium text-text-muted mb-1";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-xl rounded-xl border border-[#232328] bg-[#151518] shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div className="w-full max-w-xl rounded-xl border border-border-default bg-surface-raised shadow-2xl max-h-[90vh] overflow-y-auto">
         <form onSubmit={handleSubmit}>
-          <div className="px-6 py-4 border-b border-[#232328]">
-            <h2 className="text-base font-semibold text-[#F0EDE8]">
+          <div className="px-6 py-4 border-b border-border-default">
+            <h2 className="text-base font-semibold text-text-primary">
               {isEdit ? "Edit FHIR Connection" : "Add FHIR Connection"}
             </h2>
-            <p className="text-xs text-[#5A5650] mt-0.5">
+            <p className="text-xs text-text-ghost mt-0.5">
               Configure a SMART Backend Services connection to an EHR FHIR R4 endpoint.
             </p>
           </div>
@@ -255,7 +255,7 @@ function ConnectionDialog({
               <label className={labelCls}>
                 RSA Private Key (PEM)
                 {isEdit && conn?.has_private_key && (
-                  <span className="ml-2 text-[#2DD4BF]">Key uploaded</span>
+                  <span className="ml-2 text-success">Key uploaded</span>
                 )}
               </label>
               <textarea
@@ -283,28 +283,28 @@ function ConnectionDialog({
             </div>
 
             <div className="flex items-center gap-6">
-              <label className="flex items-center gap-2 text-sm text-[#8A857D] cursor-pointer">
+              <label className="flex items-center gap-2 text-sm text-text-muted cursor-pointer">
                 <input type="checkbox" checked={form.is_active} onChange={(e) => set("is_active", e.target.checked)} className="accent-[#2DD4BF]" />
                 Active
               </label>
-              <label className="flex items-center gap-2 text-sm text-[#8A857D] cursor-pointer">
+              <label className="flex items-center gap-2 text-sm text-text-muted cursor-pointer">
                 <input type="checkbox" checked={form.incremental_enabled} onChange={(e) => set("incremental_enabled", e.target.checked)} className="accent-[#2DD4BF]" />
                 Incremental sync
               </label>
             </div>
 
             {error && (
-              <div className="flex items-center gap-2 rounded-md border border-[#E85A6B]/20 bg-[#E85A6B]/5 px-3 py-2 text-xs text-[#E85A6B]">
+              <div className="flex items-center gap-2 rounded-md border border-critical/20 bg-critical/5 px-3 py-2 text-xs text-critical">
                 <AlertCircle size={12} /> {error}
               </div>
             )}
           </div>
 
-          <div className="px-6 py-3 border-t border-[#232328] flex justify-end gap-2">
-            <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-[#8A857D] hover:text-[#C5C0B8] transition-colors">
+          <div className="px-6 py-3 border-t border-border-default flex justify-end gap-2">
+            <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-text-muted hover:text-text-secondary transition-colors">
               Cancel
             </button>
-            <button type="submit" disabled={pending} className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors disabled:opacity-50">
+            <button type="submit" disabled={pending} className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base hover:bg-success-dark transition-colors disabled:opacity-50">
               {pending && <Loader2 size={14} className="animate-spin" />}
               {isEdit ? "Save Changes" : "Create Connection"}
             </button>
@@ -361,20 +361,20 @@ function ConnectionCard({
     <Panel className="overflow-hidden">
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3 min-w-0">
-          <div className={`flex items-center justify-center w-9 h-9 rounded-md flex-shrink-0 ${conn.is_active ? "bg-[#2DD4BF]/10" : "bg-[#232328]"}`}>
-            <Server size={16} className={conn.is_active ? "text-[#2DD4BF]" : "text-[#5A5650]"} />
+          <div className={`flex items-center justify-center w-9 h-9 rounded-md flex-shrink-0 ${conn.is_active ? "bg-success/10" : "bg-surface-elevated"}`}>
+            <Server size={16} className={conn.is_active ? "text-success" : "text-text-ghost"} />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <h3 className="text-sm font-semibold text-[#F0EDE8] truncate">{conn.site_name}</h3>
+              <h3 className="text-sm font-semibold text-text-primary truncate">{conn.site_name}</h3>
               {conn.is_active && (
-                <span className="px-1.5 py-0.5 text-[10px] font-medium rounded bg-[#2DD4BF]/15 text-[#2DD4BF]">Active</span>
+                <span className="px-1.5 py-0.5 text-[10px] font-medium rounded bg-success/15 text-success">Active</span>
               )}
             </div>
-            <p className="text-xs text-[#5A5650] mt-0.5">
+            <p className="text-xs text-text-ghost mt-0.5">
               {VENDOR_LABELS[conn.ehr_vendor]} · <span className="font-mono">{conn.site_key}</span>
             </p>
-            <p className="text-xs text-[#5A5650] mt-0.5 truncate font-mono max-w-md">{conn.fhir_base_url}</p>
+            <p className="text-xs text-text-ghost mt-0.5 truncate font-mono max-w-md">{conn.fhir_base_url}</p>
           </div>
         </div>
 
@@ -402,16 +402,16 @@ function ConnectionCard({
               </button>
             </div>
             {showSyncMenu && (
-              <div className="absolute right-0 mt-1 w-48 rounded-lg border border-[#232328] bg-[#151518] shadow-xl z-20">
+              <div className="absolute right-0 mt-1 w-48 rounded-lg border border-border-default bg-surface-raised shadow-xl z-20">
                 <button
                   type="button"
                   onClick={() => handleSync(false)}
-                  className="w-full px-3 py-2 text-left text-xs hover:bg-[#1E1E23] transition-colors rounded-t-lg"
+                  className="w-full px-3 py-2 text-left text-xs hover:bg-surface-overlay transition-colors rounded-t-lg"
                 >
-                  <div className="font-medium text-[#F0EDE8]">
+                  <div className="font-medium text-text-primary">
                     {conn.incremental_enabled && hasLastSync ? "Incremental Sync" : "Full Sync"}
                   </div>
-                  <div className="text-[10px] text-[#5A5650] mt-0.5">
+                  <div className="text-[10px] text-text-ghost mt-0.5">
                     {conn.incremental_enabled && hasLastSync
                       ? "Only new/updated data since last sync"
                       : "Download all data from EHR"}
@@ -421,10 +421,10 @@ function ConnectionCard({
                   <button
                     type="button"
                     onClick={() => handleSync(true)}
-                    className="w-full px-3 py-2 text-left text-xs hover:bg-[#1E1E23] transition-colors border-t border-[#232328] rounded-b-lg"
+                    className="w-full px-3 py-2 text-left text-xs hover:bg-surface-overlay transition-colors border-t border-border-default rounded-b-lg"
                   >
                     <div className="font-medium text-amber-400">Force Full Sync</div>
-                    <div className="text-[10px] text-[#5A5650] mt-0.5">
+                    <div className="text-[10px] text-text-ghost mt-0.5">
                       Re-download all data, dedup on write
                     </div>
                   </button>
@@ -432,17 +432,17 @@ function ConnectionCard({
               </div>
             )}
           </div>
-          <button type="button" onClick={handleTest} disabled={testMut.isPending} title="Test connection" className="p-1.5 rounded text-[#5A5650] hover:text-[#2DD4BF] hover:bg-[#2DD4BF]/10 transition-colors disabled:opacity-30">
+          <button type="button" onClick={handleTest} disabled={testMut.isPending} title="Test connection" className="p-1.5 rounded text-text-ghost hover:text-success hover:bg-success/10 transition-colors disabled:opacity-30">
             {testMut.isPending ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
           </button>
-          <button type="button" onClick={() => onEdit(conn)} title="Edit" className="p-1.5 rounded text-[#5A5650] hover:text-[#C5C0B8] hover:bg-[#232328] transition-colors">
+          <button type="button" onClick={() => onEdit(conn)} title="Edit" className="p-1.5 rounded text-text-ghost hover:text-text-secondary hover:bg-surface-elevated transition-colors">
             <Pencil size={14} />
           </button>
           <button
             type="button"
             onClick={() => { if (confirm(`Delete "${conn.site_name}"?`)) deleteMut.mutate(conn.id); }}
             title="Delete"
-            className="p-1.5 rounded text-[#5A5650] hover:text-[#E85A6B] hover:bg-[#E85A6B]/10 transition-colors"
+            className="p-1.5 rounded text-text-ghost hover:text-critical hover:bg-critical/10 transition-colors"
           >
             <Trash2 size={14} />
           </button>
@@ -450,17 +450,17 @@ function ConnectionCard({
       </div>
 
       {/* Status row */}
-      <div className="flex items-center gap-4 mt-3 text-xs text-[#5A5650]">
+      <div className="flex items-center gap-4 mt-3 text-xs text-text-ghost">
         <div className="flex items-center gap-1">
           <KeyRound size={11} />
-          {conn.has_private_key ? <span className="text-[#2DD4BF]">Key uploaded</span> : <span className="text-[#E85A6B]">No key</span>}
+          {conn.has_private_key ? <span className="text-success">Key uploaded</span> : <span className="text-critical">No key</span>}
         </div>
         <div className="flex items-center gap-1">
           <Clock size={11} />
           Last sync: {formatDate(conn.last_sync_at)}
         </div>
         {conn.last_sync_status && (
-          <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium ${STATUS_BADGE[conn.last_sync_status] ?? "bg-[#232328] text-[#8A857D]"}`}>
+          <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium ${STATUS_BADGE[conn.last_sync_status] ?? "bg-surface-elevated text-text-muted"}`}>
             {isSyncing && <Loader2 size={9} className="inline animate-spin mr-0.5" />}
             {conn.last_sync_status}
           </span>
@@ -470,10 +470,10 @@ function ConnectionCard({
         )}
 
         <div className="ml-auto flex items-center gap-2">
-          <button type="button" onClick={() => setShowRuns(!showRuns)} className="flex items-center gap-1 text-[#5A5650] hover:text-[#C5C0B8] transition-colors">
+          <button type="button" onClick={() => setShowRuns(!showRuns)} className="flex items-center gap-1 text-text-ghost hover:text-text-secondary transition-colors">
             Sync History {showRuns ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
           </button>
-          <button type="button" onClick={() => setExpanded(!expanded)} className="flex items-center gap-1 text-[#5A5650] hover:text-[#C5C0B8] transition-colors">
+          <button type="button" onClick={() => setExpanded(!expanded)} className="flex items-center gap-1 text-text-ghost hover:text-text-secondary transition-colors">
             Details {expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
           </button>
         </div>
@@ -481,14 +481,14 @@ function ConnectionCard({
 
       {/* Sync error */}
       {syncError && (
-        <div className="flex items-center gap-2 mt-2 rounded-md border border-[#E85A6B]/20 bg-[#E85A6B]/5 px-3 py-2 text-xs text-[#E85A6B]">
+        <div className="flex items-center gap-2 mt-2 rounded-md border border-critical/20 bg-critical/5 px-3 py-2 text-xs text-critical">
           <AlertCircle size={12} /> {syncError}
         </div>
       )}
 
       {/* Test result */}
       {testResult && (
-        <div className={`mt-3 rounded-md border px-3 py-2 text-xs ${testResult.success ? "border-[#2DD4BF]/20 bg-[#2DD4BF]/5 text-[#2DD4BF]" : "border-[#E85A6B]/20 bg-[#E85A6B]/5 text-[#E85A6B]"}`}>
+        <div className={`mt-3 rounded-md border px-3 py-2 text-xs ${testResult.success ? "border-success/20 bg-success/5 text-success" : "border-critical/20 bg-critical/5 text-critical"}`}>
           <div className="flex items-center gap-2 font-medium">
             {testResult.success ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
             {testResult.message} ({testResult.elapsed_ms}ms)
@@ -496,9 +496,9 @@ function ConnectionCard({
           <div className="mt-1 space-y-0.5">
             {testResult.steps.map((s) => (
               <div key={s.step} className="flex items-center gap-2 text-[10px]">
-                {s.status === "ok" ? <CheckCircle2 size={10} className="text-[#2DD4BF]" /> : s.status === "warning" ? <AlertCircle size={10} className="text-amber-400" /> : <XCircle size={10} className="text-[#E85A6B]" />}
+                {s.status === "ok" ? <CheckCircle2 size={10} className="text-success" /> : s.status === "warning" ? <AlertCircle size={10} className="text-amber-400" /> : <XCircle size={10} className="text-critical" />}
                 <span className="font-mono">{s.step}</span>
-                {s.detail && <span className="text-[#5A5650]">— {s.detail}</span>}
+                {s.detail && <span className="text-text-ghost">— {s.detail}</span>}
               </div>
             ))}
           </div>
@@ -510,15 +510,15 @@ function ConnectionCard({
 
       {/* Expanded details */}
       {expanded && (
-        <div className="mt-3 pt-3 border-t border-[#1E1E23] grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
-          <div><span className="text-[#5A5650]">Token endpoint:</span> <span className="text-[#C5C0B8] font-mono break-all">{conn.token_endpoint}</span></div>
-          <div><span className="text-[#5A5650]">Client ID:</span> <span className="text-[#C5C0B8] font-mono">{conn.client_id}</span></div>
-          <div><span className="text-[#5A5650]">Scopes:</span> <span className="text-[#C5C0B8]">{conn.scopes}</span></div>
-          <div><span className="text-[#5A5650]">Group ID:</span> <span className="text-[#C5C0B8] font-mono">{conn.group_id || "—"}</span></div>
-          <div><span className="text-[#5A5650]">Resource types:</span> <span className="text-[#C5C0B8]">{conn.export_resource_types || "All supported"}</span></div>
-          <div><span className="text-[#5A5650]">Incremental:</span> <span className="text-[#C5C0B8]">{conn.incremental_enabled ? "Enabled" : "Disabled"}</span>{conn.incremental_enabled && conn.last_sync_at && <span className="text-[#5A5650]"> (since {formatDate(conn.last_sync_at)})</span>}</div>
-          <div><span className="text-[#5A5650]">Target source:</span> <span className="text-[#C5C0B8]">{conn.target_source?.source_name ?? "Not set"}</span></div>
-          <div><span className="text-[#5A5650]">Sync runs:</span> <span className="text-[#C5C0B8]">{conn.sync_runs_count ?? 0}</span></div>
+        <div className="mt-3 pt-3 border-t border-border-subtle grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
+          <div><span className="text-text-ghost">Token endpoint:</span> <span className="text-text-secondary font-mono break-all">{conn.token_endpoint}</span></div>
+          <div><span className="text-text-ghost">Client ID:</span> <span className="text-text-secondary font-mono">{conn.client_id}</span></div>
+          <div><span className="text-text-ghost">Scopes:</span> <span className="text-text-secondary">{conn.scopes}</span></div>
+          <div><span className="text-text-ghost">Group ID:</span> <span className="text-text-secondary font-mono">{conn.group_id || "—"}</span></div>
+          <div><span className="text-text-ghost">Resource types:</span> <span className="text-text-secondary">{conn.export_resource_types || "All supported"}</span></div>
+          <div><span className="text-text-ghost">Incremental:</span> <span className="text-text-secondary">{conn.incremental_enabled ? "Enabled" : "Disabled"}</span>{conn.incremental_enabled && conn.last_sync_at && <span className="text-text-ghost"> (since {formatDate(conn.last_sync_at)})</span>}</div>
+          <div><span className="text-text-ghost">Target source:</span> <span className="text-text-secondary">{conn.target_source?.source_name ?? "Not set"}</span></div>
+          <div><span className="text-text-ghost">Sync runs:</span> <span className="text-text-secondary">{conn.sync_runs_count ?? 0}</span></div>
         </div>
       )}
     </Panel>
@@ -546,15 +546,15 @@ export default function FhirConnectionsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#F0EDE8]">FHIR EHR Connections</h1>
-          <p className="mt-1 text-sm text-[#8A857D]">
+          <h1 className="text-2xl font-bold text-text-primary">FHIR EHR Connections</h1>
+          <p className="mt-1 text-sm text-text-muted">
             Configure SMART Backend Services connections for FHIR R4 Bulk Data extraction from Epic, Cerner, and other EHR systems.
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Link
             to="/admin/fhir-sync-monitor"
-            className="inline-flex items-center gap-2 rounded-lg border border-[#232328] px-4 py-2.5 text-sm font-medium text-[#C5C0B8] hover:bg-[#232328] transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg border border-border-default px-4 py-2.5 text-sm font-medium text-text-secondary hover:bg-surface-elevated transition-colors"
           >
             <Activity size={16} />
             Sync Monitor
@@ -562,7 +562,7 @@ export default function FhirConnectionsPage() {
           <button
             type="button"
             onClick={() => { setDialogConn(undefined); setShowDialog(true); }}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2.5 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2.5 text-sm font-medium text-surface-base hover:bg-success-dark transition-colors"
           >
             <Plus size={16} />
             Add Connection
@@ -581,12 +581,12 @@ export default function FhirConnectionsPage() {
       {/* Connection list */}
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 size={22} className="animate-spin text-[#2DD4BF]" />
+          <Loader2 size={22} className="animate-spin text-success" />
         </div>
       ) : !connections || connections.length === 0 ? (
-        <Panel className="flex flex-col items-center justify-center py-14 text-[#5A5650]">
+        <Panel className="flex flex-col items-center justify-center py-14 text-text-ghost">
           <Server size={36} className="mb-3 opacity-40" />
-          <p className="text-sm font-medium text-[#8A857D]">No FHIR connections configured</p>
+          <p className="text-sm font-medium text-text-muted">No FHIR connections configured</p>
           <p className="text-xs mt-1">Add a connection to begin extracting clinical data from an EHR via FHIR R4 Bulk Data.</p>
         </Panel>
       ) : (

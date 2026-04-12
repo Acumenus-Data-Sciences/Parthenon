@@ -61,13 +61,13 @@ export function JsonSpecEditor({ spec, onSpecChange }: JsonSpecEditorProps) {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-5">
+      <div className="rounded-lg border border-border-default bg-surface-raised p-5">
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-[#F0EDE8]">
+            <h2 className="text-lg font-semibold text-text-primary">
               JSON Spec Preview
             </h2>
-            <p className="mt-0.5 text-sm text-[#8A857D]">
+            <p className="mt-0.5 text-sm text-text-muted">
               Review the generated analysis specification. Edit directly or
               apply changes below.
             </p>
@@ -77,7 +77,7 @@ export function JsonSpecEditor({ spec, onSpecChange }: JsonSpecEditorProps) {
             <button
               type="button"
               onClick={handleCopy}
-              className="flex items-center gap-1.5 rounded-lg border border-[#232328] px-3 py-1.5 text-xs text-[#C5C0B8] transition-colors hover:border-[#5A5650] hover:text-[#F0EDE8]"
+              className="flex items-center gap-1.5 rounded-lg border border-border-default px-3 py-1.5 text-xs text-text-secondary transition-colors hover:border-text-ghost hover:text-text-primary"
             >
               <Copy size={12} />
               {copied ? "Copied" : "Copy to Clipboard"}
@@ -85,7 +85,7 @@ export function JsonSpecEditor({ spec, onSpecChange }: JsonSpecEditorProps) {
             <button
               type="button"
               onClick={handleReset}
-              className="flex items-center gap-1.5 rounded-lg border border-[#232328] px-3 py-1.5 text-xs text-[#C5C0B8] transition-colors hover:border-[#5A5650] hover:text-[#F0EDE8]"
+              className="flex items-center gap-1.5 rounded-lg border border-border-default px-3 py-1.5 text-xs text-text-secondary transition-colors hover:border-text-ghost hover:text-text-primary"
             >
               <RotateCcw size={12} />
               Reset to Generated
@@ -105,22 +105,22 @@ export function JsonSpecEditor({ spec, onSpecChange }: JsonSpecEditorProps) {
           }}
           onBlur={handleApply}
           spellCheck={false}
-          className="w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-4 py-3 font-mono text-sm text-[#C5C0B8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/40"
+          className="w-full rounded-lg border border-border-default bg-surface-base px-4 py-3 font-mono text-sm text-text-secondary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/40"
           style={{ minHeight: "500px", resize: "vertical" }}
         />
 
         {/* Footer: line count + status + apply button */}
         <div className="mt-3 flex items-center justify-between">
-          <span className="text-xs text-[#5A5650]">{lineCount} lines</span>
+          <span className="text-xs text-text-ghost">{lineCount} lines</span>
 
           <div className="flex items-center gap-3">
             {parseError ? (
-              <div className="flex items-center gap-1.5 text-xs text-[#9B1B30]">
+              <div className="flex items-center gap-1.5 text-xs text-primary">
                 <XCircle size={13} />
                 <span className="max-w-[400px] truncate">{parseError}</span>
               </div>
             ) : isValid ? (
-              <div className="flex items-center gap-1.5 text-xs text-[#2DD4BF]">
+              <div className="flex items-center gap-1.5 text-xs text-success">
                 <CheckCircle2 size={13} />
                 Valid JSON
               </div>
@@ -129,7 +129,7 @@ export function JsonSpecEditor({ spec, onSpecChange }: JsonSpecEditorProps) {
             <button
               type="button"
               onClick={handleApply}
-              className="rounded-lg bg-[#C9A227] px-4 py-1.5 text-xs font-medium text-[#0E0E11] transition-colors hover:bg-[#C9A227]/80"
+              className="rounded-lg bg-accent px-4 py-1.5 text-xs font-medium text-surface-base transition-colors hover:bg-accent/80"
             >
               Apply Changes
             </button>

@@ -16,14 +16,14 @@ import {
 function LoadingPanel({ className = '' }: { className?: string }) {
   return (
     <div className={`flex items-center justify-center ${className}`}>
-      <Loader2 size={20} className="animate-spin text-[#5A5650]" />
+      <Loader2 size={20} className="animate-spin text-text-ghost" />
     </div>
   );
 }
 
 function ErrorPanel({ message = 'Failed to load' }: { message?: string }) {
   return (
-    <div className="flex items-center justify-center py-8 text-sm text-[#E85A6B]">
+    <div className="flex items-center justify-center py-8 text-sm text-critical">
       {message}
     </div>
   );
@@ -31,7 +31,7 @@ function ErrorPanel({ message = 'Failed to load' }: { message?: string }) {
 
 function ChartCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={`rounded-xl border border-border-default/60 bg-[#111114] p-4 ${className}`}>
+    <div className={`rounded-xl border border-border-default/60 bg-surface-base p-4 ${className}`}>
       {children}
     </div>
   );
@@ -100,20 +100,20 @@ export default function MorpheusDashboardPage() {
       {/* Header */}
       <div className="flex items-baseline justify-between">
         <div>
-          <h1 className="text-xl font-bold text-[#F0EDE8]">{datasetLabel} Population Dashboard</h1>
-          <p className="text-xs text-[#5A5650] mt-0.5">Aggregate metrics across the inpatient population</p>
+          <h1 className="text-xl font-bold text-text-primary">{datasetLabel} Population Dashboard</h1>
+          <p className="text-xs text-text-ghost mt-0.5">Aggregate metrics across the inpatient population</p>
         </div>
         <div className="flex gap-2">
           <button onClick={() => navigate(`/morpheus/journey?icu=true${ds}`)}
-            className="rounded-lg bg-[#9B1B30]/80 px-3 py-1.5 text-xs font-medium text-text-primary hover:bg-[#9B1B30] transition-colors">
+            className="rounded-lg bg-primary/80 px-3 py-1.5 text-xs font-medium text-text-primary hover:bg-primary transition-colors">
             ICU Patients
           </button>
           <button onClick={() => navigate(`/morpheus/journey?deceased=true${ds}`)}
-            className="rounded-lg bg-surface-raised px-3 py-1.5 text-xs font-medium text-[#C5C0B8] hover:bg-surface-accent transition-colors">
+            className="rounded-lg bg-surface-raised px-3 py-1.5 text-xs font-medium text-text-secondary hover:bg-surface-accent transition-colors">
             Deceased
           </button>
           <button onClick={() => navigate(`/morpheus/journey${dsQ}`)}
-            className="rounded-lg border border-border-default px-3 py-1.5 text-xs font-medium text-[#8A857D] hover:text-[#C5C0B8] hover:border-border-hover transition-colors">
+            className="rounded-lg border border-border-default px-3 py-1.5 text-xs font-medium text-text-muted hover:text-text-secondary hover:border-border-hover transition-colors">
             Browse All
           </button>
         </div>
@@ -126,16 +126,16 @@ export default function MorpheusDashboardPage() {
         <ErrorPanel message="Failed to load metrics" />
       ) : metrics ? (
         <div className="grid grid-cols-6 gap-3">
-          <MetricCard label="Patients" value={Number(metrics.total_patients).toLocaleString()} color="#2DD4BF"
+          <MetricCard label="Patients" value={Number(metrics.total_patients).toLocaleString()} color="var(--success)"
             onClick={() => navigate(`/morpheus/journey${dsQ}`)} />
-          <MetricCard label="Admissions" value={Number(metrics.total_admissions).toLocaleString()} color="#2DD4BF"
+          <MetricCard label="Admissions" value={Number(metrics.total_admissions).toLocaleString()} color="var(--success)"
             onClick={() => navigate(`/morpheus/journey${dsQ}`)} />
-          <MetricCard label="ICU Rate" value={`${Number(metrics.icu_admission_rate).toFixed(1)}%`} color="#C9A227"
+          <MetricCard label="ICU Rate" value={`${Number(metrics.icu_admission_rate).toFixed(1)}%`} color="var(--accent)"
             onClick={() => navigate(`/morpheus/journey?icu=true${ds}`)} />
-          <MetricCard label="Mortality" value={`${Number(metrics.mortality_rate).toFixed(1)}%`} color="#9B1B30"
+          <MetricCard label="Mortality" value={`${Number(metrics.mortality_rate).toFixed(1)}%`} color="var(--primary)"
             onClick={() => navigate(`/morpheus/journey?deceased=true${ds}`)} />
-          <MetricCard label="Avg LOS" value={`${Number(metrics.avg_los_days).toFixed(1)}d`} color="#3B82F6" />
-          <MetricCard label="Avg ICU LOS" value={`${Number(metrics.avg_icu_los_days).toFixed(1)}d`} color="#C9A227"
+          <MetricCard label="Avg LOS" value={`${Number(metrics.avg_los_days).toFixed(1)}d`} color="var(--info)" />
+          <MetricCard label="Avg ICU LOS" value={`${Number(metrics.avg_icu_los_days).toFixed(1)}d`} color="var(--accent)"
             onClick={() => navigate(`/morpheus/journey?icu=true${ds}`)} />
         </div>
       ) : null}
@@ -144,12 +144,12 @@ export default function MorpheusDashboardPage() {
       <div className="grid grid-cols-2 gap-3">
         <ChartCard>
           {trendsQ.isLoading ? <LoadingPanel className="h-48" /> : trendsQ.isError ? <ErrorPanel /> : (
-            <TrendChart data={admissionTrendData} title="Admission Volume" barLabel="Admissions" barColor="#2DD4BF" />
+            <TrendChart data={admissionTrendData} title="Admission Volume" barLabel="Admissions" barColor="var(--success)" />
           )}
         </ChartCard>
         <ChartCard>
           {trendsQ.isLoading ? <LoadingPanel className="h-48" /> : trendsQ.isError ? <ErrorPanel /> : (
-            <TrendChart data={mortalityTrendData} title="Mortality Trend" barLabel="Admissions" lineLabel="Mortality %" barColor="#323238" lineColor="#E85A6B" />
+            <TrendChart data={mortalityTrendData} title="Mortality Trend" barLabel="Admissions" lineLabel="Mortality %" barColor="var(--surface-highlight)" lineColor="var(--critical)" />
           )}
         </ChartCard>
       </div>
@@ -163,12 +163,12 @@ export default function MorpheusDashboardPage() {
         </ChartCard>
         <ChartCard>
           {demoQ.isLoading ? <LoadingPanel className="h-44" /> : demoQ.isError ? <ErrorPanel /> : (
-            <DistributionChart data={ageDistData} title="Age Distribution" barColor="#3B82F6" />
+            <DistributionChart data={ageDistData} title="Age Distribution" barColor="var(--info)" />
           )}
         </ChartCard>
         <ChartCard>
           {losQ.isLoading ? <LoadingPanel className="h-44" /> : losQ.isError ? <ErrorPanel /> : (
-            <DistributionChart data={losDistData} title="Length of Stay" barColor="#2DD4BF" />
+            <DistributionChart data={losDistData} title="Length of Stay" barColor="var(--success)" />
           )}
         </ChartCard>
       </div>
@@ -177,12 +177,12 @@ export default function MorpheusDashboardPage() {
       <div className="grid grid-cols-2 gap-3">
         <ChartCard>
           {dxQ.isLoading ? <LoadingPanel className="h-56" /> : dxQ.isError ? <ErrorPanel /> : (
-            <HorizontalBarChart data={dxBarData} title="Top 10 Diagnoses" barColor="#C9A227" />
+            <HorizontalBarChart data={dxBarData} title="Top 10 Diagnoses" barColor="var(--accent)" />
           )}
         </ChartCard>
         <ChartCard>
           {pxQ.isLoading ? <LoadingPanel className="h-56" /> : pxQ.isError ? <ErrorPanel /> : (
-            <HorizontalBarChart data={pxBarData} title="Top 10 Procedures" barColor="#2DD4BF" />
+            <HorizontalBarChart data={pxBarData} title="Top 10 Procedures" barColor="var(--success)" />
           )}
         </ChartCard>
       </div>
@@ -191,12 +191,12 @@ export default function MorpheusDashboardPage() {
       <div className="grid grid-cols-2 gap-3">
         <ChartCard>
           {mortTypeQ.isLoading ? <LoadingPanel className="h-44" /> : mortTypeQ.isError ? <ErrorPanel /> : (
-            <HorizontalBarChart data={mortalityBarData} title="Mortality by Admission Type" barColor="#9B1B30" />
+            <HorizontalBarChart data={mortalityBarData} title="Mortality by Admission Type" barColor="var(--primary)" />
           )}
         </ChartCard>
         <ChartCard>
           {icuQ.isLoading ? <LoadingPanel className="h-44" /> : icuQ.isError ? <ErrorPanel /> : (
-            <HorizontalBarChart data={icuBarData} title="ICU Utilization by Unit" barColor="#C9A227" maxItems={20} />
+            <HorizontalBarChart data={icuBarData} title="ICU Utilization by Unit" barColor="var(--accent)" maxItems={20} />
           )}
         </ChartCard>
       </div>

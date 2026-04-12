@@ -2,9 +2,9 @@ import { useConceptHierarchy } from "../../hooks/useConceptSearch";
 import type { ConceptSearchResult } from "../../types";
 
 const DOMAIN_BADGE_CLASSES: Record<string, string> = {
-  Condition: "bg-[#9B1B30]/20 text-[#9B1B30] border border-[#9B1B30]/30",
+  Condition: "bg-primary/20 text-primary border border-primary/30",
   Drug: "bg-teal-900/30 text-teal-400 border border-teal-500/30",
-  Measurement: "bg-yellow-900/30 text-[#C9A227] border border-yellow-600/30",
+  Measurement: "bg-yellow-900/30 text-accent border border-yellow-600/30",
   Procedure: "bg-blue-900/30 text-blue-400 border border-blue-500/30",
   Observation: "bg-purple-900/30 text-purple-400 border border-purple-500/30",
   Device: "bg-orange-900/30 text-orange-400 border border-orange-500/30",
@@ -29,7 +29,7 @@ function ConceptNode({ concept, indent, variant }: ConceptNodeProps) {
 
   const rowClass =
     variant === "selected"
-      ? "border border-[#2DD4BF]/40 bg-[#2DD4BF]/5 rounded px-2 py-1.5"
+      ? "border border-success/40 bg-success/5 rounded px-2 py-1.5"
       : "py-1";
 
   return (
@@ -59,7 +59,7 @@ function ConceptNode({ concept, indent, variant }: ConceptNodeProps) {
             {concept.domain_id}
           </span>
           {variant === "selected" && (
-            <span className="text-[10px] text-[#2DD4BF] font-semibold">
+            <span className="text-[10px] text-success font-semibold">
               (selected)
             </span>
           )}

@@ -10,10 +10,10 @@ import DiversityTrendsChart from "./DiversityTrendsChart";
 type DiversityTab = "overview" | "pyramid" | "dap" | "pooled" | "geographic" | "trends";
 
 const RATING_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  very_high: { bg: "bg-[#2DD4BF]/10", text: "text-[#2DD4BF]", border: "border-[#2DD4BF]/30" },
-  high: { bg: "bg-[#C9A227]/10", text: "text-[#C9A227]", border: "border-[#C9A227]/30" },
+  very_high: { bg: "bg-success/10", text: "text-success", border: "border-success/30" },
+  high: { bg: "bg-accent/10", text: "text-accent", border: "border-accent/30" },
   moderate: { bg: "bg-amber-500/10", text: "text-amber-400", border: "border-amber-500/30" },
-  low: { bg: "bg-[#9B1B30]/10", text: "text-[#9B1B30]", border: "border-[#9B1B30]/30" },
+  low: { bg: "bg-primary/10", text: "text-primary", border: "border-primary/30" },
 };
 
 function RatingCard({ source }: { source: DiversitySource }) {
@@ -21,7 +21,7 @@ function RatingCard({ source }: { source: DiversitySource }) {
   return (
     <div className={`rounded-lg border ${colors.border} ${colors.bg} p-3`}>
       <p className={`text-xl font-semibold ${colors.text}`}>{source.simpson_index.toFixed(2)}</p>
-      <p className="mt-0.5 truncate text-xs text-[#8A857D]" title={source.source_name}>
+      <p className="mt-0.5 truncate text-xs text-text-muted" title={source.source_name}>
         {source.source_name}
       </p>
       <p className={`mt-0.5 text-[10px] font-medium uppercase ${colors.text}`}>
@@ -32,8 +32,8 @@ function RatingCard({ source }: { source: DiversitySource }) {
 }
 
 const DEMO_COLORS = [
-  "#2DD4BF", "#C9A227", "#9B1B30", "#6366F1", "#EC4899",
-  "#F59E0B", "#10B981", "#8B5CF6", "#EF4444", "#3B82F6",
+  "var(--success)", "var(--accent)", "var(--primary)", "var(--domain-observation)", "var(--domain-procedure)",
+  "var(--warning)", "var(--success)", "var(--domain-observation)", "#EF4444", "var(--info)",
 ];
 
 function DemographicBars({ label, data }: { label: string; data: Record<string, number> }) {
@@ -41,15 +41,15 @@ function DemographicBars({ label, data }: { label: string; data: Record<string, 
   if (entries.length === 0) {
     return (
       <div className="mb-2">
-        <p className="mb-1 text-[11px] uppercase text-[#666]">{label}</p>
-        <p className="text-xs text-[#555]">No data</p>
+        <p className="mb-1 text-[11px] uppercase text-text-ghost">{label}</p>
+        <p className="text-xs text-text-ghost">No data</p>
       </div>
     );
   }
 
   return (
     <div className="mb-3">
-      <p className="mb-1 text-[11px] uppercase text-[#666]">{label}</p>
+      <p className="mb-1 text-[11px] uppercase text-text-ghost">{label}</p>
       <div className="flex h-5 w-full overflow-hidden rounded">
         {entries.map(([name, pct], i) => (
           <div
@@ -67,7 +67,7 @@ function DemographicBars({ label, data }: { label: string; data: Record<string, 
       </div>
       <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5">
         {entries.map(([name, pct], i) => (
-          <span key={name} className="text-[10px] text-[#888]">
+          <span key={name} className="text-[10px] text-text-muted">
             <span
               className="mr-1 inline-block h-2 w-2 rounded-full"
               style={{ backgroundColor: DEMO_COLORS[i % DEMO_COLORS.length] }}
@@ -108,11 +108,11 @@ export default function DiversityView() {
   );
 
   if (isLoading) {
-    return <div className="p-4 text-[#555]">Loading diversity data...</div>;
+    return <div className="p-4 text-text-ghost">Loading diversity data...</div>;
   }
 
   if (!diversity || diversity.length === 0) {
-    return <div className="p-4 text-center text-[#555]">No sources available for diversity analysis.</div>;
+    return <div className="p-4 text-center text-text-ghost">No sources available for diversity analysis.</div>;
   }
 
   const tabs: Array<{ key: DiversityTab; label: string }> = [
@@ -127,12 +127,12 @@ export default function DiversityView() {
   return (
     <div className="p-4">
       <h2 className="mb-4 text-lg font-medium text-text-primary">Diversity Report</h2>
-      <p className="mb-4 text-xs text-[#666]">
+      <p className="mb-4 text-xs text-text-ghost">
         Demographic proportions across data sources. Sources sorted by population size.
       </p>
 
       {/* Tab bar */}
-      <div className="mb-4 flex gap-1 rounded-lg border border-[#252530] bg-[#0E0E11] p-1">
+      <div className="mb-4 flex gap-1 rounded-lg border border-border-subtle bg-surface-base p-1">
         {tabs.map((tab) => (
           <button
             key={tab.key}
@@ -140,8 +140,8 @@ export default function DiversityView() {
             onClick={() => setActiveTab(tab.key)}
             className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
               activeTab === tab.key
-                ? "bg-[#252530] text-[#C9A227]"
-                : "text-[#888] hover:text-[#ccc]"
+                ? "bg-surface-accent text-accent"
+                : "text-text-muted hover:text-text-secondary"
             }`}
           >
             {tab.label}
@@ -160,10 +160,10 @@ export default function DiversityView() {
       {activeTab === "overview" && (
         <div className="space-y-4">
           {diversity.map((source: DiversitySource) => (
-            <div key={source.source_id} className="rounded-lg border border-[#252530] bg-[#151518] p-4">
+            <div key={source.source_id} className="rounded-lg border border-border-subtle bg-surface-raised p-4">
               <div className="mb-3 flex items-center justify-between">
                 <h3 className="text-sm font-medium text-text-primary">{source.source_name}</h3>
-                <span className="text-xs text-[#888]">{source.person_count.toLocaleString()} persons</span>
+                <span className="text-xs text-text-muted">{source.person_count.toLocaleString()} persons</span>
               </div>
               <DemographicBars label="Gender" data={source.gender} />
               <DemographicBars label="Race" data={source.race} />
@@ -186,7 +186,7 @@ export default function DiversityView() {
           <select
             value={pyramidSourceId ?? ""}
             onChange={(e) => setPyramidSourceId(e.target.value ? Number(e.target.value) : null)}
-            className="rounded-lg border border-[#252530] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none"
+            className="rounded-lg border border-border-subtle bg-surface-raised px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none"
           >
             <option value="">Select a source</option>
             {diversity.map((s) => (
@@ -204,9 +204,9 @@ export default function DiversityView() {
 
       {activeTab === "dap" && (
         <div className="space-y-4">
-          <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
+          <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
             <h3 className="mb-2 text-sm font-medium text-text-primary">FDA DAP Enrollment Gap Analysis</h3>
-            <p className="mb-3 text-xs text-[#666]">
+            <p className="mb-3 text-xs text-text-ghost">
               Compares source demographics against US Census 2020 benchmarks to identify enrollment gaps.
             </p>
             {dapData && <DapGapMatrix data={dapData} />}
@@ -216,9 +216,9 @@ export default function DiversityView() {
 
       {activeTab === "pooled" && (
         <div className="space-y-4">
-          <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
+          <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
             <h3 className="mb-2 text-sm font-medium text-text-primary">Pooled Demographics</h3>
-            <p className="mb-3 text-xs text-[#666]">
+            <p className="mb-3 text-xs text-text-ghost">
               Select multiple sources to see weighted-merged demographic profiles.
             </p>
             <div className="mb-3 flex flex-wrap gap-2">
@@ -237,8 +237,8 @@ export default function DiversityView() {
                     }
                     className={`rounded-full px-3 py-1 text-xs transition-colors ${
                       isSelected
-                        ? "bg-[#C9A227]/20 text-[#C9A227] border border-[#C9A227]/50"
-                        : "bg-[#252530] text-[#888] border border-[#252530] hover:border-[#C9A227]/30"
+                        ? "bg-accent/20 text-accent border border-accent/50"
+                        : "bg-surface-accent text-text-muted border border-border-subtle hover:border-accent/30"
                     }`}
                   >
                     {s.source_name}
@@ -248,7 +248,7 @@ export default function DiversityView() {
             </div>
             {pooledData && (
               <div>
-                <p className="mb-2 text-xs text-[#888]">
+                <p className="mb-2 text-xs text-text-muted">
                   Total: {pooledData.total_persons.toLocaleString()} persons across {pooledSourceIds.length} sources
                 </p>
                 <DemographicBars label="Gender" data={pooledData.gender} />
@@ -267,7 +267,7 @@ export default function DiversityView() {
           <select
             value={trendsSourceId ?? ""}
             onChange={(e) => setTrendsSourceId(e.target.value ? Number(e.target.value) : null)}
-            className="rounded-lg border border-[#252530] bg-[#151518] px-3 py-2 text-sm text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none"
+            className="rounded-lg border border-border-subtle bg-surface-raised px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none"
           >
             <option value="">Select a source</option>
             {diversity.map((s) => (
@@ -281,8 +281,8 @@ export default function DiversityView() {
             />
           )}
           {trendsSourceId && trendsData && trendsData.releases.length === 0 && (
-            <div className="rounded-lg border border-dashed border-[#323238] bg-[#151518] py-12 text-center">
-              <p className="text-sm text-[#666]">No releases found for this source. Create releases to track diversity trends.</p>
+            <div className="rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-12 text-center">
+              <p className="text-sm text-text-ghost">No releases found for this source. Create releases to track diversity trends.</p>
             </div>
           )}
         </div>

@@ -27,8 +27,8 @@ function CustomTooltip({
 }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-lg border border-[#323238] bg-[#1A1A1E] px-3 py-2 shadow-lg">
-      <p className="text-xs text-[#8A857D]">{label ? formatYearMonth(label) : ""}</p>
+    <div className="rounded-lg border border-surface-highlight bg-surface-overlay px-3 py-2 shadow-lg">
+      <p className="text-xs text-text-muted">{label ? formatYearMonth(label) : ""}</p>
       {payload.map((p, idx) => (
         <p
           key={idx}
@@ -50,8 +50,8 @@ export function TemporalTrendChart({
 }: TemporalTrendChartProps) {
   if (!data.length) {
     return (
-      <div className="flex items-center justify-center rounded-xl border border-[#232328] bg-[#151518] py-16">
-        <p className="text-sm text-[#8A857D]">No temporal data available</p>
+      <div className="flex items-center justify-center rounded-xl border border-border-default bg-surface-raised py-16">
+        <p className="text-sm text-text-muted">No temporal data available</p>
       </div>
     );
   }
@@ -70,9 +70,9 @@ export function TemporalTrendChart({
   const tickInterval = Math.max(1, Math.floor(merged.length / 12));
 
   return (
-    <div className="rounded-xl border border-[#232328] bg-[#151518] p-6">
+    <div className="rounded-xl border border-border-default bg-surface-raised p-6">
       {title && (
-        <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[#8A857D]">
+        <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-text-muted">
           {title}
         </h3>
       )}
@@ -83,20 +83,20 @@ export function TemporalTrendChart({
         >
           <CartesianGrid
             strokeDasharray="3 3"
-            stroke="#323238"
+            stroke="var(--surface-highlight)"
             vertical={false}
           />
           <XAxis
             dataKey="year_month"
             tickFormatter={formatYearMonth}
             interval={tickInterval}
-            tick={{ fill: "#F0EDE8", fontSize: 10 }}
-            axisLine={{ stroke: "#323238" }}
-            tickLine={{ stroke: "#323238" }}
+            tick={{ fill: "var(--text-primary)", fontSize: 10 }}
+            axisLine={{ stroke: "var(--surface-highlight)" }}
+            tickLine={{ stroke: "var(--surface-highlight)" }}
           />
           <YAxis
             tickFormatter={formatCompact}
-            tick={{ fill: "#F0EDE8", fontSize: 11 }}
+            tick={{ fill: "var(--text-primary)", fontSize: 11 }}
             axisLine={false}
             tickLine={false}
             width={60}
@@ -106,20 +106,20 @@ export function TemporalTrendChart({
             type="monotone"
             dataKey="count"
             name="Events"
-            stroke="#2DD4BF"
+            stroke="var(--success)"
             strokeWidth={2}
             dot={false}
-            activeDot={{ r: 4, fill: "#2DD4BF", stroke: "#151518", strokeWidth: 2 }}
+            activeDot={{ r: 4, fill: "var(--success)", stroke: "var(--surface-raised)", strokeWidth: 2 }}
           />
           {secondarySeries && (
             <Line
               type="monotone"
               dataKey="secondary"
               name={secondaryLabel ?? "Secondary"}
-              stroke="#C9A227"
+              stroke="var(--accent)"
               strokeWidth={2}
               dot={false}
-              activeDot={{ r: 4, fill: "#C9A227", stroke: "#151518", strokeWidth: 2 }}
+              activeDot={{ r: 4, fill: "var(--accent)", stroke: "var(--surface-raised)", strokeWidth: 2 }}
             />
           )}
         </LineChart>

@@ -77,10 +77,10 @@ function HeadToHeadPanel({ personA, personB, sourceId }: { personA: number; pers
 
   if (!canCompare) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-24">
-        <Users size={36} className="text-[#323238] mb-4" />
-        <h3 className="text-lg font-semibold text-[#F0EDE8]">Head-to-Head Comparison</h3>
-        <p className="mt-2 text-sm text-[#8A857D] max-w-md text-center">
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-24">
+        <Users size={36} className="text-text-ghost mb-4" />
+        <h3 className="text-lg font-semibold text-text-primary">Head-to-Head Comparison</h3>
+        <p className="mt-2 text-sm text-text-muted max-w-md text-center">
           Enter two different patient IDs to compare them across all clinical dimensions with trajectory overlay.
         </p>
       </div>
@@ -89,16 +89,16 @@ function HeadToHeadPanel({ personA, personB, sourceId }: { personA: number; pers
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center rounded-lg border border-[#232328] bg-[#151518] py-16">
-        <div className="text-sm text-[#5A5650]">Comparing patients...</div>
+      <div className="flex items-center justify-center rounded-lg border border-border-default bg-surface-raised py-16">
+        <div className="text-sm text-text-ghost">Comparing patients...</div>
       </div>
     );
   }
 
   if (isError) {
     return (
-      <div className="rounded-lg border border-[#E85A6B]/20 bg-[#E85A6B]/5 px-4 py-3">
-        <p className="text-sm text-[#E85A6B]">
+      <div className="rounded-lg border border-critical/20 bg-critical/5 px-4 py-3">
+        <p className="text-sm text-critical">
           {error instanceof Error ? error.message : "Comparison failed."}
         </p>
       </div>
@@ -115,20 +115,20 @@ function HeadToHeadPanel({ personA, personB, sourceId }: { personA: number; pers
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+      <div className="rounded-lg border border-border-default bg-surface-raised p-4">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-[#F0EDE8]">
+          <h3 className="text-sm font-semibold text-text-primary">
             Patient {personA} vs Patient {personB}
           </h3>
-          <div className="text-lg font-bold" style={{ color: overallScore >= 0.8 ? "#2DD4BF" : overallScore >= 0.5 ? "#C9A227" : "#8A857D" }}>
+          <div className="text-lg font-bold" style={{ color: overallScore >= 0.8 ? "var(--success)" : overallScore >= 0.5 ? "var(--accent)" : "var(--text-muted)" }}>
             {overallScore.toFixed(3)}
           </div>
         </div>
         <div className="grid grid-cols-3 gap-3">
           {Object.entries(dimScores).map(([dim, score]) => (
-            <div key={dim} className="rounded border border-[#232328] bg-[#0E0E11] p-2.5">
-              <div className="text-[10px] text-[#5A5650] uppercase tracking-wider mb-1">{dim}</div>
-              <div className="text-sm font-medium" style={{ color: score != null && score >= 0.5 ? "#2DD4BF" : "#8A857D" }}>
+            <div key={dim} className="rounded border border-border-default bg-surface-base p-2.5">
+              <div className="text-[10px] text-text-ghost uppercase tracking-wider mb-1">{dim}</div>
+              <div className="text-sm font-medium" style={{ color: score != null && score >= 0.5 ? "var(--success)" : "var(--text-muted)" }}>
                 {score != null ? score.toFixed(3) : "N/A"}
               </div>
             </div>
@@ -138,16 +138,16 @@ function HeadToHeadPanel({ personA, personB, sourceId }: { personA: number; pers
 
       {/* Shared features */}
       {comparison.shared_features && (
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-          <h3 className="text-sm font-semibold text-[#F0EDE8] mb-3">Shared Features</h3>
+        <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+          <h3 className="text-sm font-semibold text-text-primary mb-3">Shared Features</h3>
           <div className="grid grid-cols-3 gap-4 text-xs">
             {["conditions", "drugs", "procedures"].map((domain) => {
               const items = (comparison.shared_features as Record<string, unknown>)?.[domain];
               const count = Array.isArray(items) ? items.length : 0;
               return (
                 <div key={domain}>
-                  <span className="text-[#5A5650] uppercase tracking-wider">{domain}</span>
-                  <span className="ml-2 text-[#C5C0B8] font-medium">{count} shared</span>
+                  <span className="text-text-ghost uppercase tracking-wider">{domain}</span>
+                  <span className="ml-2 text-text-secondary font-medium">{count} shared</span>
                 </div>
               );
             })}
@@ -156,7 +156,7 @@ function HeadToHeadPanel({ personA, personB, sourceId }: { personA: number; pers
       )}
 
       {/* Trajectory comparison */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+      <div className="rounded-lg border border-border-default bg-surface-raised p-4">
         <TrajectoryComparison personAId={personA} personBId={personB} sourceId={sourceId} />
       </div>
     </div>
@@ -321,7 +321,7 @@ export default function PatientSimilarityPage() {
       <div className="w-80 shrink-0">
         <div className="sticky top-0 space-y-4">
           {/* Search Mode Toggle */}
-          <div className="flex rounded-lg border border-[#232328] overflow-hidden">
+          <div className="flex rounded-lg border border-border-default overflow-hidden">
             {(["single", "cohort", "compare", "landscape", "headtohead"] as const).map((m) => (
               <button
                 key={m}
@@ -330,8 +330,8 @@ export default function PatientSimilarityPage() {
                 className={cn(
                   "flex-1 px-2 py-2 text-[10px] font-medium transition-colors",
                   searchMode === m
-                    ? "bg-[#9B1B30]/10 text-[#9B1B30]"
-                    : "bg-[#0E0E11] text-[#5A5650] hover:text-[#C5C0B8]",
+                    ? "bg-primary/10 text-primary"
+                    : "bg-surface-base text-text-ghost hover:text-text-secondary",
                 )}
               >
                 {m === "single"
@@ -347,7 +347,7 @@ export default function PatientSimilarityPage() {
             ))}
           </div>
 
-          <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+          <div className="rounded-lg border border-border-default bg-surface-raised p-4">
             {searchMode === "single" ? (
               <SimilaritySearchForm
                 onSearch={handleSearch}
@@ -380,7 +380,7 @@ export default function PatientSimilarityPage() {
               />
             ) : searchMode === "landscape" ? (
               <div className="space-y-3">
-                <p className="text-xs text-[#8A857D]">
+                <p className="text-xs text-text-muted">
                   Project all patients into a 2D/3D scatter plot using UMAP. Proximity reflects multi-dimensional similarity.
                 </p>
                 <button
@@ -406,8 +406,8 @@ export default function PatientSimilarityPage() {
                   className={cn(
                     "w-full px-3 py-2 text-xs font-medium rounded border transition-colors",
                     landscapeLoading
-                      ? "text-[#5A5650] border-[#232328] cursor-wait"
-                      : "text-[#2DD4BF] border-[#2DD4BF]/30 hover:bg-[#2DD4BF]/10",
+                      ? "text-text-ghost border-border-default cursor-wait"
+                      : "text-success border-success/30 hover:bg-success/10",
                   )}
                 >
                   {landscapeLoading ? "Projecting..." : "Generate Landscape"}
@@ -415,7 +415,7 @@ export default function PatientSimilarityPage() {
               </div>
             ) : (
               <div className="space-y-3">
-                <p className="text-xs text-[#8A857D]">
+                <p className="text-xs text-text-muted">
                   Compare two patients head-to-head across all dimensions with trajectory overlay.
                 </p>
                 <input
@@ -423,14 +423,14 @@ export default function PatientSimilarityPage() {
                   placeholder="Person A ID"
                   value={h2hPersonA || ""}
                   onChange={(e) => setH2hPersonA(parseInt(e.target.value, 10) || 0)}
-                  className="w-full rounded border border-[#232328] bg-[#0E0E11] px-3 py-2 text-xs text-[#F0EDE8] placeholder-[#5A5650]"
+                  className="w-full rounded border border-border-default bg-surface-base px-3 py-2 text-xs text-text-primary placeholder-[#5A5650]"
                 />
                 <input
                   type="number"
                   placeholder="Person B ID"
                   value={h2hPersonB || ""}
                   onChange={(e) => setH2hPersonB(parseInt(e.target.value, 10) || 0)}
-                  className="w-full rounded border border-[#232328] bg-[#0E0E11] px-3 py-2 text-xs text-[#F0EDE8] placeholder-[#5A5650]"
+                  className="w-full rounded border border-border-default bg-surface-base px-3 py-2 text-xs text-text-primary placeholder-[#5A5650]"
                 />
               </div>
             )}
@@ -457,37 +457,37 @@ export default function PatientSimilarityPage() {
 
         {/* Results header bar */}
         {result && (
-          <div className="flex items-center justify-between rounded-lg border border-[#232328] bg-[#151518] px-4 py-2.5">
+          <div className="flex items-center justify-between rounded-lg border border-border-default bg-surface-raised px-4 py-2.5">
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1.5 text-xs text-[#C5C0B8]">
-                <Users size={14} className="text-[#2DD4BF]" />
+              <div className="flex items-center gap-1.5 text-xs text-text-secondary">
+                <Users size={14} className="text-success" />
                 <span className="font-medium">
                   {patients.length}
                 </span>
-                <span className="text-[#5A5650]">results</span>
+                <span className="text-text-ghost">results</span>
               </div>
               {cohortName && (
-                <div className="flex items-center gap-1.5 text-xs text-[#5A5650]">
+                <div className="flex items-center gap-1.5 text-xs text-text-ghost">
                   <span>Seed:</span>
-                  <span className="font-medium text-[#C5C0B8]">{cohortName}</span>
+                  <span className="font-medium text-text-secondary">{cohortName}</span>
                   <span>({cohortMemberCount} members)</span>
                 </div>
               )}
               {candidatesEvaluated !== null && (
-                <div className="flex items-center gap-1.5 text-xs text-[#5A5650]">
+                <div className="flex items-center gap-1.5 text-xs text-text-ghost">
                   <Target size={12} />
                   {candidatesEvaluated.toLocaleString()} candidates
                 </div>
               )}
               {computedInMs !== null && (
-                <div className="flex items-center gap-1.5 text-xs text-[#5A5650]">
+                <div className="flex items-center gap-1.5 text-xs text-text-ghost">
                   <Clock size={12} />
                   {computedInMs}ms
                 </div>
               )}
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-[10px] text-[#5A5650] uppercase tracking-wider">
+              <span className="text-[10px] text-text-ghost uppercase tracking-wider">
                 Mode: {result.mode}
               </span>
               <button
@@ -497,8 +497,8 @@ export default function PatientSimilarityPage() {
                 className={cn(
                   "flex items-center gap-1.5 text-xs border rounded px-2.5 py-1 transition-colors",
                   canExport
-                    ? "text-[#2DD4BF] border-[#2DD4BF]/30 hover:bg-[#2DD4BF]/10 cursor-pointer"
-                    : "text-[#5A5650] border-[#232328] cursor-not-allowed opacity-50",
+                    ? "text-success border-success/30 hover:bg-success/10 cursor-pointer"
+                    : "text-text-ghost border-border-default cursor-not-allowed opacity-50",
                 )}
               >
                 <Download size={12} />
@@ -512,8 +512,8 @@ export default function PatientSimilarityPage() {
                   className={cn(
                     "flex items-center gap-1.5 text-xs border rounded px-2.5 py-1 transition-colors",
                     patients.length > 0
-                      ? "text-[#C9A227] border-[#C9A227]/30 hover:bg-[#C9A227]/10 cursor-pointer"
-                      : "text-[#5A5650] border-[#232328] cursor-not-allowed opacity-50",
+                      ? "text-accent border-accent/30 hover:bg-accent/10 cursor-pointer"
+                      : "text-text-ghost border-border-default cursor-not-allowed opacity-50",
                   )}
                 >
                   <UserPlus size={12} />
@@ -526,8 +526,8 @@ export default function PatientSimilarityPage() {
 
         {/* Error */}
         {isError && (
-          <div className="rounded-lg border border-[#E85A6B]/20 bg-[#E85A6B]/5 px-4 py-3">
-            <p className="text-sm text-[#E85A6B]">
+          <div className="rounded-lg border border-critical/20 bg-critical/5 px-4 py-3">
+            <p className="text-sm text-critical">
               {errorMessage ??
                 (searchMode === "single"
                   ? "Search failed. Please verify the patient ID exists in this data source and try again."
@@ -542,13 +542,13 @@ export default function PatientSimilarityPage() {
         {searchMode === "compare" && compareMutation.data && (
           <div className="space-y-4">
             {/* Propensity Score Matching — top of comparison results */}
-            <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+            <div className="rounded-lg border border-border-default bg-surface-raised p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-sm font-semibold text-[#F0EDE8]">
+                  <h3 className="text-sm font-semibold text-text-primary">
                     Propensity Score Matching
                   </h3>
-                  <p className="text-xs text-[#5A5650] mt-0.5">
+                  <p className="text-xs text-text-ghost mt-0.5">
                     Match patients between cohorts on estimated treatment probability for causal inference
                   </p>
                 </div>
@@ -566,8 +566,8 @@ export default function PatientSimilarityPage() {
                   className={cn(
                     "px-3 py-1.5 text-xs font-medium rounded border transition-colors",
                     psmMutation.isPending
-                      ? "text-[#5A5650] border-[#232328] cursor-wait"
-                      : "text-[#2DD4BF] border-[#2DD4BF]/30 hover:bg-[#2DD4BF]/10 cursor-pointer",
+                      ? "text-text-ghost border-border-default cursor-wait"
+                      : "text-success border-success/30 hover:bg-success/10 cursor-pointer",
                   )}
                 >
                   {psmMutation.isPending ? "Computing..." : "Run PSM"}
@@ -576,8 +576,8 @@ export default function PatientSimilarityPage() {
             </div>
 
             {psmMutation.isError && (
-              <div className="rounded-lg border border-[#E85A6B]/20 bg-[#E85A6B]/5 px-4 py-3">
-                <p className="text-sm text-[#E85A6B]">
+              <div className="rounded-lg border border-critical/20 bg-critical/5 px-4 py-3">
+                <p className="text-sm text-critical">
                   {getMutationErrorMessage(psmMutation.error) ?? "Propensity score matching failed."}
                 </p>
               </div>
@@ -603,12 +603,12 @@ export default function PatientSimilarityPage() {
         {searchMode === "landscape" && (
           <div className="space-y-4">
             {landscapeError && (
-              <div className="rounded-lg border border-[#E85A6B]/20 bg-[#E85A6B]/5 px-4 py-3">
-                <p className="text-sm text-[#E85A6B]">{landscapeError}</p>
+              <div className="rounded-lg border border-critical/20 bg-critical/5 px-4 py-3">
+                <p className="text-sm text-critical">{landscapeError}</p>
               </div>
             )}
             {landscapeResult && (
-              <div className="rounded-lg border border-[#232328] bg-[#0E0E11]" style={{ height: 600 }}>
+              <div className="rounded-lg border border-border-default bg-surface-base" style={{ height: 600 }}>
                 <PatientLandscape
                   points={landscapeResult.points}
                   clusters={landscapeResult.clusters ?? []}
@@ -617,10 +617,10 @@ export default function PatientSimilarityPage() {
               </div>
             )}
             {!landscapeResult && !landscapeLoading && !landscapeError && (
-              <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-24">
-                <Users size={36} className="text-[#323238] mb-4" />
-                <h3 className="text-lg font-semibold text-[#F0EDE8]">Patient Landscape</h3>
-                <p className="mt-2 text-sm text-[#8A857D] max-w-md text-center">
+              <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-24">
+                <Users size={36} className="text-text-ghost mb-4" />
+                <h3 className="text-lg font-semibold text-text-primary">Patient Landscape</h3>
+                <p className="mt-2 text-sm text-text-muted max-w-md text-center">
                   Click &quot;Generate Landscape&quot; to project patients into a 3D scatter plot using UMAP dimensionality reduction.
                 </p>
               </div>
@@ -635,7 +635,7 @@ export default function PatientSimilarityPage() {
 
         {/* Network Fusion (cohort mode) */}
         {searchMode === "cohort" && cohortDefinitionId > 0 && sourceId > 0 && (
-          <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+          <div className="rounded-lg border border-border-default bg-surface-raised p-4">
             <NetworkFusionResults
               sourceId={sourceId}
               cohortDefinitionId={cohortDefinitionId}
@@ -665,25 +665,25 @@ export default function PatientSimilarityPage() {
             sourceId={lastSearchParams?.source_id}
           />
         ) : hasCompareInsights ? (
-          <div className="rounded-lg border border-dashed border-[#323238] bg-[#151518] px-6 py-10">
-            <h3 className="text-base font-semibold text-[#F0EDE8]">
+          <div className="rounded-lg border border-dashed border-surface-highlight bg-surface-raised px-6 py-10">
+            <h3 className="text-base font-semibold text-text-primary">
               Cohort Profiles Compared
             </h3>
-            <p className="mt-2 text-sm text-[#8A857D] max-w-2xl">
+            <p className="mt-2 text-sm text-text-muted max-w-2xl">
               Review the radar chart and divergence scores above, then use
-              <span className="text-[#C5C0B8]"> Find Matching Patients</span> to
+              <span className="text-text-secondary"> Find Matching Patients</span> to
               search for patients outside both cohorts who resemble the source
               cohort profile.
             </p>
           </div>
         ) : (
           shouldShowEmptyState && (
-            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-24">
-              <Users size={36} className="text-[#323238] mb-4" />
-              <h3 className="text-lg font-semibold text-[#F0EDE8]">
+            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-24">
+              <Users size={36} className="text-text-ghost mb-4" />
+              <h3 className="text-lg font-semibold text-text-primary">
                 Find Similar Patients
               </h3>
-              <p className="mt-2 text-sm text-[#8A857D] max-w-md text-center">
+              <p className="mt-2 text-sm text-text-muted max-w-md text-center">
                 {searchMode === "single"
                   ? "Enter a seed patient ID and configure dimension weights to discover clinically similar patients across the OMOP CDM."
                   : searchMode === "cohort"

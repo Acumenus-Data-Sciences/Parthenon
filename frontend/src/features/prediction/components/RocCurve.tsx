@@ -153,13 +153,13 @@ export function RocCurve({ data, auc, validationData }: RocCurveProps) {
       width={width}
       height={height}
       viewBox={`0 0 ${width} ${height}`}
-      className="text-[#F0EDE8]"
+      className="text-text-primary"
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       data-testid="roc-curve-svg"
     >
       {/* Background */}
-      <rect width={width} height={height} fill="#151518" rx={8} />
+      <rect width={width} height={height} fill="var(--surface-raised)" rx={8} />
 
       {/* Grid */}
       {gridLines.map((v) => (
@@ -169,7 +169,7 @@ export function RocCurve({ data, auc, validationData }: RocCurveProps) {
             y1={padding.top}
             x2={toX(v)}
             y2={padding.top + plotH}
-            stroke="#232328"
+            stroke="var(--surface-elevated)"
             strokeWidth={0.5}
           />
           <line
@@ -177,14 +177,14 @@ export function RocCurve({ data, auc, validationData }: RocCurveProps) {
             y1={toY(v)}
             x2={padding.left + plotW}
             y2={toY(v)}
-            stroke="#232328"
+            stroke="var(--surface-elevated)"
             strokeWidth={0.5}
           />
           <text
             x={toX(v)}
             y={padding.top + plotH + 16}
             textAnchor="middle"
-            fill="#5A5650"
+            fill="var(--text-ghost)"
             fontSize={10}
           >
             {v.toFixed(1)}
@@ -193,7 +193,7 @@ export function RocCurve({ data, auc, validationData }: RocCurveProps) {
             x={padding.left - 8}
             y={toY(v) + 3}
             textAnchor="end"
-            fill="#5A5650"
+            fill="var(--text-ghost)"
             fontSize={10}
           >
             {v.toFixed(1)}
@@ -207,20 +207,20 @@ export function RocCurve({ data, auc, validationData }: RocCurveProps) {
         y1={toY(0)}
         x2={toX(1)}
         y2={toY(1)}
-        stroke="#323238"
+        stroke="var(--surface-highlight)"
         strokeWidth={1}
         strokeDasharray="6 4"
       />
 
       {/* Area under curve fill */}
-      {fillD && <path d={fillD} fill="#2DD4BF" opacity={0.08} />}
+      {fillD && <path d={fillD} fill="var(--success)" opacity={0.08} />}
 
       {/* Validation overlay curve (gold) */}
       {validationPathD && (
         <path
           d={validationPathD}
           fill="none"
-          stroke="#C9A227"
+          stroke="var(--accent)"
           strokeWidth={2}
           strokeLinejoin="round"
           strokeDasharray="6 3"
@@ -233,7 +233,7 @@ export function RocCurve({ data, auc, validationData }: RocCurveProps) {
         <path
           d={pathD}
           fill="none"
-          stroke="#2DD4BF"
+          stroke="var(--success)"
           strokeWidth={2.5}
           strokeLinejoin="round"
         />
@@ -248,7 +248,7 @@ export function RocCurve({ data, auc, validationData }: RocCurveProps) {
             y1={toY(youdenPoint.tpr)}
             x2={toX(youdenPoint.fpr)}
             y2={toY(youdenPoint.fpr)}
-            stroke="#C9A227"
+            stroke="var(--accent)"
             strokeWidth={1}
             strokeDasharray="3 2"
             opacity={0.5}
@@ -258,15 +258,15 @@ export function RocCurve({ data, auc, validationData }: RocCurveProps) {
             cx={toX(youdenPoint.fpr)}
             cy={toY(youdenPoint.tpr)}
             r={6}
-            fill="#C9A227"
-            stroke="#0E0E11"
+            fill="var(--accent)"
+            stroke="var(--surface-base)"
             strokeWidth={2}
           />
           {/* Annotation */}
           <text
             x={toX(youdenPoint.fpr) + 10}
             y={toY(youdenPoint.tpr) - 8}
-            fill="#C9A227"
+            fill="var(--accent)"
             fontSize={9}
             fontFamily="IBM Plex Mono, monospace"
             data-testid="youden-j-label"
@@ -286,7 +286,7 @@ export function RocCurve({ data, auc, validationData }: RocCurveProps) {
             y1={padding.top}
             x2={hoverPoint.x}
             y2={padding.top + plotH}
-            stroke="#5A5650"
+            stroke="var(--text-ghost)"
             strokeWidth={0.5}
             strokeDasharray="3 3"
           />
@@ -295,7 +295,7 @@ export function RocCurve({ data, auc, validationData }: RocCurveProps) {
             y1={hoverPoint.y}
             x2={padding.left + plotW}
             y2={hoverPoint.y}
-            stroke="#5A5650"
+            stroke="var(--text-ghost)"
             strokeWidth={0.5}
             strokeDasharray="3 3"
           />
@@ -304,8 +304,8 @@ export function RocCurve({ data, auc, validationData }: RocCurveProps) {
             cx={hoverPoint.x}
             cy={hoverPoint.y}
             r={5}
-            fill="#2DD4BF"
-            stroke="#0E0E11"
+            fill="var(--success)"
+            stroke="var(--surface-base)"
             strokeWidth={2}
           />
           {/* Tooltip background */}
@@ -315,14 +315,14 @@ export function RocCurve({ data, auc, validationData }: RocCurveProps) {
             width={130}
             height={42}
             rx={4}
-            fill="#0E0E11"
-            stroke="#232328"
+            fill="var(--surface-base)"
+            stroke="var(--surface-elevated)"
             strokeWidth={1}
           />
           <text
             x={Math.min(hoverPoint.x + 16, padding.left + plotW - 134)}
             y={Math.max(hoverPoint.y - 34, padding.top + 16)}
-            fill="#C5C0B8"
+            fill="var(--text-secondary)"
             fontSize={9}
             fontFamily="IBM Plex Mono, monospace"
           >
@@ -331,7 +331,7 @@ export function RocCurve({ data, auc, validationData }: RocCurveProps) {
           <text
             x={Math.min(hoverPoint.x + 16, padding.left + plotW - 134)}
             y={Math.max(hoverPoint.y - 20, padding.top + 30)}
-            fill="#C5C0B8"
+            fill="var(--text-secondary)"
             fontSize={9}
             fontFamily="IBM Plex Mono, monospace"
           >
@@ -347,7 +347,7 @@ export function RocCurve({ data, auc, validationData }: RocCurveProps) {
         width={plotW}
         height={plotH}
         fill="none"
-        stroke="#323238"
+        stroke="var(--surface-highlight)"
         strokeWidth={1}
       />
 
@@ -358,15 +358,15 @@ export function RocCurve({ data, auc, validationData }: RocCurveProps) {
         width={90}
         height={28}
         rx={4}
-        fill="#0E0E11"
-        stroke="#232328"
+        fill="var(--surface-base)"
+        stroke="var(--surface-elevated)"
         strokeWidth={1}
       />
       <text
         x={padding.left + plotW - 55}
         y={padding.top + plotH - 22}
         textAnchor="middle"
-        fill="#2DD4BF"
+        fill="var(--success)"
         fontSize={12}
         fontWeight={700}
         fontFamily="IBM Plex Mono, monospace"
@@ -383,8 +383,8 @@ export function RocCurve({ data, auc, validationData }: RocCurveProps) {
             width={110}
             height={28}
             rx={4}
-            fill="#0E0E11"
-            stroke="#232328"
+            fill="var(--surface-base)"
+            stroke="var(--surface-elevated)"
             strokeWidth={1}
           />
           <line
@@ -392,14 +392,14 @@ export function RocCurve({ data, auc, validationData }: RocCurveProps) {
             y1={padding.top + plotH - 26}
             x2={padding.left + 36}
             y2={padding.top + plotH - 26}
-            stroke="#C9A227"
+            stroke="var(--accent)"
             strokeWidth={2}
             strokeDasharray="6 3"
           />
           <text
             x={padding.left + 42}
             y={padding.top + plotH - 22}
-            fill="#C9A227"
+            fill="var(--accent)"
             fontSize={10}
           >
             Validation
@@ -412,7 +412,7 @@ export function RocCurve({ data, auc, validationData }: RocCurveProps) {
         x={padding.left + plotW / 2}
         y={height - 8}
         textAnchor="middle"
-        fill="#8A857D"
+        fill="var(--text-muted)"
         fontSize={11}
         fontWeight={600}
       >
@@ -422,7 +422,7 @@ export function RocCurve({ data, auc, validationData }: RocCurveProps) {
         x={14}
         y={padding.top + plotH / 2}
         textAnchor="middle"
-        fill="#8A857D"
+        fill="var(--text-muted)"
         fontSize={11}
         fontWeight={600}
         transform={`rotate(-90 14 ${padding.top + plotH / 2})`}

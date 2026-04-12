@@ -56,16 +56,16 @@ export function CohortExpandDialog({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div className="w-full max-w-md rounded-lg border border-[#232328] bg-[#151518] shadow-xl">
+      <div className="w-full max-w-md rounded-lg border border-border-default bg-surface-raised shadow-xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#232328] px-5 py-4">
-          <h2 className="text-base font-semibold text-[#F0EDE8]">
+        <div className="flex items-center justify-between border-b border-border-default px-5 py-4">
+          <h2 className="text-base font-semibold text-text-primary">
             Expand {cohortName}
           </h2>
           <button
             type="button"
             onClick={handleClose}
-            className="text-[#5A5650] hover:text-[#C5C0B8] transition-colors"
+            className="text-text-ghost hover:text-text-secondary transition-colors"
           >
             <X size={18} />
           </button>
@@ -75,35 +75,35 @@ export function CohortExpandDialog({
         <div className="px-5 py-4 space-y-4">
           {expandMutation.isSuccess ? (
             <div className="flex flex-col items-center py-6 text-center">
-              <CheckCircle size={40} className="text-[#2DD4BF] mb-3" />
-              <p className="text-sm text-[#F0EDE8] font-medium">
+              <CheckCircle size={40} className="text-success mb-3" />
+              <p className="text-sm text-text-primary font-medium">
                 Cohort expanded successfully
               </p>
-              <p className="text-xs text-[#8A857D] mt-1">
+              <p className="text-xs text-text-muted mt-1">
                 Added {expandMutation.data.added_count} patients
                 {expandMutation.data.skipped_duplicates > 0 && (
                   <> ({expandMutation.data.skipped_duplicates} duplicates skipped)</>
                 )}
               </p>
-              <p className="text-xs text-[#8A857D] mt-0.5">
+              <p className="text-xs text-text-muted mt-0.5">
                 New total: {expandMutation.data.new_total} members
               </p>
             </div>
           ) : (
             <>
               {/* Info */}
-              <div className="rounded-lg bg-[#0E0E11] border border-[#232328] px-3 py-2.5">
-                <p className="text-xs text-[#8A857D]">
+              <div className="rounded-lg bg-surface-base border border-border-default px-3 py-2.5">
+                <p className="text-xs text-text-muted">
                   Add similar patients to{" "}
-                  <span className="font-medium text-[#C5C0B8]">
+                  <span className="font-medium text-text-secondary">
                     {cohortName}
                   </span>
                 </p>
-                <p className="text-xs text-[#5A5650] mt-1">
+                <p className="text-xs text-text-ghost mt-1">
                   Current size:{" "}
-                  <span className="text-[#C5C0B8]">{currentMemberCount}</span>{" "}
+                  <span className="text-text-secondary">{currentMemberCount}</span>{" "}
                   members &rarr; New size:{" "}
-                  <span className="text-[#2DD4BF]">
+                  <span className="text-success">
                     {currentMemberCount + filteredCount}
                   </span>
                 </p>
@@ -112,10 +112,10 @@ export function CohortExpandDialog({
               {/* Min Score Slider */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-[10px] text-[#5A5650] uppercase tracking-wider">
+                  <label className="text-[10px] text-text-ghost uppercase tracking-wider">
                     Minimum Score
                   </label>
-                  <span className="text-xs font-medium text-[#2DD4BF] tabular-nums">
+                  <span className="text-xs font-medium text-success tabular-nums">
                     {minScore.toFixed(2)}
                   </span>
                 </div>
@@ -126,14 +126,14 @@ export function CohortExpandDialog({
                   step={0.05}
                   value={minScore}
                   onChange={(e) => setMinScore(parseFloat(e.target.value))}
-                  className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-[#232328] accent-[#2DD4BF]"
+                  className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-surface-elevated accent-[#2DD4BF]"
                 />
               </div>
 
               {/* Count Preview */}
-              <div className="rounded-lg bg-[#0E0E11] border border-[#232328] px-3 py-2">
-                <p className="text-xs text-[#8A857D]">
-                  <span className="font-medium text-[#C5C0B8]">
+              <div className="rounded-lg bg-surface-base border border-border-default px-3 py-2">
+                <p className="text-xs text-text-muted">
+                  <span className="font-medium text-text-secondary">
                     {filteredCount}
                   </span>{" "}
                   of {patients.length} patients meet the threshold
@@ -141,7 +141,7 @@ export function CohortExpandDialog({
               </div>
 
               {expandMutation.isError && (
-                <p className="text-xs text-[#E85A6B]">
+                <p className="text-xs text-critical">
                   Expansion failed. Please try again.
                 </p>
               )}
@@ -150,14 +150,14 @@ export function CohortExpandDialog({
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-2 border-t border-[#232328] px-5 py-3">
+        <div className="flex justify-end gap-2 border-t border-border-default px-5 py-3">
           {expandMutation.isSuccess ? (
             <button
               type="button"
               onClick={handleClose}
               className={cn(
                 "rounded-lg px-4 py-2 text-sm font-medium transition-colors",
-                "bg-[#2DD4BF]/10 text-[#2DD4BF] hover:bg-[#2DD4BF]/20",
+                "bg-success/10 text-success hover:bg-success/20",
               )}
             >
               Done
@@ -167,7 +167,7 @@ export function CohortExpandDialog({
               <button
                 type="button"
                 onClick={handleClose}
-                className="rounded-lg px-4 py-2 text-sm font-medium text-[#8A857D] hover:text-[#C5C0B8] transition-colors"
+                className="rounded-lg px-4 py-2 text-sm font-medium text-text-muted hover:text-text-secondary transition-colors"
               >
                 Cancel
               </button>
@@ -177,7 +177,7 @@ export function CohortExpandDialog({
                 disabled={filteredCount === 0 || expandMutation.isPending}
                 className={cn(
                   "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
-                  "bg-[#9B1B30] text-text-primary hover:bg-[#B22040]",
+                  "bg-primary text-text-primary hover:bg-primary-light",
                   "disabled:opacity-50 disabled:cursor-not-allowed",
                 )}
               >

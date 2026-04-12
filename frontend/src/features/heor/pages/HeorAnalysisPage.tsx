@@ -39,9 +39,9 @@ const PARAM_TYPE_LABELS: Record<string, string> = {
 };
 
 const inputCls =
-  "w-full rounded-lg bg-[#0E0E11] border border-[#232328] px-3 py-2 text-sm text-[#F0EDE8] placeholder:text-[#5A5650] focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors";
+  "w-full rounded-lg bg-surface-base border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors";
 const selectCls =
-  "w-full rounded-lg bg-[#0E0E11] border border-[#232328] px-3 py-2 text-sm text-[#F0EDE8] focus:outline-none focus:border-[#2DD4BF] transition-colors";
+  "w-full rounded-lg bg-surface-base border border-border-default px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-success transition-colors";
 
 function fmt(v: number | null | undefined, prefix = "", decimals = 0): string {
   if (v === null || v === undefined) return "—";
@@ -50,8 +50,8 @@ function fmt(v: number | null | undefined, prefix = "", decimals = 0): string {
 
 function ResultCard({ result }: { result: HeorResult }) {
   return (
-    <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-      <h3 className="text-sm font-semibold text-[#F0EDE8] mb-4">
+    <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+      <h3 className="text-sm font-semibold text-text-primary mb-4">
         {result.scenario?.name ?? `Scenario ${result.scenario_id}`}
       </h3>
 
@@ -70,15 +70,15 @@ function ResultCard({ result }: { result: HeorResult }) {
           { label: "Payback (months)", value: fmt(result.payback_period_months, "", 1) },
         ].map(({ label, value }) => (
           <div key={label}>
-            <p className="text-xs text-[#5A5650] mb-0.5">{label}</p>
-            <p className="text-sm font-semibold text-[#F0EDE8]">{value}</p>
+            <p className="text-xs text-text-ghost mb-0.5">{label}</p>
+            <p className="text-sm font-semibold text-text-primary">{value}</p>
           </div>
         ))}
       </div>
 
       {result.budget_impact_year1 !== null && (
         <div>
-          <p className="text-[10px] text-[#5A5650] uppercase tracking-wider font-medium mb-2">
+          <p className="text-[10px] text-text-ghost uppercase tracking-wider font-medium mb-2">
             Budget Impact
           </p>
           <div className="grid grid-cols-3 gap-2">
@@ -89,10 +89,10 @@ function ResultCard({ result }: { result: HeorResult }) {
             ].map(({ year, val }) => (
               <div
                 key={year}
-                className="rounded-lg bg-[#0E0E11] border border-[#232328] p-2 text-center"
+                className="rounded-lg bg-surface-base border border-border-default p-2 text-center"
               >
-                <p className="text-[10px] text-[#5A5650]">{year}</p>
-                <p className="text-sm font-semibold font-['IBM_Plex_Mono',monospace] text-[#F59E0B] mt-0.5">
+                <p className="text-[10px] text-text-ghost">{year}</p>
+                <p className="text-sm font-semibold font-['IBM_Plex_Mono',monospace] text-warning mt-0.5">
                   {fmt(val, "$")}
                 </p>
               </div>
@@ -103,7 +103,7 @@ function ResultCard({ result }: { result: HeorResult }) {
 
       {result.tornado_data && result.tornado_data.length > 0 && (
         <div className="mt-4">
-          <p className="text-[10px] text-[#5A5650] uppercase tracking-wider font-medium mb-2">
+          <p className="text-[10px] text-text-ghost uppercase tracking-wider font-medium mb-2">
             Sensitivity (Tornado — top 5)
           </p>
           <div className="space-y-1.5">
@@ -112,14 +112,14 @@ function ResultCard({ result }: { result: HeorResult }) {
               const pct = maxRange > 0 ? (t.range / maxRange) * 100 : 0;
               return (
                 <div key={i}>
-                  <div className="flex justify-between text-xs text-[#5A5650] mb-0.5">
-                    <span className="truncate max-w-[60%] text-[#8A857D]">{t.parameter}</span>
+                  <div className="flex justify-between text-xs text-text-ghost mb-0.5">
+                    <span className="truncate max-w-[60%] text-text-muted">{t.parameter}</span>
                     <span>±${t.range.toLocaleString()}</span>
                   </div>
-                  <div className="h-1.5 bg-[#0E0E11] rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-surface-base rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full"
-                      style={{ width: `${pct}%`, backgroundColor: "#2DD4BF" }}
+                      style={{ width: `${pct}%`, backgroundColor: "var(--success)" }}
                     />
                   </div>
                 </div>
@@ -159,14 +159,14 @@ export default function HeorAnalysisPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Loader2 size={28} className="animate-spin text-[#2DD4BF]" />
+        <Loader2 size={28} className="animate-spin text-success" />
       </div>
     );
   }
 
   if (!analysis) {
     return (
-      <div className="flex items-center justify-center py-24 text-[#8A857D]">
+      <div className="flex items-center justify-center py-24 text-text-muted">
         Analysis not found.
       </div>
     );
@@ -209,7 +209,7 @@ export default function HeorAnalysisPage() {
       {/* Back nav */}
       <Link
         to="/heor"
-        className="inline-flex items-center gap-1.5 text-sm text-[#8A857D] hover:text-[#F0EDE8] transition-colors"
+        className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-text-primary transition-colors"
       >
         <ArrowLeft size={14} />
         Back to HEOR
@@ -218,8 +218,8 @@ export default function HeorAnalysisPage() {
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-xl font-bold text-[#F0EDE8]">{analysis.name}</h1>
-          <p className="text-sm text-[#8A857D] mt-0.5">
+          <h1 className="text-xl font-bold text-text-primary">{analysis.name}</h1>
+          <p className="text-sm text-text-muted mt-0.5">
             {analysis.analysis_type?.toUpperCase()} · {analysis.perspective} ·{" "}
             {analysis.time_horizon?.replace("_", " ")} ·{" "}
             {(analysis.discount_rate * 100).toFixed(0)}% discount
@@ -229,7 +229,7 @@ export default function HeorAnalysisPage() {
           type="button"
           onClick={() => runMutation.mutate()}
           disabled={runMutation.isPending || analysis.status === "running"}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2.5 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] disabled:opacity-50 transition-colors"
+          className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2.5 text-sm font-medium text-surface-base hover:bg-success-dark disabled:opacity-50 transition-colors"
         >
           {runMutation.isPending ? (
             <Loader2 size={14} className="animate-spin" />
@@ -241,7 +241,7 @@ export default function HeorAnalysisPage() {
       </div>
 
       {runMutation.isSuccess && (
-        <div className="rounded-lg border border-[#2DD4BF]/30 bg-[#2DD4BF]/10 px-4 py-3 text-sm text-[#2DD4BF]">
+        <div className="rounded-lg border border-success/30 bg-success/10 px-4 py-3 text-sm text-success">
           Computed {(runMutation.data as { scenarios_computed: number }).scenarios_computed} scenarios.
         </div>
       )}
@@ -251,14 +251,14 @@ export default function HeorAnalysisPage() {
         {/* Scenarios */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-[#F0EDE8] flex items-center gap-2">
-              <BarChart2 size={14} className="text-[#F59E0B]" />
+            <h2 className="text-sm font-semibold text-text-primary flex items-center gap-2">
+              <BarChart2 size={14} className="text-warning" />
               Scenarios ({analysis.scenarios?.length ?? 0})
             </h2>
             <button
               type="button"
               onClick={() => setShowScenarioForm(true)}
-              className="inline-flex items-center gap-1 rounded-lg border border-[#2A2A30] bg-[#151518] px-2.5 py-1.5 text-xs font-medium text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#3A3A42] transition-colors"
+              className="inline-flex items-center gap-1 rounded-lg border border-border-default bg-surface-raised px-2.5 py-1.5 text-xs font-medium text-text-muted hover:text-text-secondary hover:border-surface-highlight transition-colors"
             >
               <Plus size={11} />
               Add
@@ -268,7 +268,7 @@ export default function HeorAnalysisPage() {
           {showScenarioForm && (
             <form
               onSubmit={handleAddScenario}
-              className="rounded-lg border border-[#232328] bg-[#151518] p-3 flex gap-2"
+              className="rounded-lg border border-border-default bg-surface-raised p-3 flex gap-2"
             >
               <input
                 className={inputCls + " flex-1"}
@@ -279,14 +279,14 @@ export default function HeorAnalysisPage() {
               />
               <button
                 type="submit"
-                className="rounded-lg bg-[#2DD4BF] px-3 py-1.5 text-xs font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors"
+                className="rounded-lg bg-success px-3 py-1.5 text-xs font-medium text-surface-base hover:bg-success-dark transition-colors"
               >
                 Add
               </button>
               <button
                 type="button"
                 onClick={() => setShowScenarioForm(false)}
-                className="rounded-lg border border-[#232328] px-2.5 py-1.5 text-xs text-[#5A5650] hover:text-[#8A857D] transition-colors"
+                className="rounded-lg border border-border-default px-2.5 py-1.5 text-xs text-text-ghost hover:text-text-muted transition-colors"
               >
                 ✕
               </button>
@@ -297,30 +297,30 @@ export default function HeorAnalysisPage() {
             {analysis.scenarios?.map((s) => (
               <div
                 key={s.id}
-                className="rounded-lg border border-[#232328] bg-[#151518] px-3 py-2.5 flex items-center gap-2"
+                className="rounded-lg border border-border-default bg-surface-raised px-3 py-2.5 flex items-center gap-2"
               >
                 <div className="flex-1 flex items-center gap-2 min-w-0">
-                  <span className="text-sm font-medium text-[#F0EDE8] truncate">{s.name}</span>
+                  <span className="text-sm font-medium text-text-primary truncate">{s.name}</span>
                   {s.is_base_case && (
-                    <span className="inline-block rounded-full px-2 py-0.5 text-[10px] font-medium bg-[#2DD4BF]/15 text-[#2DD4BF] flex-shrink-0">
+                    <span className="inline-block rounded-full px-2 py-0.5 text-[10px] font-medium bg-success/15 text-success flex-shrink-0">
                       Base Case
                     </span>
                   )}
-                  <span className="inline-block rounded-full px-2 py-0.5 text-[10px] font-medium bg-[#232328] text-[#8A857D] flex-shrink-0">
+                  <span className="inline-block rounded-full px-2 py-0.5 text-[10px] font-medium bg-surface-elevated text-text-muted flex-shrink-0">
                     {s.scenario_type}
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={() => deleteScenario.mutate(s.id)}
-                  className="p-1 rounded text-[#5A5650] hover:text-[#E85A6B] hover:bg-[#E85A6B]/10 transition-colors flex-shrink-0"
+                  className="p-1 rounded text-text-ghost hover:text-critical hover:bg-critical/10 transition-colors flex-shrink-0"
                 >
                   <Trash2 size={11} />
                 </button>
               </div>
             ))}
             {!analysis.scenarios?.length && (
-              <p className="text-sm text-[#5A5650]">
+              <p className="text-sm text-text-ghost">
                 No scenarios yet. Add at least one to run the analysis.
               </p>
             )}
@@ -330,14 +330,14 @@ export default function HeorAnalysisPage() {
         {/* Cost Parameters */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-[#F0EDE8] flex items-center gap-2">
-              <DollarSign size={14} className="text-[#F59E0B]" />
+            <h2 className="text-sm font-semibold text-text-primary flex items-center gap-2">
+              <DollarSign size={14} className="text-warning" />
               Cost Parameters ({analysis.parameters?.length ?? 0})
             </h2>
             <button
               type="button"
               onClick={() => setShowParamForm(true)}
-              className="inline-flex items-center gap-1 rounded-lg border border-[#2A2A30] bg-[#151518] px-2.5 py-1.5 text-xs font-medium text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#3A3A42] transition-colors"
+              className="inline-flex items-center gap-1 rounded-lg border border-border-default bg-surface-raised px-2.5 py-1.5 text-xs font-medium text-text-muted hover:text-text-secondary hover:border-surface-highlight transition-colors"
             >
               <Plus size={11} />
               Add
@@ -347,7 +347,7 @@ export default function HeorAnalysisPage() {
           {showParamForm && (
             <form
               onSubmit={handleAddParam}
-              className="rounded-lg border border-[#232328] bg-[#151518] p-3 space-y-2"
+              className="rounded-lg border border-border-default bg-surface-raised p-3 space-y-2"
             >
               <div className="grid grid-cols-2 gap-2">
                 <input
@@ -394,14 +394,14 @@ export default function HeorAnalysisPage() {
                 <button
                   type="button"
                   onClick={() => setShowParamForm(false)}
-                  className="px-3 py-1.5 text-xs text-[#5A5650] hover:text-[#8A857D] transition-colors"
+                  className="px-3 py-1.5 text-xs text-text-ghost hover:text-text-muted transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={createParam.isPending}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#2DD4BF] px-3 py-1.5 text-xs font-medium text-[#0E0E11] hover:bg-[#26B8A5] disabled:opacity-50 transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-success px-3 py-1.5 text-xs font-medium text-surface-base hover:bg-success-dark disabled:opacity-50 transition-colors"
                 >
                   {createParam.isPending && <Loader2 size={11} className="animate-spin" />}
                   Add
@@ -410,30 +410,30 @@ export default function HeorAnalysisPage() {
             </form>
           )}
 
-          <div className="space-y-0 max-h-64 overflow-y-auto rounded-lg border border-[#232328] bg-[#151518] divide-y divide-[#1E1E23]">
+          <div className="space-y-0 max-h-64 overflow-y-auto rounded-lg border border-border-default bg-surface-raised divide-y divide-border-subtle">
             {analysis.parameters?.map((p) => (
               <div
                 key={p.id}
-                className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-[#1A1A1F] transition-colors"
+                className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-surface-overlay transition-colors"
               >
-                <span className="flex-1 truncate text-[#C5C0B8]">{p.parameter_name}</span>
-                <span className="text-[#5A5650] text-xs flex-shrink-0">
+                <span className="flex-1 truncate text-text-secondary">{p.parameter_name}</span>
+                <span className="text-text-ghost text-xs flex-shrink-0">
                   {PARAM_TYPE_LABELS[p.parameter_type] ?? p.parameter_type}
                 </span>
-                <span className="font-mono font-semibold text-xs text-[#F59E0B] flex-shrink-0">
+                <span className="font-mono font-semibold text-xs text-warning flex-shrink-0">
                   {p.value.toLocaleString()} {p.unit ?? ""}
                 </span>
                 <button
                   type="button"
                   onClick={() => deleteParam.mutate(p.id)}
-                  className="p-0.5 rounded text-[#5A5650] hover:text-[#E85A6B] hover:bg-[#E85A6B]/10 transition-colors flex-shrink-0"
+                  className="p-0.5 rounded text-text-ghost hover:text-critical hover:bg-critical/10 transition-colors flex-shrink-0"
                 >
                   <Trash2 size={11} />
                 </button>
               </div>
             ))}
             {!analysis.parameters?.length && (
-              <p className="text-sm text-[#5A5650] px-3 py-3">No parameters yet.</p>
+              <p className="text-sm text-text-ghost px-3 py-3">No parameters yet.</p>
             )}
           </div>
         </div>
@@ -442,8 +442,8 @@ export default function HeorAnalysisPage() {
       {/* Results */}
       {results && results.length > 0 && (
         <div className="space-y-6">
-          <h2 className="text-sm font-semibold text-[#F0EDE8] flex items-center gap-2">
-            <TrendingUp size={14} className="text-[#F59E0B]" />
+          <h2 className="text-sm font-semibold text-text-primary flex items-center gap-2">
+            <TrendingUp size={14} className="text-warning" />
             Results
           </h2>
 

@@ -15,7 +15,7 @@ interface Props {
   results: HeorResult[];
 }
 
-const SCENARIO_COLORS = [CHART.accent, CHART.gold, CHART.crimson, CHART.blue, "#A855F7", "#34D399"];
+const SCENARIO_COLORS = [CHART.accent, CHART.gold, CHART.crimson, CHART.blue, "#A855F7", "var(--success)"];
 
 export default function BudgetImpactChart({ results }: Props) {
   // Filter results that have budget impact data
@@ -26,7 +26,7 @@ export default function BudgetImpactChart({ results }: Props) {
   if (withBudget.length === 0) {
     return (
       <ChartCard title="Budget Impact Trajectory" subtitle="Projected budget impact over time">
-        <div className="h-64 flex items-center justify-center text-sm text-[#5A5650]">
+        <div className="h-64 flex items-center justify-center text-sm text-text-ghost">
           No budget impact data available.
         </div>
       </ChartCard>
@@ -107,7 +107,7 @@ export default function BudgetImpactChart({ results }: Props) {
               if (!active || !payload?.length) return null;
               return (
                 <div className={TOOLTIP_CLS}>
-                  <p className="text-xs font-semibold text-[#F0EDE8] mb-1.5">{label}</p>
+                  <p className="text-xs font-semibold text-text-primary mb-1.5">{label}</p>
                   <div className="space-y-1">
                     {payload.map((entry, i) => (
                       <div key={i} className="flex items-center gap-2 text-xs">
@@ -115,8 +115,8 @@ export default function BudgetImpactChart({ results }: Props) {
                           className="w-2 h-2 rounded-full flex-shrink-0"
                           style={{ backgroundColor: entry.color }}
                         />
-                        <span className="text-[#8A857D] flex-1">{entry.name}</span>
-                        <span className="font-mono font-semibold text-[#F0EDE8]">
+                        <span className="text-text-muted flex-1">{entry.name}</span>
+                        <span className="font-mono font-semibold text-text-primary">
                           ${(entry.value as number).toLocaleString()}
                         </span>
                       </div>
@@ -130,7 +130,7 @@ export default function BudgetImpactChart({ results }: Props) {
             verticalAlign="bottom"
             height={36}
             formatter={(value: string) => (
-              <span className="text-xs text-[#8A857D]">{value}</span>
+              <span className="text-xs text-text-muted">{value}</span>
             )}
           />
           {scenarioNames.map((name, i) => (

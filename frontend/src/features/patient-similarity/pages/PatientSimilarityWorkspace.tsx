@@ -393,7 +393,7 @@ export default function PatientSimilarityWorkspace() {
 
         default:
           return (
-            <div className="flex min-h-[120px] items-center justify-center text-sm text-[#5A5650]">
+            <div className="flex min-h-[120px] items-center justify-center text-sm text-text-ghost">
               This step will be available in a future update.
             </div>
           );
@@ -408,7 +408,7 @@ export default function PatientSimilarityWorkspace() {
   const steps = (pipeline as unknown as { steps: import('../types/pipeline').StepDefinition[] }).steps;
 
   return (
-    <div className="flex h-full flex-col overflow-hidden bg-[#0E0E11]">
+    <div className="flex h-full flex-col overflow-hidden bg-surface-base">
       <CohortSelectorBar
         mode={pipeline.mode}
         sourceId={sourceId}

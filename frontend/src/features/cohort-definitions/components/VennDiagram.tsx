@@ -59,9 +59,9 @@ export function VennDiagram({
         cx={cxA}
         cy={cy}
         r={rA}
-        fill="#2DD4BF"
+        fill="var(--success)"
         fillOpacity={0.2}
-        stroke="#2DD4BF"
+        stroke="var(--success)"
         strokeWidth={1.5}
       />
 
@@ -70,9 +70,9 @@ export function VennDiagram({
         cx={cxB}
         cy={cy}
         r={rB}
-        fill="#818CF8"
+        fill="var(--info)"
         fillOpacity={0.2}
-        stroke="#818CF8"
+        stroke="var(--info)"
         strokeWidth={1.5}
       />
 
@@ -82,7 +82,7 @@ export function VennDiagram({
           cx={cxB}
           cy={cy}
           r={rB}
-          fill="#C9A227"
+          fill="var(--accent)"
           fillOpacity={0.35}
           clipPath={`url(#clip-a-${pair.cohort_id_a})`}
         />

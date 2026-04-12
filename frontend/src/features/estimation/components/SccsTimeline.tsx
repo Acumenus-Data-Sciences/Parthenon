@@ -19,10 +19,10 @@ interface SccsTimelineProps {
 }
 
 const ERA_COLORS: Record<string, string> = {
-  "pre-exposure": "#8A857D",
-  exposure: "#2DD4BF",
-  "post-exposure": "#C9A227",
-  control: "#323238",
+  "pre-exposure": "var(--text-muted)",
+  exposure: "var(--success)",
+  "post-exposure": "var(--accent)",
+  control: "var(--surface-highlight)",
 };
 
 interface TooltipState {
@@ -122,11 +122,11 @@ export function SccsTimeline({ eras, exposureName }: SccsTimelineProps) {
         width={width}
         height={height}
         viewBox={`0 0 ${width} ${height}`}
-        className="text-[#F0EDE8]"
+        className="text-text-primary"
         role="img"
         aria-label={`SCCS timeline for ${exposureName ?? "exposure"}`}
       >
-        <rect width={width} height={height} fill="#151518" rx={8} />
+        <rect width={width} height={height} fill="var(--surface-raised)" rx={8} />
 
         {/* Title */}
         {exposureName && (
@@ -134,7 +134,7 @@ export function SccsTimeline({ eras, exposureName }: SccsTimelineProps) {
             x={width / 2}
             y={20}
             textAnchor="middle"
-            fill="#8A857D"
+            fill="var(--text-muted)"
             fontSize={11}
             fontWeight={600}
           >
@@ -148,7 +148,7 @@ export function SccsTimeline({ eras, exposureName }: SccsTimelineProps) {
           y1={baseY}
           x2={padding.left + plotW}
           y2={baseY}
-          stroke="#323238"
+          stroke="var(--surface-highlight)"
           strokeWidth={1}
         />
         {dayTicks.map((d) => (
@@ -158,14 +158,14 @@ export function SccsTimeline({ eras, exposureName }: SccsTimelineProps) {
               y1={baseY}
               x2={toX(d)}
               y2={baseY + 5}
-              stroke="#5A5650"
+              stroke="var(--text-ghost)"
               strokeWidth={1}
             />
             <text
               x={toX(d)}
               y={baseY + 18}
               textAnchor="middle"
-              fill="#5A5650"
+              fill="var(--text-ghost)"
               fontSize={9}
             >
               {d}
@@ -176,7 +176,7 @@ export function SccsTimeline({ eras, exposureName }: SccsTimelineProps) {
           x={padding.left + plotW / 2}
           y={height - 8}
           textAnchor="middle"
-          fill="#8A857D"
+          fill="var(--text-muted)"
           fontSize={10}
         >
           Days Relative to Exposure Start
@@ -188,7 +188,7 @@ export function SccsTimeline({ eras, exposureName }: SccsTimelineProps) {
           const x2 = toX(era.end_day);
           const blockW = Math.max(x2 - x1, 2);
           const blockH = toH(era);
-          const color = ERA_COLORS[era.era_type] ?? "#323238";
+          const color = ERA_COLORS[era.era_type] ?? "var(--surface-highlight)";
           const dots = generateEventDots(era, x1, x1 + blockW);
 
           return (
@@ -224,7 +224,7 @@ export function SccsTimeline({ eras, exposureName }: SccsTimelineProps) {
                   cx={dot.cx}
                   cy={dot.cy}
                   r={1.5}
-                  fill="#F0EDE8"
+                  fill="var(--text-primary)"
                   opacity={0.4}
                 />
               ))}
@@ -281,7 +281,7 @@ export function SccsTimeline({ eras, exposureName }: SccsTimelineProps) {
                     x={x1 + blockW / 2}
                     y={baseY - blockH + 14}
                     textAnchor="middle"
-                    fill="#F0EDE8"
+                    fill="var(--text-primary)"
                     fontSize={9}
                     fontWeight={600}
                   >
@@ -291,7 +291,7 @@ export function SccsTimeline({ eras, exposureName }: SccsTimelineProps) {
                     x={x1 + blockW / 2}
                     y={baseY - blockH + 26}
                     textAnchor="middle"
-                    fill="#C5C0B8"
+                    fill="var(--text-secondary)"
                     fontSize={8}
                     fontFamily="IBM Plex Mono, monospace"
                   >
@@ -307,7 +307,7 @@ export function SccsTimeline({ eras, exposureName }: SccsTimelineProps) {
                     x={x1 + blockW / 2}
                     y={baseY - blockH - 10}
                     textAnchor="middle"
-                    fill="#2DD4BF"
+                    fill="var(--success)"
                     fontSize={10}
                     fontWeight={600}
                     fontFamily="IBM Plex Mono, monospace"
@@ -319,7 +319,7 @@ export function SccsTimeline({ eras, exposureName }: SccsTimelineProps) {
                       x={x1 + blockW / 2}
                       y={baseY - blockH - 22}
                       textAnchor="middle"
-                      fill="#8A857D"
+                      fill="var(--text-muted)"
                       fontSize={8}
                       fontFamily="IBM Plex Mono, monospace"
                     >
@@ -337,7 +337,7 @@ export function SccsTimeline({ eras, exposureName }: SccsTimelineProps) {
           {(["pre-exposure", "exposure", "post-exposure", "control"] as const).map((type, i) => (
             <g key={type} transform={`translate(${i * 150}, 0)`}>
               <rect x={0} y={0} width={10} height={10} rx={2} fill={ERA_COLORS[type]} opacity={0.6} />
-              <text x={14} y={9} fill="#8A857D" fontSize={9}>
+              <text x={14} y={9} fill="var(--text-muted)" fontSize={9}>
                 {type.replace("-", " ").replace(/^\w/, (c) => c.toUpperCase())}
               </text>
             </g>
@@ -348,26 +348,26 @@ export function SccsTimeline({ eras, exposureName }: SccsTimelineProps) {
       {/* Interactive tooltip overlay */}
       {tooltip && (
         <div
-          className="absolute pointer-events-none z-10 rounded-lg border border-[#232328] bg-[#1A1A1E] p-3 shadow-lg text-xs"
+          className="absolute pointer-events-none z-10 rounded-lg border border-border-default bg-surface-overlay p-3 shadow-lg text-xs"
           style={{
             left: Math.min(tooltip.x, width - 200),
             top: Math.max(tooltip.y - 80, 0),
           }}
           data-testid="timeline-tooltip"
         >
-          <p className="font-semibold text-[#F0EDE8] mb-1">{tooltip.era.era_name}</p>
+          <p className="font-semibold text-text-primary mb-1">{tooltip.era.era_name}</p>
           {tooltip.era.irr != null && (
-            <p className="font-mono text-[#2DD4BF]">
+            <p className="font-mono text-success">
               IRR: {fmt(tooltip.era.irr)}{" "}
               {tooltip.era.ci_lower != null && tooltip.era.ci_upper != null && (
-                <span className="text-[#8A857D]">
+                <span className="text-text-muted">
                   [{fmt(tooltip.era.ci_lower)} - {fmt(tooltip.era.ci_upper)}]
                 </span>
               )}
             </p>
           )}
-          <p className="text-[#8A857D]">Events: {tooltip.era.event_count}</p>
-          <p className="text-[#8A857D]">Person-time: {tooltip.era.person_days.toLocaleString()} days</p>
+          <p className="text-text-muted">Events: {tooltip.era.event_count}</p>
+          <p className="text-text-muted">Person-time: {tooltip.era.person_days.toLocaleString()} days</p>
         </div>
       )}
     </div>

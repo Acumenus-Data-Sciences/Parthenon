@@ -21,9 +21,9 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 function getCellColor(passRate: number): string {
-  if (passRate >= 90) return "bg-[#2DD4BF]/15 text-[#2DD4BF]";
-  if (passRate >= 70) return "bg-[#C9A227]/15 text-[#C9A227]";
-  return "bg-[#E85A6B]/15 text-[#E85A6B]";
+  if (passRate >= 90) return "bg-success/15 text-success";
+  if (passRate >= 70) return "bg-accent/15 text-accent";
+  return "bg-critical/15 text-critical";
 }
 
 export function DqdTableGrid({ results }: DqdTableGridProps) {
@@ -80,23 +80,23 @@ export function DqdTableGrid({ results }: DqdTableGridProps) {
 
   if (!results.length) {
     return (
-      <div className="flex items-center justify-center rounded-xl border border-[#232328] bg-[#151518] py-16">
-        <p className="text-sm text-[#8A857D]">No DQD results to display</p>
+      <div className="flex items-center justify-center rounded-xl border border-border-default bg-surface-raised py-16">
+        <p className="text-sm text-text-muted">No DQD results to display</p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl border border-[#232328] bg-[#151518] overflow-hidden">
-      <div className="border-b border-[#232328] bg-[#1A1A1E] px-6 py-3">
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">
+    <div className="rounded-xl border border-border-default bg-surface-raised overflow-hidden">
+      <div className="border-b border-border-default bg-surface-overlay px-6 py-3">
+        <h3 className="text-sm font-semibold text-text-primary">
           Table x Category Heatmap
         </h3>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-[#232328] text-xs text-[#5A5650]">
+            <tr className="border-b border-border-default text-xs text-text-ghost">
               <th className="px-6 py-2 text-left font-medium min-w-[180px]">
                 CDM Table
               </th>
@@ -110,11 +110,11 @@ export function DqdTableGrid({ results }: DqdTableGridProps) {
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#232328]">
+          <tbody className="divide-y divide-border-default">
             {grid.map((row) => (
-              <tr key={row.table} className="hover:bg-[#1A1A1E] transition">
+              <tr key={row.table} className="hover:bg-surface-overlay transition">
                 <td className="px-6 py-2.5">
-                  <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
+                  <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-secondary">
                     {row.table}
                   </span>
                 </td>
@@ -123,7 +123,7 @@ export function DqdTableGrid({ results }: DqdTableGridProps) {
                   if (!cell) {
                     return (
                       <td key={cat} className="px-4 py-2.5 text-center">
-                        <span className="rounded-md bg-[#232328] px-3 py-1 text-xs text-[#5A5650]">
+                        <span className="rounded-md bg-surface-elevated px-3 py-1 text-xs text-text-ghost">
                           --
                         </span>
                       </td>

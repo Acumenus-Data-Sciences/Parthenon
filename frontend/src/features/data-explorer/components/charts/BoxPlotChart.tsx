@@ -15,8 +15,8 @@ function formatCompact(n: number): string {
 export function BoxPlotChart({ data, label }: BoxPlotChartProps) {
   if (!data) {
     return (
-      <div className="flex items-center justify-center rounded-xl border border-[#232328] bg-[#151518] py-16">
-        <p className="text-sm text-[#8A857D]">No distribution data</p>
+      <div className="flex items-center justify-center rounded-xl border border-border-default bg-surface-raised py-16">
+        <p className="text-sm text-text-muted">No distribution data</p>
       </div>
     );
   }
@@ -38,9 +38,9 @@ export function BoxPlotChart({ data, label }: BoxPlotChartProps) {
   const boxH = 28;
 
   return (
-    <div className="rounded-xl border border-[#232328] bg-[#151518] p-6">
+    <div className="rounded-xl border border-border-default bg-surface-raised p-6">
       {label && (
-        <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[#8A857D]">
+        <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-text-muted">
           {label}
         </h3>
       )}
@@ -56,7 +56,7 @@ export function BoxPlotChart({ data, label }: BoxPlotChartProps) {
           x2={sx(max)}
           y1={cy}
           y2={cy}
-          stroke="#8A857D"
+          stroke="var(--text-muted)"
           strokeWidth={1}
         />
 
@@ -66,7 +66,7 @@ export function BoxPlotChart({ data, label }: BoxPlotChartProps) {
           x2={sx(min)}
           y1={cy - 8}
           y2={cy + 8}
-          stroke="#8A857D"
+          stroke="var(--text-muted)"
           strokeWidth={1.5}
         />
 
@@ -76,7 +76,7 @@ export function BoxPlotChart({ data, label }: BoxPlotChartProps) {
           x2={sx(max)}
           y1={cy - 8}
           y2={cy + 8}
-          stroke="#8A857D"
+          stroke="var(--text-muted)"
           strokeWidth={1.5}
         />
 
@@ -86,7 +86,7 @@ export function BoxPlotChart({ data, label }: BoxPlotChartProps) {
           x2={sx(p10)}
           y1={cy - 6}
           y2={cy + 6}
-          stroke="#5A5650"
+          stroke="var(--text-ghost)"
           strokeWidth={1}
           strokeDasharray="2 2"
         />
@@ -97,7 +97,7 @@ export function BoxPlotChart({ data, label }: BoxPlotChartProps) {
           x2={sx(p90)}
           y1={cy - 6}
           y2={cy + 6}
-          stroke="#5A5650"
+          stroke="var(--text-ghost)"
           strokeWidth={1}
           strokeDasharray="2 2"
         />
@@ -108,9 +108,9 @@ export function BoxPlotChart({ data, label }: BoxPlotChartProps) {
           y={cy - boxH / 2}
           width={sx(p75) - sx(p25)}
           height={boxH}
-          fill="#2DD4BF"
+          fill="var(--success)"
           fillOpacity={0.2}
-          stroke="#2DD4BF"
+          stroke="var(--success)"
           strokeWidth={1.5}
           rx={3}
         />
@@ -121,7 +121,7 @@ export function BoxPlotChart({ data, label }: BoxPlotChartProps) {
           x2={sx(median)}
           y1={cy - boxH / 2}
           y2={cy + boxH / 2}
-          stroke="#C9A227"
+          stroke="var(--accent)"
           strokeWidth={2.5}
         />
 

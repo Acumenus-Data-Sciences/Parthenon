@@ -50,10 +50,10 @@ function OmopBadge({ coverage }: { coverage: OmopCoverage }) {
 
 function LoincBadge({ hasLoinc, code }: { hasLoinc: boolean; code: string | null }) {
   if (!hasLoinc) {
-    return <span className="text-[10px] text-[#5A5650]">{"\u2014"}</span>;
+    return <span className="text-[10px] text-text-ghost">{"\u2014"}</span>;
   }
   return (
-    <span className="inline-flex items-center gap-1 rounded-md bg-[#2DD4BF]/10 px-2 py-0.5 text-[10px] font-medium text-[#2DD4BF]">
+    <span className="inline-flex items-center gap-1 rounded-md bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success">
       <Check size={10} />
       {code ?? "Yes"}
     </span>
@@ -78,10 +78,10 @@ function Pill({
       className={cn(
         "rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors whitespace-nowrap",
         active
-          ? "text-[#0E0E11]"
-          : "bg-[#1A1A1F] text-[#8A857D] hover:text-[#C5C0B8] hover:bg-[#232328]",
+          ? "text-surface-base"
+          : "bg-surface-overlay text-text-muted hover:text-text-secondary hover:bg-surface-elevated",
       )}
-      style={active ? { backgroundColor: color ?? "#C9A227" } : undefined}
+      style={active ? { backgroundColor: color ?? "var(--accent)" } : undefined}
     >
       {label}
     </button>
@@ -147,9 +147,9 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
   const SortIcon = ({ field }: { field: SortField }) => {
     if (sortField !== field) return <span className="w-3" />;
     return sortDir === "asc" ? (
-      <ChevronUp size={12} className="text-[#C9A227]" />
+      <ChevronUp size={12} className="text-accent" />
     ) : (
-      <ChevronDown size={12} className="text-[#C9A227]" />
+      <ChevronDown size={12} className="text-accent" />
     );
   };
 
@@ -166,14 +166,14 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
       <div className="relative">
         <Search
           size={14}
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost"
         />
         <input
           type="text"
           placeholder="Search instruments by name, abbreviation, or domain..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-lg border border-[#2A2A2F] bg-[#0E0E11] py-2 pl-9 pr-3 text-sm text-[#F0EDE8] placeholder-[#5A5650] outline-none focus:border-[#C9A227]/40 transition-colors"
+          className="w-full rounded-lg border border-border-default bg-surface-base py-2 pl-9 pr-3 text-sm text-text-primary placeholder-[#5A5650] outline-none focus:border-accent/40 transition-colors"
         />
       </div>
 
@@ -181,14 +181,14 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
       <div className="space-y-3">
         {/* Domain pills */}
         <div className="flex items-center gap-2">
-          <span className="text-[10px] text-[#5A5650] uppercase tracking-wider shrink-0 w-14">
+          <span className="text-[10px] text-text-ghost uppercase tracking-wider shrink-0 w-14">
             Domain
           </span>
           <div className="flex flex-wrap gap-1.5">
             <Pill
               active={!domainFilter}
               label="All"
-              color="#C9A227"
+              color="var(--accent)"
               onClick={() => setDomainFilter(null)}
             />
             {domains.map(({ domain, count }) => (
@@ -207,7 +207,7 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
         <div className="flex flex-wrap items-center gap-4">
           {/* OMOP */}
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-[#5A5650] uppercase tracking-wider">OMOP</span>
+            <span className="text-[10px] text-text-ghost uppercase tracking-wider">OMOP</span>
             {(["yes", "partial", "no"] as const).map((v) => (
               <Pill
                 key={v}
@@ -219,69 +219,69 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
             ))}
           </div>
 
-          <span className="text-[#2A2A2F]">|</span>
+          <span className="text-text-disabled">|</span>
 
           {/* License */}
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-[#5A5650] uppercase tracking-wider">License</span>
+            <span className="text-[10px] text-text-ghost uppercase tracking-wider">License</span>
             <Pill
               active={licenseFilter === "public"}
               label="Public"
-              color="#2DD4BF"
+              color="var(--success)"
               onClick={() => setLicenseFilter(licenseFilter === "public" ? null : "public")}
             />
             <Pill
               active={licenseFilter === "proprietary"}
               label="Proprietary"
-              color="#C9A227"
+              color="var(--accent)"
               onClick={() => setLicenseFilter(licenseFilter === "proprietary" ? null : "proprietary")}
             />
           </div>
 
-          <span className="text-[#2A2A2F]">|</span>
+          <span className="text-text-disabled">|</span>
 
           {/* LOINC */}
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-[#5A5650] uppercase tracking-wider">LOINC</span>
+            <span className="text-[10px] text-text-ghost uppercase tracking-wider">LOINC</span>
             <Pill
               active={loincFilter === true}
               label="Has LOINC"
-              color="#60A5FA"
+              color="var(--info)"
               onClick={() => setLoincFilter(loincFilter === true ? null : true)}
             />
             <Pill
               active={loincFilter === false}
               label="No LOINC"
-              color="#5A5650"
+              color="var(--text-ghost)"
               onClick={() => setLoincFilter(loincFilter === false ? null : false)}
             />
           </div>
 
-          <span className="text-[#2A2A2F]">|</span>
+          <span className="text-text-disabled">|</span>
 
           {/* SNOMED */}
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-[#5A5650] uppercase tracking-wider">SNOMED</span>
+            <span className="text-[10px] text-text-ghost uppercase tracking-wider">SNOMED</span>
             <Pill
               active={snomedFilter === true}
               label="Has SNOMED"
-              color="#F59E0B"
+              color="var(--warning)"
               onClick={() => setSnomedFilter(snomedFilter === true ? null : true)}
             />
             <Pill
               active={snomedFilter === false}
               label="No SNOMED"
-              color="#5A5650"
+              color="var(--text-ghost)"
               onClick={() => setSnomedFilter(snomedFilter === false ? null : false)}
             />
           </div>
 
-          <span className="text-[#2A2A2F]">|</span>
+          <span className="text-text-disabled">|</span>
 
           {/* Sort */}
           <div className="flex items-center gap-1.5">
-            <ArrowUpDown size={12} className="text-[#5A5650]" />
-            <span className="text-[10px] text-[#5A5650] uppercase tracking-wider">Sort</span>
+            <ArrowUpDown size={12} className="text-text-ghost" />
+            <span className="text-[10px] text-text-ghost uppercase tracking-wider">Sort</span>
             {SORT_OPTIONS.map((opt) => (
               <button
                 key={opt.field}
@@ -290,8 +290,8 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
                 className={cn(
                   "rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors whitespace-nowrap",
                   sortField === opt.field
-                    ? "bg-[#C9A227]/15 text-[#C9A227]"
-                    : "bg-[#1A1A1F] text-[#8A857D] hover:text-[#C5C0B8] hover:bg-[#232328]",
+                    ? "bg-accent/15 text-accent"
+                    : "bg-surface-overlay text-text-muted hover:text-text-secondary hover:bg-surface-elevated",
                 )}
               >
                 {opt.label}
@@ -307,7 +307,7 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
           {/* Clear all */}
           {activeFilterCount > 0 && (
             <>
-              <span className="text-[#2A2A2F]">|</span>
+              <span className="text-text-disabled">|</span>
               <button
                 type="button"
                 onClick={() => {
@@ -317,7 +317,7 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
                   setLoincFilter(null);
                   setSnomedFilter(null);
                 }}
-                className="rounded-full px-2.5 py-1 text-[11px] font-medium text-[#E85A6B] hover:bg-[#E85A6B]/10 transition-colors"
+                className="rounded-full px-2.5 py-1 text-[11px] font-medium text-critical hover:bg-critical/10 transition-colors"
               >
                 Clear filters ({activeFilterCount})
               </button>
@@ -327,20 +327,20 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
       </div>
 
       {/* ── Results count ──────────────────────────────────────────────── */}
-      <p className="text-xs text-[#5A5650]">
+      <p className="text-xs text-text-ghost">
         Showing{" "}
-        <span className="font-['IBM_Plex_Mono',monospace] text-[#C5C0B8]">
+        <span className="font-['IBM_Plex_Mono',monospace] text-text-secondary">
           {filtered.length}
         </span>{" "}
         of {instruments.length} instruments
       </p>
 
       {/* ── Table ──────────────────────────────────────────────────────── */}
-      <div className="overflow-hidden rounded-xl border border-[#2A2A2F]">
+      <div className="overflow-hidden rounded-xl border border-border-default">
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-[#2A2A2F] bg-[#0E0E11]">
+              <tr className="border-b border-border-default bg-surface-base">
                 {(
                   [
                     ["abbreviation", "Abbrev."],
@@ -353,7 +353,7 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
                 ).map(([field, label]) => (
                   <th
                     key={field}
-                    className="px-3 py-2.5 text-left text-[#8A857D] font-medium cursor-pointer hover:text-[#F0EDE8] transition-colors select-none"
+                    className="px-3 py-2.5 text-left text-text-muted font-medium cursor-pointer hover:text-text-primary transition-colors select-none"
                     onClick={() => handleSort(field)}
                   >
                     <div className="flex items-center gap-1">
@@ -362,10 +362,10 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
                     </div>
                   </th>
                 ))}
-                <th className="px-3 py-2.5 text-left text-[#8A857D] font-medium">
+                <th className="px-3 py-2.5 text-left text-text-muted font-medium">
                   LOINC
                 </th>
-                <th className="px-3 py-2.5 text-left text-[#8A857D] font-medium">
+                <th className="px-3 py-2.5 text-left text-text-muted font-medium">
                   SNOMED
                 </th>
               </tr>
@@ -375,36 +375,36 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
                 <tr
                   key={inst.abbreviation}
                   className={cn(
-                    "border-b border-[#2A2A2F]/50 last:border-b-0 hover:bg-[#1A1A1F] transition-colors",
+                    "border-b border-border-default/50 last:border-b-0 hover:bg-surface-overlay transition-colors",
                     inst.id && "cursor-pointer",
                   )}
                   onClick={() => {
                     if (inst.id) navigate(`/standard-pros/${inst.id}`);
                   }}
                 >
-                  <td className="px-3 py-2.5 font-semibold text-[#F0EDE8] whitespace-nowrap">
+                  <td className="px-3 py-2.5 font-semibold text-text-primary whitespace-nowrap">
                     <div className="flex items-center gap-1.5">
                       {inst.abbreviation}
                       {inst.id && (
-                        <ChevronRight size={12} className="text-[#5A5650]" />
+                        <ChevronRight size={12} className="text-text-ghost" />
                       )}
                     </div>
                   </td>
-                  <td className="px-3 py-2.5 text-[#C5C0B8] max-w-[300px]">
+                  <td className="px-3 py-2.5 text-text-secondary max-w-[300px]">
                     {inst.name}
                   </td>
                   <td className="px-3 py-2.5 whitespace-nowrap">
                     <span
                       className="inline-block rounded-md px-2 py-0.5 text-[10px] font-medium"
                       style={{
-                        backgroundColor: `${DOMAIN_COLORS[inst.domain] ?? "#5A5650"}15`,
-                        color: DOMAIN_COLORS[inst.domain] ?? "#5A5650",
+                        backgroundColor: `${DOMAIN_COLORS[inst.domain] ?? "var(--text-ghost)"}15`,
+                        color: DOMAIN_COLORS[inst.domain] ?? "var(--text-ghost)",
                       }}
                     >
                       {inst.domain}
                     </span>
                   </td>
-                  <td className="px-3 py-2.5 font-['IBM_Plex_Mono',monospace] text-[#8A857D] text-center">
+                  <td className="px-3 py-2.5 font-['IBM_Plex_Mono',monospace] text-text-muted text-center">
                     {inst.items}
                   </td>
                   <td className="px-3 py-2.5">
@@ -415,8 +415,8 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
                       className={cn(
                         "text-[10px] font-medium",
                         inst.license === "public"
-                          ? "text-[#2DD4BF]"
-                          : "text-[#C9A227]",
+                          ? "text-success"
+                          : "text-accent",
                       )}
                     >
                       {inst.license === "public" ? "Public" : "Proprietary"}
@@ -427,12 +427,12 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
                   </td>
                   <td className="px-3 py-2.5">
                     {inst.hasSnomed ? (
-                      <span className="inline-flex items-center gap-1 rounded-md bg-[#F59E0B]/10 px-2 py-0.5 text-[10px] font-medium text-[#F59E0B]">
+                      <span className="inline-flex items-center gap-1 rounded-md bg-warning/10 px-2 py-0.5 text-[10px] font-medium text-warning">
                         <Check size={10} />
                         {inst.snomedCode ?? "Yes"}
                       </span>
                     ) : (
-                      <span className="text-[10px] text-[#5A5650]">{"\u2014"}</span>
+                      <span className="text-[10px] text-text-ghost">{"\u2014"}</span>
                     )}
                   </td>
                 </tr>
@@ -441,7 +441,7 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
                 <tr>
                   <td
                     colSpan={8}
-                    className="px-3 py-8 text-center text-sm text-[#5A5650]"
+                    className="px-3 py-8 text-center text-sm text-text-ghost"
                   >
                     No instruments match your filters.
                   </td>

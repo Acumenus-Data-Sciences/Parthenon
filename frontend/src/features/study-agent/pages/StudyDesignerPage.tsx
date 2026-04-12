@@ -65,8 +65,8 @@ export default function StudyDesignerPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#9B1B30]/20">
-          <Brain className="h-5 w-5 text-[#9B1B30]" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20">
+          <Brain className="h-5 w-5 text-primary" />
         </div>
         <div>
           <h1 className="text-2xl font-bold text-text-primary">Study Designer</h1>
@@ -110,13 +110,13 @@ export default function StudyDesignerPage() {
               value={studyIntent}
               onChange={(e) => setStudyIntent(e.target.value)}
               placeholder="e.g., Compare the risk of heart failure in patients newly prescribed SGLT2 inhibitors vs DPP-4 inhibitors among adults with type 2 diabetes..."
-              className="w-full rounded-lg border border-border-default bg-surface-raised px-4 py-3 text-text-primary placeholder-text-ghost focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]"
+              className="w-full rounded-lg border border-border-default bg-surface-raised px-4 py-3 text-text-primary placeholder-text-ghost focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]"
               rows={4}
             />
             <button
               onClick={handleIntentSubmit}
               disabled={!studyIntent.trim() || intentMutation.isPending}
-              className="mt-3 flex items-center gap-2 rounded-lg bg-[#9B1B30] px-6 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-[#9B1B30]/80 disabled:opacity-50"
+              className="mt-3 flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-primary/80 disabled:opacity-50"
             >
               {intentMutation.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -131,7 +131,7 @@ export default function StudyDesignerPage() {
           {intentMutation.data && (
             <div className="grid grid-cols-2 gap-4">
               <div className="rounded-lg border border-border-default bg-surface-base/50 p-4">
-                <div className="mb-2 flex items-center gap-2 text-[#2DD4BF]">
+                <div className="mb-2 flex items-center gap-2 text-success">
                   <Target className="h-4 w-4" />
                   <span className="text-sm font-semibold">
                     Target Population
@@ -142,7 +142,7 @@ export default function StudyDesignerPage() {
                 </p>
               </div>
               <div className="rounded-lg border border-border-default bg-surface-base/50 p-4">
-                <div className="mb-2 flex items-center gap-2 text-[#C9A227]">
+                <div className="mb-2 flex items-center gap-2 text-accent">
                   <Users className="h-4 w-4" />
                   <span className="text-sm font-semibold">Outcome</span>
                 </div>
@@ -166,7 +166,7 @@ export default function StudyDesignerPage() {
                       key={rec.cohortId ?? i}
                       className="flex items-start gap-3 rounded-lg border border-border-default/50 bg-surface-raised/50 p-4 transition-colors hover:border-border-hover"
                     >
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#C9A227]/20 text-sm font-bold text-[#C9A227]">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent/20 text-sm font-bold text-accent">
                         {i + 1}
                       </div>
                       <div className="min-w-0 flex-1">
@@ -211,7 +211,7 @@ export default function StudyDesignerPage() {
                   searchMutation.mutate(searchQuery)
                 }
                 placeholder="Search for phenotypes (e.g., type 2 diabetes, heart failure, COPD)..."
-                className="flex-1 rounded-lg border border-border-default bg-surface-raised px-4 py-2.5 text-text-primary placeholder-text-ghost focus:border-[#C9A227] focus:outline-none"
+                className="flex-1 rounded-lg border border-border-default bg-surface-raised px-4 py-2.5 text-text-primary placeholder-text-ghost focus:border-accent focus:outline-none"
               />
               <button
                 onClick={() => searchMutation.mutate(searchQuery)}
@@ -283,7 +283,7 @@ export default function StudyDesignerPage() {
             Enter a study intent on the{" "}
             <button
               onClick={() => setActiveTab("intent")}
-              className="text-[#C9A227] hover:underline"
+              className="text-accent hover:underline"
             >
               Study Intent
             </button>{" "}
@@ -308,7 +308,7 @@ export default function StudyDesignerPage() {
               value={lintJson}
               onChange={(e) => setLintJson(e.target.value)}
               placeholder='{"ConceptSets": [...], "PrimaryCriteria": {...}, ...}'
-              className="w-full rounded-lg border border-border-default bg-surface-raised px-4 py-3 font-mono text-sm text-text-primary placeholder-text-ghost focus:border-[#C9A227] focus:outline-none"
+              className="w-full rounded-lg border border-border-default bg-surface-raised px-4 py-3 font-mono text-sm text-text-primary placeholder-text-ghost focus:border-accent focus:outline-none"
               rows={8}
             />
             <button
@@ -328,7 +328,7 @@ export default function StudyDesignerPage() {
           {lintMutation.data && (
             <div className="rounded-lg border border-border-default bg-surface-base/50 p-6">
               {lintMutation.data.length === 0 ? (
-                <div className="flex items-center gap-2 text-[#2DD4BF]">
+                <div className="flex items-center gap-2 text-success">
                   <span className="text-lg">No issues found</span>
                 </div>
               ) : (

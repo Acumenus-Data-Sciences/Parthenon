@@ -40,9 +40,9 @@ function directionArrow(irr: number): string {
 }
 
 function irrBlockColor(irr: number): string {
-  if (irr > 1.05) return "#E85A6B";
-  if (irr < 0.95) return "#2DD4BF";
-  return "#8A857D";
+  if (irr > 1.05) return "var(--critical)";
+  if (irr < 0.95) return "var(--success)";
+  return "var(--text-muted)";
 }
 
 // ---------------------------------------------------------------------------
@@ -57,8 +57,8 @@ function RiskWindowSummaryCard({ result }: { result: SccsResult }) {
 
   if (!primary) {
     return (
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4" data-testid="risk-window-summary">
-        <p className="text-sm text-[#5A5650]">No exposure era with IRR data available.</p>
+      <div className="rounded-lg border border-border-default bg-surface-raised p-4" data-testid="risk-window-summary">
+        <p className="text-sm text-text-ghost">No exposure era with IRR data available.</p>
       </div>
     );
   }
@@ -85,18 +85,18 @@ function RiskWindowSummaryCard({ result }: { result: SccsResult }) {
   const controlIrr = control?.irr != null ? num(control.irr) : null;
 
   return (
-    <div className="rounded-lg border border-[#232328] bg-[#151518] p-5" data-testid="risk-window-summary">
-      <h3 className="text-sm font-semibold text-[#F0EDE8] mb-4">Risk Window Summary</h3>
+    <div className="rounded-lg border border-border-default bg-surface-raised p-5" data-testid="risk-window-summary">
+      <h3 className="text-sm font-semibold text-text-primary mb-4">Risk Window Summary</h3>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Primary IRR */}
         <div className="space-y-2">
-          <p className="text-xs text-[#8A857D] uppercase tracking-wide">Primary Exposure IRR</p>
+          <p className="text-xs text-text-muted uppercase tracking-wide">Primary Exposure IRR</p>
           <div className="flex items-baseline gap-2">
             <span
               className={cn(
                 "text-3xl font-bold font-mono",
-                irr > 1 ? "text-[#E85A6B]" : irr < 1 ? "text-[#2DD4BF]" : "text-[#F0EDE8]",
+                irr > 1 ? "text-critical" : irr < 1 ? "text-success" : "text-text-primary",
               )}
               data-testid="primary-irr"
             >
@@ -107,7 +107,7 @@ function RiskWindowSummaryCard({ result }: { result: SccsResult }) {
             </span>
           </div>
           {ciLower != null && ciUpper != null && (
-            <p className="text-xs font-mono text-[#8A857D]">
+            <p className="text-xs font-mono text-text-muted">
               95% CI: {fmt(ciLower, 2)} - {fmt(ciUpper, 2)}
             </p>
           )}
@@ -116,9 +116,9 @@ function RiskWindowSummaryCard({ result }: { result: SccsResult }) {
               "inline-block px-2 py-0.5 rounded text-xs font-medium border",
               sig
                 ? irr > 1
-                  ? "bg-[#E85A6B]/15 text-[#E85A6B] border-[#E85A6B]/30"
-                  : "bg-[#2DD4BF]/15 text-[#2DD4BF] border-[#2DD4BF]/30"
-                : "bg-[#8A857D]/15 text-[#8A857D] border-[#8A857D]/30",
+                  ? "bg-critical/15 text-critical border-critical/30"
+                  : "bg-success/15 text-success border-success/30"
+                : "bg-text-muted/15 text-text-muted border-text-muted/30",
             )}
             data-testid="significance-verdict"
           >
@@ -128,11 +128,11 @@ function RiskWindowSummaryCard({ result }: { result: SccsResult }) {
 
         {/* Absolute Excess Risk */}
         <div className="space-y-2">
-          <p className="text-xs text-[#8A857D] uppercase tracking-wide">Absolute Excess Risk</p>
-          <p className="text-xl font-bold font-mono text-[#C9A227]" data-testid="excess-risk">
+          <p className="text-xs text-text-muted uppercase tracking-wide">Absolute Excess Risk</p>
+          <p className="text-xl font-bold font-mono text-accent" data-testid="excess-risk">
             {Number.isFinite(excessRisk) ? `${excessRisk >= 0 ? "+" : ""}${fmt(excessRisk, 1)}` : "N/A"}
           </p>
-          <p className="text-xs text-[#5A5650]">
+          <p className="text-xs text-text-ghost">
             additional events per 1,000 exposed patients during risk window
           </p>
         </div>
@@ -141,31 +141,31 @@ function RiskWindowSummaryCard({ result }: { result: SccsResult }) {
         <div className="space-y-3">
           {/* Pre-exposure trend test */}
           <div>
-            <p className="text-xs text-[#8A857D] uppercase tracking-wide mb-1">Pre-Exposure Trend</p>
+            <p className="text-xs text-text-muted uppercase tracking-wide mb-1">Pre-Exposure Trend</p>
             <span
               className={cn(
                 "inline-block px-2 py-0.5 rounded text-xs font-medium border",
                 preExposurePass
-                  ? "bg-[#2DD4BF]/15 text-[#2DD4BF] border-[#2DD4BF]/30"
-                  : "bg-[#C9A227]/15 text-[#C9A227] border-[#C9A227]/30",
+                  ? "bg-success/15 text-success border-success/30"
+                  : "bg-accent/15 text-accent border-accent/30",
               )}
               data-testid="pre-exposure-badge"
             >
               {preExposurePass ? "PASS" : "FAIL \u2014 possible assumption violation"}
             </span>
             {preExposureIrr != null && (
-              <p className="text-xs font-mono text-[#5A5650] mt-1">IRR: {fmt(preExposureIrr, 2)}</p>
+              <p className="text-xs font-mono text-text-ghost mt-1">IRR: {fmt(preExposureIrr, 2)}</p>
             )}
           </div>
 
           {/* Control period IRR */}
           {controlIrr != null && (
             <div>
-              <p className="text-xs text-[#8A857D] uppercase tracking-wide mb-1">Control Period IRR</p>
-              <p className="text-sm font-mono text-[#F0EDE8]" data-testid="control-irr">
+              <p className="text-xs text-text-muted uppercase tracking-wide mb-1">Control Period IRR</p>
+              <p className="text-sm font-mono text-text-primary" data-testid="control-irr">
                 {fmt(controlIrr, 2)}
                 {Math.abs(controlIrr - 1) > 0.2 && (
-                  <span className="ml-2 text-xs text-[#C9A227]">(deviation from 1.0 — possible misspecification)</span>
+                  <span className="ml-2 text-xs text-accent">(deviation from 1.0 — possible misspecification)</span>
                 )}
               </p>
             </div>
@@ -195,28 +195,28 @@ function MultiWindowStrip({ eras }: { eras: SccsEra[] }) {
   const toX = (day: number) => padding + ((day - minDay) / dayRange) * plotW;
 
   return (
-    <div className="rounded-lg border border-[#232328] bg-[#151518] p-5" data-testid="multi-window-strip">
-      <h3 className="text-sm font-semibold text-[#F0EDE8] mb-4">Risk Window Comparison</h3>
+    <div className="rounded-lg border border-border-default bg-surface-raised p-5" data-testid="multi-window-strip">
+      <h3 className="text-sm font-semibold text-text-primary mb-4">Risk Window Comparison</h3>
       <div className="overflow-x-auto">
         <svg
           width={stripWidth}
           height={120}
           viewBox={`0 0 ${stripWidth} 120`}
-          className="text-[#F0EDE8]"
+          className="text-text-primary"
           role="img"
           aria-label="Multi-window comparison strip"
         >
-          <rect width={stripWidth} height={120} fill="#151518" rx={8} />
+          <rect width={stripWidth} height={120} fill="var(--surface-raised)" rx={8} />
 
           {/* Timeline axis */}
-          <line x1={padding} y1={80} x2={stripWidth - padding} y2={80} stroke="#323238" strokeWidth={1} />
+          <line x1={padding} y1={80} x2={stripWidth - padding} y2={80} stroke="var(--surface-highlight)" strokeWidth={1} />
 
           {sorted.map((era, i) => {
             const x1 = toX(era.start_day);
             const x2 = toX(era.end_day);
             const blockW = Math.max(x2 - x1, 4);
             const irr = era.irr != null ? num(era.irr) : null;
-            const color = irr != null ? irrBlockColor(irr) : "#323238";
+            const color = irr != null ? irrBlockColor(irr) : "var(--surface-highlight)";
             const isPreExposure = era.era_type === "pre-exposure";
             const isPostExposure = era.era_type === "post-exposure";
             const elevatedPre = isPreExposure && irr != null && irr > 1.5;
@@ -233,7 +233,7 @@ function MultiWindowStrip({ eras }: { eras: SccsEra[] }) {
                   fill={color}
                   opacity={0.5}
                   rx={3}
-                  stroke={elevatedPre ? "#C9A227" : color}
+                  stroke={elevatedPre ? "var(--accent)" : color}
                   strokeWidth={elevatedPre ? 2 : 1}
                 />
 
@@ -268,7 +268,7 @@ function MultiWindowStrip({ eras }: { eras: SccsEra[] }) {
                   x={x1 + blockW / 2}
                   y={108}
                   textAnchor="middle"
-                  fill="#8A857D"
+                  fill="var(--text-muted)"
                   fontSize={8}
                 >
                   {era.era_name.length > 14 ? era.era_name.substring(0, 14) + "..." : era.era_name}
@@ -280,7 +280,7 @@ function MultiWindowStrip({ eras }: { eras: SccsEra[] }) {
                     x={x1 + blockW / 2}
                     y={22}
                     textAnchor="middle"
-                    fill="#C9A227"
+                    fill="var(--accent)"
                     fontSize={8}
                     fontWeight={600}
                     data-testid="carryover-flag"
@@ -329,12 +329,12 @@ export function InlineMiniForestPlot({
   const irrX = toX(num(irr));
   const ciLowX = ciLower != null ? toX(num(ciLower)) : null;
   const ciHighX = ciUpper != null ? toX(num(ciUpper)) : null;
-  const color = num(irr) > 1 ? "#E85A6B" : num(irr) < 1 ? "#2DD4BF" : "#8A857D";
+  const color = num(irr) > 1 ? "var(--critical)" : num(irr) < 1 ? "var(--success)" : "var(--text-muted)";
 
   return (
     <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-label={`IRR ${fmt(irr, 2)}`}>
       {/* Reference line at IRR=1 */}
-      <line x1={refX} y1={2} x2={refX} y2={h - 2} stroke="#C9A227" strokeWidth={1} strokeDasharray="2 2" opacity={0.5} />
+      <line x1={refX} y1={2} x2={refX} y2={h - 2} stroke="var(--accent)" strokeWidth={1} strokeDasharray="2 2" opacity={0.5} />
 
       {/* CI line */}
       {ciLowX != null && ciHighX != null && (

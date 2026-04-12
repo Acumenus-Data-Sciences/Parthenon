@@ -127,9 +127,9 @@ export function CommonsLayout() {
   }
 
   return (
-    <div className="layout-full-bleed flex h-full gap-3 bg-[#0b0b0e] p-3">
+    <div className="layout-full-bleed flex h-full gap-3 bg-sidebar-bg p-3">
       {/* Left sidebar */}
-      <div className="flex w-64 shrink-0 flex-col overflow-hidden rounded-2xl border border-[#232328] bg-[#151518]">
+      <div className="flex w-64 shrink-0 flex-col overflow-hidden rounded-2xl border border-border-default bg-surface-raised">
         <div className="flex shrink-0 items-center justify-between border-b border-white/[0.06] px-4 py-3.5">
           <h1 className="text-[15px] font-semibold tracking-tight text-foreground">Commons</h1>
           <NotificationBell />
@@ -174,7 +174,7 @@ export function CommonsLayout() {
       </div>
 
       {/* Center content area */}
-      <div className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-[#232328] bg-[#121216] shadow-[0_12px_32px_rgba(0,0,0,0.24)]">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border-default bg-surface-base shadow-[0_12px_32px_rgba(0,0,0,0.24)]">
         {isAskAbby ? (
           <AskAbbyChannel />
         ) : view === "announcements" ? (
@@ -187,7 +187,7 @@ export function CommonsLayout() {
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[#2a2a31] bg-[#1a1a20] text-primary">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-border-default bg-surface-overlay text-primary">
                       <Hash className="h-4 w-4" />
                     </span>
                     <div className="min-w-0">
@@ -204,7 +204,7 @@ export function CommonsLayout() {
                   </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
-                  <div className="flex items-center gap-3 rounded-xl border border-[#2a2a31] bg-[#111115] px-4 py-2">
+                  <div className="flex items-center gap-3 rounded-xl border border-border-default bg-surface-base px-4 py-2">
                     <div className="flex items-center gap-1.5">
                       <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Members</span>
                       <span className="text-sm font-semibold text-foreground">{members.length}</span>

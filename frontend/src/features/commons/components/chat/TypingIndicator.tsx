@@ -7,7 +7,7 @@ export function TypingIndicator({ isTyping }: TypingIndicatorProps) {
 
   return (
     <div className="mx-auto flex w-full max-w-5xl items-center gap-2 px-6 pb-2">
-      <div className="flex items-center gap-2 rounded-full border border-[#2a2a31] bg-[#111115] px-3 py-1.5 text-[11px] text-muted-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+      <div className="flex items-center gap-2 rounded-full border border-border-default bg-surface-base px-3 py-1.5 text-[11px] text-muted-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
         <div className="flex gap-0.5">
           <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground [animation-delay:0ms]" />
           <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground [animation-delay:150ms]" />

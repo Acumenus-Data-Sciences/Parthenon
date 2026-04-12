@@ -20,30 +20,30 @@ function EntryCard({ entry }: { entry: ChangelogEntry }) {
   const sectionKeys = Object.keys(entry.sections);
 
   return (
-    <div className="rounded-lg border border-[#1E1E24] bg-[#131316] overflow-hidden">
+    <div className="rounded-lg border border-border-subtle bg-sidebar-bg-light overflow-hidden">
       <button
         type="button"
         onClick={() => setExpanded((p) => !p)}
-        className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-[#1A1A20] transition-colors"
+        className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-surface-overlay transition-colors"
       >
         <div className="flex items-center gap-3">
-          <span className="rounded bg-[#2DD4BF]/15 px-2 py-0.5 text-xs font-mono font-semibold text-[#2DD4BF]">
+          <span className="rounded bg-success/15 px-2 py-0.5 text-xs font-mono font-semibold text-success">
             v{entry.version}
           </span>
-          <span className="text-xs text-[#5A5650]">{entry.date}</span>
+          <span className="text-xs text-text-ghost">{entry.date}</span>
           {sectionKeys.map((section) => (
             <span
               key={section}
-              className={`text-xs ${SECTION_COLORS[section] ?? "text-[#8A857D]"}`}
+              className={`text-xs ${SECTION_COLORS[section] ?? "text-text-muted"}`}
             >
               {entry.sections[section].length} {section}
             </span>
           ))}
         </div>
         {expanded ? (
-          <ChevronUp size={14} className="text-[#5A5650]" />
+          <ChevronUp size={14} className="text-text-ghost" />
         ) : (
-          <ChevronDown size={14} className="text-[#5A5650]" />
+          <ChevronDown size={14} className="text-text-ghost" />
         )}
       </button>
 
@@ -52,14 +52,14 @@ function EntryCard({ entry }: { entry: ChangelogEntry }) {
           {sectionKeys.map((section) => (
             <div key={section}>
               <div
-                className={`mb-2 text-xs font-semibold uppercase tracking-wider ${SECTION_COLORS[section] ?? "text-[#8A857D]"}`}
+                className={`mb-2 text-xs font-semibold uppercase tracking-wider ${SECTION_COLORS[section] ?? "text-text-muted"}`}
               >
                 {section}
               </div>
               <ul className="space-y-1.5">
                 {entry.sections[section].map((item, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-[#8A857D]">
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#3A3A42]" />
+                  <li key={i} className="flex items-start gap-2 text-sm text-text-muted">
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-surface-highlight" />
                     {item}
                   </li>
                 ))}
@@ -114,7 +114,7 @@ export function WhatsNewModal({ externalOpen, onExternalClose }: WhatsNewModalPr
           <button
             type="button"
             onClick={handleClose}
-            className="rounded-lg bg-[#2DD4BF] px-5 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors"
+            className="rounded-lg bg-success px-5 py-2 text-sm font-medium text-surface-base hover:bg-success-dark transition-colors"
           >
             Got it
           </button>
@@ -123,8 +123,8 @@ export function WhatsNewModal({ externalOpen, onExternalClose }: WhatsNewModalPr
     >
       <div className="space-y-3">
         <div className="flex items-center gap-2 mb-4">
-          <Sparkles size={16} className="text-[#2DD4BF]" />
-          <p className="text-sm text-[#8A857D]">
+          <Sparkles size={16} className="text-success" />
+          <p className="text-sm text-text-muted">
             Here's what changed since your last visit.
           </p>
         </div>

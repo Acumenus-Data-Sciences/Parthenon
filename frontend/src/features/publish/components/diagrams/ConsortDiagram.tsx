@@ -36,7 +36,7 @@ function wrapText(
       .attr("dominant-baseline", "central")
       .attr("font-size", `${fontSize}px`)
       .attr("font-weight", bold && i === 0 ? "bold" : "normal")
-      .attr("fill", "#333")
+      .attr("fill", "var(--surface-highlight)")
       .attr("font-family", "sans-serif")
       .text(line);
   });
@@ -56,7 +56,7 @@ function drawBox(
     .attr("height", h)
     .attr("rx", BOX_RX)
     .attr("fill", "#ffffff")
-    .attr("stroke", "#333")
+    .attr("stroke", "var(--surface-highlight)")
     .attr("stroke-width", 1.5);
 }
 
@@ -73,7 +73,7 @@ function drawArrow(
     .attr("y1", y1)
     .attr("x2", x2)
     .attr("y2", y2)
-    .attr("stroke", "#333")
+    .attr("stroke", "var(--surface-highlight)")
     .attr("stroke-width", 1.5)
     .attr("marker-end", `url(#${markerId})`);
 }
@@ -115,7 +115,7 @@ export default function ConsortDiagram({
       .attr("orient", "auto")
       .append("polygon")
       .attr("points", "0 0, 10 3.5, 0 7")
-      .attr("fill", "#333");
+      .attr("fill", "var(--surface-highlight)");
 
     const g = svg.append("g");
     const cx = width / 2;
@@ -175,7 +175,7 @@ export default function ConsortDiagram({
         .attr("x2", rightX)
         .attr("y1", allocY - BOX_H / 2 - 10)
         .attr("y2", allocY - BOX_H / 2 - 10)
-        .attr("stroke", "#333")
+        .attr("stroke", "var(--surface-highlight)")
         .attr("stroke-width", 1.5);
     }
 

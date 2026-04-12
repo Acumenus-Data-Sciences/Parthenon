@@ -18,9 +18,9 @@ interface PopulationComplianceDashboardProps {
 }
 
 function getComplianceColor(pct: number): string {
-  if (pct >= 80) return "#2DD4BF";
-  if (pct >= 50) return "#C9A227";
-  return "#9B1B30";
+  if (pct >= 80) return "var(--success)";
+  if (pct >= 50) return "var(--accent)";
+  return "var(--primary)";
 }
 
 function SummaryCard({
@@ -38,7 +38,7 @@ function SummaryCard({
 }) {
   return (
     <div
-      className="rounded-lg border border-[#232328] bg-[#151518] p-4 transition-colors hover:border-[#3A3A40]"
+      className="rounded-lg border border-border-default bg-surface-raised p-4 transition-colors hover:border-surface-highlight"
       onClick={onClick}
       style={onClick ? { cursor: "pointer" } : undefined}
       role={onClick ? "button" : undefined}
@@ -47,7 +47,7 @@ function SummaryCard({
     >
       <div className="flex items-center gap-2 mb-2">
         <Icon size={14} style={{ color }} />
-        <span className="text-xs font-medium text-[#8A857D]">{label}</span>
+        <span className="text-xs font-medium text-text-muted">{label}</span>
       </div>
       <p
         className="font-['IBM_Plex_Mono',monospace] text-xl font-bold"
@@ -95,9 +95,9 @@ export function PopulationComplianceDashboard({
 
   if (!sourceId) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
-        <AlertCircle size={24} className="text-[#323238] mb-3" />
-        <p className="text-sm text-[#8A857D]">
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
+        <AlertCircle size={24} className="text-text-ghost mb-3" />
+        <p className="text-sm text-text-muted">
           Select a data source to view population compliance.
         </p>
       </div>
@@ -107,16 +107,16 @@ export function PopulationComplianceDashboard({
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+        <Loader2 size={24} className="animate-spin text-text-muted" />
       </div>
     );
   }
 
   if (error || !data) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
-        <AlertCircle size={24} className="text-[#E85A6B] mb-3" />
-        <p className="text-sm text-[#E85A6B]">
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
+        <AlertCircle size={24} className="text-critical mb-3" />
+        <p className="text-sm text-critical">
           Failed to load population summary.
         </p>
       </div>
@@ -131,17 +131,17 @@ export function PopulationComplianceDashboard({
           icon={Layers}
           label="Total Bundles"
           value={data.total_bundles.toLocaleString()}
-          color="#2DD4BF"
+          color="var(--success)"
           onClick={() => setCategoryFilter("All")}
         />
         <SummaryCard
           icon={Users}
           label="Total Patients"
           value={data.total_patients.toLocaleString()}
-          color="#818CF8"
+          color="var(--info)"
           onClick={() => setCategoryFilter("All")}
         />
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 flex items-center gap-4">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-4 flex items-center gap-4">
           <ComplianceRing
             percentage={data.avg_compliance}
             size="sm"
@@ -152,15 +152,15 @@ export function PopulationComplianceDashboard({
           icon={ShieldAlert}
           label="Total Open Gaps"
           value={totalOpenGaps.toLocaleString()}
-          color="#9B1B30"
+          color="var(--primary)"
           onClick={() => setCategoryFilter("All")}
         />
       </div>
 
       {/* Filter */}
       <div className="flex items-center gap-2">
-        <Activity size={14} className="text-[#8A857D]" />
-        <span className="text-xs text-[#8A857D]">Filter by category:</span>
+        <Activity size={14} className="text-text-muted" />
+        <span className="text-xs text-text-muted">Filter by category:</span>
         <div className="flex items-center gap-1">
           {categories.map((cat) => (
             <button
@@ -170,8 +170,8 @@ export function PopulationComplianceDashboard({
               className={cn(
                 "rounded-full px-3 py-1 text-xs font-medium transition-colors",
                 categoryFilter === cat
-                  ? "bg-[#2DD4BF]/15 text-[#2DD4BF]"
-                  : "bg-[#151518] text-[#8A857D] hover:text-[#C5C0B8]",
+                  ? "bg-success/15 text-success"
+                  : "bg-surface-raised text-text-muted hover:text-text-secondary",
               )}
             >
               {cat}
@@ -181,13 +181,13 @@ export function PopulationComplianceDashboard({
       </div>
 
       {/* Horizontal bar chart */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-5 space-y-3">
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">
+      <div className="rounded-lg border border-border-default bg-surface-raised p-5 space-y-3">
+        <h3 className="text-sm font-semibold text-text-primary">
           Bundle Compliance Comparison
         </h3>
 
         {filteredBundles.length === 0 ? (
-          <p className="text-xs text-[#5A5650]">
+          <p className="text-xs text-text-ghost">
             No bundles match the selected filter.
           </p>
         ) : (
@@ -207,13 +207,13 @@ export function PopulationComplianceDashboard({
                   <div className="flex items-center gap-3">
                     {/* Label */}
                     <div className="w-40 shrink-0 truncate">
-                      <span className="text-xs font-medium text-[#F0EDE8] group-hover:text-[#2DD4BF] transition-colors">
+                      <span className="text-xs font-medium text-text-primary group-hover:text-success transition-colors">
                         {b.condition_name}
                       </span>
                     </div>
 
                     {/* Bar */}
-                    <div className="flex-1 h-6 rounded bg-[#0E0E11] overflow-hidden relative">
+                    <div className="flex-1 h-6 rounded bg-surface-base overflow-hidden relative">
                       <div
                         className="h-full rounded transition-all duration-500"
                         style={{
@@ -223,7 +223,7 @@ export function PopulationComplianceDashboard({
                         }}
                       />
                       {/* Patients label inside */}
-                      <span className="absolute inset-y-0 right-2 flex items-center text-[10px] text-[#8A857D]">
+                      <span className="absolute inset-y-0 right-2 flex items-center text-[10px] text-text-muted">
                         {b.patient_count.toLocaleString()} pts
                       </span>
                     </div>

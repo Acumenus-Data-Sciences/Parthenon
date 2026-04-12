@@ -170,14 +170,14 @@ export default function PatientJourneyPage() {
                   onClick={() => navigate(`/morpheus/journey/${p.subject_id}${datasetSuffix}`)}
                   className="hover:bg-surface-base/50 cursor-pointer transition-colors"
                 >
-                  <td className="px-3 py-2 align-top font-mono text-[#2DD4BF]">{p.subject_id}</td>
+                  <td className="px-3 py-2 align-top font-mono text-success">{p.subject_id}</td>
                   <td className="px-3 py-2 align-top text-text-secondary">{p.gender === 'M' ? 'Male' : p.gender === 'F' ? 'Female' : p.gender}</td>
                   <td className="px-3 py-2 align-top text-text-secondary">{p.anchor_age}</td>
                   <td className="px-3 py-2 align-top text-text-ghost">{p.anchor_year_group}</td>
                   <td className="px-3 py-2 align-top text-text-secondary">{p.admission_count}</td>
                   <td className="px-3 py-2 align-top">
                     {(p.icu_stay_count ?? 0) > 0 ? (
-                      <span className="text-[#9B1B30] font-medium">{p.icu_stay_count}</span>
+                      <span className="text-primary font-medium">{p.icu_stay_count}</span>
                     ) : (
                       <span className="text-text-ghost">0</span>
                     )}
@@ -194,7 +194,7 @@ export default function PatientJourneyPage() {
                     ) : '\u2014'}
                   </td>
                   <td className="px-3 py-2 align-top">
-                    {p.dod ? <span className="text-[#E85A6B]">Yes</span> : <span className="text-text-ghost">No</span>}
+                    {p.dod ? <span className="text-critical">Yes</span> : <span className="text-text-ghost">No</span>}
                   </td>
                 </tr>
               ))}
@@ -263,7 +263,7 @@ export default function PatientJourneyPage() {
             onClick={() => setViewMode(key)}
             className={`px-5 py-2.5 text-sm font-medium transition-colors ${
               viewMode === key
-                ? 'font-semibold text-text-primary border-b-2 border-[#9B1B30]'
+                ? 'font-semibold text-text-primary border-b-2 border-primary'
                 : 'text-text-ghost border-b-2 border-transparent hover:text-text-secondary'
             }`}
           >
@@ -282,7 +282,7 @@ export default function PatientJourneyPage() {
           <MedicationTimeline medications={medications} />
 
           {/* Diagnosis summary */}
-          <div className="rounded-xl border border-border-default bg-[#151518] p-5">
+          <div className="rounded-xl border border-border-default bg-surface-raised p-5">
             <h3 className="text-sm font-semibold text-text-secondary mb-2">
               Top Diagnoses ({diagnoses.length} total)
             </h3>
@@ -290,10 +290,10 @@ export default function PatientJourneyPage() {
               {diagnoses.slice(0, 15).map((dx) => (
                 <span
                   key={`${dx.hadm_id}-${dx.seq_num}`}
-                  className="inline-flex items-center px-2 py-0.5 rounded text-[10px] bg-[#0E0E11] border border-border-default text-text-muted"
+                  className="inline-flex items-center px-2 py-0.5 rounded text-[10px] bg-surface-base border border-border-default text-text-muted"
                   title={dx.description}
                 >
-                  <span className="font-mono text-[#C9A227] mr-1">{dx.icd_code}</span>
+                  <span className="font-mono text-accent mr-1">{dx.icd_code}</span>
                   <span className="truncate max-w-[200px]">{dx.description || 'Unknown'}</span>
                 </span>
               ))}
@@ -304,13 +304,13 @@ export default function PatientJourneyPage() {
           </div>
 
           {/* Admissions summary */}
-          <div className="rounded-xl border border-border-default bg-[#151518] p-5">
+          <div className="rounded-xl border border-border-default bg-surface-raised p-5">
             <h3 className="text-sm font-semibold text-text-secondary mb-2">Admissions</h3>
             <div className="space-y-2">
               {admissions.map((adm) => (
                 <div
                   key={adm.hadm_id}
-                  className="flex items-center justify-between px-3 py-2 bg-[#0E0E11] rounded-md cursor-pointer hover:bg-[#0E0E11]/80"
+                  className="flex items-center justify-between px-3 py-2 bg-surface-base rounded-md cursor-pointer hover:bg-surface-base/80"
                   onClick={() => setSelectedHadmId(adm.hadm_id)}
                 >
                   <div className="flex items-center gap-3">
@@ -323,7 +323,7 @@ export default function PatientJourneyPage() {
                   <div className="flex items-center gap-2 text-xs text-text-ghost">
                     <span>{Number(adm.los_days).toFixed(1)}d</span>
                     <span>{adm.discharge_location}</span>
-                    {adm.hospital_expire_flag === '1' && <span className="text-[#E85A6B]">&dagger;</span>}
+                    {adm.hospital_expire_flag === '1' && <span className="text-critical">&dagger;</span>}
                   </div>
                 </div>
               ))}
@@ -374,7 +374,7 @@ export default function PatientJourneyPage() {
           )}
           {labsQuery.isLoading ? (
             <div className="flex items-center justify-center h-64">
-              <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+              <Loader2 size={24} className="animate-spin text-text-muted" />
             </div>
           ) : labsQuery.data ? (
             <div>
@@ -394,7 +394,7 @@ export default function PatientJourneyPage() {
         <>
           {vitalsQuery.isLoading ? (
             <div className="flex items-center justify-center h-64">
-              <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+              <Loader2 size={24} className="animate-spin text-text-muted" />
             </div>
           ) : vitalsQuery.data ? (
             <div>
@@ -414,7 +414,7 @@ export default function PatientJourneyPage() {
         <>
           {microQuery.isLoading ? (
             <div className="flex items-center justify-center h-64">
-              <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+              <Loader2 size={24} className="animate-spin text-text-muted" />
             </div>
           ) : microQuery.data ? (
             <div className="space-y-6">
@@ -425,11 +425,11 @@ export default function PatientJourneyPage() {
                 />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-[#F0EDE8] mb-3">Antibiogram</h3>
+                <h3 className="text-sm font-semibold text-text-primary mb-3">Antibiogram</h3>
                 <AntibiogramHeatmap data={microQuery.data} onOrganismClick={setDrawerEvent} />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-[#F0EDE8] mb-3">Culture Results</h3>
+                <h3 className="text-sm font-semibold text-text-primary mb-3">Culture Results</h3>
                 <CultureTable data={microQuery.data} onOrganismClick={setDrawerEvent} />
               </div>
             </div>

@@ -39,10 +39,10 @@ function MappingEdgeComponent({
 
   // Color by status
   const color = d.isComplete
-    ? "#2DD4BF" // teal
+    ? "var(--success)" // teal
     : d.hasUnmappedRequired
       ? "#EF4444" // red
-      : "#F59E0B"; // amber
+      : "var(--warning)"; // amber
 
   const isDashed = d.isAiSuggested && !d.isReviewed;
 

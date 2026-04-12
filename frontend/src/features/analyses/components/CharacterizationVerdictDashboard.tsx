@@ -73,19 +73,19 @@ const VERDICT_CONFIG: Record<
 > = {
   "well-balanced": {
     label: "Well balanced",
-    color: "#2DD4BF",
+    color: "var(--success)",
     bgColor: "rgba(45,212,191,0.08)",
     borderColor: "rgba(45,212,191,0.25)",
   },
   marginal: {
     label: "Marginal imbalance",
-    color: "#C9A227",
+    color: "var(--accent)",
     bgColor: "rgba(201,162,39,0.08)",
     borderColor: "rgba(201,162,39,0.25)",
   },
   significant: {
     label: "Significant imbalance",
-    color: "#E85A6B",
+    color: "var(--critical)",
     bgColor: "rgba(232,90,107,0.08)",
     borderColor: "rgba(232,90,107,0.25)",
   },
@@ -107,7 +107,7 @@ function MetricStrip({
   return (
     <div className="space-y-2">
       {label && (
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-text-muted">
           {label}
         </p>
       )}
@@ -133,26 +133,26 @@ function MetricStrip({
         </div>
         <div className="grid grid-cols-4 gap-4">
           <div>
-            <p className="text-[10px] text-[#8A857D]">Total covariates</p>
-            <p className="font-['IBM_Plex_Mono',monospace] text-sm font-semibold text-[#F0EDE8]">
+            <p className="text-[10px] text-text-muted">Total covariates</p>
+            <p className="font-['IBM_Plex_Mono',monospace] text-sm font-semibold text-text-primary">
               {metrics.totalCovariates}
             </p>
           </div>
           <div>
-            <p className="text-[10px] text-[#8A857D]">|SMD| &lt; 0.1</p>
-            <p className="font-['IBM_Plex_Mono',monospace] text-sm font-semibold text-[#2DD4BF]">
+            <p className="text-[10px] text-text-muted">|SMD| &lt; 0.1</p>
+            <p className="font-['IBM_Plex_Mono',monospace] text-sm font-semibold text-success">
               {fmt(metrics.pctBelow01, 1)}%
             </p>
           </div>
           <div>
-            <p className="text-[10px] text-[#8A857D]">|SMD| &gt; 0.2</p>
-            <p className="font-['IBM_Plex_Mono',monospace] text-sm font-semibold text-[#E85A6B]">
+            <p className="text-[10px] text-text-muted">|SMD| &gt; 0.2</p>
+            <p className="font-['IBM_Plex_Mono',monospace] text-sm font-semibold text-critical">
               {fmt(metrics.pctAbove02, 1)}%
             </p>
           </div>
           <div>
-            <p className="text-[10px] text-[#8A857D]">Mean |SMD|</p>
-            <p className="font-['IBM_Plex_Mono',monospace] text-sm font-semibold text-[#C5C0B8]">
+            <p className="text-[10px] text-text-muted">Mean |SMD|</p>
+            <p className="font-['IBM_Plex_Mono',monospace] text-sm font-semibold text-text-secondary">
               {fmt(metrics.meanAbsSmd)}
             </p>
           </div>
@@ -195,12 +195,12 @@ function ImbalancedCovariateBar({
       {/* Covariate name */}
       <div className="w-48 shrink-0 text-right pr-2">
         <p
-          className="text-xs text-[#F0EDE8] truncate"
+          className="text-xs text-text-primary truncate"
           title={entry.covariate_name}
         >
           {entry.covariate_name}
         </p>
-        <p className="text-[10px] text-[#5A5650]">
+        <p className="text-[10px] text-text-ghost">
           {targetLabel}: {fmt(targetPrev, 1)}% | {comparatorLabel}:{" "}
           {fmt(compPrev, 1)}%
         </p>
@@ -222,7 +222,7 @@ function ImbalancedCovariateBar({
           )}
         </div>
         {/* Center line */}
-        <div className="w-px h-7 bg-[#5A5650] shrink-0" />
+        <div className="w-px h-7 bg-text-ghost shrink-0" />
         {/* Right side (higher in comparator) */}
         <div className="flex-1">
           {!isHigherInTarget && (
@@ -244,10 +244,10 @@ function ImbalancedCovariateBar({
           className={cn(
             "font-['IBM_Plex_Mono',monospace] text-xs font-medium",
             absSmd > 0.2
-              ? "text-[#E85A6B]"
+              ? "text-critical"
               : absSmd > 0.1
-                ? "text-[#F59E0B]"
-                : "text-[#C5C0B8]",
+                ? "text-warning"
+                : "text-text-secondary",
           )}
         >
           {fmt(absSmd)}
@@ -307,8 +307,8 @@ export function CharacterizationVerdictDashboard({
       data-testid="characterization-verdict-dashboard"
     >
       {/* Balance Summary Card */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-        <h3 className="text-sm font-semibold text-[#F0EDE8] mb-4">
+      <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+        <h3 className="text-sm font-semibold text-text-primary mb-4">
           Cohort Balance Summary
         </h3>
 
@@ -324,27 +324,27 @@ export function CharacterizationVerdictDashboard({
 
       {/* Top Imbalanced Covariates */}
       {topImbalanced.length > 0 && (
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-          <h3 className="text-sm font-semibold text-[#F0EDE8] mb-1">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+          <h3 className="text-sm font-semibold text-text-primary mb-1">
             Top Imbalanced Covariates
           </h3>
           <div className="flex items-center justify-between mb-3">
-            <p className="text-[10px] text-[#5A5650]">
+            <p className="text-[10px] text-text-ghost">
               Diverging bars show direction of imbalance
             </p>
-            <div className="flex items-center gap-3 text-[10px] text-[#5A5650]">
+            <div className="flex items-center gap-3 text-[10px] text-text-ghost">
               <span className="flex items-center gap-1">
-                <span className="inline-block h-2 w-4 rounded bg-[#2DD4BF]/60" />
+                <span className="inline-block h-2 w-4 rounded bg-success/60" />
                 Higher in {targetLabel}
               </span>
               <span className="flex items-center gap-1">
-                <span className="inline-block h-2 w-4 rounded bg-[#E85A6B]/60" />
+                <span className="inline-block h-2 w-4 rounded bg-critical/60" />
                 Higher in {comparatorLabel}
               </span>
             </div>
           </div>
 
-          <div className="divide-y divide-[#1C1C20]">
+          <div className="divide-y divide-border-subtle">
             {topImbalanced.map((entry) => (
               <ImbalancedCovariateBar
                 key={entry.covariate_name}

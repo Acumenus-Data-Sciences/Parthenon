@@ -79,20 +79,20 @@ export default function GisPage() {
 
   // Fullscreen uses fixed positioning over everything — single DeckGL instance, no remount
   const containerClass = isExpanded
-    ? "fixed inset-0 flex flex-col bg-[#0A0A0F]"
+    ? "fixed inset-0 flex flex-col bg-surface-darkest"
     : "flex h-[calc(100vh-4rem)] flex-col";
 
   return (
     <div className={containerClass} style={isExpanded ? { zIndex: 200 } : undefined}>
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-[#232328] bg-[#0E0E11] px-6 py-3">
+      <div className="flex items-center justify-between border-b border-border-default bg-surface-base px-6 py-3">
         <div className="flex items-center gap-3">
-          <Globe className="h-5 w-5 text-[#C9A227]" />
+          <Globe className="h-5 w-5 text-accent" />
           <div>
-            <h1 className="text-lg font-semibold text-[#E8E4DC]">
+            <h1 className="text-lg font-semibold text-text-primary">
               GIS Explorer{selectedDiseaseName ? ` — ${selectedDiseaseName}` : ""}
             </h1>
-            <p className="text-xs text-[#5A5650]">
+            <p className="text-xs text-text-ghost">
               {hasActiveLayers
                 ? `${activeLayerList.length} analysis layer${activeLayerList.length !== 1 ? "s" : ""} active`
                 : selectedDiseaseName
@@ -104,14 +104,14 @@ export default function GisPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={resetViewport}
-            className="flex items-center gap-1.5 rounded border border-[#232328] bg-[#0E0E11] px-2 py-1 text-xs text-[#8A857D] hover:border-[#5A5650]"
+            className="flex items-center gap-1.5 rounded border border-border-default bg-surface-base px-2 py-1 text-xs text-text-muted hover:border-text-ghost"
           >
             <RefreshCw className="h-3 w-3" />
             Reset
           </button>
           <button
             onClick={() => setIsExpanded((v) => !v)}
-            className="flex items-center gap-1.5 rounded bg-[#232328] px-2 py-1 text-xs text-[#C9A227] hover:bg-[#232328]/80"
+            className="flex items-center gap-1.5 rounded bg-surface-elevated px-2 py-1 text-xs text-accent hover:bg-surface-elevated/80"
           >
             {isExpanded ? (
               <>
@@ -131,7 +131,7 @@ export default function GisPage() {
 
       {/* Disease summary bar */}
       {selectedConceptId && !isExpanded && (
-        <div className="border-b border-[#232328] bg-[#0E0E11] px-6 py-2">
+        <div className="border-b border-border-default bg-surface-base px-6 py-2">
           <DiseaseSummaryBar conceptId={selectedConceptId} />
         </div>
       )}

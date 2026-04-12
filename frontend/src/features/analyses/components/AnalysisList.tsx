@@ -100,7 +100,7 @@ export function AnalysisList({
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+        <Loader2 size={24} className="animate-spin text-text-muted" />
       </div>
     );
   }
@@ -111,7 +111,7 @@ export function AnalysisList({
   if (error) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-[#E85A6B]">
+        <p className="text-critical">
           Failed to load {typeLabel}
         </p>
       </div>
@@ -120,25 +120,25 @@ export function AnalysisList({
 
   if (analyses.length === 0 && page === 1) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
-        <div className="flex items-center justify-center w-14 h-14 rounded-full bg-[#1C1C20] mb-4">
-          <Layers size={24} className="text-[#8A857D]" />
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
+        <div className="flex items-center justify-center w-14 h-14 rounded-full bg-surface-overlay mb-4">
+          <Layers size={24} className="text-text-muted" />
         </div>
         {isSearching ? (
           <>
-            <h3 className="text-lg font-semibold text-[#F0EDE8]">
+            <h3 className="text-lg font-semibold text-text-primary">
               No matching {typeLabel}
             </h3>
-            <p className="mt-2 text-sm text-[#8A857D]">
+            <p className="mt-2 text-sm text-text-muted">
               Try adjusting your search terms.
             </p>
           </>
         ) : (
           <>
-            <h3 className="text-lg font-semibold text-[#F0EDE8]">
+            <h3 className="text-lg font-semibold text-text-primary">
               No {typeLabel} yet
             </h3>
-            <p className="mt-2 text-sm text-[#8A857D]">
+            <p className="mt-2 text-sm text-text-muted">
               Create your first {typeLabelSingular} to get started.
             </p>
           </>
@@ -150,26 +150,26 @@ export function AnalysisList({
   return (
     <div className="space-y-4">
       {/* Table */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+      <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
         <table className="w-full">
           <thead>
-            <tr className="bg-[#1C1C20]">
-              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+            <tr className="bg-surface-overlay">
+              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                 Name
               </th>
-              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                 Description
               </th>
-              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                 Author
               </th>
-              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                 Status
               </th>
-              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                 Last Run
               </th>
-              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                 Created
               </th>
             </tr>
@@ -182,22 +182,22 @@ export function AnalysisList({
                   key={analysis.id}
                   onClick={() => onSelect(analysis.id)}
                   className={cn(
-                    "border-t border-[#1C1C20] transition-colors hover:bg-[#1C1C20] cursor-pointer",
-                    i % 2 === 0 ? "bg-[#151518]" : "bg-[#1A1A1E]",
+                    "border-t border-border-subtle transition-colors hover:bg-surface-overlay cursor-pointer",
+                    i % 2 === 0 ? "bg-surface-raised" : "bg-surface-overlay",
                   )}
                 >
                   <td className="px-4 py-3">
-                    <p className="text-sm font-medium text-[#F0EDE8]">
+                    <p className="text-sm font-medium text-text-primary">
                       {analysis.name}
                     </p>
                   </td>
                   <td className="px-4 py-3">
-                    <p className="text-sm text-[#8A857D] truncate max-w-[250px]">
+                    <p className="text-sm text-text-muted truncate max-w-[250px]">
                       {analysis.description || "--"}
                     </p>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-sm text-[#8A857D]">
+                    <span className="text-sm text-text-muted">
                       {analysis.author?.name ?? "--"}
                     </span>
                   </td>
@@ -205,19 +205,19 @@ export function AnalysisList({
                     {latest ? (
                       <ExecutionStatusBadge status={latest.status} />
                     ) : (
-                      <span className="text-sm text-[#5A5650]">
+                      <span className="text-sm text-text-ghost">
                         Not executed
                       </span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-sm text-[#8A857D]">
+                  <td className="px-4 py-3 text-sm text-text-muted">
                     {latest?.completed_at
                       ? formatDate(latest.completed_at)
                       : latest?.started_at
                         ? formatDate(latest.started_at)
                         : "--"}
                   </td>
-                  <td className="px-4 py-3 text-sm text-[#8A857D]">
+                  <td className="px-4 py-3 text-sm text-text-muted">
                     {formatDate(analysis.created_at)}
                   </td>
                 </tr>
@@ -230,7 +230,7 @@ export function AnalysisList({
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between px-1">
-          <p className="text-sm text-[#8A857D]">
+          <p className="text-sm text-text-muted">
             Showing {(page - 1) * perPage + 1} -{" "}
             {Math.min(page * perPage, total)} of {total}
           </p>
@@ -239,11 +239,11 @@ export function AnalysisList({
               type="button"
               onClick={() => onPageChange?.(Math.max(1, page - 1))}
               disabled={page <= 1}
-              className="inline-flex items-center justify-center w-8 h-8 rounded-md text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#232328] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="inline-flex items-center justify-center w-8 h-8 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-elevated transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <ChevronLeft size={16} />
             </button>
-            <span className="text-sm text-[#C5C0B8] px-2">
+            <span className="text-sm text-text-secondary px-2">
               {page} / {totalPages}
             </span>
             <button
@@ -252,7 +252,7 @@ export function AnalysisList({
                 onPageChange?.(Math.min(totalPages, page + 1))
               }
               disabled={page >= totalPages}
-              className="inline-flex items-center justify-center w-8 h-8 rounded-md text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#232328] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="inline-flex items-center justify-center w-8 h-8 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-elevated transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <ChevronRight size={16} />
             </button>

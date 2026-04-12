@@ -48,8 +48,8 @@ export default function CultureTable({ data, onOrganismClick }: CultureTableProp
 
   if (groups.length === 0) {
     return (
-      <div className="flex items-center justify-center h-32 rounded-lg border border-dashed border-[#323238] bg-[#151518]">
-        <p className="text-sm text-[#8A857D]">No culture data available</p>
+      <div className="flex items-center justify-center h-32 rounded-lg border border-dashed border-surface-highlight bg-surface-raised">
+        <p className="text-sm text-text-muted">No culture data available</p>
       </div>
     );
   }
@@ -67,14 +67,14 @@ export default function CultureTable({ data, onOrganismClick }: CultureTableProp
             <button
               type="button"
               onClick={() => setExpandedKey(isExpanded ? null : g.key)}
-              className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-[#1A1A1E] transition-colors text-left focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30"
+              className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-surface-overlay transition-colors text-left focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30"
             >
-              <ChevronDown size={12} className={`text-[#5A5650] transition-transform shrink-0 ${isExpanded ? 'rotate-180' : ''}`} />
-              <span className="text-xs text-[#8A857D] shrink-0 w-20">{g.date}</span>
-              <span className="text-xs text-[#C5C0B8] shrink-0 w-32 truncate">{g.specimen}</span>
+              <ChevronDown size={12} className={`text-text-ghost transition-transform shrink-0 ${isExpanded ? 'rotate-180' : ''}`} />
+              <span className="text-xs text-text-muted shrink-0 w-20">{g.date}</span>
+              <span className="text-xs text-text-secondary shrink-0 w-32 truncate">{g.specimen}</span>
               {g.organism ? (
                 <span
-                  className="text-xs text-[#F472B6] hover:underline cursor-pointer"
+                  className="text-xs text-domain-procedure hover:underline cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation();
                     onOrganismClick({
@@ -91,7 +91,7 @@ export default function CultureTable({ data, onOrganismClick }: CultureTableProp
                   {g.organism}
                 </span>
               ) : (
-                <span className="text-xs text-[#5A5650]">No growth</span>
+                <span className="text-xs text-text-ghost">No growth</span>
               )}
               {g.sensitivities.length > 0 && (
                 <div className="flex items-center gap-1.5 ml-auto text-[10px]">
@@ -106,7 +106,7 @@ export default function CultureTable({ data, onOrganismClick }: CultureTableProp
               <div className="px-8 pb-3">
                 <table className="min-w-full text-xs">
                   <thead>
-                    <tr className="text-[10px] text-[#5A5650] uppercase tracking-wider">
+                    <tr className="text-[10px] text-text-ghost uppercase tracking-wider">
                       <th className="text-left py-1">Antibiotic</th>
                       <th className="text-center py-1 w-16">Result</th>
                       <th className="text-left py-1">MIC</th>
@@ -116,18 +116,18 @@ export default function CultureTable({ data, onOrganismClick }: CultureTableProp
                     {g.sensitivities.map((s, i) => {
                       const style = INTERP_COLORS[s.interpretation ?? ''];
                       return (
-                        <tr key={i} className="hover:bg-[#1A1A1E]">
-                          <td className="py-1 text-[#C5C0B8]">{s.ab_name}</td>
+                        <tr key={i} className="hover:bg-surface-overlay">
+                          <td className="py-1 text-text-secondary">{s.ab_name}</td>
                           <td className="py-1 text-center">
                             {s.interpretation && style ? (
                               <span className={`inline-block px-1.5 rounded text-[10px] font-bold ${style.bg} ${style.text}`}>
                                 {s.interpretation}
                               </span>
                             ) : (
-                              <span className="text-[#5A5650]">&mdash;</span>
+                              <span className="text-text-ghost">&mdash;</span>
                             )}
                           </td>
-                          <td className="py-1 text-[#8A857D] font-mono">
+                          <td className="py-1 text-text-muted font-mono">
                             {s.dilution_comparison && s.dilution_value
                               ? `${s.dilution_comparison}${s.dilution_value}`
                               : '\u2014'}

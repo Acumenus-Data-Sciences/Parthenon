@@ -124,27 +124,27 @@ export default function PacsConnectionFormModal({
   if (!isOpen) return null;
 
   const inputCls =
-    "w-full px-3 py-2 text-sm bg-[#0E0E11] border border-[#232328] rounded-lg text-[#F0EDE8] placeholder-[#5A5650] focus:outline-none focus:border-[#2DD4BF]/50 focus:ring-1 focus:ring-[#2DD4BF]/30";
-  const labelCls = "block text-xs font-medium text-[#8A857D] mb-1";
+    "w-full px-3 py-2 text-sm bg-surface-base border border-border-default rounded-lg text-text-primary placeholder-[#5A5650] focus:outline-none focus:border-success/50 focus:ring-1 focus:ring-[#2DD4BF]/30";
+  const labelCls = "block text-xs font-medium text-text-muted mb-1";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-lg rounded-xl border border-[#232328] bg-[#151518] shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div className="w-full max-w-lg rounded-xl border border-border-default bg-surface-raised shadow-2xl max-h-[90vh] overflow-y-auto">
         <form onSubmit={handleSubmit}>
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-[#232328]">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-border-default">
             <div>
-              <h2 className="text-base font-semibold text-[#F0EDE8]">
+              <h2 className="text-base font-semibold text-text-primary">
                 {isEdit ? "Edit PACS Connection" : "Add PACS Connection"}
               </h2>
-              <p className="text-xs text-[#5A5650] mt-0.5">
+              <p className="text-xs text-text-ghost mt-0.5">
                 Configure a DICOM imaging server connection.
               </p>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="p-1 rounded text-[#5A5650] hover:text-[#C5C0B8] hover:bg-[#232328] transition-colors"
+              className="p-1 rounded text-text-ghost hover:text-text-secondary hover:bg-surface-elevated transition-colors"
             >
               <X size={16} />
             </button>
@@ -259,7 +259,7 @@ export default function PacsConnectionFormModal({
               </select>
             </div>
 
-            <label className="flex items-center gap-2 text-sm text-[#8A857D] cursor-pointer">
+            <label className="flex items-center gap-2 text-sm text-text-muted cursor-pointer">
               <input
                 type="checkbox"
                 checked={isActive}
@@ -275,8 +275,8 @@ export default function PacsConnectionFormModal({
                 className={cn(
                   "flex items-center gap-2 rounded-md border px-3 py-2 text-xs",
                   testResult.success
-                    ? "border-[#2DD4BF]/20 bg-[#2DD4BF]/5 text-[#2DD4BF]"
-                    : "border-[#E85A6B]/20 bg-[#E85A6B]/5 text-[#E85A6B]",
+                    ? "border-success/20 bg-success/5 text-success"
+                    : "border-critical/20 bg-critical/5 text-critical",
                 )}
               >
                 {testResult.success ? (
@@ -295,21 +295,21 @@ export default function PacsConnectionFormModal({
 
             {/* Error */}
             {error && (
-              <div className="flex items-center gap-2 rounded-md border border-[#E85A6B]/20 bg-[#E85A6B]/5 px-3 py-2 text-xs text-[#E85A6B]">
+              <div className="flex items-center gap-2 rounded-md border border-critical/20 bg-critical/5 px-3 py-2 text-xs text-critical">
                 <AlertCircle size={12} /> {error}
               </div>
             )}
           </div>
 
           {/* Footer */}
-          <div className="px-6 py-3 border-t border-[#232328] flex justify-between">
+          <div className="px-6 py-3 border-t border-border-default flex justify-between">
             <div>
               {isEdit && (
                 <button
                   type="button"
                   onClick={handleTest}
                   disabled={testMut.isPending}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#232328] px-3 py-2 text-sm text-[#8A857D] hover:text-[#C5C0B8] hover:bg-[#232328] transition-colors disabled:opacity-40"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-border-default px-3 py-2 text-sm text-text-muted hover:text-text-secondary hover:bg-surface-elevated transition-colors disabled:opacity-40"
                 >
                   {testMut.isPending && (
                     <Loader2 size={14} className="animate-spin" />
@@ -322,14 +322,14 @@ export default function PacsConnectionFormModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-sm text-[#8A857D] hover:text-[#C5C0B8] transition-colors"
+                className="px-4 py-2 text-sm text-text-muted hover:text-text-secondary transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={pending}
-                className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base hover:bg-success-dark transition-colors disabled:opacity-50"
               >
                 {pending && <Loader2 size={14} className="animate-spin" />}
                 {isEdit ? "Save Changes" : "Create Connection"}

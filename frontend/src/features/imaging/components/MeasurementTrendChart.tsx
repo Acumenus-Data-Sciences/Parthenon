@@ -30,8 +30,8 @@ const MEASUREMENT_TYPE_LABELS: Record<string, string> = {
 };
 
 const TREND_COLORS = [
-  "#2DD4BF", "#60A5FA", "#A78BFA", "#F59E0B", "#E85A6B",
-  "#F472B6", "#34D399", "#FB923C", "#818CF8", "#C084FC",
+  "var(--success)", "var(--info)", "var(--domain-observation)", "var(--warning)", "var(--critical)",
+  "var(--domain-procedure)", "var(--success)", "var(--domain-device)", "var(--info)", "#C084FC",
 ];
 
 // ── Types ────────────────────────────────────────────────────────────────
@@ -91,8 +91,8 @@ function TrendTooltip({
   if (!active || !payload?.length) return null;
 
   return (
-    <div className="rounded-lg border border-[#323238] bg-[#1A1A1E] px-3 py-2 shadow-lg min-w-[160px]">
-      <p className="text-xs text-[#8A857D] mb-1">{label ? formatDate(label) : ""}</p>
+    <div className="rounded-lg border border-surface-highlight bg-surface-overlay px-3 py-2 shadow-lg min-w-[160px]">
+      <p className="text-xs text-text-muted mb-1">{label ? formatDate(label) : ""}</p>
       {payload.map((p, idx) => {
         const pctChange = baselineValue && baselineValue !== 0
           ? ((p.value - baselineValue) / baselineValue) * 100
@@ -102,10 +102,10 @@ function TrendTooltip({
             <span className="text-xs" style={{ color: p.color }}>
               {p.name}
             </span>
-            <span className="font-mono text-xs text-[#F0EDE8]">
+            <span className="font-mono text-xs text-text-primary">
               {p.value.toFixed(1)} {unit}
               {pctChange !== null && (
-                <span className={`ml-1.5 text-[10px] ${pctChange > 0 ? "text-[#E85A6B]" : pctChange < 0 ? "text-[#2DD4BF]" : "text-[#C9A227]"}`}>
+                <span className={`ml-1.5 text-[10px] ${pctChange > 0 ? "text-critical" : pctChange < 0 ? "text-success" : "text-accent"}`}>
                   ({pctChange > 0 ? "+" : ""}{pctChange.toFixed(1)}%)
                 </span>
               )}
@@ -186,20 +186,20 @@ export function MeasurementTrendChart({
   const chartTitle = title ?? label;
 
   return (
-    <div className="rounded-xl border border-[#232328] bg-[#151518] p-4">
+    <div className="rounded-xl border border-border-default bg-surface-raised p-4">
       <div className="flex items-center justify-between mb-3">
-        <h4 className="text-xs font-semibold text-[#F0EDE8] uppercase tracking-wider">
+        <h4 className="text-xs font-semibold text-text-primary uppercase tracking-wider">
           {chartTitle}
         </h4>
         <div className="flex items-center gap-3">
-          <span className="font-mono text-sm text-[#C5C0B8]">
+          <span className="font-mono text-sm text-text-secondary">
             {lastValue.toFixed(1)} {unit}
           </span>
           {showPercentChange && percentChange !== null && (
             <span className={`font-mono text-xs px-2 py-0.5 rounded-full ${
-              percentChange > 5 ? "bg-[#E85A6B]/15 text-[#E85A6B]" :
-              percentChange < -5 ? "bg-[#2DD4BF]/15 text-[#2DD4BF]" :
-              "bg-[#C9A227]/15 text-[#C9A227]"
+              percentChange > 5 ? "bg-critical/15 text-critical" :
+              percentChange < -5 ? "bg-success/15 text-success" :
+              "bg-accent/15 text-accent"
             }`}>
               {percentChange > 0 ? "+" : ""}{percentChange.toFixed(1)}%
             </span>
@@ -209,16 +209,16 @@ export function MeasurementTrendChart({
 
       <ResponsiveContainer width="100%" height={height}>
         <ComposedChart data={data} margin={{ top: 8, right: 12, bottom: 0, left: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#232328" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--surface-elevated)" vertical={false} />
           <XAxis
             dataKey="date"
             tickFormatter={formatDateShort}
-            tick={{ fill: "#8A857D", fontSize: 10 }}
-            axisLine={{ stroke: "#232328" }}
+            tick={{ fill: "var(--text-muted)", fontSize: 10 }}
+            axisLine={{ stroke: "var(--surface-elevated)" }}
             tickLine={false}
           />
           <YAxis
-            tick={{ fill: "#8A857D", fontSize: 10 }}
+            tick={{ fill: "var(--text-muted)", fontSize: 10 }}
             axisLine={false}
             tickLine={false}
             width={55}
@@ -230,12 +230,12 @@ export function MeasurementTrendChart({
           {showBaseline && baselineValue > 0 && (
             <ReferenceLine
               y={baselineValue}
-              stroke="#5A5650"
+              stroke="var(--text-ghost)"
               strokeDasharray="6 4"
               label={{
                 value: `Baseline: ${baselineValue.toFixed(1)}`,
                 position: "right",
-                fill: "#5A5650",
+                fill: "var(--text-ghost)",
                 fontSize: 9,
               }}
             />
@@ -260,8 +260,8 @@ export function MeasurementTrendChart({
               name={name}
               stroke={TREND_COLORS[i % TREND_COLORS.length]}
               strokeWidth={2}
-              dot={{ r: 4, fill: TREND_COLORS[i % TREND_COLORS.length], stroke: "#151518", strokeWidth: 2 }}
-              activeDot={{ r: 6, fill: TREND_COLORS[i % TREND_COLORS.length], stroke: "#151518", strokeWidth: 2 }}
+              dot={{ r: 4, fill: TREND_COLORS[i % TREND_COLORS.length], stroke: "var(--surface-raised)", strokeWidth: 2 }}
+              activeDot={{ r: 6, fill: TREND_COLORS[i % TREND_COLORS.length], stroke: "var(--surface-raised)", strokeWidth: 2 }}
               connectNulls
             />
           ))}
@@ -270,11 +270,11 @@ export function MeasurementTrendChart({
 
       {/* Series legend for multiple lesions */}
       {seriesNames.length > 1 && (
-        <div className="flex flex-wrap gap-3 mt-2 pt-2 border-t border-[#232328]">
+        <div className="flex flex-wrap gap-3 mt-2 pt-2 border-t border-border-default">
           {seriesNames.map((name, i) => (
             <div key={name} className="flex items-center gap-1.5">
               <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: TREND_COLORS[i % TREND_COLORS.length] }} />
-              <span className="text-[10px] text-[#8A857D]">{name}</span>
+              <span className="text-[10px] text-text-muted">{name}</span>
             </div>
           ))}
         </div>
@@ -294,7 +294,7 @@ export function MultiTrendChart({ measurements, height = 200 }: MultiTrendChartP
 
   if (measurementTypes.length === 0) {
     return (
-      <div className="rounded-xl border border-[#232328] bg-[#151518] p-6 text-center text-sm text-[#5A5650]">
+      <div className="rounded-xl border border-border-default bg-surface-raised p-6 text-center text-sm text-text-ghost">
         No measurements recorded. Use AI Auto-Extract or enter measurements manually on individual studies.
       </div>
     );
@@ -303,8 +303,8 @@ export function MultiTrendChart({ measurements, height = 200 }: MultiTrendChartP
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">Measurement Trends</h3>
-        <span className="text-[10px] text-[#5A5650] uppercase tracking-wider">
+        <h3 className="text-sm font-semibold text-text-primary">Measurement Trends</h3>
+        <span className="text-[10px] text-text-ghost uppercase tracking-wider">
           {measurementTypes.length} type{measurementTypes.length !== 1 ? "s" : ""} · {measurements.length} data points
         </span>
       </div>

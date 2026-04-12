@@ -38,7 +38,7 @@ export function RightPanel({
   currentMember,
 }: RightPanelProps) {
   return (
-    <div className="flex w-[396px] shrink-0 flex-col overflow-hidden rounded-2xl border border-[#232328] bg-[linear-gradient(180deg,#17171c_0%,#151518_22%,#121216_100%)] shadow-[0_16px_48px_rgba(0,0,0,0.26)]">
+    <div className="flex w-[396px] shrink-0 flex-col overflow-hidden rounded-2xl border border-border-default bg-[linear-gradient(180deg,#17171c_0%,#151518_22%,#121216_100%)] shadow-[0_16px_48px_rgba(0,0,0,0.26)]">
       <div className="border-b border-white/[0.06] bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.05),transparent_45%),#17171c] px-3 py-3">
         {channel ? (
           <>
@@ -71,7 +71,7 @@ export function RightPanel({
                     className={`flex items-center gap-1.5 rounded-xl border px-2 py-2 text-[11px] font-medium transition-colors ${
                       selected
                         ? "border-primary/30 bg-primary/12 text-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
-                        : "border-[#26262c] bg-[#121216]/90 text-muted-foreground hover:border-[#31313a] hover:bg-[#18181d] hover:text-foreground"
+                        : "border-border-default bg-surface-base/90 text-muted-foreground hover:border-surface-highlight hover:bg-surface-raised hover:text-foreground"
                     }`}
                   >
                     <Icon className="h-3.5 w-3.5 shrink-0" />

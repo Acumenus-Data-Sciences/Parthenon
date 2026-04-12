@@ -9,7 +9,7 @@ export function HandoffStep() {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <div className="mb-1 text-[13px] font-medium text-[#C9A227]">
+        <div className="mb-1 text-[13px] font-medium text-accent">
           Step 3 of 3 &mdash; What&apos;s Next?
         </div>
       </div>
@@ -20,11 +20,11 @@ export function HandoffStep() {
           onClick={() => navigate("/cohort-definitions")}
           className="rounded-lg border border-[rgba(45,212,191,0.2)] bg-[rgba(45,212,191,0.05)] p-4 text-left transition-colors hover:border-[rgba(45,212,191,0.4)]"
         >
-          <div className="flex items-center gap-2 text-[13px] font-medium text-[#2DD4BF]">
+          <div className="flex items-center gap-2 text-[13px] font-medium text-success">
             <Check size={16} />
             Done &mdash; Save &amp; Close
           </div>
-          <p className="mt-1 ml-[24px] text-[12px] text-[#888]">
+          <p className="mt-1 ml-[24px] text-[12px] text-text-muted">
             Cohort is saved and ready for use in analyses and studies.
           </p>
         </button>
@@ -34,16 +34,16 @@ export function HandoffStep() {
           onClick={() => createdId ? navigate(`/cohort-definitions/${createdId}`) : navigate("/cohort-definitions")}
           className="rounded-lg border border-[rgba(201,162,39,0.2)] bg-[rgba(201,162,39,0.05)] p-4 text-left transition-colors hover:border-[rgba(201,162,39,0.4)]"
         >
-          <div className="flex items-center gap-2 text-[13px] font-medium text-[#C9A227]">
+          <div className="flex items-center gap-2 text-[13px] font-medium text-accent">
             <Wrench size={16} />
             Open in Advanced Editor
           </div>
-          <p className="mt-1 ml-[24px] text-[12px] text-[#888]">
+          <p className="mt-1 ml-[24px] text-[12px] text-text-muted">
             Fine-tune with the full expression editor. Supports nested boolean logic, custom
             temporal windows, and all advanced features.
           </p>
-          <div className="mt-2 ml-[24px] rounded bg-[#1a1a2e] p-2.5 text-[11px] text-[#666]">
-            <strong className="text-[#888]">Quick orientation:</strong> Your entry events are in
+          <div className="mt-2 ml-[24px] rounded bg-surface-overlay p-2.5 text-[11px] text-text-ghost">
+            <strong className="text-text-muted">Quick orientation:</strong> Your entry events are in
             &ldquo;Primary Criteria&rdquo;. Inclusion rules are in &ldquo;Additional
             Criteria&rdquo;. Demographics, risk scores, and specialized criteria each have their
             own section. All concept sets appear in the &ldquo;Concept Sets&rdquo; reference panel
@@ -54,13 +54,13 @@ export function HandoffStep() {
         <button
           type="button"
           onClick={() => createdId ? navigate(`/cohort-definitions/${createdId}`) : navigate("/cohort-definitions")}
-          className="rounded-lg border border-[#333] bg-[#1a1a2e] p-4 text-left transition-colors hover:border-[#555]"
+          className="rounded-lg border border-border-default bg-surface-overlay p-4 text-left transition-colors hover:border-surface-highlight"
         >
-          <div className="flex items-center gap-2 text-[13px] font-medium text-[#ccc]">
+          <div className="flex items-center gap-2 text-[13px] font-medium text-text-secondary">
             <BarChart3 size={16} />
             View Diagnostics
           </div>
-          <p className="mt-1 ml-[24px] text-[12px] text-[#888]">
+          <p className="mt-1 ml-[24px] text-[12px] text-text-muted">
             See attrition chart, patient breakdown by age/gender, and detailed generation
             statistics.
           </p>

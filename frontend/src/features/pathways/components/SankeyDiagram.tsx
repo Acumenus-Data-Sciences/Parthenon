@@ -4,16 +4,16 @@ import type { PathwayResult, PathwayEntry } from "../types/pathway";
 
 // Color palette for event cohorts
 const COHORT_COLORS = [
-  "#2DD4BF", // teal
-  "#C9A227", // gold
-  "#E85A6B", // crimson
-  "#818CF8", // indigo
-  "#F59E0B", // amber
-  "#94A3B8", // gray
-  "#A78BFA", // violet
-  "#34D399", // emerald
-  "#FB923C", // orange
-  "#F472B6", // pink
+  "var(--success)", // teal
+  "var(--accent)", // gold
+  "var(--critical)", // crimson
+  "var(--info)", // indigo
+  "var(--warning)", // amber
+  "var(--text-muted)", // gray
+  "var(--domain-observation)", // violet
+  "var(--success)", // emerald
+  "var(--domain-device)", // orange
+  "var(--domain-procedure)", // pink
 ];
 
 function getCohortColor(index: number): string {
@@ -66,8 +66,8 @@ export function SankeyDiagram({
 
   if (topPathways.length === 0) {
     return (
-      <div className="flex items-center justify-center h-48 rounded-lg border border-dashed border-[#323238] bg-[#151518]">
-        <p className="text-sm text-[#8A857D]">No pathway data available</p>
+      <div className="flex items-center justify-center h-48 rounded-lg border border-dashed border-surface-highlight bg-surface-raised">
+        <p className="text-sm text-text-muted">No pathway data available</p>
       </div>
     );
   }
@@ -76,27 +76,27 @@ export function SankeyDiagram({
     <div className="space-y-4">
       {/* Summary */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-3">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-3">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-text-muted">
             Unique Pathways
           </p>
-          <p className="mt-1 text-xl font-bold text-[#2DD4BF]">
+          <p className="mt-1 text-xl font-bold text-success">
             {result.summary.unique_pathways.toLocaleString()}
           </p>
         </div>
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-3">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-3">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-text-muted">
             With Events
           </p>
-          <p className="mt-1 text-xl font-bold text-[#C9A227]">
+          <p className="mt-1 text-xl font-bold text-accent">
             {result.summary.persons_with_events.toLocaleString()}
           </p>
         </div>
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-3">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-3">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-text-muted">
             Without Events
           </p>
-          <p className="mt-1 text-xl font-bold text-[#8A857D]">
+          <p className="mt-1 text-xl font-bold text-text-muted">
             {result.summary.persons_without_events.toLocaleString()}
           </p>
         </div>
@@ -110,32 +110,32 @@ export function SankeyDiagram({
               className="w-3 h-3 rounded-sm shrink-0"
               style={{ backgroundColor: colorMap[name] }}
             />
-            <span className="text-xs text-[#C5C0B8]">{name}</span>
+            <span className="text-xs text-text-secondary">{name}</span>
           </div>
         ))}
       </div>
 
       {/* Stacked Bar Pathway Visualization */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+      <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
         {/* Step headers */}
-        <div className="flex items-center bg-[#1C1C20] border-b border-[#232328]">
-          <div className="w-12 shrink-0 px-2 py-2 text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
+        <div className="flex items-center bg-surface-overlay border-b border-border-default">
+          <div className="w-12 shrink-0 px-2 py-2 text-[10px] font-semibold uppercase tracking-wider text-text-muted">
             #
           </div>
           <div className="flex-1 flex">
             {Array.from({ length: maxSteps }).map((_, i) => (
               <div
                 key={i}
-                className="flex-1 px-2 py-2 text-[10px] font-semibold uppercase tracking-wider text-[#8A857D] text-center"
+                className="flex-1 px-2 py-2 text-[10px] font-semibold uppercase tracking-wider text-text-muted text-center"
               >
                 Step {i + 1}
               </div>
             ))}
           </div>
-          <div className="w-20 shrink-0 px-2 py-2 text-[10px] font-semibold uppercase tracking-wider text-[#8A857D] text-right">
+          <div className="w-20 shrink-0 px-2 py-2 text-[10px] font-semibold uppercase tracking-wider text-text-muted text-right">
             Count
           </div>
-          <div className="w-16 shrink-0 px-2 py-2 text-[10px] font-semibold uppercase tracking-wider text-[#8A857D] text-right">
+          <div className="w-16 shrink-0 px-2 py-2 text-[10px] font-semibold uppercase tracking-wider text-text-muted text-right">
             %
           </div>
         </div>
@@ -154,21 +154,21 @@ export function SankeyDiagram({
               onMouseLeave={() => setHoveredRow(null)}
               onClick={() => onPathwaySelect?.(entry)}
               className={cn(
-                "flex items-center border-t border-[#1C1C20] transition-colors cursor-pointer",
-                rowIdx % 2 === 0 ? "bg-[#151518]" : "bg-[#1A1A1E]",
-                isHovered && "bg-[#1C1C20]",
+                "flex items-center border-t border-border-subtle transition-colors cursor-pointer",
+                rowIdx % 2 === 0 ? "bg-surface-raised" : "bg-surface-overlay",
+                isHovered && "bg-surface-overlay",
                 isSelected && "ring-1 ring-inset ring-[#2DD4BF]/30",
               )}
             >
               {/* Rank */}
-              <div className="w-12 shrink-0 px-2 py-2.5 text-xs text-[#5A5650] font-mono">
+              <div className="w-12 shrink-0 px-2 py-2.5 text-xs text-text-ghost font-mono">
                 {rowIdx + 1}
               </div>
 
               {/* Steps - stacked bar */}
               <div className="flex-1 flex items-center py-1.5 gap-0.5">
                 {entry.path.map((step, stepIdx) => {
-                  const color = colorMap[step] ?? "#5A5650";
+                  const color = colorMap[step] ?? "var(--text-ghost)";
                   const widthPercent =
                     ((entry.count / maxCount) * 100) / entry.path.length;
 
@@ -197,14 +197,14 @@ export function SankeyDiagram({
                       </div>
                       {/* Tooltip */}
                       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block z-10">
-                        <div className="rounded-md bg-[#0E0E11] border border-[#323238] px-2 py-1 shadow-lg whitespace-nowrap">
+                        <div className="rounded-md bg-surface-base border border-surface-highlight px-2 py-1 shadow-lg whitespace-nowrap">
                           <p
                             className="text-[10px] font-medium"
                             style={{ color }}
                           >
                             {step}
                           </p>
-                          <p className="text-[9px] text-[#8A857D]">
+                          <p className="text-[9px] text-text-muted">
                             Step {stepIdx + 1} of {entry.path.length}
                           </p>
                         </div>
@@ -221,20 +221,20 @@ export function SankeyDiagram({
               </div>
 
               {/* Count */}
-              <div className="w-20 shrink-0 px-2 py-2.5 text-xs text-[#C5C0B8] text-right font-mono">
+              <div className="w-20 shrink-0 px-2 py-2.5 text-xs text-text-secondary text-right font-mono">
                 {entry.count.toLocaleString()}
               </div>
 
               {/* Percent */}
               <div className="w-16 shrink-0 px-2 py-2.5 text-right">
                 <div className="flex items-center justify-end gap-1.5">
-                  <div className="w-8 h-1 rounded-full bg-[#232328] overflow-hidden">
+                  <div className="w-8 h-1 rounded-full bg-surface-elevated overflow-hidden">
                     <div
-                      className="h-full rounded-full bg-[#2DD4BF]"
+                      className="h-full rounded-full bg-success"
                       style={{ width: `${Math.min(entry.percent, 100)}%` }}
                     />
                   </div>
-                  <span className="text-[10px] text-[#8A857D] font-mono w-10 text-right">
+                  <span className="text-[10px] text-text-muted font-mono w-10 text-right">
                     {entry.percent.toFixed(1)}%
                   </span>
                 </div>

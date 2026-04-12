@@ -42,7 +42,7 @@ export function OnlineUsers({ users }: OnlineUsersProps) {
       </p>
 
       {currentUser && (
-        <div className="mb-3 rounded-xl border border-[#232328] bg-[#111115] px-3 py-2.5">
+        <div className="mb-3 rounded-xl border border-border-default bg-surface-base px-3 py-2.5">
           <div className="flex items-center gap-2">
             <UserAvatar user={currentUser} size="sm" />
             <div className="min-w-0">
@@ -71,7 +71,7 @@ export function OnlineUsers({ users }: OnlineUsersProps) {
 
       <div className="flex flex-col gap-0.5">
         {visibleUsers.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-[#2A2A30] bg-[#111115] px-3 py-3 text-[12px] text-muted-foreground">
+          <div className="rounded-xl border border-dashed border-border-default bg-surface-base px-3 py-3 text-[12px] text-muted-foreground">
             No other users are active in Commons right now.
           </div>
         ) : (

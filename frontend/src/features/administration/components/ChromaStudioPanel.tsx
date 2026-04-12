@@ -203,8 +203,8 @@ export default function ChromaStudioPanel() {
           <div className="flex items-center gap-3">
             <Database className="h-5 w-5" style={{ color: selectedTheme.accent }} />
             <div>
-              <p className="font-semibold text-[#F0EDE8]">Chroma Collection Studio</p>
-              <p className="mt-0.5 text-sm text-[#8A857D]">
+              <p className="font-semibold text-text-primary">Chroma Collection Studio</p>
+              <p className="mt-0.5 text-sm text-text-muted">
                 Inspect vector collections, run semantic queries, and manage ingestion
               </p>
             </div>
@@ -219,7 +219,7 @@ export default function ChromaStudioPanel() {
           <select
             value={selectedCollection}
             onChange={(e) => setSelectedCollection(e.target.value)}
-            className="rounded border border-[#232328] bg-[#0E0E11] px-2.5 py-1.5 text-sm text-[#E8E4DC] outline-none transition focus:border-[#C9A227]/50"
+            className="rounded border border-border-default bg-surface-base px-2.5 py-1.5 text-sm text-text-primary outline-none transition focus:border-accent/50"
           >
             {loadingCollections ? <option>Loading...</option> : null}
             {collections.map((c) => (
@@ -234,7 +234,7 @@ export default function ChromaStudioPanel() {
             onClick={() => loadCollections()}
             disabled={loadingCollections}
             title="Refresh collections"
-            className="inline-flex items-center gap-1 rounded px-2 py-1 text-sm text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#232328] transition-colors disabled:opacity-40"
+            className="inline-flex items-center gap-1 rounded px-2 py-1 text-sm text-text-muted hover:text-text-primary hover:bg-surface-elevated transition-colors disabled:opacity-40"
           >
             {loadingCollections
               ? <Loader2 size={14} className="animate-spin" />
@@ -246,7 +246,7 @@ export default function ChromaStudioPanel() {
               key={action.key}
               onClick={() => runAction(action.key, action.fn)}
               disabled={actionLoading !== null}
-              className="inline-flex items-center gap-1 rounded px-2 py-1 text-sm text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#232328] transition-colors disabled:opacity-40"
+              className="inline-flex items-center gap-1 rounded px-2 py-1 text-sm text-text-muted hover:text-text-primary hover:bg-surface-elevated transition-colors disabled:opacity-40"
             >
               {actionLoading === action.key
                 ? <Loader2 size={14} className="animate-spin" />
@@ -265,18 +265,18 @@ export default function ChromaStudioPanel() {
               { label: "Dimensions", value: stats.dimension ? fmt(stats.dimension) : "--" },
               { label: "Meta Fields", value: fmt(stats.metadataFieldCount) },
             ].map((cell) => (
-              <div key={cell.label} className="rounded-lg bg-[#0E0E11] px-2.5 py-2 text-center">
-                <div className="text-sm font-medium text-[#F0EDE8] font-['IBM_Plex_Mono',monospace]">
+              <div key={cell.label} className="rounded-lg bg-surface-base px-2.5 py-2 text-center">
+                <div className="text-sm font-medium text-text-primary font-['IBM_Plex_Mono',monospace]">
                   {cell.value}
                 </div>
-                <div className="text-xs text-[#5A5650]">{cell.label}</div>
+                <div className="text-xs text-text-ghost">{cell.label}</div>
               </div>
             ))}
           </div>
         )}
 
         {loadingOverview && (
-          <div className="mt-3 flex items-center gap-2 text-sm text-[#8A857D]">
+          <div className="mt-3 flex items-center gap-2 text-sm text-text-muted">
             <Loader2 className="h-3 w-3 animate-spin" />
             Loading collection data...
           </div>
@@ -299,7 +299,7 @@ export default function ChromaStudioPanel() {
       )}
 
       {error && (
-        <div className="flex items-center gap-2 rounded border border-[#E85A6B]/20 bg-[#E85A6B]/5 px-3 py-2 text-sm text-[#E85A6B]">
+        <div className="flex items-center gap-2 rounded border border-critical/20 bg-critical/5 px-3 py-2 text-sm text-critical">
           <AlertCircle size={14} />
           {error}
         </div>
@@ -309,12 +309,12 @@ export default function ChromaStudioPanel() {
       {overview && overview.count === 0 && (
         <Panel>
           <div className="flex flex-col items-center gap-3 py-6 text-center">
-            <Database className="h-8 w-8 text-[#5A5650]" />
+            <Database className="h-8 w-8 text-text-ghost" />
             <div>
-              <p className="text-sm font-medium text-[#C5C0B8]">
+              <p className="text-sm font-medium text-text-secondary">
                 This collection is empty
               </p>
-              <p className="mt-1 text-sm text-[#5A5650]">
+              <p className="mt-1 text-sm text-text-ghost">
                 Use the Ingest actions above to populate &ldquo;{selectedCollection}&rdquo; with documents.
               </p>
             </div>
@@ -326,7 +326,7 @@ export default function ChromaStudioPanel() {
       {overview && overview.count > 0 && (
         <div className="space-y-4">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex gap-1 rounded border border-[#232328] bg-[#0E0E11] p-1">
+            <div className="flex gap-1 rounded border border-border-default bg-surface-base p-1">
               {TABS.map((tab) => (
                 <button
                   key={tab.key}
@@ -334,7 +334,7 @@ export default function ChromaStudioPanel() {
                   className={`flex items-center gap-1.5 rounded px-3 py-1.5 text-sm font-medium transition ${
                     activeTab === tab.key
                       ? ""
-                      : "text-[#5A5650] hover:text-[#8A857D]"
+                      : "text-text-ghost hover:text-text-muted"
                   }`}
                   style={activeTab === tab.key ? { background: selectedTheme.bg, color: selectedTheme.text } : undefined}
                 >
@@ -345,7 +345,7 @@ export default function ChromaStudioPanel() {
             </div>
             <div className="flex items-center gap-2">
               <div className="relative flex-1 lg:w-72">
-                <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5A5650]" />
+                <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-ghost" />
                 <input
                   value={searchText}
                   onChange={(e) => setSearchText(e.target.value)}
@@ -353,16 +353,16 @@ export default function ChromaStudioPanel() {
                   onFocus={() => queryHistory.length > 0 && setShowHistory(true)}
                   onBlur={() => setTimeout(() => setShowHistory(false), 200)}
                   placeholder="Semantic query..."
-                  className="w-full rounded border border-[#232328] bg-[#0E0E11] py-1.5 pl-8 pr-2.5 text-sm text-[#E8E4DC] outline-none transition focus:border-[#C9A227]/50"
+                  className="w-full rounded border border-border-default bg-surface-base py-1.5 pl-8 pr-2.5 text-sm text-text-primary outline-none transition focus:border-accent/50"
                 />
                 {/* Query history dropdown */}
                 {showHistory && queryHistory.length > 0 && (
-                  <div className="absolute left-0 top-full z-30 mt-1 w-full rounded border border-[#232328] bg-[#151518] shadow-xl">
-                    <div className="flex items-center justify-between px-2.5 py-1.5 text-xs text-[#5A5650]">
+                  <div className="absolute left-0 top-full z-30 mt-1 w-full rounded border border-border-default bg-surface-raised shadow-xl">
+                    <div className="flex items-center justify-between px-2.5 py-1.5 text-xs text-text-ghost">
                       <span className="flex items-center gap-1"><Clock size={10} /> Recent queries</span>
                       <button
                         onMouseDown={(e) => { e.preventDefault(); setQueryHistory([]); setShowHistory(false); }}
-                        className="text-[#5A5650] hover:text-[#E85A6B]"
+                        className="text-text-ghost hover:text-critical"
                       >
                         <X size={10} />
                       </button>
@@ -371,7 +371,7 @@ export default function ChromaStudioPanel() {
                       <button
                         key={q}
                         onMouseDown={(e) => { e.preventDefault(); runQuery(q); }}
-                        className="block w-full px-2.5 py-1.5 text-left text-sm text-[#C5C0B8] hover:bg-[#232328] truncate"
+                        className="block w-full px-2.5 py-1.5 text-left text-sm text-text-secondary hover:bg-surface-elevated truncate"
                       >
                         {q}
                       </button>
@@ -380,14 +380,14 @@ export default function ChromaStudioPanel() {
                 )}
               </div>
               <div className="flex items-center gap-1">
-                <span className="text-xs text-[#5A5650]">K:</span>
+                <span className="text-xs text-text-ghost">K:</span>
                 <input
                   type="number"
                   min={1}
                   max={50}
                   value={nResults}
                   onChange={(e) => setNResults(Math.max(1, Math.min(50, Number(e.target.value) || 1)))}
-                  className="w-12 rounded border border-[#232328] bg-[#0E0E11] px-1.5 py-1.5 text-center text-sm text-[#E8E4DC] outline-none transition focus:border-[#C9A227]/50"
+                  className="w-12 rounded border border-border-default bg-surface-base px-1.5 py-1.5 text-center text-sm text-text-primary outline-none transition focus:border-accent/50"
                 />
               </div>
               <Button
@@ -419,7 +419,7 @@ function OverviewSection({ overview }: { overview: CollectionOverview }) {
       {/* Facets */}
       {overview.facets.length > 0 && (
         <Panel>
-          <h3 className="mb-3 text-base font-semibold text-[#F0EDE8]">Facet Distribution</h3>
+          <h3 className="mb-3 text-base font-semibold text-text-primary">Facet Distribution</h3>
           <div className="grid gap-3 md:grid-cols-2">
             {overview.facets.map((facet) => (
               <FacetCard key={facet.key} facet={facet} />
@@ -430,14 +430,14 @@ function OverviewSection({ overview }: { overview: CollectionOverview }) {
 
       {/* Sample records */}
       <Panel>
-        <h3 className="mb-3 text-base font-semibold text-[#F0EDE8]">
+        <h3 className="mb-3 text-base font-semibold text-text-primary">
           Sample Records
-          <span className="ml-2 text-sm font-normal text-[#5A5650]">
+          <span className="ml-2 text-sm font-normal text-text-ghost">
             ({overview.sampleRecords.length} sampled)
           </span>
         </h3>
         {overview.sampleRecords.length === 0 ? (
-          <p className="text-sm text-[#5A5650]">No records in this collection.</p>
+          <p className="text-sm text-text-ghost">No records in this collection.</p>
         ) : (
           <div className="space-y-2">
             {overview.sampleRecords.slice(0, 8).map((record) => (
@@ -450,12 +450,12 @@ function OverviewSection({ overview }: { overview: CollectionOverview }) {
       {/* Collection metadata */}
       {Object.keys(overview.collectionMetadata ?? {}).length > 0 && (
         <Panel>
-          <h3 className="mb-3 text-base font-semibold text-[#F0EDE8]">Collection Metadata</h3>
+          <h3 className="mb-3 text-base font-semibold text-text-primary">Collection Metadata</h3>
           <div className="space-y-1.5">
             {Object.entries(overview.collectionMetadata ?? {}).map(([k, v]) => (
-              <div key={k} className="flex items-center justify-between rounded bg-[#0E0E11] px-2.5 py-1.5 text-sm">
-                <span className="font-['IBM_Plex_Mono',monospace] text-[#2DD4BF]">{k}</span>
-                <span className="text-[#8A857D]">{typeof v === "string" ? v : JSON.stringify(v)}</span>
+              <div key={k} className="flex items-center justify-between rounded bg-surface-base px-2.5 py-1.5 text-sm">
+                <span className="font-['IBM_Plex_Mono',monospace] text-success">{k}</span>
+                <span className="text-text-muted">{typeof v === "string" ? v : JSON.stringify(v)}</span>
               </div>
             ))}
           </div>
@@ -476,8 +476,8 @@ function SearchSection({ searchResults, queryLoading, searchText }: {
     return (
       <Panel>
         <div className="flex flex-col items-center gap-3 py-8 text-center">
-          <Search className="h-6 w-6 text-[#5A5650]" />
-          <p className="text-sm text-[#8A857D]">Enter a query above and click Query to inspect retrieval results.</p>
+          <Search className="h-6 w-6 text-text-ghost" />
+          <p className="text-sm text-text-muted">Enter a query above and click Query to inspect retrieval results.</p>
         </div>
       </Panel>
     );
@@ -487,9 +487,9 @@ function SearchSection({ searchResults, queryLoading, searchText }: {
     <div className="space-y-3">
       {/* Summary */}
       {searchResults && (
-        <div className="flex items-center gap-3 text-sm text-[#8A857D]">
-          <span>Query: <span className="text-[#E8E4DC]">{searchText}</span></span>
-          <span className="rounded bg-[#0E0E11] px-1.5 py-0.5 font-['IBM_Plex_Mono',monospace] text-[#2DD4BF]">
+        <div className="flex items-center gap-3 text-sm text-text-muted">
+          <span>Query: <span className="text-text-primary">{searchText}</span></span>
+          <span className="rounded bg-surface-base px-1.5 py-0.5 font-['IBM_Plex_Mono',monospace] text-success">
             {searchResults.elapsedMs ?? "--"} ms
           </span>
           <span>{searchResults.items.length} results</span>
@@ -497,7 +497,7 @@ function SearchSection({ searchResults, queryLoading, searchText }: {
       )}
 
       {queryLoading && (
-        <div className="flex items-center gap-2 text-sm text-[#8A857D]">
+        <div className="flex items-center gap-2 text-sm text-text-muted">
           <Loader2 className="h-3 w-3 animate-spin" />
           Querying...
         </div>
@@ -509,18 +509,18 @@ function SearchSection({ searchResults, queryLoading, searchText }: {
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <div className="mb-1.5 flex items-center gap-2">
-                <span className="rounded bg-[#2DD4BF]/15 px-1.5 py-0.5 text-xs font-medium text-[#2DD4BF]">
+                <span className="rounded bg-success/15 px-1.5 py-0.5 text-xs font-medium text-success">
                   #{index + 1}
                 </span>
-                <span className="truncate font-['IBM_Plex_Mono',monospace] text-xs text-[#5A5650]">{item.id}</span>
+                <span className="truncate font-['IBM_Plex_Mono',monospace] text-xs text-text-ghost">{item.id}</span>
               </div>
-              <p className="line-clamp-3 text-sm leading-relaxed text-[#C5C0B8]">
+              <p className="line-clamp-3 text-sm leading-relaxed text-text-secondary">
                 {item.document || "No document returned."}
               </p>
             </div>
-            <div className="shrink-0 rounded bg-[#0E0E11] px-2.5 py-1.5 text-center">
-              <div className="text-xs text-[#5A5650]">distance</div>
-              <div className="font-['IBM_Plex_Mono',monospace] text-sm font-medium text-[#F0EDE8]">
+            <div className="shrink-0 rounded bg-surface-base px-2.5 py-1.5 text-center">
+              <div className="text-xs text-text-ghost">distance</div>
+              <div className="font-['IBM_Plex_Mono',monospace] text-sm font-medium text-text-primary">
                 {typeof item.distance === "number" ? item.distance.toFixed(4) : "--"}
               </div>
             </div>
@@ -543,16 +543,16 @@ function SearchSection({ searchResults, queryLoading, searchText }: {
 function FacetCard({ facet }: { facet: MetadataFacet }) {
   const max = Math.max(...facet.values.map((v) => v.count), 1);
   return (
-    <div className="rounded border border-[#232328] bg-[#0E0E11] p-3">
-      <div className="mb-2 text-sm font-medium text-[#C5C0B8]">{facet.key}</div>
+    <div className="rounded border border-border-default bg-surface-base p-3">
+      <div className="mb-2 text-sm font-medium text-text-secondary">{facet.key}</div>
       <div className="space-y-2">
         {facet.values.map((entry) => (
           <div key={entry.label}>
-            <div className="mb-0.5 flex items-center justify-between text-xs text-[#5A5650]">
+            <div className="mb-0.5 flex items-center justify-between text-xs text-text-ghost">
               <span className="truncate">{entry.label}</span>
               <span>{entry.count}</span>
             </div>
-            <div className="h-1 overflow-hidden rounded-full bg-[#232328]">
+            <div className="h-1 overflow-hidden rounded-full bg-surface-elevated">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-[#9B1B30] to-[#2DD4BF]"
                 style={{ width: `${(entry.count / max) * 100}%` }}
@@ -567,11 +567,11 @@ function FacetCard({ facet }: { facet: MetadataFacet }) {
 
 function RecordCard({ record }: { record: SampleRecord }) {
   return (
-    <div className="rounded border border-[#232328] bg-[#0E0E11] p-3">
-      <div className="mb-1.5 font-['IBM_Plex_Mono',monospace] text-xs text-[#2DD4BF] truncate">
+    <div className="rounded border border-border-default bg-surface-base p-3">
+      <div className="mb-1.5 font-['IBM_Plex_Mono',monospace] text-xs text-success truncate">
         {record.id}
       </div>
-      <p className="line-clamp-2 text-sm leading-relaxed text-[#8A857D]">
+      <p className="line-clamp-2 text-sm leading-relaxed text-text-muted">
         {record.document || "No document text available."}
       </p>
       {record.metadata && Object.keys(record.metadata).length > 0 && (
@@ -589,8 +589,8 @@ function RecordCard({ record }: { record: SampleRecord }) {
 
 function MetadataTag({ k, v }: { k: string; v: Json }) {
   return (
-    <span className="inline-flex rounded bg-[#232328] px-1.5 py-0.5 text-xs text-[#5A5650]">
-      <span className="text-[#8A857D]">{k}:</span>
+    <span className="inline-flex rounded bg-surface-elevated px-1.5 py-0.5 text-xs text-text-ghost">
+      <span className="text-text-muted">{k}:</span>
       <span className="ml-0.5 truncate max-w-[180px]">{compact(v)}</span>
     </span>
   );

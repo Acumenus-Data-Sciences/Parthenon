@@ -21,7 +21,7 @@ export function CrossLinkBadge({ pinId, crossLinks }: CrossLinkBadgeProps) {
         style={{
           backgroundColor: "rgba(45, 212, 191, 0.1)",
           borderColor: "rgba(45, 212, 191, 0.3)",
-          color: "#2DD4BF",
+          color: "var(--success)",
         }}
       >
         <span>🔗</span>
@@ -33,7 +33,7 @@ export function CrossLinkBadge({ pinId, crossLinks }: CrossLinkBadgeProps) {
           className="absolute bottom-full left-1/2 mb-2 z-50 min-w-[180px] max-w-xs rounded-xl border border-border-default shadow-xl text-xs"
           style={{
             transform: "translateX(-50%)",
-            backgroundColor: "#18181b",
+            backgroundColor: "var(--surface-raised)",
           }}
         >
           <div className="px-3 py-2 border-b border-border-default">
@@ -46,7 +46,7 @@ export function CrossLinkBadge({ pinId, crossLinks }: CrossLinkBadgeProps) {
                   className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded"
                   style={{
                     backgroundColor: "rgba(155, 27, 48, 0.2)",
-                    color: "#9B1B30",
+                    color: "var(--primary)",
                     border: "1px solid rgba(155, 27, 48, 0.3)",
                   }}
                 >
@@ -60,7 +60,7 @@ export function CrossLinkBadge({ pinId, crossLinks }: CrossLinkBadgeProps) {
           {/* Arrow */}
           <div
             className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent"
-            style={{ borderTopColor: "#3f3f46" }}
+            style={{ borderTopColor: "var(--surface-highlight)" }}
           />
         </div>
       )}

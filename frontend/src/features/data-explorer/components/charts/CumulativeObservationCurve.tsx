@@ -26,8 +26,8 @@ function CustomTooltip({
   const d = payload[0].payload;
   return (
     <div className={TOOLTIP_CLS}>
-      <p className="text-xs text-[#8A857D]">{d.label}</p>
-      <p className="font-['IBM_Plex_Mono',monospace] text-xs text-[#F0EDE8]">
+      <p className="text-xs text-text-muted">{d.label}</p>
+      <p className="font-['IBM_Plex_Mono',monospace] text-xs text-text-primary">
         {formatCompact(d.days)} days — {d.pct}% of persons
       </p>
     </div>

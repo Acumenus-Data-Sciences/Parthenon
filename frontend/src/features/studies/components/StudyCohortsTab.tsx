@@ -13,12 +13,12 @@ import type { StudyCohort } from "../types/study";
 const COHORT_ROLES = ["target", "comparator", "outcome", "exclusion", "subgroup", "event"] as const;
 
 const ROLE_COLORS: Record<string, string> = {
-  target: "#2DD4BF",
-  comparator: "#60A5FA",
-  outcome: "#E85A6B",
-  exclusion: "#F59E0B",
-  subgroup: "#34D399",
-  event: "#A78BFA",
+  target: "var(--success)",
+  comparator: "var(--info)",
+  outcome: "var(--critical)",
+  exclusion: "var(--warning)",
+  subgroup: "var(--success)",
+  event: "var(--domain-observation)",
 };
 
 interface StudyCohortsTabProps {
@@ -94,13 +94,13 @@ export function StudyCohortsTab({ slug }: StudyCohortsTabProps) {
   };
 
   if (isLoading) {
-    return <div className="flex items-center justify-center py-16"><Loader2 size={24} className="animate-spin text-[#8A857D]" /></div>;
+    return <div className="flex items-center justify-center py-16"><Loader2 size={24} className="animate-spin text-text-muted" /></div>;
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-[#C5C0B8]">Cohorts ({cohorts?.length ?? 0})</h3>
+        <h3 className="text-sm font-semibold text-text-secondary">Cohorts ({cohorts?.length ?? 0})</h3>
         <button type="button" onClick={() => setShowAdd(true)} disabled={showAdd} className="btn btn-primary btn-sm">
           <Plus size={14} /> Assign Cohort
         </button>
@@ -109,13 +109,13 @@ export function StudyCohortsTab({ slug }: StudyCohortsTabProps) {
       {/* Add cohort form */}
       {showAdd && (
         <div className="panel space-y-3">
-          <p className="text-xs font-medium text-[#C5C0B8] uppercase tracking-wider">Assign Cohort Definition</p>
+          <p className="text-xs font-medium text-text-secondary uppercase tracking-wider">Assign Cohort Definition</p>
 
           {/* Cohort search + select */}
           <div className="space-y-2">
-            <label className="text-[10px] text-[#5A5650] uppercase tracking-wider block">Cohort Definition</label>
+            <label className="text-[10px] text-text-ghost uppercase tracking-wider block">Cohort Definition</label>
             <div className="relative">
-              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]" />
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost" />
               <input
                 type="text"
                 value={cohortSearch}
@@ -126,15 +126,15 @@ export function StudyCohortsTab({ slug }: StudyCohortsTabProps) {
               />
             </div>
             {filteredCohorts.length > 0 ? (
-              <div className="max-h-36 overflow-y-auto rounded-lg border border-[#232328] bg-[#0E0E11]">
+              <div className="max-h-36 overflow-y-auto rounded-lg border border-border-default bg-surface-base">
                 {filteredCohorts.map((cd) => (
                   <button
                     key={cd.id}
                     type="button"
                     onClick={() => { setSelectedCohortId(cd.id); setCohortSearch(cd.name); }}
                     className={cn(
-                      "w-full text-left px-3 py-2 text-sm hover:bg-[#1C1C20] transition-colors",
-                      selectedCohortId === cd.id ? "bg-[#2DD4BF]/10 text-[#2DD4BF]" : "text-[#F0EDE8]",
+                      "w-full text-left px-3 py-2 text-sm hover:bg-surface-overlay transition-colors",
+                      selectedCohortId === cd.id ? "bg-success/10 text-success" : "text-text-primary",
                     )}
                   >
                     {cd.name}
@@ -142,7 +142,7 @@ export function StudyCohortsTab({ slug }: StudyCohortsTabProps) {
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-[#5A5650] py-2">
+              <p className="text-xs text-text-ghost py-2">
                 {availableCohorts.length === 0 ? "All cohort definitions are already assigned" : "No matching cohorts"}
               </p>
             )}
@@ -150,7 +150,7 @@ export function StudyCohortsTab({ slug }: StudyCohortsTabProps) {
 
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="text-[10px] text-[#5A5650] uppercase tracking-wider mb-1 block">Role</label>
+              <label className="text-[10px] text-text-ghost uppercase tracking-wider mb-1 block">Role</label>
               <select value={selectedRole} onChange={(e) => setSelectedRole(e.target.value)} className="form-input form-select w-full">
                 {COHORT_ROLES.map((r) => (
                   <option key={r} value={r}>{r}</option>
@@ -158,7 +158,7 @@ export function StudyCohortsTab({ slug }: StudyCohortsTabProps) {
               </select>
             </div>
             <div>
-              <label className="text-[10px] text-[#5A5650] uppercase tracking-wider mb-1 block">Label *</label>
+              <label className="text-[10px] text-text-ghost uppercase tracking-wider mb-1 block">Label *</label>
               <input
                 type="text"
                 value={newLabel}
@@ -168,7 +168,7 @@ export function StudyCohortsTab({ slug }: StudyCohortsTabProps) {
               />
             </div>
             <div>
-              <label className="text-[10px] text-[#5A5650] uppercase tracking-wider mb-1 block">Description</label>
+              <label className="text-[10px] text-text-ghost uppercase tracking-wider mb-1 block">Description</label>
               <input
                 type="text"
                 value={newDescription}
@@ -191,19 +191,19 @@ export function StudyCohortsTab({ slug }: StudyCohortsTabProps) {
 
       {(!cohorts || cohorts.length === 0) ? (
         <div className="empty-state">
-          <Target size={24} className="text-[#323238] mb-2" />
+          <Target size={24} className="text-text-ghost mb-2" />
           <h3 className="empty-title">No cohorts assigned</h3>
           <p className="empty-message">Assign cohort definitions and specify their roles in this study</p>
         </div>
       ) : (
         <div className="space-y-2">
           {cohorts.map((c) => {
-            const color = ROLE_COLORS[c.role] ?? "#8A857D";
+            const color = ROLE_COLORS[c.role] ?? "var(--text-muted)";
             const isEditing = editId === c.id;
             return (
               <div
                 key={c.id}
-                className="flex items-center justify-between rounded-lg border border-[#232328] bg-[#151518] px-4 py-3"
+                className="flex items-center justify-between rounded-lg border border-border-default bg-surface-raised px-4 py-3"
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   {isEditing ? (
@@ -225,7 +225,7 @@ export function StudyCohortsTab({ slug }: StudyCohortsTabProps) {
                     </span>
                   )}
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm text-[#F0EDE8] font-medium truncate">
+                    <p className="text-sm text-text-primary font-medium truncate">
                       {c.cohort_definition?.name ?? `Cohort #${c.cohort_definition_id}`}
                     </p>
                     {isEditing ? (
@@ -247,8 +247,8 @@ export function StudyCohortsTab({ slug }: StudyCohortsTabProps) {
                       </div>
                     ) : (
                       <>
-                        {c.label && <p className="text-xs text-[#5A5650]">{c.label}</p>}
-                        {c.description && <p className="text-xs text-[#8A857D] mt-0.5">{c.description}</p>}
+                        {c.label && <p className="text-xs text-text-ghost">{c.label}</p>}
+                        {c.description && <p className="text-xs text-text-muted mt-0.5">{c.description}</p>}
                       </>
                     )}
                   </div>
@@ -256,16 +256,16 @@ export function StudyCohortsTab({ slug }: StudyCohortsTabProps) {
                 <div className="flex items-center gap-1 shrink-0 ml-2">
                   {isEditing ? (
                     <>
-                      <button type="button" onClick={handleSave} className="p-1 text-[#2DD4BF]"><Save size={14} /></button>
-                      <button type="button" onClick={() => setEditId(null)} className="p-1 text-[#5A5650] hover:text-[#C5C0B8]"><X size={14} /></button>
+                      <button type="button" onClick={handleSave} className="p-1 text-success"><Save size={14} /></button>
+                      <button type="button" onClick={() => setEditId(null)} className="p-1 text-text-ghost hover:text-text-secondary"><X size={14} /></button>
                     </>
                   ) : (
                     <>
-                      <button type="button" onClick={() => startEdit(c)} className="p-1 text-[#5A5650] hover:text-[#C5C0B8]"><Edit3 size={14} /></button>
+                      <button type="button" onClick={() => startEdit(c)} className="p-1 text-text-ghost hover:text-text-secondary"><Edit3 size={14} /></button>
                       <button
                         type="button"
                         onClick={() => { if (window.confirm("Remove this cohort assignment?")) removeMutation.mutate({ slug, cohortId: c.id }); }}
-                        className="p-1 text-[#5A5650] hover:text-[#E85A6B]"
+                        className="p-1 text-text-ghost hover:text-critical"
                       >
                         <Trash2 size={14} />
                       </button>

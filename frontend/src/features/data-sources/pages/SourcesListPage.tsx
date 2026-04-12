@@ -29,7 +29,7 @@ export function SourcesListPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-[#8A857D]">Loading sources...</p>
+        <p className="text-text-muted">Loading sources...</p>
       </div>
     );
   }
@@ -37,7 +37,7 @@ export function SourcesListPage() {
   if (error) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-[#E85A6B]">Failed to load sources</p>
+        <p className="text-critical">Failed to load sources</p>
       </div>
     );
   }
@@ -46,8 +46,8 @@ export function SourcesListPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#F0EDE8]">Clinical Data Models</h1>
-          <p className="mt-1 text-sm text-[#8A857D]">
+          <h1 className="text-2xl font-bold text-text-primary">Clinical Data Models</h1>
+          <p className="mt-1 text-sm text-text-muted">
             Manage CDM connections and set your default data model
           </p>
         </div>
@@ -56,7 +56,7 @@ export function SourcesListPage() {
           <button
             type="button"
             onClick={() => setWizardOpen(true)}
-            className="flex items-center gap-1.5 rounded-lg bg-[#C9353F] px-3 py-2 text-sm font-medium text-text-primary hover:bg-[#D94550] transition-colors"
+            className="flex items-center gap-1.5 rounded-lg bg-primary-light px-3 py-2 text-sm font-medium text-text-primary hover:bg-critical transition-colors"
           >
             <Plus size={14} />
             Add Source
@@ -67,8 +67,8 @@ export function SourcesListPage() {
             className={cn(
               "inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition-colors",
               showImport
-                ? "border-[#C9A227]/40 bg-[#C9A227]/10 text-[#C9A227]"
-                : "border-[#232328] text-[#8A857D] hover:text-[#C5C0B8]",
+                ? "border-accent/40 bg-accent/10 text-accent"
+                : "border-border-default text-text-muted hover:text-text-secondary",
             )}
           >
             <Upload size={14} />
@@ -89,7 +89,7 @@ export function SourcesListPage() {
             return (
               <div
                 key={source.id}
-                className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden"
+                className="rounded-lg border border-border-default bg-surface-raised overflow-hidden"
               >
                 {/* Source row */}
                 <div className="flex items-center gap-3 w-full px-4 py-3">
@@ -100,42 +100,42 @@ export function SourcesListPage() {
                       if (isExpanded) next.delete(source.id); else next.add(source.id);
                       return next;
                     })}
-                    className="flex items-center gap-3 flex-1 min-w-0 text-left hover:bg-[#1A1A1E] transition-colors rounded-md px-1 py-0.5"
+                    className="flex items-center gap-3 flex-1 min-w-0 text-left hover:bg-surface-overlay transition-colors rounded-md px-1 py-0.5"
                   >
                     {isExpanded ? (
-                      <ChevronDown size={14} className="text-[#5A5650] shrink-0" />
+                      <ChevronDown size={14} className="text-text-ghost shrink-0" />
                     ) : (
-                      <ChevronRight size={14} className="text-[#5A5650] shrink-0" />
+                      <ChevronRight size={14} className="text-text-ghost shrink-0" />
                     )}
                     <div className="flex-1 min-w-0 grid grid-cols-4 gap-4 items-center">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-[#F0EDE8]">
+                        <span className="text-sm font-medium text-text-primary">
                           {source.source_name}
                         </span>
                         {source.imported_from_webapi && (
-                          <span className="inline-flex items-center rounded-full bg-[#818CF8]/10 px-1.5 py-0.5 text-[9px] font-medium text-[#818CF8]">
+                          <span className="inline-flex items-center rounded-full bg-info/10 px-1.5 py-0.5 text-[9px] font-medium text-info">
                             WebAPI
                           </span>
                         )}
                         {userDefaultSourceId === source.id && (
-                          <span className="inline-flex items-center gap-0.5 rounded-full bg-[#C9A227]/10 px-1.5 py-0.5 text-[9px] font-medium text-[#C9A227]">
+                          <span className="inline-flex items-center gap-0.5 rounded-full bg-accent/10 px-1.5 py-0.5 text-[9px] font-medium text-accent">
                             <Star size={8} className="fill-[#C9A227]" />
                             My Default
                           </span>
                         )}
                       </div>
-                      <span className="text-sm font-mono text-[#8A857D]">
+                      <span className="text-sm font-mono text-text-muted">
                         {source.source_key}
                       </span>
-                      <span className="text-sm text-[#8A857D]">
+                      <span className="text-sm text-text-muted">
                         {source.source_dialect}
                       </span>
                       <div className="flex items-center gap-2 justify-end">
-                        <span className="text-xs text-[#5A5650]">
+                        <span className="text-xs text-text-ghost">
                           {source.daimons?.length ?? 0} daimons
                         </span>
                         {isRestricted && (
-                          <Shield size={12} className="text-[#818CF8]" />
+                          <Shield size={12} className="text-info" />
                         )}
                       </div>
                     </div>
@@ -149,23 +149,23 @@ export function SourcesListPage() {
                     className={cn(
                       "shrink-0 inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-all border",
                       userDefaultSourceId === source.id
-                        ? "border-[#C9A227]/40 bg-[#C9A227]/10 text-[#C9A227]"
-                        : "border-[#232328] text-[#5A5650] hover:text-[#8A857D] hover:border-[#323238] hover:bg-[#1A1A1E]",
+                        ? "border-accent/40 bg-accent/10 text-accent"
+                        : "border-border-default text-text-ghost hover:text-text-muted hover:border-surface-highlight hover:bg-surface-overlay",
                     )}
                   >
                     {/* Toggle track */}
                     <div
                       className={cn(
                         "relative w-7 h-4 rounded-full transition-colors",
-                        userDefaultSourceId === source.id ? "bg-[#C9A227]" : "bg-[#323238]",
+                        userDefaultSourceId === source.id ? "bg-accent" : "bg-surface-highlight",
                       )}
                     >
                       <div
                         className={cn(
                           "absolute top-0.5 w-3 h-3 rounded-full transition-all",
                           userDefaultSourceId === source.id
-                            ? "left-3.5 bg-[#0E0E11]"
-                            : "left-0.5 bg-[#5A5650]",
+                            ? "left-3.5 bg-surface-base"
+                            : "left-0.5 bg-text-ghost",
                         )}
                       />
                     </div>
@@ -175,23 +175,23 @@ export function SourcesListPage() {
 
                 {/* Expanded detail */}
                 {isExpanded && (
-                  <div className="border-t border-[#232328] px-4 py-4 space-y-4">
+                  <div className="border-t border-border-default px-4 py-4 space-y-4">
                     {/* Daimons */}
                     {source.daimons && source.daimons.length > 0 && (
                       <div>
-                        <h4 className="text-xs font-semibold text-[#8A857D] mb-2">
+                        <h4 className="text-xs font-semibold text-text-muted mb-2">
                           Daimons
                         </h4>
                         <div className="grid grid-cols-3 gap-2">
                           {source.daimons.map((d) => (
                             <div
                               key={d.id}
-                              className="rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2"
+                              className="rounded-lg border border-border-default bg-surface-base px-3 py-2"
                             >
-                              <span className="text-xs font-medium text-[#C5C0B8] uppercase">
+                              <span className="text-xs font-medium text-text-secondary uppercase">
                                 {d.daimon_type}
                               </span>
-                              <p className="text-xs font-mono text-[#8A857D] mt-0.5">
+                              <p className="text-xs font-mono text-text-muted mt-0.5">
                                 {d.table_qualifier}
                               </p>
                             </div>
@@ -202,10 +202,10 @@ export function SourcesListPage() {
 
                     {/* Connection */}
                     <div>
-                      <h4 className="text-xs font-semibold text-[#8A857D] mb-1">
+                      <h4 className="text-xs font-semibold text-text-muted mb-1">
                         Connection
                       </h4>
-                      <p className="text-xs font-mono text-[#5A5650] break-all">
+                      <p className="text-xs font-mono text-text-ghost break-all">
                         {source.source_connection}
                       </p>
                     </div>
@@ -213,10 +213,10 @@ export function SourcesListPage() {
                     {/* Imported from */}
                     {source.imported_from_webapi && (
                       <div>
-                        <h4 className="text-xs font-semibold text-[#8A857D] mb-1">
+                        <h4 className="text-xs font-semibold text-text-muted mb-1">
                           Imported From
                         </h4>
-                        <p className="text-xs font-mono text-[#818CF8]">
+                        <p className="text-xs font-mono text-info">
                           {source.imported_from_webapi}
                         </p>
                       </div>
@@ -231,12 +231,12 @@ export function SourcesListPage() {
           })}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-12">
-          <Database size={24} className="text-[#5A5650]" />
-          <h3 className="mt-4 text-lg font-semibold text-[#F0EDE8]">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-12">
+          <Database size={24} className="text-text-ghost" />
+          <h3 className="mt-4 text-lg font-semibold text-text-primary">
             No data sources
           </h3>
-          <p className="mt-2 text-sm text-[#8A857D]">
+          <p className="mt-2 text-sm text-text-muted">
             Get started by adding your first CDM data source or importing from a
             legacy WebAPI instance.
           </p>

@@ -54,18 +54,18 @@ function CustomTooltip({
   if (!active || !payload?.length) return null;
   const item = payload[0].payload;
   return (
-    <div className="max-w-xs rounded-lg border border-[#323238] bg-[#1A1A1E] px-3 py-2 shadow-lg">
-      <p className="text-sm font-medium text-[#F0EDE8]">
+    <div className="max-w-xs rounded-lg border border-surface-highlight bg-surface-overlay px-3 py-2 shadow-lg">
+      <p className="text-sm font-medium text-text-primary">
         {item.concept_name}
       </p>
-      <p className="mt-0.5 font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
+      <p className="mt-0.5 font-['IBM_Plex_Mono',monospace] text-xs text-text-secondary">
         ID: {item.concept_id}
       </p>
-      <p className="font-['IBM_Plex_Mono',monospace] text-xs text-[#2DD4BF]">
+      <p className="font-['IBM_Plex_Mono',monospace] text-xs text-success">
         {item.count.toLocaleString()} records
       </p>
       {item.prevalence != null && (
-        <p className="font-['IBM_Plex_Mono',monospace] text-xs text-[#C9A227]">
+        <p className="font-['IBM_Plex_Mono',monospace] text-xs text-accent">
           Prevalence: {(item.prevalence * 100).toFixed(2)}%
         </p>
       )}
@@ -76,8 +76,8 @@ function CustomTooltip({
 export function TopConceptsBar({ data, onConceptClick }: TopConceptsBarProps) {
   if (!data.length) {
     return (
-      <div className="flex items-center justify-center rounded-xl border border-[#232328] bg-[#151518] py-16">
-        <p className="text-sm text-[#8A857D]">No concept data available</p>
+      <div className="flex items-center justify-center rounded-xl border border-border-default bg-surface-raised py-16">
+        <p className="text-sm text-text-muted">No concept data available</p>
       </div>
     );
   }
@@ -98,8 +98,8 @@ export function TopConceptsBar({ data, onConceptClick }: TopConceptsBarProps) {
   };
 
   return (
-    <div className="rounded-xl border border-[#232328] bg-[#151518] p-6">
-      <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[#8A857D]">
+    <div className="rounded-xl border border-border-default bg-surface-raised p-6">
+      <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-text-muted">
         Top Concepts
       </h3>
       <ResponsiveContainer width="100%" height={chartHeight}>
@@ -112,15 +112,15 @@ export function TopConceptsBar({ data, onConceptClick }: TopConceptsBarProps) {
           <XAxis
             type="number"
             tickFormatter={formatCompact}
-            tick={{ fill: "#F0EDE8", fontSize: 11 }}
-            axisLine={{ stroke: "#323238" }}
-            tickLine={{ stroke: "#323238" }}
+            tick={{ fill: "var(--text-primary)", fontSize: 11 }}
+            axisLine={{ stroke: "var(--surface-highlight)" }}
+            tickLine={{ stroke: "var(--surface-highlight)" }}
           />
           <YAxis
             type="category"
             dataKey="displayName"
             width={220}
-            tick={{ fill: "#C5C0B8", fontSize: 11 }}
+            tick={{ fill: "var(--text-secondary)", fontSize: 11 }}
             axisLine={false}
             tickLine={false}
           />
@@ -142,8 +142,8 @@ export function TopConceptsBar({ data, onConceptClick }: TopConceptsBarProps) {
               <Cell
                 key={`cell-${idx}`}
                 fill={lerpColor(
-                  "#9B1B30",
-                  "#2DD4BF",
+                  "var(--primary)",
+                  "var(--success)",
                   chartData.length > 1 ? idx / (chartData.length - 1) : 0,
                 )}
               />

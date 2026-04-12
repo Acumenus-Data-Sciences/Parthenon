@@ -16,14 +16,14 @@ export function AnalysisDrawer({ conceptId, metric }: AnalysisDrawerProps) {
 
   return (
     <div
-      className={`border-t border-[#232328] bg-[#0E0E11] transition-all duration-200 ${
+      className={`border-t border-border-default bg-surface-base transition-all duration-200 ${
         drawerOpen ? "h-52" : "h-8"
       }`}
     >
       {/* Toggle bar */}
       <button
         onClick={() => setDrawerOpen(!drawerOpen)}
-        className="flex h-8 w-full items-center justify-between px-4 text-xs text-[#8A857D] hover:text-[#E8E4DC]"
+        className="flex h-8 w-full items-center justify-between px-4 text-xs text-text-muted hover:text-text-primary"
       >
         <div className="flex items-center gap-2">
           <BarChart3 className="h-3.5 w-3.5" />
@@ -47,7 +47,7 @@ export function AnalysisDrawer({ conceptId, metric }: AnalysisDrawerProps) {
             return (
               <div
                 key={layer.id}
-                className="min-w-[320px] flex-shrink-0 rounded-lg border bg-[#141418] p-3"
+                className="min-w-[320px] flex-shrink-0 rounded-lg border bg-surface-raised p-3"
                 style={{ borderColor: `${layer.color}40` }}
               >
                 <h4

@@ -7,11 +7,11 @@ export function RiskScoresStep() {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <div className="mb-1 text-[13px] font-medium text-[#ccc]">
+        <div className="mb-1 text-[13px] font-medium text-text-secondary">
           Step 3 of 3 — Risk Scores{" "}
-          <span className="text-[11px] text-[#555]">(optional)</span>
+          <span className="text-[11px] text-text-ghost">(optional)</span>
         </div>
-        <p className="text-[13px] text-[#888]">
+        <p className="text-[13px] text-text-muted">
           Filter by any pre-computed clinical risk scores?
         </p>
       </div>
@@ -21,16 +21,16 @@ export function RiskScoresStep() {
           {riskScores.map((rs, i) => (
             <div
               key={rs._key ?? rs.id}
-              className="flex items-center justify-between rounded-md border border-[#2a2a3a] bg-[#0E0E11] px-3 py-2"
+              className="flex items-center justify-between rounded-md border border-border-default bg-surface-base px-3 py-2"
             >
-              <span className="text-[13px] text-[#ccc]">
+              <span className="text-[13px] text-text-secondary">
                 {rs.scoreName} {rs.operator} {rs.value}
                 {rs.tier && ` (Tier: ${rs.tier})`}
               </span>
               <button
                 type="button"
                 onClick={() => removeRiskScore(i)}
-                className="text-[#444] hover:text-[#E85A6B]"
+                className="text-text-disabled hover:text-critical"
               >
                 <X size={14} />
               </button>
@@ -40,21 +40,21 @@ export function RiskScoresStep() {
       )}
 
       {riskScores.length === 0 && (
-        <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-[#333] py-6 text-center">
-          <span className="text-[13px] text-[#666]">
+        <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-border-default py-6 text-center">
+          <span className="text-[13px] text-text-ghost">
             No risk score criteria added yet.
           </span>
-          <span className="text-[12px] text-[#555]">
+          <span className="text-[12px] text-text-ghost">
             Risk score criteria can be added via the{" "}
-            <strong className="text-[#C9A227]">Advanced Editor</strong> after generating
+            <strong className="text-accent">Advanced Editor</strong> after generating
             the cohort definition.
           </span>
         </div>
       )}
 
       <div className="rounded-lg border border-[rgba(201,162,39,0.15)] bg-[rgba(201,162,39,0.05)] px-4 py-3">
-        <span className="text-[13px] text-[#999]">
-          <strong className="text-[#C9A227]">Note:</strong> Risk score filtering requires
+        <span className="text-[13px] text-text-muted">
+          <strong className="text-accent">Note:</strong> Risk score filtering requires
           pre-computed risk scores from a completed analysis. If no risk score analyses have
           been run, this step can be skipped. You can add risk score criteria later in the
           Advanced Editor.

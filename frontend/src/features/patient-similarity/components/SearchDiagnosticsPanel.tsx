@@ -54,27 +54,27 @@ export function SearchDiagnosticsPanel({
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-4 gap-3">
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-3">
-        <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-[#5A5650]">
-          <Database size={12} className="text-[#2DD4BF]" />
+      <div className="rounded-lg border border-border-default bg-surface-raised p-3">
+        <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-text-ghost">
+          <Database size={12} className="text-success" />
           Candidate Pool
         </div>
-        <div className="mt-2 space-y-1.5 text-xs text-[#C5C0B8]">
+        <div className="mt-2 space-y-1.5 text-xs text-text-secondary">
           <div>Total candidates: {metadata.total_candidates ?? metadata.candidates_evaluated ?? "\u2014"}</div>
           <div>Loaded: {metadata.candidates_loaded ?? metadata.candidates_evaluated ?? "\u2014"}</div>
           <div>Returned: {metadata.returned_count ?? "\u2014"}</div>
-          <div className="text-[#8A857D]">
+          <div className="text-text-muted">
             {metadata.sql_prescored ? "SQL pre-screened before full scoring" : "Full scoring over candidate set"}
           </div>
         </div>
       </div>
 
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-3">
-        <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-[#5A5650]">
-          <Filter size={12} className="text-[#C9A227]" />
+      <div className="rounded-lg border border-border-default bg-surface-raised p-3">
+        <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-text-ghost">
+          <Filter size={12} className="text-accent" />
           Query Contract
         </div>
-        <div className="mt-2 space-y-1.5 text-xs text-[#C5C0B8]">
+        <div className="mt-2 space-y-1.5 text-xs text-text-secondary">
           <div>Filters: {formatFilters(filters)}</div>
           <div>Min score: {metadata.min_score ?? "\u2014"}</div>
           <div>Limit: {metadata.limit ?? "\u2014"}</div>
@@ -82,45 +82,45 @@ export function SearchDiagnosticsPanel({
         </div>
       </div>
 
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-3">
-        <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-[#5A5650]">
-          <GitBranch size={12} className="text-[#9B1B30]" />
+      <div className="rounded-lg border border-border-default bg-surface-raised p-3">
+        <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-text-ghost">
+          <GitBranch size={12} className="text-primary" />
           Provenance
         </div>
-        <div className="mt-2 space-y-1.5 text-xs text-[#C5C0B8]">
+        <div className="mt-2 space-y-1.5 text-xs text-text-secondary">
           <div>Vector version: {seed.feature_vector_version ?? metadata.feature_vector_version ?? "\u2014"}</div>
           <div>Seed anchor: {formatDate(seed.anchor_date ?? metadata.seed_anchor_date)}</div>
           <div>Computed: {formatDate(metadata.computed_at)}</div>
-          <div className="text-[#8A857D]">Query hash: {typeof metadata.query_hash === "string" ? metadata.query_hash.slice(0, 12) : "\u2014"}</div>
+          <div className="text-text-muted">Query hash: {typeof metadata.query_hash === "string" ? metadata.query_hash.slice(0, 12) : "\u2014"}</div>
         </div>
       </div>
 
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-3">
-        <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-[#5A5650]">
-          <Timer size={12} className="text-[#2DD4BF]" />
+      <div className="rounded-lg border border-border-default bg-surface-raised p-3">
+        <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-text-ghost">
+          <Timer size={12} className="text-success" />
           Source Readiness
         </div>
-        <div className="mt-2 space-y-1.5 text-xs text-[#C5C0B8]">
+        <div className="mt-2 space-y-1.5 text-xs text-text-secondary">
           <div>Latest vectors: {formatDate(computeStatus?.latest_computed_at)}</div>
           <div>Embeddings ready: {computeStatus ? (computeStatus.embeddings_ready ? "Yes" : "No") : "\u2014"}</div>
           <div>Recommended mode: {computeStatus?.recommended_mode ?? "\u2014"}</div>
-          <div className={computeStatus?.staleness_warning ? "text-[#E85A6B]" : "text-[#8A857D]"}>
+          <div className={computeStatus?.staleness_warning ? "text-critical" : "text-text-muted"}>
             {computeStatus?.staleness_warning ? "Vectors may be stale" : "No staleness warning"}
           </div>
         </div>
       </div>
 
       {metadata.weights && (
-        <div className="xl:col-span-4 rounded-lg border border-[#232328] bg-[#151518] p-3">
-          <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-[#5A5650]">
-            <Activity size={12} className="text-[#2DD4BF]" />
+        <div className="xl:col-span-4 rounded-lg border border-border-default bg-surface-raised p-3">
+          <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-text-ghost">
+            <Activity size={12} className="text-success" />
             Dimension Weights
           </div>
           <div className="mt-2 flex flex-wrap gap-2">
             {Object.entries(metadata.weights).map(([key, value]) => (
               <span
                 key={key}
-                className="inline-flex items-center rounded-md border border-[#2A2A30] bg-[#101014] px-2 py-1 text-xs text-[#C5C0B8]"
+                className="inline-flex items-center rounded-md border border-border-default bg-surface-base px-2 py-1 text-xs text-text-secondary"
               >
                 {key}: {value.toFixed(1)}
               </span>

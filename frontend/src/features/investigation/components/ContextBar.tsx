@@ -50,21 +50,21 @@ function ClinicalSummaryNode({
 
   if (completed > 0) {
     parts.push(
-      <span key="complete" style={{ color: "#2DD4BF" }}>
+      <span key="complete" style={{ color: "var(--success)" }}>
         {completed} complete
       </span>,
     );
   }
   if (running > 0) {
     parts.push(
-      <span key="running" style={{ color: "#C9A227" }}>
+      <span key="running" style={{ color: "var(--accent)" }}>
         {running} running
       </span>,
     );
   }
   if (failed > 0) {
     parts.push(
-      <span key="failed" style={{ color: "#9B1B30" }}>
+      <span key="failed" style={{ color: "var(--primary)" }}>
         {failed} failed
       </span>,
     );

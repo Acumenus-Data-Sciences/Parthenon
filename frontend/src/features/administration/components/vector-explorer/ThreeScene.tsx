@@ -85,7 +85,7 @@ function TopologyLines({
           new THREE.Color(collectionTheme.palette[b.cluster_id % collectionTheme.palette.length]),
           0.5,
         );
-        const neutral = new THREE.Color("#F0EDE8");
+        const neutral = new THREE.Color("var(--text-primary)");
         const similarity = Math.max(0, Math.min(1, edge.similarity));
 
         segments.push({
@@ -260,13 +260,13 @@ function PointCloud({
   }, [points.length]);
 
   const getPointColor = useCallback((point: ProjectedPoint3D) => {
-    let color = "#5A5650";
+    let color = "var(--text-ghost)";
 
     if (activeMode === "clusters") {
       color = collectionTheme.palette[point.cluster_id % collectionTheme.palette.length];
     } else if (activeMode === "query") {
       const similarity = querySimilarityMap.get(point.id);
-      color = similarity !== undefined ? getSimilarityColor(similarity) : "#1a1a1f";
+      color = similarity !== undefined ? getSimilarityColor(similarity) : "var(--surface-overlay)";
     } else if (activeMode === "qa") {
       if (outlierIds.has(point.id) && qaLayers.outliers) {
         color = QUALITY_COLORS.outlier;
@@ -480,15 +480,15 @@ export default function ThreeScene(props: ThreeSceneProps) {
               style={{ pointerEvents: "none" }}
             >
               <div
-                className="pointer-events-none whitespace-nowrap rounded bg-[#151518]/95 px-2 py-1 text-xs shadow-xl backdrop-blur"
+                className="pointer-events-none whitespace-nowrap rounded bg-surface-raised/95 px-2 py-1 text-xs shadow-xl backdrop-blur"
                 style={{ border: `1px solid ${props.collectionTheme.border}` }}
               >
                 <div className="font-['IBM_Plex_Mono',monospace]" style={{ color: props.collectionTheme.accent }}>
                   {point.id}
                 </div>
                 {Object.entries(point.metadata).slice(0, 3).map(([k, v]) => (
-                  <div key={k} className="text-[#8A857D]">
-                    {k}: <span className="text-[#C5C0B8]">{String(v)}</span>
+                  <div key={k} className="text-text-muted">
+                    {k}: <span className="text-text-secondary">{String(v)}</span>
                   </div>
                 ))}
               </div>

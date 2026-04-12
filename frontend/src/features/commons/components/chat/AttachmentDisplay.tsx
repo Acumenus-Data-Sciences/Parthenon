@@ -38,7 +38,7 @@ export function AttachmentDisplay({ attachments }: AttachmentDisplayProps) {
               href={downloadUrl(img.id)}
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative block max-w-[260px] overflow-hidden rounded-2xl border border-[#2a2a31] bg-[#111115] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-colors hover:border-[#3a3a44]"
+              className="group relative block max-w-[260px] overflow-hidden rounded-2xl border border-border-default bg-surface-base shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-colors hover:border-surface-highlight"
             >
               <img
                 src={`${API_BASE}/storage/${img.stored_path}`}
@@ -64,9 +64,9 @@ export function AttachmentDisplay({ attachments }: AttachmentDisplayProps) {
         <a
           key={file.id}
           href={downloadUrl(file.id)}
-          className="flex max-w-sm items-center gap-3 rounded-2xl border border-[#2a2a31] bg-[#111115] px-3 py-3 text-sm text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] transition-colors hover:border-[#3a3a44] hover:bg-[#15151a]"
+          className="flex max-w-sm items-center gap-3 rounded-2xl border border-border-default bg-surface-base px-3 py-3 text-sm text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] transition-colors hover:border-surface-highlight hover:bg-surface-raised"
         >
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#2f2f36] bg-[#1a1a20]">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-surface-accent bg-surface-overlay">
             {file.mime_type === "application/pdf" ? (
               <FileText className="h-4 w-4 shrink-0 text-red-400" />
             ) : (

@@ -13,18 +13,18 @@ import type { UserFilters } from "../api/adminApi";
 
 // ── Design tokens ────────────────────────────────────────────────────────────
 const ROLE_COLORS: Record<string, string> = {
-  "super-admin":      "#9B1B30",
-  "admin":            "#C9A227",
-  "researcher":       "#2DD4BF",
-  "data-steward":     "#60A5FA",
-  "mapping-reviewer": "#A78BFA",
-  "viewer":           "#8A857D",
+  "super-admin":      "var(--primary)",
+  "admin":            "var(--accent)",
+  "researcher":       "var(--success)",
+  "data-steward":     "var(--info)",
+  "mapping-reviewer": "var(--domain-observation)",
+  "viewer":           "var(--text-muted)",
 };
 
 // ── Sub-components ───────────────────────────────────────────────────────────
 
 function RoleBadge({ role }: { role: string }) {
-  const color = ROLE_COLORS[role] ?? "#8A857D";
+  const color = ROLE_COLORS[role] ?? "var(--text-muted)";
   return (
     <span
       className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium"
@@ -36,23 +36,23 @@ function RoleBadge({ role }: { role: string }) {
 }
 
 function SortIcon({ active, dir }: { active: boolean; dir: "asc" | "desc" }) {
-  if (!active) return <ChevronUp size={12} className="text-[#3A3A42]" />;
+  if (!active) return <ChevronUp size={12} className="text-text-disabled" />;
   return dir === "asc"
-    ? <ChevronUp size={12} className="text-[#2DD4BF]" />
-    : <ChevronDown size={12} className="text-[#2DD4BF]" />;
+    ? <ChevronUp size={12} className="text-success" />
+    : <ChevronDown size={12} className="text-success" />;
 }
 
 function EmptyState({ loading }: { loading: boolean }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
-      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#1C1C20]">
-        <UsersRound size={24} className="text-[#8A857D]" />
+    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
+      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-surface-overlay">
+        <UsersRound size={24} className="text-text-muted" />
       </div>
-      <h3 className="text-lg font-semibold text-[#F0EDE8]">
+      <h3 className="text-lg font-semibold text-text-primary">
         {loading ? "Loading…" : "No users found"}
       </h3>
       {!loading && (
-        <p className="mt-2 text-sm text-[#8A857D]">Try adjusting your search or filters.</p>
+        <p className="mt-2 text-sm text-text-muted">Try adjusting your search or filters.</p>
       )}
     </div>
   );
@@ -79,35 +79,35 @@ function DeleteConfirmModal({
         onClick={onCancel}
       />
       {/* Panel */}
-      <div className="relative z-10 w-full max-w-sm rounded-xl border border-[#232328] bg-[#1C1C20] shadow-xl">
+      <div className="relative z-10 w-full max-w-sm rounded-xl border border-border-default bg-surface-overlay shadow-xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#232328] px-5 py-4">
-          <h2 className="text-base font-semibold text-[#F0EDE8]">Delete user?</h2>
+        <div className="flex items-center justify-between border-b border-border-default px-5 py-4">
+          <h2 className="text-base font-semibold text-text-primary">Delete user?</h2>
           <button
             type="button"
             onClick={onCancel}
-            className="flex h-7 w-7 items-center justify-center rounded-md text-[#5A5650] transition-colors hover:bg-[#2A2A30] hover:text-[#8A857D]"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-text-ghost transition-colors hover:bg-surface-accent hover:text-text-muted"
           >
             <X size={16} />
           </button>
         </div>
         {/* Body */}
         <div className="px-5 py-4">
-          <p className="text-sm text-[#8A857D]">
-            <span className="font-semibold text-[#C5C0B8]">{user.name}</span>{" "}
-            <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#5A5650]">
+          <p className="text-sm text-text-muted">
+            <span className="font-semibold text-text-secondary">{user.name}</span>{" "}
+            <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-ghost">
               ({user.email})
             </span>{" "}
             will be permanently deleted and all their API tokens revoked.{" "}
-            <span className="text-[#E85A6B]">This cannot be undone.</span>
+            <span className="text-critical">This cannot be undone.</span>
           </p>
         </div>
         {/* Footer */}
-        <div className="flex justify-end gap-3 border-t border-[#232328] px-5 py-4">
+        <div className="flex justify-end gap-3 border-t border-border-default px-5 py-4">
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-lg border border-[#2A2A30] bg-[#151518] px-4 py-2 text-sm text-[#8A857D] transition-colors hover:border-[#3A3A42] hover:text-[#C5C0B8]"
+            className="rounded-lg border border-border-default bg-surface-raised px-4 py-2 text-sm text-text-muted transition-colors hover:border-surface-highlight hover:text-text-secondary"
           >
             Cancel
           </button>
@@ -115,7 +115,7 @@ function DeleteConfirmModal({
             type="button"
             disabled={isPending}
             onClick={onConfirm}
-            className="rounded-lg bg-[#9B1B30] px-4 py-2 text-sm font-medium text-text-primary transition-colors hover:bg-[#B52238] disabled:opacity-50"
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-text-primary transition-colors hover:bg-primary-light disabled:opacity-50"
           >
             {isPending ? "Deleting…" : "Delete"}
           </button>
@@ -164,9 +164,9 @@ export default function UsersPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#F0EDE8]">Users</h1>
-          <p className="mt-1 text-sm text-[#8A857D]">
-            <span className="font-['IBM_Plex_Mono',monospace] text-[#C5C0B8]">
+          <h1 className="text-2xl font-bold text-text-primary">Users</h1>
+          <p className="mt-1 text-sm text-text-muted">
+            <span className="font-['IBM_Plex_Mono',monospace] text-text-secondary">
               {data?.total ?? 0}
             </span>{" "}
             total accounts
@@ -177,7 +177,7 @@ export default function UsersPage() {
             <button
               type="button"
               onClick={() => setShowBroadcast(true)}
-              className="inline-flex items-center gap-2 rounded-lg border border-[#C9A227]/40 bg-[#C9A227]/10 px-4 py-2 text-sm font-semibold text-[#C9A227] transition-colors hover:bg-[#C9A227]/20"
+              className="inline-flex items-center gap-2 rounded-lg border border-accent/40 bg-accent/10 px-4 py-2 text-sm font-semibold text-accent transition-colors hover:bg-accent/20"
             >
               <Mail size={16} />
               Admin Emailer
@@ -186,7 +186,7 @@ export default function UsersPage() {
           <button
             type="button"
             onClick={() => setModalState({ open: true, user: null })}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-semibold text-[#0E0E11] transition-colors hover:bg-[#25B8A5]"
+            className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-semibold text-surface-base transition-colors hover:bg-success-dark"
           >
             <Plus size={16} />
             New User
@@ -198,19 +198,19 @@ export default function UsersPage() {
       <div className="flex flex-wrap items-center gap-3">
         {/* Search */}
         <div className="relative max-w-xs flex-1">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]" />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost" />
           <input
             type="text"
             value={search}
             onChange={(e) => { setSearch(e.target.value); setFilters((f) => ({ ...f, page: 1 })); }}
             placeholder="Search name or email…"
-            className="w-full rounded-lg border border-[#232328] bg-[#151518] py-2 pl-9 pr-8 text-sm text-[#F0EDE8] placeholder:text-[#5A5650] focus:border-[#2DD4BF] focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors"
+            className="w-full rounded-lg border border-border-default bg-surface-raised py-2 pl-9 pr-8 text-sm text-text-primary placeholder:text-text-ghost focus:border-success focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors"
           />
           {search && (
             <button
               type="button"
               onClick={() => setSearch("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5A5650] hover:text-[#8A857D]"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-text-ghost hover:text-text-muted"
             >
               <X size={12} />
             </button>
@@ -221,7 +221,7 @@ export default function UsersPage() {
         <select
           value={filters.role ?? ""}
           onChange={(e) => setFilters((f) => ({ ...f, role: e.target.value || undefined, page: 1 }))}
-          className="rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#C5C0B8] focus:border-[#2DD4BF] focus:outline-none transition-colors"
+          className="rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-secondary focus:border-success focus:outline-none transition-colors"
         >
           <option value="">All roles</option>
           {roles?.map((r) => (
@@ -234,10 +234,10 @@ export default function UsersPage() {
       {isLoading || users.length === 0 ? (
         <EmptyState loading={isLoading} />
       ) : (
-        <div className="overflow-hidden rounded-lg border border-[#232328] bg-[#151518]">
+        <div className="overflow-hidden rounded-lg border border-border-default bg-surface-raised">
           <table className="w-full">
             <thead>
-              <tr className="bg-[#1C1C20]">
+              <tr className="bg-surface-overlay">
                 {SORTABLE.map(({ key, label }) => (
                   <th
                     key={key}
@@ -246,7 +246,7 @@ export default function UsersPage() {
                     <button
                       type="button"
                       onClick={() => handleSort(key)}
-                      className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#8A857D] transition-colors hover:text-[#C5C0B8]"
+                      className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-text-muted transition-colors hover:text-text-secondary"
                     >
                       {label}
                       <SortIcon
@@ -256,7 +256,7 @@ export default function UsersPage() {
                     </button>
                   </th>
                 ))}
-                <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
+                <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                   Roles
                 </th>
                 <th className="w-20 px-4 py-2.5" />
@@ -270,8 +270,8 @@ export default function UsersPage() {
                   <tr
                     key={user.id}
                     className={cn(
-                      "border-t border-[#1C1C20] transition-colors",
-                      i % 2 === 0 ? "bg-[#151518]" : "bg-[#1A1A1E]",
+                      "border-t border-border-subtle transition-colors",
+                      i % 2 === 0 ? "bg-surface-raised" : "bg-surface-overlay",
                     )}
                   >
                     {/* Name */}
@@ -279,17 +279,17 @@ export default function UsersPage() {
                       <div className="flex items-center gap-2.5">
                         <div
                           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold uppercase"
-                          style={{ backgroundColor: "#2DD4BF15", color: "#2DD4BF" }}
+                          style={{ backgroundColor: "#2DD4BF15", color: "var(--success)" }}
                         >
                           {user.name.charAt(0)}
                         </div>
-                        <span className="text-sm font-medium text-[#C5C0B8]">{user.name}</span>
+                        <span className="text-sm font-medium text-text-secondary">{user.name}</span>
                       </div>
                     </td>
 
                     {/* Email */}
                     <td className="px-4 py-3">
-                      <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#8A857D]">
+                      <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-muted">
                         {user.email}
                       </span>
                     </td>
@@ -300,12 +300,12 @@ export default function UsersPage() {
                         <Circle
                           size={7}
                           style={{
-                            fill: isActive ? "#2DD4BF" : "#3A3A42",
-                            color: isActive ? "#2DD4BF" : "#3A3A42",
+                            fill: isActive ? "var(--success)" : "var(--surface-highlight)",
+                            color: isActive ? "var(--success)" : "var(--surface-highlight)",
                             flexShrink: 0,
                           }}
                         />
-                        <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#5A5650]">
+                        <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-ghost">
                           {activeAt ? new Date(activeAt).toLocaleString("en-US", {
                             month: "short", day: "numeric",
                             hour: "2-digit", minute: "2-digit",
@@ -316,7 +316,7 @@ export default function UsersPage() {
 
                     {/* Joined */}
                     <td className="px-4 py-3">
-                      <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#5A5650]">
+                      <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-ghost">
                         {new Date(user.created_at).toLocaleDateString("en-US", {
                           month: "short", day: "numeric", year: "numeric",
                         })}
@@ -332,7 +332,7 @@ export default function UsersPage() {
                             return <RoleBadge key={name} role={name} />;
                           })
                         ) : (
-                          <span className="text-xs text-[#5A5650]">—</span>
+                          <span className="text-xs text-text-ghost">—</span>
                         )}
                       </div>
                     </td>
@@ -344,7 +344,7 @@ export default function UsersPage() {
                           type="button"
                           onClick={(e) => { e.stopPropagation(); setModalState({ open: true, user }); }}
                           title="Edit user"
-                          className="flex h-7 w-7 items-center justify-center rounded-md text-[#5A5650] transition-colors hover:bg-[#232328] hover:text-[#8A857D]"
+                          className="flex h-7 w-7 items-center justify-center rounded-md text-text-ghost transition-colors hover:bg-surface-elevated hover:text-text-muted"
                         >
                           <Pencil size={14} />
                         </button>
@@ -352,7 +352,7 @@ export default function UsersPage() {
                           type="button"
                           onClick={(e) => { e.stopPropagation(); setDeleteConfirm(user); }}
                           title="Delete user"
-                          className="flex h-7 w-7 items-center justify-center rounded-md text-[#5A5650] transition-colors hover:bg-[#9B1B3015] hover:text-[#E85A6B]"
+                          className="flex h-7 w-7 items-center justify-center rounded-md text-text-ghost transition-colors hover:bg-primary/15 hover:text-critical"
                         >
                           <Trash2 size={14} />
                         </button>
@@ -368,18 +368,18 @@ export default function UsersPage() {
 
       {/* Pagination */}
       {data && data.last_page > 1 && (
-        <div className="flex items-center justify-between text-sm text-[#5A5650]">
+        <div className="flex items-center justify-between text-sm text-text-ghost">
           <span>
             Page{" "}
-            <span className="font-['IBM_Plex_Mono',monospace] text-[#8A857D]">
+            <span className="font-['IBM_Plex_Mono',monospace] text-text-muted">
               {data.current_page}
             </span>{" "}
             of{" "}
-            <span className="font-['IBM_Plex_Mono',monospace] text-[#8A857D]">
+            <span className="font-['IBM_Plex_Mono',monospace] text-text-muted">
               {data.last_page}
             </span>
             {" "}·{" "}
-            <span className="font-['IBM_Plex_Mono',monospace] text-[#C5C0B8]">
+            <span className="font-['IBM_Plex_Mono',monospace] text-text-secondary">
               {data.total.toLocaleString()}
             </span>{" "}
             users
@@ -389,7 +389,7 @@ export default function UsersPage() {
               type="button"
               disabled={data.current_page === 1}
               onClick={() => setFilters((f) => ({ ...f, page: (f.page ?? 1) - 1 }))}
-              className="inline-flex items-center justify-center rounded-lg border border-[#2A2A30] bg-[#151518] p-1.5 text-[#8A857D] transition-colors hover:border-[#3A3A42] hover:text-[#C5C0B8] disabled:opacity-40 disabled:cursor-not-allowed"
+              className="inline-flex items-center justify-center rounded-lg border border-border-default bg-surface-raised p-1.5 text-text-muted transition-colors hover:border-surface-highlight hover:text-text-secondary disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <ChevronLeft size={16} />
             </button>
@@ -397,7 +397,7 @@ export default function UsersPage() {
               type="button"
               disabled={data.current_page === data.last_page}
               onClick={() => setFilters((f) => ({ ...f, page: (f.page ?? 1) + 1 }))}
-              className="inline-flex items-center justify-center rounded-lg border border-[#2A2A30] bg-[#151518] p-1.5 text-[#8A857D] transition-colors hover:border-[#3A3A42] hover:text-[#C5C0B8] disabled:opacity-40 disabled:cursor-not-allowed"
+              className="inline-flex items-center justify-center rounded-lg border border-border-default bg-surface-raised p-1.5 text-text-muted transition-colors hover:border-surface-highlight hover:text-text-secondary disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <ChevronRight size={16} />
             </button>
@@ -437,7 +437,7 @@ export default function UsersPage() {
       {/* Loading overlay */}
       {isLoading && users.length > 0 && (
         <div className="flex justify-center">
-          <Loader2 size={18} className="animate-spin text-[#5A5650]" />
+          <Loader2 size={18} className="animate-spin text-text-ghost" />
         </div>
       )}
     </div>

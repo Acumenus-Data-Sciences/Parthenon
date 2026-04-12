@@ -38,14 +38,14 @@ const STEPS = [
 ] as const;
 
 const STUDY_TYPES = [
-  { value: "characterization", label: "Characterization", icon: BarChart3, color: "#2DD4BF", desc: "Describe patient populations and treatment patterns" },
-  { value: "population_level_estimation", label: "Population-Level Estimation", icon: Scale, color: "#60A5FA", desc: "Estimate causal effects using observational data" },
-  { value: "patient_level_prediction", label: "Patient-Level Prediction", icon: Brain, color: "#A78BFA", desc: "Predict individual patient outcomes" },
-  { value: "comparative_effectiveness", label: "Comparative Effectiveness", icon: FlaskConical, color: "#F59E0B", desc: "Compare treatments in real-world settings" },
-  { value: "safety_surveillance", label: "Safety Surveillance", icon: Shield, color: "#E85A6B", desc: "Monitor drug safety signals post-market" },
-  { value: "drug_utilization", label: "Drug Utilization", icon: Pill, color: "#34D399", desc: "Analyze medication use patterns and trends" },
-  { value: "quality_improvement", label: "Quality Improvement", icon: Activity, color: "#FB923C", desc: "Assess care quality and guideline adherence" },
-  { value: "custom", label: "Custom", icon: Wrench, color: "#8A857D", desc: "Define a custom study type" },
+  { value: "characterization", label: "Characterization", icon: BarChart3, color: "var(--success)", desc: "Describe patient populations and treatment patterns" },
+  { value: "population_level_estimation", label: "Population-Level Estimation", icon: Scale, color: "var(--info)", desc: "Estimate causal effects using observational data" },
+  { value: "patient_level_prediction", label: "Patient-Level Prediction", icon: Brain, color: "var(--domain-observation)", desc: "Predict individual patient outcomes" },
+  { value: "comparative_effectiveness", label: "Comparative Effectiveness", icon: FlaskConical, color: "var(--warning)", desc: "Compare treatments in real-world settings" },
+  { value: "safety_surveillance", label: "Safety Surveillance", icon: Shield, color: "var(--critical)", desc: "Monitor drug safety signals post-market" },
+  { value: "drug_utilization", label: "Drug Utilization", icon: Pill, color: "var(--success)", desc: "Analyze medication use patterns and trends" },
+  { value: "quality_improvement", label: "Quality Improvement", icon: Activity, color: "var(--domain-device)", desc: "Assess care quality and guideline adherence" },
+  { value: "custom", label: "Custom", icon: Wrench, color: "var(--text-muted)", desc: "Define a custom study type" },
 ];
 
 const STUDY_DESIGNS = [
@@ -71,10 +71,10 @@ const PHASES = [
 ];
 
 const PRIORITIES = [
-  { value: "low", label: "Low", color: "#8A857D" },
-  { value: "medium", label: "Medium", color: "#60A5FA" },
-  { value: "high", label: "High", color: "#F59E0B" },
-  { value: "critical", label: "Critical", color: "#E85A6B" },
+  { value: "low", label: "Low", color: "var(--text-muted)" },
+  { value: "medium", label: "Medium", color: "var(--info)" },
+  { value: "high", label: "High", color: "var(--warning)" },
+  { value: "critical", label: "Critical", color: "var(--critical)" },
 ];
 
 // ---------------------------------------------------------------------------
@@ -218,8 +218,8 @@ export default function StudyCreatePage() {
                 className={cn(
                   "flex items-start gap-3 rounded-lg border p-3 text-left transition-all",
                   selected
-                    ? "border-[#2DD4BF] bg-[#2DD4BF]/5"
-                    : "border-[#232328] bg-[#151518] hover:border-[#323238]",
+                    ? "border-success bg-success/5"
+                    : "border-border-default bg-surface-raised hover:border-surface-highlight",
                 )}
               >
                 <div
@@ -229,8 +229,8 @@ export default function StudyCreatePage() {
                   <Icon size={16} style={{ color: st.color }} />
                 </div>
                 <div className="min-w-0">
-                  <p className={cn("text-sm font-medium", selected ? "text-[#2DD4BF]" : "text-[#F0EDE8]")}>{st.label}</p>
-                  <p className="text-[11px] text-[#5A5650] mt-0.5 line-clamp-2">{st.desc}</p>
+                  <p className={cn("text-sm font-medium", selected ? "text-success" : "text-text-primary")}>{st.label}</p>
+                  <p className="text-[11px] text-text-ghost mt-0.5 line-clamp-2">{st.desc}</p>
                 </div>
               </button>
             );
@@ -273,11 +273,11 @@ export default function StudyCreatePage() {
                 className={cn(
                   "px-3 py-1.5 rounded-md text-xs font-medium border transition-all",
                   priority === p.value
-                    ? "border-[#2DD4BF]"
-                    : "border-[#232328] hover:border-[#323238]",
+                    ? "border-success"
+                    : "border-border-default hover:border-surface-highlight",
                 )}
                 style={{
-                  color: priority === p.value ? p.color : "#8A857D",
+                  color: priority === p.value ? p.color : "var(--text-muted)",
                   backgroundColor: priority === p.value ? `${p.color}10` : "transparent",
                 }}
               >
@@ -331,9 +331,9 @@ export default function StudyCreatePage() {
         {tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-2">
             {tags.map((t) => (
-              <span key={t} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#232328] text-xs text-[#C5C0B8]">
+              <span key={t} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-surface-elevated text-xs text-text-secondary">
                 {t}
-                <button type="button" onClick={() => setTags(tags.filter((x) => x !== t))} className="text-[#5A5650] hover:text-[#F0EDE8]">
+                <button type="button" onClick={() => setTags(tags.filter((x) => x !== t))} className="text-text-ghost hover:text-text-primary">
                   <X size={10} />
                 </button>
               </span>
@@ -347,10 +347,10 @@ export default function StudyCreatePage() {
   const renderScience = () => (
     <div className="space-y-5">
       {/* AI Suggest Banner */}
-      <div className="flex items-center justify-between rounded-lg border border-[#A78BFA]/20 bg-[#A78BFA]/5 px-4 py-3">
+      <div className="flex items-center justify-between rounded-lg border border-domain-observation/20 bg-domain-observation/5 px-4 py-3">
         <div className="flex items-center gap-2">
-          <Sparkles size={16} className="text-[#A78BFA]" />
-          <span className="text-sm text-[#C5C0B8]">
+          <Sparkles size={16} className="text-domain-observation" />
+          <span className="text-sm text-text-secondary">
             Let AI suggest scientific design fields based on your study title
           </span>
         </div>
@@ -359,14 +359,14 @@ export default function StudyCreatePage() {
           onClick={handleAiSuggest}
           disabled={aiLoading || !title.trim() || !studyType}
           className="btn btn-sm"
-          style={{ backgroundColor: "#A78BFA20", color: "#A78BFA", borderColor: "#A78BFA40" }}
+          style={{ backgroundColor: "#A78BFA20", color: "var(--domain-observation)", borderColor: "#A78BFA40" }}
         >
           {aiLoading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
           {aiLoading ? "Generating..." : "Generate with AI"}
         </button>
       </div>
       {aiError && (
-        <p className="text-xs text-[#E85A6B]">{aiError}</p>
+        <p className="text-xs text-critical">{aiError}</p>
       )}
 
       <div>
@@ -418,13 +418,13 @@ export default function StudyCreatePage() {
         {secondaryObjectives.length > 0 && (
           <ul className="mt-2 space-y-1">
             {secondaryObjectives.map((obj, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm text-[#C5C0B8]">
-                <span className="text-[#5A5650] shrink-0">{i + 1}.</span>
+              <li key={i} className="flex items-start gap-2 text-sm text-text-secondary">
+                <span className="text-text-ghost shrink-0">{i + 1}.</span>
                 <span className="flex-1">{obj}</span>
                 <button
                   type="button"
                   onClick={() => setSecondaryObjectives(secondaryObjectives.filter((_, j) => j !== i))}
-                  className="text-[#5A5650] hover:text-[#E85A6B] shrink-0"
+                  className="text-text-ghost hover:text-critical shrink-0"
                 >
                   <X size={12} />
                 </button>
@@ -456,8 +456,8 @@ export default function StudyCreatePage() {
         </div>
         <div>
           <label className="form-label">Study End Date</label>
-          <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={cn("form-input", dateError && "border-[#E85A6B]")} />
-          {dateError && <p className="text-xs text-[#E85A6B] mt-1">{dateError}</p>}
+          <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={cn("form-input", dateError && "border-critical")} />
+          {dateError && <p className="text-xs text-critical mt-1">{dateError}</p>}
         </div>
       </div>
 
@@ -494,8 +494,8 @@ export default function StudyCreatePage() {
         />
       </div>
 
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-        <p className="text-sm text-[#8A857D]">
+      <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+        <p className="text-sm text-text-muted">
           Team members, sites, and cohorts can be configured after the study is created from the study dashboard.
         </p>
       </div>
@@ -510,41 +510,41 @@ export default function StudyCreatePage() {
       <div className="space-y-4">
         {/* Basics */}
         <div className="panel">
-          <h4 className="text-sm font-semibold text-[#C5C0B8] mb-3">Basics</h4>
+          <h4 className="text-sm font-semibold text-text-secondary mb-3">Basics</h4>
           <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
             <div>
-              <span className="text-[#5A5650]">Title:</span>
-              <p className="text-[#F0EDE8] font-medium">{title}</p>
+              <span className="text-text-ghost">Title:</span>
+              <p className="text-text-primary font-medium">{title}</p>
             </div>
             {shortTitle && (
               <div>
-                <span className="text-[#5A5650]">Short Title:</span>
-                <p className="text-[#F0EDE8]">{shortTitle}</p>
+                <span className="text-text-ghost">Short Title:</span>
+                <p className="text-text-primary">{shortTitle}</p>
               </div>
             )}
             <div className="flex items-center gap-2">
-              <span className="text-[#5A5650]">Type:</span>
+              <span className="text-text-ghost">Type:</span>
               <div className="flex items-center gap-1.5">
                 <TypeIcon size={14} style={{ color: selectedType?.color }} />
-                <span className="text-[#F0EDE8]">{selectedType?.label}</span>
+                <span className="text-text-primary">{selectedType?.label}</span>
               </div>
             </div>
             <div>
-              <span className="text-[#5A5650]">Priority:</span>
-              <span className="ml-1 text-[#F0EDE8] capitalize">{priority}</span>
+              <span className="text-text-ghost">Priority:</span>
+              <span className="ml-1 text-text-primary capitalize">{priority}</span>
             </div>
             {studyDesign && (
               <div>
-                <span className="text-[#5A5650]">Design:</span>
-                <span className="ml-1 text-[#F0EDE8]">{STUDY_DESIGNS.find((d) => d.value === studyDesign)?.label}</span>
+                <span className="text-text-ghost">Design:</span>
+                <span className="ml-1 text-text-primary">{STUDY_DESIGNS.find((d) => d.value === studyDesign)?.label}</span>
               </div>
             )}
           </div>
-          {description && <p className="mt-2 text-sm text-[#8A857D]">{description}</p>}
+          {description && <p className="mt-2 text-sm text-text-muted">{description}</p>}
           {tags.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-2">
               {tags.map((t) => (
-                <span key={t} className="px-2 py-0.5 rounded-md bg-[#232328] text-xs text-[#C5C0B8]">{t}</span>
+                <span key={t} className="px-2 py-0.5 rounded-md bg-surface-elevated text-xs text-text-secondary">{t}</span>
               ))}
             </div>
           )}
@@ -553,16 +553,16 @@ export default function StudyCreatePage() {
         {/* Science */}
         {(rationale || hypothesis || primaryObjective || secondaryObjectives.length > 0) && (
           <div className="panel">
-            <h4 className="text-sm font-semibold text-[#C5C0B8] mb-3">Scientific Design</h4>
+            <h4 className="text-sm font-semibold text-text-secondary mb-3">Scientific Design</h4>
             <div className="space-y-2 text-sm">
-              {rationale && <div><span className="text-[#5A5650]">Rationale:</span><p className="text-[#C5C0B8] mt-0.5">{rationale}</p></div>}
-              {hypothesis && <div><span className="text-[#5A5650]">Hypothesis:</span><p className="text-[#C5C0B8] mt-0.5">{hypothesis}</p></div>}
-              {primaryObjective && <div><span className="text-[#5A5650]">Primary Objective:</span><p className="text-[#C5C0B8] mt-0.5">{primaryObjective}</p></div>}
+              {rationale && <div><span className="text-text-ghost">Rationale:</span><p className="text-text-secondary mt-0.5">{rationale}</p></div>}
+              {hypothesis && <div><span className="text-text-ghost">Hypothesis:</span><p className="text-text-secondary mt-0.5">{hypothesis}</p></div>}
+              {primaryObjective && <div><span className="text-text-ghost">Primary Objective:</span><p className="text-text-secondary mt-0.5">{primaryObjective}</p></div>}
               {secondaryObjectives.length > 0 && (
                 <div>
-                  <span className="text-[#5A5650]">Secondary Objectives:</span>
+                  <span className="text-text-ghost">Secondary Objectives:</span>
                   <ul className="mt-1 space-y-0.5">
-                    {secondaryObjectives.map((o, i) => <li key={i} className="text-[#C5C0B8]">{i + 1}. {o}</li>)}
+                    {secondaryObjectives.map((o, i) => <li key={i} className="text-text-secondary">{i + 1}. {o}</li>)}
                   </ul>
                 </div>
               )}
@@ -573,14 +573,14 @@ export default function StudyCreatePage() {
         {/* Timeline */}
         {(startDate || endDate || targetSites || phase || nctId) && (
           <div className="panel">
-            <h4 className="text-sm font-semibold text-[#C5C0B8] mb-3">Timeline & Registration</h4>
+            <h4 className="text-sm font-semibold text-text-secondary mb-3">Timeline & Registration</h4>
             <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
-              {startDate && <div><span className="text-[#5A5650]">Start:</span><span className="ml-1 text-[#F0EDE8]">{startDate}</span></div>}
-              {endDate && <div><span className="text-[#5A5650]">End:</span><span className="ml-1 text-[#F0EDE8]">{endDate}</span></div>}
-              {targetSites && <div><span className="text-[#5A5650]">Target Sites:</span><span className="ml-1 text-[#F0EDE8]">{targetSites}</span></div>}
-              {phase && <div><span className="text-[#5A5650]">Phase:</span><span className="ml-1 text-[#F0EDE8]">{PHASES.find((p) => p.value === phase)?.label}</span></div>}
-              {nctId && <div><span className="text-[#5A5650]">NCT ID:</span><span className="ml-1 text-[#F0EDE8]">{nctId}</span></div>}
-              {fundingSource && <div><span className="text-[#5A5650]">Funding:</span><span className="ml-1 text-[#F0EDE8]">{fundingSource}</span></div>}
+              {startDate && <div><span className="text-text-ghost">Start:</span><span className="ml-1 text-text-primary">{startDate}</span></div>}
+              {endDate && <div><span className="text-text-ghost">End:</span><span className="ml-1 text-text-primary">{endDate}</span></div>}
+              {targetSites && <div><span className="text-text-ghost">Target Sites:</span><span className="ml-1 text-text-primary">{targetSites}</span></div>}
+              {phase && <div><span className="text-text-ghost">Phase:</span><span className="ml-1 text-text-primary">{PHASES.find((p) => p.value === phase)?.label}</span></div>}
+              {nctId && <div><span className="text-text-ghost">NCT ID:</span><span className="ml-1 text-text-primary">{nctId}</span></div>}
+              {fundingSource && <div><span className="text-text-ghost">Funding:</span><span className="ml-1 text-text-primary">{fundingSource}</span></div>}
             </div>
           </div>
         )}
@@ -616,23 +616,23 @@ export default function StudyCreatePage() {
                 disabled={i > step}
                 className={cn(
                   "flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-all w-full",
-                  isActive && "bg-[#2DD4BF]/10 text-[#2DD4BF] border border-[#2DD4BF]/30",
-                  isDone && "text-[#2DD4BF]/70 cursor-pointer hover:bg-[#2DD4BF]/5",
-                  !isActive && !isDone && "text-[#5A5650] cursor-not-allowed",
+                  isActive && "bg-success/10 text-success border border-success/30",
+                  isDone && "text-success/70 cursor-pointer hover:bg-success/5",
+                  !isActive && !isDone && "text-text-ghost cursor-not-allowed",
                 )}
               >
                 <div className={cn(
                   "flex items-center justify-center w-6 h-6 rounded-full text-xs font-semibold shrink-0",
-                  isActive && "bg-[#2DD4BF] text-[#0E0E11]",
-                  isDone && "bg-[#2DD4BF]/20 text-[#2DD4BF]",
-                  !isActive && !isDone && "bg-[#232328] text-[#5A5650]",
+                  isActive && "bg-success text-surface-base",
+                  isDone && "bg-success/20 text-success",
+                  !isActive && !isDone && "bg-surface-elevated text-text-ghost",
                 )}>
                   {isDone ? <Check size={12} /> : i + 1}
                 </div>
                 <span className="hidden sm:inline">{s.label}</span>
               </button>
               {i < STEPS.length - 1 && (
-                <div className={cn("h-px w-4 shrink-0 mx-1", i < step ? "bg-[#2DD4BF]/30" : "bg-[#232328]")} />
+                <div className={cn("h-px w-4 shrink-0 mx-1", i < step ? "bg-success/30" : "bg-surface-elevated")} />
               )}
             </div>
           );
@@ -641,7 +641,7 @@ export default function StudyCreatePage() {
 
       {/* Step Content */}
       <div className="panel">
-        <h3 className="text-base font-semibold text-[#F0EDE8] mb-4">
+        <h3 className="text-base font-semibold text-text-primary mb-4">
           {STEPS[step].label}
         </h3>
         {step === 0 && renderBasics()}

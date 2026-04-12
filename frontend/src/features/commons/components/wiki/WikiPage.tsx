@@ -204,14 +204,14 @@ export function WikiPage() {
   const paperCount = totalPages > 0 ? totalPages : new Set(pages.map((p) => p.source_slug ?? p.slug)).size;
 
   return (
-    <div className="flex h-full flex-col overflow-hidden bg-[#0E0E11]">
+    <div className="flex h-full flex-col overflow-hidden bg-surface-base">
       {/* ── Toolbar ─────────────────────────────────────────── */}
-      <div className="flex items-center gap-3 border-b border-[#232328] bg-[#151518] px-5 py-2.5">
+      <div className="flex items-center gap-3 border-b border-border-default bg-surface-raised px-5 py-2.5">
         {/* Title */}
-        <BookOpen size={18} className="text-[#2DD4BF]" />
-        <h1 className="text-base font-bold text-[#F0EDE8]">Knowledge Base</h1>
+        <BookOpen size={18} className="text-success" />
+        <h1 className="text-base font-bold text-text-primary">Knowledge Base</h1>
         {paperCount > 0 && (
-          <span className="text-xs text-[#5A5650]">{paperCount} paper{paperCount !== 1 ? "s" : ""}</span>
+          <span className="text-xs text-text-ghost">{paperCount} paper{paperCount !== 1 ? "s" : ""}</span>
         )}
 
         <div className="flex-1" />
@@ -220,7 +220,7 @@ export function WikiPage() {
         <button
           type="button"
           onClick={() => setIngestModalOpen(true)}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-[#2DD4BF] px-3 py-2 text-sm font-medium text-[#0E0E11] transition-colors hover:bg-[#26B8A5]"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-success px-3 py-2 text-sm font-medium text-surface-base transition-colors hover:bg-success-dark"
         >
           <Upload size={14} />
           Ingest
@@ -231,7 +231,7 @@ export function WikiPage() {
           <button
             type="button"
             onClick={() => { if (lintIssues[0]) setSelectedPageSlug(lintIssues[0].page_slug); }}
-            className="inline-flex items-center gap-1 rounded-full border border-[#C9A227]/20 bg-[#C9A227]/5 px-2.5 py-1 text-[11px] font-medium text-[#C9A227] transition-colors hover:bg-[#C9A227]/10"
+            className="inline-flex items-center gap-1 rounded-full border border-accent/20 bg-accent/5 px-2.5 py-1 text-[11px] font-medium text-accent transition-colors hover:bg-accent/10"
           >
             <AlertTriangle size={12} />
             {lintIssues.length}
@@ -242,12 +242,12 @@ export function WikiPage() {
         <button
           type="button"
           onClick={() => setActivityDrawerOpen(true)}
-          className="relative rounded-lg border border-[#232328] bg-[#151518] p-2 text-[#8A857D] transition-colors hover:text-[#F0EDE8]"
+          className="relative rounded-lg border border-border-default bg-surface-raised p-2 text-text-muted transition-colors hover:text-text-primary"
           title="Activity log"
         >
           <History size={16} />
           {activity.length > 0 && (
-            <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#2DD4BF] text-[9px] font-bold text-[#0E0E11]">
+            <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-success text-[9px] font-bold text-surface-base">
               {activity.length > 9 ? "9+" : activity.length}
             </span>
           )}
@@ -258,9 +258,9 @@ export function WikiPage() {
       {isEmpty ? (
         <div className="flex flex-1 items-center justify-center p-8">
           <div className="max-w-md text-center">
-            <BookOpen size={32} className="mx-auto mb-4 text-[#323238]" />
-            <h2 className="text-xl font-bold text-[#F0EDE8]">Knowledge Base</h2>
-            <p className="mt-2 text-sm leading-6 text-[#8A857D]">
+            <BookOpen size={32} className="mx-auto mb-4 text-text-ghost" />
+            <h2 className="text-xl font-bold text-text-primary">Knowledge Base</h2>
+            <p className="mt-2 text-sm leading-6 text-text-muted">
               Upload research papers, clinical guidelines, or any document.
               The AI will extract key information and make it searchable.
             </p>
@@ -268,7 +268,7 @@ export function WikiPage() {
               type="button"
               onClick={() => setIngestModalOpen(true)}
               disabled={ingestMutation.isPending}
-              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-5 py-2.5 text-sm font-medium text-[#0E0E11] transition-colors hover:bg-[#26B8A5]"
+              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-success px-5 py-2.5 text-sm font-medium text-surface-base transition-colors hover:bg-success-dark"
             >
               <Upload size={16} />
               Add your first paper
@@ -278,20 +278,20 @@ export function WikiPage() {
       ) : (
         <div className="flex min-h-0 flex-1 overflow-hidden">
           {/* Left: Paper list — search pinned at top, list scrolls independently */}
-          <div className="flex w-[420px] shrink-0 flex-col overflow-hidden border-r border-[#232328] bg-[#151518]">
+          <div className="flex w-[420px] shrink-0 flex-col overflow-hidden border-r border-border-default bg-surface-raised">
             {/* Search + header (pinned) */}
-            <div className="shrink-0 border-b border-[#232328] bg-[#1C1C20] px-3 py-2.5">
+            <div className="shrink-0 border-b border-border-default bg-surface-overlay px-3 py-2.5">
               <div className="relative">
-                <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]" />
+                <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost" />
                 <input
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search papers..."
-                  className="w-full rounded-lg border border-[#232328] bg-[#0E0E11] py-2 pl-9 pr-3 text-sm text-[#F0EDE8] placeholder:text-[#5A5650] outline-none transition-colors focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40"
+                  className="w-full rounded-lg border border-border-default bg-surface-base py-2 pl-9 pr-3 text-sm text-text-primary placeholder:text-text-ghost outline-none transition-colors focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40"
                 />
               </div>
-              <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
-                {isSearching ? "Results" : "Papers"} <span className="ml-1 text-[#5A5650]">{paperCount}</span>
+              <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+                {isSearching ? "Results" : "Papers"} <span className="ml-1 text-text-ghost">{paperCount}</span>
               </p>
             </div>
             {/* Scrollable paper list */}
@@ -307,7 +307,7 @@ export function WikiPage() {
           </div>
 
           {/* Right: Content + Chat — chat claims measured height, paper header always visible */}
-          <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-[#0E0E11]">
+          <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-surface-base">
             <div className="min-h-[120px] flex-1 overflow-auto">
               <WikiPageView
                 page={pageQuery.data}

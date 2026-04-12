@@ -52,7 +52,7 @@ export function OpenTargetsSearch({
         <div className="flex items-center gap-2">
           <span
             className="text-xs font-semibold uppercase tracking-wide"
-            style={{ color: "#C9A227" }}
+            style={{ color: "var(--accent)" }}
           >
             Open Targets
           </span>
@@ -99,7 +99,7 @@ export function OpenTargetsSearch({
 
       {/* States */}
       {isError && (
-        <p className="text-xs text-[#9B1B30] px-1">
+        <p className="text-xs text-primary px-1">
           {error instanceof Error ? error.message : "Search failed. Please try again."}
         </p>
       )}

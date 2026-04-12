@@ -19,11 +19,11 @@ export function SviAnalysisPanel({ conceptId, metric }: LayerAnalysisProps) {
   });
 
   if (isLoading) {
-    return <p className="text-xs text-[#5A5650]">Loading...</p>;
+    return <p className="text-xs text-text-ghost">Loading...</p>;
   }
 
   if (!data?.length) {
-    return <p className="text-xs text-[#5A5650]">No data available</p>;
+    return <p className="text-xs text-text-ghost">No data available</p>;
   }
 
   const chartData = data.map((d) => ({
@@ -35,18 +35,18 @@ export function SviAnalysisPanel({ conceptId, metric }: LayerAnalysisProps) {
   return (
     <ResponsiveContainer width="100%" height={120}>
       <BarChart data={chartData}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#232328" />
-        <XAxis dataKey="name" tick={{ fill: "#8A857D", fontSize: 10 }} />
-        <YAxis tick={{ fill: "#8A857D", fontSize: 10 }} />
+        <CartesianGrid strokeDasharray="3 3" stroke="var(--surface-elevated)" />
+        <XAxis dataKey="name" tick={{ fill: "var(--text-muted)", fontSize: 10 }} />
+        <YAxis tick={{ fill: "var(--text-muted)", fontSize: 10 }} />
         <Tooltip
           contentStyle={{
-            backgroundColor: "#141418",
+            backgroundColor: "var(--surface-raised)",
             border: "1px solid #232328",
             borderRadius: 8,
             fontSize: 11,
           }}
         />
-        <Bar dataKey="rate" fill="#E85A6B" radius={[2, 2, 0, 0]} />
+        <Bar dataKey="rate" fill="var(--critical)" radius={[2, 2, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );

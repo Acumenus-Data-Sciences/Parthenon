@@ -26,13 +26,13 @@ export function TimelineToolbar({
   onReset,
 }: TimelineToolbarProps) {
   return (
-    <div className="flex items-center justify-between gap-3 px-4 py-2 bg-[#1C1C20] border-b border-[#232328] flex-wrap">
+    <div className="flex items-center justify-between gap-3 px-4 py-2 bg-surface-overlay border-b border-border-default flex-wrap">
       <div className="flex items-center gap-2">
-        <span className="text-xs text-[#8A857D]">
+        <span className="text-xs text-text-muted">
           {eventCount} events · {activeDomainCount} domains
         </span>
         {observationPeriods.length > 0 && (
-          <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] bg-[#2DD4BF]/10 text-[#2DD4BF] border border-[#2DD4BF]/20">
+          <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] bg-success/10 text-success border border-success/20">
             {observationPeriods.length} obs. period{observationPeriods.length > 1 ? "s" : ""}
           </span>
         )}
@@ -43,7 +43,7 @@ export function TimelineToolbar({
         <div className="relative">
           <Search
             size={11}
-            className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#5A5650]"
+            className="absolute left-2.5 top-1/2 -translate-y-1/2 text-text-ghost"
           />
           <input
             type="text"
@@ -51,16 +51,16 @@ export function TimelineToolbar({
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Highlight events..."
             className={cn(
-              "w-44 rounded-md border border-[#323238] bg-[#0E0E11] pl-7 pr-2 py-1 text-xs",
-              "text-[#F0EDE8] placeholder:text-[#5A5650]",
-              "focus:border-[#C9A227] focus:outline-none",
+              "w-44 rounded-md border border-surface-highlight bg-surface-base pl-7 pr-2 py-1 text-xs",
+              "text-text-primary placeholder:text-text-ghost",
+              "focus:border-accent focus:outline-none",
             )}
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => onSearchChange("")}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-[#5A5650] hover:text-[#F0EDE8]"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-text-ghost hover:text-text-primary"
             >
               <X size={10} />
             </button>
@@ -68,24 +68,24 @@ export function TimelineToolbar({
         </div>
 
         {/* Zoom controls: -, percentage, +, Reset */}
-        <div className="flex items-center gap-0.5 rounded-md border border-[#323238] bg-[#0E0E11]">
+        <div className="flex items-center gap-0.5 rounded-md border border-surface-highlight bg-surface-base">
           <button
             type="button"
             onClick={onZoomOut}
             disabled={zoom <= 0.5}
-            className="p-1.5 text-[#8A857D] hover:text-[#F0EDE8] disabled:text-[#323238] disabled:cursor-not-allowed transition-colors"
+            className="p-1.5 text-text-muted hover:text-text-primary disabled:text-text-ghost disabled:cursor-not-allowed transition-colors"
             title="Zoom out"
           >
             <ZoomOut size={12} />
           </button>
-          <span className="text-[10px] text-[#5A5650] w-8 text-center tabular-nums">
+          <span className="text-[10px] text-text-ghost w-8 text-center tabular-nums">
             {Math.round(zoom * 100)}%
           </span>
           <button
             type="button"
             onClick={onZoomIn}
             disabled={zoom >= 10}
-            className="p-1.5 text-[#8A857D] hover:text-[#F0EDE8] disabled:text-[#323238] disabled:cursor-not-allowed transition-colors"
+            className="p-1.5 text-text-muted hover:text-text-primary disabled:text-text-ghost disabled:cursor-not-allowed transition-colors"
             title="Zoom in"
           >
             <ZoomIn size={12} />
@@ -94,7 +94,7 @@ export function TimelineToolbar({
         <button
           type="button"
           onClick={onReset}
-          className="text-[10px] text-[#8A857D] hover:text-[#F0EDE8] transition-colors px-2 py-1 rounded border border-[#323238]"
+          className="text-[10px] text-text-muted hover:text-text-primary transition-colors px-2 py-1 rounded border border-surface-highlight"
         >
           Reset
         </button>

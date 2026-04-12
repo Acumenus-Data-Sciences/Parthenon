@@ -48,14 +48,14 @@ export function EndStrategyEditor({
   };
 
   const inputClass = cn(
-    "w-24 rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-1.5 text-sm text-center",
-    "text-[#F0EDE8] focus:border-[#2DD4BF] focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40",
+    "w-24 rounded-lg border border-border-default bg-surface-base px-3 py-1.5 text-sm text-center",
+    "text-text-primary focus:border-success focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40",
     "font-['IBM_Plex_Mono',monospace] tabular-nums",
   );
 
   const selectClass = cn(
-    "appearance-none rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-1.5 text-sm",
-    "text-[#F0EDE8] focus:border-[#2DD4BF] focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40",
+    "appearance-none rounded-lg border border-border-default bg-surface-base px-3 py-1.5 text-sm",
+    "text-text-primary focus:border-success focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40",
     "cursor-pointer",
   );
 
@@ -63,7 +63,7 @@ export function EndStrategyEditor({
     <div className="space-y-4">
       {/* Strategy type radio buttons */}
       <div className="space-y-2">
-        <label className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
+        <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
           Strategy
         </label>
         <div className="space-y-2">
@@ -91,8 +91,8 @@ export function EndStrategyEditor({
               className={cn(
                 "flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors",
                 strategyType === opt.value
-                  ? "border-[#2DD4BF]/30 bg-[#2DD4BF]/5"
-                  : "border-[#232328] bg-[#151518] hover:bg-[#1C1C20]",
+                  ? "border-success/30 bg-success/5"
+                  : "border-border-default bg-surface-raised hover:bg-surface-overlay",
               )}
             >
               <input
@@ -101,13 +101,13 @@ export function EndStrategyEditor({
                 value={opt.value}
                 checked={strategyType === opt.value}
                 onChange={() => handleTypeChange(opt.value)}
-                className="mt-0.5 border-[#232328] bg-[#0E0E11] text-[#2DD4BF] focus:ring-[#2DD4BF]/40"
+                className="mt-0.5 border-border-default bg-surface-base text-success focus:ring-[#2DD4BF]/40"
               />
               <div>
-                <span className="text-sm font-medium text-[#F0EDE8]">
+                <span className="text-sm font-medium text-text-primary">
                   {opt.label}
                 </span>
-                <p className="text-xs text-[#5A5650] mt-0.5">{opt.desc}</p>
+                <p className="text-xs text-text-ghost mt-0.5">{opt.desc}</p>
               </div>
             </label>
           ))}
@@ -116,9 +116,9 @@ export function EndStrategyEditor({
 
       {/* Fixed duration config */}
       {strategyType === "fixed" && value?.DateOffset && (
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-3">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
           <div className="flex items-center gap-3">
-            <label className="text-xs text-[#8A857D]">Offset from</label>
+            <label className="text-xs text-text-muted">Offset from</label>
             <select
               value={value.DateOffset.DateField}
               onChange={(e) =>
@@ -134,7 +134,7 @@ export function EndStrategyEditor({
               <option value="StartDate">Start Date</option>
               <option value="EndDate">End Date</option>
             </select>
-            <label className="text-xs text-[#8A857D]">plus</label>
+            <label className="text-xs text-text-muted">plus</label>
             <input
               type="number"
               min={0}
@@ -149,16 +149,16 @@ export function EndStrategyEditor({
               }
               className={inputClass}
             />
-            <label className="text-xs text-[#8A857D]">days</label>
+            <label className="text-xs text-text-muted">days</label>
           </div>
         </div>
       )}
 
       {/* Custom era config */}
       {strategyType === "customEra" && value?.CustomEra && (
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-3">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
           <div className="space-y-2">
-            <label className="text-xs text-[#8A857D]">Drug Concept Set</label>
+            <label className="text-xs text-text-muted">Drug Concept Set</label>
             <ConceptSetPicker
               value={value.CustomEra.DrugCodesetId}
               onChange={(id) =>
@@ -169,7 +169,7 @@ export function EndStrategyEditor({
             />
           </div>
           <div className="flex items-center gap-3">
-            <label className="text-xs text-[#8A857D]">Gap days</label>
+            <label className="text-xs text-text-muted">Gap days</label>
             <input
               type="number"
               min={0}
@@ -184,7 +184,7 @@ export function EndStrategyEditor({
               }
               className={inputClass}
             />
-            <label className="text-xs text-[#8A857D]">Offset</label>
+            <label className="text-xs text-text-muted">Offset</label>
             <input
               type="number"
               min={0}
@@ -199,7 +199,7 @@ export function EndStrategyEditor({
               }
               className={inputClass}
             />
-            <span className="text-xs text-[#8A857D]">days</span>
+            <span className="text-xs text-text-muted">days</span>
           </div>
         </div>
       )}

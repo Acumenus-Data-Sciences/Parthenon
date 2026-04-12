@@ -32,8 +32,8 @@ export function DemographicFilterEditor({
   onRemove,
 }: DemographicFilterEditorProps) {
   const inputClass = cn(
-    "w-20 rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-1.5 text-sm text-center",
-    "text-[#F0EDE8] focus:border-[#2DD4BF] focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40",
+    "w-20 rounded-lg border border-border-default bg-surface-base px-3 py-1.5 text-sm text-center",
+    "text-text-primary focus:border-success focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40",
     "font-['IBM_Plex_Mono',monospace] tabular-nums",
   );
 
@@ -49,14 +49,14 @@ export function DemographicFilterEditor({
   };
 
   return (
-    <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-4">
+    <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
       {/* Age */}
       <div className="space-y-2">
-        <label className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
+        <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
           Age Range
         </label>
         <div className="flex items-center gap-3">
-          <label className="text-xs text-[#8A857D]">Between</label>
+          <label className="text-xs text-text-muted">Between</label>
           <input
             type="number"
             min={0}
@@ -81,7 +81,7 @@ export function DemographicFilterEditor({
             placeholder="Min"
             className={inputClass}
           />
-          <label className="text-xs text-[#8A857D]">and</label>
+          <label className="text-xs text-text-muted">and</label>
           <input
             type="number"
             min={0}
@@ -101,13 +101,13 @@ export function DemographicFilterEditor({
             placeholder="Max"
             className={inputClass}
           />
-          <label className="text-xs text-[#8A857D]">years</label>
+          <label className="text-xs text-text-muted">years</label>
         </div>
       </div>
 
       {/* Gender */}
       <div className="space-y-2">
-        <label className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
+        <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
           Gender
         </label>
         <div className="flex items-center gap-3">
@@ -119,8 +119,8 @@ export function DemographicFilterEditor({
                 className={cn(
                   "flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-medium cursor-pointer transition-colors",
                   isSelected
-                    ? "border-[#2DD4BF]/30 bg-[#2DD4BF]/10 text-[#2DD4BF]"
-                    : "border-[#232328] bg-[#0E0E11] text-[#8A857D] hover:text-[#C5C0B8]",
+                    ? "border-success/30 bg-success/10 text-success"
+                    : "border-border-default bg-surface-base text-text-muted hover:text-text-secondary",
                 )}
               >
                 <input
@@ -138,7 +138,7 @@ export function DemographicFilterEditor({
 
       {/* Race */}
       <div className="space-y-2">
-        <label className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
+        <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
           Race
         </label>
         <div className="flex flex-wrap items-center gap-2">
@@ -150,8 +150,8 @@ export function DemographicFilterEditor({
                 className={cn(
                   "flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-medium cursor-pointer transition-colors",
                   isSelected
-                    ? "border-[#2DD4BF]/30 bg-[#2DD4BF]/10 text-[#2DD4BF]"
-                    : "border-[#232328] bg-[#0E0E11] text-[#8A857D] hover:text-[#C5C0B8]",
+                    ? "border-success/30 bg-success/10 text-success"
+                    : "border-border-default bg-surface-base text-text-muted hover:text-text-secondary",
                 )}
               >
                 <input
@@ -169,7 +169,7 @@ export function DemographicFilterEditor({
 
       {/* Ethnicity */}
       <div className="space-y-2">
-        <label className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
+        <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
           Ethnicity
         </label>
         <div className="flex items-center gap-3">
@@ -183,8 +183,8 @@ export function DemographicFilterEditor({
                 className={cn(
                   "flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-medium cursor-pointer transition-colors",
                   isSelected
-                    ? "border-[#2DD4BF]/30 bg-[#2DD4BF]/10 text-[#2DD4BF]"
-                    : "border-[#232328] bg-[#0E0E11] text-[#8A857D] hover:text-[#C5C0B8]",
+                    ? "border-success/30 bg-success/10 text-success"
+                    : "border-border-default bg-surface-base text-text-muted hover:text-text-secondary",
                 )}
               >
                 <input
@@ -202,11 +202,11 @@ export function DemographicFilterEditor({
 
       {/* Remove */}
       {onRemove && (
-        <div className="pt-2 border-t border-[#232328]">
+        <div className="pt-2 border-t border-border-default">
           <button
             type="button"
             onClick={onRemove}
-            className="text-xs text-[#8A857D] hover:text-[#E85A6B] transition-colors"
+            className="text-xs text-text-muted hover:text-critical transition-colors"
           >
             Remove filter
           </button>

@@ -2,22 +2,22 @@ import { memo } from "react";
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 
 const DOMAIN_COLORS: Record<string, string> = {
-  Person: "#2DD4BF",
-  Visit: "#3B82F6",
-  Condition: "#C9A227",
-  Drug: "#9B1B30",
+  Person: "var(--success)",
+  Visit: "var(--info)",
+  Condition: "var(--accent)",
+  Drug: "var(--primary)",
   Procedure: "#A855F7",
-  Measurement: "#8B5CF6",
-  Observation: "#F59E0B",
-  Device: "#EC4899",
-  Death: "#6B7280",
-  Cost: "#10B981",
-  Location: "#6366F1",
+  Measurement: "var(--domain-observation)",
+  Observation: "var(--warning)",
+  Device: "var(--domain-procedure)",
+  Death: "var(--text-ghost)",
+  Cost: "var(--success)",
+  Location: "var(--domain-observation)",
   Vocabulary: "#E5E7EB",
   Cohort: "#78716C",
   Note: "#78716C",
   Specimen: "#A3A3A3",
-  Other: "#6B7280",
+  Other: "var(--text-ghost)",
 };
 
 export interface CdmTableNodeData {

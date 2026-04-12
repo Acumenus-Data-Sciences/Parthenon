@@ -29,16 +29,16 @@ export function ConfigureStep({ importId, suggestions, onComplete }: Props) {
 
   const field = (label: string, children: React.ReactNode) => (
     <div>
-      <label className="mb-1 block text-xs font-medium text-[#8A857D]">{label}</label>
+      <label className="mb-1 block text-xs font-medium text-text-muted">{label}</label>
       {children}
     </div>
   );
 
-  const inputClass = "w-full rounded border border-[#323238] bg-[#1C1C20] px-3 py-1.5 text-sm text-[#E8E4DC]";
+  const inputClass = "w-full rounded border border-surface-highlight bg-surface-overlay px-3 py-1.5 text-sm text-text-primary";
 
   return (
     <div className="space-y-4">
-      <div className="rounded border border-[#232328] bg-[#0E0E11] p-4 space-y-4">
+      <div className="rounded border border-border-default bg-surface-base p-4 space-y-4">
         {field("Layer Name", (
           <input
             type="text"
@@ -100,7 +100,7 @@ export function ConfigureStep({ importId, suggestions, onComplete }: Props) {
         <button
           onClick={handleSave}
           disabled={saveMutation.isPending || !config.layer_name || !config.exposure_type}
-          className="rounded bg-[#C9A227] px-4 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#C9A227]/90 disabled:opacity-50"
+          className="rounded bg-accent px-4 py-2 text-sm font-medium text-surface-base hover:bg-accent/90 disabled:opacity-50"
         >
           {saveMutation.isPending ? "Saving..." : "Continue"}
         </button>

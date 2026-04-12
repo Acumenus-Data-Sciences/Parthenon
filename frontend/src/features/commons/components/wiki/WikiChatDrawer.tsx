@@ -21,8 +21,8 @@ function UserBubble() {
     );
   }
   return (
-    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#1A1A1E]">
-      <User size={13} className="text-[#8A857D]" />
+    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-surface-overlay">
+      <User size={13} className="text-text-muted" />
     </div>
   );
 }
@@ -90,14 +90,14 @@ export function WikiChatDrawer({
       >
         {/* Gradient border */}
         <div className="h-full bg-gradient-to-b from-[#2DD4BF] to-[#A78BFA] p-[1px]">
-          <div className="flex h-full flex-col bg-[#0E0E11]">
+          <div className="flex h-full flex-col bg-surface-base">
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-[#232328] px-5 py-4">
+            <div className="flex items-center justify-between border-b border-border-default px-5 py-4">
               <div className="flex items-center gap-3">
                 <AbbyAvatar size="md" showStatus />
                 <div>
-                  <p className="text-sm font-semibold text-[#F0EDE8]">Abby</p>
-                  <p className="text-[10px] text-[#8A857D]">
+                  <p className="text-sm font-semibold text-text-primary">Abby</p>
+                  <p className="text-[10px] text-text-muted">
                     {currentPageTitle ? `Scoped to: ${currentPageTitle.slice(0, 50)}` : "Ask questions about ingested knowledge"}
                   </p>
                 </div>
@@ -105,7 +105,7 @@ export function WikiChatDrawer({
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-lg border border-[#232328] bg-[#151518] p-1.5 text-[#8A857D] transition-colors hover:text-[#F0EDE8]"
+                className="rounded-lg border border-border-default bg-surface-raised p-1.5 text-text-muted transition-colors hover:text-text-primary"
               >
                 <X size={16} />
               </button>
@@ -115,14 +115,14 @@ export function WikiChatDrawer({
             <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-4">
               {messages.length === 0 ? (
                 <div>
-                  <p className="text-xs text-[#5A5650]">Try asking:</p>
+                  <p className="text-xs text-text-ghost">Try asking:</p>
                   <div className="mt-3 space-y-2">
                     {EXAMPLE_PROMPTS.map((prompt) => (
                       <button
                         key={prompt}
                         type="button"
                         onClick={() => { setInput(prompt); }}
-                        className="w-full rounded-lg border border-[#232328] bg-[#151518] px-3 py-2.5 text-left text-sm text-[#8A857D] transition-colors hover:border-[#2DD4BF]/30 hover:text-[#C5C0B8]"
+                        className="w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2.5 text-left text-sm text-text-muted transition-colors hover:border-success/30 hover:text-text-secondary"
                       >
                         {prompt}
                       </button>
@@ -141,7 +141,7 @@ export function WikiChatDrawer({
                           </div>
                         ) : isStreamingMsg ? (
                           <div className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center">
-                            <Loader2 size={18} className="animate-spin text-[#2DD4BF]" />
+                            <Loader2 size={18} className="animate-spin text-success" />
                           </div>
                         ) : (
                           <div className="mt-0.5 flex-shrink-0">
@@ -150,19 +150,19 @@ export function WikiChatDrawer({
                         )}
                         <div className="min-w-0 flex-1 pt-0.5">
                           {msg.role === "user" ? (
-                            <p className="text-sm text-[#F0EDE8]">{msg.content}</p>
+                            <p className="text-sm text-text-primary">{msg.content}</p>
                           ) : msg.content ? (
-                            <div className="text-sm text-[#C5C0B8]">
+                            <div className="text-sm text-text-secondary">
                               <MarkdownRenderer markdown={msg.content} onNavigate={onNavigate} />
                             </div>
                           ) : isStreamingMsg ? (
-                            <p className="text-sm text-[#5A5650]">Generating response...</p>
+                            <p className="text-sm text-text-ghost">Generating response...</p>
                           ) : null}
                           {msg.citations && msg.citations.length > 0 && (
                             <div className="mt-2 flex flex-wrap gap-1.5">
                               {msg.citations.map((c) => (
                                 <button key={c.slug} type="button" onClick={() => { onNavigate(c.slug); onClose(); }}
-                                  className="rounded border border-[#232328] bg-[#1A1A1E] px-2 py-0.5 text-[10px] text-[#8A857D] transition-colors hover:border-[#2DD4BF]/30 hover:text-[#2DD4BF]"
+                                  className="rounded border border-border-default bg-surface-overlay px-2 py-0.5 text-[10px] text-text-muted transition-colors hover:border-success/30 hover:text-success"
                                 >
                                   {c.title.slice(0, 50)}
                                 </button>
@@ -178,7 +178,7 @@ export function WikiChatDrawer({
             </div>
 
             {/* Input */}
-            <div className="border-t border-[#232328] px-5 py-4">
+            <div className="border-t border-border-default px-5 py-4">
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -186,15 +186,15 @@ export function WikiChatDrawer({
                 placeholder="Ask the wiki..."
                 rows={3}
                 maxLength={2000}
-                className="w-full rounded-lg border border-[#232328] bg-[#151518] px-3 py-2.5 text-sm text-[#F0EDE8] placeholder:text-[#5A5650] outline-none transition-colors focus:border-[#2DD4BF]/40"
+                className="w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2.5 text-sm text-text-primary placeholder:text-text-ghost outline-none transition-colors focus:border-success/40"
               />
               <div className="mt-2 flex items-center justify-between">
-                <p className="text-[10px] text-[#5A5650]">{input.length}/2000 &middot; Ctrl+Enter to send</p>
+                <p className="text-[10px] text-text-ghost">{input.length}/2000 &middot; Ctrl+Enter to send</p>
                 <button
                   type="button"
                   onClick={handleSubmit}
                   disabled={loading || input.trim().length < 3}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] transition-colors hover:bg-[#26B8A5] disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base transition-colors hover:bg-success-dark disabled:opacity-50"
                 >
                   {loading ? (
                     <>Searching...</>

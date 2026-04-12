@@ -3,15 +3,15 @@ import { Loader2, Activity, ChevronLeft, ChevronRight, Clock } from "lucide-reac
 import { useStudyActivity } from "../hooks/useStudies";
 
 const ACTION_COLORS: Record<string, string> = {
-  created: "#34D399",
-  updated: "#60A5FA",
-  deleted: "#E85A6B",
-  status_changed: "#F59E0B",
-  member_added: "#2DD4BF",
-  member_removed: "#E85A6B",
-  site_added: "#2DD4BF",
-  analysis_added: "#A78BFA",
-  executed: "#FB923C",
+  created: "var(--success)",
+  updated: "var(--info)",
+  deleted: "var(--critical)",
+  status_changed: "var(--warning)",
+  member_added: "var(--success)",
+  member_removed: "var(--critical)",
+  site_added: "var(--success)",
+  analysis_added: "var(--domain-observation)",
+  executed: "var(--domain-device)",
 };
 
 interface StudyActivityTabProps {
@@ -26,41 +26,41 @@ export function StudyActivityTab({ slug }: StudyActivityTabProps) {
   const totalPages = Math.ceil((data?.total ?? 0) / (data?.limit ?? 25)) || 1;
 
   if (isLoading) {
-    return <div className="flex items-center justify-center py-16"><Loader2 size={24} className="animate-spin text-[#8A857D]" /></div>;
+    return <div className="flex items-center justify-center py-16"><Loader2 size={24} className="animate-spin text-text-muted" /></div>;
   }
 
   return (
     <div className="space-y-4">
-      <h3 className="text-sm font-semibold text-[#C5C0B8]">Activity Log</h3>
+      <h3 className="text-sm font-semibold text-text-secondary">Activity Log</h3>
 
       {entries.length === 0 ? (
         <div className="empty-state">
-          <Activity size={24} className="text-[#323238] mb-2" />
+          <Activity size={24} className="text-text-ghost mb-2" />
           <h3 className="empty-title">No activity yet</h3>
           <p className="empty-message">Actions taken on this study will appear here</p>
         </div>
       ) : (
         <div className="space-y-1">
           {entries.map((entry) => {
-            const color = ACTION_COLORS[entry.action] ?? "#8A857D";
+            const color = ACTION_COLORS[entry.action] ?? "var(--text-muted)";
             return (
-              <div key={entry.id} className="flex items-start gap-3 py-2.5 border-b border-[#232328] last:border-0">
-                <div className="w-6 h-6 rounded-full bg-[#151518] border border-[#232328] flex items-center justify-center shrink-0 mt-0.5">
+              <div key={entry.id} className="flex items-start gap-3 py-2.5 border-b border-border-default last:border-0">
+                <div className="w-6 h-6 rounded-full bg-surface-raised border border-border-default flex items-center justify-center shrink-0 mt-0.5">
                   <Clock size={10} style={{ color }} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 text-sm">
                     {entry.user && (
-                      <span className="text-[#C5C0B8] font-medium">{entry.user.name}</span>
+                      <span className="text-text-secondary font-medium">{entry.user.name}</span>
                     )}
                     <span className="px-1.5 py-0.5 rounded text-[10px] font-medium" style={{ color, backgroundColor: `${color}15` }}>
                       {entry.action.replace(/_/g, " ")}
                     </span>
                     {entry.entity_type && (
-                      <span className="text-xs text-[#5A5650]">{entry.entity_type}</span>
+                      <span className="text-xs text-text-ghost">{entry.entity_type}</span>
                     )}
                   </div>
-                  <p className="text-[10px] text-[#5A5650] mt-0.5">
+                  <p className="text-[10px] text-text-ghost mt-0.5">
                     {new Date(entry.occurred_at).toLocaleString()}
                   </p>
                 </div>
@@ -81,7 +81,7 @@ export function StudyActivityTab({ slug }: StudyActivityTabProps) {
           >
             <ChevronLeft size={14} /> Previous
           </button>
-          <span className="text-xs text-[#5A5650]">
+          <span className="text-xs text-text-ghost">
             Page {page} of {totalPages}
           </span>
           <button

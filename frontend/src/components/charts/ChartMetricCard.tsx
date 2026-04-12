@@ -13,20 +13,20 @@ export function ChartMetricCard({ label, value, subValue, badge, className }: Ch
   return (
     <div
       className={cn(
-        "rounded-lg border border-[#232328] bg-[#151518] p-4",
+        "rounded-lg border border-border-default bg-surface-raised p-4",
         className,
       )}
       data-testid="chart-metric-card"
     >
       <div className="flex items-start justify-between gap-2">
-        <p className="text-xs font-medium text-[#8A857D]">{label}</p>
+        <p className="text-xs font-medium text-text-muted">{label}</p>
         {badge}
       </div>
-      <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-[#F0EDE8]">
+      <p className="mt-1 font-['IBM_Plex_Mono',monospace] text-lg font-bold text-text-primary">
         {value}
       </p>
       {subValue && (
-        <p className="mt-0.5 text-[10px] text-[#5A5650]">{subValue}</p>
+        <p className="mt-0.5 text-[10px] text-text-ghost">{subValue}</p>
       )}
     </div>
   );

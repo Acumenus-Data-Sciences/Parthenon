@@ -10,13 +10,13 @@ import type {
 
 // Community color palette (8 distinct colors for dark theme)
 const COMMUNITY_COLORS = [
-  "#2DD4BF", // teal
-  "#C9A227", // gold
-  "#9B1B30", // crimson
-  "#6366F1", // indigo
-  "#F97316", // orange
-  "#A78BFA", // violet
-  "#34D399", // emerald
+  "var(--success)", // teal
+  "var(--accent)", // gold
+  "var(--primary)", // crimson
+  "var(--domain-observation)", // indigo
+  "var(--domain-device)", // orange
+  "var(--domain-observation)", // violet
+  "var(--success)", // emerald
   "#FB7185", // rose
 ];
 
@@ -170,19 +170,19 @@ function CommunityCards({
       {communities.map((c) => (
         <div
           key={c.id}
-          className="rounded-lg border border-[#232328] bg-[#151518] p-3"
+          className="rounded-lg border border-border-default bg-surface-raised p-3"
         >
           <div className="flex items-center gap-2 mb-1">
             <span
               className="inline-block h-3 w-3 rounded-full"
               style={{ backgroundColor: communityColor(c.id) }}
             />
-            <span className="text-xs font-semibold text-[#C5C0B8]">
+            <span className="text-xs font-semibold text-text-secondary">
               Community {c.id + 1}
             </span>
           </div>
-          <p className="text-lg font-bold text-[#F0EDE8]">{c.size}</p>
-          <p className="text-[10px] text-[#5A5650]">patients</p>
+          <p className="text-lg font-bold text-text-primary">{c.size}</p>
+          <p className="text-[10px] text-text-ghost">patients</p>
         </div>
       ))}
     </div>
@@ -233,7 +233,7 @@ function NetworkGraph({
   return (
     <div className="relative">
       <svg viewBox="0 0 400 400" className="w-full max-w-lg mx-auto">
-        <rect width="400" height="400" fill="#0E0E11" rx="8" />
+        <rect width="400" height="400" fill="var(--surface-base)" rx="8" />
         {/* Edges */}
         {renderEdges.map((e, i) => {
           const a = posMap.get(e.person_a);
@@ -246,7 +246,7 @@ function NetworkGraph({
               y1={a.y}
               x2={b.x}
               y2={b.y}
-              stroke="#5A5650"
+              stroke="var(--text-ghost)"
               strokeOpacity={Math.max(0.05, e.similarity * 0.4)}
               strokeWidth={0.5}
             />
@@ -262,7 +262,7 @@ function NetworkGraph({
             fill={communityColor(p.communityId)}
             fillOpacity={0.85}
             stroke={
-              hoveredNode === p.personId ? "#F0EDE8" : "none"
+              hoveredNode === p.personId ? "var(--text-primary)" : "none"
             }
             strokeWidth={hoveredNode === p.personId ? 1.5 : 0}
             className="cursor-pointer"
@@ -272,7 +272,7 @@ function NetworkGraph({
         ))}
       </svg>
       {hoveredNode !== null && (
-        <div className="absolute top-2 right-2 rounded bg-[#232328] border border-[#323238] px-2 py-1 text-xs text-[#C5C0B8]">
+        <div className="absolute top-2 right-2 rounded bg-surface-elevated border border-surface-highlight px-2 py-1 text-xs text-text-secondary">
           Person: {hoveredNode}
         </div>
       )}
@@ -291,24 +291,24 @@ function ModalityBars({
 
   return (
     <div className="space-y-2">
-      <h4 className="text-xs font-semibold text-[#8A857D] uppercase tracking-wider">
+      <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider">
         Modality Contributions
       </h4>
       {contributions.map((c) => (
         <div key={c.modality} className="flex items-center gap-2">
-          <span className="w-24 text-xs text-[#C5C0B8] capitalize">
+          <span className="w-24 text-xs text-text-secondary capitalize">
             {c.modality}
           </span>
-          <div className="flex-1 h-4 bg-[#1A1A1F] rounded overflow-hidden">
+          <div className="flex-1 h-4 bg-surface-overlay rounded overflow-hidden">
             <div
               className="h-full rounded transition-all"
               style={{
                 width: `${(c.weight / maxWeight) * 100}%`,
-                backgroundColor: "#2DD4BF",
+                backgroundColor: "var(--success)",
               }}
             />
           </div>
-          <span className="w-12 text-xs text-[#5A5650] text-right">
+          <span className="w-12 text-xs text-text-ghost text-right">
             {(c.weight * 100).toFixed(1)}%
           </span>
         </div>
@@ -343,10 +343,10 @@ export function NetworkFusionResults({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-semibold text-[#F0EDE8]">
+          <h3 className="text-sm font-semibold text-text-primary">
             Similarity Network Fusion
           </h3>
-          <p className="text-xs text-[#5A5650] mt-0.5">
+          <p className="text-xs text-text-ghost mt-0.5">
             Multi-modal patient similarity via iterative network diffusion
             across conditions, drugs, procedures, and labs
           </p>
@@ -358,8 +358,8 @@ export function NetworkFusionResults({
           className={cn(
             "px-3 py-1.5 text-xs font-medium rounded border transition-colors",
             snfMutation.isPending
-              ? "text-[#5A5650] border-[#232328] cursor-wait"
-              : "text-[#2DD4BF] border-[#2DD4BF]/30 hover:bg-[#2DD4BF]/10 cursor-pointer",
+              ? "text-text-ghost border-border-default cursor-wait"
+              : "text-success border-success/30 hover:bg-success/10 cursor-pointer",
           )}
         >
           {snfMutation.isPending ? "Computing..." : "Run Network Fusion"}
@@ -368,8 +368,8 @@ export function NetworkFusionResults({
 
       {/* Error */}
       {snfMutation.isError && (
-        <div className="rounded-lg border border-[#E85A6B]/20 bg-[#E85A6B]/5 px-4 py-3">
-          <p className="text-sm text-[#E85A6B]">
+        <div className="rounded-lg border border-critical/20 bg-critical/5 px-4 py-3">
+          <p className="text-sm text-critical">
             {(() => {
               const err = snfMutation.error;
               if (typeof err === "object" && err !== null && "response" in err) {
@@ -397,8 +397,8 @@ export function NetworkFusionResults({
         <div className="space-y-4">
           {/* Capped warning */}
           {result.capped_at != null && (
-            <div className="rounded-lg border border-[#C9A227]/20 bg-[#C9A227]/5 px-4 py-2">
-              <p className="text-xs text-[#C9A227]">
+            <div className="rounded-lg border border-accent/20 bg-accent/5 px-4 py-2">
+              <p className="text-xs text-accent">
                 Cohort capped at {result.capped_at} patients for
                 computational feasibility.
               </p>
@@ -410,8 +410,8 @@ export function NetworkFusionResults({
 
           {/* Graph + contributions side by side */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="rounded-lg border border-[#232328] bg-[#151518] p-3">
-              <h4 className="text-xs font-semibold text-[#8A857D] uppercase tracking-wider mb-2">
+            <div className="rounded-lg border border-border-default bg-surface-raised p-3">
+              <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
                 Fused Network
               </h4>
               <NetworkGraph
@@ -420,13 +420,13 @@ export function NetworkFusionResults({
                 nPatients={result.n_patients}
               />
             </div>
-            <div className="rounded-lg border border-[#232328] bg-[#151518] p-3">
+            <div className="rounded-lg border border-border-default bg-surface-raised p-3">
               <ModalityBars contributions={result.modality_contributions} />
             </div>
           </div>
 
           {/* Convergence info */}
-          <p className="text-xs text-[#5A5650]">
+          <p className="text-xs text-text-ghost">
             Converged in {result.convergence.iterations} iterations (delta:{" "}
             {result.convergence.final_delta.toExponential(2)}) | {result.n_patients} patients |{" "}
             {result.edges.length} edges | {result.communities.length} communities

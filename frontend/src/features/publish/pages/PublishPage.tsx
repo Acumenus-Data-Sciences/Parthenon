@@ -455,10 +455,10 @@ export default function PublishPage() {
       {/* Page header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <FileOutput size={22} className="text-[#2DD4BF]" />
+          <FileOutput size={22} className="text-success" />
           <div>
-            <h1 className="text-xl font-bold text-[#F0EDE8]">Publish</h1>
-            <p className="text-sm text-[#F0EDE8]/50">
+            <h1 className="text-xl font-bold text-text-primary">Publish</h1>
+            <p className="text-sm text-text-primary/50">
               Create pre-publication manuscripts from studies and analyses
             </p>
           </div>
@@ -474,7 +474,7 @@ export default function PublishPage() {
               dispatch({ type: "SET_AUTHORS", authors: [] });
               dispatch({ type: "SET_STEP", step: 1 });
             }}
-            className="text-xs text-[#5A5650] hover:text-[#F0EDE8] transition-colors"
+            className="text-xs text-text-ghost hover:text-text-primary transition-colors"
           >
             Start new document
           </button>
@@ -492,26 +492,26 @@ export default function PublishPage() {
               {i > 0 && (
                 <div
                   className={`h-px w-8 ${
-                    isCompleted ? "bg-[#C9A227]" : "bg-[#232328]"
+                    isCompleted ? "bg-accent" : "bg-surface-elevated"
                   }`}
                 />
               )}
               <div
                 className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
                   isActive
-                    ? "bg-[#C9A227]/15 text-[#C9A227]"
+                    ? "bg-accent/15 text-accent"
                     : isCompleted
-                      ? "bg-[#C9A227]/5 text-[#C9A227]/60"
-                      : "bg-[#151518] text-[#F0EDE8]/30"
+                      ? "bg-accent/5 text-accent/60"
+                      : "bg-surface-raised text-text-primary/30"
                 }`}
               >
                 <span
                   className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${
                     isActive
-                      ? "bg-[#C9A227] text-[#0E0E11]"
+                      ? "bg-accent text-surface-base"
                       : isCompleted
-                        ? "bg-[#C9A227]/40 text-[#0E0E11]"
-                        : "bg-[#232328] text-[#F0EDE8]/40"
+                        ? "bg-accent/40 text-surface-base"
+                        : "bg-surface-elevated text-text-primary/40"
                   }`}
                 >
                   {isCompleted ? (
@@ -528,7 +528,7 @@ export default function PublishPage() {
       </div>
 
       {/* Step content */}
-      <div className="rounded-xl border border-[#232328] bg-[#151518] p-6">
+      <div className="rounded-xl border border-border-default bg-surface-raised p-6">
         {state.step === 1 && (
           <UnifiedAnalysisPicker
             selections={state.selectedExecutions}

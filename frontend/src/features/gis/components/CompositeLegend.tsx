@@ -9,7 +9,7 @@ export function CompositeLegend() {
   if (activeLayerList.length === 0) return null;
 
   return (
-    <div className="absolute bottom-4 left-4 z-10 max-w-xs rounded-lg border border-[#232328] bg-[#0E0E11]/90 p-3 backdrop-blur-sm">
+    <div className="absolute bottom-4 left-4 z-10 max-w-xs rounded-lg border border-border-default bg-surface-base/90 p-3 backdrop-blur-sm">
       {activeLayerList.map((layer) => (
         <div key={layer.id} className="mb-2 last:mb-0">
           <h4
@@ -20,7 +20,7 @@ export function CompositeLegend() {
           </h4>
           <div className="space-y-0.5">
             {layer.legendItems.map((item, i) => (
-              <div key={i} className="flex items-center gap-2 text-[10px] text-[#8A857D]">
+              <div key={i} className="flex items-center gap-2 text-[10px] text-text-muted">
                 {item.type === "gradient" && (
                   <div
                     className="h-2 w-8 rounded-sm"

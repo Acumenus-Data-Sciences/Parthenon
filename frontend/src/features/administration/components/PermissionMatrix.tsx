@@ -133,7 +133,7 @@ export function PermissionMatrix({ roles, permissionsByDomain }: Props) {
     <div className="space-y-4">
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-4">
-        <p className="text-sm text-[#8A857D]">
+        <p className="text-sm text-text-muted">
           Click cells to toggle permissions · row headers to apply across all roles ·
           column headers to grant/revoke all for a role.
         </p>
@@ -141,7 +141,7 @@ export function PermissionMatrix({ roles, permissionsByDomain }: Props) {
           <button
             type="button"
             onClick={saveAll}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-1.5 text-sm font-medium text-[#0E0E11] transition-colors hover:bg-[#26B8A5] shrink-0"
+            className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-1.5 text-sm font-medium text-surface-base transition-colors hover:bg-success-dark shrink-0"
           >
             Save All Changes ({dirty.size} role{dirty.size > 1 ? "s" : ""})
           </button>
@@ -149,37 +149,37 @@ export function PermissionMatrix({ roles, permissionsByDomain }: Props) {
       </div>
 
       {/* Matrix table */}
-      <div className="overflow-x-auto rounded-lg border border-[#232328] bg-[#151518]">
+      <div className="overflow-x-auto rounded-lg border border-border-default bg-surface-raised">
         <table className="w-full text-xs">
           <thead>
-            <tr className="border-b border-[#232328] bg-[#1C1C20]">
-              <th className="sticky left-0 z-10 w-48 bg-[#1C1C20] px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wider text-[#5A5650]">
+            <tr className="border-b border-border-default bg-surface-overlay">
+              <th className="sticky left-0 z-10 w-48 bg-surface-overlay px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wider text-text-ghost">
                 Permission
               </th>
               {editableRoles.map((r) => (
                 <th
                   key={r.id}
-                  className="min-w-[8rem] cursor-pointer px-2 py-2.5 text-center transition-colors hover:bg-[#232328]"
+                  className="min-w-[8rem] cursor-pointer px-2 py-2.5 text-center transition-colors hover:bg-surface-elevated"
                   onClick={() => toggleColumn(r.name)}
                   title={`Toggle all permissions for ${r.name}`}
                 >
-                  <div className="font-semibold text-[#F0EDE8]">{r.name}</div>
-                  <div className="mt-0.5 font-normal text-[#5A5650]">
+                  <div className="font-semibold text-text-primary">{r.name}</div>
+                  <div className="mt-0.5 font-normal text-text-ghost">
                     {matrix[r.name]?.size ?? 0} perms
                   </div>
                   {dirty.has(r.name) && (
                     <div className="mt-0.5">
                       {saving.has(r.name) ? (
-                        <span className="inline-flex items-center gap-1 text-[#8A857D]">
+                        <span className="inline-flex items-center gap-1 text-text-muted">
                           <Loader2 size={10} className="animate-spin" /> saving…
                         </span>
                       ) : saved.has(r.name) ? (
-                        <span className="text-[#22C55E]">saved ✓</span>
+                        <span className="text-success">saved ✓</span>
                       ) : (
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); saveRole(r.name); }}
-                          className="text-[#2DD4BF] underline underline-offset-2 hover:text-[#26B8A5]"
+                          className="text-success underline underline-offset-2 hover:text-success-dark"
                         >
                           save
                         </button>
@@ -195,11 +195,11 @@ export function PermissionMatrix({ roles, permissionsByDomain }: Props) {
               <Fragment key={domain}>
                 {/* Domain section header */}
                 <tr
-                  className="cursor-pointer border-t border-[#232328] bg-[#1C1C20]/60 transition-colors hover:bg-[#1C1C20]"
+                  className="cursor-pointer border-t border-border-default bg-surface-overlay/60 transition-colors hover:bg-surface-overlay"
                   onClick={() => toggleDomainRow(perms)}
                   title={`Toggle all ${domain} permissions across all roles`}
                 >
-                  <td className="sticky left-0 z-10 bg-[#1C1C20] px-3 py-1.5 font-semibold capitalize text-[#C5C0B8]">
+                  <td className="sticky left-0 z-10 bg-surface-overlay px-3 py-1.5 font-semibold capitalize text-text-secondary">
                     {domain}
                   </td>
                   {editableRoles.map((r) => {
@@ -208,11 +208,11 @@ export function PermissionMatrix({ roles, permissionsByDomain }: Props) {
                     return (
                       <td key={r.id} className="px-2 py-1.5 text-center">
                         {domOn ? (
-                          <Check className="mx-auto h-3.5 w-3.5 text-[#22C55E]" />
+                          <Check className="mx-auto h-3.5 w-3.5 text-success" />
                         ) : domSome ? (
-                          <Minus className="mx-auto h-3.5 w-3.5 text-[#8A857D]" />
+                          <Minus className="mx-auto h-3.5 w-3.5 text-text-muted" />
                         ) : (
-                          <X className="mx-auto h-3.5 w-3.5 text-[#E85A6B]/40" />
+                          <X className="mx-auto h-3.5 w-3.5 text-critical/40" />
                         )}
                       </td>
                     );
@@ -225,30 +225,30 @@ export function PermissionMatrix({ roles, permissionsByDomain }: Props) {
                   return (
                     <tr
                       key={perm.name}
-                      className="border-t border-[#232328]/50 transition-colors hover:bg-[#1C1C20]/30"
+                      className="border-t border-border-default/50 transition-colors hover:bg-surface-overlay/30"
                     >
                       <td
-                        className="sticky left-0 z-10 cursor-pointer bg-[#151518] px-3 py-1 transition-colors hover:bg-[#1C1C20]"
+                        className="sticky left-0 z-10 cursor-pointer bg-surface-raised px-3 py-1 transition-colors hover:bg-surface-overlay"
                         onClick={() => toggleRow(perm.name)}
                         title={`Toggle ${perm.name} for all roles`}
                       >
-                        <span className="pl-3 font-mono text-[#8A857D]">{action}</span>
+                        <span className="pl-3 font-mono text-text-muted">{action}</span>
                       </td>
                       {editableRoles.map((r) => {
                         const on = matrix[r.name]?.has(perm.name);
                         return (
                           <td
                             key={r.id}
-                            className="cursor-pointer px-2 py-1 text-center transition-colors hover:bg-[#1C1C20]/60"
+                            className="cursor-pointer px-2 py-1 text-center transition-colors hover:bg-surface-overlay/60"
                             onClick={() => toggleCell(r.name, perm.name)}
                             title={`${on ? "Revoke" : "Grant"} ${perm.name} from ${r.name}`}
                           >
                             {on ? (
-                              <span className="mx-auto flex h-4 w-4 items-center justify-center rounded bg-[#22C55E]/15">
-                                <Check className="h-3 w-3 text-[#22C55E]" />
+                              <span className="mx-auto flex h-4 w-4 items-center justify-center rounded bg-success/15">
+                                <Check className="h-3 w-3 text-success" />
                               </span>
                             ) : (
-                              <X className="mx-auto h-3 w-3 text-[#E85A6B]/35" />
+                              <X className="mx-auto h-3 w-3 text-critical/35" />
                             )}
                           </td>
                         );

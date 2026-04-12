@@ -270,7 +270,7 @@ export default function DocumentPreview({
         <button
           type="button"
           onClick={onBack}
-          className="flex items-center gap-1.5 rounded-lg border border-[#232328] px-4 py-2 text-sm text-[#F0EDE8] transition-colors hover:bg-[#232328]"
+          className="flex items-center gap-1.5 rounded-lg border border-border-default px-4 py-2 text-sm text-text-primary transition-colors hover:bg-surface-elevated"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Configure
@@ -278,7 +278,7 @@ export default function DocumentPreview({
         <button
           type="button"
           onClick={onNext}
-          className="flex items-center gap-2 rounded-lg bg-[#C9A227] px-5 py-2.5 text-sm font-semibold text-[#0E0E11] transition-colors hover:bg-[#d4ad2f]"
+          className="flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-surface-base transition-colors hover:bg-accent"
         >
           Export
           <ArrowRight className="h-4 w-4" />

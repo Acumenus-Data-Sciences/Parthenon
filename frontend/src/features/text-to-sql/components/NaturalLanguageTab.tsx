@@ -128,7 +128,7 @@ export function NaturalLanguageTab() {
           {/* Input card */}
           <div
             style={{
-              background: "#151518",
+              background: "var(--surface-raised)",
               border: "1px solid #232328",
               borderRadius: "10px",
               padding: "20px",
@@ -140,7 +140,7 @@ export function NaturalLanguageTab() {
                 display: "block",
                 fontSize: "13px",
                 fontWeight: 600,
-                color: "#C5C0B8",
+                color: "var(--text-secondary)",
                 marginBottom: "10px",
                 letterSpacing: "0.2px",
               }}
@@ -157,11 +157,11 @@ export function NaturalLanguageTab() {
               rows={4}
               style={{
                 width: "100%",
-                background: "#0E0E11",
+                background: "var(--surface-base)",
                 border: "1px solid #232328",
                 borderRadius: "8px",
                 padding: "12px 14px",
-                color: "#F0EDE8",
+                color: "var(--text-primary)",
                 fontSize: "14px",
                 lineHeight: "1.6",
                 resize: "vertical",
@@ -171,10 +171,10 @@ export function NaturalLanguageTab() {
                 transition: "border-color 150ms",
               }}
               onFocus={(e) => {
-                e.currentTarget.style.borderColor = "#9B1B30";
+                e.currentTarget.style.borderColor = "var(--primary)";
               }}
               onBlur={(e) => {
-                e.currentTarget.style.borderColor = "#232328";
+                e.currentTarget.style.borderColor = "var(--surface-elevated)";
               }}
             />
 
@@ -186,7 +186,7 @@ export function NaturalLanguageTab() {
                 marginTop: "4px",
               }}
             >
-              <span style={{ fontSize: "11px", color: "#8A857D" }}>
+              <span style={{ fontSize: "11px", color: "var(--text-muted)" }}>
                 Ctrl+Enter to generate
               </span>
             </div>
@@ -197,7 +197,7 @@ export function NaturalLanguageTab() {
                 style={{
                   fontSize: "11px",
                   fontWeight: 600,
-                  color: "#8A857D",
+                  color: "var(--text-muted)",
                   textTransform: "uppercase",
                   letterSpacing: "0.5px",
                   marginBottom: "8px",
@@ -217,7 +217,7 @@ export function NaturalLanguageTab() {
                       borderRadius: "20px",
                       border: "1px solid #2DD4BF30",
                       background: "#2DD4BF0A",
-                      color: "#2DD4BF",
+                      color: "var(--success)",
                       fontSize: "11px",
                       cursor: "pointer",
                       transition: "all 150ms",
@@ -252,9 +252,9 @@ export function NaturalLanguageTab() {
                 borderRadius: "8px",
                 border: "none",
                 background:
-                  isLoading || !question.trim() ? "#4A1020" : "#9B1B30",
+                  isLoading || !question.trim() ? "#4A1020" : "var(--primary)",
                 color:
-                  isLoading || !question.trim() ? "#C5C0B855" : "#F0EDE8",
+                  isLoading || !question.trim() ? "#C5C0B855" : "var(--text-primary)",
                 fontSize: "14px",
                 fontWeight: 600,
                 cursor:
@@ -269,7 +269,7 @@ export function NaturalLanguageTab() {
               }}
               onMouseLeave={(e) => {
                 if (!isLoading && question.trim()) {
-                  e.currentTarget.style.background = "#9B1B30";
+                  e.currentTarget.style.background = "var(--primary)";
                 }
               }}
             >
@@ -292,7 +292,7 @@ export function NaturalLanguageTab() {
                   borderRadius: "6px",
                   border: "1px solid #9B1B3040",
                   background: "#9B1B3015",
-                  color: "#F87171",
+                  color: "var(--critical)",
                   fontSize: "13px",
                 }}
               >
@@ -308,7 +308,7 @@ export function NaturalLanguageTab() {
           {history.length > 0 && (
             <div
               style={{
-                background: "#151518",
+                background: "var(--surface-raised)",
                 border: "1px solid #232328",
                 borderRadius: "10px",
                 overflow: "hidden",
@@ -330,10 +330,10 @@ export function NaturalLanguageTab() {
                     gap: "7px",
                     fontSize: "13px",
                     fontWeight: 600,
-                    color: "#C5C0B8",
+                    color: "var(--text-secondary)",
                   }}
                 >
-                  <Clock size={14} style={{ color: "#8A857D" }} />
+                  <Clock size={14} style={{ color: "var(--text-muted)" }} />
                   Query History
                 </div>
                 <button
@@ -346,19 +346,19 @@ export function NaturalLanguageTab() {
                     borderRadius: "5px",
                     border: "1px solid #232328",
                     background: "none",
-                    color: "#8A857D",
+                    color: "var(--text-muted)",
                     fontSize: "11px",
                     cursor: "pointer",
                     fontFamily: "inherit",
                     transition: "all 150ms",
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.color = "#F87171";
+                    e.currentTarget.style.color = "var(--critical)";
                     e.currentTarget.style.borderColor = "#9B1B3040";
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.color = "#8A857D";
-                    e.currentTarget.style.borderColor = "#232328";
+                    e.currentTarget.style.color = "var(--text-muted)";
+                    e.currentTarget.style.borderColor = "var(--surface-elevated)";
                   }}
                 >
                   <Trash2 size={11} />
@@ -386,7 +386,7 @@ export function NaturalLanguageTab() {
                       transition: "background 150ms",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.background = "#1C1C20";
+                      e.currentTarget.style.background = "var(--surface-overlay)";
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.background = "none";
@@ -395,7 +395,7 @@ export function NaturalLanguageTab() {
                     <span
                       style={{
                         fontSize: "13px",
-                        color: "#C5C0B8",
+                        color: "var(--text-secondary)",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
@@ -405,7 +405,7 @@ export function NaturalLanguageTab() {
                     >
                       {entry.question}
                     </span>
-                    <span style={{ fontSize: "11px", color: "#8A857D" }}>
+                    <span style={{ fontSize: "11px", color: "var(--text-muted)" }}>
                       {new Date(entry.timestamp).toLocaleString()}
                     </span>
                   </button>
@@ -444,7 +444,7 @@ export function NaturalLanguageTab() {
                 padding: "60px 24px",
                 border: "1px dashed #232328",
                 borderRadius: "10px",
-                background: "#151518",
+                background: "var(--surface-raised)",
                 textAlign: "center",
               }}
             >
@@ -461,7 +461,7 @@ export function NaturalLanguageTab() {
               >
                 <MessageSquareCode
                   size={24}
-                  style={{ color: "#9B1B30" }}
+                  style={{ color: "var(--primary)" }}
                 />
               </div>
               <div>
@@ -469,7 +469,7 @@ export function NaturalLanguageTab() {
                   style={{
                     fontSize: "15px",
                     fontWeight: 600,
-                    color: "#C5C0B8",
+                    color: "var(--text-secondary)",
                     marginBottom: "6px",
                   }}
                 >
@@ -478,7 +478,7 @@ export function NaturalLanguageTab() {
                 <p
                   style={{
                     fontSize: "13px",
-                    color: "#8A857D",
+                    color: "var(--text-muted)",
                     margin: 0,
                     maxWidth: "320px",
                   }}

@@ -40,7 +40,7 @@ function LiveTimer({ startedAt, className }: { startedAt: string; className?: st
   }, [startedAt]);
 
   return (
-    <span className={className ?? "font-['IBM_Plex_Mono',monospace] text-xs text-[#C9A227] tabular-nums"}>
+    <span className={className ?? "font-['IBM_Plex_Mono',monospace] text-xs text-accent tabular-nums"}>
       {elapsed < 60 ? `${elapsed.toFixed(1)}s` : `${Math.floor(elapsed / 60)}m ${(elapsed % 60).toFixed(0)}s`}
     </span>
   );
@@ -54,45 +54,45 @@ function StepRow({ step }: { step: AchillesRunStep }) {
       <div
         className={cn(
           "flex items-center gap-2 py-1.5 px-3 rounded-md text-sm",
-          step.status === "failed" && "bg-[#E85A6B]/5 cursor-pointer",
-          step.status === "running" && "bg-[#C9A227]/5",
+          step.status === "failed" && "bg-critical/5 cursor-pointer",
+          step.status === "running" && "bg-accent/5",
         )}
         onClick={() => step.status === "failed" && setShowError(!showError)}
       >
-        {step.status === "pending" && <Clock size={13} className="text-[#5A5650] shrink-0" />}
-        {step.status === "running" && <Loader2 size={13} className="animate-spin text-[#C9A227] shrink-0" />}
-        {step.status === "completed" && <CheckCircle2 size={13} className="text-[#2DD4BF] shrink-0" />}
-        {step.status === "failed" && <AlertCircle size={13} className="text-[#E85A6B] shrink-0" />}
+        {step.status === "pending" && <Clock size={13} className="text-text-ghost shrink-0" />}
+        {step.status === "running" && <Loader2 size={13} className="animate-spin text-accent shrink-0" />}
+        {step.status === "completed" && <CheckCircle2 size={13} className="text-success shrink-0" />}
+        {step.status === "failed" && <AlertCircle size={13} className="text-critical shrink-0" />}
 
         <span className={cn(
           "flex-1 truncate",
-          step.status === "pending" && "text-[#5A5650]",
-          step.status === "running" && "text-[#F0EDE8]",
-          step.status === "completed" && "text-[#C5C0B8]",
-          step.status === "failed" && "text-[#E85A6B]",
+          step.status === "pending" && "text-text-ghost",
+          step.status === "running" && "text-text-primary",
+          step.status === "completed" && "text-text-secondary",
+          step.status === "failed" && "text-critical",
         )}>
-          <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#8A857D] mr-1.5">
+          <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-muted mr-1.5">
             {step.analysis_id}
           </span>
           {step.analysis_name}
         </span>
 
         {step.status === "running" && step.started_at && (
-          <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#C9A227] tabular-nums">
+          <span className="font-['IBM_Plex_Mono',monospace] text-xs text-accent tabular-nums">
             [<LiveTimer startedAt={step.started_at} />]
           </span>
         )}
         {step.status === "completed" && step.elapsed_seconds != null && (
-          <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#5A5650] tabular-nums">
+          <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-ghost tabular-nums">
             {step.elapsed_seconds.toFixed(2)}s
           </span>
         )}
         {step.status === "failed" && (
-          <ChevronDown size={12} className={cn("text-[#E85A6B] transition-transform", showError && "rotate-180")} />
+          <ChevronDown size={12} className={cn("text-critical transition-transform", showError && "rotate-180")} />
         )}
       </div>
       {showError && step.error_message && (
-        <div className="ml-7 px-3 py-2 text-xs text-[#E85A6B]/80 bg-[#E85A6B]/5 rounded-md border border-[#E85A6B]/10 font-['IBM_Plex_Mono',monospace] whitespace-pre-wrap break-all">
+        <div className="ml-7 px-3 py-2 text-xs text-critical/80 bg-critical/5 rounded-md border border-critical/10 font-['IBM_Plex_Mono',monospace] whitespace-pre-wrap break-all">
           {step.error_message}
         </div>
       )}
@@ -116,27 +116,27 @@ function CategorySection({ category, isHistorical }: { category: AchillesRunCate
 
   const statusIcon = isDone
     ? category.failed > 0
-      ? <AlertCircle size={14} className="text-[#E85A6B]" />
-      : <CheckCircle2 size={14} className="text-[#2DD4BF]" />
+      ? <AlertCircle size={14} className="text-critical" />
+      : <CheckCircle2 size={14} className="text-success" />
     : hasRunning
-      ? <Loader2 size={14} className="animate-spin text-[#C9A227]" />
-      : <Clock size={14} className="text-[#5A5650]" />;
+      ? <Loader2 size={14} className="animate-spin text-accent" />
+      : <Clock size={14} className="text-text-ghost" />;
 
   return (
-    <div className="rounded-xl border border-[#232328] bg-[#151518] overflow-hidden">
+    <div className="rounded-xl border border-border-default bg-surface-raised overflow-hidden">
       <button
         type="button"
         onClick={() => setCollapsed(!collapsed)}
-        className="flex items-center gap-2 w-full px-4 py-3 text-left hover:bg-[#1A1A1E] transition-colors"
+        className="flex items-center gap-2 w-full px-4 py-3 text-left hover:bg-surface-overlay transition-colors"
       >
-        {collapsed ? <ChevronRight size={14} className="text-[#8A857D]" /> : <ChevronDown size={14} className="text-[#8A857D]" />}
+        {collapsed ? <ChevronRight size={14} className="text-text-muted" /> : <ChevronDown size={14} className="text-text-muted" />}
         {statusIcon}
-        <span className="text-sm font-medium text-[#F0EDE8] flex-1">{category.category}</span>
-        <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#8A857D]">
+        <span className="text-sm font-medium text-text-primary flex-1">{category.category}</span>
+        <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-muted">
           {category.completed}/{category.total}
         </span>
         {category.failed > 0 && (
-          <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#E85A6B]">
+          <span className="font-['IBM_Plex_Mono',monospace] text-xs text-critical">
             {category.failed} failed
           </span>
         )}
@@ -185,26 +185,26 @@ export default function AchillesRunModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="relative flex flex-col w-full max-w-3xl max-h-[85vh] rounded-2xl border border-[#232328] bg-[#0E0E11] shadow-2xl">
+      <div className="relative flex flex-col w-full max-w-3xl max-h-[85vh] rounded-2xl border border-border-default bg-surface-base shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#232328]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border-default">
           <div className="flex items-center gap-3">
             {isFinished ? (
-              <Zap size={20} className="text-[#2DD4BF]" />
+              <Zap size={20} className="text-success" />
             ) : (
-              <Activity size={20} className="text-[#C9A227] animate-pulse" />
+              <Activity size={20} className="text-accent animate-pulse" />
             )}
             <div>
-              <h2 className="text-base font-semibold text-[#F0EDE8]">
+              <h2 className="text-base font-semibold text-text-primary">
                 Achilles Characterization
               </h2>
-              <p className="text-xs text-[#5A5650]">
+              <p className="text-xs text-text-ghost">
                 {isFinished
                   ? `Completed in ${formatDuration(elapsedTotal)}`
                   : `${done} of ${total} analyses`}
                 {!isFinished && startedAt && (
-                  <span className="ml-2 text-[#8A857D]">
-                    Elapsed: <LiveTimer startedAt={progress!.started_at!} className="text-xs text-[#8A857D] font-['IBM_Plex_Mono',monospace] tabular-nums" />
+                  <span className="ml-2 text-text-muted">
+                    Elapsed: <LiveTimer startedAt={progress!.started_at!} className="text-xs text-text-muted font-['IBM_Plex_Mono',monospace] tabular-nums" />
                   </span>
                 )}
               </p>
@@ -213,42 +213,42 @@ export default function AchillesRunModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#1A1A1E] transition-colors"
+            className="rounded-lg p-1.5 text-text-muted hover:text-text-primary hover:bg-surface-overlay transition-colors"
           >
             <X size={18} />
           </button>
         </div>
 
         {/* Progress bar + stats */}
-        <div className="px-6 py-4 border-b border-[#232328] space-y-3">
+        <div className="px-6 py-4 border-b border-border-default space-y-3">
           <div className="flex items-center justify-between text-sm">
-            <span className="font-['IBM_Plex_Mono',monospace] text-[#C9A227] text-lg font-semibold">
+            <span className="font-['IBM_Plex_Mono',monospace] text-accent text-lg font-semibold">
               {pct.toFixed(1)}%
             </span>
             <div className="flex items-center gap-4">
               {completed > 0 && (
-                <span className="flex items-center gap-1 text-xs text-[#2DD4BF]">
+                <span className="flex items-center gap-1 text-xs text-success">
                   <CheckCircle2 size={12} /> {completed} passed
                 </span>
               )}
               {failed > 0 && (
-                <span className="flex items-center gap-1 text-xs text-[#E85A6B]">
+                <span className="flex items-center gap-1 text-xs text-critical">
                   <AlertCircle size={12} /> {failed} failed
                 </span>
               )}
               {isFinished && elapsedTotal > 0 && (
-                <span className="flex items-center gap-1 text-xs text-[#8A857D]">
+                <span className="flex items-center gap-1 text-xs text-text-muted">
                   <Clock size={12} /> {formatDuration(elapsedTotal)} total
                 </span>
               )}
               {!isFinished && remaining > 0 && (
-                <span className="flex items-center gap-1 text-xs text-[#8A857D]">
+                <span className="flex items-center gap-1 text-xs text-text-muted">
                   <Clock size={12} /> ~{formatDuration(remaining)} remaining
                 </span>
               )}
             </div>
           </div>
-          <div className="h-2.5 w-full overflow-hidden rounded-full bg-[#1A1A1E]">
+          <div className="h-2.5 w-full overflow-hidden rounded-full bg-surface-overlay">
             <div
               className="h-full rounded-full transition-all duration-300 ease-out"
               style={{
@@ -269,22 +269,22 @@ export default function AchillesRunModal({
             ))
           ) : (
             <div className="flex items-center justify-center py-12">
-              <Loader2 size={20} className="animate-spin text-[#8A857D]" />
-              <span className="ml-2 text-sm text-[#5A5650]">Waiting for analyses to start...</span>
+              <Loader2 size={20} className="animate-spin text-text-muted" />
+              <span className="ml-2 text-sm text-text-ghost">Waiting for analyses to start...</span>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end px-6 py-3 border-t border-[#232328]">
+        <div className="flex items-center justify-end px-6 py-3 border-t border-border-default">
           <button
             type="button"
             onClick={onClose}
             className={cn(
               "rounded-lg px-4 py-2 text-sm font-medium transition-colors",
               isFinished
-                ? "bg-[#2DD4BF]/10 text-[#2DD4BF] hover:bg-[#2DD4BF]/20"
-                : "bg-[#1A1A1E] text-[#C5C0B8] hover:bg-[#232328]",
+                ? "bg-success/10 text-success hover:bg-success/20"
+                : "bg-surface-overlay text-text-secondary hover:bg-surface-elevated",
             )}
           >
             {isFinished ? "Done" : "Run in Background"}

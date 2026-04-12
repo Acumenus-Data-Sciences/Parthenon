@@ -85,7 +85,7 @@ export default function ForestPlot({
       .attr("x2", xScale(nullValue))
       .attr("y1", 0)
       .attr("y2", plotHeight)
-      .attr("stroke", "#999")
+      .attr("stroke", "var(--text-muted)")
       .attr("stroke-dasharray", "4,3")
       .attr("stroke-width", 1);
 
@@ -102,7 +102,7 @@ export default function ForestPlot({
         .attr("x2", xScale(d.ci_upper))
         .attr("y1", yCenter)
         .attr("y2", yCenter)
-        .attr("stroke", "#333")
+        .attr("stroke", "var(--surface-highlight)")
         .attr("stroke-width", 1.5);
 
       // Whisker caps
@@ -112,7 +112,7 @@ export default function ForestPlot({
           .attr("x2", xScale(val))
           .attr("y1", yCenter - 4)
           .attr("y2", yCenter + 4)
-          .attr("stroke", "#333")
+          .attr("stroke", "var(--surface-highlight)")
           .attr("stroke-width", 1.5);
       });
 
@@ -133,7 +133,7 @@ export default function ForestPlot({
         .attr("text-anchor", "end")
         .attr("dominant-baseline", "central")
         .attr("font-size", "11px")
-        .attr("fill", "#333")
+        .attr("fill", "var(--surface-highlight)")
         .attr("font-family", "sans-serif")
         .text(d.label);
 
@@ -144,7 +144,7 @@ export default function ForestPlot({
         .attr("text-anchor", "start")
         .attr("dominant-baseline", "central")
         .attr("font-size", "10px")
-        .attr("fill", "#555")
+        .attr("fill", "var(--text-ghost)")
         .attr("font-family", "monospace")
         .text(formatEstimate(d.estimate, d.ci_lower, d.ci_upper));
     });
@@ -162,7 +162,7 @@ export default function ForestPlot({
         .attr("x2", plotWidth + MARGIN.right - 10)
         .attr("y1", separatorY)
         .attr("y2", separatorY)
-        .attr("stroke", "#ccc")
+        .attr("stroke", "var(--text-secondary)")
         .attr("stroke-width", 0.5);
 
       // CI whisker for pooled
@@ -171,7 +171,7 @@ export default function ForestPlot({
         .attr("x2", xScale(pooled.ci_upper))
         .attr("y1", yCenter)
         .attr("y2", yCenter)
-        .attr("stroke", "#333")
+        .attr("stroke", "var(--surface-highlight)")
         .attr("stroke-width", 1.5);
 
       // Diamond
@@ -195,7 +195,7 @@ export default function ForestPlot({
         .attr("dominant-baseline", "central")
         .attr("font-size", "11px")
         .attr("font-weight", "bold")
-        .attr("fill", "#333")
+        .attr("fill", "var(--surface-highlight)")
         .attr("font-family", "sans-serif")
         .text("Pooled");
 
@@ -207,7 +207,7 @@ export default function ForestPlot({
         .attr("dominant-baseline", "central")
         .attr("font-size", "10px")
         .attr("font-weight", "bold")
-        .attr("fill", "#555")
+        .attr("fill", "var(--text-ghost)")
         .attr("font-family", "monospace")
         .text(formatEstimate(pooled.estimate, pooled.ci_lower, pooled.ci_upper));
     }
@@ -219,7 +219,7 @@ export default function ForestPlot({
       .attr("text-anchor", "start")
       .attr("font-size", "10px")
       .attr("font-weight", "bold")
-      .attr("fill", "#333")
+      .attr("fill", "var(--surface-highlight)")
       .attr("font-family", "sans-serif")
       .text("HR (95% CI)");
 
@@ -233,7 +233,7 @@ export default function ForestPlot({
       .call(xAxis)
       .selectAll("text")
       .attr("font-size", "10px")
-      .attr("fill", "#555");
+      .attr("fill", "var(--text-ghost)");
 
     // X-axis label
     g.append("text")
@@ -241,7 +241,7 @@ export default function ForestPlot({
       .attr("y", plotHeight + 38)
       .attr("text-anchor", "middle")
       .attr("font-size", "12px")
-      .attr("fill", "#333")
+      .attr("fill", "var(--surface-highlight)")
       .attr("font-family", "sans-serif")
       .text(xLabel);
 
@@ -251,7 +251,7 @@ export default function ForestPlot({
       .attr("y", plotHeight + 24)
       .attr("text-anchor", "end")
       .attr("font-size", "9px")
-      .attr("fill", "#777")
+      .attr("fill", "var(--text-muted)")
       .attr("font-family", "sans-serif")
       .text("\u2190 Favors treatment");
 
@@ -260,7 +260,7 @@ export default function ForestPlot({
       .attr("y", plotHeight + 24)
       .attr("text-anchor", "start")
       .attr("font-size", "9px")
-      .attr("fill", "#777")
+      .attr("fill", "var(--text-muted)")
       .attr("font-family", "sans-serif")
       .text("Favors control \u2192");
   }, [data, pooled, nullValue, xLabel, width, computedHeight, plotWidth, plotHeight, totalRows]);

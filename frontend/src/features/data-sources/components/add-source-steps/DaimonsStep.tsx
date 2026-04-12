@@ -51,37 +51,37 @@ export function DaimonsStep({ data, onChange }: Props) {
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="text-lg font-semibold text-[#F0EDE8]">Schema Qualifiers (Daimons)</h2>
-        <p className="mt-1 text-sm text-[#8A857D]">
+        <h2 className="text-lg font-semibold text-text-primary">Schema Qualifiers (Daimons)</h2>
+        <p className="mt-1 text-sm text-text-muted">
           Each daimon tells Parthenon which PostgreSQL schema holds that type of data.
         </p>
       </div>
 
       <div className="space-y-3">
         {DAIMON_ROWS.map(({ key, label, icon: Icon, placeholder, required, description }) => (
-          <div key={key} className="rounded-lg border border-[#232328] bg-[#0E0E11] px-4 py-3">
+          <div key={key} className="rounded-lg border border-border-default bg-surface-base px-4 py-3">
             <div className="flex items-start gap-3">
-              <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-[#232328] bg-[#151518]">
-                <Icon size={13} className="text-[#8A857D]" />
+              <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border-default bg-surface-raised">
+                <Icon size={13} className="text-text-muted" />
               </div>
               <div className="flex-1 min-w-0 space-y-1.5">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-sm font-medium text-[#C5C0B8]">{label}</span>
+                  <span className="text-sm font-medium text-text-secondary">{label}</span>
                   {required ? (
-                    <span className="text-[#E85A6B] text-xs">*</span>
+                    <span className="text-critical text-xs">*</span>
                   ) : (
-                    <span className="rounded-full bg-[#232328] px-1.5 py-0.5 text-[9px] font-medium text-[#5A5650]">
+                    <span className="rounded-full bg-surface-elevated px-1.5 py-0.5 text-[9px] font-medium text-text-ghost">
                       Optional
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-[#5A5650]">{description}</p>
+                <p className="text-xs text-text-ghost">{description}</p>
                 <input
                   type="text"
                   value={data[key]}
                   onChange={(e) => onChange({ ...data, [key]: e.target.value })}
                   placeholder={placeholder}
-                  className="w-full rounded-md border border-[#232328] bg-[#151518] px-3 py-1.5 font-mono text-sm text-[#F0EDE8] placeholder-[#5A5650] focus:border-[#C9A227] focus:outline-none"
+                  className="w-full rounded-md border border-border-default bg-surface-raised px-3 py-1.5 font-mono text-sm text-text-primary placeholder-[#5A5650] focus:border-accent focus:outline-none"
                 />
               </div>
             </div>

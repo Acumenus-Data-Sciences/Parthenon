@@ -4,7 +4,7 @@
 
 /** Categorical palette for clusters (up to 20 colors). */
 export const CLUSTER_PALETTE = [
-  "#2DD4BF", "#C9A227", "#9B1B30", "#60a5fa", "#a78bfa",
+  "var(--success)", "var(--accent)", "var(--primary)", "#60a5fa", "#a78bfa",
   "#f472b6", "#fb923c", "#4ade80", "#e879f9", "#38bdf8",
   "#fbbf24", "#34d399", "#f87171", "#818cf8", "#22d3ee",
   "#a3e635", "#e2e8f0", "#fda4af", "#93c5fd", "#d8b4fe",
@@ -31,46 +31,46 @@ function buildPalette(primary: string, secondary: string[]): readonly string[] {
 
 export const COLLECTION_THEMES: Record<string, CollectionTheme> = {
   docs: {
-    accent: "#2DD4BF",
+    accent: "var(--success)",
     bg: "rgba(45, 212, 191, 0.10)",
     border: "rgba(45, 212, 191, 0.25)",
-    text: "#2DD4BF",
-    palette: buildPalette("#2DD4BF", [...CLUSTER_PALETTE]),
+    text: "var(--success)",
+    palette: buildPalette("var(--success)", [...CLUSTER_PALETTE]),
   },
   ohdsi_papers: {
-    accent: "#C9A227",
+    accent: "var(--accent)",
     bg: "rgba(201, 162, 39, 0.12)",
     border: "rgba(201, 162, 39, 0.28)",
-    text: "#C9A227",
-    palette: buildPalette("#C9A227", [...CLUSTER_PALETTE]),
+    text: "var(--accent)",
+    palette: buildPalette("var(--accent)", [...CLUSTER_PALETTE]),
   },
   medical_textbooks: {
-    accent: "#60A5FA",
+    accent: "var(--info)",
     bg: "rgba(96, 165, 250, 0.12)",
     border: "rgba(96, 165, 250, 0.28)",
-    text: "#60A5FA",
-    palette: buildPalette("#60A5FA", [...CLUSTER_PALETTE]),
+    text: "var(--info)",
+    palette: buildPalette("var(--info)", [...CLUSTER_PALETTE]),
   },
   clinical_reference: {
-    accent: "#9B1B30",
+    accent: "var(--primary)",
     bg: "rgba(155, 27, 48, 0.12)",
     border: "rgba(155, 27, 48, 0.28)",
-    text: "#E85A6B",
-    palette: buildPalette("#9B1B30", [...CLUSTER_PALETTE]),
+    text: "var(--critical)",
+    palette: buildPalette("var(--primary)", [...CLUSTER_PALETTE]),
   },
   faq_shared: {
-    accent: "#A78BFA",
+    accent: "var(--domain-observation)",
     bg: "rgba(167, 139, 250, 0.12)",
     border: "rgba(167, 139, 250, 0.28)",
-    text: "#A78BFA",
-    palette: buildPalette("#A78BFA", [...CLUSTER_PALETTE]),
+    text: "var(--domain-observation)",
+    palette: buildPalette("var(--domain-observation)", [...CLUSTER_PALETTE]),
   },
   conversation_memory: {
-    accent: "#FB923C",
+    accent: "var(--domain-device)",
     bg: "rgba(251, 146, 60, 0.12)",
     border: "rgba(251, 146, 60, 0.28)",
-    text: "#FB923C",
-    palette: buildPalette("#FB923C", [...CLUSTER_PALETTE]),
+    text: "var(--domain-device)",
+    palette: buildPalette("var(--domain-device)", [...CLUSTER_PALETTE]),
   },
 };
 
@@ -79,10 +79,10 @@ export function getCollectionTheme(collectionName: string | null | undefined): C
     return COLLECTION_THEMES[collectionName];
   }
   return {
-    accent: "#2DD4BF",
+    accent: "var(--success)",
     bg: "rgba(45, 212, 191, 0.10)",
     border: "rgba(45, 212, 191, 0.25)",
-    text: "#2DD4BF",
+    text: "var(--success)",
     palette: CLUSTER_PALETTE,
   };
 }
@@ -90,21 +90,21 @@ export function getCollectionTheme(collectionName: string | null | undefined): C
 /** Quality mode colors. */
 export const QUALITY_COLORS = {
   normal: "#4ade80",
-  outlier: "#E85A6B",
-  duplicate: "#F59E0B",
-  orphan: "#5A5650",
+  outlier: "var(--critical)",
+  duplicate: "var(--warning)",
+  orphan: "var(--text-ghost)",
 } as const;
 
 /** Similarity gradient stops (teal → gold → crimson). */
 export const SIMILARITY_GRADIENT = {
-  high: "#2DD4BF",
-  mid: "#C9A227",
-  low: "#9B1B30",
+  high: "var(--success)",
+  mid: "var(--accent)",
+  low: "var(--primary)",
 } as const;
 
 // ── Scene ───────────────────────────────────────────────────────────────────
 
-export const SCENE_BG = "#0A0A0F";
+export const SCENE_BG = "var(--surface-darkest)";
 export const POINT_RADIUS = 0.015;
 export const POINT_SEGMENTS = 8;
 export const HOVER_SCALE = 1.3;

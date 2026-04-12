@@ -20,11 +20,11 @@ function SchemaTableRow({ table }: { table: SchemaTable }) {
           border: "none",
           cursor: "pointer",
           textAlign: "left",
-          color: "#C5C0B8",
+          color: "var(--text-secondary)",
           transition: "background 150ms",
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.background = "#1C1C20";
+          e.currentTarget.style.background = "var(--surface-overlay)";
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.background = "none";
@@ -33,15 +33,15 @@ function SchemaTableRow({ table }: { table: SchemaTable }) {
         {open ? (
           <ChevronDown
             size={14}
-            style={{ color: "#8A857D", flexShrink: 0 }}
+            style={{ color: "var(--text-muted)", flexShrink: 0 }}
           />
         ) : (
           <ChevronRight
             size={14}
-            style={{ color: "#8A857D", flexShrink: 0 }}
+            style={{ color: "var(--text-muted)", flexShrink: 0 }}
           />
         )}
-        <Database size={13} style={{ color: "#2DD4BF", flexShrink: 0 }} />
+        <Database size={13} style={{ color: "var(--success)", flexShrink: 0 }} />
         <span
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
@@ -52,7 +52,7 @@ function SchemaTableRow({ table }: { table: SchemaTable }) {
         >
           {table.name}
         </span>
-        <span style={{ fontSize: "11px", color: "#8A857D" }}>
+        <span style={{ fontSize: "11px", color: "var(--text-muted)" }}>
           {table.columns.length} cols
         </span>
       </button>
@@ -62,7 +62,7 @@ function SchemaTableRow({ table }: { table: SchemaTable }) {
           <p
             style={{
               fontSize: "12px",
-              color: "#8A857D",
+              color: "var(--text-muted)",
               marginBottom: "8px",
               lineHeight: "1.5",
             }}
@@ -92,7 +92,7 @@ function SchemaTableRow({ table }: { table: SchemaTable }) {
                 <span
                   style={{
                     fontFamily: "'IBM Plex Mono', monospace",
-                    color: "#C9A227",
+                    color: "var(--accent)",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                     whiteSpace: "nowrap",
@@ -102,7 +102,7 @@ function SchemaTableRow({ table }: { table: SchemaTable }) {
                 </span>
                 <span
                   style={{
-                    color: "#2DD4BF",
+                    color: "var(--success)",
                     fontFamily: "'IBM Plex Mono', monospace",
                     fontSize: "11px",
                   }}
@@ -111,7 +111,7 @@ function SchemaTableRow({ table }: { table: SchemaTable }) {
                 </span>
                 <span
                   style={{
-                    color: "#8A857D",
+                    color: "var(--text-muted)",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                     whiteSpace: "nowrap",
@@ -144,7 +144,7 @@ export function SchemaBrowser() {
         border: "1px solid #232328",
         borderRadius: "8px",
         overflow: "hidden",
-        background: "#151518",
+        background: "var(--surface-raised)",
       }}
     >
       <button
@@ -158,20 +158,20 @@ export function SchemaBrowser() {
           background: "none",
           border: "none",
           cursor: "pointer",
-          color: "#C5C0B8",
+          color: "var(--text-secondary)",
           fontSize: "13px",
           fontWeight: 600,
         }}
       >
         {open ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
-        <Database size={15} style={{ color: "#2DD4BF" }} />
+        <Database size={15} style={{ color: "var(--success)" }} />
         OMOP CDM Schema Browser
         {isFetching && (
           <Loader2
             size={13}
             style={{
               marginLeft: "auto",
-              color: "#8A857D",
+              color: "var(--text-muted)",
               animation: "spin 1s linear infinite",
             }}
           />
@@ -182,7 +182,7 @@ export function SchemaBrowser() {
         <div style={{ borderTop: "1px solid #232328" }}>
           {isError && (
             <div
-              style={{ padding: "16px", color: "#9B1B30", fontSize: "13px" }}
+              style={{ padding: "16px", color: "var(--primary)", fontSize: "13px" }}
             >
               Failed to load schema.
             </div>
@@ -193,9 +193,9 @@ export function SchemaBrowser() {
               <div
                 style={{
                   padding: "6px 14px",
-                  background: "#111115",
+                  background: "var(--surface-base)",
                   fontSize: "11px",
-                  color: "#8A857D",
+                  color: "var(--text-muted)",
                   fontWeight: 600,
                   letterSpacing: "0.5px",
                   textTransform: "uppercase",
@@ -210,9 +210,9 @@ export function SchemaBrowser() {
               <div
                 style={{
                   padding: "6px 14px",
-                  background: "#111115",
+                  background: "var(--surface-base)",
                   fontSize: "11px",
-                  color: "#8A857D",
+                  color: "var(--text-muted)",
                   fontWeight: 600,
                   letterSpacing: "0.5px",
                   textTransform: "uppercase",
@@ -235,7 +235,7 @@ export function SchemaBrowser() {
                   <div
                     style={{
                       fontSize: "11px",
-                      color: "#8A857D",
+                      color: "var(--text-muted)",
                       fontWeight: 600,
                       textTransform: "uppercase",
                       letterSpacing: "0.5px",
@@ -257,7 +257,7 @@ export function SchemaBrowser() {
                         style={{
                           fontFamily: "'IBM Plex Mono', monospace",
                           fontSize: "11px",
-                          color: "#C5C0B8",
+                          color: "var(--text-secondary)",
                           background: "#0A0A0D",
                           padding: "6px 10px",
                           borderRadius: "4px",

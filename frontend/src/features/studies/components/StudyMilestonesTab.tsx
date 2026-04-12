@@ -10,11 +10,11 @@ import {
 import type { StudyMilestone } from "../types/study";
 
 const STATUS_ICONS: Record<string, { icon: typeof Clock; color: string }> = {
-  pending: { icon: Clock, color: "#8A857D" },
-  in_progress: { icon: Loader2, color: "#F59E0B" },
-  completed: { icon: CheckCircle2, color: "#34D399" },
-  overdue: { icon: AlertTriangle, color: "#E85A6B" },
-  cancelled: { icon: X, color: "#5A5650" },
+  pending: { icon: Clock, color: "var(--text-muted)" },
+  in_progress: { icon: Loader2, color: "var(--warning)" },
+  completed: { icon: CheckCircle2, color: "var(--success)" },
+  overdue: { icon: AlertTriangle, color: "var(--critical)" },
+  cancelled: { icon: X, color: "var(--text-ghost)" },
 };
 
 const MILESTONE_TYPES = [
@@ -77,13 +77,13 @@ export function StudyMilestonesTab({ slug }: StudyMilestonesTabProps) {
   };
 
   if (isLoading) {
-    return <div className="flex items-center justify-center py-16"><Loader2 size={24} className="animate-spin text-[#8A857D]" /></div>;
+    return <div className="flex items-center justify-center py-16"><Loader2 size={24} className="animate-spin text-text-muted" /></div>;
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-[#C5C0B8]">Milestones ({milestones?.length ?? 0})</h3>
+        <h3 className="text-sm font-semibold text-text-secondary">Milestones ({milestones?.length ?? 0})</h3>
         <button type="button" onClick={() => setShowAdd(true)} className="btn btn-primary btn-sm">
           <Plus size={14} /> Add Milestone
         </button>
@@ -118,7 +118,7 @@ export function StudyMilestonesTab({ slug }: StudyMilestonesTabProps) {
 
       {(!milestones || milestones.length === 0) ? (
         <div className="empty-state">
-          <Milestone size={24} className="text-[#323238] mb-2" />
+          <Milestone size={24} className="text-text-ghost mb-2" />
           <h3 className="empty-title">No milestones</h3>
           <p className="empty-message">Track study progress with milestones and target dates</p>
         </div>
@@ -136,7 +136,7 @@ export function StudyMilestonesTab({ slug }: StudyMilestonesTabProps) {
                 key={m.id}
                 className={cn(
                   "flex items-center gap-3 rounded-lg border px-4 py-3",
-                  overdue ? "border-[#E85A6B]/30 bg-[#E85A6B]/5" : "border-[#232328] bg-[#151518]",
+                  overdue ? "border-critical/30 bg-critical/5" : "border-border-default bg-surface-raised",
                 )}
               >
                 <Icon size={16} style={{ color: si.color }} className={effectiveStatus === "in_progress" ? "animate-spin" : ""} />
@@ -162,16 +162,16 @@ export function StudyMilestonesTab({ slug }: StudyMilestonesTabProps) {
                     </div>
                   ) : (
                     <div className="flex items-center gap-2">
-                      <span className={cn("text-sm font-medium", m.status === "completed" ? "text-[#5A5650] line-through" : "text-[#F0EDE8]")}>
+                      <span className={cn("text-sm font-medium", m.status === "completed" ? "text-text-ghost line-through" : "text-text-primary")}>
                         {m.title}
                       </span>
-                      <span className="px-1.5 py-0.5 rounded text-[10px] text-[#5A5650] bg-[#232328] capitalize">
+                      <span className="px-1.5 py-0.5 rounded text-[10px] text-text-ghost bg-surface-elevated capitalize">
                         {m.milestone_type.replace(/_/g, " ")}
                       </span>
                     </div>
                   )}
                   {m.target_date && !isEditing && (
-                    <p className={cn("text-xs mt-0.5", overdue ? "text-[#E85A6B]" : "text-[#5A5650]")}>
+                    <p className={cn("text-xs mt-0.5", overdue ? "text-critical" : "text-text-ghost")}>
                       Target: {new Date(m.target_date).toLocaleDateString()}
                       {m.actual_date && ` | Completed: ${new Date(m.actual_date).toLocaleDateString()}`}
                     </p>
@@ -181,16 +181,16 @@ export function StudyMilestonesTab({ slug }: StudyMilestonesTabProps) {
                 <div className="flex items-center gap-1 shrink-0">
                   {isEditing ? (
                     <>
-                      <button type="button" onClick={handleSave} className="p-1 text-[#2DD4BF]"><Save size={14} /></button>
-                      <button type="button" onClick={() => setEditId(null)} className="p-1 text-[#5A5650] hover:text-[#C5C0B8]"><X size={14} /></button>
+                      <button type="button" onClick={handleSave} className="p-1 text-success"><Save size={14} /></button>
+                      <button type="button" onClick={() => setEditId(null)} className="p-1 text-text-ghost hover:text-text-secondary"><X size={14} /></button>
                     </>
                   ) : (
                     <>
-                      <button type="button" onClick={() => { setEditId(m.id); setEditPayload({ title: m.title, status: m.status }); }} className="p-1 text-[#5A5650] hover:text-[#C5C0B8]"><Edit3 size={14} /></button>
+                      <button type="button" onClick={() => { setEditId(m.id); setEditPayload({ title: m.title, status: m.status }); }} className="p-1 text-text-ghost hover:text-text-secondary"><Edit3 size={14} /></button>
                       <button
                         type="button"
                         onClick={() => { if (window.confirm("Delete this milestone?")) deleteMutation.mutate({ slug, milestoneId: m.id }); }}
-                        className="p-1 text-[#5A5650] hover:text-[#E85A6B]"
+                        className="p-1 text-text-ghost hover:text-critical"
                       >
                         <Trash2 size={14} />
                       </button>

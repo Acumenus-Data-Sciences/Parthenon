@@ -32,17 +32,17 @@ export function CovariateBalancePanel({
   return (
     <div className="space-y-4">
       {/* Summary metrics row */}
-      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-[#232328] bg-[#131316] p-4">
-        <MetricBadge label="Total Covariates" value={total} color="#F0EDE8" />
-        <MetricBadge label="Balanced" value={balanced} color="#2DD4BF" />
-        <MetricBadge label="Imbalanced" value={imbalanced} color="#9B1B30" />
+      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border-default bg-sidebar-bg-light p-4">
+        <MetricBadge label="Total Covariates" value={total} color="var(--text-primary)" />
+        <MetricBadge label="Balanced" value={balanced} color="var(--success)" />
+        <MetricBadge label="Imbalanced" value={imbalanced} color="var(--primary)" />
         <MetricBadge
           label="Mean |SMD|"
           value={meanAbsSmd !== null ? meanAbsSmd.toFixed(3) : "—"}
-          color="#C9A227"
+          color="var(--accent)"
         />
         {psmRecommended && (
-          <span className="ml-auto flex items-center gap-1.5 rounded-full border border-[#C9A227]/30 bg-[#C9A227]/10 px-3 py-1 text-xs font-medium text-[#C9A227]">
+          <span className="ml-auto flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs font-medium text-accent">
             ⚠ PSM recommended
           </span>
         )}
@@ -54,8 +54,8 @@ export function CovariateBalancePanel({
         {covariates.length > 0 ? (
           <LovePlot covariates={covariates} />
         ) : (
-          <div className="flex min-h-[300px] items-center justify-center rounded-lg border border-dashed border-[#232328] bg-[#151518]">
-            <p className="text-sm text-[#8A857D]">
+          <div className="flex min-h-[300px] items-center justify-center rounded-lg border border-dashed border-border-default bg-surface-raised">
+            <p className="text-sm text-text-muted">
               No covariate balance data available.
             </p>
           </div>
@@ -65,8 +65,8 @@ export function CovariateBalancePanel({
         {distributionalRows.length > 0 ? (
           <DistributionalDivergence rows={distributionalRows} />
         ) : (
-          <div className="flex min-h-[300px] items-center justify-center rounded-lg border border-dashed border-[#232328] bg-[#151518]">
-            <p className="text-sm text-[#8A857D]">
+          <div className="flex min-h-[300px] items-center justify-center rounded-lg border border-dashed border-border-default bg-surface-raised">
+            <p className="text-sm text-text-muted">
               No distributional divergence data available.
             </p>
           </div>
@@ -75,7 +75,7 @@ export function CovariateBalancePanel({
 
       {/* Action bar */}
       <div className="flex items-center justify-between">
-        <p className="text-xs text-[#8A857D]">
+        <p className="text-xs text-text-muted">
           {psmRecommended
             ? `${imbalanced} covariate${imbalanced !== 1 ? "s" : ""} exceed the 0.1 SMD threshold. Propensity score matching is recommended before proceeding.`
             : total > 0
@@ -87,7 +87,7 @@ export function CovariateBalancePanel({
             <button
               type="button"
               onClick={onRunPsm}
-              className="rounded-md bg-[#9B1B30]/10 px-4 py-2 text-sm font-medium text-[#E85A6B] transition-colors hover:bg-[#9B1B30]/20"
+              className="rounded-md bg-primary/10 px-4 py-2 text-sm font-medium text-critical transition-colors hover:bg-primary/20"
             >
               Run Propensity Score Matching →
             </button>
@@ -95,7 +95,7 @@ export function CovariateBalancePanel({
           <button
             type="button"
             onClick={onContinue}
-            className="rounded-md bg-[#2DD4BF]/10 px-4 py-2 text-sm font-medium text-[#2DD4BF] transition-colors hover:bg-[#2DD4BF]/20"
+            className="rounded-md bg-success/10 px-4 py-2 text-sm font-medium text-success transition-colors hover:bg-success/20"
           >
             Continue to Landscape →
           </button>
@@ -122,7 +122,7 @@ function MetricBadge({ label, value, color }: MetricBadgeProps) {
       >
         {value}
       </span>
-      <span className="text-[10px] uppercase tracking-wider text-[#5A5650]">
+      <span className="text-[10px] uppercase tracking-wider text-text-ghost">
         {label}
       </span>
     </div>

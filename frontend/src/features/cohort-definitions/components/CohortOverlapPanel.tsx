@@ -65,30 +65,30 @@ export function CohortOverlapPanel({
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-sm font-semibold text-[#F0EDE8] mb-2">
+        <h3 className="text-sm font-semibold text-text-primary mb-2">
           Cohort Overlap Analysis
         </h3>
-        <p className="text-xs text-[#8A857D]">
+        <p className="text-xs text-text-muted">
           Select a data source and 2-4 cohorts to compare membership overlap
         </p>
       </div>
 
       {/* Source selector */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-        <label className="block text-xs font-medium text-[#8A857D] mb-1.5">
+      <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+        <label className="block text-xs font-medium text-text-muted mb-1.5">
           Data Source
         </label>
         <div className="relative max-w-xs">
           <Database
             size={12}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost"
           />
           <select
             value={sourceId ?? ""}
             onChange={(e) => setSourceId(Number(e.target.value) || null)}
             className={cn(
-              "w-full appearance-none rounded-lg border border-[#232328] bg-[#0E0E11] pl-8 pr-8 py-2 text-sm",
-              "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+              "w-full appearance-none rounded-lg border border-border-default bg-surface-base pl-8 pr-8 py-2 text-sm",
+              "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
             )}
           >
             <option value="">Select a data source...</option>
@@ -109,7 +109,7 @@ export function CohortOverlapPanel({
           </select>
           <ChevronDown
             size={12}
-            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
+            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-text-ghost"
           />
         </div>
       </div>
@@ -128,8 +128,8 @@ export function CohortOverlapPanel({
                 className={cn(
                   "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors",
                   selected
-                    ? "bg-[#2DD4BF]/15 text-[#2DD4BF] border border-[#2DD4BF]/30"
-                    : "bg-[#1A1A1E] text-[#8A857D] border border-[#232328] hover:text-[#C5C0B8] hover:border-[#5A5650]",
+                    ? "bg-success/15 text-success border border-success/30"
+                    : "bg-surface-overlay text-text-muted border border-border-default hover:text-text-secondary hover:border-text-ghost",
                   !selected &&
                     selectedIds.length >= 4 &&
                     "opacity-40 cursor-not-allowed",
@@ -138,7 +138,7 @@ export function CohortOverlapPanel({
                 <span
                   className={cn(
                     "inline-flex w-2 h-2 rounded-full",
-                    selected ? "bg-[#2DD4BF]" : "bg-[#323238]",
+                    selected ? "bg-success" : "bg-surface-highlight",
                   )}
                 />
                 {c.name}
@@ -150,18 +150,18 @@ export function CohortOverlapPanel({
 
       {/* Status messages */}
       {!sourceId && (
-        <div className="rounded-lg border border-dashed border-[#323238] bg-[#151518] p-8 text-center">
-          <Database size={24} className="mx-auto text-[#323238] mb-3" />
-          <p className="text-sm text-[#8A857D]">
+        <div className="rounded-lg border border-dashed border-surface-highlight bg-surface-raised p-8 text-center">
+          <Database size={24} className="mx-auto text-text-ghost mb-3" />
+          <p className="text-sm text-text-muted">
             Select a data source to compute overlap
           </p>
         </div>
       )}
 
       {sourceId && selectedIds.length < 2 && (
-        <div className="rounded-lg border border-dashed border-[#323238] bg-[#151518] p-8 text-center">
-          <BarChart3 size={24} className="mx-auto text-[#323238] mb-3" />
-          <p className="text-sm text-[#8A857D]">
+        <div className="rounded-lg border border-dashed border-surface-highlight bg-surface-raised p-8 text-center">
+          <BarChart3 size={24} className="mx-auto text-text-ghost mb-3" />
+          <p className="text-sm text-text-muted">
             Select at least 2 cohorts to compute overlap
           </p>
         </div>
@@ -169,13 +169,13 @@ export function CohortOverlapPanel({
 
       {isLoading && selectedIds.length >= 2 && sourceId && (
         <div className="flex items-center justify-center py-12">
-          <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+          <Loader2 size={24} className="animate-spin text-text-muted" />
         </div>
       )}
 
       {error && (
-        <div className="rounded-lg border border-[#E85A6B]/30 bg-[#E85A6B]/5 p-4">
-          <p className="text-xs text-[#E85A6B]">
+        <div className="rounded-lg border border-critical/30 bg-critical/5 p-4">
+          <p className="text-xs text-critical">
             Failed to compute overlap: {(error as Error).message}
           </p>
         </div>
@@ -189,21 +189,21 @@ export function CohortOverlapPanel({
             {overlap.summary.cohort_ids.map((id) => (
               <div
                 key={id}
-                className="rounded-lg border border-[#232328] bg-[#151518] p-3"
+                className="rounded-lg border border-border-default bg-surface-raised p-3"
               >
-                <p className="text-[10px] uppercase tracking-wider text-[#5A5650] mb-1">
+                <p className="text-[10px] uppercase tracking-wider text-text-ghost mb-1">
                   {cohortNames[id] ?? `Cohort ${id}`}
                 </p>
-                <p className="text-lg font-semibold text-[#F0EDE8] font-['IBM_Plex_Mono',monospace]">
+                <p className="text-lg font-semibold text-text-primary font-['IBM_Plex_Mono',monospace]">
                   {(overlap.cohort_counts[id] ?? 0).toLocaleString()}
                 </p>
               </div>
             ))}
-            <div className="rounded-lg border border-[#C9A227]/20 bg-[#C9A227]/5 p-3">
-              <p className="text-[10px] uppercase tracking-wider text-[#C9A227]/70 mb-1">
+            <div className="rounded-lg border border-accent/20 bg-accent/5 p-3">
+              <p className="text-[10px] uppercase tracking-wider text-accent/70 mb-1">
                 Total Unique
               </p>
-              <p className="text-lg font-semibold text-[#C9A227] font-['IBM_Plex_Mono',monospace]">
+              <p className="text-lg font-semibold text-accent font-['IBM_Plex_Mono',monospace]">
                 {overlap.summary.total_unique_subjects.toLocaleString()}
               </p>
             </div>
@@ -214,7 +214,7 @@ export function CohortOverlapPanel({
             {overlap.pairs.map((pair) => (
               <div
                 key={`${pair.cohort_id_a}-${pair.cohort_id_b}`}
-                className="rounded-lg border border-[#232328] bg-[#151518] p-4"
+                className="rounded-lg border border-border-default bg-surface-raised p-4"
               >
                 <VennDiagram
                   pair={pair}
@@ -226,32 +226,32 @@ export function CohortOverlapPanel({
           </div>
 
           {/* Overlap matrix table */}
-          <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
-            <div className="px-4 py-2 bg-[#1A1A1E] border-b border-[#232328]">
-              <span className="text-[10px] uppercase tracking-wider text-[#8A857D] font-semibold">
+          <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
+            <div className="px-4 py-2 bg-surface-overlay border-b border-border-default">
+              <span className="text-[10px] uppercase tracking-wider text-text-muted font-semibold">
                 Pairwise Overlap Matrix
               </span>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="border-b border-[#232328]">
-                    <th className="px-4 py-2 text-left text-[#5A5650] font-medium">
+                  <tr className="border-b border-border-default">
+                    <th className="px-4 py-2 text-left text-text-ghost font-medium">
                       Cohort A
                     </th>
-                    <th className="px-4 py-2 text-left text-[#5A5650] font-medium">
+                    <th className="px-4 py-2 text-left text-text-ghost font-medium">
                       Cohort B
                     </th>
-                    <th className="px-4 py-2 text-right text-[#5A5650] font-medium">
+                    <th className="px-4 py-2 text-right text-text-ghost font-medium">
                       Only A
                     </th>
-                    <th className="px-4 py-2 text-right text-[#5A5650] font-medium">
+                    <th className="px-4 py-2 text-right text-text-ghost font-medium">
                       Overlap
                     </th>
-                    <th className="px-4 py-2 text-right text-[#5A5650] font-medium">
+                    <th className="px-4 py-2 text-right text-text-ghost font-medium">
                       Only B
                     </th>
-                    <th className="px-4 py-2 text-right text-[#5A5650] font-medium">
+                    <th className="px-4 py-2 text-right text-text-ghost font-medium">
                       Jaccard
                     </th>
                   </tr>
@@ -260,24 +260,24 @@ export function CohortOverlapPanel({
                   {overlap.pairs.map((pair) => (
                     <tr
                       key={`${pair.cohort_id_a}-${pair.cohort_id_b}`}
-                      className="border-b border-[#232328] last:border-b-0"
+                      className="border-b border-border-default last:border-b-0"
                     >
-                      <td className="px-4 py-2 text-[#F0EDE8]">
+                      <td className="px-4 py-2 text-text-primary">
                         {cohortNames[pair.cohort_id_a] ?? pair.cohort_id_a}
                       </td>
-                      <td className="px-4 py-2 text-[#F0EDE8]">
+                      <td className="px-4 py-2 text-text-primary">
                         {cohortNames[pair.cohort_id_b] ?? pair.cohort_id_b}
                       </td>
-                      <td className="px-4 py-2 text-right font-['IBM_Plex_Mono',monospace] text-[#2DD4BF]">
+                      <td className="px-4 py-2 text-right font-['IBM_Plex_Mono',monospace] text-success">
                         {pair.only_a.toLocaleString()}
                       </td>
-                      <td className="px-4 py-2 text-right font-['IBM_Plex_Mono',monospace] text-[#C9A227] font-semibold">
+                      <td className="px-4 py-2 text-right font-['IBM_Plex_Mono',monospace] text-accent font-semibold">
                         {pair.overlap_count.toLocaleString()}
                       </td>
-                      <td className="px-4 py-2 text-right font-['IBM_Plex_Mono',monospace] text-[#818CF8]">
+                      <td className="px-4 py-2 text-right font-['IBM_Plex_Mono',monospace] text-info">
                         {pair.only_b.toLocaleString()}
                       </td>
-                      <td className="px-4 py-2 text-right font-['IBM_Plex_Mono',monospace] text-[#8A857D]">
+                      <td className="px-4 py-2 text-right font-['IBM_Plex_Mono',monospace] text-text-muted">
                         {pair.jaccard_index.toFixed(3)}
                       </td>
                     </tr>

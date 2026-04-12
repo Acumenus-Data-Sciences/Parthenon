@@ -164,7 +164,7 @@ export default function RiskScoreDetailPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 size={24} className="animate-spin text-[#8A857D]" />
+        <Loader2 size={24} className="animate-spin text-text-muted" />
       </div>
     );
   }
@@ -174,10 +174,10 @@ export default function RiskScoreDetailPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <p className="text-[#E85A6B]">Analysis not found</p>
+          <p className="text-critical">Analysis not found</p>
           <Link
             to="/risk-scores"
-            className="inline-flex items-center gap-1.5 text-sm text-[#2DD4BF] hover:underline mt-4"
+            className="inline-flex items-center gap-1.5 text-sm text-success hover:underline mt-4"
           >
             <ArrowLeft size={14} />
             Back to Risk Scores
@@ -189,8 +189,8 @@ export default function RiskScoreDetailPage() {
 
   // ── No source warning ──────────────────────────────────────────────
   const noSourceBanner = sourceId === 0 && (
-    <div className="flex items-center gap-3 rounded-xl border border-[#C9A227]/20 bg-[#C9A227]/5 px-5 py-4">
-      <p className="text-sm text-[#C9A227]">
+    <div className="flex items-center gap-3 rounded-xl border border-accent/20 bg-accent/5 px-5 py-4">
+      <p className="text-sm text-accent">
         Select a data source to run or view execution results.
       </p>
     </div>
@@ -244,7 +244,7 @@ export default function RiskScoreDetailPage() {
                 </div>
               ) : (
                 <>
-                  <h1 className="text-xl font-semibold text-[#F0EDE8] truncate">
+                  <h1 className="text-xl font-semibold text-text-primary truncate">
                     {analysis.name}
                   </h1>
                   <button
@@ -253,7 +253,7 @@ export default function RiskScoreDetailPage() {
                       setTitleDraft(analysis.name);
                       setEditingTitle(true);
                     }}
-                    className="text-[#5A5650] hover:text-[#C5C0B8] shrink-0"
+                    className="text-text-ghost hover:text-text-secondary shrink-0"
                   >
                     <Edit3 size={14} />
                   </button>
@@ -280,7 +280,7 @@ export default function RiskScoreDetailPage() {
 
               {/* Target cohort count */}
               {analysis.design_json.targetCohortIds.length > 0 && (
-                <span className="px-2 py-0.5 rounded-md bg-[#2DD4BF]/10 text-xs text-[#2DD4BF]">
+                <span className="px-2 py-0.5 rounded-md bg-success/10 text-xs text-success">
                   {analysis.design_json.targetCohortIds.length} cohort
                   {analysis.design_json.targetCohortIds.length !== 1 ? "s" : ""}
                 </span>
@@ -288,7 +288,7 @@ export default function RiskScoreDetailPage() {
 
               {/* Score count */}
               {analysis.design_json.scoreIds.length > 0 && (
-                <span className="px-2 py-0.5 rounded-md bg-[#C9A227]/10 text-xs text-[#C9A227]">
+                <span className="px-2 py-0.5 rounded-md bg-accent/10 text-xs text-accent">
                   {analysis.design_json.scoreIds.length} score
                   {analysis.design_json.scoreIds.length !== 1 ? "s" : ""}
                 </span>
@@ -302,7 +302,7 @@ export default function RiskScoreDetailPage() {
               type="button"
               onClick={() => setShowRunModal(true)}
               disabled={executeMutation.isPending || sourceId === 0}
-              className="btn btn-sm flex items-center gap-1.5 bg-[#9B1B30] text-text-primary hover:bg-[#B42240] border-[#9B1B30] disabled:opacity-50"
+              className="btn btn-sm flex items-center gap-1.5 bg-primary text-text-primary hover:bg-primary-light border-primary disabled:opacity-50"
             >
               <RefreshCw size={14} />
               Re-run
@@ -347,7 +347,7 @@ export default function RiskScoreDetailPage() {
               <Icon size={14} />
               {tab.label}
               {count != null && (
-                <span className="ml-0.5 text-[10px] font-medium text-[#5A5650]">
+                <span className="ml-0.5 text-[10px] font-medium text-text-ghost">
                   ({count})
                 </span>
               )}

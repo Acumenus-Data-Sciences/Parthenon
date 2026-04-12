@@ -28,31 +28,31 @@ export function AnalysisRouteError({ title }: AnalysisRouteErrorProps) {
 
   return (
     <div className="mx-auto flex min-h-[50vh] max-w-2xl items-center justify-center px-6">
-      <div className="w-full rounded-2xl border border-[#E85A6B]/20 bg-[#151518] p-6 shadow-[0_20px_80px_rgba(0,0,0,0.35)]">
+      <div className="w-full rounded-2xl border border-critical/20 bg-surface-raised p-6 shadow-[0_20px_80px_rgba(0,0,0,0.35)]">
         <div className="mb-4 flex items-center gap-3">
-          <div className="rounded-xl border border-[#E85A6B]/25 bg-[#E85A6B]/10 p-2.5">
-            <AlertTriangle size={18} className="text-[#E85A6B]" />
+          <div className="rounded-xl border border-critical/25 bg-critical/10 p-2.5">
+            <AlertTriangle size={18} className="text-critical" />
           </div>
           <div>
-            <h1 className="text-lg font-semibold text-[#F0EDE8]">{title}</h1>
-            <p className="text-sm text-[#8A857D]">
+            <h1 className="text-lg font-semibold text-text-primary">{title}</h1>
+            <p className="text-sm text-text-muted">
               This analysis page hit a render or route-loading error.
             </p>
           </div>
         </div>
 
-        <div className="rounded-xl border border-[#232328] bg-[#0E0E11] px-4 py-3">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8A857D]">
+        <div className="rounded-xl border border-border-default bg-surface-base px-4 py-3">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-text-muted">
             Error
           </p>
-          <p className="mt-2 break-words text-sm text-[#F0EDE8]">{message}</p>
+          <p className="mt-2 break-words text-sm text-text-primary">{message}</p>
         </div>
 
         <div className="mt-5 flex items-center gap-3">
           <button
             type="button"
             onClick={() => navigate("/analyses")}
-            className="inline-flex items-center gap-2 rounded-lg border border-[#232328] bg-[#1A1A1E] px-4 py-2 text-sm text-[#C5C0B8] transition-colors hover:border-[#323238] hover:text-[#F0EDE8]"
+            className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-overlay px-4 py-2 text-sm text-text-secondary transition-colors hover:border-surface-highlight hover:text-text-primary"
           >
             <ArrowLeft size={14} />
             Back To Analyses
@@ -60,7 +60,7 @@ export function AnalysisRouteError({ title }: AnalysisRouteErrorProps) {
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] transition-colors hover:bg-[#26B8A5]"
+            className="rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base transition-colors hover:bg-success-dark"
           >
             Reload Page
           </button>

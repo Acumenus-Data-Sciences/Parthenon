@@ -126,15 +126,15 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
   return (
     <div className="space-y-6">
       {/* Core fields */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-5 space-y-4">
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">
+      <div className="rounded-lg border border-border-default bg-surface-raised p-5 space-y-4">
+        <h3 className="text-sm font-semibold text-text-primary">
           Bundle Details
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Bundle code */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-[#8A857D]">
+            <label className="block text-xs font-medium text-text-muted">
               Bundle Code
             </label>
             <input
@@ -143,16 +143,16 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
               onChange={(e) => setBundleCode(e.target.value)}
               placeholder="e.g., DM2-BUNDLE"
               className={cn(
-                "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-                "text-[#F0EDE8] placeholder:text-[#5A5650]",
-                "focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
+                "text-text-primary placeholder:text-text-ghost",
+                "focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
               )}
             />
           </div>
 
           {/* Condition name */}
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-[#8A857D]">
+            <label className="block text-xs font-medium text-text-muted">
               Condition Name
             </label>
             <input
@@ -161,9 +161,9 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
               onChange={(e) => setConditionName(e.target.value)}
               placeholder="e.g., Type 2 Diabetes Mellitus"
               className={cn(
-                "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-                "text-[#F0EDE8] placeholder:text-[#5A5650]",
-                "focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
+                "text-text-primary placeholder:text-text-ghost",
+                "focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
               )}
             />
           </div>
@@ -171,7 +171,7 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
 
         {/* Description */}
         <div className="space-y-1.5">
-          <label className="block text-xs font-medium text-[#8A857D]">
+          <label className="block text-xs font-medium text-text-muted">
             Description
           </label>
           <textarea
@@ -180,25 +180,25 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
             placeholder="Describe the bundle..."
             rows={3}
             className={cn(
-              "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm resize-y",
-              "text-[#F0EDE8] placeholder:text-[#5A5650]",
-              "focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+              "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm resize-y",
+              "text-text-primary placeholder:text-text-ghost",
+              "focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
             )}
           />
         </div>
 
         {/* Disease category */}
         <div className="space-y-1.5">
-          <label className="block text-xs font-medium text-[#8A857D]">
+          <label className="block text-xs font-medium text-text-muted">
             Disease Category
           </label>
           <select
             value={diseaseCategory}
             onChange={(e) => setDiseaseCategory(e.target.value)}
             className={cn(
-              "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-              "text-[#F0EDE8]",
-              "focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+              "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
+              "text-text-primary",
+              "focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
               "cursor-pointer",
             )}
           >
@@ -213,8 +213,8 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
       </div>
 
       {/* ICD-10 patterns */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-5 space-y-3">
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">
+      <div className="rounded-lg border border-border-default bg-surface-raised p-5 space-y-3">
+        <h3 className="text-sm font-semibold text-text-primary">
           ICD-10 Patterns
         </h3>
 
@@ -222,13 +222,13 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
           {icd10Patterns.map((p) => (
             <span
               key={p}
-              className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium bg-[#E85A6B]/10 text-[#E85A6B]"
+              className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium bg-critical/10 text-critical"
             >
               {p}
               <button
                 type="button"
                 onClick={() => removeIcd10(p)}
-                className="hover:text-[#F0EDE8] transition-colors"
+                className="hover:text-text-primary transition-colors"
               >
                 <X size={10} />
               </button>
@@ -249,15 +249,15 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
             }}
             placeholder="e.g., E11%"
             className={cn(
-              "flex-1 rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-              "text-[#F0EDE8] placeholder:text-[#5A5650]",
-              "focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+              "flex-1 rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
+              "text-text-primary placeholder:text-text-ghost",
+              "focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
             )}
           />
           <button
             type="button"
             onClick={addIcd10}
-            className="inline-flex items-center gap-1 rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm text-[#8A857D] hover:text-[#F0EDE8] hover:border-[#323238] transition-colors"
+            className="inline-flex items-center gap-1 rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-muted hover:text-text-primary hover:border-surface-highlight transition-colors"
           >
             <Plus size={14} />
             Add
@@ -266,8 +266,8 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
       </div>
 
       {/* OMOP Concept IDs */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-5 space-y-3">
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">
+      <div className="rounded-lg border border-border-default bg-surface-raised p-5 space-y-3">
+        <h3 className="text-sm font-semibold text-text-primary">
           OMOP Concept IDs
         </h3>
 
@@ -275,13 +275,13 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
           {omopConceptIds.map((id) => (
             <span
               key={id}
-              className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium font-['IBM_Plex_Mono',monospace] bg-[#2DD4BF]/10 text-[#2DD4BF]"
+              className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium font-['IBM_Plex_Mono',monospace] bg-success/10 text-success"
             >
               {id}
               <button
                 type="button"
                 onClick={() => removeOmopId(id)}
-                className="hover:text-[#F0EDE8] transition-colors"
+                className="hover:text-text-primary transition-colors"
               >
                 <X size={10} />
               </button>
@@ -302,15 +302,15 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
             }}
             placeholder="Enter concept ID"
             className={cn(
-              "flex-1 rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-              "text-[#F0EDE8] placeholder:text-[#5A5650]",
-              "focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+              "flex-1 rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
+              "text-text-primary placeholder:text-text-ghost",
+              "focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
             )}
           />
           <button
             type="button"
             onClick={addOmopId}
-            className="inline-flex items-center gap-1 rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm text-[#8A857D] hover:text-[#F0EDE8] hover:border-[#323238] transition-colors"
+            className="inline-flex items-center gap-1 rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-muted hover:text-text-primary hover:border-surface-highlight transition-colors"
           >
             <Plus size={14} />
             Add
@@ -319,8 +319,8 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
       </div>
 
       {/* eCQM References */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-5 space-y-3">
-        <h3 className="text-sm font-semibold text-[#F0EDE8]">
+      <div className="rounded-lg border border-border-default bg-surface-raised p-5 space-y-3">
+        <h3 className="text-sm font-semibold text-text-primary">
           eCQM References
         </h3>
 
@@ -328,13 +328,13 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
           {ecqmReferences.map((ref) => (
             <span
               key={ref}
-              className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium bg-[#C9A227]/10 text-[#C9A227]"
+              className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium bg-accent/10 text-accent"
             >
               {ref}
               <button
                 type="button"
                 onClick={() => removeEcqm(ref)}
-                className="hover:text-[#F0EDE8] transition-colors"
+                className="hover:text-text-primary transition-colors"
               >
                 <X size={10} />
               </button>
@@ -355,15 +355,15 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
             }}
             placeholder="e.g., CMS122v11"
             className={cn(
-              "flex-1 rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
-              "text-[#F0EDE8] placeholder:text-[#5A5650]",
-              "focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+              "flex-1 rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
+              "text-text-primary placeholder:text-text-ghost",
+              "focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
             )}
           />
           <button
             type="button"
             onClick={addEcqm}
-            className="inline-flex items-center gap-1 rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm text-[#8A857D] hover:text-[#F0EDE8] hover:border-[#323238] transition-colors"
+            className="inline-flex items-center gap-1 rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-muted hover:text-text-primary hover:border-surface-highlight transition-colors"
           >
             <Plus size={14} />
             Add
@@ -372,15 +372,15 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
       </div>
 
       {/* Attached measures */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-5 space-y-3">
+      <div className="rounded-lg border border-border-default bg-surface-raised p-5 space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-[#F0EDE8]">
+          <h3 className="text-sm font-semibold text-text-primary">
             Attached Measures
           </h3>
         </div>
 
         {(!measures || measures.length === 0) ? (
-          <p className="text-xs text-[#5A5650]">
+          <p className="text-xs text-text-ghost">
             No measures attached to this bundle.
           </p>
         ) : (
@@ -388,16 +388,16 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
             {measures.map((m: QualityMeasure) => (
               <div
                 key={m.id}
-                className="flex items-center gap-3 rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2"
+                className="flex items-center gap-3 rounded-lg border border-border-default bg-surface-base px-3 py-2"
               >
-                <GripVertical size={14} className="text-[#5A5650]" />
-                <span className="text-[10px] font-medium text-[#8A857D] w-6">
+                <GripVertical size={14} className="text-text-ghost" />
+                <span className="text-[10px] font-medium text-text-muted w-6">
                   #{m.pivot?.ordinal ?? "?"}
                 </span>
-                <span className="text-xs font-medium font-['IBM_Plex_Mono',monospace] text-[#2DD4BF]">
+                <span className="text-xs font-medium font-['IBM_Plex_Mono',monospace] text-success">
                   {m.measure_code}
                 </span>
-                <span className="flex-1 text-sm text-[#F0EDE8] truncate">
+                <span className="flex-1 text-sm text-text-primary truncate">
                   {m.measure_name}
                 </span>
                 <span
@@ -413,7 +413,7 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
                   type="button"
                   onClick={() => handleRemoveMeasure(m.id)}
                   disabled={removeMeasureMutation.isPending}
-                  className="text-[#8A857D] hover:text-[#E85A6B] transition-colors"
+                  className="text-text-muted hover:text-critical transition-colors"
                 >
                   <Trash2 size={12} />
                 </button>
@@ -431,7 +431,7 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
           disabled={isSaving || !bundleCode.trim() || !conditionName.trim()}
           className={cn(
             "inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium transition-colors",
-            "bg-[#2DD4BF] text-[#0E0E11] hover:bg-[#26B8A5]",
+            "bg-success text-surface-base hover:bg-success-dark",
             "disabled:opacity-50 disabled:cursor-not-allowed",
           )}
         >
@@ -449,11 +449,11 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
 
 function getDomainColor(domain: string): string {
   const colors: Record<string, string> = {
-    condition: "#E85A6B",
-    drug: "#2DD4BF",
-    procedure: "#C9A227",
-    measurement: "#818CF8",
-    observation: "#94A3B8",
+    condition: "var(--critical)",
+    drug: "var(--success)",
+    procedure: "var(--accent)",
+    measurement: "var(--info)",
+    observation: "var(--text-muted)",
   };
-  return colors[domain] ?? "#8A857D";
+  return colors[domain] ?? "var(--text-muted)";
 }

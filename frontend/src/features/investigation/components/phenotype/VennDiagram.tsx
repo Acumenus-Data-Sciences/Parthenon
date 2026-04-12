@@ -16,7 +16,7 @@ export interface VennDiagramProps {
   height?: number;
 }
 
-const DEFAULT_COLORS = ["#2DD4BF", "#9B1B30", "#C9A227"];
+const DEFAULT_COLORS = ["var(--success)", "var(--primary)", "var(--accent)"];
 const TEXT_COLOR = "#d4d4d8";
 const STROKE_COLOR = "#52525b";
 

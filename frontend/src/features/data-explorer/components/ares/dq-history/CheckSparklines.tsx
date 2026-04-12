@@ -15,10 +15,10 @@ export default function CheckSparklines({ sparklines, checkId }: CheckSparklines
           key={i}
           className={`inline-block h-3 w-1.5 rounded-sm ${
             passed === null
-              ? "bg-[#333]"
+              ? "bg-surface-highlight"
               : passed
-                ? "bg-[#2DD4BF]"
-                : "bg-[#9B1B30]"
+                ? "bg-success"
+                : "bg-primary"
           }`}
         />
       ))}
@@ -35,7 +35,7 @@ export function SparklineCell({
   checkId: string;
 }) {
   if (!sparklines) {
-    return <span className="text-[10px] text-[#555]">--</span>;
+    return <span className="text-[10px] text-text-ghost">--</span>;
   }
 
   return <CheckSparklines sparklines={sparklines} checkId={checkId} />;

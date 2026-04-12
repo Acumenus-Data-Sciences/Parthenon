@@ -184,7 +184,7 @@ function buildItemPayload(form: ItemForm, displayOrder: number): SurveyItemPaylo
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mb-1 text-[11px] font-medium uppercase tracking-wider text-[#8A857D]">
+    <div className="mb-1 text-[11px] font-medium uppercase tracking-wider text-text-muted">
       {children}
     </div>
   );
@@ -208,7 +208,7 @@ function ItemFormFields({
             value={form.item_number}
             disabled={!editable}
             onChange={(event) => onChange({ ...form, item_number: event.target.value })}
-            className="w-full rounded-xl border border-[#2A2A2F] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF] disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-xl border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary outline-none focus:border-success disabled:cursor-not-allowed disabled:opacity-60"
           />
         </label>
         <label className="block">
@@ -217,7 +217,7 @@ function ItemFormFields({
             value={form.response_type}
             disabled={!editable}
             onChange={(event) => onChange({ ...form, response_type: event.target.value })}
-            className="w-full rounded-xl border border-[#2A2A2F] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF] disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-xl border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary outline-none focus:border-success disabled:cursor-not-allowed disabled:opacity-60"
           >
             {RESPONSE_TYPE_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -235,7 +235,7 @@ function ItemFormFields({
           value={form.item_text}
           disabled={!editable}
           onChange={(event) => onChange({ ...form, item_text: event.target.value })}
-          className="w-full rounded-xl border border-[#2A2A2F] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF] disabled:cursor-not-allowed disabled:opacity-60"
+          className="w-full rounded-xl border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary outline-none focus:border-success disabled:cursor-not-allowed disabled:opacity-60"
         />
       </label>
 
@@ -247,10 +247,10 @@ function ItemFormFields({
             disabled={!editable}
             onChange={(event) => onChange({ ...form, subscale_name: event.target.value })}
             placeholder="Optional grouping"
-            className="w-full rounded-xl border border-[#2A2A2F] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF] disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-xl border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary outline-none focus:border-success disabled:cursor-not-allowed disabled:opacity-60"
           />
         </label>
-        <label className="flex items-end gap-3 rounded-xl border border-[#2A2A2F] bg-[#0E0E11] px-3 py-2">
+        <label className="flex items-end gap-3 rounded-xl border border-border-default bg-surface-base px-3 py-2">
           <input
             type="checkbox"
             checked={form.is_reverse_coded}
@@ -258,8 +258,8 @@ function ItemFormFields({
             onChange={(event) => onChange({ ...form, is_reverse_coded: event.target.checked })}
           />
           <div>
-            <div className="text-sm text-[#F0EDE8]">Reverse coded</div>
-            <div className="text-[11px] text-[#5A5650]">Apply inverse scoring at runtime</div>
+            <div className="text-sm text-text-primary">Reverse coded</div>
+            <div className="text-[11px] text-text-ghost">Apply inverse scoring at runtime</div>
           </div>
         </label>
       </div>
@@ -272,7 +272,7 @@ function ItemFormFields({
             disabled={!editable}
             onChange={(event) => onChange({ ...form, loinc_code: event.target.value })}
             placeholder="Optional"
-            className="w-full rounded-xl border border-[#2A2A2F] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF] disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-xl border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary outline-none focus:border-success disabled:cursor-not-allowed disabled:opacity-60"
           />
         </label>
         <label className="block">
@@ -283,7 +283,7 @@ function ItemFormFields({
             onChange={(event) => onChange({ ...form, omop_concept_id: event.target.value })}
             inputMode="numeric"
             placeholder="Optional"
-            className="w-full rounded-xl border border-[#2A2A2F] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF] disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-xl border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary outline-none focus:border-success disabled:cursor-not-allowed disabled:opacity-60"
           />
         </label>
       </div>
@@ -297,7 +297,7 @@ function ItemFormFields({
               disabled={!editable}
               onChange={(event) => onChange({ ...form, min_value: event.target.value })}
               inputMode="numeric"
-              className="w-full rounded-xl border border-[#2A2A2F] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF] disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-full rounded-xl border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary outline-none focus:border-success disabled:cursor-not-allowed disabled:opacity-60"
             />
           </label>
           <label className="block">
@@ -307,7 +307,7 @@ function ItemFormFields({
               disabled={!editable}
               onChange={(event) => onChange({ ...form, max_value: event.target.value })}
               inputMode="numeric"
-              className="w-full rounded-xl border border-[#2A2A2F] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF] disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-full rounded-xl border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary outline-none focus:border-success disabled:cursor-not-allowed disabled:opacity-60"
             />
           </label>
         </div>
@@ -322,16 +322,16 @@ function ItemFormFields({
             disabled={!editable}
             onChange={(event) => onChange({ ...form, answer_options_text: event.target.value })}
             placeholder="One option per line"
-            className="w-full rounded-xl border border-[#2A2A2F] bg-[#0E0E11] px-3 py-2 font-['IBM_Plex_Mono',monospace] text-xs text-[#F0EDE8] outline-none focus:border-[#2DD4BF] disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-xl border border-border-default bg-surface-base px-3 py-2 font-['IBM_Plex_Mono',monospace] text-xs text-text-primary outline-none focus:border-success disabled:cursor-not-allowed disabled:opacity-60"
           />
-          <div className="mt-2 text-[11px] text-[#5A5650]">
+          <div className="mt-2 text-[11px] text-text-ghost">
             Each line becomes a discrete answer option. Option values are assigned sequentially from top to bottom.
           </div>
         </label>
       )}
 
       {!usesAnswerOptions(form.response_type) && !usesRange(form.response_type) && (
-        <div className="rounded-xl border border-dashed border-[#2A2A2F] bg-[#0E0E11] px-4 py-3 text-[11px] text-[#5A5650]">
+        <div className="rounded-xl border border-dashed border-border-default bg-surface-base px-4 py-3 text-[11px] text-text-ghost">
           This response type does not require discrete answer options or numeric bounds.
         </div>
       )}
@@ -361,20 +361,20 @@ function WorkspacePanel({
   onDelete: () => void;
 }) {
   return (
-    <div className="rounded-2xl border border-[#2A2A2F] bg-[#141418]">
-      <div className="border-b border-[#232328] px-5 py-4">
+    <div className="rounded-2xl border border-border-default bg-surface-raised">
+      <div className="border-b border-border-default px-5 py-4">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <Wrench size={16} className="text-[#C9A227]" />
-              <h2 className="text-sm font-semibold text-[#F0EDE8]">Survey Builder</h2>
+              <Wrench size={16} className="text-accent" />
+              <h2 className="text-sm font-semibold text-text-primary">Survey Builder</h2>
               {instrument && (
-                <span className="rounded-md bg-[#1B1B20] px-2 py-1 text-[10px] uppercase tracking-wider text-[#2DD4BF]">
+                <span className="rounded-md bg-surface-overlay px-2 py-1 text-[10px] uppercase tracking-wider text-success">
                   {instrument.abbreviation}
                 </span>
               )}
             </div>
-            <p className="mt-2 max-w-3xl text-xs leading-relaxed text-[#8A857D]">
+            <p className="mt-2 max-w-3xl text-xs leading-relaxed text-text-muted">
               Build and maintain one active custom instrument at a time. Standard PROs and existing custom instruments are available through the clone flow, not as an always-visible list.
             </p>
           </div>
@@ -383,7 +383,7 @@ function WorkspacePanel({
             <select
               value={currentCustomId ?? ""}
               onChange={(event) => onChangeCurrentCustomId(event.target.value === "" ? null : Number(event.target.value))}
-              className="w-full rounded-lg border border-[#2A2A2F] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF]"
+              className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
             >
               <option value="">No custom instrument selected</option>
               {customInstruments.map((entry) => (
@@ -398,7 +398,7 @@ function WorkspacePanel({
                 type="button"
                 disabled={busy}
                 onClick={onCreate}
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#2DD4BF] px-3 py-2 text-xs font-medium text-[#0E0E11] disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-success px-3 py-2 text-xs font-medium text-surface-base disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Plus size={12} />
                 New Custom Instrument
@@ -407,7 +407,7 @@ function WorkspacePanel({
                 type="button"
                 disabled={busy}
                 onClick={onClone}
-                className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#2A2A2F] px-3 py-2 text-xs font-medium text-[#8A857D] hover:text-[#F0EDE8] disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-border-default px-3 py-2 text-xs font-medium text-text-muted hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <CopyPlus size={12} />
                 Clone Instrument
@@ -416,7 +416,7 @@ function WorkspacePanel({
                 type="button"
                 disabled={busy || !instrument}
                 onClick={onEdit}
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#C9A227] px-3 py-2 text-xs font-medium text-[#0E0E11] disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-3 py-2 text-xs font-medium text-surface-base disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Save size={12} />
                 Save Instrument
@@ -425,7 +425,7 @@ function WorkspacePanel({
                 type="button"
                 disabled={busy || !instrument}
                 onClick={onDelete}
-                className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#612734] px-3 py-2 text-xs font-medium text-[#E85A6B] hover:bg-[#612734]/20 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-primary-dark px-3 py-2 text-xs font-medium text-critical hover:bg-primary-dark/20 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Trash2 size={12} />
                 Delete Instrument
@@ -437,30 +437,30 @@ function WorkspacePanel({
 
       <div className="p-5">
         {!instrument ? (
-          <div className="flex min-h-[212px] items-center justify-center rounded-xl border border-dashed border-[#2A2A2F] bg-[#0E0E11] px-6 text-center text-sm text-[#8A857D]">
+          <div className="flex min-h-[212px] items-center justify-center rounded-xl border border-dashed border-border-default bg-surface-base px-6 text-center text-sm text-text-muted">
             Create a new custom instrument or clone one to start authoring.
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-            <div className="rounded-xl border border-[#2A2A2F] bg-[#0E0E11] p-4">
+            <div className="rounded-xl border border-border-default bg-surface-base p-4">
               <SectionTitle>Name</SectionTitle>
-              <div className="text-sm font-medium text-[#F0EDE8]">{instrument.name}</div>
+              <div className="text-sm font-medium text-text-primary">{instrument.name}</div>
             </div>
-            <div className="rounded-xl border border-[#2A2A2F] bg-[#0E0E11] p-4">
+            <div className="rounded-xl border border-border-default bg-surface-base p-4">
               <SectionTitle>Version</SectionTitle>
-              <div className="text-sm font-medium text-[#F0EDE8]">{instrument.version}</div>
+              <div className="text-sm font-medium text-text-primary">{instrument.version}</div>
             </div>
-            <div className="rounded-xl border border-[#2A2A2F] bg-[#0E0E11] p-4">
+            <div className="rounded-xl border border-border-default bg-surface-base p-4">
               <SectionTitle>Domain</SectionTitle>
-              <div className="text-sm font-medium text-[#F0EDE8]">{instrument.domain}</div>
+              <div className="text-sm font-medium text-text-primary">{instrument.domain}</div>
             </div>
-            <div className="rounded-xl border border-[#2A2A2F] bg-[#0E0E11] p-4">
+            <div className="rounded-xl border border-border-default bg-surface-base p-4">
               <SectionTitle>Items</SectionTitle>
-              <div className="text-sm font-medium text-[#F0EDE8]">{instrument.items.length}</div>
+              <div className="text-sm font-medium text-text-primary">{instrument.items.length}</div>
             </div>
-            <div className="rounded-xl border border-[#2A2A2F] bg-[#0E0E11] p-4 md:col-span-4">
+            <div className="rounded-xl border border-border-default bg-surface-base p-4 md:col-span-4">
               <SectionTitle>Description</SectionTitle>
-              <div className="text-sm leading-relaxed text-[#C5C0B8]">
+              <div className="text-sm leading-relaxed text-text-secondary">
                 {instrument.description?.trim() || "No description entered yet."}
               </div>
             </div>
@@ -492,8 +492,8 @@ function SortableItemRow({
       className={cn(
         "w-full rounded-xl border px-3 py-3 text-left transition-colors",
         selected
-          ? "border-[#C9A227] bg-[#C9A227]/10"
-          : "border-[#2A2A2F] bg-[#0E0E11] hover:border-[#3C3C44]",
+          ? "border-accent bg-accent/10"
+          : "border-border-default bg-surface-base hover:border-surface-highlight",
         isDragging && "opacity-70 shadow-lg",
       )}
       style={{
@@ -505,26 +505,26 @@ function SortableItemRow({
         <div
           {...attributes}
           {...listeners}
-          className="mt-0.5 cursor-grab text-[#5A5650] active:cursor-grabbing"
+          className="mt-0.5 cursor-grab text-text-ghost active:cursor-grabbing"
           onClick={(event) => event.stopPropagation()}
         >
           <GripVertical size={14} />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="rounded-md bg-[#1B1B20] px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[#8A857D]">
+            <span className="rounded-md bg-surface-overlay px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-text-muted">
               {item.response_type.replace("_", " ")}
             </span>
             {item.subscale_name && (
-              <span className="rounded-md bg-[#2DD4BF]/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[#2DD4BF]">
+              <span className="rounded-md bg-success/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-success">
                 {item.subscale_name}
               </span>
             )}
           </div>
-          <div className="mt-2 text-sm font-medium text-[#F0EDE8]">
+          <div className="mt-2 text-sm font-medium text-text-primary">
             {item.item_number}. {item.item_text}
           </div>
-          <div className="mt-1 text-[11px] text-[#5A5650]">
+          <div className="mt-1 text-[11px] text-text-ghost">
             {item.answer_options.length > 0
               ? `${item.answer_options.length} answer options`
               : item.min_value != null || item.max_value != null
@@ -580,14 +580,14 @@ function ItemCanvas({
   };
 
   return (
-    <div className="rounded-2xl border border-[#2A2A2F] bg-[#141418]">
-      <div className="flex items-center justify-between border-b border-[#232328] px-4 py-3">
-        <h3 className="text-sm font-medium text-[#F0EDE8]">Item Canvas</h3>
+    <div className="rounded-2xl border border-border-default bg-surface-raised">
+      <div className="flex items-center justify-between border-b border-border-default px-4 py-3">
+        <h3 className="text-sm font-medium text-text-primary">Item Canvas</h3>
         <button
           type="button"
           disabled={!editable || busy}
           onClick={onCreate}
-          className="inline-flex items-center gap-2 rounded-lg border border-[#2A2A2F] px-3 py-2 text-xs font-medium text-[#8A857D] hover:text-[#F0EDE8] disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-lg border border-border-default px-3 py-2 text-xs font-medium text-text-muted hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Plus size={12} />
           Create Item
@@ -595,7 +595,7 @@ function ItemCanvas({
       </div>
       <div className="p-4">
         {instrument.items.length === 0 ? (
-          <div className="flex min-h-[440px] items-center justify-center rounded-xl border border-dashed border-[#2A2A2F] bg-[#0E0E11] px-6 text-center text-sm text-[#8A857D]">
+          <div className="flex min-h-[440px] items-center justify-center rounded-xl border border-dashed border-border-default bg-surface-base px-6 text-center text-sm text-text-muted">
             No items yet. Use Create Item to start authoring this instrument.
           </div>
         ) : (
@@ -615,7 +615,7 @@ function ItemCanvas({
           </DndContext>
         )}
 
-        <div className="mt-4 rounded-xl border border-dashed border-[#2A2A2F] bg-[#0E0E11] px-4 py-3 text-[11px] leading-relaxed text-[#5A5650]">
+        <div className="mt-4 rounded-xl border border-dashed border-border-default bg-surface-base px-4 py-3 text-[11px] leading-relaxed text-text-ghost">
           Drag items to reorder them. The builder persists the revised order immediately.
         </div>
       </div>
@@ -684,7 +684,7 @@ function EditItemModal({
                 type="button"
                 disabled={busy || !editable}
                 onClick={() => onDelete(item)}
-                className="inline-flex items-center gap-2 rounded-lg border border-[#2A2A2F] px-4 py-2 text-sm text-[#E85A6B] disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-lg border border-border-default px-4 py-2 text-sm text-critical disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Trash2 size={14} />
                 Delete Item
@@ -695,7 +695,7 @@ function EditItemModal({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg border border-[#2A2A2F] px-4 py-2 text-sm text-[#8A857D] hover:text-[#F0EDE8]"
+              className="rounded-lg border border-border-default px-4 py-2 text-sm text-text-muted hover:text-text-primary"
             >
               Cancel
             </button>
@@ -703,7 +703,7 @@ function EditItemModal({
               type="button"
               disabled={saveDisabled}
               onClick={() => onSave(form, item)}
-              className="inline-flex items-center gap-2 rounded-lg bg-[#C9A227] px-4 py-2 text-sm font-medium text-[#0E0E11] disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-surface-base disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Save size={14} />
               Save Item
@@ -715,7 +715,7 @@ function EditItemModal({
       {item ? (
         <ItemFormFields form={form} editable={editable} onChange={setForm} />
       ) : (
-        <div className="rounded-xl border border-dashed border-[#2A2A2F] bg-[#0E0E11] px-6 py-10 text-center text-sm text-[#8A857D]">
+        <div className="rounded-xl border border-dashed border-border-default bg-surface-base px-6 py-10 text-center text-sm text-text-muted">
           Select an existing item from the canvas to edit it.
         </div>
       )}
@@ -757,7 +757,7 @@ function InstrumentMetadataModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-[#2A2A2F] px-4 py-2 text-sm text-[#8A857D] hover:text-[#F0EDE8]"
+            className="rounded-lg border border-border-default px-4 py-2 text-sm text-text-muted hover:text-text-primary"
           >
             Cancel
           </button>
@@ -765,7 +765,7 @@ function InstrumentMetadataModal({
             type="button"
             disabled={saveDisabled}
             onClick={onSave}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#C9A227] px-4 py-2 text-sm font-medium text-[#0E0E11] disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-surface-base disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Save size={14} />
             {mode === "create" ? "Create Instrument" : "Save Instrument"}
@@ -779,7 +779,7 @@ function InstrumentMetadataModal({
           <input
             value={form.name}
             onChange={(event) => onChange({ ...form, name: event.target.value })}
-            className="w-full rounded-xl border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF]"
+            className="w-full rounded-xl border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
           />
         </label>
         <label className="block">
@@ -787,7 +787,7 @@ function InstrumentMetadataModal({
           <input
             value={form.abbreviation}
             onChange={(event) => onChange({ ...form, abbreviation: event.target.value.toUpperCase() })}
-            className="w-full rounded-xl border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF]"
+            className="w-full rounded-xl border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
           />
         </label>
         <label className="block">
@@ -795,7 +795,7 @@ function InstrumentMetadataModal({
           <input
             value={form.version}
             onChange={(event) => onChange({ ...form, version: event.target.value })}
-            className="w-full rounded-xl border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF]"
+            className="w-full rounded-xl border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
           />
         </label>
         <label className="block">
@@ -803,7 +803,7 @@ function InstrumentMetadataModal({
           <select
             value={form.domain}
             onChange={(event) => onChange({ ...form, domain: event.target.value })}
-            className="w-full rounded-xl border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF]"
+            className="w-full rounded-xl border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
           >
             {DOMAINS.map((domain) => (
               <option key={domain} value={domain}>
@@ -817,7 +817,7 @@ function InstrumentMetadataModal({
           <select
             value={form.license_type}
             onChange={(event) => onChange({ ...form, license_type: event.target.value as InstrumentForm["license_type"] })}
-            className="w-full rounded-xl border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF]"
+            className="w-full rounded-xl border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
           >
             <option value="public">public</option>
             <option value="proprietary">proprietary</option>
@@ -828,7 +828,7 @@ function InstrumentMetadataModal({
           <select
             value={form.omop_coverage}
             onChange={(event) => onChange({ ...form, omop_coverage: event.target.value as InstrumentForm["omop_coverage"] })}
-            className="w-full rounded-xl border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF]"
+            className="w-full rounded-xl border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
           >
             <option value="yes">yes</option>
             <option value="partial">partial</option>
@@ -841,7 +841,7 @@ function InstrumentMetadataModal({
             rows={4}
             value={form.description}
             onChange={(event) => onChange({ ...form, description: event.target.value })}
-            className="w-full rounded-xl border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF]"
+            className="w-full rounded-xl border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
           />
         </label>
       </div>
@@ -905,7 +905,7 @@ function CreateItemModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-[#2A2A2F] px-4 py-2 text-sm text-[#8A857D] hover:text-[#F0EDE8]"
+            className="rounded-lg border border-border-default px-4 py-2 text-sm text-text-muted hover:text-text-primary"
           >
             Cancel
           </button>
@@ -913,7 +913,7 @@ function CreateItemModal({
             type="button"
             disabled={saveDisabled}
             onClick={() => onSave(form)}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#C9A227] px-4 py-2 text-sm font-medium text-[#0E0E11] disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-surface-base disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Save size={14} />
             Save Item
@@ -983,7 +983,7 @@ function CloneInstrumentModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-[#2A2A2F] px-4 py-2 text-sm text-[#8A857D] hover:text-[#F0EDE8]"
+            className="rounded-lg border border-border-default px-4 py-2 text-sm text-text-muted hover:text-text-primary"
           >
             Cancel
           </button>
@@ -991,7 +991,7 @@ function CloneInstrumentModal({
             type="button"
             disabled={busy || form.sourceId == null || form.name.trim() === "" || form.abbreviation.trim() === ""}
             onClick={onClone}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#C9A227] px-4 py-2 text-sm font-medium text-[#0E0E11] disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-surface-base disabled:cursor-not-allowed disabled:opacity-50"
           >
             <CopyPlus size={14} />
             Clone into Workspace
@@ -1000,25 +1000,25 @@ function CloneInstrumentModal({
       )}
     >
       <div className="space-y-4">
-        <div className="rounded-xl border border-[#2A2A2F] bg-[#0E0E11] p-4">
+        <div className="rounded-xl border border-border-default bg-surface-base p-4">
           <div className="relative">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]" />
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost" />
             <input
               value={form.query}
               onChange={(event) => onChange({ ...form, query: event.target.value })}
               placeholder="Search standard or custom instruments"
-              className="w-full rounded-xl border border-[#2A2A2F] bg-[#141418] py-2 pl-9 pr-3 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF]"
+              className="w-full rounded-xl border border-border-default bg-surface-raised py-2 pl-9 pr-3 text-sm text-text-primary outline-none focus:border-success"
             />
           </div>
         </div>
 
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
           <div className="space-y-4">
-            <div className="rounded-xl border border-[#2A2A2F] bg-[#0E0E11] p-4">
-              <div className="mb-3 text-xs font-medium uppercase tracking-wider text-[#2DD4BF]">Standard PROs</div>
+            <div className="rounded-xl border border-border-default bg-surface-base p-4">
+              <div className="mb-3 text-xs font-medium uppercase tracking-wider text-success">Standard PROs</div>
               <div className="space-y-2">
                 {standard.length === 0 && (
-                  <div className="rounded-xl border border-dashed border-[#2A2A2F] px-4 py-3 text-sm text-[#8A857D]">
+                  <div className="rounded-xl border border-dashed border-border-default px-4 py-3 text-sm text-text-muted">
                     No standard instruments match the current search.
                   </div>
                 )}
@@ -1030,23 +1030,23 @@ function CloneInstrumentModal({
                     className={cn(
                       "w-full rounded-xl border px-3 py-3 text-left transition-colors",
                       form.sourceId === instrument.id
-                        ? "border-[#2DD4BF] bg-[#2DD4BF]/10"
-                        : "border-[#2A2A2F] bg-[#141418] hover:border-[#3C3C44]",
+                        ? "border-success bg-success/10"
+                        : "border-border-default bg-surface-raised hover:border-surface-highlight",
                     )}
                   >
-                    <div className="text-xs font-semibold text-[#F0EDE8]">{instrument.abbreviation}</div>
-                    <div className="mt-1 text-sm text-[#C5C0B8]">{instrument.name}</div>
-                    <div className="mt-1 text-[11px] text-[#5A5650]">{instrument.domain}</div>
+                    <div className="text-xs font-semibold text-text-primary">{instrument.abbreviation}</div>
+                    <div className="mt-1 text-sm text-text-secondary">{instrument.name}</div>
+                    <div className="mt-1 text-[11px] text-text-ghost">{instrument.domain}</div>
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="rounded-xl border border-[#2A2A2F] bg-[#0E0E11] p-4">
-              <div className="mb-3 text-xs font-medium uppercase tracking-wider text-[#C9A227]">Custom Instruments</div>
+            <div className="rounded-xl border border-border-default bg-surface-base p-4">
+              <div className="mb-3 text-xs font-medium uppercase tracking-wider text-accent">Custom Instruments</div>
               <div className="space-y-2">
                 {custom.length === 0 && (
-                  <div className="rounded-xl border border-dashed border-[#2A2A2F] px-4 py-3 text-sm text-[#8A857D]">
+                  <div className="rounded-xl border border-dashed border-border-default px-4 py-3 text-sm text-text-muted">
                     No custom instruments match the current search.
                   </div>
                 )}
@@ -1058,37 +1058,37 @@ function CloneInstrumentModal({
                     className={cn(
                       "w-full rounded-xl border px-3 py-3 text-left transition-colors",
                       form.sourceId === instrument.id
-                        ? "border-[#C9A227] bg-[#C9A227]/10"
-                        : "border-[#2A2A2F] bg-[#141418] hover:border-[#3C3C44]",
+                        ? "border-accent bg-accent/10"
+                        : "border-border-default bg-surface-raised hover:border-surface-highlight",
                     )}
                   >
-                    <div className="text-xs font-semibold text-[#F0EDE8]">{instrument.abbreviation}</div>
-                    <div className="mt-1 text-sm text-[#C5C0B8]">{instrument.name}</div>
-                    <div className="mt-1 text-[11px] text-[#5A5650]">{instrument.domain}</div>
+                    <div className="text-xs font-semibold text-text-primary">{instrument.abbreviation}</div>
+                    <div className="mt-1 text-sm text-text-secondary">{instrument.name}</div>
+                    <div className="mt-1 text-[11px] text-text-ghost">{instrument.domain}</div>
                   </button>
                 ))}
               </div>
             </div>
           </div>
 
-          <div className="rounded-xl border border-[#2A2A2F] bg-[#0E0E11] p-4">
-            <div className="text-xs font-medium uppercase tracking-wider text-[#8A857D]">Clone Settings</div>
+          <div className="rounded-xl border border-border-default bg-surface-base p-4">
+            <div className="text-xs font-medium uppercase tracking-wider text-text-muted">Clone Settings</div>
             {!selectedSource ? (
-              <div className="mt-4 rounded-xl border border-dashed border-[#2A2A2F] px-4 py-6 text-sm text-[#8A857D]">
+              <div className="mt-4 rounded-xl border border-dashed border-border-default px-4 py-6 text-sm text-text-muted">
                 Select a source instrument to configure the cloned copy.
               </div>
             ) : (
               <div className="mt-4 space-y-4">
-                <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] px-4 py-3">
-                  <div className="text-xs font-semibold text-[#F0EDE8]">{selectedSource.abbreviation}</div>
-                  <div className="mt-1 text-sm text-[#C5C0B8]">{selectedSource.name}</div>
+                <div className="rounded-xl border border-border-default bg-surface-raised px-4 py-3">
+                  <div className="text-xs font-semibold text-text-primary">{selectedSource.abbreviation}</div>
+                  <div className="mt-1 text-sm text-text-secondary">{selectedSource.name}</div>
                 </div>
                 <label className="block">
                   <SectionTitle>Cloned Name</SectionTitle>
                   <input
                     value={form.name}
                     onChange={(event) => onChange({ ...form, name: event.target.value })}
-                    className="w-full rounded-xl border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF]"
+                    className="w-full rounded-xl border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
                   />
                 </label>
                 <label className="block">
@@ -1096,7 +1096,7 @@ function CloneInstrumentModal({
                   <input
                     value={form.abbreviation}
                     onChange={(event) => onChange({ ...form, abbreviation: event.target.value.toUpperCase() })}
-                    className="w-full rounded-xl border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-sm text-[#F0EDE8] outline-none focus:border-[#2DD4BF]"
+                    className="w-full rounded-xl border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
                   />
                 </label>
               </div>
@@ -1504,7 +1504,7 @@ export function BuilderTab() {
           />
         </>
       ) : (
-        <div className="rounded-2xl border border-[#2A2A2F] bg-[#141418] p-12 text-center text-sm text-[#8A857D]">
+        <div className="rounded-2xl border border-border-default bg-surface-raised p-12 text-center text-sm text-text-muted">
           {instrumentListQuery.isLoading ? (
             <span className="inline-flex items-center gap-2">
               <Loader2 size={16} className="animate-spin" />

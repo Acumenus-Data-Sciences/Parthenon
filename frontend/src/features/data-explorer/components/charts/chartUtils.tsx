@@ -34,51 +34,51 @@ export function truncate(s: string, max = 40): string {
 
 /** Colorblind-safe domain palette (Okabe-Ito inspired, tuned for dark theme) */
 export const DOMAIN_COLORS: Record<string, string> = {
-  condition: "#2DD4BF",
-  drug: "#C9A227",
-  procedure: "#60A5FA",
+  condition: "var(--success)",
+  drug: "var(--accent)",
+  procedure: "var(--info)",
   measurement: "#A855F7",
-  observation: "#E5A84B",
-  visit: "#E85A6B",
-  death: "#8B5CF6",
-  drug_era: "#34D399",
-  condition_era: "#F472B6",
-  person: "#F0EDE8",
-  observation_period: "#94A3B8",
-  Condition: "#2DD4BF",
-  Drug: "#C9A227",
-  Procedure: "#60A5FA",
+  observation: "var(--warning)",
+  visit: "var(--critical)",
+  death: "var(--domain-observation)",
+  drug_era: "var(--success)",
+  condition_era: "var(--domain-procedure)",
+  person: "var(--text-primary)",
+  observation_period: "var(--text-muted)",
+  Condition: "var(--success)",
+  Drug: "var(--accent)",
+  Procedure: "var(--info)",
   Measurement: "#A855F7",
-  Observation: "#E5A84B",
-  Visit: "#E85A6B",
+  Observation: "var(--warning)",
+  Visit: "var(--critical)",
 };
 
 export const GENDER_COLORS: Record<string, string> = {
-  Male: "#60A5FA",
-  Female: "#E85A6B",
-  Unknown: "#8A857D",
-  Ambiguous: "#5A5650",
+  Male: "var(--info)",
+  Female: "var(--critical)",
+  Unknown: "var(--text-muted)",
+  Ambiguous: "var(--text-ghost)",
 };
 
 /** Standard dark theme chart styling constants */
 export const CHART = {
-  bg: "#151518",
-  bgDarker: "#0E0E11",
-  border: "#232328",
-  grid: "#323238",
-  text: "#F0EDE8",
-  textSec: "#C5C0B8",
-  textMuted: "#8A857D",
-  textDim: "#5A5650",
-  accent: "#2DD4BF",
-  gold: "#C9A227",
-  crimson: "#E85A6B",
-  blue: "#60A5FA",
+  bg: "var(--surface-raised)",
+  bgDarker: "var(--surface-base)",
+  border: "var(--surface-elevated)",
+  grid: "var(--surface-highlight)",
+  text: "var(--text-primary)",
+  textSec: "var(--text-secondary)",
+  textMuted: "var(--text-muted)",
+  textDim: "var(--text-ghost)",
+  accent: "var(--success)",
+  gold: "var(--accent)",
+  crimson: "var(--critical)",
+  blue: "var(--info)",
 } as const;
 
 /** Standard tooltip container classes */
 export const TOOLTIP_CLS =
-  "rounded-lg border border-[#323238] bg-[#1A1A1E] px-3 py-2 shadow-lg";
+  "rounded-lg border border-surface-highlight bg-surface-overlay px-3 py-2 shadow-lg";
 
 // ── Map CDM table name → domain name ─────────────────────────────────────────
 
@@ -117,14 +117,14 @@ interface ChartCardProps {
 
 export function ChartCard({ title, subtitle, children, className }: ChartCardProps) {
   return (
-    <div className={`rounded-xl border border-[#232328] bg-[#151518] p-6 ${className ?? ""}`}>
+    <div className={`rounded-xl border border-border-default bg-surface-raised p-6 ${className ?? ""}`}>
       {title && (
-        <h3 className="mb-1 text-sm font-semibold uppercase tracking-wider text-[#8A857D]">
+        <h3 className="mb-1 text-sm font-semibold uppercase tracking-wider text-text-muted">
           {title}
         </h3>
       )}
       {subtitle && (
-        <p className="mb-4 text-xs text-[#5A5650]">{subtitle}</p>
+        <p className="mb-4 text-xs text-text-ghost">{subtitle}</p>
       )}
       {!subtitle && title && <div className="mb-4" />}
       {children}

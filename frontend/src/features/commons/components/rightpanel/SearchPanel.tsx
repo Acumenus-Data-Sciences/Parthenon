@@ -15,7 +15,7 @@ export function SearchPanel({ slug }: SearchPanelProps) {
   return (
     <div className="flex flex-1 flex-col">
       <div className="px-3 py-3">
-        <div className="relative rounded-xl border border-[#26262c] bg-[#111115] shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+        <div className="relative rounded-xl border border-border-default bg-surface-base shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
           <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
@@ -29,7 +29,7 @@ export function SearchPanel({ slug }: SearchPanelProps) {
 
       <div className="flex-1 overflow-y-auto px-3 pb-3">
         {query.length < 2 ? (
-          <div className="flex flex-1 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-[#2b2b32] bg-[#111115] px-5 py-10 text-center">
+          <div className="flex flex-1 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-border-default bg-surface-base px-5 py-10 text-center">
             <Search className="h-8 w-8 text-muted-foreground/50" />
             <p className="text-[13px] font-medium text-muted-foreground">Search Messages</p>
             <p className="text-xs leading-5 text-muted-foreground/60">
@@ -37,11 +37,11 @@ export function SearchPanel({ slug }: SearchPanelProps) {
             </p>
           </div>
         ) : isLoading ? (
-          <div className="rounded-2xl border border-[#25252b] bg-[#111115] px-4 py-3 text-xs text-muted-foreground">
+          <div className="rounded-2xl border border-border-default bg-surface-base px-4 py-3 text-xs text-muted-foreground">
             Searching...
           </div>
         ) : results.length === 0 ? (
-          <div className="rounded-2xl border border-[#25252b] bg-[#111115] px-4 py-3 text-xs text-muted-foreground">
+          <div className="rounded-2xl border border-border-default bg-surface-base px-4 py-3 text-xs text-muted-foreground">
             No messages found for &ldquo;{query}&rdquo;
           </div>
         ) : (
@@ -49,7 +49,7 @@ export function SearchPanel({ slug }: SearchPanelProps) {
             {results.map((msg) => (
               <div
                 key={msg.id}
-                className="rounded-xl border border-[#25252b] bg-[#111115] px-3 py-3 transition-colors hover:border-[#31313a] hover:bg-[#15151a]"
+                className="rounded-xl border border-border-default bg-surface-base px-3 py-3 transition-colors hover:border-surface-highlight hover:bg-surface-raised"
               >
               <div className="flex items-start gap-2">
                 <UserAvatar user={msg.user} size="sm" />

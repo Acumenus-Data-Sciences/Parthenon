@@ -12,7 +12,7 @@ function SourceTableNodeComponent({ data }: NodeProps) {
   const d = data as unknown as SourceTableNodeData;
   return (
     <div
-      className={`rounded-lg border-2 border-[#C9A227] bg-[#1e1a14] px-4 py-3 min-w-[160px] transition-opacity ${
+      className={`rounded-lg border-2 border-accent bg-surface-overlay px-4 py-3 min-w-[160px] transition-opacity ${
         d.dimmed ? "opacity-50" : "opacity-100"
       }`}
     >
@@ -24,7 +24,7 @@ function SourceTableNodeComponent({ data }: NodeProps) {
       <Handle
         type="source"
         position={Position.Right}
-        className="!w-4 !h-4 !bg-[#C9A227] !border-2 !border-[#C9A227] hover:!scale-125 transition-transform"
+        className="!w-4 !h-4 !bg-accent !border-2 !border-accent hover:!scale-125 transition-transform"
       />
     </div>
   );

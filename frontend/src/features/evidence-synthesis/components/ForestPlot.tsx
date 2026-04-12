@@ -97,8 +97,8 @@ export function ForestPlot({ perSite, pooled, className }: ForestPlotProps) {
   const svgHeight = (perSite.length + 2) * rowHeight + 40;
 
   return (
-    <div className={cn("rounded-lg border border-[#232328] bg-[#151518] p-4", className)}>
-      <h3 className="text-sm font-semibold text-[#F0EDE8] mb-4">Forest Plot</h3>
+    <div className={cn("rounded-lg border border-border-default bg-surface-raised p-4", className)}>
+      <h3 className="text-sm font-semibold text-text-primary mb-4">Forest Plot</h3>
       <div className="overflow-x-auto">
         <svg
           viewBox={`0 0 650 ${svgHeight}`}
@@ -111,7 +111,7 @@ export function ForestPlot({ perSite, pooled, className }: ForestPlotProps) {
             y1={10}
             x2={120 + nullLineX * 4.2}
             y2={svgHeight - 30}
-            stroke="#5A5650"
+            stroke="var(--text-ghost)"
             strokeWidth={1}
             strokeDasharray="4,4"
           />
@@ -126,26 +126,26 @@ export function ForestPlot({ perSite, pooled, className }: ForestPlotProps) {
             return (
               <g key={idx}>
                 {/* Label */}
-                <text x={8} y={y + 4} fill="#C5C0B8" fontSize={11} fontFamily="monospace">
+                <text x={8} y={y + 4} fill="var(--text-secondary)" fontSize={11} fontFamily="monospace">
                   {site.site_name}
                 </text>
                 {/* CI line */}
-                <line x1={xLo} y1={y} x2={xHi} y2={y} stroke="#8A857D" strokeWidth={1.5} />
+                <line x1={xLo} y1={y} x2={xHi} y2={y} stroke="var(--text-muted)" strokeWidth={1.5} />
                 {/* Point estimate */}
                 <rect
                   x={xHr - 4}
                   y={y - 4}
                   width={8}
                   height={8}
-                  fill="#2DD4BF"
+                  fill="var(--success)"
                   rx={1}
                 />
                 {/* HR label */}
-                <text x={550} y={y + 4} fill="#8A857D" fontSize={10} fontFamily="monospace" textAnchor="end">
+                <text x={550} y={y + 4} fill="var(--text-muted)" fontSize={10} fontFamily="monospace" textAnchor="end">
                   {fmt(site.hr, 2)} [{fmt(site.ci_lower, 2)}, {fmt(site.ci_upper, 2)}]
                 </text>
                 {/* Weight % column */}
-                <text x={600} y={y + 4} fill="#5A5650" fontSize={9} fontFamily="monospace" textAnchor="end" data-testid={`weight-${idx}`}>
+                <text x={600} y={y + 4} fill="var(--text-ghost)" fontSize={9} fontFamily="monospace" textAnchor="end" data-testid={`weight-${idx}`}>
                   {fmt(weightPcts[idx], 1)}%
                 </text>
                 {/* Leave-one-out sensitivity marker */}
@@ -154,7 +154,7 @@ export function ForestPlot({ perSite, pooled, className }: ForestPlotProps) {
                     cx={615}
                     cy={y}
                     r={3}
-                    fill="#C9A227"
+                    fill="var(--accent)"
                     data-testid={`loo-marker-${idx}`}
                   >
                     <title>Removing this site changes pooled significance</title>
@@ -165,7 +165,7 @@ export function ForestPlot({ perSite, pooled, className }: ForestPlotProps) {
           })}
 
           {/* Column header for weight */}
-          <text x={600} y={10} fill="#5A5650" fontSize={9} fontFamily="monospace" textAnchor="end" fontWeight="bold">
+          <text x={600} y={10} fill="var(--text-ghost)" fontSize={9} fontFamily="monospace" textAnchor="end" fontWeight="bold">
             Wt%
           </text>
 
@@ -182,8 +182,8 @@ export function ForestPlot({ perSite, pooled, className }: ForestPlotProps) {
 
             return (
               <g>
-                <line x1={0} y1={y - 14} x2={650} y2={y - 14} stroke="#232328" strokeWidth={1} />
-                <text x={8} y={y + 4} fill="#F0EDE8" fontSize={11} fontWeight="bold" fontFamily="monospace">
+                <line x1={0} y1={y - 14} x2={650} y2={y - 14} stroke="var(--surface-elevated)" strokeWidth={1} />
+                <text x={8} y={y + 4} fill="var(--text-primary)" fontSize={11} fontWeight="bold" fontFamily="monospace">
                   Pooled
                 </text>
 
@@ -191,7 +191,7 @@ export function ForestPlot({ perSite, pooled, className }: ForestPlotProps) {
                 {hasPredictionInterval && (
                   <polygon
                     points={`${xPiLo},${y} ${xHr},${y - 9} ${xPiHi},${y} ${xHr},${y + 9}`}
-                    fill="#C9A227"
+                    fill="var(--accent)"
                     opacity={0.2}
                     data-testid="prediction-interval-diamond"
                   />
@@ -200,10 +200,10 @@ export function ForestPlot({ perSite, pooled, className }: ForestPlotProps) {
                 {/* CI Diamond */}
                 <polygon
                   points={`${xLo},${y} ${xHr},${y - 6} ${xHi},${y} ${xHr},${y + 6}`}
-                  fill="#C9A227"
+                  fill="var(--accent)"
                   opacity={0.8}
                 />
-                <text x={550} y={y + 4} fill="#C9A227" fontSize={10} fontFamily="monospace" fontWeight="bold" textAnchor="end">
+                <text x={550} y={y + 4} fill="var(--accent)" fontSize={10} fontFamily="monospace" fontWeight="bold" textAnchor="end">
                   {fmt(pooled.hr, 2)} [{fmt(pooled.ci_lower, 2)}, {fmt(pooled.ci_upper, 2)}]
                 </text>
               </g>
@@ -215,8 +215,8 @@ export function ForestPlot({ perSite, pooled, className }: ForestPlotProps) {
             const x = 120 + toX(tick) * 4.2;
             return (
               <g key={tick}>
-                <line x1={x} y1={svgHeight - 30} x2={x} y2={svgHeight - 25} stroke="#5A5650" strokeWidth={1} />
-                <text x={x} y={svgHeight - 12} fill="#5A5650" fontSize={9} textAnchor="middle" fontFamily="monospace">
+                <line x1={x} y1={svgHeight - 30} x2={x} y2={svgHeight - 25} stroke="var(--text-ghost)" strokeWidth={1} />
+                <text x={x} y={svgHeight - 12} fill="var(--text-ghost)" fontSize={9} textAnchor="middle" fontFamily="monospace">
                   {tick}
                 </text>
               </g>

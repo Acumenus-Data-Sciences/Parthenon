@@ -29,11 +29,11 @@ const SECTION_LABELS: Record<AresSection, string> = {
 
 function ComingSoonPlaceholder({ section }: { section: AresSection }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[#323238] bg-[#151518] py-20">
-      <p className="text-lg font-semibold text-[#F0EDE8]">
+    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-surface-highlight bg-surface-raised py-20">
+      <p className="text-lg font-semibold text-text-primary">
         {SECTION_LABELS[section]}
       </p>
-      <p className="mt-2 text-sm text-[#8A857D]">Coming soon in a future phase</p>
+      <p className="mt-2 text-sm text-text-muted">Coming soon in a future phase</p>
     </div>
   );
 }
