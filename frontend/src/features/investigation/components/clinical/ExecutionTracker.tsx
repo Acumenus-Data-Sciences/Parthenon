@@ -95,7 +95,7 @@ export function ExecutionTracker({
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-surface-overlay opacity-60" />
           <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-surface-overlay" />
         </span>
-        <span className="text-sm text-zinc-400">Waiting in queue...</span>
+        <span className="text-sm text-text-muted">Waiting in queue...</span>
       </div>
     );
   }
@@ -110,8 +110,8 @@ export function ExecutionTracker({
         </div>
 
         <div className="flex flex-col gap-0.5">
-          <span className="text-sm font-medium text-zinc-200">Running...</span>
-          <span className="font-mono text-xs text-zinc-500">
+          <span className="text-sm font-medium text-text-primary">Running...</span>
+          <span className="font-mono text-xs text-text-ghost">
             {formatElapsed(elapsed)}
           </span>
         </div>
@@ -153,8 +153,8 @@ export function ExecutionTracker({
           <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-teal-500/10">
             <Icon className="h-3 w-3 text-teal-400" />
           </div>
-          <span className="text-xs font-medium text-zinc-300">Results</span>
-          <span className="ml-auto font-mono text-[10px] text-zinc-600">
+          <span className="text-xs font-medium text-text-secondary">Results</span>
+          <span className="ml-auto font-mono text-[10px] text-text-ghost">
             {formatElapsed(elapsed)}
           </span>
         </div>
@@ -182,7 +182,7 @@ export function ExecutionTracker({
           <span className="text-sm font-medium text-[#9B1B30]">
             {status === "cancelled" ? "Analysis cancelled" : "Analysis failed"}
           </span>
-          <span className="text-xs text-zinc-400">{failMessage}</span>
+          <span className="text-xs text-text-muted">{failMessage}</span>
         </div>
       </div>
     );
@@ -195,7 +195,7 @@ export function ExecutionTracker({
         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-surface-overlay opacity-60" />
         <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-surface-overlay" />
       </span>
-      <span className="text-sm text-zinc-400">Initializing...</span>
+      <span className="text-sm text-text-muted">Initializing...</span>
     </div>
   );
 }

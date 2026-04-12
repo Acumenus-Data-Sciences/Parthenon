@@ -145,7 +145,7 @@ export function FederatedExecutionTab({ studySlug }: { studySlug: string }) {
             className={cn(
               "btn btn-sm flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all",
               selectedNodes.size > 0
-                ? "bg-[#9B1B30] text-white hover:bg-[#B52240]"
+                ? "bg-[#9B1B30] text-text-primary hover:bg-[#B52240]"
                 : "bg-[#232328] text-[#5A5650] cursor-not-allowed",
             )}
           >

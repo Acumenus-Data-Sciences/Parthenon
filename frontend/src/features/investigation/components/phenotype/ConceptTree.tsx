@@ -8,13 +8,13 @@ const DOMAIN_BADGE_CLASSES: Record<string, string> = {
   Procedure: "bg-blue-900/30 text-blue-400 border border-blue-500/30",
   Observation: "bg-purple-900/30 text-purple-400 border border-purple-500/30",
   Device: "bg-orange-900/30 text-orange-400 border border-orange-500/30",
-  Visit: "bg-surface-accent/50 text-zinc-300 border border-border-hover/30",
+  Visit: "bg-surface-accent/50 text-text-secondary border border-border-hover/30",
 };
 
 function domainBadgeClass(domain: string): string {
   return (
     DOMAIN_BADGE_CLASSES[domain] ??
-    "bg-surface-accent/50 text-zinc-400 border border-border-hover/30"
+    "bg-surface-accent/50 text-text-muted border border-border-hover/30"
   );
 }
 
@@ -45,10 +45,10 @@ function ConceptNode({ concept, indent, variant }: ConceptNodeProps) {
           <span
             className={`text-xs leading-snug ${
               variant === "selected"
-                ? "text-zinc-100 font-medium"
+                ? "text-text-primary font-medium"
                 : variant === "ancestor"
-                  ? "text-zinc-400"
-                  : "text-zinc-300"
+                  ? "text-text-muted"
+                  : "text-text-secondary"
             }`}
           >
             {concept.concept_name}
@@ -79,7 +79,7 @@ export function ConceptTree({ conceptId, conceptName }: ConceptTreeProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center gap-2 text-xs text-zinc-500 py-2">
+      <div className="flex items-center gap-2 text-xs text-text-ghost py-2">
         <div className="h-3 w-3 animate-spin rounded-full border-2 border-border-hover border-t-[#2DD4BF]" />
         Loading hierarchy…
       </div>
@@ -98,7 +98,7 @@ export function ConceptTree({ conceptId, conceptName }: ConceptTreeProps) {
   return (
     <div className="space-y-0.5">
       {sortedAncestors.length === 0 && descendants.length === 0 && (
-        <p className="text-xs text-zinc-600 py-1">
+        <p className="text-xs text-text-ghost py-1">
           No hierarchy data available for this concept.
         </p>
       )}

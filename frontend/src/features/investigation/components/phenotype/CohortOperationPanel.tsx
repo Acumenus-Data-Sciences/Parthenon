@@ -129,8 +129,8 @@ export function CohortOperationPanel({
     <div className="flex flex-col gap-5 rounded-xl border border-border-default/50 bg-[#0E0E11] p-4">
       {/* Header */}
       <div>
-        <h3 className="text-sm font-semibold text-zinc-100">Cohort Set Operations</h3>
-        <p className="mt-0.5 text-xs text-zinc-500">
+        <h3 className="text-sm font-semibold text-text-primary">Cohort Set Operations</h3>
+        <p className="mt-0.5 text-xs text-text-ghost">
           Combine or contrast {selectedCohorts.length} selected cohorts.
         </p>
       </div>
@@ -140,7 +140,7 @@ export function CohortOperationPanel({
 
       {/* 2. Operation selector */}
       <div className="flex flex-col gap-2">
-        <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+        <p className="text-xs font-medium uppercase tracking-wide text-text-muted">
           Operation
         </p>
         <div className="flex gap-2 flex-wrap">
@@ -151,14 +151,14 @@ export function CohortOperationPanel({
               className={`flex flex-col items-start rounded-full border px-4 py-1.5 text-left transition-colors ${
                 operationType === opt.id
                   ? "border-[#2DD4BF]/60 bg-teal-900/20 text-[#2DD4BF]"
-                  : "border-border-default bg-surface-raised/50 text-zinc-400 hover:border-border-hover hover:text-zinc-300"
+                  : "border-border-default bg-surface-raised/50 text-text-muted hover:border-border-hover hover:text-text-secondary"
               }`}
             >
               <span className="text-xs font-semibold">{opt.label}</span>
             </button>
           ))}
         </div>
-        <p className="text-[11px] text-zinc-500">
+        <p className="text-[11px] text-text-ghost">
           {OPERATION_OPTIONS.find((o) => o.id === operationType)?.description}
         </p>
       </div>
@@ -178,14 +178,14 @@ export function CohortOperationPanel({
 
       {/* 4. Source selector */}
       <div className="flex flex-col gap-1">
-        <label className="text-xs font-medium text-zinc-400">CDM Source</label>
+        <label className="text-xs font-medium text-text-muted">CDM Source</label>
         <select
           value={selectedSourceId ?? ""}
           onChange={(e) =>
             setSelectedSourceId(e.target.value ? Number(e.target.value) : null)
           }
           disabled={sourcesLoading}
-          className="w-full rounded border border-border-default bg-surface-raised/60 px-3 py-1.5 text-xs text-zinc-200 focus:border-[#2DD4BF]/60 focus:outline-none disabled:opacity-50"
+          className="w-full rounded border border-border-default bg-surface-raised/60 px-3 py-1.5 text-xs text-text-primary focus:border-[#2DD4BF]/60 focus:outline-none disabled:opacity-50"
         >
           <option value="">
             {sourcesLoading ? "Loading sources…" : "Select a CDM source…"}
@@ -203,7 +203,7 @@ export function CohortOperationPanel({
         <button
           onClick={() => void handleExecute()}
           disabled={isRunning || !selectedSourceId}
-          className="flex items-center gap-2 rounded px-5 py-2 text-sm font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex items-center gap-2 rounded px-5 py-2 text-sm font-medium text-text-primary transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           style={{ backgroundColor: "#9B1B30" }}
         >
           {isRunning ? (
@@ -243,7 +243,7 @@ export function CohortOperationPanel({
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-2">
             <div className="h-px flex-1 bg-surface-accent/50" />
-            <span className="text-[10px] uppercase tracking-wide text-zinc-500">Results</span>
+            <span className="text-[10px] uppercase tracking-wide text-text-ghost">Results</span>
             <div className="h-px flex-1 bg-surface-accent/50" />
           </div>
 
@@ -253,7 +253,7 @@ export function CohortOperationPanel({
               <span className="text-3xl font-bold tabular-nums text-[#2DD4BF]">
                 {result.result_count.toLocaleString()}
               </span>
-              <span className="mt-0.5 text-[11px] text-zinc-400">
+              <span className="mt-0.5 text-[11px] text-text-muted">
                 {operationType === "union"
                   ? "total unique patients"
                   : operationType === "intersect"
@@ -281,7 +281,7 @@ export function CohortOperationPanel({
           {/* Compile summary key-value cards */}
           {compileSummaryEntries.length > 0 && (
             <div className="flex flex-col gap-2">
-              <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+              <p className="text-xs font-medium uppercase tracking-wide text-text-muted">
                 Compile Summary
               </p>
               <div className="grid grid-cols-2 gap-2">
@@ -290,10 +290,10 @@ export function CohortOperationPanel({
                     key={key}
                     className="rounded border border-border-default bg-surface-base/60 px-3 py-2"
                   >
-                    <p className="text-[10px] text-zinc-500 capitalize">
+                    <p className="text-[10px] text-text-ghost capitalize">
                       {key.replace(/_/g, " ")}
                     </p>
-                    <p className="mt-0.5 truncate text-xs font-medium text-zinc-200">
+                    <p className="mt-0.5 truncate text-xs font-medium text-text-primary">
                       {typeof value === "object" ? JSON.stringify(value) : String(value)}
                     </p>
                   </div>
@@ -321,7 +321,7 @@ export function CohortOperationPanel({
                   });
                 }
               }}
-              className="rounded border border-border-default bg-surface-raised/40 px-4 py-2 text-xs text-zinc-300 transition-colors hover:border-[#C9A227]/50 hover:bg-[#C9A227]/10 hover:text-[#C9A227] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-border-default disabled:hover:bg-surface-raised/40 disabled:hover:text-zinc-500"
+              className="rounded border border-border-default bg-surface-raised/40 px-4 py-2 text-xs text-text-secondary transition-colors hover:border-[#C9A227]/50 hover:bg-[#C9A227]/10 hover:text-[#C9A227] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-border-default disabled:hover:bg-surface-raised/40 disabled:hover:text-text-ghost"
               title={!onPinFinding ? "Pin not available" : !result ? "Run an operation first" : "Pin this result to the dossier"}
             >
               Pin to Dossier

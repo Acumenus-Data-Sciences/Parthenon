@@ -112,7 +112,7 @@ export function CohortSelectorBar({
             className={cn(
               "px-3 py-1.5 text-xs font-medium transition-colors",
               isCompareMode
-                ? "bg-[#9B1B30] text-white"
+                ? "bg-[#9B1B30] text-text-primary"
                 : "bg-[#1A1815] text-[#8A857D] hover:text-[#C5C0B8]",
             )}
           >
@@ -185,7 +185,7 @@ export function CohortSelectorBar({
             "px-4 py-1.5 rounded-md text-sm font-medium transition-colors shrink-0",
             "disabled:opacity-40 disabled:cursor-not-allowed",
             isCompareMode
-              ? "bg-[#9B1B30] text-white hover:bg-[#7A1526]"
+              ? "bg-[#9B1B30] text-text-primary hover:bg-[#7A1526]"
               : "bg-[#2DD4BF] text-[#0E0E11] hover:bg-[#22A89A]",
           )}
         >

@@ -23,7 +23,7 @@ export default function AttritionFunnel({ data }: AttritionFunnelProps) {
     <div className="space-y-4">
       {data.map((source) => (
         <div key={source.source_id} className="rounded-lg border border-[#252530] bg-[#151518] p-4">
-          <h4 className="mb-3 text-sm font-medium text-white">{source.source_name}</h4>
+          <h4 className="mb-3 text-sm font-medium text-text-primary">{source.source_name}</h4>
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart

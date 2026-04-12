@@ -12,11 +12,11 @@ export default function DatasetSelector({ selectedSchema, onSelect }: DatasetSel
 
   if (datasets.length === 1) {
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-border-default bg-surface-base/50 text-xs text-zinc-300">
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-border-default bg-surface-base/50 text-xs text-text-secondary">
         <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
         {datasets[0].name}
         {datasets[0].patient_count != null && (
-          <span className="text-zinc-500">({Number(datasets[0].patient_count).toLocaleString()} patients)</span>
+          <span className="text-text-ghost">({Number(datasets[0].patient_count).toLocaleString()} patients)</span>
         )}
       </span>
     );

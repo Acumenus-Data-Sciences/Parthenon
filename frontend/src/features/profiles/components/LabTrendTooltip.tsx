@@ -18,10 +18,10 @@ type LabTrendTooltipProps = {
 
 const STATUS_LABELS: Record<LabStatus, { label: string; arrow: string; color: string }> = {
   low:      { label: 'Low',      arrow: '\u2193', color: 'text-blue-400' },
-  normal:   { label: 'Normal',   arrow: '',        color: 'text-zinc-400' },
+  normal:   { label: 'Normal',   arrow: '',        color: 'text-text-muted' },
   high:     { label: 'High',     arrow: '\u2191', color: 'text-red-400' },
   critical: { label: 'Critical', arrow: '\u203C', color: 'text-amber-400' },
-  unknown:  { label: 'Unknown',  arrow: '',        color: 'text-zinc-500' },
+  unknown:  { label: 'Unknown',  arrow: '',        color: 'text-text-ghost' },
 };
 
 export const LabTrendTooltip = ({ active, payload, range, unitName }: LabTrendTooltipProps): React.ReactElement | null => {
@@ -35,8 +35,8 @@ export const LabTrendTooltip = ({ active, payload, range, unitName }: LabTrendTo
     '';
 
   return (
-    <div className="rounded-md border border-amber-600/40 bg-surface-base/95 px-3 py-2 text-xs text-zinc-100 shadow-lg">
-      <div className="text-zinc-400">{format(new Date(point.ts), 'MMM d, yyyy')}</div>
+    <div className="rounded-md border border-amber-600/40 bg-surface-base/95 px-3 py-2 text-xs text-text-primary shadow-lg">
+      <div className="text-text-muted">{format(new Date(point.ts), 'MMM d, yyyy')}</div>
       <div className="font-medium">
         {point.value} {unitName}
       </div>

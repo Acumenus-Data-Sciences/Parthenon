@@ -16,10 +16,10 @@ const STATUS_LABEL: Record<LabStatus, string> = {
 
 const STATUS_CLASS: Record<LabStatus, string> = {
   low: 'text-blue-400',
-  normal: 'text-zinc-400',
+  normal: 'text-text-muted',
   high: 'text-red-400',
   critical: 'text-amber-400 font-semibold',
-  unknown: 'text-zinc-500',
+  unknown: 'text-text-ghost',
 };
 
 export const LabValuesTable = ({ values, unitName, range }: LabValuesTableProps): React.ReactElement => {
@@ -28,7 +28,7 @@ export const LabValuesTable = ({ values, unitName, range }: LabValuesTableProps)
   return (
     <table className="w-full text-xs">
       <thead>
-        <tr className="border-b border-border-default text-zinc-500">
+        <tr className="border-b border-border-default text-text-ghost">
           <th className="py-1 pr-2 text-left">Date</th>
           <th className="py-1 pr-2 text-right">Value</th>
           <th className="py-1 pr-2 text-right">Range</th>
@@ -38,11 +38,11 @@ export const LabValuesTable = ({ values, unitName, range }: LabValuesTableProps)
       <tbody>
         {values.map((v, i) => (
           <tr key={`${v.date}-${i}`} className="border-b border-border-subtle">
-            <td className="py-1 pr-2 text-zinc-400">{v.date}</td>
-            <td className="py-1 pr-2 text-right text-zinc-100">
+            <td className="py-1 pr-2 text-text-muted">{v.date}</td>
+            <td className="py-1 pr-2 text-right text-text-primary">
               {v.value != null ? v.value : '\u2014'} {unitName}
             </td>
-            <td className="py-1 pr-2 text-right text-zinc-500">{rangeText}</td>
+            <td className="py-1 pr-2 text-right text-text-ghost">{rangeText}</td>
             <td className={`py-1 text-right ${STATUS_CLASS[v.status]}`}>
               {STATUS_LABEL[v.status]}
             </td>

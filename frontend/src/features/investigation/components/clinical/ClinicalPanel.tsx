@@ -61,7 +61,7 @@ function SubTabBar({ view, hasActiveExecution, onChange }: SubTabBarProps) {
               "px-4 py-2.5 text-xs font-medium rounded-t transition-colors",
               view === tab.id
                 ? "text-[#2DD4BF] border-b-2 border-[#2DD4BF]"
-                : "text-zinc-500 hover:text-zinc-300",
+                : "text-text-ghost hover:text-text-secondary",
             ].join(" ")}
           >
             {tab.label}
@@ -379,12 +379,12 @@ export function ClinicalPanel({ investigation }: ClinicalPanelProps) {
           <AlertCircle size={15} className="mt-0.5 shrink-0 text-[#9B1B30]" />
           <div className="flex-1 min-w-0">
             <p className="text-xs font-medium text-[#e05c6e]">Analysis dispatch failed</p>
-            <p className="text-xs text-zinc-400 mt-0.5 break-words">{executeError}</p>
+            <p className="text-xs text-text-muted mt-0.5 break-words">{executeError}</p>
           </div>
           <button
             type="button"
             onClick={() => setExecuteError(null)}
-            className="shrink-0 text-zinc-500 hover:text-zinc-300 transition-colors text-xs"
+            className="shrink-0 text-text-ghost hover:text-text-secondary transition-colors text-xs"
             aria-label="Dismiss error"
           >
             ✕

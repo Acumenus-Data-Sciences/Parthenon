@@ -71,7 +71,7 @@ function SlaForm({
               step={1}
               value={t.min_pass_rate}
               onChange={(e) => updateTarget(i, Number(e.target.value))}
-              className="w-16 rounded border border-[#333] bg-[#1a1a22] px-2 py-1 text-xs text-white"
+              className="w-16 rounded border border-[#333] bg-[#1a1a22] px-2 py-1 text-xs text-text-primary"
             />
             <span className="text-xs text-[#555]">%</span>
           </div>

@@ -43,14 +43,14 @@ export default function MorpheusLayout() {
               <BedDouble className="h-4 w-4 text-[#9B1B30]" />
             </div>
             <div className="flex items-center gap-2 text-sm">
-              <span className="font-semibold text-zinc-100">Morpheus</span>
+              <span className="font-semibold text-text-primary">Morpheus</span>
               {crumbs.map((c, i) => (
                 <span key={i} className="flex items-center gap-2">
-                  <span className="text-zinc-600">/</span>
+                  <span className="text-text-ghost">/</span>
                   {c.path ? (
-                    <Link to={c.path} className="text-zinc-500 hover:text-zinc-300 transition-colors">{c.label}</Link>
+                    <Link to={c.path} className="text-text-ghost hover:text-text-secondary transition-colors">{c.label}</Link>
                   ) : (
-                    <span className="text-zinc-300">{c.label}</span>
+                    <span className="text-text-secondary">{c.label}</span>
                   )}
                 </span>
               ))}
@@ -62,12 +62,12 @@ export default function MorpheusLayout() {
               <button key={path} onClick={() => navigate(dataset !== 'mimiciv' ? `${path}?dataset=${dataset}` : path)}
                 className={`px-5 py-2.5 text-sm font-medium transition-colors ${
                   activeTab === path
-                    ? 'font-semibold text-zinc-100 border-b-2 border-[#9B1B30]'
-                    : 'text-zinc-500 border-b-2 border-transparent hover:text-zinc-300'
+                    ? 'font-semibold text-text-primary border-b-2 border-[#9B1B30]'
+                    : 'text-text-ghost border-b-2 border-transparent hover:text-text-secondary'
                 }`}>{label}</button>
             ))}
           </div>
-          <Link to="/workbench" className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors">
+          <Link to="/workbench" className="flex items-center gap-1.5 text-xs text-text-ghost hover:text-text-secondary transition-colors">
             <ArrowLeft className="h-3 w-3" /> Workbench
           </Link>
         </div>

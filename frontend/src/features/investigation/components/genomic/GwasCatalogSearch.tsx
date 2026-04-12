@@ -53,7 +53,7 @@ export function GwasCatalogSearch({
         >
           GWAS Catalog
         </span>
-        <span className="text-[10px] text-zinc-600">EMBL-EBI</span>
+        <span className="text-[10px] text-text-ghost">EMBL-EBI</span>
       </div>
 
       {/* Query type toggle */}
@@ -64,8 +64,8 @@ export function GwasCatalogSearch({
             onClick={() => setQueryType(type)}
             className={`text-xs px-3 py-1 rounded-md transition-colors capitalize ${
               queryType === type
-                ? "bg-surface-accent text-zinc-100"
-                : "text-zinc-400 hover:text-zinc-200"
+                ? "bg-surface-accent text-text-primary"
+                : "text-text-muted hover:text-text-primary"
             }`}
           >
             {type}
@@ -84,7 +84,7 @@ export function GwasCatalogSearch({
               ? "Search trait or phenotype (e.g. type 2 diabetes)"
               : "Search gene (e.g. TCF7L2)"
           }
-          className="w-full text-sm bg-surface-raised/60 border border-border-default rounded-lg px-3 py-2 text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-border-hover transition-colors"
+          className="w-full text-sm bg-surface-raised/60 border border-border-default rounded-lg px-3 py-2 text-text-primary placeholder-text-ghost focus:outline-none focus:border-border-hover transition-colors"
         />
         {isLoading && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -112,7 +112,7 @@ export function GwasCatalogSearch({
       )}
 
       {!debouncedTerm && (
-        <p className="text-xs text-zinc-600 px-1">
+        <p className="text-xs text-text-ghost px-1">
           Enter at least 2 characters to search.
         </p>
       )}

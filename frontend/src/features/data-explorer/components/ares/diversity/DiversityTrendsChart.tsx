@@ -46,7 +46,7 @@ export default function DiversityTrendsChart({ data, sourceName }: DiversityTren
     <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
       <div className="mb-3 flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-medium text-white">Diversity Trends: {sourceName}</h3>
+          <h3 className="text-sm font-medium text-text-primary">Diversity Trends: {sourceName}</h3>
           <p className="mt-0.5 text-xs text-[#555]">
             Simpson's Diversity Index per release (0 = homogeneous, 1 = maximally diverse)
           </p>

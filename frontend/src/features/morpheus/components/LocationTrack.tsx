@@ -111,7 +111,7 @@ export default function LocationTrack({ transfers, icuStays }: LocationTrackProp
         {segments.map((seg) => (
           <div
             key={seg.id}
-            className="absolute top-0 h-full flex items-center justify-center text-[10px] font-medium text-white overflow-hidden border-r border-[#0E0E11] cursor-default transition-opacity hover:opacity-100"
+            className="absolute top-0 h-full flex items-center justify-center text-[10px] font-medium text-text-primary overflow-hidden border-r border-[#0E0E11] cursor-default transition-opacity hover:opacity-100"
             style={{
               left: `${seg.leftPct}%`,
               width: `${seg.widthPct}%`,

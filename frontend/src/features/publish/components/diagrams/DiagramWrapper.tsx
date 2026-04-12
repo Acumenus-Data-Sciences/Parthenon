@@ -109,7 +109,7 @@ export default function DiagramWrapper({
           <button
             type="button"
             onClick={handleExportSvg}
-            className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+            className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs text-text-ghost hover:bg-gray-100 hover:text-gray-700"
             title="Export as SVG"
           >
             <Download className="h-3 w-3" />
@@ -118,7 +118,7 @@ export default function DiagramWrapper({
           <button
             type="button"
             onClick={handleExportPng}
-            className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+            className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs text-text-ghost hover:bg-gray-100 hover:text-gray-700"
             title="Export as PNG"
           >
             <Image className="h-3 w-3" />
@@ -131,7 +131,7 @@ export default function DiagramWrapper({
       </div>
       {caption && (
         <div className="border-t border-gray-100 px-4 py-2">
-          <p className="text-xs italic text-gray-600">{caption}</p>
+          <p className="text-xs italic text-text-ghost">{caption}</p>
         </div>
       )}
     </div>

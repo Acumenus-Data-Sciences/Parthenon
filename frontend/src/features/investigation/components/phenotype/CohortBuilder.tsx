@@ -176,7 +176,7 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
     <div className="flex flex-col gap-5 h-full overflow-y-auto pr-1">
       {/* Import mode selector */}
       <div className="flex flex-col gap-2">
-        <p className="text-xs font-medium text-zinc-400 uppercase tracking-wide">
+        <p className="text-xs font-medium text-text-muted uppercase tracking-wide">
           Import Mode
         </p>
         <div className="grid grid-cols-2 gap-2">
@@ -198,8 +198,8 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
                 className="mt-0.5 accent-[#2DD4BF] shrink-0"
               />
               <div>
-                <span className="text-xs font-medium text-zinc-200">{opt.label}</span>
-                <p className="text-[11px] text-zinc-500 mt-0.5">{opt.description}</p>
+                <span className="text-xs font-medium text-text-primary">{opt.label}</span>
+                <p className="text-[11px] text-text-ghost mt-0.5">{opt.description}</p>
               </div>
             </label>
           ))}
@@ -209,7 +209,7 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
       {/* Mode-specific content */}
       {importMode === "parthenon" && (
         <div className="flex flex-col gap-3">
-          <p className="text-xs font-medium text-zinc-400 uppercase tracking-wide">
+          <p className="text-xs font-medium text-text-muted uppercase tracking-wide">
             Select Cohorts
           </p>
           <CohortPicker
@@ -223,7 +223,7 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
 
       {importMode === "json" && (
         <div className="flex flex-col gap-2">
-          <p className="text-xs font-medium text-zinc-400 uppercase tracking-wide">
+          <p className="text-xs font-medium text-text-muted uppercase tracking-wide">
             Atlas JSON
           </p>
           <textarea
@@ -235,10 +235,10 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
             }}
             rows={10}
             placeholder={'Paste Atlas cohort definition JSON here…\n\n{"ConceptSets": [], "PrimaryCriteria": {...}}'}
-            className="w-full bg-surface-raised/60 border border-border-default rounded px-3 py-2 text-xs text-zinc-200 placeholder:text-zinc-500 font-mono focus:outline-none focus:border-[#2DD4BF]/60 resize-y"
+            className="w-full bg-surface-raised/60 border border-border-default rounded px-3 py-2 text-xs text-text-primary placeholder:text-text-ghost font-mono focus:outline-none focus:border-[#2DD4BF]/60 resize-y"
           />
           <div className="flex items-center justify-between gap-2">
-            <p className="text-[11px] text-zinc-500">
+            <p className="text-[11px] text-text-ghost">
               Export from Atlas: Cohort Definition → Export → JSON
             </p>
             <button
@@ -259,12 +259,12 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
 
       {importMode === "file" && (
         <div className="flex flex-col gap-2">
-          <p className="text-xs font-medium text-zinc-400 uppercase tracking-wide">
+          <p className="text-xs font-medium text-text-muted uppercase tracking-wide">
             File Upload
           </p>
           <label className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-border-default rounded-lg p-8 cursor-pointer hover:border-border-hover transition-colors">
             <svg
-              className="w-8 h-8 text-zinc-600"
+              className="w-8 h-8 text-text-ghost"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -276,7 +276,7 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
                 d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
               />
             </svg>
-            <span className="text-xs text-zinc-400">
+            <span className="text-xs text-text-muted">
               Drop a CSV or JSON file here, or click to browse
             </span>
             <input
@@ -289,8 +289,8 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
           </label>
           {fileInfo && (
             <div className="rounded border border-border-default/50 bg-surface-raised/40 px-3 py-2 flex flex-col gap-0.5">
-              <p className="text-xs text-zinc-300 font-medium">{fileInfo.name}</p>
-              <p className="text-[11px] text-zinc-500">{fileInfo.size}</p>
+              <p className="text-xs text-text-secondary font-medium">{fileInfo.name}</p>
+              <p className="text-[11px] text-text-ghost">{fileInfo.size}</p>
               <p className="text-[11px] text-[#2DD4BF]">{fileInfo.summary}</p>
             </div>
           )}
@@ -304,7 +304,7 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
       {/* Selected cohorts summary */}
       {selectedIds.length > 0 && (
         <div className="flex flex-col gap-2">
-          <p className="text-xs font-medium text-zinc-400 uppercase tracking-wide">
+          <p className="text-xs font-medium text-text-muted uppercase tracking-wide">
             Selected Cohorts ({selectedIds.length})
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -314,7 +314,7 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
                 className={`inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] border ${
                   primaryId === id
                     ? "bg-[#C9A227]/15 text-[#C9A227] border-[#C9A227]/30"
-                    : "bg-surface-raised/60 text-zinc-300 border-border-default"
+                    : "bg-surface-raised/60 text-text-secondary border-border-default"
                 }`}
               >
                 {name}
@@ -327,7 +327,7 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
                     handleSelectionChange(next);
                     if (primaryId === id) handlePrimaryChange(next[0] ?? null);
                   }}
-                  className="ml-1 text-zinc-500 hover:text-zinc-300 transition-colors"
+                  className="ml-1 text-text-ghost hover:text-text-secondary transition-colors"
                   aria-label="Remove cohort"
                 >
                   ×
@@ -350,7 +350,7 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
       {/* Concept sets from Explore tab */}
       {conceptSetCount > 0 && (
         <div className="rounded border border-border-default/50 bg-surface-raised/30 px-3 py-2.5">
-          <p className="text-xs text-zinc-400">
+          <p className="text-xs text-text-muted">
             <span className="text-[#2DD4BF] font-medium">{conceptSetCount} concept set{conceptSetCount !== 1 ? "s" : ""}</span>{" "}
             built in the Explore tab will be included in cohort generation.
           </p>

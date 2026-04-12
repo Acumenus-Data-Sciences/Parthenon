@@ -59,7 +59,7 @@ export function ToolsetCard({ toolset }: ToolsetCardProps) {
           />
         </div>
         {toolset.badge && (
-          <span className="rounded-full border border-border-default bg-surface-raised px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+          <span className="rounded-full border border-border-default bg-surface-raised px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-text-muted">
             {toolset.badge}
           </span>
         )}
@@ -67,12 +67,12 @@ export function ToolsetCard({ toolset }: ToolsetCardProps) {
 
       {/* Name + tagline */}
       <div>
-        <h3 className="text-lg font-semibold text-zinc-100">{toolset.name}</h3>
-        <p className="mt-1 text-sm text-zinc-400">{toolset.tagline}</p>
+        <h3 className="text-lg font-semibold text-text-primary">{toolset.name}</h3>
+        <p className="mt-1 text-sm text-text-muted">{toolset.tagline}</p>
       </div>
 
       {/* Description */}
-      <p className="text-xs leading-relaxed text-zinc-500">
+      <p className="text-xs leading-relaxed text-text-ghost">
         {toolset.description}
       </p>
 
@@ -89,13 +89,13 @@ export function ToolsetCard({ toolset }: ToolsetCardProps) {
             Coming Soon
           </span>
         ) : (
-          <span className="flex items-center gap-1.5 text-xs font-medium text-zinc-500">
+          <span className="flex items-center gap-1.5 text-xs font-medium text-text-ghost">
             <span className="h-1.5 w-1.5 rounded-full bg-surface-overlay" />
             SDK Required
           </span>
         )}
         {isClickable && (
-          <LucideIcons.ArrowRight className="h-4 w-4 text-zinc-600 transition-transform group-hover:translate-x-1 group-hover:text-zinc-400" />
+          <LucideIcons.ArrowRight className="h-4 w-4 text-text-ghost transition-transform group-hover:translate-x-1 group-hover:text-text-muted" />
         )}
       </div>
     </button>

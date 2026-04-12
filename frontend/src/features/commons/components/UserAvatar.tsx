@@ -28,7 +28,7 @@ export function UserAvatar({ user, size = "md", className = "" }: UserAvatarProp
 
   return (
     <div
-      className={`${SIZES[size]} shrink-0 rounded-2xl flex items-center justify-center font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.15)] overflow-hidden ${className}`}
+      className={`${SIZES[size]} shrink-0 rounded-2xl flex items-center justify-center font-semibold text-text-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.15)] overflow-hidden ${className}`}
       style={avatarUrl ? undefined : { backgroundColor: avatarColor(user.id) }}
     >
       {avatarUrl ? (

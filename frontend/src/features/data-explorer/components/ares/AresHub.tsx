@@ -58,7 +58,7 @@ export function AresHub({ onNavigate }: AresHubProps) {
       {/* Row 1: Primary */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <HubCard section="network-overview" title="Network Overview" accentColor="#2DD4BF" onClick={onNavigate}>
-          <p className="text-2xl font-semibold text-white">{kpis?.source_count ?? "--"}</p>
+          <p className="text-2xl font-semibold text-text-primary">{kpis?.source_count ?? "--"}</p>
           <p className="text-sm text-[#888]">
             {kpis?.sources_needing_attention
               ? `${kpis.sources_needing_attention} source${kpis.sources_needing_attention !== 1 ? "s" : ""} below 80% DQ`
@@ -69,7 +69,7 @@ export function AresHub({ onNavigate }: AresHubProps) {
           <p className="text-sm text-[#888]">Compare concept prevalence across sources</p>
         </HubCard>
         <HubCard section="dq-history" title="DQ History" accentColor="#2DD4BF" onClick={onNavigate}>
-          <p className="text-2xl font-semibold text-white">
+          <p className="text-2xl font-semibold text-text-primary">
             {kpis?.avg_dq_score != null
               ? `${kpis.avg_dq_score.toFixed(1)}%`
               : "--"}
@@ -97,7 +97,7 @@ export function AresHub({ onNavigate }: AresHubProps) {
           <p className="text-sm text-[#888]">Version history per source</p>
         </HubCard>
         <HubCard section="unmapped-codes" title="Unmapped Codes" accentColor="#9B1B30" onClick={onNavigate}>
-          <p className="text-2xl font-semibold text-white">
+          <p className="text-2xl font-semibold text-text-primary">
             {kpis?.total_unmapped_codes !== undefined
               ? kpis.total_unmapped_codes.toLocaleString()
               : "--"}
@@ -105,7 +105,7 @@ export function AresHub({ onNavigate }: AresHubProps) {
           <p className="text-sm text-[#888]">Source codes without standard mappings</p>
         </HubCard>
         <HubCard section="annotations" title="Annotations" accentColor="#2DD4BF" onClick={onNavigate}>
-          <p className="text-2xl font-semibold text-white">{kpis?.annotation_count ?? "--"}</p>
+          <p className="text-2xl font-semibold text-text-primary">{kpis?.annotation_count ?? "--"}</p>
           <p className="text-sm text-[#888]">Chart notes across all sources</p>
         </HubCard>
       </div>

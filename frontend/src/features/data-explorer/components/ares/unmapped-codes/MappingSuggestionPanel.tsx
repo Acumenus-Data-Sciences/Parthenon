@@ -99,7 +99,7 @@ export default function MappingSuggestionPanel({ code, sourceId }: MappingSugges
                   >
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-medium text-white">
+                        <span className="text-xs font-medium text-text-primary">
                           {suggestion.concept_name}
                         </span>
                         <span className="rounded bg-[#252530] px-1.5 py-0.5 text-[10px] text-[#888]">

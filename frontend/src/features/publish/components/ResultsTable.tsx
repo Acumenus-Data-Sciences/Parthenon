@@ -12,7 +12,7 @@ interface ResultsTableProps {
 export default function ResultsTable({ data, tableNumber }: ResultsTableProps) {
   if (data.rows.length === 0) {
     return (
-      <div className="my-4 text-sm italic text-gray-400">
+      <div className="my-4 text-sm italic text-text-muted">
         No structured data available for this table.
       </div>
     );
@@ -75,7 +75,7 @@ export default function ResultsTable({ data, tableNumber }: ResultsTableProps) {
       {data.footnotes && data.footnotes.length > 0 && (
         <div className="mt-1 space-y-0.5">
           {data.footnotes.map((note, i) => (
-            <p key={i} className="text-xs text-gray-500" style={{ fontSize: "8pt" }}>
+            <p key={i} className="text-xs text-text-ghost" style={{ fontSize: "8pt" }}>
               {note}
             </p>
           ))}

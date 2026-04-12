@@ -54,7 +54,7 @@ export default function ConsortDiagram({ results, criteriaLabels }: ConsortDiagr
 
   return (
     <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
-      <h4 className="mb-1 text-sm font-medium text-white">CONSORT-Style Attrition Flow</h4>
+      <h4 className="mb-1 text-sm font-medium text-text-primary">CONSORT-Style Attrition Flow</h4>
       <p className="mb-4 text-[11px] text-[#666]">
         Shows how sources are progressively excluded by each criterion gate.
       </p>
@@ -73,7 +73,7 @@ export default function ConsortDiagram({ results, criteriaLabels }: ConsortDiagr
               }`}
             >
               <span className="text-[10px] text-[#888]">{step.label}</span>
-              <span className="text-sm font-bold text-white">{step.remaining} sources</span>
+              <span className="text-sm font-bold text-text-primary">{step.remaining} sources</span>
             </div>
 
             {/* Arrow + exclusion label */}

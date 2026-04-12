@@ -16,7 +16,7 @@ function CountBadge({ conceptId }: CountBadgeProps) {
 
   if (isLoading) {
     return (
-      <span className="text-[10px] text-zinc-600 bg-surface-raised border border-border-default rounded px-1.5 py-0.5">
+      <span className="text-[10px] text-text-ghost bg-surface-raised border border-border-default rounded px-1.5 py-0.5">
         …
       </span>
     );
@@ -51,7 +51,7 @@ function ConceptRow({ entry, onChange, onRemove }: ConceptRowProps) {
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
-            <span className="text-xs font-medium text-zinc-200 leading-snug">
+            <span className="text-xs font-medium text-text-primary leading-snug">
               {concept.concept_name}
             </span>
             <CountBadge conceptId={concept.concept_id} />
@@ -71,7 +71,7 @@ function ConceptRow({ entry, onChange, onRemove }: ConceptRowProps) {
                 }
                 className="rounded border-border-hover bg-surface-base text-[#2DD4BF] focus:ring-[#2DD4BF]/30 h-3 w-3"
               />
-              <span className="text-[11px] text-zinc-400">
+              <span className="text-[11px] text-text-muted">
                 Include descendants
               </span>
             </label>
@@ -84,17 +84,17 @@ function ConceptRow({ entry, onChange, onRemove }: ConceptRowProps) {
                 }
                 className="rounded border-border-hover bg-surface-base text-[#9B1B30] focus:ring-[#9B1B30]/30 h-3 w-3"
               />
-              <span className="text-[11px] text-zinc-400">Exclude</span>
+              <span className="text-[11px] text-text-muted">Exclude</span>
             </label>
           </div>
-          <div className="mt-1 text-[10px] text-zinc-600 font-mono">
+          <div className="mt-1 text-[10px] text-text-ghost font-mono">
             ID: {concept.concept_id} &middot; {concept.vocabulary_id} &middot;{" "}
             {concept.domain_id}
           </div>
         </div>
         <button
           onClick={onRemove}
-          className="shrink-0 text-zinc-600 hover:text-[#9B1B30] transition-colors mt-0.5"
+          className="shrink-0 text-text-ghost hover:text-[#9B1B30] transition-colors mt-0.5"
           title="Remove from concept set"
           aria-label="Remove concept"
         >
@@ -160,12 +160,12 @@ export function ConceptSetBuilder({
           value={setName}
           onChange={(e) => onSetNameChange(e.target.value)}
           placeholder="Untitled concept set"
-          className="flex-1 min-w-0 bg-surface-base border border-border-default rounded px-2 py-1 text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-[#2DD4BF]/60 focus:ring-1 focus:ring-[#2DD4BF]/20 transition-colors"
+          className="flex-1 min-w-0 bg-surface-base border border-border-default rounded px-2 py-1 text-xs text-text-primary placeholder-text-ghost focus:outline-none focus:border-[#2DD4BF]/60 focus:ring-1 focus:ring-[#2DD4BF]/20 transition-colors"
         />
         <button
           onClick={onNewSet}
           title="Save current set and create a new one"
-          className="shrink-0 px-2 py-1 rounded border border-border-default bg-surface-raised text-[11px] font-medium text-zinc-300 hover:bg-surface-accent hover:text-zinc-100 hover:border-border-hover transition-colors whitespace-nowrap"
+          className="shrink-0 px-2 py-1 rounded border border-border-default bg-surface-raised text-[11px] font-medium text-text-secondary hover:bg-surface-accent hover:text-text-primary hover:border-border-hover transition-colors whitespace-nowrap"
         >
           + New Set
         </button>
@@ -177,7 +177,7 @@ export function ConceptSetBuilder({
           <select
             value={savedSets.find((s) => s.name === setName)?.id ?? ""}
             onChange={(e) => onSwitchSet(e.target.value)}
-            className="w-full bg-surface-base border border-border-default rounded px-2 py-1 text-[11px] text-zinc-300 focus:outline-none focus:border-[#2DD4BF]/60 focus:ring-1 focus:ring-[#2DD4BF]/20 transition-colors cursor-pointer"
+            className="w-full bg-surface-base border border-border-default rounded px-2 py-1 text-[11px] text-text-secondary focus:outline-none focus:border-[#2DD4BF]/60 focus:ring-1 focus:ring-[#2DD4BF]/20 transition-colors cursor-pointer"
           >
             {savedSets.map((s) => (
               <option key={s.id} value={s.id}>
@@ -190,11 +190,11 @@ export function ConceptSetBuilder({
 
       {/* Header row */}
       <div className="flex items-center justify-between mb-3">
-        <span className="text-xs font-medium text-zinc-400 uppercase tracking-wider">
+        <span className="text-xs font-medium text-text-muted uppercase tracking-wider">
           Concept Set
         </span>
         {entries.length > 0 && (
-          <span className="text-[10px] text-zinc-600">
+          <span className="text-[10px] text-text-ghost">
             {entries.length} concept{entries.length !== 1 ? "s" : ""}
           </span>
         )}
@@ -202,7 +202,7 @@ export function ConceptSetBuilder({
 
       {entries.length === 0 ? (
         <div className="flex-1 flex items-center justify-center rounded border border-dashed border-border-default/50 bg-surface-base/30">
-          <p className="text-center text-xs text-zinc-600 px-4 leading-relaxed">
+          <p className="text-center text-xs text-text-ghost px-4 leading-relaxed">
             Search for concepts and add them to build your concept set
           </p>
         </div>

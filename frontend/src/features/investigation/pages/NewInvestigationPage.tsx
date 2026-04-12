@@ -85,7 +85,7 @@ export default function NewInvestigationPage() {
       <div className="pt-6 pb-2 max-w-lg w-full mx-auto">
         <Link
           to="/workbench/investigation"
-          className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs text-text-ghost hover:text-text-secondary transition-colors"
         >
           <ArrowLeft className="h-3 w-3" />
           Evidence Investigation
@@ -94,10 +94,10 @@ export default function NewInvestigationPage() {
 
       <div className="flex-1 flex items-center justify-center">
       <div className="max-w-lg w-full mx-auto bg-surface-base/50 border border-border-default rounded-2xl p-8">
-        <h1 className="text-xl font-bold text-zinc-100 mb-1">
+        <h1 className="text-xl font-bold text-text-primary mb-1">
           New Evidence Investigation
         </h1>
-        <p className="text-sm text-zinc-500 mb-6">
+        <p className="text-sm text-text-ghost mb-6">
           Start a structured dossier for your research question.
         </p>
 
@@ -106,7 +106,7 @@ export default function NewInvestigationPage() {
           <div>
             <label
               htmlFor="title"
-              className="block text-sm font-medium text-zinc-300 mb-1.5"
+              className="block text-sm font-medium text-text-secondary mb-1.5"
             >
               Title <span className="text-[#9B1B30]">*</span>
             </label>
@@ -117,7 +117,7 @@ export default function NewInvestigationPage() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g., Cardiovascular risk in T2DM patients"
-              className="w-full rounded-lg bg-surface-base border border-border-default px-3 py-2 text-zinc-100 placeholder-zinc-600 text-sm focus:outline-none focus:border-border-hover transition-colors"
+              className="w-full rounded-lg bg-surface-base border border-border-default px-3 py-2 text-text-primary placeholder-text-ghost text-sm focus:outline-none focus:border-border-hover transition-colors"
             />
           </div>
 
@@ -125,10 +125,10 @@ export default function NewInvestigationPage() {
           <div>
             <label
               htmlFor="research_question"
-              className="block text-sm font-medium text-zinc-300 mb-1.5"
+              className="block text-sm font-medium text-text-secondary mb-1.5"
             >
               Research Question{" "}
-              <span className="text-zinc-600 font-normal">(optional)</span>
+              <span className="text-text-ghost font-normal">(optional)</span>
             </label>
             <textarea
               id="research_question"
@@ -136,7 +136,7 @@ export default function NewInvestigationPage() {
               value={researchQuestion}
               onChange={(e) => setResearchQuestion(e.target.value)}
               placeholder="What is the comparative effectiveness of..."
-              className="w-full rounded-lg bg-surface-base border border-border-default px-3 py-2 text-zinc-100 placeholder-zinc-600 text-sm focus:outline-none focus:border-border-hover transition-colors resize-none"
+              className="w-full rounded-lg bg-surface-base border border-border-default px-3 py-2 text-text-primary placeholder-text-ghost text-sm focus:outline-none focus:border-border-hover transition-colors resize-none"
             />
             {isLongEnough && (
               <p className="mt-1 text-xs text-[#2DD4BF]">
@@ -150,7 +150,7 @@ export default function NewInvestigationPage() {
           <button
             type="submit"
             disabled={isPending || !title.trim()}
-            className="w-full flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ backgroundColor: "#9B1B30" }}
           >
             {isPending ? (

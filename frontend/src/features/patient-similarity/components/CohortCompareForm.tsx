@@ -207,7 +207,7 @@ export function CohortCompareForm({
         disabled={isComparing || !bothGenerated || sourceId <= 0}
         className={cn(
           "w-full flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors",
-          "bg-[#9B1B30] text-white hover:bg-[#B22040]",
+          "bg-[#9B1B30] text-text-primary hover:bg-[#B22040]",
           "disabled:opacity-50 disabled:cursor-not-allowed",
         )}
       >

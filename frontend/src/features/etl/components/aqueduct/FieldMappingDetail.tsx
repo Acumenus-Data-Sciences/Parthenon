@@ -116,7 +116,7 @@ function inferMapping(
 }
 
 const TYPE_BADGE_STYLES: Record<string, string> = {
-  direct: "bg-surface-raised text-gray-400",
+  direct: "bg-surface-raised text-text-muted",
   transform: "bg-sky-950 text-sky-400",
   lookup: "bg-amber-950 text-amber-400",
   constant: "bg-purple-950 text-purple-400",
@@ -184,7 +184,7 @@ function SourceColumnSelect({
         </button>
         <button
           onClick={(e) => { e.stopPropagation(); onClear(); }}
-          className="p-0.5 rounded text-gray-500 hover:text-red-400 hover:bg-red-950/30 transition-colors"
+          className="p-0.5 rounded text-text-ghost hover:text-red-400 hover:bg-red-950/30 transition-colors"
           title="Remove mapping"
         >
           <X className="w-3.5 h-3.5" />
@@ -208,7 +208,7 @@ function SourceColumnSelect({
     <div ref={containerRef} className="relative">
       <button
         onClick={(e) => { e.stopPropagation(); setIsOpen(!isOpen); }}
-        className="flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-dashed border-[#2A2A30] text-sm text-gray-500 hover:border-[#C9A227]/50 hover:text-gray-400 transition-colors"
+        className="flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-dashed border-[#2A2A30] text-sm text-text-ghost hover:border-[#C9A227]/50 hover:text-text-muted transition-colors"
       >
         <Search className="w-3.5 h-3.5" />
         <span>Select source...</span>
@@ -252,20 +252,20 @@ function SourceDropdown({
     >
       <div className="p-2 border-b border-[#2A2A30]">
         <div className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-[#0E0E11] border border-[#2A2A30]">
-          <Search className="w-3.5 h-3.5 text-gray-500" />
+          <Search className="w-3.5 h-3.5 text-text-ghost" />
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search source columns..."
-            className="flex-1 bg-transparent text-sm text-white placeholder:text-gray-600 focus:outline-none"
+            className="flex-1 bg-transparent text-sm text-text-primary placeholder:text-text-ghost focus:outline-none"
           />
         </div>
       </div>
       <div className="max-h-[240px] overflow-y-auto">
         {filtered.length === 0 ? (
-          <div className="px-3 py-4 text-xs text-gray-500 text-center">No matching columns</div>
+          <div className="px-3 py-4 text-xs text-text-ghost text-center">No matching columns</div>
         ) : (
           filtered.map((col) => {
             const isMappedElsewhere = mappedSourceCols.has(col.name);
@@ -278,13 +278,13 @@ function SourceDropdown({
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-white font-medium truncate">{col.name}</span>
-                    <span className="text-[10px] px-1 py-0.5 rounded bg-surface-raised text-gray-500">{col.type}</span>
+                    <span className="text-sm text-text-primary font-medium truncate">{col.name}</span>
+                    <span className="text-[10px] px-1 py-0.5 rounded bg-surface-raised text-text-ghost">{col.type}</span>
                     {isMappedElsewhere && (
                       <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[#2DD4BF]/10 text-[#2DD4BF]/60">mapped</span>
                     )}
                   </div>
-                  <div className="text-[10px] text-gray-600 mt-0.5">
+                  <div className="text-[10px] text-text-ghost mt-0.5">
                     null: {col.nullPct}% &bull; {col.distinctCount} distinct
                   </div>
                 </div>
@@ -693,7 +693,7 @@ export function FieldMappingDetail({
       )}
 
       {/* Column header */}
-      <div className="flex items-center px-5 py-2 border-b border-[#2A2A30] bg-[#0E0E11] text-[10px] uppercase tracking-wider text-gray-500 font-semibold sticky top-0 z-10">
+      <div className="flex items-center px-5 py-2 border-b border-[#2A2A30] bg-[#0E0E11] text-[10px] uppercase tracking-wider text-text-ghost font-semibold sticky top-0 z-10">
         <div className="w-[220px]">CDM Column</div>
         <div className="w-[240px]">Source Column</div>
         <div className="w-[80px]">Type</div>
@@ -723,7 +723,7 @@ export function FieldMappingDetail({
               {sectionBreak && (
                 <div className="flex items-center gap-2 px-5 py-1.5 bg-[#1C1C20]">
                   <div className="flex-1 h-px bg-[#2A2A30]" />
-                  <span className="text-[10px] uppercase tracking-wider text-gray-500 font-medium">
+                  <span className="text-[10px] uppercase tracking-wider text-text-ghost font-medium">
                     {sectionBreak.label} ({sectionBreak.count})
                   </span>
                   <div className="flex-1 h-px bg-[#2A2A30]" />
@@ -746,14 +746,14 @@ export function FieldMappingDetail({
                 <div className="w-[220px] flex items-center gap-2 min-w-0">
                   <span className={cn(
                     "text-sm font-medium truncate",
-                    mapping ? "text-[#2DD4BF]" : "text-gray-300",
+                    mapping ? "text-[#2DD4BF]" : "text-text-secondary",
                   )}>
                     {col.name}
                   </span>
                   {col.required && !mapping && (
                     <span className="text-red-400 text-xs flex-shrink-0">*</span>
                   )}
-                  <span className="text-[10px] px-1 py-0.5 rounded bg-surface-raised text-gray-500 flex-shrink-0">
+                  <span className="text-[10px] px-1 py-0.5 rounded bg-surface-raised text-text-ghost flex-shrink-0">
                     {col.type}
                   </span>
                 </div>
@@ -784,7 +784,7 @@ export function FieldMappingDetail({
                 {/* Logic preview */}
                 <div className="flex-1 min-w-0 flex items-center gap-2">
                   {mapping?.logic && (
-                    <span className="text-xs text-gray-500 font-mono truncate">
+                    <span className="text-xs text-text-ghost font-mono truncate">
                       {mapping.logic}
                     </span>
                   )}
@@ -816,12 +816,12 @@ export function FieldMappingDetail({
                     {/* Type + Logic row */}
                     <div className="flex items-start gap-4">
                       <div className="flex flex-col gap-1">
-                        <label className="text-[10px] uppercase text-gray-500 tracking-wide">Type</label>
+                        <label className="text-[10px] uppercase text-text-ghost tracking-wide">Type</label>
                         <select
                           value={mapping.mapping_type}
                           onChange={(e) => handleMappingChange(col.name, { mapping_type: e.target.value })}
                           onClick={(e) => e.stopPropagation()}
-                          className="bg-[#0E0E11] border border-[#2A2A30] rounded-md px-2 py-1.5 text-sm text-white focus:outline-none focus:border-[#2DD4BF]"
+                          className="bg-[#0E0E11] border border-[#2A2A30] rounded-md px-2 py-1.5 text-sm text-text-primary focus:outline-none focus:border-[#2DD4BF]"
                         >
                           {MAPPING_TYPES.map((t) => (
                             <option key={t} value={t}>{t}</option>
@@ -830,20 +830,20 @@ export function FieldMappingDetail({
                       </div>
 
                       <div className="flex-1 flex flex-col gap-1">
-                        <label className="text-[10px] uppercase text-gray-500 tracking-wide">Logic / Expression</label>
+                        <label className="text-[10px] uppercase text-text-ghost tracking-wide">Logic / Expression</label>
                         <textarea
                           rows={2}
                           value={mapping.logic ?? ""}
                           onChange={(e) => handleMappingChange(col.name, { logic: e.target.value })}
                           onClick={(e) => e.stopPropagation()}
                           placeholder="Transformation logic or SQL expression"
-                          className="bg-[#0E0E11] border border-[#2A2A30] rounded-md px-2 py-1.5 text-sm text-white font-mono resize-none focus:outline-none focus:border-[#2DD4BF] placeholder:text-gray-600"
+                          className="bg-[#0E0E11] border border-[#2A2A30] rounded-md px-2 py-1.5 text-sm text-text-primary font-mono resize-none focus:outline-none focus:border-[#2DD4BF] placeholder:text-text-ghost"
                         />
                       </div>
 
                       <div className="flex flex-col gap-2 pt-5">
                         <label
-                          className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer select-none"
+                          className="flex items-center gap-2 text-sm text-text-secondary cursor-pointer select-none"
                           onClick={(e) => e.stopPropagation()}
                         >
                           <input
@@ -880,23 +880,23 @@ export function FieldMappingDetail({
                             e.stopPropagation();
                             setShowDocs(isDocsOpen ? null : col.name);
                           }}
-                          className="flex items-center gap-1.5 text-[11px] text-gray-400 hover:text-gray-300 transition-colors"
+                          className="flex items-center gap-1.5 text-[11px] text-text-muted hover:text-text-secondary transition-colors"
                         >
                           <BookOpen className="w-3.5 h-3.5" />
                           CDM Documentation
                           {isDocsOpen ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                         </button>
                         {isDocsOpen && (
-                          <div className="mt-2 space-y-2 text-xs text-gray-400">
+                          <div className="mt-2 space-y-2 text-xs text-text-muted">
                             {col.description && (
                               <div>
-                                <span className="text-[10px] uppercase tracking-wide text-gray-500 block mb-0.5">User Guide</span>
-                                <p className="text-gray-300 leading-relaxed">{col.description}</p>
+                                <span className="text-[10px] uppercase tracking-wide text-text-ghost block mb-0.5">User Guide</span>
+                                <p className="text-text-secondary leading-relaxed">{col.description}</p>
                               </div>
                             )}
                             {col.etl_conventions && (
                               <div>
-                                <span className="text-[10px] uppercase tracking-wide text-gray-500 block mb-0.5">ETL Conventions</span>
+                                <span className="text-[10px] uppercase tracking-wide text-text-ghost block mb-0.5">ETL Conventions</span>
                                 <p className="text-[#C9A227]/80 leading-relaxed">{col.etl_conventions}</p>
                               </div>
                             )}
@@ -904,13 +904,13 @@ export function FieldMappingDetail({
                               <div className="flex gap-4">
                                 {col.fk_table && (
                                   <span>
-                                    <span className="text-[10px] uppercase tracking-wide text-gray-500">FK Table: </span>
+                                    <span className="text-[10px] uppercase tracking-wide text-text-ghost">FK Table: </span>
                                     <span className="text-[#2DD4BF]">{col.fk_table}</span>
                                   </span>
                                 )}
                                 {col.fk_domain && (
                                   <span>
-                                    <span className="text-[10px] uppercase tracking-wide text-gray-500">FK Domain: </span>
+                                    <span className="text-[10px] uppercase tracking-wide text-text-ghost">FK Domain: </span>
                                     <span className="text-[#2DD4BF]">{col.fk_domain}</span>
                                   </span>
                                 )}

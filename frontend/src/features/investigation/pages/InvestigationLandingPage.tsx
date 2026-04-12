@@ -53,7 +53,7 @@ function DomainDot({ label, filled }: { label: string; filled: boolean }) {
         className="h-2.5 w-2.5 rounded-full transition-colors"
         style={{ backgroundColor: filled ? "#2DD4BF" : "#3f3f46" }}
       />
-      <span className="text-[10px] text-zinc-500">{label}</span>
+      <span className="text-[10px] text-text-ghost">{label}</span>
     </div>
   );
 }
@@ -72,13 +72,13 @@ function SampleCard({ sample }: { sample: SampleInvestigation }) {
       className="group block bg-surface-base/50 border border-border-default rounded-2xl p-5 hover:border-border-hover hover:shadow-[0_0_0_1px_rgba(45,212,191,0.15)] transition-all"
     >
       <div className="flex items-start justify-between gap-3 mb-3">
-        <h3 className="text-sm font-semibold text-zinc-100 leading-snug group-hover:text-white transition-colors">
+        <h3 className="text-sm font-semibold text-text-primary leading-snug group-hover:text-text-primary transition-colors">
           {sample.title}
         </h3>
-        <ChevronRight className="h-4 w-4 text-zinc-600 group-hover:text-zinc-400 shrink-0 mt-0.5 transition-colors" />
+        <ChevronRight className="h-4 w-4 text-text-ghost group-hover:text-text-muted shrink-0 mt-0.5 transition-colors" />
       </div>
 
-      <p className="text-xs text-zinc-500 leading-relaxed mb-4 line-clamp-2">
+      <p className="text-xs text-text-ghost leading-relaxed mb-4 line-clamp-2">
         {sample.question}
       </p>
 
@@ -87,7 +87,7 @@ function SampleCard({ sample }: { sample: SampleInvestigation }) {
         {sample.badges.map((badge) => (
           <span
             key={badge}
-            className="inline-block px-2 py-0.5 rounded text-[10px] font-medium bg-surface-raised text-zinc-400 border border-border-default"
+            className="inline-block px-2 py-0.5 rounded text-[10px] font-medium bg-surface-raised text-text-muted border border-border-default"
           >
             {badge}
           </span>
@@ -96,7 +96,7 @@ function SampleCard({ sample }: { sample: SampleInvestigation }) {
 
       {/* Domain coverage */}
       <div className="flex items-center gap-4 pt-3 border-t border-border-default">
-        <span className="text-[10px] text-zinc-600 uppercase tracking-wide font-medium">
+        <span className="text-[10px] text-text-ghost uppercase tracking-wide font-medium">
           Coverage
         </span>
         <div className="flex items-center gap-3">
@@ -113,10 +113,10 @@ function SampleCard({ sample }: { sample: SampleInvestigation }) {
 // ── User investigation card ──────────────────────────────────────────────────
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
-  draft:    { bg: "bg-surface-raised",              text: "text-zinc-400",   label: "Draft" },
+  draft:    { bg: "bg-surface-raised",              text: "text-text-muted",   label: "Draft" },
   active:   { bg: "bg-teal-900/40",           text: "text-teal-400",   label: "Active" },
   complete: { bg: "bg-emerald-900/40",         text: "text-emerald-400", label: "Complete" },
-  archived: { bg: "bg-surface-raised/50",            text: "text-zinc-500",   label: "Archived" },
+  archived: { bg: "bg-surface-raised/50",            text: "text-text-ghost",   label: "Archived" },
 };
 
 function InvestigationCard({ investigation }: { investigation: Investigation }) {
@@ -133,7 +133,7 @@ function InvestigationCard({ investigation }: { investigation: Investigation }) 
       className="group block bg-surface-base/40 border border-border-default rounded-xl p-4 hover:border-border-hover hover:bg-surface-base/60 transition-all"
     >
       <div className="flex items-start justify-between gap-2 mb-2">
-        <h4 className="text-sm font-medium text-zinc-200 group-hover:text-white transition-colors leading-snug">
+        <h4 className="text-sm font-medium text-text-primary group-hover:text-text-primary transition-colors leading-snug">
           {investigation.title}
         </h4>
         <span
@@ -143,11 +143,11 @@ function InvestigationCard({ investigation }: { investigation: Investigation }) 
         </span>
       </div>
       {investigation.research_question && (
-        <p className="text-xs text-zinc-600 line-clamp-1 mb-2">
+        <p className="text-xs text-text-ghost line-clamp-1 mb-2">
           {investigation.research_question}
         </p>
       )}
-      <p className="text-[10px] text-zinc-600">Updated {updated}</p>
+      <p className="text-[10px] text-text-ghost">Updated {updated}</p>
     </Link>
   );
 }
@@ -197,7 +197,7 @@ export default function InvestigationLandingPage() {
         <div>
           <Link
             to="/workbench"
-            className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors mb-5"
+            className="inline-flex items-center gap-1.5 text-xs text-text-ghost hover:text-text-secondary transition-colors mb-5"
           >
             <ArrowLeft className="h-3 w-3" />
             Workbench
@@ -212,8 +212,8 @@ export default function InvestigationLandingPage() {
                 <Dna className="h-5 w-5" style={{ color: "#2DD4BF" }} />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-zinc-100">Evidence Investigation</h1>
-                <p className="text-sm text-zinc-500 mt-0.5">
+                <h1 className="text-2xl font-bold text-text-primary">Evidence Investigation</h1>
+                <p className="text-sm text-text-ghost mt-0.5">
                   Bridge clinical phenotyping with genomic evidence — from research question to Evidence Dossier
                 </p>
               </div>
@@ -221,7 +221,7 @@ export default function InvestigationLandingPage() {
 
             <button
               onClick={() => void navigate("/workbench/investigation/new")}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-white transition-colors hover:opacity-90 shrink-0"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-text-primary transition-colors hover:opacity-90 shrink-0"
               style={{ backgroundColor: "#9B1B30" }}
             >
               <Plus className="h-4 w-4" />
@@ -232,7 +232,7 @@ export default function InvestigationLandingPage() {
 
         {/* ── How It Works ── */}
         <div>
-          <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-4">
+          <h2 className="text-xs font-semibold text-text-ghost uppercase tracking-widest mb-4">
             How It Works
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-0">
@@ -248,8 +248,8 @@ export default function InvestigationLandingPage() {
                 >
                   {step.icon}
                 </div>
-                <span className="text-xs font-semibold text-zinc-300 mb-1">{step.label}</span>
-                <span className="text-[11px] text-zinc-600 leading-relaxed">{step.description}</span>
+                <span className="text-xs font-semibold text-text-secondary mb-1">{step.label}</span>
+                <span className="text-[11px] text-text-ghost leading-relaxed">{step.description}</span>
               </div>
             ))}
           </div>
@@ -258,8 +258,8 @@ export default function InvestigationLandingPage() {
         {/* ── Sample Investigations ── */}
         <div>
           <div className="mb-4">
-            <h2 className="text-sm font-semibold text-zinc-200">Sample Investigations</h2>
-            <p className="text-xs text-zinc-500 mt-0.5">
+            <h2 className="text-sm font-semibold text-text-primary">Sample Investigations</h2>
+            <p className="text-xs text-text-ghost mt-0.5">
               Explore these examples to see the Evidence Investigation workflow in action
             </p>
           </div>
@@ -274,13 +274,13 @@ export default function InvestigationLandingPage() {
         <div>
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-sm font-semibold text-zinc-200">Your Investigations</h2>
-              <p className="text-xs text-zinc-500 mt-0.5">Recent investigations you have created</p>
+              <h2 className="text-sm font-semibold text-text-primary">Your Investigations</h2>
+              <p className="text-xs text-text-ghost mt-0.5">Recent investigations you have created</p>
             </div>
           </div>
 
           {isLoading ? (
-            <div className="flex items-center gap-2 text-sm text-zinc-600 py-6">
+            <div className="flex items-center gap-2 text-sm text-text-ghost py-6">
               <div className="h-4 w-4 rounded-full border-2 border-border-default border-t-zinc-400 animate-spin" />
               Loading investigations...
             </div>
@@ -292,14 +292,14 @@ export default function InvestigationLandingPage() {
             </div>
           ) : (
             <div className="rounded-xl border border-dashed border-border-default py-10 text-center">
-              <Dna className="h-8 w-8 mx-auto mb-3 text-zinc-700" />
-              <p className="text-sm text-zinc-500 mb-1">No investigations yet</p>
-              <p className="text-xs text-zinc-600 mb-4">
+              <Dna className="h-8 w-8 mx-auto mb-3 text-text-ghost" />
+              <p className="text-sm text-text-ghost mb-1">No investigations yet</p>
+              <p className="text-xs text-text-ghost mb-4">
                 Start with a sample above or create a new investigation.
               </p>
               <button
                 onClick={() => void navigate("/workbench/investigation/new")}
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-colors hover:opacity-90"
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-text-primary transition-colors hover:opacity-90"
                 style={{ backgroundColor: "#9B1B30" }}
               >
                 <Plus className="h-3.5 w-3.5" />

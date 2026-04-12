@@ -45,7 +45,7 @@ export default function FeasibilityView() {
   return (
     <div className="p-4">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-medium text-white">Feasibility Assessments</h2>
+        <h2 className="text-lg font-medium text-text-primary">Feasibility Assessments</h2>
         <button
           type="button"
           onClick={() => setShowForm(!showForm)}
@@ -89,7 +89,7 @@ export default function FeasibilityView() {
               }`}
             >
               <div>
-                <p className="text-sm font-medium text-white">{a.name}</p>
+                <p className="text-sm font-medium text-text-primary">{a.name}</p>
                 <p className="text-[11px] text-[#666]">
                   {new Date(a.created_at).toLocaleDateString()} | {a.sources_assessed} sources assessed
                 </p>
@@ -122,7 +122,7 @@ export default function FeasibilityView() {
               className={`rounded px-2 py-1 text-xs transition-colors ${
                 detailView === mode
                   ? "bg-[#C9A227]/20 text-[#C9A227]"
-                  : "text-[#888] hover:text-white"
+                  : "text-[#888] hover:text-text-primary"
               }`}
             >
               {mode === "table" ? "Score Table" : mode === "impact" ? "Impact Analysis" : "CONSORT Flow"}
@@ -134,7 +134,7 @@ export default function FeasibilityView() {
       {/* Assessment results detail - Table view */}
       {selectedAssessment?.results && detailView === "table" && (
         <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
-          <h3 className="mb-3 text-sm font-medium text-white">
+          <h3 className="mb-3 text-sm font-medium text-text-primary">
             Results: {selectedAssessment.name}
           </h3>
           <div className="overflow-hidden rounded-lg border border-[#252530]">
@@ -155,7 +155,7 @@ export default function FeasibilityView() {
               <tbody>
                 {selectedAssessment.results.map((r: FeasibilityResult) => (
                   <tr key={r.id} className="border-b border-[#1a1a22] hover:bg-[#1a1a22]">
-                    <td className="px-3 py-2 text-white">{r.source_name}</td>
+                    <td className="px-3 py-2 text-text-primary">{r.source_name}</td>
                     <td className="px-3 py-2 text-center">
                       <ScoreBadge score={r.domain_score ?? (r.domain_pass ? 100 : 0)} pass={r.domain_pass} />
                     </td>

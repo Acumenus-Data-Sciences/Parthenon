@@ -53,7 +53,7 @@ export default function FeasibilityForm({ onSubmit, isLoading }: FeasibilityForm
 
   return (
     <div className="rounded-lg border border-[#333] bg-[#1a1a22] p-4">
-      <h3 className="mb-3 text-sm font-medium text-white">New Feasibility Assessment</h3>
+      <h3 className="mb-3 text-sm font-medium text-text-primary">New Feasibility Assessment</h3>
 
       <TemplateSelector onSelect={handleTemplateSelect} />
 
@@ -64,7 +64,7 @@ export default function FeasibilityForm({ onSubmit, isLoading }: FeasibilityForm
           placeholder="e.g. Diabetes Outcomes Study"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full rounded border border-[#333] bg-[#151518] px-3 py-2 text-sm text-white
+          className="w-full rounded border border-[#333] bg-[#151518] px-3 py-2 text-sm text-text-primary
                      placeholder-[#555] focus:border-[#C9A227] focus:outline-none"
         />
       </div>
@@ -96,7 +96,7 @@ export default function FeasibilityForm({ onSubmit, isLoading }: FeasibilityForm
           placeholder="e.g. 1000"
           value={minPatients}
           onChange={(e) => setMinPatients(e.target.value)}
-          className="w-48 rounded border border-[#333] bg-[#151518] px-3 py-2 text-sm text-white
+          className="w-48 rounded border border-[#333] bg-[#151518] px-3 py-2 text-sm text-text-primary
                      placeholder-[#555] focus:border-[#C9A227] focus:outline-none"
         />
       </div>

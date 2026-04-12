@@ -337,7 +337,7 @@ export default function ManhattanPlot({
   if (data.length === 0) {
     return (
       <div
-        className="flex items-center justify-center text-zinc-500 text-sm rounded border border-border-default"
+        className="flex items-center justify-center text-text-ghost text-sm rounded border border-border-default"
         style={{ width, height }}
       >
         No GWAS data available

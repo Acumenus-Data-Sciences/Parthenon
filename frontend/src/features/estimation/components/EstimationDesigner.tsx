@@ -298,7 +298,7 @@ export function EstimationDesigner({
                       <button
                         type="button"
                         onClick={() => removeOutcomeCohort(id)}
-                        className="hover:text-white transition-colors"
+                        className="hover:text-text-primary transition-colors"
                       >
                         <X size={12} />
                       </button>

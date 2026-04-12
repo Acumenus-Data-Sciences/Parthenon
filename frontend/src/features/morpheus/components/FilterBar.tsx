@@ -36,7 +36,7 @@ export default function FilterBar({ filters, onChange, totalShown, totalAll }: F
                 (opt === 'all' && filters.icu === undefined) ||
                 (opt === 'yes' && filters.icu === true) ||
                 (opt === 'no' && filters.icu === false)
-                  ? 'bg-[#9B1B30] text-white font-medium'
+                  ? 'bg-[#9B1B30] text-text-primary font-medium'
                   : 'border border-border-default bg-surface-base/50 text-[#8A857D] hover:text-[#C5C0B8]'
               }`}>{opt === 'all' ? 'All' : opt === 'yes' ? 'Yes' : 'No'}</button>
           ))}
@@ -51,7 +51,7 @@ export default function FilterBar({ filters, onChange, totalShown, totalAll }: F
                 (opt === 'all' && filters.deceased === undefined) ||
                 (opt === 'survived' && filters.deceased === false) ||
                 (opt === 'deceased' && filters.deceased === true)
-                  ? 'bg-[#9B1B30] text-white font-medium'
+                  ? 'bg-[#9B1B30] text-text-primary font-medium'
                   : 'border border-border-default bg-surface-base/50 text-[#8A857D] hover:text-[#C5C0B8]'
               }`}>{opt === 'all' ? 'All' : opt === 'survived' ? 'Survived' : 'Deceased'}</button>
           ))}
@@ -74,7 +74,7 @@ export default function FilterBar({ filters, onChange, totalShown, totalAll }: F
 
         {/* Clinical filter toggle */}
         <button onClick={() => setShowClinical(!showClinical)}
-          className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors">
+          className="text-xs text-text-ghost hover:text-text-secondary transition-colors">
           {showClinical ? '\u25BE Clinical' : '\u25B8 Clinical'}
         </button>
 
@@ -82,12 +82,12 @@ export default function FilterBar({ filters, onChange, totalShown, totalAll }: F
         {activeCount > 0 && (
           <>
             <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#9B1B30]/20 text-[#E85A6B]">{activeCount} active</span>
-            <button onClick={clearAll} className="text-[10px] text-zinc-500 hover:text-zinc-300 underline">Clear all</button>
+            <button onClick={clearAll} className="text-[10px] text-text-ghost hover:text-text-secondary underline">Clear all</button>
           </>
         )}
 
         {/* Result count */}
-        <span className="ml-auto text-[11px] text-zinc-500">
+        <span className="ml-auto text-[11px] text-text-ghost">
           Showing {totalShown} of {totalAll} patients
         </span>
       </div>

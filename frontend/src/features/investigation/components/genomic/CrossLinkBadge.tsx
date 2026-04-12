@@ -37,7 +37,7 @@ export function CrossLinkBadge({ pinId, crossLinks }: CrossLinkBadgeProps) {
           }}
         >
           <div className="px-3 py-2 border-b border-border-default">
-            <span className="font-semibold text-zinc-300">Cross-domain links</span>
+            <span className="font-semibold text-text-secondary">Cross-domain links</span>
           </div>
           <ul className="px-3 py-2 flex flex-col gap-1.5">
             {links.map((link, i) => (
@@ -52,8 +52,8 @@ export function CrossLinkBadge({ pinId, crossLinks }: CrossLinkBadgeProps) {
                 >
                   {link.domain}
                 </span>
-                <span className="text-zinc-400 truncate">{link.finding_type}</span>
-                <span className="text-zinc-600 shrink-0">#{link.pin_id}</span>
+                <span className="text-text-muted truncate">{link.finding_type}</span>
+                <span className="text-text-ghost shrink-0">#{link.pin_id}</span>
               </li>
             ))}
           </ul>

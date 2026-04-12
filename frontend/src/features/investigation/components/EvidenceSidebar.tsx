@@ -48,7 +48,7 @@ export function EvidenceSidebar({ investigationId }: EvidenceSidebarProps) {
     >
       <div className="flex items-center justify-between px-3 py-3 border-b border-border-default">
         {sidebarOpen && (
-          <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+          <span className="text-xs font-semibold uppercase tracking-wider text-text-ghost">
             Evidence
           </span>
         )}
@@ -63,7 +63,7 @@ export function EvidenceSidebar({ investigationId }: EvidenceSidebarProps) {
         )}
         <button
           onClick={toggleSidebar}
-          className="text-zinc-500 hover:text-zinc-300 transition-colors ml-auto"
+          className="text-text-ghost hover:text-text-secondary transition-colors ml-auto"
           aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
         >
           <ChevronRight
@@ -87,7 +87,7 @@ export function EvidenceSidebar({ investigationId }: EvidenceSidebarProps) {
           {/* Error state */}
           {isError && !isLoading && (
             <div className="flex flex-col items-center gap-2 mt-6 px-1">
-              <p className="text-xs text-zinc-500 text-center">Failed to load pins</p>
+              <p className="text-xs text-text-ghost text-center">Failed to load pins</p>
               <button
                 type="button"
                 onClick={() => void refetch()}
@@ -100,7 +100,7 @@ export function EvidenceSidebar({ investigationId }: EvidenceSidebarProps) {
 
           {/* Empty state */}
           {!isLoading && !isError && sections.length === 0 && (
-            <p className="text-xs text-zinc-600 text-center mt-8">No pins yet</p>
+            <p className="text-xs text-text-ghost text-center mt-8">No pins yet</p>
           )}
 
           {/* Pin sections */}
@@ -108,7 +108,7 @@ export function EvidenceSidebar({ investigationId }: EvidenceSidebarProps) {
             const sectionPins = grouped[section] ?? [];
             return (
               <div key={section}>
-                <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-2">
+                <p className="text-xs font-semibold uppercase tracking-wider text-text-ghost mb-2">
                   {SECTION_LABELS[section] ?? section}
                 </p>
                 <div className="flex flex-col gap-1.5">

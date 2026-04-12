@@ -94,7 +94,7 @@ export default function CareSettingBreakdown({ settings }: CareSettingBreakdownP
             <p className="text-[10px] uppercase tracking-wider text-[#666]">
               {s.setting.replace(/ Visit$/, "")}
             </p>
-            <p className="text-sm font-semibold text-white">{formatCurrency(s.total_cost)}</p>
+            <p className="text-sm font-semibold text-text-primary">{formatCurrency(s.total_cost)}</p>
             <p className="text-[10px] text-[#555]">
               {s.record_count.toLocaleString()} records | avg {formatCurrency(s.avg_cost)}
             </p>

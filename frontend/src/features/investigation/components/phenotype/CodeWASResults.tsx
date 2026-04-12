@@ -53,10 +53,10 @@ export function CodeWASResults({ result, onPinFinding }: CodeWASResultsProps) {
               key={key}
               className="flex flex-col gap-0.5 px-3 py-2 rounded border border-border-default/50 bg-surface-raised/40 min-w-[90px]"
             >
-              <span className="text-[10px] text-zinc-500 uppercase tracking-wide">
+              <span className="text-[10px] text-text-ghost uppercase tracking-wide">
                 {key.replace(/_/g, " ")}
               </span>
-              <span className="text-xs font-medium text-zinc-200">
+              <span className="text-xs font-medium text-text-primary">
                 {String(val)}
               </span>
             </div>
@@ -65,17 +65,17 @@ export function CodeWASResults({ result, onPinFinding }: CodeWASResultsProps) {
       )}
 
       {/* Cohort labels */}
-      <div className="flex items-center gap-3 text-xs text-zinc-400">
+      <div className="flex items-center gap-3 text-xs text-text-muted">
         <span>
           Case:{" "}
-          <span className="text-zinc-200 font-medium">
+          <span className="text-text-primary font-medium">
             {result.case_cohort_name}
           </span>
         </span>
-        <span className="text-zinc-600">vs.</span>
+        <span className="text-text-ghost">vs.</span>
         <span>
           Control:{" "}
-          <span className="text-zinc-200 font-medium">
+          <span className="text-text-primary font-medium">
             {result.control_cohort_name}
           </span>
         </span>
@@ -84,7 +84,7 @@ export function CodeWASResults({ result, onPinFinding }: CodeWASResultsProps) {
       {/* Top signals — bar chart + pin table */}
       {result.top_signals.length > 0 && (
         <div className="flex flex-col gap-3">
-          <p className="text-xs font-medium text-zinc-400 uppercase tracking-wide">
+          <p className="text-xs font-medium text-text-muted uppercase tracking-wide">
             Top Signals ({result.top_signals.length})
           </p>
 
@@ -98,10 +98,10 @@ export function CodeWASResults({ result, onPinFinding }: CodeWASResultsProps) {
             <table className="w-full text-xs">
               <thead>
                 <tr className="border-b border-border-default/50 bg-surface-raised/60">
-                  <th className="text-left px-3 py-2 text-zinc-500 font-medium">
+                  <th className="text-left px-3 py-2 text-text-ghost font-medium">
                     Label
                   </th>
-                  <th className="text-right px-3 py-2 text-zinc-500 font-medium">
+                  <th className="text-right px-3 py-2 text-text-ghost font-medium">
                     Count
                   </th>
                   <th className="px-3 py-2 w-16"></th>
@@ -113,15 +113,15 @@ export function CodeWASResults({ result, onPinFinding }: CodeWASResultsProps) {
                     key={i}
                     className="border-b border-border-default/30 last:border-0 hover:bg-surface-raised/30 transition-colors"
                   >
-                    <td className="px-3 py-2 text-zinc-200">{signal.label}</td>
-                    <td className="px-3 py-2 text-zinc-300 text-right tabular-nums">
+                    <td className="px-3 py-2 text-text-primary">{signal.label}</td>
+                    <td className="px-3 py-2 text-text-secondary text-right tabular-nums">
                       {signal.count.toLocaleString()}
                     </td>
                     <td className="px-3 py-2 text-center">
                       <button
                         onClick={() => handlePin(signal.label, signal.count)}
                         title="Pin to dossier"
-                        className="text-[10px] px-2 py-0.5 rounded border border-border-hover text-zinc-400 hover:border-[#C9A227]/50 hover:text-[#C9A227] transition-colors"
+                        className="text-[10px] px-2 py-0.5 rounded border border-border-hover text-text-muted hover:border-[#C9A227]/50 hover:text-[#C9A227] transition-colors"
                       >
                         Pin
                       </button>
@@ -145,7 +145,7 @@ export function CodeWASResults({ result, onPinFinding }: CodeWASResultsProps) {
       )}
 
       {/* Volcano plot placeholder */}
-      <div className="rounded border border-border-default/30 bg-surface-raised/20 px-4 py-3 text-xs text-zinc-500">
+      <div className="rounded border border-border-default/30 bg-surface-raised/20 px-4 py-3 text-xs text-text-ghost">
         Interactive volcano plot coming in a future update.
       </div>
     </div>

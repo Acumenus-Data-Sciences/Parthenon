@@ -58,7 +58,7 @@ export default function CrossSourceCostChart({
             className="rounded-lg border border-[#252530] bg-[#151518] p-3"
           >
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-sm font-medium text-white">{source.source_name}</span>
+              <span className="text-sm font-medium text-text-primary">{source.source_name}</span>
               <span className="text-xs text-[#666]">
                 Range: {formatCurrency(dist.min)} - {formatCurrency(dist.max)}
               </span>

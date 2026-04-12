@@ -69,8 +69,8 @@ export default function StudyDesignerPage() {
           <Brain className="h-5 w-5 text-[#9B1B30]" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-white">Study Designer</h1>
-          <p className="text-sm text-zinc-400">
+          <h1 className="text-2xl font-bold text-text-primary">Study Designer</h1>
+          <p className="text-sm text-text-muted">
             AI-assisted study design powered by OHDSI StudyAgent
           </p>
         </div>
@@ -84,8 +84,8 @@ export default function StudyDesignerPage() {
             onClick={() => setActiveTab(tab.id)}
             className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
               activeTab === tab.id
-                ? "bg-surface-raised text-white"
-                : "text-zinc-400 hover:text-zinc-200"
+                ? "bg-surface-raised text-text-primary"
+                : "text-text-muted hover:text-text-primary"
             }`}
           >
             <tab.icon className="h-4 w-4" />
@@ -98,10 +98,10 @@ export default function StudyDesignerPage() {
       {activeTab === "intent" && (
         <div className="space-y-4">
           <div className="rounded-lg border border-border-default bg-surface-base/50 p-6">
-            <h2 className="mb-3 text-lg font-semibold text-white">
+            <h2 className="mb-3 text-lg font-semibold text-text-primary">
               Describe Your Study
             </h2>
-            <p className="mb-4 text-sm text-zinc-400">
+            <p className="mb-4 text-sm text-text-muted">
               Enter a natural language description of your study. The AI will
               split it into target population and outcome, then recommend
               phenotypes from the OHDSI library.
@@ -110,13 +110,13 @@ export default function StudyDesignerPage() {
               value={studyIntent}
               onChange={(e) => setStudyIntent(e.target.value)}
               placeholder="e.g., Compare the risk of heart failure in patients newly prescribed SGLT2 inhibitors vs DPP-4 inhibitors among adults with type 2 diabetes..."
-              className="w-full rounded-lg border border-border-default bg-surface-raised px-4 py-3 text-white placeholder-zinc-500 focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]"
+              className="w-full rounded-lg border border-border-default bg-surface-raised px-4 py-3 text-text-primary placeholder-text-ghost focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]"
               rows={4}
             />
             <button
               onClick={handleIntentSubmit}
               disabled={!studyIntent.trim() || intentMutation.isPending}
-              className="mt-3 flex items-center gap-2 rounded-lg bg-[#9B1B30] px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#9B1B30]/80 disabled:opacity-50"
+              className="mt-3 flex items-center gap-2 rounded-lg bg-[#9B1B30] px-6 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-[#9B1B30]/80 disabled:opacity-50"
             >
               {intentMutation.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -137,7 +137,7 @@ export default function StudyDesignerPage() {
                     Target Population
                   </span>
                 </div>
-                <p className="text-sm text-zinc-300">
+                <p className="text-sm text-text-secondary">
                   {intentMutation.data.target}
                 </p>
               </div>
@@ -146,7 +146,7 @@ export default function StudyDesignerPage() {
                   <Users className="h-4 w-4" />
                   <span className="text-sm font-semibold">Outcome</span>
                 </div>
-                <p className="text-sm text-zinc-300">
+                <p className="text-sm text-text-secondary">
                   {intentMutation.data.outcome}
                 </p>
               </div>
@@ -156,7 +156,7 @@ export default function StudyDesignerPage() {
           {/* Recommendations */}
           {recommendMutation.data && recommendMutation.data.length > 0 && (
             <div className="rounded-lg border border-border-default bg-surface-base/50 p-6">
-              <h3 className="mb-4 text-lg font-semibold text-white">
+              <h3 className="mb-4 text-lg font-semibold text-text-primary">
                 Recommended Phenotypes
               </h3>
               <div className="space-y-3">
@@ -170,12 +170,12 @@ export default function StudyDesignerPage() {
                         {i + 1}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <div className="font-medium text-white">{rec.name}</div>
-                        <p className="mt-1 text-sm text-zinc-400">
+                        <div className="font-medium text-text-primary">{rec.name}</div>
+                        <p className="mt-1 text-sm text-text-muted">
                           {rec.rationale}
                         </p>
                       </div>
-                      <div className="text-xs text-zinc-500">
+                      <div className="text-xs text-text-ghost">
                         Score: {typeof rec.score === "number" ? rec.score.toFixed(2) : "N/A"}
                       </div>
                     </div>
@@ -186,7 +186,7 @@ export default function StudyDesignerPage() {
           )}
 
           {recommendMutation.isPending && (
-            <div className="flex items-center justify-center gap-2 py-8 text-zinc-400">
+            <div className="flex items-center justify-center gap-2 py-8 text-text-muted">
               <Loader2 className="h-5 w-5 animate-spin" />
               Finding phenotype recommendations...
             </div>
@@ -198,7 +198,7 @@ export default function StudyDesignerPage() {
       {activeTab === "search" && (
         <div className="space-y-4">
           <div className="rounded-lg border border-border-default bg-surface-base/50 p-6">
-            <h2 className="mb-3 text-lg font-semibold text-white">
+            <h2 className="mb-3 text-lg font-semibold text-text-primary">
               Search Phenotype Library
             </h2>
             <div className="flex gap-3">
@@ -211,12 +211,12 @@ export default function StudyDesignerPage() {
                   searchMutation.mutate(searchQuery)
                 }
                 placeholder="Search for phenotypes (e.g., type 2 diabetes, heart failure, COPD)..."
-                className="flex-1 rounded-lg border border-border-default bg-surface-raised px-4 py-2.5 text-white placeholder-zinc-500 focus:border-[#C9A227] focus:outline-none"
+                className="flex-1 rounded-lg border border-border-default bg-surface-raised px-4 py-2.5 text-text-primary placeholder-text-ghost focus:border-[#C9A227] focus:outline-none"
               />
               <button
                 onClick={() => searchMutation.mutate(searchQuery)}
                 disabled={!searchQuery.trim() || searchMutation.isPending}
-                className="flex items-center gap-2 rounded-lg bg-surface-accent px-5 py-2.5 text-sm font-medium text-white hover:bg-surface-overlay disabled:opacity-50"
+                className="flex items-center gap-2 rounded-lg bg-surface-accent px-5 py-2.5 text-sm font-medium text-text-primary hover:bg-surface-overlay disabled:opacity-50"
               >
                 {searchMutation.isPending ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -231,7 +231,7 @@ export default function StudyDesignerPage() {
           {searchMutation.data && searchMutation.data.length > 0 && (
             <div className="rounded-lg border border-border-default bg-surface-base/50">
               <div className="border-b border-border-default px-4 py-3">
-                <span className="text-sm font-medium text-zinc-300">
+                <span className="text-sm font-medium text-text-secondary">
                   {searchMutation.data.length} results found
                 </span>
               </div>
@@ -242,25 +242,25 @@ export default function StudyDesignerPage() {
                       key={result.cohortId ?? i}
                       className="flex items-center gap-4 px-4 py-3 transition-colors hover:bg-surface-raised/50"
                     >
-                      <div className="text-xs font-mono text-zinc-500">
+                      <div className="text-xs font-mono text-text-ghost">
                         #{result.cohortId}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <div className="font-medium text-white">
+                        <div className="font-medium text-text-primary">
                           {result.name}
                         </div>
                         {result.description && (
-                          <p className="mt-0.5 truncate text-sm text-zinc-400">
+                          <p className="mt-0.5 truncate text-sm text-text-muted">
                             {result.description}
                           </p>
                         )}
                       </div>
-                      <div className="text-xs text-zinc-500">
+                      <div className="text-xs text-text-ghost">
                         {typeof result.score === "number"
                           ? result.score.toFixed(3)
                           : ""}
                       </div>
-                      <ChevronRight className="h-4 w-4 text-zinc-600" />
+                      <ChevronRight className="h-4 w-4 text-text-ghost" />
                     </div>
                   )
                 )}
@@ -269,7 +269,7 @@ export default function StudyDesignerPage() {
           )}
 
           {searchMutation.data && searchMutation.data.length === 0 && (
-            <div className="py-8 text-center text-zinc-500">
+            <div className="py-8 text-center text-text-ghost">
               No phenotypes found. Try a different search term.
             </div>
           )}
@@ -279,7 +279,7 @@ export default function StudyDesignerPage() {
       {/* Recommend Tab */}
       {activeTab === "recommend" && (
         <div className="rounded-lg border border-border-default bg-surface-base/50 p-6">
-          <p className="text-sm text-zinc-400">
+          <p className="text-sm text-text-muted">
             Enter a study intent on the{" "}
             <button
               onClick={() => setActiveTab("intent")}
@@ -296,10 +296,10 @@ export default function StudyDesignerPage() {
       {activeTab === "lint" && (
         <div className="space-y-4">
           <div className="rounded-lg border border-border-default bg-surface-base/50 p-6">
-            <h2 className="mb-3 text-lg font-semibold text-white">
+            <h2 className="mb-3 text-lg font-semibold text-text-primary">
               Lint Cohort Definition
             </h2>
-            <p className="mb-4 text-sm text-zinc-400">
+            <p className="mb-4 text-sm text-text-muted">
               Paste a cohort definition JSON to check for design issues like
               missing washout periods, empty concept sets, and inverted time
               windows.
@@ -308,13 +308,13 @@ export default function StudyDesignerPage() {
               value={lintJson}
               onChange={(e) => setLintJson(e.target.value)}
               placeholder='{"ConceptSets": [...], "PrimaryCriteria": {...}, ...}'
-              className="w-full rounded-lg border border-border-default bg-surface-raised px-4 py-3 font-mono text-sm text-white placeholder-zinc-500 focus:border-[#C9A227] focus:outline-none"
+              className="w-full rounded-lg border border-border-default bg-surface-raised px-4 py-3 font-mono text-sm text-text-primary placeholder-text-ghost focus:border-[#C9A227] focus:outline-none"
               rows={8}
             />
             <button
               onClick={() => lintMutation.mutate(lintJson)}
               disabled={!lintJson.trim() || lintMutation.isPending}
-              className="mt-3 flex items-center gap-2 rounded-lg bg-surface-accent px-5 py-2.5 text-sm font-medium text-white hover:bg-surface-overlay disabled:opacity-50"
+              className="mt-3 flex items-center gap-2 rounded-lg bg-surface-accent px-5 py-2.5 text-sm font-medium text-text-primary hover:bg-surface-overlay disabled:opacity-50"
             >
               {lintMutation.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -333,7 +333,7 @@ export default function StudyDesignerPage() {
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <h3 className="mb-3 font-semibold text-white">
+                  <h3 className="mb-3 font-semibold text-text-primary">
                     {lintMutation.data.length} issue
                     {lintMutation.data.length !== 1 ? "s" : ""} found
                   </h3>
@@ -345,7 +345,7 @@ export default function StudyDesignerPage() {
                           ? "border-red-800/50 bg-red-900/20 text-red-300"
                           : w.severity === "warning"
                             ? "border-yellow-800/50 bg-yellow-900/20 text-yellow-300"
-                            : "border-border-default/50 bg-surface-raised/50 text-zinc-300"
+                            : "border-border-default/50 bg-surface-raised/50 text-text-secondary"
                       }`}
                     >
                       <span className="font-mono text-xs uppercase opacity-70">

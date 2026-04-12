@@ -14,7 +14,7 @@ export default function BenchmarkOverlay({ label, benchmarks, actual }: Benchmar
 
   return (
     <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
-      <h4 className="mb-3 text-sm font-medium text-white">Benchmark: {label}</h4>
+      <h4 className="mb-3 text-sm font-medium text-text-primary">Benchmark: {label}</h4>
       <div className="space-y-2">
         {allLabels.map((dim) => {
           const actualVal = actual[dim] ?? 0;

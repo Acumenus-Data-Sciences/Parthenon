@@ -54,8 +54,8 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
   if (!active || !payload || payload.length === 0) return null;
   return (
     <div className="rounded border border-border-default bg-surface-base px-2.5 py-1.5 text-xs shadow-lg">
-      <span className="text-zinc-300 font-medium">{label}</span>
-      <span className="ml-2 text-zinc-400">
+      <span className="text-text-secondary font-medium">{label}</span>
+      <span className="ml-2 text-text-muted">
         {payload[0].value} concept{payload[0].value !== 1 ? "s" : ""}
       </span>
     </div>
@@ -66,7 +66,7 @@ export function SchemaDensityHeatmap({ domains }: SchemaDensityHeatmapProps) {
   if (domains.length === 0) {
     return (
       <div className="flex items-center justify-center rounded border border-border-default/40 bg-surface-raised/20 px-4 py-5">
-        <p className="text-xs text-zinc-600">
+        <p className="text-xs text-text-ghost">
           Add concepts to see domain coverage
         </p>
       </div>
@@ -79,10 +79,10 @@ export function SchemaDensityHeatmap({ domains }: SchemaDensityHeatmapProps) {
   return (
     <div className="rounded border border-border-default/40 bg-surface-raised/20 px-3 py-3">
       <div className="mb-2 flex items-center justify-between">
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
           Domain Coverage
         </span>
-        <span className="text-[10px] text-zinc-600">
+        <span className="text-[10px] text-text-ghost">
           {domains.reduce((s, d) => s + d.count, 0)} total
         </span>
       </div>

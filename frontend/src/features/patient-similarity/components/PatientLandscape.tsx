@@ -143,7 +143,7 @@ function PointTooltip({ point, clusters, is2D }: TooltipProps) {
       center
       style={{ pointerEvents: "none" }}
     >
-      <div className="rounded-lg border border-[#2A2A2E] bg-[#151518]/95 px-3 py-2 text-xs text-gray-300 shadow-xl backdrop-blur-sm whitespace-nowrap">
+      <div className="rounded-lg border border-[#2A2A2E] bg-[#151518]/95 px-3 py-2 text-xs text-text-secondary shadow-xl backdrop-blur-sm whitespace-nowrap">
         <div className="font-semibold text-[#F0EDE8]">
           Person {point.person_id}
         </div>

@@ -213,7 +213,7 @@ function LabRow({ group }: { group: LabGroup }) {
           <button
             type="button"
             onClick={() => setShowValues((p) => !p)}
-            className="flex items-center gap-1 text-xs text-zinc-400 hover:text-zinc-200"
+            className="flex items-center gap-1 text-xs text-text-muted hover:text-text-primary"
           >
             <ChevronRight
               className={cn(

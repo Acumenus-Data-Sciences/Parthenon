@@ -172,7 +172,7 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
 
         {/* Upload icon */}
         <svg
-          className={`w-8 h-8 transition-colors ${isDragOver ? "text-teal-400" : "text-zinc-500"}`}
+          className={`w-8 h-8 transition-colors ${isDragOver ? "text-teal-400" : "text-text-ghost"}`}
           fill="none"
           stroke="currentColor"
           strokeWidth={1.5}
@@ -185,10 +185,10 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
           />
         </svg>
 
-        <p className="text-sm text-zinc-300 font-medium">
+        <p className="text-sm text-text-secondary font-medium">
           {isDragOver ? "Release to upload" : "Drop GWAS summary stats"}
         </p>
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-text-ghost">
           .tsv, .csv, or .gz · max 500 MB
         </p>
 
@@ -215,8 +215,8 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
           {/* File meta */}
           <div className="flex items-start justify-between gap-4">
             <div className="flex flex-col gap-0.5">
-              <p className="text-sm font-medium text-zinc-200">{uploadResult.file_name}</p>
-              <p className="text-xs text-zinc-500">
+              <p className="text-sm font-medium text-text-primary">{uploadResult.file_name}</p>
+              <p className="text-xs text-text-ghost">
                 {formatBytes(uploadResult.file_size)} · {uploadResult.total_rows.toLocaleString()} rows
               </p>
             </div>
@@ -224,7 +224,7 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
               {uploadResult.columns.map((col) => (
                 <span
                   key={col}
-                  className="text-[10px] px-1.5 py-0.5 rounded bg-surface-raised text-zinc-400 font-mono"
+                  className="text-[10px] px-1.5 py-0.5 rounded bg-surface-raised text-text-muted font-mono"
                 >
                   {col}
                 </span>
@@ -241,7 +241,7 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
                     {uploadResult.columns.map((col) => (
                       <th
                         key={col}
-                        className="px-2 py-1.5 text-left text-zinc-400 font-semibold font-mono whitespace-nowrap"
+                        className="px-2 py-1.5 text-left text-text-muted font-semibold font-mono whitespace-nowrap"
                       >
                         {col}
                       </th>
@@ -252,7 +252,7 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
                   {uploadResult.sample_rows.slice(0, 5).map((row, rIdx) => (
                     <tr key={rIdx} className="border-t border-border-default/50 hover:bg-surface-raised/20">
                       {row.map((cell, cIdx) => (
-                        <td key={cIdx} className="px-2 py-1 text-zinc-400 font-mono whitespace-nowrap">
+                        <td key={cIdx} className="px-2 py-1 text-text-muted font-mono whitespace-nowrap">
                           {cell}
                         </td>
                       ))}
@@ -265,14 +265,14 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
 
           {/* Column mapping */}
           <div className="flex flex-col gap-2">
-            <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wide">Column Mapping</p>
+            <p className="text-xs font-semibold text-text-muted uppercase tracking-wide">Column Mapping</p>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
               {REQUIRED_COLUMNS.map((req) => {
                 const isMapped = !!mapping[req];
                 return (
                   <div key={req} className="flex flex-col gap-1">
                     <div className="flex items-center gap-1.5">
-                      <span className="text-xs font-mono text-zinc-300">{req}</span>
+                      <span className="text-xs font-mono text-text-secondary">{req}</span>
                       {isMapped ? (
                         <svg className="w-3.5 h-3.5 text-teal-400" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -288,7 +288,7 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
                       onChange={(e) =>
                         setMapping((prev) => ({ ...prev, [req]: e.target.value }))
                       }
-                      className={`text-xs rounded-lg px-2 py-1 bg-surface-raised/80 border focus:outline-none focus:border-border-hover transition-colors text-zinc-200 ${
+                      className={`text-xs rounded-lg px-2 py-1 bg-surface-raised/80 border focus:outline-none focus:border-border-hover transition-colors text-text-primary ${
                         isMapped ? "border-border-default" : "border-amber-700/50"
                       }`}
                     >
@@ -319,7 +319,7 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
             className={`self-start flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
               allMapped && !isParsing
                 ? "bg-teal-600 hover:bg-teal-500 text-white cursor-pointer"
-                : "bg-surface-raised text-zinc-600 cursor-not-allowed"
+                : "bg-surface-raised text-text-ghost cursor-not-allowed"
             }`}
           >
             {isParsing ? (

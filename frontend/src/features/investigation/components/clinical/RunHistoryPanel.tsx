@@ -41,7 +41,7 @@ const STATUS_CONFIG: Record<
   configured: {
     label: "Pending",
     dotClass: "bg-surface-overlay",
-    textClass: "text-zinc-400",
+    textClass: "text-text-muted",
     bgClass: "bg-surface-raised/10",
     borderClass: "border-border-default",
   },
@@ -116,8 +116,8 @@ export function RunHistoryPanel({
   if (rows.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border-default bg-surface-base/30 px-6 py-14 text-center">
-        <Clock className="h-8 w-8 text-zinc-700" />
-        <p className="text-sm text-zinc-500">
+        <Clock className="h-8 w-8 text-text-ghost" />
+        <p className="text-sm text-text-ghost">
           No analyses have been run yet. Select an analysis from the gallery to get started.
         </p>
       </div>
@@ -168,13 +168,13 @@ export function RunHistoryPanel({
             </span>
 
             {/* Analysis name */}
-            <span className="min-w-0 flex-1 truncate text-sm text-zinc-200">
+            <span className="min-w-0 flex-1 truncate text-sm text-text-primary">
               {analysisName}
             </span>
 
             {/* Timestamp */}
             {createdAt && (
-              <span className="shrink-0 text-[11px] text-zinc-600">
+              <span className="shrink-0 text-[11px] text-text-ghost">
                 {formatRelativeTime(createdAt)}
               </span>
             )}
@@ -193,7 +193,7 @@ export function RunHistoryPanel({
                 type="button"
                 disabled
                 title="Coming in Phase 4"
-                className="flex shrink-0 items-center gap-1.5 rounded-md border border-border-default bg-surface-raised px-2.5 py-1 text-[11px] text-zinc-500 opacity-50 cursor-not-allowed"
+                className="flex shrink-0 items-center gap-1.5 rounded-md border border-border-default bg-surface-raised px-2.5 py-1 text-[11px] text-text-ghost opacity-50 cursor-not-allowed"
               >
                 <GitCompare className="h-3 w-3" />
                 Compare
@@ -207,7 +207,7 @@ export function RunHistoryPanel({
                 onClick={() =>
                   onSelectExecution(qa.api_prefix, qa.analysis_id, executionId, qa.analysis_type)
                 }
-                className="flex shrink-0 items-center gap-1.5 rounded-md border border-border-default bg-surface-raised px-2.5 py-1 text-[11px] text-zinc-300 transition-colors hover:border-border-hover hover:text-zinc-100"
+                className="flex shrink-0 items-center gap-1.5 rounded-md border border-border-default bg-surface-raised px-2.5 py-1 text-[11px] text-text-secondary transition-colors hover:border-border-hover hover:text-text-primary"
                 title="View or replay this execution"
               >
                 <RotateCcw className="h-3 w-3" />
@@ -222,7 +222,7 @@ export function RunHistoryPanel({
                 onClick={() =>
                   onSelectExecution(qa.api_prefix, qa.analysis_id, executionId, qa.analysis_type)
                 }
-                className="flex shrink-0 items-center gap-1.5 rounded-md border border-border-default bg-surface-raised px-2.5 py-1 text-[11px] text-zinc-300 transition-colors hover:border-border-hover hover:text-zinc-100"
+                className="flex shrink-0 items-center gap-1.5 rounded-md border border-border-default bg-surface-raised px-2.5 py-1 text-[11px] text-text-secondary transition-colors hover:border-border-hover hover:text-text-primary"
                 title="View execution details"
               >
                 View

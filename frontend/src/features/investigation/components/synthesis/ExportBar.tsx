@@ -60,8 +60,8 @@ export function ExportBar({ investigationId, investigationTitle }: ExportBarProp
 
   return (
     <div className="flex flex-col gap-4 p-6 max-w-xl">
-      <h3 className="text-sm font-semibold text-zinc-200">Export Dossier</h3>
-      <p className="text-xs text-zinc-500">
+      <h3 className="text-sm font-semibold text-text-primary">Export Dossier</h3>
+      <p className="text-xs text-text-ghost">
         Export the full evidence dossier including all pinned findings, narratives, and section notes.
       </p>
 
@@ -69,7 +69,7 @@ export function ExportBar({ investigationId, investigationTitle }: ExportBarProp
         <button
           onClick={() => { void handlePdf(); }}
           disabled={exportPdfMutation.isPending}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#9B1B30] hover:bg-[#b52038] disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium transition-colors"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#9B1B30] hover:bg-[#b52038] disabled:opacity-50 disabled:cursor-not-allowed text-text-primary text-sm font-medium transition-colors"
         >
           {exportPdfMutation.isPending ? (
             <Loader2 size={14} className="animate-spin" />

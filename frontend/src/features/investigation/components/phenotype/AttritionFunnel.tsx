@@ -147,7 +147,7 @@ export default function AttritionFunnel({
 
   if (steps.length === 0) {
     return (
-      <div className="flex items-center justify-center h-32 text-zinc-500 text-sm">
+      <div className="flex items-center justify-center h-32 text-text-ghost text-sm">
         No attrition data available
       </div>
     );

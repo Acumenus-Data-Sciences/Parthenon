@@ -10,8 +10,8 @@ export function CohortOverlapMatrix({ cohorts }: CohortOverlapMatrixProps) {
   if (cohorts.length < 2) {
     return (
       <div className="rounded-lg border border-border-default/50 bg-surface-base/60 p-3">
-        <h4 className="text-xs font-medium text-zinc-300 mb-2">Cohort Overlap Matrix</h4>
-        <div className="flex items-center justify-center py-6 text-zinc-600 text-xs">
+        <h4 className="text-xs font-medium text-text-secondary mb-2">Cohort Overlap Matrix</h4>
+        <div className="flex items-center justify-center py-6 text-text-ghost text-xs">
           Select 2+ cohorts to see overlap
         </div>
       </div>
@@ -24,7 +24,7 @@ export function CohortOverlapMatrix({ cohorts }: CohortOverlapMatrixProps) {
 
   return (
     <div className="rounded-lg border border-border-default/50 bg-surface-base/60 p-3">
-      <h4 className="text-xs font-medium text-zinc-300 mb-2">Cohort Overlap Matrix</h4>
+      <h4 className="text-xs font-medium text-text-secondary mb-2">Cohort Overlap Matrix</h4>
 
       <div
         className="text-[10px]"
@@ -37,7 +37,7 @@ export function CohortOverlapMatrix({ cohorts }: CohortOverlapMatrixProps) {
         {cohorts.map((c) => (
           <div
             key={`col-${c.id}`}
-            className="bg-surface-raised/60 px-1.5 py-1 text-zinc-400 font-medium text-center leading-tight overflow-hidden"
+            className="bg-surface-raised/60 px-1.5 py-1 text-text-muted font-medium text-center leading-tight overflow-hidden"
             title={c.name}
           >
             {truncate(c.name)}
@@ -50,7 +50,7 @@ export function CohortOverlapMatrix({ cohorts }: CohortOverlapMatrixProps) {
             {/* Row header */}
             <div
               key={`row-header-${row.id}`}
-              className="bg-surface-raised/60 px-1.5 py-1.5 text-zinc-400 font-medium leading-tight overflow-hidden"
+              className="bg-surface-raised/60 px-1.5 py-1.5 text-text-muted font-medium leading-tight overflow-hidden"
               title={row.name}
             >
               {truncate(row.name)}
@@ -64,8 +64,8 @@ export function CohortOverlapMatrix({ cohorts }: CohortOverlapMatrixProps) {
                   key={`cell-${row.id}-${col.id}`}
                   className={`px-1.5 py-1.5 text-center border border-border-hover/40 ${
                     isDiag
-                      ? "bg-[#9B1B30]/20 text-zinc-200 font-medium"
-                      : "bg-surface-base text-zinc-600"
+                      ? "bg-[#9B1B30]/20 text-text-primary font-medium"
+                      : "bg-surface-base text-text-ghost"
                   }`}
                   title={
                     isDiag
@@ -81,7 +81,7 @@ export function CohortOverlapMatrix({ cohorts }: CohortOverlapMatrixProps) {
         ))}
       </div>
 
-      <p className="text-[10px] text-zinc-600 mt-2 leading-tight">
+      <p className="text-[10px] text-text-ghost mt-2 leading-tight">
         Diagonal: cohort sizes. Off-diagonal: run set operations to compute overlap.
       </p>
     </div>

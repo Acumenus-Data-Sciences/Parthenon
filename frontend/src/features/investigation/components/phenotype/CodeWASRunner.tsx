@@ -124,8 +124,8 @@ export function CodeWASRunner({ investigation, onPinFinding }: CodeWASRunnerProp
     <div className="flex flex-col gap-5 h-full overflow-y-auto pr-1">
       {/* Header */}
       <div>
-        <h3 className="text-sm font-medium text-zinc-200">CodeWAS Validation</h3>
-        <p className="text-xs text-zinc-500 mt-0.5">
+        <h3 className="text-sm font-medium text-text-primary">CodeWAS Validation</h3>
+        <p className="text-xs text-text-ghost mt-0.5">
           Run a code-wide association scan to validate phenotype coverage against your case cohort.
         </p>
       </div>
@@ -134,14 +134,14 @@ export function CodeWASRunner({ investigation, onPinFinding }: CodeWASRunnerProp
       <div className="grid grid-cols-2 gap-3">
         {/* Source selector */}
         <div className="col-span-2 flex flex-col gap-1">
-          <label className="text-xs text-zinc-400">Data Source</label>
+          <label className="text-xs text-text-muted">Data Source</label>
           <select
             value={selectedSourceId ?? ""}
             onChange={(e) =>
               setSelectedSourceId(e.target.value ? Number(e.target.value) : null)
             }
             disabled={sourcesLoading}
-            className="w-full bg-surface-raised/60 border border-border-default rounded px-3 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-[#2DD4BF]/60 disabled:opacity-50"
+            className="w-full bg-surface-raised/60 border border-border-default rounded px-3 py-1.5 text-xs text-text-primary focus:outline-none focus:border-[#2DD4BF]/60 disabled:opacity-50"
           >
             <option value="">
               {sourcesLoading ? "Loading sources…" : "Select a source…"}
@@ -156,25 +156,25 @@ export function CodeWASRunner({ investigation, onPinFinding }: CodeWASRunnerProp
 
         {/* Case label */}
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-zinc-400">Case Cohort Label</label>
+          <label className="text-xs text-text-muted">Case Cohort Label</label>
           <input
             type="text"
             value={caseLabel}
             onChange={(e) => setCaseLabel(e.target.value)}
             placeholder="Case cohort name"
-            className="w-full bg-surface-raised/60 border border-border-default rounded px-3 py-1.5 text-xs text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:border-[#2DD4BF]/60"
+            className="w-full bg-surface-raised/60 border border-border-default rounded px-3 py-1.5 text-xs text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-[#2DD4BF]/60"
           />
         </div>
 
         {/* Control label */}
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-zinc-400">Control Label</label>
+          <label className="text-xs text-text-muted">Control Label</label>
           <input
             type="text"
             value={controlLabel}
             onChange={(e) => setControlLabel(e.target.value)}
             placeholder="General population"
-            className="w-full bg-surface-raised/60 border border-border-default rounded px-3 py-1.5 text-xs text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:border-[#2DD4BF]/60"
+            className="w-full bg-surface-raised/60 border border-border-default rounded px-3 py-1.5 text-xs text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-[#2DD4BF]/60"
           />
         </div>
       </div>
@@ -227,7 +227,7 @@ export function CodeWASRunner({ investigation, onPinFinding }: CodeWASRunnerProp
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2">
             <div className="h-px flex-1 bg-surface-accent/50" />
-            <span className="text-[10px] text-zinc-500 uppercase tracking-wide">Results</span>
+            <span className="text-[10px] text-text-ghost uppercase tracking-wide">Results</span>
             <div className="h-px flex-1 bg-surface-accent/50" />
           </div>
           <CodeWASResults result={result} onPinFinding={onPinFinding} />
@@ -236,7 +236,7 @@ export function CodeWASRunner({ investigation, onPinFinding }: CodeWASRunnerProp
 
       {/* Empty state */}
       {!result && !isRunning && !error && (
-        <div className="flex flex-col items-center justify-center py-12 text-zinc-600 gap-2">
+        <div className="flex flex-col items-center justify-center py-12 text-text-ghost gap-2">
           <svg
             className="w-10 h-10"
             fill="none"

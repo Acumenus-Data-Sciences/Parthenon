@@ -59,14 +59,14 @@ function StudyCard({ study, onPinFinding }: StudyCardProps) {
               {study.accessionId}
             </span>
             {year && (
-              <span className="text-[10px] text-zinc-500">{year}</span>
+              <span className="text-[10px] text-text-ghost">{year}</span>
             )}
           </div>
-          <span className="text-sm font-semibold text-zinc-100 leading-snug">
+          <span className="text-sm font-semibold text-text-primary leading-snug">
             {trait}
           </span>
           {pub && (
-            <span className="text-xs text-zinc-400 leading-snug line-clamp-1">
+            <span className="text-xs text-text-muted leading-snug line-clamp-1">
               {pub.author?.fullname && `${pub.author.fullname} · `}
               {pub.publication}
             </span>
@@ -74,23 +74,23 @@ function StudyCard({ study, onPinFinding }: StudyCardProps) {
         </div>
         <button
           onClick={handlePin}
-          className="flex-shrink-0 text-[10px] px-2.5 py-1 rounded border border-border-hover text-zinc-400 hover:border-[#2DD4BF]/50 hover:text-[#2DD4BF] transition-colors whitespace-nowrap"
+          className="flex-shrink-0 text-[10px] px-2.5 py-1 rounded border border-border-hover text-text-muted hover:border-[#2DD4BF]/50 hover:text-[#2DD4BF] transition-colors whitespace-nowrap"
         >
           Pin
         </button>
       </div>
 
       {(study.initialSampleSize || study.snpCount != null) && (
-        <div className="flex flex-wrap gap-3 text-[10px] text-zinc-500">
+        <div className="flex flex-wrap gap-3 text-[10px] text-text-ghost">
           {study.initialSampleSize && (
             <span>
-              <span className="text-zinc-400">Sample:</span>{" "}
+              <span className="text-text-muted">Sample:</span>{" "}
               {study.initialSampleSize}
             </span>
           )}
           {study.snpCount != null && study.snpCount > 0 && (
             <span>
-              <span className="text-zinc-400">SNPs:</span>{" "}
+              <span className="text-text-muted">SNPs:</span>{" "}
               {study.snpCount.toLocaleString()}
             </span>
           )}
@@ -176,29 +176,29 @@ function SnpCard({ assoc, onPinFinding }: SnpCardProps) {
               {rsId}
             </span>
             {chr && pos != null && (
-              <span className="text-[10px] text-zinc-500 font-mono">
+              <span className="text-[10px] text-text-ghost font-mono">
                 chr{chr}:{pos.toLocaleString()}
               </span>
             )}
           </div>
           {geneNames.length > 0 && (
-            <span className="text-xs text-zinc-300">
+            <span className="text-xs text-text-secondary">
               {geneNames.join(", ")}
             </span>
           )}
           {trait && (
-            <span className="text-xs text-zinc-500 line-clamp-1">{trait}</span>
+            <span className="text-xs text-text-ghost line-clamp-1">{trait}</span>
           )}
         </div>
         <div className="flex items-center gap-1.5 flex-shrink-0">
           {funcClass && (
-            <span className="text-[10px] px-2 py-0.5 rounded border border-border-default text-zinc-500">
+            <span className="text-[10px] px-2 py-0.5 rounded border border-border-default text-text-ghost">
               {funcClass.replace(/_/g, " ")}
             </span>
           )}
           <button
             onClick={handlePin}
-            className="text-[10px] px-2.5 py-1 rounded border border-border-hover text-zinc-400 hover:border-[#2DD4BF]/50 hover:text-[#2DD4BF] transition-colors whitespace-nowrap"
+            className="text-[10px] px-2.5 py-1 rounded border border-border-hover text-text-muted hover:border-[#2DD4BF]/50 hover:text-[#2DD4BF] transition-colors whitespace-nowrap"
           >
             Pin
           </button>
@@ -227,14 +227,14 @@ export function GwasCatalogResults({
 
     if (studies.length === 0) {
       return (
-        <p className="text-xs text-zinc-500 py-4 text-center">No results found.</p>
+        <p className="text-xs text-text-ghost py-4 text-center">No results found.</p>
       );
     }
 
     return (
       <div className="flex flex-col gap-2.5">
         {page && (
-          <p className="text-[10px] text-zinc-500 uppercase tracking-wide">
+          <p className="text-[10px] text-text-ghost uppercase tracking-wide">
             Showing {studies.length} of {page.totalElements.toLocaleString()} results — GWAS Catalog
           </p>
         )}
@@ -257,14 +257,14 @@ export function GwasCatalogResults({
 
   if (assocs.length === 0) {
     return (
-      <p className="text-xs text-zinc-500 py-4 text-center">No results found.</p>
+      <p className="text-xs text-text-ghost py-4 text-center">No results found.</p>
     );
   }
 
   return (
     <div className="flex flex-col gap-2.5">
       {page && (
-        <p className="text-[10px] text-zinc-500 uppercase tracking-wide">
+        <p className="text-[10px] text-text-ghost uppercase tracking-wide">
           Showing {assocs.length} of {page.totalElements.toLocaleString()} results — GWAS Catalog
         </p>
       )}

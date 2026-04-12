@@ -62,7 +62,7 @@ export default function ConceptComparisonView() {
   return (
     <div className="p-4">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-medium text-white">Concept Comparison Across Sources</h2>
+        <h2 className="text-lg font-medium text-text-primary">Concept Comparison Across Sources</h2>
 
         {/* View mode toggle */}
         <div className="flex gap-1 rounded-lg border border-[#333] p-0.5">
@@ -134,7 +134,7 @@ export default function ConceptComparisonView() {
                 setShowResults(true);
               }}
               onFocus={() => setShowResults(true)}
-              className="w-full rounded-lg border border-[#333] bg-[#1a1a22] px-4 py-2.5 text-sm text-white
+              className="w-full rounded-lg border border-[#333] bg-[#1a1a22] px-4 py-2.5 text-sm text-text-primary
                          placeholder-[#555] focus:border-[#C9A227] focus:outline-none"
             />
             {searchLoading && (
@@ -151,7 +151,7 @@ export default function ConceptComparisonView() {
                     onClick={() => handleSelect(concept)}
                     className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm hover:bg-[#252530]"
                   >
-                    <span className="text-white">{concept.concept_name}</span>
+                    <span className="text-text-primary">{concept.concept_name}</span>
                     <span className="text-[10px] text-[#666]">
                       {concept.domain_id} | {concept.vocabulary_id} | ID: {concept.concept_id}
                     </span>
@@ -164,7 +164,7 @@ export default function ConceptComparisonView() {
           {selectedConcept && (
             <div className="mb-4 flex items-center justify-between">
               <div>
-                <p className="text-sm text-white">{selectedConcept.concept_name}</p>
+                <p className="text-sm text-text-primary">{selectedConcept.concept_name}</p>
                 <p className="text-[11px] text-[#666]">
                   {selectedConcept.domain_id} | {selectedConcept.vocabulary_id} | Concept ID: {selectedConcept.concept_id}
                 </p>

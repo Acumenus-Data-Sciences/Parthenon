@@ -65,7 +65,7 @@ export default function ArrivalForecastChart({
     <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
       <div className="mb-3 flex items-center justify-between">
         <div>
-          <h4 className="text-sm font-medium text-white">
+          <h4 className="text-sm font-medium text-text-primary">
             Patient Arrival Forecast: {forecast.source_name}
           </h4>
           <p className="text-[11px] text-[#666]">

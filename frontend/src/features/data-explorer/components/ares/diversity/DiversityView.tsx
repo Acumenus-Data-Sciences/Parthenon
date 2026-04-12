@@ -126,7 +126,7 @@ export default function DiversityView() {
 
   return (
     <div className="p-4">
-      <h2 className="mb-4 text-lg font-medium text-white">Diversity Report</h2>
+      <h2 className="mb-4 text-lg font-medium text-text-primary">Diversity Report</h2>
       <p className="mb-4 text-xs text-[#666]">
         Demographic proportions across data sources. Sources sorted by population size.
       </p>
@@ -162,7 +162,7 @@ export default function DiversityView() {
           {diversity.map((source: DiversitySource) => (
             <div key={source.source_id} className="rounded-lg border border-[#252530] bg-[#151518] p-4">
               <div className="mb-3 flex items-center justify-between">
-                <h3 className="text-sm font-medium text-white">{source.source_name}</h3>
+                <h3 className="text-sm font-medium text-text-primary">{source.source_name}</h3>
                 <span className="text-xs text-[#888]">{source.person_count.toLocaleString()} persons</span>
               </div>
               <DemographicBars label="Gender" data={source.gender} />
@@ -205,7 +205,7 @@ export default function DiversityView() {
       {activeTab === "dap" && (
         <div className="space-y-4">
           <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
-            <h3 className="mb-2 text-sm font-medium text-white">FDA DAP Enrollment Gap Analysis</h3>
+            <h3 className="mb-2 text-sm font-medium text-text-primary">FDA DAP Enrollment Gap Analysis</h3>
             <p className="mb-3 text-xs text-[#666]">
               Compares source demographics against US Census 2020 benchmarks to identify enrollment gaps.
             </p>
@@ -217,7 +217,7 @@ export default function DiversityView() {
       {activeTab === "pooled" && (
         <div className="space-y-4">
           <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
-            <h3 className="mb-2 text-sm font-medium text-white">Pooled Demographics</h3>
+            <h3 className="mb-2 text-sm font-medium text-text-primary">Pooled Demographics</h3>
             <p className="mb-3 text-xs text-[#666]">
               Select multiple sources to see weighted-merged demographic profiles.
             </p>

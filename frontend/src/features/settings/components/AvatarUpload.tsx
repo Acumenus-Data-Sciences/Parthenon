@@ -107,7 +107,7 @@ export function AvatarUpload() {
               />
               {isLoading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
-                  <Loader2 size={24} className="animate-spin text-white" />
+                  <Loader2 size={24} className="animate-spin text-text-primary" />
                 </div>
               )}
             </div>

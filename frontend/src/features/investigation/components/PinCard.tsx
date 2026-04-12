@@ -11,7 +11,7 @@ const DOMAIN_BADGE_STYLE: Record<EvidenceDomain, string> = {
   phenotype: "bg-teal-900 text-teal-300",
   clinical: "bg-red-950 text-red-400",
   genomic: "bg-yellow-950 text-yellow-500",
-  synthesis: "bg-surface-raised text-zinc-300",
+  synthesis: "bg-surface-raised text-text-secondary",
 };
 
 function extractPayloadSummary(payload: Record<string, unknown>): string {
@@ -45,7 +45,7 @@ export function PinCard({ pin, onDelete, onToggleKeyFinding }: PinCardProps) {
                 className={
                   pin.is_key_finding
                     ? "text-[#C9A227] fill-[#C9A227]"
-                    : "text-zinc-600 fill-none"
+                    : "text-text-ghost fill-none"
                 }
               />
             </button>
@@ -55,11 +55,11 @@ export function PinCard({ pin, onDelete, onToggleKeyFinding }: PinCardProps) {
             )
           )}
         </div>
-        <p className="text-xs text-zinc-400 truncate">{summary}</p>
+        <p className="text-xs text-text-muted truncate">{summary}</p>
       </div>
       <button
         onClick={() => onDelete(pin.id)}
-        className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-zinc-600 hover:text-zinc-300"
+        className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-text-ghost hover:text-text-secondary"
         aria-label="Remove pin"
       >
         <X size={13} />

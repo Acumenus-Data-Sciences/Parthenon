@@ -84,7 +84,7 @@ export default function UnmappedCodesView() {
               setReleaseId(null);
               setPage(1);
             }}
-            className="rounded border border-[#333] bg-[#1a1a22] px-3 py-1.5 text-sm text-white"
+            className="rounded border border-[#333] bg-[#1a1a22] px-3 py-1.5 text-sm text-text-primary"
           >
             <option value="">Select source...</option>
             {sources?.map((s) => (
@@ -102,7 +102,7 @@ export default function UnmappedCodesView() {
                 setReleaseId(Number(e.target.value) || null);
                 setPage(1);
               }}
-              className="rounded border border-[#333] bg-[#1a1a22] px-3 py-1.5 text-sm text-white"
+              className="rounded border border-[#333] bg-[#1a1a22] px-3 py-1.5 text-sm text-text-primary"
             >
               {releases.map((r: SourceRelease) => (
                 <option key={r.id} value={r.id}>{r.release_name}</option>
@@ -121,8 +121,8 @@ export default function UnmappedCodesView() {
                 onClick={() => setViewMode(mode)}
                 className={`rounded-md px-3 py-1 text-xs transition-colors ${
                   viewMode === mode
-                    ? "bg-[#252530] text-white"
-                    : "text-[#666] hover:text-white"
+                    ? "bg-[#252530] text-text-primary"
+                    : "text-[#666] hover:text-text-primary"
                 }`}
               >
                 {mode === "table" ? "Table" : mode === "pareto" ? "Pareto" : "Vocabulary"}
@@ -137,7 +137,7 @@ export default function UnmappedCodesView() {
             type="button"
             onClick={() => handleExport("usagi")}
             disabled={exporting}
-            className="rounded border border-[#333] px-3 py-1.5 text-xs text-[#888] hover:border-[#555] hover:text-white disabled:opacity-50"
+            className="rounded border border-[#333] px-3 py-1.5 text-xs text-[#888] hover:border-[#555] hover:text-text-primary disabled:opacity-50"
           >
             {exporting ? "Exporting..." : "Export Usagi CSV"}
           </button>
@@ -164,7 +164,7 @@ export default function UnmappedCodesView() {
                     setTableFilter(e.target.value);
                     setPage(1);
                   }}
-                  className="rounded border border-[#333] bg-[#1a1a22] px-3 py-1.5 text-sm text-white"
+                  className="rounded border border-[#333] bg-[#1a1a22] px-3 py-1.5 text-sm text-text-primary"
                 >
                   <option value="">All tables</option>
                   {availableTables.map((t) => (
@@ -181,7 +181,7 @@ export default function UnmappedCodesView() {
                   setSearchFilter(e.target.value);
                   setPage(1);
                 }}
-                className="rounded border border-[#333] bg-[#1a1a22] px-3 py-1.5 text-sm text-white
+                className="rounded border border-[#333] bg-[#1a1a22] px-3 py-1.5 text-sm text-text-primary
                            placeholder-[#555] focus:border-[#2DD4BF] focus:outline-none"
               />
             </div>
@@ -222,7 +222,7 @@ export default function UnmappedCodesView() {
       {/* Pareto view */}
       {viewMode === "pareto" && paretoData && paretoData.codes.length > 0 && (
         <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
-          <h3 className="mb-3 text-sm font-medium text-white">Unmapped Codes Pareto Analysis</h3>
+          <h3 className="mb-3 text-sm font-medium text-text-primary">Unmapped Codes Pareto Analysis</h3>
           <ParetoChart data={paretoData.codes} top20Coverage={paretoData.top_20_coverage} />
         </div>
       )}
@@ -234,7 +234,7 @@ export default function UnmappedCodesView() {
       {/* Vocabulary view */}
       {viewMode === "vocabulary" && treemapData && treemapData.length > 0 && (
         <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
-          <h3 className="mb-3 text-sm font-medium text-white">Unmapped Codes by Vocabulary</h3>
+          <h3 className="mb-3 text-sm font-medium text-text-primary">Unmapped Codes by Vocabulary</h3>
           <VocabularyBarChart data={treemapData} />
         </div>
       )}
@@ -281,7 +281,7 @@ export default function UnmappedCodesView() {
                     <td className="px-3 py-2 text-right text-xs">
                       <span className="flex items-center justify-end gap-1.5">
                         {page === 1 && idx < 3 && (
-                          <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#9B1B30] text-[10px] font-bold text-white">
+                          <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#9B1B30] text-[10px] font-bold text-text-primary">
                             #{idx + 1}
                           </span>
                         )}

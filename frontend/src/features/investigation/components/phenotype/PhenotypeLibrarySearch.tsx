@@ -63,14 +63,14 @@ export function PhenotypeLibrarySearch({ onSelectPhenotype }: PhenotypeLibrarySe
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-xs font-medium text-zinc-400 uppercase tracking-wide">
+      <p className="text-xs font-medium text-text-muted uppercase tracking-wide">
         Phenotype Library
       </p>
 
       {/* Search input */}
       <div className="relative">
         <svg
-          className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-500 pointer-events-none"
+          className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-ghost pointer-events-none"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -87,7 +87,7 @@ export function PhenotypeLibrarySearch({ onSelectPhenotype }: PhenotypeLibrarySe
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search the OHDSI Phenotype Library (1,100+ validated phenotypes)"
-          className="w-full bg-surface-raised/60 border border-border-default rounded pl-8 pr-3 py-2 text-xs text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:border-[#2DD4BF]/60"
+          className="w-full bg-surface-raised/60 border border-border-default rounded pl-8 pr-3 py-2 text-xs text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-[#2DD4BF]/60"
         />
         {loading && (
           <div className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 border-2 border-[#2DD4BF]/40 border-t-[#2DD4BF] rounded-full animate-spin" />
@@ -101,9 +101,9 @@ export function PhenotypeLibrarySearch({ onSelectPhenotype }: PhenotypeLibrarySe
 
       {/* Empty state */}
       {!loading && !error && query.trim() && results.length === 0 && (
-        <div className="flex flex-col items-center gap-2 py-8 text-zinc-500">
+        <div className="flex flex-col items-center gap-2 py-8 text-text-ghost">
           <svg
-            className="w-8 h-8 text-zinc-700"
+            className="w-8 h-8 text-text-ghost"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -121,9 +121,9 @@ export function PhenotypeLibrarySearch({ onSelectPhenotype }: PhenotypeLibrarySe
 
       {/* Default empty state (no query yet) */}
       {!loading && !error && !query.trim() && (
-        <div className="flex flex-col items-center gap-2 py-8 text-zinc-500">
+        <div className="flex flex-col items-center gap-2 py-8 text-text-ghost">
           <svg
-            className="w-8 h-8 text-zinc-700"
+            className="w-8 h-8 text-text-ghost"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -138,7 +138,7 @@ export function PhenotypeLibrarySearch({ onSelectPhenotype }: PhenotypeLibrarySe
           <p className="text-xs text-center">
             Search the OHDSI Phenotype Library
             <br />
-            <span className="text-zinc-600">1,100+ validated phenotypes</span>
+            <span className="text-text-ghost">1,100+ validated phenotypes</span>
           </p>
         </div>
       )}
@@ -159,8 +159,8 @@ export function PhenotypeLibrarySearch({ onSelectPhenotype }: PhenotypeLibrarySe
                 }`}
               >
                 <div className="flex flex-col gap-0.5 min-w-0">
-                  <p className="text-xs font-semibold text-zinc-200 leading-snug">{result.name}</p>
-                  <p className="text-[11px] text-zinc-500 line-clamp-2 leading-relaxed">
+                  <p className="text-xs font-semibold text-text-primary leading-snug">{result.name}</p>
+                  <p className="text-[11px] text-text-ghost line-clamp-2 leading-relaxed">
                     {result.description || "No description available."}
                   </p>
                   {result.tags && result.tags.length > 0 && (
@@ -168,7 +168,7 @@ export function PhenotypeLibrarySearch({ onSelectPhenotype }: PhenotypeLibrarySe
                       {result.tags.slice(0, 3).map((tag) => (
                         <span
                           key={tag}
-                          className="text-[10px] px-1.5 py-0.5 rounded bg-surface-accent/50 text-zinc-400 border border-border-default"
+                          className="text-[10px] px-1.5 py-0.5 rounded bg-surface-accent/50 text-text-muted border border-border-default"
                         >
                           {tag}
                         </span>
@@ -181,7 +181,7 @@ export function PhenotypeLibrarySearch({ onSelectPhenotype }: PhenotypeLibrarySe
                   className={`shrink-0 px-2.5 py-1 rounded text-[11px] font-medium border transition-colors ${
                     isSelected
                       ? "bg-[#2DD4BF]/20 text-[#2DD4BF] border-[#2DD4BF]/40"
-                      : "bg-surface-accent/50 text-zinc-300 border-border-hover hover:bg-surface-accent hover:text-zinc-100"
+                      : "bg-surface-accent/50 text-text-secondary border-border-hover hover:bg-surface-accent hover:text-text-primary"
                   }`}
                 >
                   {isSelected ? "Selected" : "Select"}

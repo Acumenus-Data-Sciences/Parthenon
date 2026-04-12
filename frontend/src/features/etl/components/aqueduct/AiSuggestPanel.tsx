@@ -136,7 +136,7 @@ export function AiSuggestPanel({
   const footer =
     filteredGroups.length > 0 ? (
       <div className="flex items-center justify-between w-full">
-        <span className="text-xs text-gray-500">
+        <span className="text-xs text-text-ghost">
           {suggestionsWithMatches.length} columns with suggestions
         </span>
         <button
@@ -160,7 +160,7 @@ export function AiSuggestPanel({
       <div className="flex flex-col h-full">
         {/* Toolbar */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-[#2A2A30]">
-          <div className="flex items-center gap-2 text-sm text-gray-400">
+          <div className="flex items-center gap-2 text-sm text-text-muted">
             <Sparkles className="w-4 h-4 text-[#C9A227]" />
             <span>
               {filteredGroups.length} unmapped columns with suggestions
@@ -169,7 +169,7 @@ export function AiSuggestPanel({
           <button
             onClick={handleRefresh}
             disabled={suggest.isPending}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded bg-[#232328] hover:bg-[#2A2A30]/80 text-gray-300 transition-colors disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded bg-[#232328] hover:bg-[#2A2A30]/80 text-text-secondary transition-colors disabled:opacity-50"
           >
             <RefreshCw
               className={`w-3.5 h-3.5 ${suggest.isPending ? "animate-spin" : ""}`}
@@ -181,21 +181,21 @@ export function AiSuggestPanel({
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
           {suggest.isPending && (
-            <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+            <div className="flex flex-col items-center justify-center py-12 text-text-ghost">
               <Loader2 className="w-8 h-8 animate-spin mb-3" />
               <span className="text-sm">Analyzing column matches...</span>
             </div>
           )}
 
           {suggest.isError && (
-            <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+            <div className="flex flex-col items-center justify-center py-12 text-text-ghost">
               <AlertCircle className="w-8 h-8 text-red-400 mb-3" />
               <span className="text-sm text-red-400 mb-2">
                 Failed to generate suggestions
               </span>
               <button
                 onClick={handleRefresh}
-                className="px-3 py-1.5 text-xs rounded bg-[#232328] hover:bg-[#2A2A30]/80 text-gray-300"
+                className="px-3 py-1.5 text-xs rounded bg-[#232328] hover:bg-[#2A2A30]/80 text-text-secondary"
               >
                 Retry
               </button>
@@ -203,7 +203,7 @@ export function AiSuggestPanel({
           )}
 
           {suggest.data && filteredGroups.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+            <div className="flex flex-col items-center justify-center py-12 text-text-ghost">
               <CheckCheck className="w-8 h-8 text-emerald-400 mb-3" />
               <span className="text-sm">All CDM columns are mapped</span>
             </div>
@@ -255,7 +255,7 @@ function SuggestionGroup({
 
       {/* Suggestions */}
       {group.suggestions.length === 0 ? (
-        <div className="px-3 py-2 text-xs text-gray-500 italic">
+        <div className="px-3 py-2 text-xs text-text-ghost italic">
           No matching source columns found
         </div>
       ) : (
@@ -267,7 +267,7 @@ function SuggestionGroup({
             >
               <div className="flex items-center gap-3">
                 {/* Rank badge */}
-                <span className="text-[10px] text-gray-600 w-4 text-center">
+                <span className="text-[10px] text-text-ghost w-4 text-center">
                   {i + 1}
                 </span>
 
@@ -277,7 +277,7 @@ function SuggestionGroup({
                 </span>
 
                 {/* Mapping type badge */}
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface-raised text-gray-400">
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface-raised text-text-muted">
                   {s.mapping_type}
                 </span>
 
@@ -315,7 +315,7 @@ function SuggestionGroup({
                 </button>
               </div>
               {s.logic && (
-                <div className="ml-7 mt-1 text-[10px] text-gray-500 font-mono truncate" title={s.logic}>
+                <div className="ml-7 mt-1 text-[10px] text-text-ghost font-mono truncate" title={s.logic}>
                   {s.logic}
                 </div>
               )}

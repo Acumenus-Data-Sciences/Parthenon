@@ -307,7 +307,7 @@ export default function PublicSurveyPage() {
               className="rounded-[28px] border border-[#D8D3C8] bg-[#FFF8F2] p-6 shadow-[0_24px_80px_rgba(83,58,33,0.06)]"
             >
               <div className="flex items-start gap-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#C66B3D] text-sm font-semibold text-white">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#C66B3D] text-sm font-semibold text-text-primary">
                   {item.item_number}
                 </div>
                 <div className="min-w-0 flex-1">

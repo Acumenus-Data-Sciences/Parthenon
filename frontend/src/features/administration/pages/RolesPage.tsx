@@ -372,7 +372,7 @@ export default function RolesPage() {
                     onSuccess: () => setDeleteConfirm(null),
                   });
                 }}
-                className="inline-flex items-center gap-2 rounded-lg bg-[#E85A6B] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#D14D5E] disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-lg bg-[#E85A6B] px-4 py-2 text-sm font-medium text-text-primary transition-colors hover:bg-[#D14D5E] disabled:opacity-50"
               >
                 {deleteRole.isPending && <Loader2 size={14} className="animate-spin" />}
                 {deleteRole.isPending ? "Deleting…" : "Delete"}

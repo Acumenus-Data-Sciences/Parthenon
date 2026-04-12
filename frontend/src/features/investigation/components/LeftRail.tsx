@@ -36,7 +36,7 @@ const DOMAIN_ITEMS: DomainItem[] = [
     domain: "synthesis",
     label: "Synthesis",
     icon: <FileText size={16} />,
-    activeColor: "text-zinc-300",
+    activeColor: "text-text-secondary",
     activeBorder: "border-l-2 border-border-hover",
   },
 ];
@@ -55,7 +55,7 @@ export function LeftRail({ pinCount, runCount }: LeftRailProps) {
       style={{ backgroundColor: "#0E0E11" }}
     >
       <div className="px-3 py-4">
-        <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-3 px-2">
+        <p className="text-xs font-semibold uppercase tracking-wider text-text-ghost mb-3 px-2">
           Domains
         </p>
         <nav className="flex flex-col gap-0.5">
@@ -69,7 +69,7 @@ export function LeftRail({ pinCount, runCount }: LeftRailProps) {
                   "flex items-center gap-2.5 px-2 py-2 rounded-r text-left w-full transition-colors",
                   isActive
                     ? `${item.activeBorder} bg-surface-base ${item.activeColor}`
-                    : "border-l-2 border-transparent text-zinc-400 hover:bg-surface-base hover:text-zinc-200",
+                    : "border-l-2 border-transparent text-text-muted hover:bg-surface-base hover:text-text-primary",
                 ].join(" ")}
               >
                 <span className={isActive ? item.activeColor : ""}>{item.icon}</span>
@@ -90,7 +90,7 @@ export function LeftRail({ pinCount, runCount }: LeftRailProps) {
             "flex items-center gap-2.5 px-2 py-2 w-full text-left rounded transition-colors",
             pinCount > 0
               ? "text-teal-400 hover:bg-surface-base"
-              : "text-zinc-500 hover:bg-surface-base hover:text-zinc-300",
+              : "text-text-ghost hover:bg-surface-base hover:text-text-secondary",
           ].join(" ")}
           aria-label="Toggle evidence sidebar"
         >
@@ -106,7 +106,7 @@ export function LeftRail({ pinCount, runCount }: LeftRailProps) {
             "flex items-center gap-2.5 px-2 py-2 w-full text-left rounded transition-colors",
             runCount > 0
               ? "text-teal-400 hover:bg-surface-base"
-              : "text-zinc-500 hover:bg-surface-base hover:text-zinc-300",
+              : "text-text-ghost hover:bg-surface-base hover:text-text-secondary",
           ].join(" ")}
           aria-label="Switch to clinical domain run history"
         >

@@ -83,7 +83,7 @@ export default function CoverageMatrixView() {
   return (
     <div className="p-4">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-medium text-white">Coverage Matrix (Strand Report)</h2>
+        <h2 className="text-lg font-medium text-text-primary">Coverage Matrix (Strand Report)</h2>
         <button
           type="button"
           onClick={handleExport}
@@ -108,7 +108,7 @@ export default function CoverageMatrixView() {
             className={`rounded px-2 py-1 text-xs transition-colors ${
               viewMode === mode
                 ? "bg-[#C9A227]/20 text-[#C9A227]"
-                : "text-[#888] hover:text-white"
+                : "text-[#888] hover:text-text-primary"
             }`}
           >
             {mode === "records" ? "Records" : mode === "per_person" ? "Per Person" : "Date Range"}
@@ -119,7 +119,7 @@ export default function CoverageMatrixView() {
           type="button"
           onClick={() => setShowExpected(!showExpected)}
           className={`rounded px-2 py-1 text-xs transition-colors ${
-            showExpected ? "bg-[#C9A227]/20 text-[#C9A227]" : "text-[#888] hover:text-white"
+            showExpected ? "bg-[#C9A227]/20 text-[#C9A227]" : "text-[#888] hover:text-text-primary"
           }`}
         >
           Expected vs Actual
@@ -168,7 +168,7 @@ export default function CoverageMatrixView() {
                     hoveredRow === rowIdx ? "bg-[#1a1a22]" : ""
                   }`}
                 >
-                  <td className="sticky left-0 bg-[#151518] px-3 py-2 text-xs font-medium text-white">
+                  <td className="sticky left-0 bg-[#151518] px-3 py-2 text-xs font-medium text-text-primary">
                     <div className="flex flex-col">
                       <span>{source.name}</span>
                       {sourceType && (

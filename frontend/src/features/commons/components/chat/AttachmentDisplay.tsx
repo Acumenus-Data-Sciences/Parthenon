@@ -48,10 +48,10 @@ export function AttachmentDisplay({ attachments }: AttachmentDisplayProps) {
               />
               <div className="absolute inset-0 flex items-center justify-center bg-black/45 opacity-0 transition-opacity group-hover:opacity-100">
                 <div className="rounded-full border border-white/10 bg-black/40 p-2 backdrop-blur-sm">
-                  <Download className="h-5 w-5 text-white" />
+                  <Download className="h-5 w-5 text-text-primary" />
                 </div>
               </div>
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/65 to-transparent px-3 py-2 text-[11px] text-white/85">
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/65 to-transparent px-3 py-2 text-[11px] text-text-primary/85">
                 <div className="truncate font-medium">{img.original_name}</div>
               </div>
             </a>

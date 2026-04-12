@@ -15,7 +15,7 @@ export default function CriteriaImpactChart({ impacts, baselinePassed, totalSour
 
   return (
     <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
-      <h4 className="mb-1 text-sm font-medium text-white">Criteria Impact Analysis</h4>
+      <h4 className="mb-1 text-sm font-medium text-text-primary">Criteria Impact Analysis</h4>
       <p className="mb-3 text-[11px] text-[#666]">
         Shows how many additional sources would pass if each criterion were removed. Baseline: {baselinePassed}/{totalSources} passing.
       </p>

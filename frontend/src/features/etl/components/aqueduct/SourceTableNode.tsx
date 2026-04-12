@@ -16,8 +16,8 @@ function SourceTableNodeComponent({ data }: NodeProps) {
         d.dimmed ? "opacity-50" : "opacity-100"
       }`}
     >
-      <div className="text-sm font-semibold text-white truncate">{d.tableName}</div>
-      <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
+      <div className="text-sm font-semibold text-text-primary truncate">{d.tableName}</div>
+      <div className="flex items-center gap-3 mt-1 text-xs text-text-muted">
         <span>{d.columnCount} cols</span>
         <span>{d.rowCount > 0 ? d.rowCount.toLocaleString() + " rows" : "empty"}</span>
       </div>

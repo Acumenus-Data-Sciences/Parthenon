@@ -134,29 +134,29 @@ export default function PatientJourneyPage() {
 
         {/* Patient list */}
         <div className="overflow-x-auto rounded-xl border border-border-default bg-surface-darkest/70">
-          <table className="min-w-full divide-y divide-border-default text-left text-sm text-zinc-300">
-            <thead className="bg-surface-base/70 text-xs uppercase tracking-wide text-zinc-500">
+          <table className="min-w-full divide-y divide-border-default text-left text-sm text-text-secondary">
+            <thead className="bg-surface-base/70 text-xs uppercase tracking-wide text-text-ghost">
               <tr>
-                <th className="px-3 py-2 font-semibold cursor-pointer hover:text-zinc-300" onClick={() => handleSort('subject_id')}>
+                <th className="px-3 py-2 font-semibold cursor-pointer hover:text-text-secondary" onClick={() => handleSort('subject_id')}>
                   Subject ID{sortIndicator('subject_id')}
                 </th>
-                <th className="px-3 py-2 font-semibold cursor-pointer hover:text-zinc-300" onClick={() => handleSort('gender')}>
+                <th className="px-3 py-2 font-semibold cursor-pointer hover:text-text-secondary" onClick={() => handleSort('gender')}>
                   Gender{sortIndicator('gender')}
                 </th>
-                <th className="px-3 py-2 font-semibold cursor-pointer hover:text-zinc-300" onClick={() => handleSort('anchor_age')}>
+                <th className="px-3 py-2 font-semibold cursor-pointer hover:text-text-secondary" onClick={() => handleSort('anchor_age')}>
                   Age (anchor){sortIndicator('anchor_age')}
                 </th>
                 <th className="px-3 py-2 font-semibold">Year Group</th>
-                <th className="px-3 py-2 font-semibold cursor-pointer hover:text-zinc-300" onClick={() => handleSort('admission_count')}>
+                <th className="px-3 py-2 font-semibold cursor-pointer hover:text-text-secondary" onClick={() => handleSort('admission_count')}>
                   Admissions{sortIndicator('admission_count')}
                 </th>
-                <th className="px-3 py-2 font-semibold cursor-pointer hover:text-zinc-300" onClick={() => handleSort('icu_stay_count')}>
+                <th className="px-3 py-2 font-semibold cursor-pointer hover:text-text-secondary" onClick={() => handleSort('icu_stay_count')}>
                   ICU Stays{sortIndicator('icu_stay_count')}
                 </th>
-                <th className="px-3 py-2 font-semibold cursor-pointer hover:text-zinc-300" onClick={() => handleSort('total_los_days')}>
+                <th className="px-3 py-2 font-semibold cursor-pointer hover:text-text-secondary" onClick={() => handleSort('total_los_days')}>
                   Total LOS{sortIndicator('total_los_days')}
                 </th>
-                <th className="px-3 py-2 font-semibold cursor-pointer hover:text-zinc-300" onClick={() => handleSort('longest_icu_los')}>
+                <th className="px-3 py-2 font-semibold cursor-pointer hover:text-text-secondary" onClick={() => handleSort('longest_icu_los')}>
                   Longest ICU{sortIndicator('longest_icu_los')}
                 </th>
                 <th className="px-3 py-2 font-semibold">Primary Dx</th>
@@ -171,40 +171,40 @@ export default function PatientJourneyPage() {
                   className="hover:bg-surface-base/50 cursor-pointer transition-colors"
                 >
                   <td className="px-3 py-2 align-top font-mono text-[#2DD4BF]">{p.subject_id}</td>
-                  <td className="px-3 py-2 align-top text-zinc-300">{p.gender === 'M' ? 'Male' : p.gender === 'F' ? 'Female' : p.gender}</td>
-                  <td className="px-3 py-2 align-top text-zinc-300">{p.anchor_age}</td>
-                  <td className="px-3 py-2 align-top text-zinc-500">{p.anchor_year_group}</td>
-                  <td className="px-3 py-2 align-top text-zinc-300">{p.admission_count}</td>
+                  <td className="px-3 py-2 align-top text-text-secondary">{p.gender === 'M' ? 'Male' : p.gender === 'F' ? 'Female' : p.gender}</td>
+                  <td className="px-3 py-2 align-top text-text-secondary">{p.anchor_age}</td>
+                  <td className="px-3 py-2 align-top text-text-ghost">{p.anchor_year_group}</td>
+                  <td className="px-3 py-2 align-top text-text-secondary">{p.admission_count}</td>
                   <td className="px-3 py-2 align-top">
                     {(p.icu_stay_count ?? 0) > 0 ? (
                       <span className="text-[#9B1B30] font-medium">{p.icu_stay_count}</span>
                     ) : (
-                      <span className="text-zinc-600">0</span>
+                      <span className="text-text-ghost">0</span>
                     )}
                   </td>
-                  <td className="px-3 py-2 align-top text-zinc-300">
+                  <td className="px-3 py-2 align-top text-text-secondary">
                     {p.total_los_days != null ? `${Number(p.total_los_days).toFixed(1)}d` : '\u2014'}
                   </td>
-                  <td className="px-3 py-2 align-top text-zinc-300">
+                  <td className="px-3 py-2 align-top text-text-secondary">
                     {p.longest_icu_los != null ? `${Number(p.longest_icu_los).toFixed(1)}d` : '\u2014'}
                   </td>
-                  <td className="px-3 py-2 align-top text-zinc-400">
+                  <td className="px-3 py-2 align-top text-text-muted">
                     {p.primary_diagnosis ? (
                       <span className="truncate max-w-[200px] inline-block align-bottom" title={p.primary_diagnosis}>{p.primary_diagnosis}</span>
                     ) : '\u2014'}
                   </td>
                   <td className="px-3 py-2 align-top">
-                    {p.dod ? <span className="text-[#E85A6B]">Yes</span> : <span className="text-zinc-600">No</span>}
+                    {p.dod ? <span className="text-[#E85A6B]">Yes</span> : <span className="text-text-ghost">No</span>}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
           {patientsQuery.isLoading && (
-            <div className="p-5 text-center text-zinc-500 text-sm">Loading patients...</div>
+            <div className="p-5 text-center text-text-ghost text-sm">Loading patients...</div>
           )}
           {!patientsQuery.isLoading && filteredPatients.length === 0 && (
-            <div className="p-5 text-center text-zinc-500 text-sm">No patients match the current filters</div>
+            <div className="p-5 text-center text-text-ghost text-sm">No patients match the current filters</div>
           )}
         </div>
       </div>
@@ -263,8 +263,8 @@ export default function PatientJourneyPage() {
             onClick={() => setViewMode(key)}
             className={`px-5 py-2.5 text-sm font-medium transition-colors ${
               viewMode === key
-                ? 'font-semibold text-zinc-100 border-b-2 border-[#9B1B30]'
-                : 'text-zinc-500 border-b-2 border-transparent hover:text-zinc-300'
+                ? 'font-semibold text-text-primary border-b-2 border-[#9B1B30]'
+                : 'text-text-ghost border-b-2 border-transparent hover:text-text-secondary'
             }`}
           >
             {label}
@@ -283,14 +283,14 @@ export default function PatientJourneyPage() {
 
           {/* Diagnosis summary */}
           <div className="rounded-xl border border-border-default bg-[#151518] p-5">
-            <h3 className="text-sm font-semibold text-zinc-300 mb-2">
+            <h3 className="text-sm font-semibold text-text-secondary mb-2">
               Top Diagnoses ({diagnoses.length} total)
             </h3>
             <div className="flex flex-wrap gap-1.5">
               {diagnoses.slice(0, 15).map((dx) => (
                 <span
                   key={`${dx.hadm_id}-${dx.seq_num}`}
-                  className="inline-flex items-center px-2 py-0.5 rounded text-[10px] bg-[#0E0E11] border border-border-default text-zinc-400"
+                  className="inline-flex items-center px-2 py-0.5 rounded text-[10px] bg-[#0E0E11] border border-border-default text-text-muted"
                   title={dx.description}
                 >
                   <span className="font-mono text-[#C9A227] mr-1">{dx.icd_code}</span>
@@ -298,14 +298,14 @@ export default function PatientJourneyPage() {
                 </span>
               ))}
               {diagnoses.length > 15 && (
-                <span className="text-[10px] text-zinc-600">+{diagnoses.length - 15} more</span>
+                <span className="text-[10px] text-text-ghost">+{diagnoses.length - 15} more</span>
               )}
             </div>
           </div>
 
           {/* Admissions summary */}
           <div className="rounded-xl border border-border-default bg-[#151518] p-5">
-            <h3 className="text-sm font-semibold text-zinc-300 mb-2">Admissions</h3>
+            <h3 className="text-sm font-semibold text-text-secondary mb-2">Admissions</h3>
             <div className="space-y-2">
               {admissions.map((adm) => (
                 <div
@@ -314,13 +314,13 @@ export default function PatientJourneyPage() {
                   onClick={() => setSelectedHadmId(adm.hadm_id)}
                 >
                   <div className="flex items-center gap-3">
-                    <span className="font-mono text-[11px] text-zinc-500">{adm.hadm_id}</span>
-                    <span className="text-xs text-zinc-300">
+                    <span className="font-mono text-[11px] text-text-ghost">{adm.hadm_id}</span>
+                    <span className="text-xs text-text-secondary">
                       {new Date(adm.admittime).toLocaleDateString()} &mdash; {new Date(adm.dischtime).toLocaleDateString()}
                     </span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface-base/50 text-zinc-500">{adm.admission_type}</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface-base/50 text-text-ghost">{adm.admission_type}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-zinc-500">
+                  <div className="flex items-center gap-2 text-xs text-text-ghost">
                     <span>{Number(adm.los_days).toFixed(1)}d</span>
                     <span>{adm.discharge_location}</span>
                     {adm.hospital_expire_flag === '1' && <span className="text-[#E85A6B]">&dagger;</span>}

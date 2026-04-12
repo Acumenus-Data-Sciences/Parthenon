@@ -232,7 +232,7 @@ export function ReleasesView() {
 
       {activeTab === "swimlane" && (
         <div className="rounded-xl border border-[#252530] bg-[#151518] p-4">
-          <h3 className="mb-3 text-sm font-medium text-white">Release Timeline (All Sources)</h3>
+          <h3 className="mb-3 text-sm font-medium text-text-primary">Release Timeline (All Sources)</h3>
           {timelineData ? (
             <SwimLaneTimeline data={timelineData} />
           ) : (
@@ -245,7 +245,7 @@ export function ReleasesView() {
 
       {activeTab === "calendar" && (
         <div className="rounded-xl border border-[#252530] bg-[#151518] p-4">
-          <h3 className="mb-3 text-sm font-medium text-white">Release Calendar</h3>
+          <h3 className="mb-3 text-sm font-medium text-text-primary">Release Calendar</h3>
           {calendarData ? (
             <ReleaseCalendar events={calendarData} />
           ) : (

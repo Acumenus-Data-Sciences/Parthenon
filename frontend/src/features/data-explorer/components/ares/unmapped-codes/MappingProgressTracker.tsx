@@ -35,7 +35,7 @@ export default function MappingProgressTracker({
   return (
     <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
       <div className="mb-2 flex items-center justify-between">
-        <h4 className="text-sm font-medium text-white">Mapping Progress</h4>
+        <h4 className="text-sm font-medium text-text-primary">Mapping Progress</h4>
         <span className="text-xs text-[#888]">{completionPct.toFixed(1)}% reviewed</span>
       </div>
 
@@ -61,7 +61,7 @@ export default function MappingProgressTracker({
           <div key={seg.key} className="flex items-center gap-1.5 text-xs">
             <div className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: seg.color }} />
             <span className="text-[#888]">{seg.label}:</span>
-            <span className="font-medium text-white">{values[seg.key].toLocaleString()}</span>
+            <span className="font-medium text-text-primary">{values[seg.key].toLocaleString()}</span>
           </div>
         ))}
       </div>

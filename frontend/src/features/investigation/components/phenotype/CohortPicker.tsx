@@ -49,7 +49,7 @@ export function CohortPicker({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-20 text-zinc-500 text-xs">
+      <div className="flex items-center justify-center h-20 text-text-ghost text-xs">
         Loading cohorts…
       </div>
     );
@@ -71,13 +71,13 @@ export function CohortPicker({
         placeholder="Search cohorts…"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="w-full bg-surface-raised/60 border border-border-default rounded px-3 py-1.5 text-xs text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:border-[#2DD4BF]/60"
+        className="w-full bg-surface-raised/60 border border-border-default rounded px-3 py-1.5 text-xs text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-[#2DD4BF]/60"
       />
 
       {/* List */}
       <div className="overflow-y-auto max-h-80 flex flex-col gap-1 pr-1">
         {filtered.length === 0 && (
-          <p className="text-xs text-zinc-500 text-center py-6">
+          <p className="text-xs text-text-ghost text-center py-6">
             {search ? "No cohorts match your search." : "No cohort definitions found."}
           </p>
         )}
@@ -125,7 +125,7 @@ export function CohortPicker({
               {/* Content */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xs font-medium text-zinc-200 truncate">
+                  <span className="text-xs font-medium text-text-primary truncate">
                     {cohort.name}
                   </span>
                   {isPrimary && (
@@ -134,13 +134,13 @@ export function CohortPicker({
                     </span>
                   )}
                   {subjectCount != null && (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface-accent/60 text-zinc-400 border border-border-hover/30">
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface-accent/60 text-text-muted border border-border-hover/30">
                       {subjectCount.toLocaleString()} subjects
                     </span>
                   )}
                 </div>
                 {cohort.description && (
-                  <p className="text-[11px] text-zinc-500 mt-0.5 line-clamp-2">
+                  <p className="text-[11px] text-text-ghost mt-0.5 line-clamp-2">
                     {cohort.description}
                   </p>
                 )}
@@ -156,7 +156,7 @@ export function CohortPicker({
                   className={`shrink-0 text-[10px] px-2 py-1 rounded border transition-colors ${
                     isPrimary
                       ? "border-[#C9A227]/50 text-[#C9A227] bg-[#C9A227]/10"
-                      : "border-border-hover text-zinc-400 hover:border-[#C9A227]/50 hover:text-[#C9A227]"
+                      : "border-border-hover text-text-muted hover:border-[#C9A227]/50 hover:text-[#C9A227]"
                   }`}
                 >
                   {isPrimary ? "Primary ✓" : "Set as Primary"}

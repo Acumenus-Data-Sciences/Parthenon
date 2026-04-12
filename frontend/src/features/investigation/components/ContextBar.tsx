@@ -37,7 +37,7 @@ function ClinicalSummaryNode({
   const analyses = state.queued_analyses ?? [];
 
   if (analyses.length === 0) {
-    return <span className="text-zinc-500">No analyses</span>;
+    return <span className="text-text-ghost">No analyses</span>;
   }
 
   const running = analyses.filter(
@@ -71,14 +71,14 @@ function ClinicalSummaryNode({
   }
 
   if (parts.length === 0) {
-    return <span className="text-zinc-500">No analyses</span>;
+    return <span className="text-text-ghost">No analyses</span>;
   }
 
   return (
     <>
       {parts.map((part, i) => (
         <span key={i}>
-          {i > 0 && <span className="text-zinc-600"> · </span>}
+          {i > 0 && <span className="text-text-ghost"> · </span>}
           {part}
         </span>
       ))}
@@ -126,8 +126,8 @@ interface KpiMetricCardProps {
 function KpiMetricCard({ metric }: KpiMetricCardProps) {
   return (
     <div className="bg-surface-base/50 border border-border-default rounded-lg px-3 py-2 flex flex-col items-center min-w-[72px]">
-      <span className="text-2xl font-bold text-zinc-100 leading-none">{metric.value}</span>
-      <span className="text-[10px] uppercase tracking-wider text-zinc-500 mt-1 whitespace-nowrap">
+      <span className="text-2xl font-bold text-text-primary leading-none">{metric.value}</span>
+      <span className="text-[10px] uppercase tracking-wider text-text-ghost mt-1 whitespace-nowrap">
         {metric.label}
       </span>
     </div>
@@ -170,7 +170,7 @@ export function ContextBar({ investigation }: ContextBarProps) {
       {/* KPI summary row */}
       <div className="flex items-center gap-2 px-4 pt-3 pb-2">
         {allZero ? (
-          <p className="text-xs text-zinc-600 italic">
+          <p className="text-xs text-text-ghost italic">
             Start exploring — add concepts, cohorts, and analyses to build evidence
           </p>
         ) : (

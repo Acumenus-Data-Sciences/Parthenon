@@ -39,12 +39,12 @@ export function ContextCard({
       const [num, rest] = parsed;
       return (
         <span className="flex items-baseline gap-1.5 min-w-0">
-          <span className="text-lg font-bold text-zinc-100 shrink-0">{num}</span>
-          <span className="text-sm text-zinc-400 truncate">{rest}</span>
+          <span className="text-lg font-bold text-text-primary shrink-0">{num}</span>
+          <span className="text-sm text-text-muted truncate">{rest}</span>
         </span>
       );
     }
-    return <span className="text-base font-medium text-zinc-300 truncate">{summary}</span>;
+    return <span className="text-base font-medium text-text-secondary truncate">{summary}</span>;
   })();
 
   return (
@@ -59,7 +59,7 @@ export function ContextCard({
           : "border border-border-default bg-surface-darkest hover:bg-surface-base",
       ].join(" ")}
     >
-      <p className="text-xs uppercase tracking-wider text-zinc-500 mb-1 truncate">
+      <p className="text-xs uppercase tracking-wider text-text-ghost mb-1 truncate">
         {label}
       </p>
       <div className="truncate">

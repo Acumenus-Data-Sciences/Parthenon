@@ -49,7 +49,7 @@ export const LabTrendChart = ({
 
   if (data.length === 0) {
     return (
-      <div className="flex h-20 items-center justify-center text-xs text-zinc-500">
+      <div className="flex h-20 items-center justify-center text-xs text-text-ghost">
         No numeric values to chart
       </div>
     );
@@ -108,10 +108,10 @@ export const LabTrendChart = ({
       </ResponsiveContainer>
 
       {range && (
-        <div className="mt-1 flex items-center justify-between px-2 text-[11px] text-zinc-500">
+        <div className="mt-1 flex items-center justify-between px-2 text-[11px] text-text-ghost">
           <span>
             Reference:{' '}
-            <span className="text-zinc-400">
+            <span className="text-text-muted">
               {range.low}{'\u2013'}{range.high} {unitName}
             </span>
           </span>

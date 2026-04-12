@@ -34,7 +34,7 @@ export default function DqDeltaTable({ deltas, releaseName }: DqDeltaTableProps)
   return (
     <div>
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-sm font-medium text-white">Delta Report: {releaseName}</h3>
+        <h3 className="text-sm font-medium text-text-primary">Delta Report: {releaseName}</h3>
         <div className="flex gap-3 text-[11px]">
           <span className="text-[#e85d75]">{grouped.new.length} new</span>
           <span className="text-[#C9A227]">{grouped.existing.length} existing</span>

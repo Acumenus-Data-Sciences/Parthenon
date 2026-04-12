@@ -181,7 +181,7 @@ export function ConceptSetItemDetailExpander({
                           className={cn(
                             "text-xs",
                             isCurrent
-                              ? "font-semibold text-white"
+                              ? "font-semibold text-text-primary"
                               : "text-[#C5C0B8]",
                           )}
                         >
@@ -201,7 +201,7 @@ export function ConceptSetItemDetailExpander({
                     style={{ paddingLeft: `${(ancestors.length) * 12}px` }}
                   >
                     <span className="text-[#5A5650] text-xs select-none">→</span>
-                    <span className="text-xs font-semibold text-white">
+                    <span className="text-xs font-semibold text-text-primary">
                       {concept?.concept_name}
                     </span>
                     <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tabular-nums text-[#C9A227] ml-1">

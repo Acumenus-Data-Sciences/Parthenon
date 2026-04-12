@@ -176,7 +176,7 @@ function TreatmentMatrix({ rows }: { rows: MatrixRow[] }) {
                     title={cell ? `n=${cell.n}, rate=${(cell.event_rate * 100).toFixed(1)}%` : "No data"}
                   >
                     {cell ? (
-                      <span className="text-white text-[9px]">{(cell.event_rate * 100).toFixed(0)}%</span>
+                      <span className="text-text-primary text-[9px]">{(cell.event_rate * 100).toFixed(0)}%</span>
                     ) : null}
                   </td>
                 );

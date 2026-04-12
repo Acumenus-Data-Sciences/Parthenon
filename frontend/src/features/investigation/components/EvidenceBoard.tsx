@@ -21,7 +21,7 @@ const STATUS_BADGE: Record<
 > = {
   draft: {
     label: "Draft",
-    className: "bg-surface-raised text-zinc-400 border border-border-default",
+    className: "bg-surface-raised text-text-muted border border-border-default",
   },
   active: {
     label: "Active",
@@ -33,7 +33,7 @@ const STATUS_BADGE: Record<
   },
   archived: {
     label: "Archived",
-    className: "bg-surface-base text-zinc-600 border border-border-default",
+    className: "bg-surface-base text-text-ghost border border-border-default",
   },
 };
 
@@ -100,22 +100,22 @@ export function EvidenceBoard({ investigation }: EvidenceBoardProps) {
             <div className="flex items-center gap-3">
               <Link
                 to="/workbench"
-                className="flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-300 transition-colors shrink-0"
+                className="flex items-center gap-1 text-xs text-text-ghost hover:text-text-secondary transition-colors shrink-0"
               >
                 <ArrowLeft className="h-3 w-3" />
                 Workbench
               </Link>
-              <span className="text-zinc-700 text-xs">|</span>
-              <span className="text-lg font-semibold text-zinc-100 truncate">
+              <span className="text-text-ghost text-xs">|</span>
+              <span className="text-lg font-semibold text-text-primary truncate">
                 {investigation.title}
               </span>
             </div>
-            <p className="text-xs text-zinc-500 leading-none ml-0.5">
+            <p className="text-xs text-text-ghost leading-none ml-0.5">
               Workbench{" "}
-              <span className="text-zinc-700">/</span>{" "}
+              <span className="text-text-ghost">/</span>{" "}
               Evidence Investigation{" "}
-              <span className="text-zinc-700">/</span>{" "}
-              <span className="text-zinc-400">{investigation.title}</span>
+              <span className="text-text-ghost">/</span>{" "}
+              <span className="text-text-muted">{investigation.title}</span>
             </p>
           </div>
 

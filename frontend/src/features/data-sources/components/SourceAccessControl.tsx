@@ -111,7 +111,7 @@ export function SourceAccessControl({ source }: SourceAccessControlProps) {
           type="button"
           onClick={handleSave}
           disabled={updateMutation.isPending}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-[#818CF8] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#6366F1] disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-[#818CF8] px-3 py-1.5 text-xs font-medium text-text-primary transition-colors hover:bg-[#6366F1] disabled:opacity-50"
         >
           {updateMutation.isPending ? (
             <Loader2 size={12} className="animate-spin" />

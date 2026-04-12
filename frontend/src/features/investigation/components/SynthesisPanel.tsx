@@ -94,8 +94,8 @@ export function SynthesisPanel({ investigation }: SynthesisPanelProps) {
             onClick={() => setActiveTab(tab.id)}
             className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
               activeTab === tab.id
-                ? "bg-surface-raised text-zinc-100"
-                : "text-zinc-500 hover:text-zinc-300 hover:bg-surface-raised/50"
+                ? "bg-surface-raised text-text-primary"
+                : "text-text-ghost hover:text-text-secondary hover:bg-surface-raised/50"
             }`}
           >
             {tab.label}
@@ -107,7 +107,7 @@ export function SynthesisPanel({ investigation }: SynthesisPanelProps) {
       <div className="flex-1 overflow-y-auto">
         {activeTab === "dossier" && (
           <div className="p-6 max-w-3xl mx-auto">
-            <h2 className="text-base font-semibold text-zinc-100 mb-4">Evidence Dossier</h2>
+            <h2 className="text-base font-semibold text-text-primary mb-4">Evidence Dossier</h2>
             <div className="flex flex-col gap-3">
               {DOSSIER_SECTIONS.map((section) => {
                 if (section.key === "research_question") {
@@ -117,16 +117,16 @@ export function SynthesisPanel({ investigation }: SynthesisPanelProps) {
                       className="bg-surface-base/30 border border-border-default rounded-xl p-4"
                     >
                       <div className="flex items-center justify-between mb-3">
-                        <span className="text-sm font-semibold text-zinc-200">
+                        <span className="text-sm font-semibold text-text-primary">
                           Research Question
                         </span>
                       </div>
                       {investigation.research_question ? (
-                        <p className="text-sm text-zinc-300 leading-relaxed">
+                        <p className="text-sm text-text-secondary leading-relaxed">
                           {investigation.research_question}
                         </p>
                       ) : (
-                        <p className="text-sm text-zinc-500 italic">
+                        <p className="text-sm text-text-ghost italic">
                           No research question defined
                         </p>
                       )}

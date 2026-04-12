@@ -27,7 +27,7 @@ function renderDiagram(
 ) {
   if (!diagramData) {
     return (
-      <div className="flex items-center justify-center py-12 text-gray-400 italic text-sm">
+      <div className="flex items-center justify-center py-12 text-text-muted italic text-sm">
         Diagram data not available
       </div>
     );
@@ -67,7 +67,7 @@ function renderDiagram(
       );
     default:
       return (
-        <div className="flex items-center justify-center py-12 text-gray-400 italic text-sm">
+        <div className="flex items-center justify-center py-12 text-text-muted italic text-sm">
           Unknown diagram type
         </div>
       );
@@ -120,13 +120,13 @@ export default function DocumentPreview({
 
           {/* Authors */}
           {authors.length > 0 && (
-            <p className="mb-1 text-center text-sm italic text-gray-600">
+            <p className="mb-1 text-center text-sm italic text-text-ghost">
               {authors.join(", ")}
             </p>
           )}
 
           {/* Date line */}
-          <p className="mb-8 text-center text-xs text-gray-400">
+          <p className="mb-8 text-center text-xs text-text-muted">
             Generated {new Date().toLocaleDateString("en-US", {
               year: "numeric",
               month: "long",
@@ -215,7 +215,7 @@ export default function DocumentPreview({
 
                   {/* Empty state */}
                   {!hasTable && !hasNarrative && !hasDiagram && (
-                    <p className="text-sm italic text-gray-400">
+                    <p className="text-sm italic text-text-muted">
                       No content available for this section.
                     </p>
                   )}
@@ -249,7 +249,7 @@ export default function DocumentPreview({
                       ))}
                   </div>
                 ) : (
-                  <p className="text-sm italic text-gray-400">
+                  <p className="text-sm italic text-text-muted">
                     No content available for this section.
                   </p>
                 )}
@@ -258,7 +258,7 @@ export default function DocumentPreview({
           })}
 
           {includedSections.length === 0 && (
-            <p className="py-12 text-center text-sm italic text-gray-400">
+            <p className="py-12 text-center text-sm italic text-text-muted">
               No sections included. Go back to configure your document.
             </p>
           )}

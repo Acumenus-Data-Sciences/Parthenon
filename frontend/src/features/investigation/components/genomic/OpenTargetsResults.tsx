@@ -24,7 +24,7 @@ function ScoreBar({ score }: { score: number }) {
           style={{ width: `${pct}%`, backgroundColor: "#C9A227" }}
         />
       </div>
-      <span className="text-[10px] text-zinc-500 tabular-nums w-8 text-right">
+      <span className="text-[10px] text-text-ghost tabular-nums w-8 text-right">
         {score.toFixed(2)}
       </span>
     </div>
@@ -58,7 +58,7 @@ function GeneCard({
     const lower = modality.toLowerCase();
     if (lower.includes("small")) return "border-[#2DD4BF]/40 text-[#2DD4BF]";
     if (lower.includes("antibody")) return "border-[#9B1B30]/40 text-[#9B1B30]";
-    return "border-border-hover text-zinc-400";
+    return "border-border-hover text-text-muted";
   }
 
   function handlePin() {
@@ -87,18 +87,18 @@ function GeneCard({
             {symbol}
           </span>
           {geneName && (
-            <span className="text-xs text-zinc-400 leading-snug line-clamp-2">{geneName}</span>
+            <span className="text-xs text-text-muted leading-snug line-clamp-2">{geneName}</span>
           )}
         </div>
         <div className="flex items-center gap-1.5 flex-shrink-0">
           {biotype && (
-            <span className="text-[10px] px-2 py-0.5 rounded border border-border-default text-zinc-500">
+            <span className="text-[10px] px-2 py-0.5 rounded border border-border-default text-text-ghost">
               {biotype}
             </span>
           )}
           <button
             onClick={handlePin}
-            className="text-[10px] px-2.5 py-1 rounded border border-border-hover text-zinc-400 hover:border-[#C9A227]/50 hover:text-[#C9A227] transition-colors whitespace-nowrap"
+            className="text-[10px] px-2.5 py-1 rounded border border-border-hover text-text-muted hover:border-[#C9A227]/50 hover:text-[#C9A227] transition-colors whitespace-nowrap"
           >
             Pin
           </button>
@@ -166,12 +166,12 @@ function DiseaseCard({
             {name}
           </span>
           {description && (
-            <span className="text-xs text-zinc-400 leading-snug line-clamp-2">{description}</span>
+            <span className="text-xs text-text-muted leading-snug line-clamp-2">{description}</span>
           )}
         </div>
         <button
           onClick={handlePin}
-          className="flex-shrink-0 text-[10px] px-2.5 py-1 rounded border border-border-hover text-zinc-400 hover:border-[#C9A227]/50 hover:text-[#C9A227] transition-colors whitespace-nowrap"
+          className="flex-shrink-0 text-[10px] px-2.5 py-1 rounded border border-border-hover text-text-muted hover:border-[#C9A227]/50 hover:text-[#C9A227] transition-colors whitespace-nowrap"
         >
           Pin
         </button>
@@ -182,7 +182,7 @@ function DiseaseCard({
           {therapeuticAreas.map((area) => (
             <span
               key={area.name}
-              className="text-[10px] px-2 py-0.5 rounded border border-border-default text-zinc-400"
+              className="text-[10px] px-2 py-0.5 rounded border border-border-default text-text-muted"
             >
               {area.name}
             </span>
@@ -202,13 +202,13 @@ export function OpenTargetsResults({
 }: OpenTargetsResultsProps) {
   if (hits.length === 0) {
     return (
-      <p className="text-xs text-zinc-500 py-4 text-center">No results found.</p>
+      <p className="text-xs text-text-ghost py-4 text-center">No results found.</p>
     );
   }
 
   return (
     <div className="flex flex-col gap-2.5">
-      <p className="text-[10px] text-zinc-500 uppercase tracking-wide">
+      <p className="text-[10px] text-text-ghost uppercase tracking-wide">
         {hits.length} result{hits.length !== 1 ? "s" : ""} — Open Targets Platform
       </p>
       {hits.map((hit) =>

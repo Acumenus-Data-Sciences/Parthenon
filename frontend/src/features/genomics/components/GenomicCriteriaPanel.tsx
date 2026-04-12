@@ -114,7 +114,7 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
           <Dna size={14} />
           Add Genomic Criterion
         </h4>
-        <button onClick={onCancel} className="text-gray-500 hover:text-gray-300">
+        <button onClick={onCancel} className="text-text-ghost hover:text-text-secondary">
           <X size={14} />
         </button>
       </div>
@@ -137,7 +137,7 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
               <Icon size={13} style={{ color: ct.color }} />
               <div>
                 <div className="font-medium">{ct.label}</div>
-                <div className="text-gray-600 text-[10px]">{ct.desc}</div>
+                <div className="text-text-ghost text-[10px]">{ct.desc}</div>
               </div>
             </button>
           );
@@ -148,21 +148,21 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
       {type === "gene_mutation" && (
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="block text-[10px] text-gray-500 mb-1 uppercase tracking-wider">Gene *</label>
+            <label className="block text-[10px] text-text-ghost mb-1 uppercase tracking-wider">Gene *</label>
             <input
               value={gene}
               onChange={(e) => setGene(e.target.value.toUpperCase())}
               placeholder="EGFR"
-              className="w-full bg-[#0E0E11] border border-[#232328] rounded px-2 py-1.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-purple-500"
+              className="w-full bg-[#0E0E11] border border-[#232328] rounded px-2 py-1.5 text-xs text-text-primary placeholder-text-ghost focus:outline-none focus:border-purple-500"
             />
           </div>
           <div>
-            <label className="block text-[10px] text-gray-500 mb-1 uppercase tracking-wider">HGVS (optional)</label>
+            <label className="block text-[10px] text-text-ghost mb-1 uppercase tracking-wider">HGVS (optional)</label>
             <input
               value={hgvs}
               onChange={(e) => setHgvs(e.target.value)}
               placeholder="p.Leu858Arg"
-              className="w-full bg-[#0E0E11] border border-[#232328] rounded px-2 py-1.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-purple-500"
+              className="w-full bg-[#0E0E11] border border-[#232328] rounded px-2 py-1.5 text-xs text-text-primary placeholder-text-ghost focus:outline-none focus:border-purple-500"
             />
           </div>
         </div>
@@ -170,11 +170,11 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
 
       {type === "tmb" && (
         <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-400">TMB</span>
+          <span className="text-xs text-text-muted">TMB</span>
           <select
             value={tmbOp}
             onChange={(e) => setTmbOp(e.target.value as typeof tmbOp)}
-            className="bg-[#0E0E11] border border-[#232328] rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-purple-500"
+            className="bg-[#0E0E11] border border-[#232328] rounded px-2 py-1.5 text-xs text-text-primary focus:outline-none focus:border-purple-500"
           >
             <option value="gte">≥</option>
             <option value="gt">&gt;</option>
@@ -185,9 +185,9 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
             type="number"
             value={tmbValue}
             onChange={(e) => setTmbValue(Number(e.target.value))}
-            className="w-20 bg-[#0E0E11] border border-[#232328] rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-purple-500"
+            className="w-20 bg-[#0E0E11] border border-[#232328] rounded px-2 py-1.5 text-xs text-text-primary focus:outline-none focus:border-purple-500"
           />
-          <span className="text-xs text-gray-500">mut/Mb</span>
+          <span className="text-xs text-text-ghost">mut/Mb</span>
         </div>
       )}
 
@@ -201,7 +201,7 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
               className={`px-3 py-2 rounded-lg border text-xs transition-colors ${
                 msiStatus === opt.value
                   ? "border-yellow-600/40 bg-yellow-900/20 text-yellow-200"
-                  : "border-[#232328] text-gray-500 hover:text-gray-300"
+                  : "border-[#232328] text-text-ghost hover:text-text-secondary"
               }`}
             >
               {opt.label}
@@ -213,21 +213,21 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
       {type === "fusion" && (
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="block text-[10px] text-gray-500 mb-1 uppercase tracking-wider">Gene 1 *</label>
+            <label className="block text-[10px] text-text-ghost mb-1 uppercase tracking-wider">Gene 1 *</label>
             <input
               value={gene1}
               onChange={(e) => setGene1(e.target.value.toUpperCase())}
               placeholder="ALK"
-              className="w-full bg-[#0E0E11] border border-[#232328] rounded px-2 py-1.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-purple-500"
+              className="w-full bg-[#0E0E11] border border-[#232328] rounded px-2 py-1.5 text-xs text-text-primary placeholder-text-ghost focus:outline-none focus:border-purple-500"
             />
           </div>
           <div>
-            <label className="block text-[10px] text-gray-500 mb-1 uppercase tracking-wider">Gene 2 (optional)</label>
+            <label className="block text-[10px] text-text-ghost mb-1 uppercase tracking-wider">Gene 2 (optional)</label>
             <input
               value={gene2}
               onChange={(e) => setGene2(e.target.value.toUpperCase())}
               placeholder="EML4"
-              className="w-full bg-[#0E0E11] border border-[#232328] rounded px-2 py-1.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-purple-500"
+              className="w-full bg-[#0E0E11] border border-[#232328] rounded px-2 py-1.5 text-xs text-text-primary placeholder-text-ghost focus:outline-none focus:border-purple-500"
             />
           </div>
         </div>
@@ -247,7 +247,7 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
                 }
                 className="rounded border-[#232328] bg-[#0E0E11] text-purple-500 focus:ring-purple-500/40"
               />
-              <span className="text-xs text-gray-400">{cls}</span>
+              <span className="text-xs text-text-muted">{cls}</span>
             </label>
           ))}
         </div>
@@ -255,12 +255,12 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
 
       {type === "treatment_episode" && (
         <div>
-          <label className="block text-[10px] text-gray-500 mb-1 uppercase tracking-wider">Regimen name *</label>
+          <label className="block text-[10px] text-text-ghost mb-1 uppercase tracking-wider">Regimen name *</label>
           <input
             value={regimenName}
             onChange={(e) => setRegimenName(e.target.value)}
             placeholder="osimertinib"
-            className="w-full bg-[#0E0E11] border border-[#232328] rounded px-2 py-1.5 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-purple-500"
+            className="w-full bg-[#0E0E11] border border-[#232328] rounded px-2 py-1.5 text-xs text-text-primary placeholder-text-ghost focus:outline-none focus:border-purple-500"
           />
         </div>
       )}
@@ -275,7 +275,7 @@ export function GenomicCriteriaPanel({ onAdd, onCancel }: Props) {
               onChange={(e) => setExclude(e.target.checked)}
               className="rounded border-[#232328] bg-[#0E0E11] text-red-500 focus:ring-red-500/40"
             />
-            <span className="text-xs text-gray-400">Exclude patients with this feature</span>
+            <span className="text-xs text-text-muted">Exclude patients with this feature</span>
           </label>
           <button
             type="button"

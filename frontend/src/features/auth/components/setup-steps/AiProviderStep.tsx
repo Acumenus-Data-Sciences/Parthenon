@@ -25,7 +25,7 @@ interface ProviderMeta {
 const PROVIDER_META: Record<string, ProviderMeta> = {
   ollama: {
     region: "Local",
-    regionColor: "bg-gray-500/10 text-gray-400",
+    regionColor: "bg-gray-500/10 text-text-muted",
     models: ["MedAIBase/MedGemma1.5:4b", "llama3.2", "gemma3:4b", "mistral"],
     hasApiKey: false,
     hasBaseUrl: true,

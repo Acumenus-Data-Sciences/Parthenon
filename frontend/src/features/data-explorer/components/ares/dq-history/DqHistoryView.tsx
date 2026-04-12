@@ -56,7 +56,7 @@ export default function DqHistoryView() {
               setSelectedSourceId(Number(e.target.value) || null);
               setSelectedReleaseId(null);
             }}
-            className="rounded border border-[#333] bg-[#1a1a22] px-3 py-1.5 text-sm text-white"
+            className="rounded border border-[#333] bg-[#1a1a22] px-3 py-1.5 text-sm text-text-primary"
           >
             <option value="">Select source...</option>
             {sources?.map((s) => (
@@ -72,7 +72,7 @@ export default function DqHistoryView() {
               type="button"
               onClick={handleExport}
               disabled={exportMutation.isPending}
-              className="rounded border border-[#333] px-3 py-1.5 text-xs text-[#888] transition-colors hover:border-[#555] hover:text-white disabled:opacity-50"
+              className="rounded border border-[#333] px-3 py-1.5 text-xs text-[#888] transition-colors hover:border-[#555] hover:text-text-primary disabled:opacity-50"
             >
               {exportMutation.isPending ? "Exporting..." : "Export CSV"}
             </button>
@@ -116,7 +116,7 @@ export default function DqHistoryView() {
           {!trendsLoading && trends && (
             <>
               <div className="mb-6 rounded-lg border border-[#252530] bg-[#151518] p-4">
-                <h3 className="mb-3 text-sm font-medium text-white">DQ Pass Rate Over Releases</h3>
+                <h3 className="mb-3 text-sm font-medium text-text-primary">DQ Pass Rate Over Releases</h3>
                 <DqTrendChart
                   data={trends}
                   sourceId={selectedSourceId}
@@ -144,7 +144,7 @@ export default function DqHistoryView() {
       {/* Heatmap tab */}
       {activeTab === "heatmap" && selectedSourceId && (
         <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
-          <h3 className="mb-3 text-sm font-medium text-white">Category x Release Heatmap</h3>
+          <h3 className="mb-3 text-sm font-medium text-text-primary">Category x Release Heatmap</h3>
           {heatmapLoading && <p className="text-[#555]">Loading heatmap...</p>}
           {heatmapData && (
             <DqCategoryHeatmap
@@ -163,7 +163,7 @@ export default function DqHistoryView() {
       {/* SLA tab */}
       {activeTab === "sla" && selectedSourceId && (
         <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
-          <h3 className="mb-3 text-sm font-medium text-white">SLA Compliance Dashboard</h3>
+          <h3 className="mb-3 text-sm font-medium text-text-primary">SLA Compliance Dashboard</h3>
           <DqSlaDashboard sourceId={selectedSourceId} />
         </div>
       )}
@@ -171,7 +171,7 @@ export default function DqHistoryView() {
       {/* Cross-source overlay tab */}
       {activeTab === "overlay" && (
         <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
-          <h3 className="mb-3 text-sm font-medium text-white">Cross-Source DQ Overlay</h3>
+          <h3 className="mb-3 text-sm font-medium text-text-primary">Cross-Source DQ Overlay</h3>
           {overlayLoading && <p className="text-[#555]">Loading overlay data...</p>}
           {overlayData && overlayData.length > 0 && (
             <DqTrendChart

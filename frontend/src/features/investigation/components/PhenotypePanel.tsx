@@ -273,15 +273,15 @@ export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
               onClick={() => !tab.disabled && handleTabChange(tab.id)}
               className={`relative px-3 py-2 text-xs font-medium transition-colors rounded-t ${
                 tab.disabled
-                  ? "text-zinc-600 cursor-not-allowed"
+                  ? "text-text-ghost cursor-not-allowed"
                   : activeTab === tab.id
                     ? "text-[#2DD4BF]"
-                    : "text-zinc-400 hover:text-zinc-200"
+                    : "text-text-muted hover:text-text-primary"
               }`}
             >
               {tab.label}
               {tab.disabled && (
-                <span className="ml-1.5 text-[9px] text-zinc-700 font-normal">
+                <span className="ml-1.5 text-[9px] text-text-ghost font-normal">
                   Phase 1b
                 </span>
               )}

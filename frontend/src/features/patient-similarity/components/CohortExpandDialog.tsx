@@ -177,7 +177,7 @@ export function CohortExpandDialog({
                 disabled={filteredCount === 0 || expandMutation.isPending}
                 className={cn(
                   "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
-                  "bg-[#9B1B30] text-white hover:bg-[#B22040]",
+                  "bg-[#9B1B30] text-text-primary hover:bg-[#B22040]",
                   "disabled:opacity-50 disabled:cursor-not-allowed",
                 )}
               >

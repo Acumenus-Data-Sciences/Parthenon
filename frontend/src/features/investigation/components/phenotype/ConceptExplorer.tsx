@@ -23,19 +23,19 @@ const DOMAIN_BADGE_CLASSES: Record<string, string> = {
   Procedure: "bg-blue-900/30 text-blue-400 border border-blue-500/30",
   Observation: "bg-purple-900/30 text-purple-400 border border-purple-500/30",
   Device: "bg-orange-900/30 text-orange-400 border border-orange-500/30",
-  Visit: "bg-surface-accent/50 text-zinc-300 border border-border-hover/30",
+  Visit: "bg-surface-accent/50 text-text-secondary border border-border-hover/30",
 };
 
 function domainBadgeClass(domain: string): string {
   return (
     DOMAIN_BADGE_CLASSES[domain] ??
-    "bg-surface-accent/50 text-zinc-400 border border-border-hover/30"
+    "bg-surface-accent/50 text-text-muted border border-border-hover/30"
   );
 }
 
 function ConceptCountBadge({ conceptId }: { conceptId: number }) {
   const { data, isLoading } = useConceptCount(conceptId);
-  if (isLoading) return <span className="text-[10px] text-zinc-600">...</span>;
+  if (isLoading) return <span className="text-[10px] text-text-ghost">...</span>;
   if (!data) return null;
   return (
     <span className="rounded bg-teal-900/30 px-1.5 py-0.5 text-[10px] text-teal-400">
@@ -69,7 +69,7 @@ function ConceptCard({
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm font-medium text-zinc-100 leading-snug">
+            <span className="text-sm font-medium text-text-primary leading-snug">
               {concept.concept_name}
             </span>
             {concept.standard_concept === "S" && (
@@ -84,13 +84,13 @@ function ConceptCard({
             >
               {concept.domain_id}
             </span>
-            <span className="text-[10px] text-zinc-500">
+            <span className="text-[10px] text-text-ghost">
               {concept.vocabulary_id}
             </span>
-            <span className="text-[10px] text-zinc-600">
+            <span className="text-[10px] text-text-ghost">
               #{concept.concept_code}
             </span>
-            <span className="text-[10px] text-zinc-600 font-mono">
+            <span className="text-[10px] text-text-ghost font-mono">
               ID: {concept.concept_id}
             </span>
             <ConceptCountBadge conceptId={concept.concept_id} />
@@ -161,7 +161,7 @@ export function ConceptExplorer({ onAddConcept }: ConceptExplorerProps) {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             placeholder="Search concepts… (min 2 chars)"
-            className="w-full rounded border border-border-default bg-surface-base px-3 py-2 text-sm text-zinc-200 placeholder-zinc-600 focus:border-[#2DD4BF]/50 focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/20"
+            className="w-full rounded border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary placeholder-text-ghost focus:border-[#2DD4BF]/50 focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/20"
           />
           {isFetching && (
             <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
@@ -172,7 +172,7 @@ export function ConceptExplorer({ onAddConcept }: ConceptExplorerProps) {
         <select
           value={selectedDomain}
           onChange={(e) => setSelectedDomain(e.target.value)}
-          className="rounded border border-border-default bg-surface-base px-2 py-2 text-xs text-zinc-300 focus:border-[#2DD4BF]/50 focus:outline-none"
+          className="rounded border border-border-default bg-surface-base px-2 py-2 text-xs text-text-secondary focus:border-[#2DD4BF]/50 focus:outline-none"
         >
           {DOMAIN_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>
@@ -187,7 +187,7 @@ export function ConceptExplorer({ onAddConcept }: ConceptExplorerProps) {
             onChange={(e) => setStandardOnly(e.target.checked)}
             className="h-3.5 w-3.5 rounded border border-border-hover bg-surface-base accent-[#2DD4BF] cursor-pointer"
           />
-          <span className="text-xs text-zinc-400 whitespace-nowrap">
+          <span className="text-xs text-text-muted whitespace-nowrap">
             Standard only
           </span>
         </label>
@@ -196,16 +196,16 @@ export function ConceptExplorer({ onAddConcept }: ConceptExplorerProps) {
       {/* Results list */}
       <div className="flex-1 overflow-y-auto min-h-0 space-y-1.5 pr-0.5">
         {debouncedQuery.length < 2 && (
-          <p className="text-center text-xs text-zinc-600 mt-6">
+          <p className="text-center text-xs text-text-ghost mt-6">
             Type at least 2 characters to search OMOP concepts
           </p>
         )}
 
         {debouncedQuery.length >= 2 && !isFetching && filteredResults?.length === 0 && (
-          <p className="text-center text-xs text-zinc-500 mt-6">
+          <p className="text-center text-xs text-text-ghost mt-6">
             No concepts found matching &ldquo;{debouncedQuery}&rdquo;
             {standardOnly && results && results.length > 0 && (
-              <span className="block mt-1 text-zinc-600">
+              <span className="block mt-1 text-text-ghost">
                 ({results.length} non-standard hidden — uncheck &ldquo;Standard only&rdquo; to show)
               </span>
             )}
@@ -231,11 +231,11 @@ export function ConceptExplorer({ onAddConcept }: ConceptExplorerProps) {
       {showTree && selectedConcept && (
         <div className="shrink-0 border-t border-border-default/50 pt-3">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-medium text-zinc-400 uppercase tracking-wider">
+            <span className="text-xs font-medium text-text-muted uppercase tracking-wider">
               Concept Hierarchy
             </span>
             <button
-              className="text-[10px] text-zinc-600 hover:text-zinc-400 transition-colors"
+              className="text-[10px] text-text-ghost hover:text-text-muted transition-colors"
               onClick={() => setSelectedConcept(undefined)}
             >
               Close

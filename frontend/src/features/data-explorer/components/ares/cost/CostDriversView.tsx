@@ -59,7 +59,7 @@ export default function CostDriversView({ sourceId }: CostDriversViewProps) {
           >
             <div className="mb-1 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-white">{driver.concept_name}</span>
+                <span className="text-sm font-medium text-text-primary">{driver.concept_name}</span>
                 <span className="rounded bg-[#252530] px-1.5 py-0.5 text-[10px] text-[#888]">
                   {formatDomain(driver.domain)}
                 </span>

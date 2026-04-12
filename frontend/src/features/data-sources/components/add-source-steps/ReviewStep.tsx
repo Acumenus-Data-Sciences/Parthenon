@@ -146,7 +146,7 @@ export function ReviewStep({ dialect, connection: c, daimons, onSubmit, isLoadin
         type="button"
         onClick={onSubmit}
         disabled={isLoading}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#C9353F] px-4 py-3 text-sm font-semibold text-white hover:bg-[#D94550] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#C9353F] px-4 py-3 text-sm font-semibold text-text-primary hover:bg-[#D94550] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
       >
         {isLoading && <Loader2 size={14} className="animate-spin" />}
         {isLoading ? "Adding Source…" : "Add Source"}

@@ -33,10 +33,10 @@ export function SectionEditor({
     <div className="bg-surface-base/30 border border-border-default rounded-xl p-4">
       {/* Section header */}
       <div className="flex items-center justify-between mb-3">
-        <span className="text-sm font-semibold text-zinc-200">{sectionLabel}</span>
+        <span className="text-sm font-semibold text-text-primary">{sectionLabel}</span>
         <span
           className={`inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full text-xs font-medium ${
-            pinCount > 0 ? "bg-teal-900 text-teal-300" : "bg-surface-accent text-zinc-400"
+            pinCount > 0 ? "bg-teal-900 text-teal-300" : "bg-surface-accent text-text-muted"
           }`}
         >
           {pinCount}
@@ -77,7 +77,7 @@ export function SectionEditor({
         </div>
       ) : (
         !narrative && (
-          <p className="text-xs text-zinc-600 mt-1">No findings pinned to this section yet</p>
+          <p className="text-xs text-text-ghost mt-1">No findings pinned to this section yet</p>
         )
       )}
     </div>

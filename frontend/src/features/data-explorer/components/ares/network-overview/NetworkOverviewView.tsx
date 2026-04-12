@@ -50,7 +50,7 @@ export default function NetworkOverviewView() {
   return (
     <div className="p-4">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-medium text-white">Network Overview</h2>
+        <h2 className="text-lg font-medium text-text-primary">Network Overview</h2>
         <button
           type="button"
           onClick={() => setShowRadar(!showRadar)}
@@ -91,7 +91,7 @@ export default function NetworkOverviewView() {
           <p className="text-[11px] text-[#666]">Unmapped Codes</p>
         </div>
         <div className="rounded-lg border border-[#252530] bg-[#151518] p-3 text-center">
-          <p className="text-2xl font-semibold text-white">{overview.sources_needing_attention}</p>
+          <p className="text-2xl font-semibold text-text-primary">{overview.sources_needing_attention}</p>
           <p className="text-[11px] text-[#666]">Need Attention</p>
         </div>
         <div className="rounded-lg border border-[#252530] bg-[#151518] p-3 text-center">
@@ -123,7 +123,7 @@ export default function NetworkOverviewView() {
                 onClick={() => navigate(`/data-explorer/${source.source_id}`)}
                 className="cursor-pointer border-b border-[#1a1a22] hover:bg-[#151518]"
               >
-                <td className="px-4 py-2 text-white">{source.source_name}</td>
+                <td className="px-4 py-2 text-text-primary">{source.source_name}</td>
                 <td className="px-4 py-2 text-center">
                   <span
                     className={`rounded px-2 py-0.5 text-xs font-medium ${

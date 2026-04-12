@@ -33,14 +33,14 @@ function MetricCard({ label, value, favorable, unfavorable }: MetricCardProps) {
     ? "text-[#9B1B30]"
     : favorable
       ? "text-[#2DD4BF]"
-      : "text-zinc-100";
+      : "text-text-primary";
 
   return (
     <div className="flex flex-col gap-1 rounded-lg border border-border-default bg-surface-base/60 p-3">
       <span className={`text-3xl font-bold leading-none ${valueClass}`}>
         {value ?? "—"}
       </span>
-      <span className="text-xs text-zinc-500">{label}</span>
+      <span className="text-xs text-text-ghost">{label}</span>
     </div>
   );
 }
@@ -53,7 +53,7 @@ interface CIBadgeProps {
 function CIBadge({ lower, upper }: CIBadgeProps) {
   if (lower == null || upper == null) return null;
   return (
-    <span className="text-xs text-zinc-400">
+    <span className="text-xs text-text-muted">
       [{lower.toFixed(2)}, {upper.toFixed(2)}]
     </span>
   );
@@ -68,7 +68,7 @@ function PinButton({ onClick }: PinButtonProps) {
     <button
       type="button"
       onClick={onClick}
-      className="flex items-center gap-1.5 rounded-md border border-border-default bg-surface-raised/60 px-2.5 py-1 text-xs text-zinc-400 transition hover:border-[#C9A227]/60 hover:text-[#C9A227]"
+      className="flex items-center gap-1.5 rounded-md border border-border-default bg-surface-raised/60 px-2.5 py-1 text-xs text-text-muted transition hover:border-[#C9A227]/60 hover:text-[#C9A227]"
     >
       <Pin className="h-3 w-3" />
       Pin to Dossier
@@ -104,7 +104,7 @@ function CharacterizationResults({
     <div className="flex flex-col gap-4">
       {/* Cohort counts */}
       <div className="flex flex-col gap-2">
-        <span className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+        <span className="text-xs font-medium uppercase tracking-wide text-text-ghost">
           Cohort Counts
         </span>
         <div className="grid grid-cols-2 gap-3">
@@ -132,17 +132,17 @@ function CharacterizationResults({
       {/* Top features by SMD */}
       {topFeatures && topFeatures.length > 0 && (
         <div className="flex flex-col gap-2">
-          <span className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+          <span className="text-xs font-medium uppercase tracking-wide text-text-ghost">
             Top Features by SMD
           </span>
           <div className="overflow-hidden rounded-lg border border-border-default">
             <table className="w-full text-xs">
               <thead>
                 <tr className="border-b border-border-default bg-surface-base/80">
-                  <th className="px-3 py-2 text-left font-medium text-zinc-500">
+                  <th className="px-3 py-2 text-left font-medium text-text-ghost">
                     Covariate
                   </th>
-                  <th className="px-3 py-2 text-right font-medium text-zinc-500">
+                  <th className="px-3 py-2 text-right font-medium text-text-ghost">
                     SMD
                   </th>
                 </tr>
@@ -155,10 +155,10 @@ function CharacterizationResults({
                       key={i}
                       className="border-b border-border-default/50 last:border-0"
                     >
-                      <td className="px-3 py-1.5 text-zinc-300">
+                      <td className="px-3 py-1.5 text-text-secondary">
                         {(cov.covariate_name ?? cov.name) as string | undefined ?? "—"}
                       </td>
-                      <td className="px-3 py-1.5 text-right font-mono text-zinc-400">
+                      <td className="px-3 py-1.5 text-right font-mono text-text-muted">
                         {smd != null ? smd.toFixed(3) : "—"}
                       </td>
                     </tr>
@@ -189,7 +189,7 @@ function IncidenceRateResults({
 
   return (
     <div className="flex flex-col gap-4">
-      <span className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+      <span className="text-xs font-medium uppercase tracking-wide text-text-ghost">
         Incidence Rate
       </span>
 
@@ -198,7 +198,7 @@ function IncidenceRateResults({
         <span className="text-3xl font-bold text-[#2DD4BF]">
           {rate != null ? rate.toFixed(4) : "—"}
         </span>
-        <span className="text-xs text-zinc-500">per person-year</span>
+        <span className="text-xs text-text-ghost">per person-year</span>
         <CIBadge lower={ciLower} upper={ciUpper} />
       </div>
 
@@ -278,7 +278,7 @@ function EstimationResults({
 
   return (
     <div className="flex flex-col gap-4">
-      <span className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+      <span className="text-xs font-medium uppercase tracking-wide text-text-ghost">
         Comparative Effectiveness
       </span>
 
@@ -290,16 +290,16 @@ function EstimationResults({
               ? "text-[#2DD4BF]"
               : hrUnfavorable
                 ? "text-[#9B1B30]"
-                : "text-zinc-100"
+                : "text-text-primary"
           }`}
         >
           {hr != null ? hr.toFixed(2) : "—"}
         </span>
-        <span className="text-xs text-zinc-500">Hazard Ratio</span>
+        <span className="text-xs text-text-ghost">Hazard Ratio</span>
         <div className="flex items-center gap-2">
           <CIBadge lower={ciLower} upper={ciUpper} />
           {pValue != null && (
-            <span className="text-xs text-zinc-500">
+            <span className="text-xs text-text-ghost">
               p = {pValue < 0.001 ? "<0.001" : pValue.toFixed(3)}
             </span>
           )}
@@ -381,18 +381,18 @@ function PredictionResults({
 
   return (
     <div className="flex flex-col gap-4">
-      <span className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+      <span className="text-xs font-medium uppercase tracking-wide text-text-ghost">
         Prediction Performance
       </span>
 
       {/* AUC card */}
       <div className="flex flex-col gap-1 rounded-lg border border-border-default bg-surface-base/60 p-4">
         <span
-          className={`text-3xl font-bold leading-none ${aucFavorable ? "text-[#2DD4BF]" : "text-zinc-100"}`}
+          className={`text-3xl font-bold leading-none ${aucFavorable ? "text-[#2DD4BF]" : "text-text-primary"}`}
         >
           {aucDisplay}
         </span>
-        <span className="text-xs text-zinc-500">AUC / AUROC</span>
+        <span className="text-xs text-text-ghost">AUC / AUROC</span>
       </div>
 
       {/* Summary metrics */}
@@ -454,7 +454,7 @@ function SccsResults({
 
   return (
     <div className="flex flex-col gap-4">
-      <span className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+      <span className="text-xs font-medium uppercase tracking-wide text-text-ghost">
         Self-Controlled Case Series
       </span>
 
@@ -465,18 +465,18 @@ function SccsResults({
               ? "text-[#2DD4BF]"
               : irrUnfavorable
                 ? "text-[#9B1B30]"
-                : "text-zinc-100"
+                : "text-text-primary"
           }`}
         >
           {irr != null ? irr.toFixed(2) : "—"}
         </span>
-        <span className="text-xs text-zinc-500">
+        <span className="text-xs text-text-ghost">
           Incidence Rate Ratio (IRR)
         </span>
         <div className="flex items-center gap-2">
           <CIBadge lower={ciLower} upper={ciUpper} />
           {pValue != null && (
-            <span className="text-xs text-zinc-500">
+            <span className="text-xs text-text-ghost">
               p = {pValue < 0.001 ? "<0.001" : pValue.toFixed(3)}
             </span>
           )}
@@ -521,7 +521,7 @@ function EvidenceSynthesisResults({
 
   return (
     <div className="flex flex-col gap-4">
-      <span className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+      <span className="text-xs font-medium uppercase tracking-wide text-text-ghost">
         Evidence Synthesis
       </span>
 
@@ -533,12 +533,12 @@ function EvidenceSynthesisResults({
               ? "text-[#2DD4BF]"
               : hrUnfavorable
                 ? "text-[#9B1B30]"
-                : "text-zinc-100"
+                : "text-text-primary"
           }`}
         >
           {pooledHr != null ? pooledHr.toFixed(2) : "—"}
         </span>
-        <span className="text-xs text-zinc-500">Pooled Hazard Ratio</span>
+        <span className="text-xs text-text-ghost">Pooled Hazard Ratio</span>
         <CIBadge lower={ciLower} upper={ciUpper} />
       </div>
 
@@ -588,7 +588,7 @@ function PathwayResults({
 
   return (
     <div className="flex flex-col gap-4">
-      <span className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+      <span className="text-xs font-medium uppercase tracking-wide text-text-ghost">
         Top Treatment Sequences
       </span>
 
@@ -603,15 +603,15 @@ function PathwayResults({
                 key={i}
                 className="flex items-start gap-3 rounded-lg border border-border-default bg-surface-base/60 px-3 py-2"
               >
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-surface-raised text-[10px] font-bold text-zinc-400">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-surface-raised text-[10px] font-bold text-text-muted">
                   {i + 1}
                 </span>
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-sm text-zinc-200">
+                  <span className="text-sm text-text-primary">
                     {label ?? "—"}
                   </span>
                   {(count != null || proportion != null) && (
-                    <span className="text-xs text-zinc-500">
+                    <span className="text-xs text-text-ghost">
                       {count != null && `${count.toLocaleString()} patients`}
                       {count != null && proportion != null && " · "}
                       {proportion != null &&
@@ -624,7 +624,7 @@ function PathwayResults({
           })}
         </ol>
       ) : (
-        <div className="rounded-lg border border-border-default bg-surface-base/60 px-4 py-6 text-center text-sm text-zinc-500">
+        <div className="rounded-lg border border-border-default bg-surface-base/60 px-4 py-6 text-center text-sm text-text-ghost">
           No sequence data available
         </div>
       )}

@@ -40,7 +40,7 @@ export function RiskScoreCriteriaSection() {
           <button
             type="button"
             onClick={() => removeRiskScoreCriterion(i)}
-            className="text-gray-600 hover:text-red-400 shrink-0"
+            className="text-text-ghost hover:text-red-400 shrink-0"
           >
             <X size={12} />
           </button>

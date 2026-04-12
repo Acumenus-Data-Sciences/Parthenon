@@ -302,7 +302,7 @@ export default function RiskScoreDetailPage() {
               type="button"
               onClick={() => setShowRunModal(true)}
               disabled={executeMutation.isPending || sourceId === 0}
-              className="btn btn-sm flex items-center gap-1.5 bg-[#9B1B30] text-white hover:bg-[#B42240] border-[#9B1B30] disabled:opacity-50"
+              className="btn btn-sm flex items-center gap-1.5 bg-[#9B1B30] text-text-primary hover:bg-[#B42240] border-[#9B1B30] disabled:opacity-50"
             >
               <RefreshCw size={14} />
               Re-run

@@ -59,16 +59,16 @@ export function AnalysisCard({
         >
           <Icon className="h-4 w-4" style={{ color: accent }} />
         </div>
-        <span className="text-[10px] text-zinc-600">{descriptor.estimatedTime}</span>
+        <span className="text-[10px] text-text-ghost">{descriptor.estimatedTime}</span>
       </div>
 
       {/* Name */}
-      <h3 className="text-lg font-semibold leading-snug text-zinc-100">
+      <h3 className="text-lg font-semibold leading-snug text-text-primary">
         {descriptor.name}
       </h3>
 
       {/* Description — 2 lines max */}
-      <p className="line-clamp-2 text-xs leading-relaxed text-zinc-400">
+      <p className="line-clamp-2 text-xs leading-relaxed text-text-muted">
         {descriptor.description}
       </p>
 
@@ -78,7 +78,7 @@ export function AnalysisCard({
           {descriptor.prerequisites.map((prereq) => (
             <span
               key={prereq}
-              className="rounded-full bg-surface-accent px-2 py-0.5 text-[10px] text-zinc-400"
+              className="rounded-full bg-surface-accent px-2 py-0.5 text-[10px] text-text-muted"
             >
               {prereq}
             </span>

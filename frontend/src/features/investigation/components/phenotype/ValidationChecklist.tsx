@@ -61,7 +61,7 @@ export function ValidationChecklist({ investigation }: ValidationChecklistProps)
     <div className="rounded-lg border border-border-default/50 bg-surface-base/60 p-3">
       {/* Summary header */}
       <div className="flex items-center justify-between mb-2">
-        <h4 className="text-xs font-medium text-zinc-300">QC Checklist</h4>
+        <h4 className="text-xs font-medium text-text-secondary">QC Checklist</h4>
         <span
           className={`text-[10px] font-medium px-1.5 py-0.5 rounded border ${
             passed === total
@@ -100,11 +100,11 @@ export function ValidationChecklist({ investigation }: ValidationChecklistProps)
             )}
             <div className="flex-1 min-w-0">
               <span
-                className={`text-xs ${check.pass ? "text-zinc-300" : "text-zinc-400"}`}
+                className={`text-xs ${check.pass ? "text-text-secondary" : "text-text-muted"}`}
               >
                 {check.label}
               </span>
-              <p className="text-[10px] text-zinc-500 leading-tight mt-0.5">
+              <p className="text-[10px] text-text-ghost leading-tight mt-0.5">
                 {check.detail}
               </p>
             </div>

@@ -139,11 +139,11 @@ export default function GeographicDiversityView() {
           </p>
         </div>
         <div className="rounded-lg border border-[#252530] bg-[#151518] p-3">
-          <p className="text-2xl font-semibold text-white">{geoData.length}</p>
+          <p className="text-2xl font-semibold text-text-primary">{geoData.length}</p>
           <p className="mt-0.5 text-xs text-[#888]">Sources with location data</p>
         </div>
         <div className="rounded-lg border border-[#252530] bg-[#151518] p-3">
-          <p className="text-2xl font-semibold text-white">
+          <p className="text-2xl font-semibold text-text-primary">
             {geoData.filter((s: GeographicDiversity) => Object.keys(s.adi_distribution).length > 0).length}
           </p>
           <p className="mt-0.5 text-xs text-[#888]">Sources with ADI data</p>
@@ -154,7 +154,7 @@ export default function GeographicDiversityView() {
       {geoData.map((source: GeographicDiversity) => (
         <div key={source.source_id} className="rounded-lg border border-[#252530] bg-[#151518] p-4">
           <div className="mb-3 flex items-center justify-between">
-            <h3 className="text-sm font-medium text-white">{source.source_name}</h3>
+            <h3 className="text-sm font-medium text-text-primary">{source.source_name}</h3>
             <div className="flex items-center gap-3">
               <span className="text-xs text-[#888]">
                 {source.geographic_reach} states

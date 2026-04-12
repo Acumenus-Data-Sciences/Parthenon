@@ -41,7 +41,7 @@ export default function MultiConceptSelector({
         {selectedConcepts.map((concept, i) => (
           <span
             key={concept.concept_id}
-            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium text-white"
+            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium text-text-primary"
             style={{ backgroundColor: `${CONCEPT_COLORS[i % CONCEPT_COLORS.length]}30`, borderColor: CONCEPT_COLORS[i % CONCEPT_COLORS.length], borderWidth: 1 }}
           >
             <span
@@ -72,7 +72,7 @@ export default function MultiConceptSelector({
               setShowDropdown(true);
             }}
             onFocus={() => setShowDropdown(true)}
-            className="w-full rounded-lg border border-[#333] bg-[#1a1a22] px-4 py-2 text-sm text-white
+            className="w-full rounded-lg border border-[#333] bg-[#1a1a22] px-4 py-2 text-sm text-text-primary
                        placeholder-[#555] focus:border-[#C9A227] focus:outline-none"
           />
           {isLoading && (
@@ -91,7 +91,7 @@ export default function MultiConceptSelector({
                     onClick={() => handleSelect(concept)}
                     className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm hover:bg-[#252530]"
                   >
-                    <span className="text-white">{concept.concept_name}</span>
+                    <span className="text-text-primary">{concept.concept_name}</span>
                     <span className="text-[10px] text-[#666]">
                       {concept.domain_id} | {concept.vocabulary_id} | ID: {concept.concept_id}
                     </span>

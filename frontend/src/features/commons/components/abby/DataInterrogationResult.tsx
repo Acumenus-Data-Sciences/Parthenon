@@ -34,7 +34,7 @@ export function DataInterrogationResult({
         <div>
           <button
             onClick={() => setShowSql(!showSql)}
-            className="flex items-center gap-1.5 text-xs text-white/40 hover:text-white/60 transition-colors"
+            className="flex items-center gap-1.5 text-xs text-text-primary/40 hover:text-text-primary/60 transition-colors"
           >
             <span
               className={`transition-transform ${showSql ? 'rotate-90' : ''}`}

@@ -83,7 +83,7 @@ export function ConceptSearchInline({ onSelect }: ConceptSearchInlineProps) {
 
   return (
     <div ref={containerRef} className="relative mt-2">
-      <label className="text-[10px] uppercase text-gray-500 tracking-wide block mb-1">
+      <label className="text-[10px] uppercase text-text-ghost tracking-wide block mb-1">
         Concept Search
       </label>
       <input
@@ -94,7 +94,7 @@ export function ConceptSearchInline({ onSelect }: ConceptSearchInlineProps) {
           if (results.length > 0) setIsOpen(true);
         }}
         placeholder="Search OMOP concepts..."
-        className="w-full bg-[#1C1C20] border border-[#2E2E35] rounded px-3 py-1.5 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-[#2DD4BF]"
+        className="w-full bg-[#1C1C20] border border-[#2E2E35] rounded px-3 py-1.5 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-[#2DD4BF]"
       />
       {isLoading && (
         <div className="absolute right-3 top-[28px]">
@@ -118,14 +118,14 @@ export function ConceptSearchInline({ onSelect }: ConceptSearchInlineProps) {
                 onClick={() => handleSelect(concept)}
                 className="w-full text-left px-3 py-2 hover:bg-[#232328] transition-colors flex items-center gap-2"
               >
-                <span className="text-xs text-gray-500 font-mono min-w-[60px]">
+                <span className="text-xs text-text-ghost font-mono min-w-[60px]">
                   {concept.concept_id}
                 </span>
-                <span className="text-sm text-white flex-1 truncate">
+                <span className="text-sm text-text-primary flex-1 truncate">
                   {concept.concept_name}
                 </span>
-                <span className="text-[10px] text-gray-500">{concept.domain_id}</span>
-                <span className="text-[10px] text-gray-600">{concept.vocabulary_id}</span>
+                <span className="text-[10px] text-text-ghost">{concept.domain_id}</span>
+                <span className="text-[10px] text-text-ghost">{concept.vocabulary_id}</span>
                 {concept.standard_concept === "S" && (
                   <span className="text-[9px] px-1.5 py-0.5 rounded bg-[#2DD4BF]/20 text-[#2DD4BF] font-medium">
                     S

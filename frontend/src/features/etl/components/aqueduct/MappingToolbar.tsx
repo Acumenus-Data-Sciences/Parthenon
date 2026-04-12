@@ -19,7 +19,7 @@ interface MappingToolbarProps {
 }
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
-  draft: { bg: "bg-surface-accent/50", text: "text-gray-300", label: "Draft" },
+  draft: { bg: "bg-surface-accent/50", text: "text-text-secondary", label: "Draft" },
   in_review: { bg: "bg-amber-900/50", text: "text-amber-300", label: "In Review" },
   approved: { bg: "bg-green-900/50", text: "text-green-300", label: "Approved" },
   archived: { bg: "bg-red-900/50", text: "text-red-300", label: "Archived" },

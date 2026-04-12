@@ -34,7 +34,7 @@ function CustomTooltip({
   const item = payload[0].payload;
   return (
     <div className="max-w-xs rounded-lg border border-border-default bg-surface-base px-3 py-2 shadow-lg">
-      <p className="text-sm font-medium text-zinc-200">{item.label}</p>
+      <p className="text-sm font-medium text-text-primary">{item.label}</p>
       <p className="mt-0.5 font-mono text-xs text-[#2DD4BF]">
         {item.count.toLocaleString()} occurrences
       </p>

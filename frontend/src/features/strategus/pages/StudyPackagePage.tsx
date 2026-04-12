@@ -665,7 +665,7 @@ function StepExecute({
             type="button"
             disabled={!selectedSourceId || isExecuting}
             onClick={() => selectedSourceId && onExecute(Number(selectedSourceId))}
-            className="flex items-center gap-2 rounded-lg bg-[#9B1B30] px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#9B1B30]/80 disabled:opacity-50"
+            className="flex items-center gap-2 rounded-lg bg-[#9B1B30] px-6 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-[#9B1B30]/80 disabled:opacity-50"
           >
             {isExecuting ? (
               <Loader2 size={15} className="animate-spin" />
@@ -1010,7 +1010,7 @@ export default function StudyPackagePage() {
                   className={[
                     "flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold",
                     isActive
-                      ? "bg-[#9B1B30] text-white"
+                      ? "bg-[#9B1B30] text-text-primary"
                       : isDone
                         ? "bg-[#2DD4BF]/20 text-[#2DD4BF]"
                         : "bg-[#232328] text-[#5A5650]",
@@ -1117,7 +1117,7 @@ export default function StudyPackagePage() {
             type="button"
             onClick={goNext}
             disabled={!canAdvance()}
-            className="flex items-center gap-2 rounded-lg bg-[#9B1B30] px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-[#9B1B30]/80 disabled:opacity-40"
+            className="flex items-center gap-2 rounded-lg bg-[#9B1B30] px-5 py-2 text-sm font-medium text-text-primary transition-colors hover:bg-[#9B1B30]/80 disabled:opacity-40"
           >
             Next
             <ChevronRight size={15} />

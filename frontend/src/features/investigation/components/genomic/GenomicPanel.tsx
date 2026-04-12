@@ -117,10 +117,10 @@ export function GenomicPanel({ investigation }: GenomicPanelProps) {
         style={{ backgroundColor: "#09090b" }}
       >
         <div className="flex flex-col gap-0.5">
-          <h2 className="text-base font-semibold text-zinc-100">
+          <h2 className="text-base font-semibold text-text-primary">
             Genomic Evidence
           </h2>
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-text-ghost">
             Open Targets · GWAS Catalog · Summary Statistics
           </p>
         </div>
@@ -138,8 +138,8 @@ export function GenomicPanel({ investigation }: GenomicPanelProps) {
             onClick={() => setActiveTab(tab.id)}
             className={`relative px-4 py-3 text-sm font-medium transition-colors whitespace-nowrap ${
               activeTab === tab.id
-                ? "text-zinc-100"
-                : "text-zinc-500 hover:text-zinc-300"
+                ? "text-text-primary"
+                : "text-text-ghost hover:text-text-secondary"
             }`}
           >
             {tab.label}

@@ -368,7 +368,7 @@ export function CohortExpressionEditor() {
                 <span className="text-[10px] text-purple-500 uppercase">{criterion.type.replace("_", " ")}</span>
                 {criterion.exclude && <span className="text-[10px] text-red-400">EXCLUDE</span>}
               </div>
-              <button onClick={() => removeGenomicCriterion(i)} className="text-gray-600 hover:text-red-400">
+              <button onClick={() => removeGenomicCriterion(i)} className="text-text-ghost hover:text-red-400">
                 <X size={12} />
               </button>
             </div>
@@ -415,7 +415,7 @@ export function CohortExpressionEditor() {
                 <span className="text-[10px] text-cyan-500 uppercase">{criterion.type.replace("_", " ")}</span>
                 {criterion.exclude && <span className="text-[10px] text-red-400">EXCLUDE</span>}
               </div>
-              <button onClick={() => removeImagingCriterion(i)} className="text-gray-600 hover:text-red-400">
+              <button onClick={() => removeImagingCriterion(i)} className="text-text-ghost hover:text-red-400">
                 <X size={12} />
               </button>
             </div>

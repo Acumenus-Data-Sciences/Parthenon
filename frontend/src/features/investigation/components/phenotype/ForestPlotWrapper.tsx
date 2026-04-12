@@ -214,7 +214,7 @@ export function ForestPlotWrapper({
   return (
     <div className="flex flex-col gap-2">
       {title && (
-        <p className="text-xs font-medium text-zinc-400 uppercase tracking-wide">
+        <p className="text-xs font-medium text-text-muted uppercase tracking-wide">
           {title}
         </p>
       )}

@@ -50,7 +50,7 @@ export default function DqRadarChart({ profiles, maxSources = 5 }: DqRadarChartP
 
   return (
     <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
-      <h3 className="mb-3 text-sm font-medium text-white">DQ Radar Profile (Kahn Dimensions)</h3>
+      <h3 className="mb-3 text-sm font-medium text-text-primary">DQ Radar Profile (Kahn Dimensions)</h3>
       <p className="mb-4 text-xs text-[#555]">
         Pass rates across the five Kahn data quality dimensions. Higher values indicate better quality.
       </p>

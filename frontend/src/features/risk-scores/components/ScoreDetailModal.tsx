@@ -254,7 +254,7 @@ export function ScoreDetailModal({
                 <button
                   type="button"
                   onClick={() => onCreateAnalysis(score.score_id)}
-                  className="flex items-center gap-1.5 rounded-lg bg-[#9B1B30] px-4 py-2 text-xs font-medium text-white hover:bg-[#B42240] transition-colors"
+                  className="flex items-center gap-1.5 rounded-lg bg-[#9B1B30] px-4 py-2 text-xs font-medium text-text-primary hover:bg-[#B42240] transition-colors"
                 >
                   <Plus size={12} />
                   Create Analysis

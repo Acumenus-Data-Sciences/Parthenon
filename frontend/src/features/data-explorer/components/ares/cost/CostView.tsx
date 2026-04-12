@@ -31,7 +31,7 @@ function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[#323238] bg-[#151518] py-16">
       <div className="mb-3 text-4xl text-[#333]">$</div>
-      <h3 className="mb-2 text-sm font-medium text-white">No Cost Data Available</h3>
+      <h3 className="mb-2 text-sm font-medium text-text-primary">No Cost Data Available</h3>
       <p className="max-w-md text-center text-xs text-[#666]">
         Cost data requires claims-based datasets (e.g., MarketScan, Optum, PharMetrics).
         EHR-derived datasets like SynPUF, MIMIC-IV, and most academic medical center data
@@ -84,7 +84,7 @@ export default function CostView() {
             setSelectedCostTypeId(null);
             setActiveTab("overview");
           }}
-          className="rounded border border-[#333] bg-[#1a1a22] px-3 py-1.5 text-sm text-white"
+          className="rounded border border-[#333] bg-[#1a1a22] px-3 py-1.5 text-sm text-text-primary"
         >
           <option value="">Select source...</option>
           {sources?.map((s) => (
@@ -113,8 +113,8 @@ export default function CostView() {
                   onClick={() => setActiveTab(tab)}
                   className={`rounded-md px-3 py-1 text-xs transition-colors ${
                     activeTab === tab
-                      ? "bg-[#252530] text-white"
-                      : "text-[#666] hover:text-white"
+                      ? "bg-[#252530] text-text-primary"
+                      : "text-[#666] hover:text-text-primary"
                   }`}
                 >
                   {labels[tab]}
@@ -156,11 +156,11 @@ export default function CostView() {
                 <p className="text-[10px] text-[#666]">Per-Patient-Per-Year</p>
               </div>
               <div className="rounded-lg border border-[#252530] bg-[#151518] p-3 text-center">
-                <p className="text-xl font-semibold text-white">{(summary.person_count ?? 0).toLocaleString()}</p>
+                <p className="text-xl font-semibold text-text-primary">{(summary.person_count ?? 0).toLocaleString()}</p>
                 <p className="text-[10px] text-[#666]">Persons</p>
               </div>
               <div className="rounded-lg border border-[#252530] bg-[#151518] p-3 text-center">
-                <p className="text-xl font-semibold text-white">{(summary.avg_observation_years ?? 0).toFixed(1)} yr</p>
+                <p className="text-xl font-semibold text-text-primary">{(summary.avg_observation_years ?? 0).toFixed(1)} yr</p>
                 <p className="text-[10px] text-[#666]">Avg Observation</p>
               </div>
             </div>
@@ -171,7 +171,7 @@ export default function CostView() {
             <>
               {/* Cost by domain bar chart */}
               <div className="mb-6 rounded-lg border border-[#252530] bg-[#151518] p-4">
-                <h3 className="mb-3 text-sm font-medium text-white">Cost by Domain</h3>
+                <h3 className="mb-3 text-sm font-medium text-text-primary">Cost by Domain</h3>
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
@@ -214,7 +214,7 @@ export default function CostView() {
                       <p className="text-[10px] uppercase tracking-wider text-[#666]">
                         {formatDomain(d.domain)}
                       </p>
-                      <p className="text-sm font-semibold text-white">{formatCurrency(d.total_cost)}</p>
+                      <p className="text-sm font-semibold text-text-primary">{formatCurrency(d.total_cost)}</p>
                       <p className="text-[10px] text-[#555]">
                         {d.record_count.toLocaleString()} records | avg {formatCurrency(d.avg_cost)}
                       </p>
@@ -228,7 +228,7 @@ export default function CostView() {
           {/* Distribution tab — box plots */}
           {activeTab === "distribution" && distributionData && (
             <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
-              <h3 className="mb-3 text-sm font-medium text-white">Cost Distribution by Domain</h3>
+              <h3 className="mb-3 text-sm font-medium text-text-primary">Cost Distribution by Domain</h3>
               <p className="mb-4 text-xs text-[#555]">
                 Box-and-whisker plots showing cost spread. Box = IQR (P25-P75), whiskers = P10-P90,
                 gold line = median, red dot = mean.
@@ -244,7 +244,7 @@ export default function CostView() {
           {/* Care setting tab */}
           {activeTab === "care-setting" && careSettingData && (
             <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
-              <h3 className="mb-3 text-sm font-medium text-white">Cost by Care Setting</h3>
+              <h3 className="mb-3 text-sm font-medium text-text-primary">Cost by Care Setting</h3>
               <CareSettingBreakdown settings={careSettingData.settings} />
             </div>
           )}
@@ -252,7 +252,7 @@ export default function CostView() {
           {/* Trends tab */}
           {activeTab === "trends" && trends && trends.has_cost_data && trends.months.length > 0 && (
             <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
-              <h3 className="mb-3 text-sm font-medium text-white">Monthly Cost Trends</h3>
+              <h3 className="mb-3 text-sm font-medium text-text-primary">Monthly Cost Trends</h3>
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart
@@ -297,7 +297,7 @@ export default function CostView() {
           {/* Cost Drivers tab */}
           {activeTab === "drivers" && (
             <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
-              <h3 className="mb-3 text-sm font-medium text-white">Top Cost Drivers</h3>
+              <h3 className="mb-3 text-sm font-medium text-text-primary">Top Cost Drivers</h3>
               <CostDriversView sourceId={selectedSourceId} />
             </div>
           )}
@@ -305,7 +305,7 @@ export default function CostView() {
           {/* Cross-Source tab */}
           {activeTab === "cross-source" && (
             <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
-              <h3 className="mb-3 text-sm font-medium text-white">Cross-Source Cost Comparison</h3>
+              <h3 className="mb-3 text-sm font-medium text-text-primary">Cross-Source Cost Comparison</h3>
               <CrossSourceCostChart />
             </div>
           )}

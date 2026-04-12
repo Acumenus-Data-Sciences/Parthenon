@@ -102,7 +102,7 @@ export function AnalysisGallery({
                 >
                   {label}
                 </h2>
-                <p className="text-xs text-zinc-500">{description}</p>
+                <p className="text-xs text-text-ghost">{description}</p>
               </div>
             </div>
 

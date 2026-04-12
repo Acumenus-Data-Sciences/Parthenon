@@ -78,7 +78,7 @@ export function TopLociTable({
   function SortIcon({ colKey }: { colKey: SortKey }) {
     if (sortKey !== colKey) {
       return (
-        <span className="ml-1 text-zinc-600 text-[10px]">⇕</span>
+        <span className="ml-1 text-text-ghost text-[10px]">⇕</span>
       );
     }
     return (
@@ -99,13 +99,13 @@ export function TopLociTable({
         >
           Significant Loci
         </span>
-        <span className="text-[11px] text-zinc-500">
+        <span className="text-[11px] text-text-ghost">
           {significant.length} loci · threshold p &lt; {significanceThreshold.toExponential(0)}
         </span>
       </div>
 
       {significant.length === 0 ? (
-        <div className="rounded-xl border border-border-default bg-surface-darkest px-4 py-8 text-center text-sm text-zinc-500">
+        <div className="rounded-xl border border-border-default bg-surface-darkest px-4 py-8 text-center text-sm text-text-ghost">
           No loci below significance threshold ({significanceThreshold.toExponential(0)})
         </div>
       ) : (
@@ -114,39 +114,39 @@ export function TopLociTable({
             <thead>
               <tr style={{ backgroundColor: "#18181b" }}>
                 <th
-                  className="px-3 py-2 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wide cursor-pointer select-none whitespace-nowrap hover:text-zinc-200 transition-colors"
+                  className="px-3 py-2 text-left text-xs font-semibold text-text-muted uppercase tracking-wide cursor-pointer select-none whitespace-nowrap hover:text-text-primary transition-colors"
                   onClick={() => handleSort("chr")}
                 >
                   Chr <SortIcon colKey="chr" />
                 </th>
                 <th
-                  className="px-3 py-2 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wide cursor-pointer select-none whitespace-nowrap hover:text-zinc-200 transition-colors"
+                  className="px-3 py-2 text-left text-xs font-semibold text-text-muted uppercase tracking-wide cursor-pointer select-none whitespace-nowrap hover:text-text-primary transition-colors"
                   onClick={() => handleSort("pos")}
                 >
                   Position <SortIcon colKey="pos" />
                 </th>
                 <th
-                  className="px-3 py-2 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wide cursor-pointer select-none whitespace-nowrap hover:text-zinc-200 transition-colors"
+                  className="px-3 py-2 text-left text-xs font-semibold text-text-muted uppercase tracking-wide cursor-pointer select-none whitespace-nowrap hover:text-text-primary transition-colors"
                   onClick={() => handleSort("negLogP")}
                 >
                   -log₁₀(p) <SortIcon colKey="negLogP" />
                 </th>
-                <th className="px-3 py-2 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wide whitespace-nowrap">
+                <th className="px-3 py-2 text-left text-xs font-semibold text-text-muted uppercase tracking-wide whitespace-nowrap">
                   p-value
                 </th>
                 {hasBeta && (
                   <th
-                    className="px-3 py-2 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wide cursor-pointer select-none whitespace-nowrap hover:text-zinc-200 transition-colors"
+                    className="px-3 py-2 text-left text-xs font-semibold text-text-muted uppercase tracking-wide cursor-pointer select-none whitespace-nowrap hover:text-text-primary transition-colors"
                     onClick={() => handleSort("beta")}
                   >
                     Beta/OR <SortIcon colKey="beta" />
                   </th>
                 )}
-                <th className="px-3 py-2 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wide whitespace-nowrap">
+                <th className="px-3 py-2 text-left text-xs font-semibold text-text-muted uppercase tracking-wide whitespace-nowrap">
                   Ref/Alt
                 </th>
                 {onPinLocus && (
-                  <th className="px-3 py-2 text-xs font-semibold text-zinc-400 uppercase tracking-wide text-center whitespace-nowrap">
+                  <th className="px-3 py-2 text-xs font-semibold text-text-muted uppercase tracking-wide text-center whitespace-nowrap">
                     Pin
                   </th>
                 )}
@@ -161,10 +161,10 @@ export function TopLociTable({
                     className="border-t border-border-default hover:bg-surface-raised/30 transition-colors"
                     style={{ backgroundColor: "#09090b" }}
                   >
-                    <td className="px-3 py-2 text-zinc-300 font-mono text-xs whitespace-nowrap">
+                    <td className="px-3 py-2 text-text-secondary font-mono text-xs whitespace-nowrap">
                       {row.chr}
                     </td>
-                    <td className="px-3 py-2 text-zinc-300 font-mono text-xs whitespace-nowrap">
+                    <td className="px-3 py-2 text-text-secondary font-mono text-xs whitespace-nowrap">
                       {row.pos.toLocaleString()}
                     </td>
                     <td className="px-3 py-2 font-mono text-xs whitespace-nowrap">
@@ -177,7 +177,7 @@ export function TopLociTable({
                         {isFinite(nlp) ? nlp.toFixed(2) : "∞"}
                       </span>
                     </td>
-                    <td className="px-3 py-2 text-zinc-400 font-mono text-xs whitespace-nowrap">
+                    <td className="px-3 py-2 text-text-muted font-mono text-xs whitespace-nowrap">
                       {formatP(row.p)}
                     </td>
                     {hasBeta && (
@@ -192,11 +192,11 @@ export function TopLociTable({
                             {row.beta.toFixed(4)}
                           </span>
                         ) : (
-                          <span className="text-zinc-600">—</span>
+                          <span className="text-text-ghost">—</span>
                         )}
                       </td>
                     )}
-                    <td className="px-3 py-2 text-zinc-500 font-mono text-xs whitespace-nowrap">
+                    <td className="px-3 py-2 text-text-ghost font-mono text-xs whitespace-nowrap">
                       {row.ref && row.alt ? `${row.ref}/${row.alt}` : "—"}
                     </td>
                     {onPinLocus && (
@@ -206,7 +206,7 @@ export function TopLociTable({
                             onPinLocus({ chr: row.chr, pos: row.pos, p: row.p })
                           }
                           title="Pin this locus"
-                          className="inline-flex items-center justify-center w-6 h-6 rounded-md border border-border-default bg-surface-raised text-zinc-400 hover:border-teal-600 hover:text-teal-400 transition-colors text-xs"
+                          className="inline-flex items-center justify-center w-6 h-6 rounded-md border border-border-default bg-surface-raised text-text-muted hover:border-teal-600 hover:text-teal-400 transition-colors text-xs"
                         >
                           📌
                         </button>

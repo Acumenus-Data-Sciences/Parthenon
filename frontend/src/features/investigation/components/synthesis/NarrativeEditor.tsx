@@ -44,7 +44,7 @@ export function NarrativeEditor({
         tabIndex={0}
         onClick={() => setEditing(true)}
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setEditing(true); }}
-        className="w-full rounded-md border border-dashed border-border-default px-3 py-2 text-xs text-zinc-500 cursor-text hover:border-border-hover hover:text-zinc-400 transition-colors"
+        className="w-full rounded-md border border-dashed border-border-default px-3 py-2 text-xs text-text-ghost cursor-text hover:border-border-hover hover:text-text-muted transition-colors"
       >
         {placeholder}
       </div>
@@ -58,7 +58,7 @@ export function NarrativeEditor({
       onInput={handleInput}
       onBlur={handleBlur}
       rows={2}
-      className="w-full rounded-md border border-border-default bg-surface-base px-3 py-2 text-xs text-zinc-300 placeholder:text-zinc-600 focus:outline-none focus:border-border-hover resize-none overflow-hidden transition-colors"
+      className="w-full rounded-md border border-border-default bg-surface-base px-3 py-2 text-xs text-text-secondary placeholder:text-text-ghost focus:outline-none focus:border-border-hover resize-none overflow-hidden transition-colors"
       placeholder={placeholder}
     />
   );

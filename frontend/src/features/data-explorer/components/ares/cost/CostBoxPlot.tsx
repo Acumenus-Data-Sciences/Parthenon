@@ -33,7 +33,7 @@ export default function CostBoxPlot({ distributions }: CostBoxPlotProps) {
       {distributions.map((dist) => (
         <div key={dist.domain} className="rounded-lg border border-[#252530] bg-[#151518] p-3">
           <div className="mb-2 flex items-center justify-between">
-            <span className="text-sm font-medium text-white">{formatDomain(dist.domain)}</span>
+            <span className="text-sm font-medium text-text-primary">{formatDomain(dist.domain)}</span>
             <span className="text-xs text-[#666]">{dist.count.toLocaleString()} records</span>
           </div>
 

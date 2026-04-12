@@ -50,7 +50,7 @@ function CdmTableNodeComponent({ data }: NodeProps) {
         style={{ backgroundColor: color, borderColor: color }}
       />
       <div className="flex items-center gap-2">
-        <div className="text-sm font-semibold text-white truncate">{d.tableName}</div>
+        <div className="text-sm font-semibold text-text-primary truncate">{d.tableName}</div>
         <span
           className="text-[10px] px-1.5 py-0.5 rounded font-medium"
           style={{ backgroundColor: `${color}30`, color }}
@@ -58,7 +58,7 @@ function CdmTableNodeComponent({ data }: NodeProps) {
           {d.domain}
         </span>
       </div>
-      <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
+      <div className="flex items-center gap-3 mt-1 text-xs text-text-muted">
         <span>req: {d.requiredCount}</span>
         {unmappedRequired > 0 && (
           <span className="text-red-400 font-medium">{unmappedRequired} unmapped</span>

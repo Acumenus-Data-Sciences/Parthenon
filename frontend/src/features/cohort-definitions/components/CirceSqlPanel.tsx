@@ -170,7 +170,7 @@ export function CirceSqlPanel({ definitionId }: CirceSqlPanelProps) {
               type="button"
               onClick={() => compileMutation.mutate()}
               disabled={compileMutation.isPending}
-              className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium bg-[#9B1B30] text-white hover:bg-[#9B1B30]/80 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium bg-[#9B1B30] text-text-primary hover:bg-[#9B1B30]/80 disabled:opacity-50"
             >
               {compileMutation.isPending ? (
                 <Loader2 size={12} className="animate-spin" />
@@ -222,7 +222,7 @@ export function CirceSqlPanel({ definitionId }: CirceSqlPanelProps) {
               type="button"
               onClick={() => validateMutation.mutate()}
               disabled={validateMutation.isPending}
-              className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium bg-surface-accent text-white hover:bg-surface-overlay disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium bg-surface-accent text-text-primary hover:bg-surface-overlay disabled:opacity-50"
             >
               {validateMutation.isPending ? (
                 <Loader2 size={12} className="animate-spin" />
@@ -291,7 +291,7 @@ export function CirceSqlPanel({ definitionId }: CirceSqlPanelProps) {
               type="button"
               onClick={() => renderMutation.mutate()}
               disabled={renderMutation.isPending}
-              className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium bg-surface-accent text-white hover:bg-surface-overlay disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium bg-surface-accent text-text-primary hover:bg-surface-overlay disabled:opacity-50"
             >
               {renderMutation.isPending ? (
                 <Loader2 size={12} className="animate-spin" />

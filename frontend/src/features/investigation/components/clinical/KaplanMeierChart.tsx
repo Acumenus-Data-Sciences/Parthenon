@@ -314,7 +314,7 @@ export function KaplanMeierChart({
 
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+      <p className="text-xs font-medium uppercase tracking-wide text-text-ghost">
         Kaplan-Meier Survival Curve
       </p>
       <div className="overflow-x-auto">
