@@ -134,7 +134,7 @@ function SyncTimeline({
               />
             )}
             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block z-10">
-              <div className="bg-[#1E1E23] border border-border-default rounded px-2 py-1 text-[10px] text-text-secondary whitespace-nowrap shadow-lg">
+              <div className="bg-surface-overlay border border-border-default rounded px-2 py-1 text-[10px] text-text-secondary whitespace-nowrap shadow-lg">
                 {day.date}
                 <br />
                 {day.completed} ok / {day.failed} fail
@@ -161,7 +161,7 @@ function ConnectionHealthRow({
   return (
     <Link
       to={`/admin/fhir-connections`}
-      className="flex items-center gap-3 px-3 py-2.5 border-b border-[#1E1E23] last:border-0 hover:bg-[#1E1E23]/30 transition-colors group"
+      className="flex items-center gap-3 px-3 py-2.5 border-b border-border-subtle last:border-0 hover:bg-surface-overlay/30 transition-colors group"
     >
       <div
         className={`w-2 h-2 rounded-full flex-shrink-0 ${conn.is_active ? "bg-success" : "bg-text-ghost"}`}
@@ -210,7 +210,7 @@ function RecentRunRow({ run }: { run: FhirSyncRun }) {
   const [showError, setShowError] = useState(false);
 
   return (
-    <div className="border-b border-[#1E1E23] last:border-0">
+    <div className="border-b border-border-subtle last:border-0">
       <div className="flex items-center gap-3 px-3 py-2.5 text-xs">
         <span
           className={`px-1.5 py-0.5 rounded-full font-medium min-w-[80px] text-center ${STATUS_BADGE[run.status] ?? "bg-surface-elevated text-text-muted"}`}
@@ -447,7 +447,7 @@ export default function FhirSyncDashboardPage() {
             failed={s.total_failed}
           />
           {s.avg_coverage != null && (
-            <div className="mt-4 pt-3 border-t border-[#1E1E23]">
+            <div className="mt-4 pt-3 border-t border-border-subtle">
               <div className="flex items-center justify-between text-xs text-text-muted mb-1">
                 <span>Average mapping coverage</span>
                 <span className="font-medium">{s.avg_coverage}%</span>
@@ -493,7 +493,7 @@ export default function FhirSyncDashboardPage() {
               No connections configured
             </p>
           ) : (
-            <div className="rounded-md border border-[#1E1E23] overflow-hidden">
+            <div className="rounded-md border border-border-subtle overflow-hidden">
               {dashboard.connections.map((conn) => (
                 <ConnectionHealthRow key={conn.id} conn={conn} />
               ))}
@@ -517,8 +517,8 @@ export default function FhirSyncDashboardPage() {
               No sync runs yet
             </p>
           ) : (
-            <div className="rounded-md border border-[#1E1E23] overflow-hidden">
-              <div className="px-3 py-1.5 bg-[#1E1E23]/50 text-[10px] font-medium text-text-ghost uppercase tracking-wider flex items-center gap-3">
+            <div className="rounded-md border border-border-subtle overflow-hidden">
+              <div className="px-3 py-1.5 bg-surface-overlay/50 text-[10px] font-medium text-text-ghost uppercase tracking-wider flex items-center gap-3">
                 <span className="min-w-[80px]">Status</span>
                 <span className="min-w-[100px]">Connection</span>
                 <span className="min-w-[80px]">Started</span>

@@ -378,7 +378,7 @@ export function ClinicalPanel({ investigation }: ClinicalPanelProps) {
         <div className="mx-6 mb-4 flex items-start gap-3 rounded border border-primary bg-primary/10 px-4 py-3">
           <AlertCircle size={15} className="mt-0.5 shrink-0 text-primary" />
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium text-[#e05c6e]">Analysis dispatch failed</p>
+            <p className="text-xs font-medium text-critical">Analysis dispatch failed</p>
             <p className="text-xs text-zinc-400 mt-0.5 break-words">{executeError}</p>
           </div>
           <button

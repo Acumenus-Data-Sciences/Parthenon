@@ -200,7 +200,7 @@ export function SccsDesigner({ sccs, isNew, onSaved }: SccsDesignerProps) {
           <button
             type="button"
             onClick={addRiskWindow}
-            className="inline-flex items-center gap-1 text-xs text-success hover:text-[#26B8A5] transition-colors"
+            className="inline-flex items-center gap-1 text-xs text-success hover:text-success transition-colors"
           >
             <Plus size={12} /> Add Window
           </button>

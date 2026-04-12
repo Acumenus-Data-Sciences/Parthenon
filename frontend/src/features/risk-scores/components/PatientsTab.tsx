@@ -73,7 +73,7 @@ export function PatientsTab({
             setFilterScoreId(e.target.value || undefined);
             setPage(1);
           }}
-          className="rounded-lg border border-[#2A2A2F] bg-[#141418] px-3 py-1.5 text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-success"
+          className="rounded-lg border border-border-default bg-surface-raised px-3 py-1.5 text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-success"
         >
           <option value="">All Scores</option>
           {scoreIds.map((sid) => (
@@ -125,7 +125,7 @@ export function PatientsTab({
 
       {/* Bulk action bar */}
       {isFilterActive && patients.length > 0 && (
-        <div className="flex items-center gap-3 rounded-lg border border-[#2A2A2F] bg-surface-overlay px-4 py-2">
+        <div className="flex items-center gap-3 rounded-lg border border-border-default bg-surface-overlay px-4 py-2">
           <button
             type="button"
             onClick={() =>
@@ -162,7 +162,7 @@ export function PatientsTab({
           </p>
         </div>
       ) : (
-        <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] overflow-hidden">
+        <div className="rounded-xl border border-border-default bg-surface-raised overflow-hidden">
           <table className="w-full">
             <thead>
               <tr className="bg-surface-overlay">
@@ -190,7 +190,7 @@ export function PatientsTab({
                     key={r.id}
                     className={cn(
                       "border-t border-surface-overlay transition-colors hover:bg-surface-overlay",
-                      i % 2 === 0 ? "bg-[#141418]" : "bg-surface-overlay",
+                      i % 2 === 0 ? "bg-surface-raised" : "bg-surface-overlay",
                     )}
                   >
                     <td className="px-4 py-2.5">

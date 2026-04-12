@@ -205,7 +205,7 @@ export default function ImagingStudyPage() {
                   )}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#1E1E23]">
+              <tbody className="divide-y divide-border-subtle">
                 {study.series.map((s: ImagingSeries) => (
                   <tr key={s.id} className="hover:bg-surface-overlay transition-colors">
                     <td className="px-4 py-3 text-text-muted text-xs">{s.series_number ?? "—"}</td>
@@ -249,7 +249,7 @@ export default function ImagingStudyPage() {
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#1E1E23]">
+              <tbody className="divide-y divide-border-subtle">
                 {features.data.map((f: ImagingFeature) => (
                   <tr key={f.id} className="hover:bg-surface-overlay transition-colors">
                     <td className="px-4 py-3 font-medium text-text-primary text-xs">{f.feature_name}</td>

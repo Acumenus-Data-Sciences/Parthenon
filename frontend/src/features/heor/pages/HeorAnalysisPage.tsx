@@ -92,7 +92,7 @@ function ResultCard({ result }: { result: HeorResult }) {
                 className="rounded-lg bg-surface-base border border-border-default p-2 text-center"
               >
                 <p className="text-[10px] text-text-ghost">{year}</p>
-                <p className="text-sm font-semibold font-['IBM_Plex_Mono',monospace] text-[#F59E0B] mt-0.5">
+                <p className="text-sm font-semibold font-['IBM_Plex_Mono',monospace] text-warning mt-0.5">
                   {fmt(val, "$")}
                 </p>
               </div>
@@ -252,7 +252,7 @@ export default function HeorAnalysisPage() {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold text-text-primary flex items-center gap-2">
-              <BarChart2 size={14} className="text-[#F59E0B]" />
+              <BarChart2 size={14} className="text-warning" />
               Scenarios ({analysis.scenarios?.length ?? 0})
             </h2>
             <button
@@ -331,7 +331,7 @@ export default function HeorAnalysisPage() {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold text-text-primary flex items-center gap-2">
-              <DollarSign size={14} className="text-[#F59E0B]" />
+              <DollarSign size={14} className="text-warning" />
               Cost Parameters ({analysis.parameters?.length ?? 0})
             </h2>
             <button
@@ -410,7 +410,7 @@ export default function HeorAnalysisPage() {
             </form>
           )}
 
-          <div className="space-y-0 max-h-64 overflow-y-auto rounded-lg border border-border-default bg-surface-raised divide-y divide-[#1E1E23]">
+          <div className="space-y-0 max-h-64 overflow-y-auto rounded-lg border border-border-default bg-surface-raised divide-y divide-border-subtle">
             {analysis.parameters?.map((p) => (
               <div
                 key={p.id}
@@ -420,7 +420,7 @@ export default function HeorAnalysisPage() {
                 <span className="text-text-ghost text-xs flex-shrink-0">
                   {PARAM_TYPE_LABELS[p.parameter_type] ?? p.parameter_type}
                 </span>
-                <span className="font-mono font-semibold text-xs text-[#F59E0B] flex-shrink-0">
+                <span className="font-mono font-semibold text-xs text-warning flex-shrink-0">
                   {p.value.toLocaleString()} {p.unit ?? ""}
                 </span>
                 <button
@@ -443,7 +443,7 @@ export default function HeorAnalysisPage() {
       {results && results.length > 0 && (
         <div className="space-y-6">
           <h2 className="text-sm font-semibold text-text-primary flex items-center gap-2">
-            <TrendingUp size={14} className="text-[#F59E0B]" />
+            <TrendingUp size={14} className="text-warning" />
             Results
           </h2>
 

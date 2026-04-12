@@ -33,8 +33,8 @@ function getScoreStyle(score: number) {
   }
   if (score >= 0.7) {
     return {
-      bg: "bg-[#E5A84B]/20",
-      text: "text-[#E5A84B]",
+      bg: "bg-warning/20",
+      text: "text-warning",
       label: "Medium",
     };
   }

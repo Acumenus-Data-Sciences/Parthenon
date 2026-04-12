@@ -68,7 +68,7 @@ export function UploadStep({ onComplete }: Props) {
         ) : (
           <>
             <Upload className="mb-2 h-8 w-8 text-text-ghost" />
-            <p className="text-sm text-[#E8E4DC]">Drop a file here or click to browse</p>
+            <p className="text-sm text-text-primary">Drop a file here or click to browse</p>
             <p className="mt-1 text-xs text-text-ghost">
               CSV, TSV, Excel, Shapefile (.zip), GeoJSON, KML, GeoPackage — max {MAX_SIZE_MB}MB
             </p>
@@ -97,7 +97,7 @@ export function UploadStep({ onComplete }: Props) {
           <FileText className="h-3.5 w-3.5" />
           For large files (&gt;{MAX_SIZE_MB}MB)
         </h4>
-        <code className="block rounded bg-surface-overlay px-3 py-2 text-xs text-[#E8E4DC]">
+        <code className="block rounded bg-surface-overlay px-3 py-2 text-xs text-text-primary">
           php artisan gis:import &lt;path-to-file&gt;
         </code>
       </div>

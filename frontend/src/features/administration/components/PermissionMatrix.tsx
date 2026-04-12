@@ -174,12 +174,12 @@ export function PermissionMatrix({ roles, permissionsByDomain }: Props) {
                           <Loader2 size={10} className="animate-spin" /> saving…
                         </span>
                       ) : saved.has(r.name) ? (
-                        <span className="text-[#22C55E]">saved ✓</span>
+                        <span className="text-success">saved ✓</span>
                       ) : (
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); saveRole(r.name); }}
-                          className="text-success underline underline-offset-2 hover:text-[#26B8A5]"
+                          className="text-success underline underline-offset-2 hover:text-success"
                         >
                           save
                         </button>
@@ -208,7 +208,7 @@ export function PermissionMatrix({ roles, permissionsByDomain }: Props) {
                     return (
                       <td key={r.id} className="px-2 py-1.5 text-center">
                         {domOn ? (
-                          <Check className="mx-auto h-3.5 w-3.5 text-[#22C55E]" />
+                          <Check className="mx-auto h-3.5 w-3.5 text-success" />
                         ) : domSome ? (
                           <Minus className="mx-auto h-3.5 w-3.5 text-text-muted" />
                         ) : (
@@ -244,8 +244,8 @@ export function PermissionMatrix({ roles, permissionsByDomain }: Props) {
                             title={`${on ? "Revoke" : "Grant"} ${perm.name} from ${r.name}`}
                           >
                             {on ? (
-                              <span className="mx-auto flex h-4 w-4 items-center justify-center rounded bg-[#22C55E]/15">
-                                <Check className="h-3 w-3 text-[#22C55E]" />
+                              <span className="mx-auto flex h-4 w-4 items-center justify-center rounded bg-success/15">
+                                <Check className="h-3 w-3 text-success" />
                               </span>
                             ) : (
                               <X className="mx-auto h-3 w-3 text-critical/35" />

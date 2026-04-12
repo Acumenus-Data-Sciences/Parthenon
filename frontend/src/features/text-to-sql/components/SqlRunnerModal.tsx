@@ -434,7 +434,7 @@ export function SqlRunnerModal({
             gap: "10px",
             padding: "16px 20px",
             borderBottom: "1px solid var(--surface-elevated)",
-            background: "#111115",
+            background: "var(--surface-base)",
           }}
         >
           <Database size={18} style={{ color: "var(--success)" }} />
@@ -576,7 +576,7 @@ export function SqlRunnerModal({
                   borderRadius: "6px",
                   border: "1px solid color-mix(in srgb, var(--primary) 25%, transparent)",
                   background: "color-mix(in srgb, var(--primary) 8%, transparent)",
-                  color: "#F87171",
+                  color: 'var(--critical)',
                   fontSize: "12px",
                 }}
               >
@@ -736,13 +736,13 @@ export function SqlRunnerModal({
 
           {isError && !isComplete && (
             <>
-              <XCircle size={18} style={{ color: "#F87171", flexShrink: 0 }} />
+              <XCircle size={18} style={{ color: 'var(--critical)', flexShrink: 0 }} />
               <div style={{ flex: 1 }}>
                 <div
                   style={{
                     fontSize: "13px",
                     fontWeight: 600,
-                    color: "#F87171",
+                    color: 'var(--critical)',
                   }}
                 >
                   Query failed
@@ -750,7 +750,7 @@ export function SqlRunnerModal({
                 <div
                   style={{
                     fontSize: "12px",
-                    color: "#F87171",
+                    color: 'var(--critical)',
                     marginTop: "4px",
                     lineHeight: "1.5",
                     opacity: 0.85,
@@ -784,7 +784,7 @@ export function SqlRunnerModal({
                 fontWeight: 600,
                 letterSpacing: "0.5px",
                 textTransform: "uppercase",
-                background: "#111115",
+                background: "var(--surface-base)",
                 borderBottom: "1px solid var(--surface-elevated)",
                 position: "sticky",
                 top: 0,
@@ -852,7 +852,7 @@ export function SqlRunnerModal({
                           }}
                         >
                           {cell === null ? (
-                            <span style={{ color: "#555", fontStyle: "italic" }}>
+                            <span style={{ color: 'var(--text-ghost)', fontStyle: "italic" }}>
                               null
                             </span>
                           ) : (
@@ -877,7 +877,7 @@ export function SqlRunnerModal({
             gap: "10px",
             padding: "14px 20px",
             borderTop: "1px solid var(--surface-elevated)",
-            background: "#111115",
+            background: "var(--surface-base)",
           }}
         >
           {isComplete && (

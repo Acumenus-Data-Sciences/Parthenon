@@ -134,7 +134,7 @@ export default function MeasurementPanel({ studyId, personId }: MeasurementPanel
             type="button"
             onClick={() => aiExtract.mutate(studyId)}
             disabled={aiExtract.isPending}
-            className="inline-flex items-center gap-2 rounded-lg bg-[var(--domain-observation)] px-4 py-2 text-sm font-medium text-white hover:bg-[#8B5CF6] disabled:opacity-50 transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg bg-[var(--domain-observation)] px-4 py-2 text-sm font-medium text-white hover:bg-domain-observation disabled:opacity-50 transition-colors"
           >
             {aiExtract.isPending ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
             {aiExtract.isPending ? "Extracting…" : "Auto-Extract"}
@@ -346,7 +346,7 @@ export default function MeasurementPanel({ studyId, personId }: MeasurementPanel
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#1E1E23]">
+              <tbody className="divide-y divide-border-subtle">
                 {measurements.map((m: ImagingMeasurement) => (
                   <tr key={m.id} className="hover:bg-surface-overlay transition-colors">
                     <td className="px-4 py-3">

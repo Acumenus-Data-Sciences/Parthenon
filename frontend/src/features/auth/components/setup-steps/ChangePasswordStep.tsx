@@ -228,7 +228,7 @@ export function ChangePasswordStep({ onPasswordChanged }: Props) {
         <button
           type="submit"
           disabled={loading}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-surface-base transition-colors hover:bg-[#D4AE3A] disabled:opacity-50"
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-surface-base transition-colors hover:bg-accent disabled:opacity-50"
         >
           {loading ? (
             <Loader2 size={14} className="animate-spin" />

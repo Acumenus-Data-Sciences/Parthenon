@@ -41,7 +41,7 @@ export function ValidateStep({ importId, onComplete, onBack }: Props) {
   return (
     <div className="space-y-4">
       <div className="rounded border border-border-default bg-surface-base p-4">
-        <h3 className="mb-3 text-sm font-medium text-[#E8E4DC]">Validation Results</h3>
+        <h3 className="mb-3 text-sm font-medium text-text-primary">Validation Results</h3>
         <div className="grid grid-cols-2 gap-4">
           <Stat label="Total Rows" value={result.total_rows} />
           <Stat label="Unique Geographies" value={result.unique_geographies} />
@@ -83,7 +83,7 @@ function Stat({ label, value, color }: { label: string; value: string | number; 
   return (
     <div>
       <p className="text-xs text-text-ghost">{label}</p>
-      <p className={`text-lg font-semibold ${color ?? "text-[#E8E4DC]"}`}>{value}</p>
+      <p className={`text-lg font-semibold ${color ?? "text-text-primary"}`}>{value}</p>
     </div>
   );
 }

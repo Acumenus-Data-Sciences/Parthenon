@@ -21,7 +21,7 @@ export default function CommunityWorkbenchSdkDemoPage() {
       <section className="rounded-2xl border border-zinc-800 bg-zinc-950/70 p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="max-w-3xl space-y-3">
-            <div className="inline-flex items-center gap-2 rounded-full border border-success/30 bg-success/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#7CE8D5]">
+            <div className="inline-flex items-center gap-2 rounded-full border border-success/30 bg-success/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-success-light">
               <Blocks className="h-3.5 w-3.5" />
               Phase 3 Demo
             </div>
@@ -44,7 +44,7 @@ export default function CommunityWorkbenchSdkDemoPage() {
               href="/docs/community-workbench-sdk"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg border border-success/30 bg-success/10 px-3 py-2 text-sm font-medium text-[#B9FFF1] transition-colors hover:bg-success/20"
+              className="inline-flex items-center gap-2 rounded-lg border border-success/30 bg-success/10 px-3 py-2 text-sm font-medium text-success-light transition-colors hover:bg-success/20"
             >
               Open SDK Docs
               <ArrowUpRight className="h-4 w-4" />

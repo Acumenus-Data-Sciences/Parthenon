@@ -301,9 +301,9 @@ export default function RiskScoreCreatePage() {
                     }}
                     className="btn btn-sm"
                     style={{
-                      backgroundColor: "#F59E0B15",
-                      color: "#F59E0B",
-                      borderColor: "#F59E0B40",
+                      backgroundColor: "var(--warning-bg)",
+                      color: 'var(--warning)',
+                      borderColor: 'var(--warning-border)',
                     }}
                   >
                     Select All Available

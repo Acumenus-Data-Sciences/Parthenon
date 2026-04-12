@@ -109,7 +109,7 @@ function ServiceRow({
           <button
             type="button"
             onClick={onGoToAiProvider}
-            className="ml-3 flex shrink-0 items-center gap-1 text-sm font-medium text-accent hover:text-[#D4AE3A] transition-colors"
+            className="ml-3 flex shrink-0 items-center gap-1 text-sm font-medium text-accent hover:text-accent transition-colors"
           >
             Configure AI
             <ArrowRight size={12} />

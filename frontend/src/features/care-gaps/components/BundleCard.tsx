@@ -30,7 +30,7 @@ function EvalStatusBadge({
 }) {
   const config = {
     pending: { icon: Clock, color: "var(--text-muted)", label: "Pending" },
-    running: { icon: Loader2, color: "#F59E0B", label: "Running" },
+    running: { icon: Loader2, color: 'var(--warning)', label: "Running" },
     completed: { icon: CheckCircle2, color: "var(--success)", label: "Completed" },
     failed: { icon: XCircle, color: "var(--critical)", label: "Failed" },
   } as const;

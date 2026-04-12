@@ -10,15 +10,15 @@ const comorbidityLayer: GisLayer = {
   id: "comorbidity",
   name: "Comorbidity Burden",
   description: "DM, HTN, obesity clustering",
-  color: "#F59E0B",
+  color: 'var(--warning)',
   icon: Activity,
   mapOverlay: ComorbidityMapOverlay as unknown as GisLayer["mapOverlay"],
   legendItems: [
     { label: "Low burden (0)", color: "#F59E0B30", type: "gradient" },
-    { label: "High burden (3)", color: "#F59E0B", type: "gradient" },
+    { label: "High burden (3)", color: 'var(--warning)', type: "gradient" },
   ],
   getTooltipData: (feature): TooltipEntry[] => [
-    { layerId: "comorbidity", label: "Burden", value: Number(feature.value).toFixed(1), color: "#F59E0B" },
+    { layerId: "comorbidity", label: "Burden", value: Number(feature.value).toFixed(1), color: 'var(--warning)' },
   ],
   analysisPanel: ComorbidityAnalysisPanel,
   detailPanel: ComorbidityDetailPanel,

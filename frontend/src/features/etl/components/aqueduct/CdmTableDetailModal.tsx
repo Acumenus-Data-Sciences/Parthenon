@@ -98,7 +98,7 @@ export default function CdmTableDetailModal({
                   <Check size={14} />
                   Mapped ({mapped.length})
                 </h3>
-                <div className="rounded-lg border border-border-default divide-y divide-[#1E1E23]">
+                <div className="rounded-lg border border-border-default divide-y divide-border-subtle">
                   {mapped.map((col) => {
                     const fm = fieldMap.get(col.name)!;
                     return (
@@ -130,14 +130,14 @@ export default function CdmTableDetailModal({
                 <h3 className="text-sm font-medium text-text-muted mb-2">
                   Unmapped Optional ({unmappedOptional.length})
                 </h3>
-                <div className="rounded-lg border border-border-default divide-y divide-[#1E1E23]">
+                <div className="rounded-lg border border-border-default divide-y divide-border-subtle">
                   {unmappedOptional.map((col) => (
                     <div key={col.name} className="px-4 py-2.5">
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-mono text-text-ghost">{col.name}</span>
                         <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface-elevated text-text-ghost">{col.type}</span>
                       </div>
-                      <p className="text-xs text-[#3A3630] mt-1 line-clamp-1">{col.description}</p>
+                      <p className="text-xs text-text-disabled mt-1 line-clamp-1">{col.description}</p>
                     </div>
                   ))}
                 </div>

@@ -59,7 +59,7 @@ function RangeIndicator({ value, low, high }: { value: number; low: number | nul
   if (low == null && high == null) return null;
   if (low != null && value < low) {
     return (
-      <span className="inline-flex items-center gap-1 text-[#818CF8]">
+      <span className="inline-flex items-center gap-1 text-info">
         <TrendingDown size={12} /> Below range ({low})
       </span>
     );
@@ -72,7 +72,7 @@ function RangeIndicator({ value, low, high }: { value: number; low: number | nul
     );
   }
   return (
-    <span className="inline-flex items-center gap-1 text-[#22C55E]">
+    <span className="inline-flex items-center gap-1 text-success">
       <Minus size={12} /> Normal ({low}&ndash;{high})
     </span>
   );
@@ -163,7 +163,7 @@ export default function ConceptDetailDrawer({ event, onClose, dataset }: Concept
                 <>
                   <div className="font-mono text-sm text-success">{event.concept_id}</div>
                   <div className="text-[10px] text-text-ghost">{event.standard_concept_name}</div>
-                  <span className="inline-block mt-1 rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#22C55E]/10 text-[#22C55E]">Mapped</span>
+                  <span className="inline-block mt-1 rounded px-1.5 py-0.5 text-[10px] font-medium bg-success/10 text-success">Mapped</span>
                 </>
               ) : (
                 <span className="inline-block rounded px-1.5 py-0.5 text-[10px] font-medium bg-yellow-500/10 text-yellow-400">Unmapped</span>

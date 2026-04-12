@@ -271,7 +271,7 @@ export function HierarchyBrowserPanel({
           <button
             type="button"
             onClick={() => setShowGroupings((prev) => !prev)}
-            className="flex items-center gap-1 text-[10px] text-accent hover:text-[#E5C84B] transition-colors"
+            className="flex items-center gap-1 text-[10px] text-accent hover:text-warning transition-colors"
           >
             {shouldShowGroupings ? (
               <>
@@ -363,7 +363,7 @@ export function HierarchyBrowserPanel({
               <button
                 type="button"
                 onClick={() => setFilterText("")}
-                className="text-[10px] text-accent hover:text-[#E5C84B] transition-colors"
+                className="text-[10px] text-accent hover:text-warning transition-colors"
               >
                 Clear filter
               </button>

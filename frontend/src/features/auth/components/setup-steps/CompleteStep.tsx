@@ -164,7 +164,7 @@ export function CompleteStep({ wizardState, steps, onFinish, completing, onGoToS
           disabled={completing}
           className={cn(
             "inline-flex items-center gap-2 rounded-lg bg-accent px-8 py-3 text-base font-semibold text-surface-base",
-            "hover:bg-[#D4AE3A] transition-colors disabled:opacity-50",
+            "hover:bg-accent transition-colors disabled:opacity-50",
           )}
         >
           {completing ? (

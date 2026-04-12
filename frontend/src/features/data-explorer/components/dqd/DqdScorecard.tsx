@@ -8,8 +8,8 @@ interface DqdScorecardProps {
 
 const CATEGORY_META: Record<string, { label: string; icon: typeof Shield; color: string }> = {
   completeness: { label: "Completeness", icon: Shield, color: "text-info" },
-  conformance: { label: "Conformance", icon: CheckCircle2, color: "text-[#A855F7]" },
-  plausibility: { label: "Plausibility", icon: AlertTriangle, color: "text-[#E5A84B]" },
+  conformance: { label: "Conformance", icon: CheckCircle2, color: "text-domain-observation" },
+  plausibility: { label: "Plausibility", icon: AlertTriangle, color: "text-warning" },
 };
 
 function ScoreRing({
@@ -129,8 +129,8 @@ export function DqdScorecard({ summary }: DqdScorecardProps) {
           <span className="text-sm text-text-muted">Passed</span>
         </div>
         <div className="flex items-center gap-2">
-          <AlertTriangle className="h-4 w-4 text-[#E5A84B]" />
-          <span className="text-sm font-['IBM_Plex_Mono',monospace] text-[#E5A84B]">
+          <AlertTriangle className="h-4 w-4 text-warning" />
+          <span className="text-sm font-['IBM_Plex_Mono',monospace] text-warning">
             {summary.warnings}
           </span>
           <span className="text-sm text-text-muted">Warnings</span>

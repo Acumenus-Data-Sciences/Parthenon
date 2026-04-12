@@ -76,7 +76,7 @@ export function PsmPanel({ result, onExportMatched, onContinue }: PsmPanelProps)
         <button
           type="button"
           onClick={onContinue}
-          className="rounded-md bg-success px-4 py-2 text-sm font-medium text-surface-base transition-colors hover:bg-[#22B8A0]"
+          className="rounded-md bg-success px-4 py-2 text-sm font-medium text-surface-base transition-colors hover:bg-success"
         >
           Continue to Landscape →
         </button>

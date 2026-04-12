@@ -29,7 +29,7 @@ export function DiseaseSelector({ selectedConceptId, onSelect }: DiseaseSelector
   }, [selectedConceptId, topConditions, searchResults, categoryConditions]);
 
   return (
-    <div className="space-y-2 rounded-lg border border-border-default bg-[#18181B] p-3">
+    <div className="space-y-2 rounded-lg border border-border-default bg-surface-raised p-3">
       <span className="text-xs font-semibold uppercase tracking-wider text-text-ghost">
         Disease
       </span>
@@ -49,7 +49,7 @@ export function DiseaseSelector({ selectedConceptId, onSelect }: DiseaseSelector
             if (e.target.value.length >= 2) setMode("search");
           }}
           placeholder="Search conditions..."
-          className="w-full rounded border border-border-default bg-surface-base py-1.5 pl-7 pr-2 text-xs text-[#E8E4DC] placeholder-text-ghost focus:border-accent/50 focus:outline-none"
+          className="w-full rounded border border-border-default bg-surface-base py-1.5 pl-7 pr-2 text-xs text-text-primary placeholder-text-ghost focus:border-accent/50 focus:outline-none"
         />
       </div>
 

@@ -18,7 +18,7 @@ export function HospitalAnalysisPanel({ conceptId, metric }: LayerAnalysisProps)
         <CartesianGrid strokeDasharray="3 3" stroke="var(--border-default)" />
         <XAxis dataKey="name" tick={{ fill: "var(--text-muted)", fontSize: 9 }} />
         <YAxis tick={{ fill: "var(--text-muted)", fontSize: 10 }} />
-        <Tooltip contentStyle={{ backgroundColor: "#141418", border: "1px solid var(--surface-elevated)", borderRadius: 8, fontSize: 11 }} />
+        <Tooltip contentStyle={{ backgroundColor: 'var(--surface-raised)', border: "1px solid var(--surface-elevated)", borderRadius: 8, fontSize: 11 }} />
         <Bar dataKey="rate" fill="#3B82F6" radius={[2, 2, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>

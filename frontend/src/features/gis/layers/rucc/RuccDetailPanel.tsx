@@ -15,19 +15,19 @@ export function RuccDetailPanel({ fips }: LayerDetailProps) {
     <div className="space-y-1.5 text-xs">
       <div className="flex justify-between">
         <span className="text-text-muted">RUCC Code</span>
-        <span className="font-medium text-[#E8E4DC]">{data.rucc_code}</span>
+        <span className="font-medium text-text-primary">{data.rucc_code}</span>
       </div>
       <div className="flex justify-between">
         <span className="text-text-muted">Classification</span>
-        <span className="font-medium text-[#E8E4DC]">{data.rucc_label}</span>
+        <span className="font-medium text-text-primary">{data.rucc_label}</span>
       </div>
       <div className="flex justify-between">
         <span className="text-text-muted">Category</span>
-        <span className="font-medium capitalize text-[#E8E4DC]">{data.category}</span>
+        <span className="font-medium capitalize text-text-primary">{data.category}</span>
       </div>
       <div className="flex justify-between">
         <span className="text-text-muted">Patients</span>
-        <span className="font-medium text-[#E8E4DC]">{data.patient_count?.toLocaleString()}</span>
+        <span className="font-medium text-text-primary">{data.patient_count?.toLocaleString()}</span>
       </div>
     </div>
   );

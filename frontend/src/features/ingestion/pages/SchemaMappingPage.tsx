@@ -34,9 +34,9 @@ const CDM_TABLES = [
 
 const LOGIC_LABELS: Record<MappingLogic, { label: string; color: string }> = {
   direct: { label: "Direct", color: "text-success" },
-  transform: { label: "Transform", color: "text-[#A855F7]" },
+  transform: { label: "Transform", color: "text-domain-observation" },
   concat: { label: "Concat", color: "text-info" },
-  lookup: { label: "Lookup", color: "text-[#E5A84B]" },
+  lookup: { label: "Lookup", color: "text-warning" },
   constant: { label: "Constant", color: "text-text-muted" },
 };
 
@@ -213,7 +213,7 @@ export default function SchemaMappingPage() {
       {profile?.fields && mappings.length === 0 && (
         <div className="rounded-xl border border-border-default bg-surface-raised p-6">
           <div className="flex items-center gap-2 mb-4">
-            <Columns className="h-4 w-4 text-[#E5A84B]" />
+            <Columns className="h-4 w-4 text-warning" />
             <h2 className="text-sm font-medium text-text-primary">
               Source Columns
             </h2>
@@ -272,7 +272,7 @@ export default function SchemaMappingPage() {
               >
                 {/* Source Column */}
                 <div className="w-48 shrink-0">
-                  <span className="text-sm font-['IBM_Plex_Mono',monospace] text-[#E5A84B]">
+                  <span className="text-sm font-['IBM_Plex_Mono',monospace] text-warning">
                     {mapping.source_column}
                   </span>
                   {mapping.source_table && (

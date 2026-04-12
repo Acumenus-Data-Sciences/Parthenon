@@ -10,7 +10,7 @@ interface QualitySummaryProps {
 export default function QualitySummary({ quality, stats, qaLayers, onToggle }: QualitySummaryProps) {
   const items = [
     { key: "outliers" as const, label: "Outliers", count: quality.outlier_ids.length, color: "var(--critical)" },
-    { key: "duplicates" as const, label: "Duplicate pairs", count: quality.duplicate_pairs.length, color: "#F59E0B" },
+    { key: "duplicates" as const, label: "Duplicate pairs", count: quality.duplicate_pairs.length, color: 'var(--warning)' },
     { key: "orphans" as const, label: "Orphans", count: quality.orphan_ids.length, color: "var(--text-ghost)" },
   ];
 

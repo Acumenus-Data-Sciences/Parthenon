@@ -114,7 +114,7 @@ export function GenomicPanel({ investigation }: GenomicPanelProps) {
       {/* Panel header */}
       <div
         className="flex items-center justify-between px-6 py-4 border-b border-zinc-800"
-        style={{ backgroundColor: "#09090b" }}
+        style={{ backgroundColor: 'var(--surface-darkest)' }}
       >
         <div className="flex flex-col gap-0.5">
           <h2 className="text-base font-semibold text-zinc-100">

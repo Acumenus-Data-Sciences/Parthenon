@@ -65,7 +65,7 @@ function Stat({
     <div className="flex items-center gap-1.5">
       <Icon className="h-3 w-3" style={{ color }} />
       <span className="text-[10px] uppercase text-text-ghost">{label}</span>
-      <span className="text-xs font-semibold text-[#E8E4DC]">{value}</span>
+      <span className="text-xs font-semibold text-text-primary">{value}</span>
     </div>
   );
 }

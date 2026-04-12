@@ -42,7 +42,7 @@ export default function ComparisonChart(props: ComparisonChartProps) {
 
   if (!data || data.length === 0) {
     return (
-      <div className="flex h-48 items-center justify-center text-[#555]">
+      <div className="flex h-48 items-center justify-center text-text-ghost">
         No comparison data available.
       </div>
     );
@@ -67,24 +67,24 @@ export default function ComparisonChart(props: ComparisonChartProps) {
           <CartesianGrid strokeDasharray="3 3" stroke="#252530" />
           <XAxis
             dataKey="source"
-            tick={{ fill: "#888", fontSize: 11 }}
-            axisLine={{ stroke: "#333" }}
+            tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+            axisLine={{ stroke: 'var(--border-default)' }}
             angle={-30}
             textAnchor="end"
           />
           <YAxis
-            tick={{ fill: "#888", fontSize: 11 }}
-            axisLine={{ stroke: "#333" }}
+            tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+            axisLine={{ stroke: 'var(--border-default)' }}
             tickFormatter={(v: number) =>
               metric === "rate_per_1000" ? `${v}/1k` : v.toLocaleString()
             }
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: "#1a1a22",
+              backgroundColor: 'var(--surface-overlay)',
               border: "1px solid #333",
               borderRadius: "8px",
-              color: "#ccc",
+              color: 'var(--text-secondary)',
               fontSize: 12,
             }}
             /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -105,7 +105,7 @@ export default function ComparisonChart(props: ComparisonChartProps) {
               label={{
                 value: `CDC National Rate: ${benchmarkRate} per 1,000`,
                 position: "top",
-                fill: "#e85d75",
+                fill: "var(--critical)",
                 fontSize: 10,
               }}
             />
@@ -130,7 +130,7 @@ function GroupedBars({
 }) {
   if (multiData.sources.length === 0) {
     return (
-      <div className="flex h-48 items-center justify-center text-[#555]">
+      <div className="flex h-48 items-center justify-center text-text-ghost">
         No comparison data available.
       </div>
     );
@@ -157,29 +157,29 @@ function GroupedBars({
           <CartesianGrid strokeDasharray="3 3" stroke="#252530" />
           <XAxis
             dataKey="source"
-            tick={{ fill: "#888", fontSize: 11 }}
-            axisLine={{ stroke: "#333" }}
+            tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+            axisLine={{ stroke: 'var(--border-default)' }}
             angle={-30}
             textAnchor="end"
           />
           <YAxis
-            tick={{ fill: "#888", fontSize: 11 }}
-            axisLine={{ stroke: "#333" }}
+            tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+            axisLine={{ stroke: 'var(--border-default)' }}
             tickFormatter={(v: number) =>
               metric === "rate_per_1000" ? `${v}/1k` : v.toLocaleString()
             }
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: "#1a1a22",
+              backgroundColor: 'var(--surface-overlay)',
               border: "1px solid #333",
               borderRadius: "8px",
-              color: "#ccc",
+              color: 'var(--text-secondary)',
               fontSize: 12,
             }}
           />
           <Legend
-            wrapperStyle={{ fontSize: 11, color: "#888" }}
+            wrapperStyle={{ fontSize: 11, color: 'var(--text-muted)' }}
           />
           {multiData.concepts.map((concept, i) => (
             <Bar

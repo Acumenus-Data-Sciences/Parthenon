@@ -226,7 +226,7 @@ function ConnectStep({
           type="button"
           onClick={onTest}
           disabled={testing || !config.webapi_url}
-          className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-surface-base hover:bg-[#D4AE3A] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-surface-base hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {testing ? <Loader2 size={14} className="animate-spin" /> : <Globe size={14} />}
           Test Connection
@@ -427,9 +427,9 @@ function SelectStep({
               </button>
 
               {isExpanded && (
-                <div className="mt-3 pt-3 border-t border-[#1E1E23] space-y-1 max-h-60 overflow-y-auto">
+                <div className="mt-3 pt-3 border-t border-border-subtle space-y-1 max-h-60 overflow-y-auto">
                   {items.map((item) => (
-                    <label key={item.id} className="flex items-center gap-3 px-2 py-1.5 rounded-md hover:bg-[#1E1E23] cursor-pointer transition-colors">
+                    <label key={item.id} className="flex items-center gap-3 px-2 py-1.5 rounded-md hover:bg-surface-overlay cursor-pointer transition-colors">
                       <input
                         type="checkbox"
                         checked={selected[et.key].includes(item.id)}
@@ -514,14 +514,14 @@ function ImportStep({ migration }: { migration: AtlasMigration | null }) {
 
       {migration.mapping_summary && Object.keys(migration.mapping_summary).length > 0 && (
         <div className="rounded-lg border border-border-default overflow-hidden">
-          <div className="px-3 py-2 bg-[#1E1E23]/50 text-[10px] font-medium text-text-ghost uppercase tracking-wider grid grid-cols-5 gap-2">
+          <div className="px-3 py-2 bg-surface-overlay/50 text-[10px] font-medium text-text-ghost uppercase tracking-wider grid grid-cols-5 gap-2">
             <span className="col-span-2">Entity Type</span>
             <span className="text-center">Imported</span>
             <span className="text-center">Skipped</span>
             <span className="text-center">Failed</span>
           </div>
           {Object.entries(migration.mapping_summary).map(([type, stats]) => (
-            <div key={type} className="px-3 py-2 border-t border-[#1E1E23] grid grid-cols-5 gap-2 text-xs">
+            <div key={type} className="px-3 py-2 border-t border-border-subtle grid grid-cols-5 gap-2 text-xs">
               <span className="col-span-2 text-text-secondary capitalize">{type.replace(/_/g, " ")}</span>
               <span className="text-center text-success">{stats.imported}</span>
               <span className="text-center text-accent">{stats.skipped}</span>
@@ -610,14 +610,14 @@ function SummaryStep({
 
       {migration.import_results && (
         <div className="rounded-lg border border-border-default overflow-hidden">
-          <div className="px-3 py-2 bg-[#1E1E23]/50 text-[10px] font-medium text-text-ghost uppercase tracking-wider grid grid-cols-5 gap-2">
+          <div className="px-3 py-2 bg-surface-overlay/50 text-[10px] font-medium text-text-ghost uppercase tracking-wider grid grid-cols-5 gap-2">
             <span className="col-span-2">Category</span>
             <span className="text-center">Imported</span>
             <span className="text-center">Skipped</span>
             <span className="text-center">Failed</span>
           </div>
           {Object.entries(migration.import_results).map(([type, stats]) => (
-            <div key={type} className="px-3 py-2 border-t border-[#1E1E23] grid grid-cols-5 gap-2 text-xs">
+            <div key={type} className="px-3 py-2 border-t border-border-subtle grid grid-cols-5 gap-2 text-xs">
               <span className="col-span-2 text-text-secondary capitalize">{type.replace(/_/g, " ")}</span>
               <span className="text-center text-success">{stats.imported}</span>
               <span className="text-center text-accent">{stats.skipped}</span>
@@ -649,7 +649,7 @@ function SummaryStep({
         <button
           type="button"
           onClick={onClose}
-          className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-surface-base hover:bg-[#D4AE3A] transition-colors"
+          className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-surface-base hover:bg-accent transition-colors"
         >
           <Check size={14} />
           Done
@@ -868,7 +868,7 @@ export function AtlasMigrationWizard({ onClose }: Props) {
                 disabled={!canNext}
                 className={cn(
                   "inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2 text-sm font-semibold text-surface-base",
-                  "hover:bg-[#D4AE3A] transition-colors disabled:opacity-40 disabled:cursor-not-allowed",
+                  "hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed",
                 )}
               >
                 {currentStep === 2 ? (

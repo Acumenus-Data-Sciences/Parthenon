@@ -123,7 +123,7 @@ export function ScanHistorySidebar({
                     e.stopPropagation();
                     onDelete(profile.id);
                   }}
-                  className="p-1 rounded hover:bg-[#2E2E35] text-text-ghost hover:text-critical transition-colors"
+                  className="p-1 rounded hover:bg-surface-accent text-text-ghost hover:text-critical transition-colors"
                   title="Delete scan"
                 >
                   <Trash2 size={12} />

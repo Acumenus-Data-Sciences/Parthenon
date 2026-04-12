@@ -10,7 +10,7 @@ const SEVERITY_STYLES = {
     border: "border-primary",
     bg: "bg-primary/10",
     icon: XCircle,
-    iconColor: "text-[#e85d75]",
+    iconColor: "text-critical",
   },
   warning: {
     border: "border-accent",
@@ -40,7 +40,7 @@ export default function AlertBanner({ alerts }: AlertBannerProps) {
             className={`flex items-center gap-3 rounded-lg border ${style.border} ${style.bg} px-4 py-2`}
           >
             <Icon size={16} className={style.iconColor} />
-            <span className="text-sm text-[#ccc]">{alert.message}</span>
+            <span className="text-sm text-text-secondary">{alert.message}</span>
           </div>
         );
       })}

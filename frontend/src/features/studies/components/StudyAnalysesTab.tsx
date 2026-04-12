@@ -43,7 +43,7 @@ const ANALYSIS_TYPE_META: Record<string, { label: string; icon: typeof BarChart3
   "incidence-rate": { label: "Incidence Rate", icon: TrendingUp, color: "var(--info)", detailPath: "/analyses/incidence-rates" },
   incidence_rate: { label: "Incidence Rate", icon: TrendingUp, color: "var(--info)", detailPath: "/analyses/incidence-rates" },
   pathway: { label: "Pathway", icon: GitBranch, color: "var(--domain-observation)", detailPath: "/analyses/pathways" },
-  estimation: { label: "Estimation", icon: Scale, color: "#F59E0B", detailPath: "/analyses/estimations" },
+  estimation: { label: "Estimation", icon: Scale, color: 'var(--warning)', detailPath: "/analyses/estimations" },
   prediction: { label: "Prediction", icon: Brain, color: "var(--critical)", detailPath: "/analyses/predictions" },
 };
 
@@ -149,8 +149,8 @@ export function StudyAnalysesTab({ studySlug }: StudyAnalysesTabProps) {
           </h3>
           {progress && progress.total > 0 && (
             <div className="flex items-center gap-3 mt-1 text-xs text-text-ghost">
-              <span className="text-[#34D399]">{progress.completed} completed</span>
-              <span className="text-[#F59E0B]">{progress.running} running</span>
+              <span className="text-success">{progress.completed} completed</span>
+              <span className="text-warning">{progress.running} running</span>
               <span className="text-critical">{progress.failed} failed</span>
               <span>{progress.pending} pending</span>
             </div>
@@ -189,8 +189,8 @@ export function StudyAnalysesTab({ studySlug }: StudyAnalysesTabProps) {
       {progress && progress.total > 0 && (
         <div className="progress-bar">
           <div className="flex h-full">
-            {progress.completed > 0 && <div style={{ width: `${(progress.completed / progress.total) * 100}%`, background: "#34D399" }} />}
-            {progress.running > 0 && <div style={{ width: `${(progress.running / progress.total) * 100}%`, background: "#F59E0B" }} />}
+            {progress.completed > 0 && <div style={{ width: `${(progress.completed / progress.total) * 100}%`, background: 'var(--success)' }} />}
+            {progress.running > 0 && <div style={{ width: `${(progress.running / progress.total) * 100}%`, background: 'var(--warning)' }} />}
             {progress.failed > 0 && <div style={{ width: `${(progress.failed / progress.total) * 100}%`, background: "var(--critical)" }} />}
           </div>
         </div>

@@ -11,7 +11,7 @@ const SEGMENTS: {
   color: string;
 }[] = [
   { key: "auto_accepted", label: "Auto-Accepted", color: "var(--success)" },
-  { key: "quick_review", label: "Quick Review", color: "#E5A84B" },
+  { key: "quick_review", label: "Quick Review", color: 'var(--warning)' },
   { key: "full_review", label: "Full Review", color: "var(--critical)" },
   { key: "unmappable", label: "Unmappable", color: "var(--text-ghost)" },
 ];

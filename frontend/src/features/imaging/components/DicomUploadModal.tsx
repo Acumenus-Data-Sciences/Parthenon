@@ -388,7 +388,7 @@ export function DicomUploadModal({ open, onClose, onComplete }: DicomUploadModal
               <button
                 onClick={uploadFiles}
                 disabled={files.length === 0}
-                className="inline-flex items-center gap-2 rounded-lg bg-info px-4 py-2 text-sm font-medium text-surface-base hover:bg-[#4E94E8] disabled:opacity-40 transition-colors"
+                className="inline-flex items-center gap-2 rounded-lg bg-info px-4 py-2 text-sm font-medium text-surface-base hover:bg-info disabled:opacity-40 transition-colors"
               >
                 <Upload size={14} />
                 Upload {files.length > 0 ? `${files.length} files` : ""}
@@ -398,7 +398,7 @@ export function DicomUploadModal({ open, onClose, onComplete }: DicomUploadModal
           {(state === "done" || state === "error") && (
             <button
               onClick={handleClose}
-              className="rounded-lg bg-info px-4 py-2 text-sm font-medium text-surface-base hover:bg-[#4E94E8] transition-colors"
+              className="rounded-lg bg-info px-4 py-2 text-sm font-medium text-surface-base hover:bg-info transition-colors"
             >
               Close
             </button>

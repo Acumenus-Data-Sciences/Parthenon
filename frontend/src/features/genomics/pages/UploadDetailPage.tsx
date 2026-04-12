@@ -175,7 +175,7 @@ export default function UploadDetailPage() {
         {[
           { label: "Total Variants", value: upload.total_variants.toLocaleString(), color: "var(--domain-observation)" },
           { label: "OMOP Mapped", value: upload.mapped_variants.toLocaleString(), color: "var(--success)" },
-          { label: "Needs Review", value: upload.review_required.toLocaleString(), color: "#F59E0B" },
+          { label: "Needs Review", value: upload.review_required.toLocaleString(), color: 'var(--warning)' },
         ].map((c) => (
           <div key={c.label} className="rounded-lg border border-border-default bg-surface-raised px-4 py-3">
             <p className="text-[10px] text-text-ghost uppercase tracking-wider mb-1">{c.label}</p>
@@ -219,7 +219,7 @@ export default function UploadDetailPage() {
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#1E1E23]">
+              <tbody className="divide-y divide-border-subtle">
                 {variants.map((v: GenomicVariant) => (
                   <tr key={v.id} className="hover:bg-surface-overlay transition-colors">
                     <td className="px-4 py-2.5 font-semibold text-[var(--domain-observation)]">{v.gene_symbol ?? "—"}</td>

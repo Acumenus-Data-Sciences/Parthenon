@@ -219,7 +219,7 @@ export default function ChromaStudioPanel() {
           <select
             value={selectedCollection}
             onChange={(e) => setSelectedCollection(e.target.value)}
-            className="rounded border border-border-default bg-surface-base px-2.5 py-1.5 text-sm text-[#E8E4DC] outline-none transition focus:border-accent/50"
+            className="rounded border border-border-default bg-surface-base px-2.5 py-1.5 text-sm text-text-primary outline-none transition focus:border-accent/50"
           >
             {loadingCollections ? <option>Loading...</option> : null}
             {collections.map((c) => (
@@ -353,7 +353,7 @@ export default function ChromaStudioPanel() {
                   onFocus={() => queryHistory.length > 0 && setShowHistory(true)}
                   onBlur={() => setTimeout(() => setShowHistory(false), 200)}
                   placeholder="Semantic query..."
-                  className="w-full rounded border border-border-default bg-surface-base py-1.5 pl-8 pr-2.5 text-sm text-[#E8E4DC] outline-none transition focus:border-accent/50"
+                  className="w-full rounded border border-border-default bg-surface-base py-1.5 pl-8 pr-2.5 text-sm text-text-primary outline-none transition focus:border-accent/50"
                 />
                 {/* Query history dropdown */}
                 {showHistory && queryHistory.length > 0 && (
@@ -387,7 +387,7 @@ export default function ChromaStudioPanel() {
                   max={50}
                   value={nResults}
                   onChange={(e) => setNResults(Math.max(1, Math.min(50, Number(e.target.value) || 1)))}
-                  className="w-12 rounded border border-border-default bg-surface-base px-1.5 py-1.5 text-center text-sm text-[#E8E4DC] outline-none transition focus:border-accent/50"
+                  className="w-12 rounded border border-border-default bg-surface-base px-1.5 py-1.5 text-center text-sm text-text-primary outline-none transition focus:border-accent/50"
                 />
               </div>
               <Button
@@ -488,7 +488,7 @@ function SearchSection({ searchResults, queryLoading, searchText }: {
       {/* Summary */}
       {searchResults && (
         <div className="flex items-center gap-3 text-sm text-text-muted">
-          <span>Query: <span className="text-[#E8E4DC]">{searchText}</span></span>
+          <span>Query: <span className="text-text-primary">{searchText}</span></span>
           <span className="rounded bg-surface-base px-1.5 py-0.5 font-['IBM_Plex_Mono',monospace] text-success">
             {searchResults.elapsedMs ?? "--"} ms
           </span>

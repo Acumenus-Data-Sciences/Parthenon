@@ -162,12 +162,12 @@ export default function AntibiogramHeatmap({ data, onOrganismClick }: Antibiogra
       </div>
 
       {/* Antibiogram matrix */}
-      <div className="overflow-x-auto rounded-xl border border-zinc-800/60 bg-[#111114]">
+      <div className="overflow-x-auto rounded-xl border border-zinc-800/60 bg-surface-base">
         <table className="border-collapse" style={{ minWidth: 'max-content' }}>
           <thead>
             {/* Drug class group header row */}
-            <tr className="sticky top-0 z-30 bg-[#111114]">
-              <th className="sticky left-0 z-40 bg-[#111114] min-w-[200px]" />
+            <tr className="sticky top-0 z-30 bg-surface-base">
+              <th className="sticky left-0 z-40 bg-surface-base min-w-[200px]" />
               {drugClassGroups.map((group) => (
                 <th
                   key={group.name}
@@ -180,8 +180,8 @@ export default function AntibiogramHeatmap({ data, onOrganismClick }: Antibiogra
               ))}
             </tr>
             {/* Antibiotic name header row */}
-            <tr className="sticky top-[28px] z-30 bg-[#111114]">
-              <th className="sticky left-0 z-40 bg-[#111114] px-3 py-1 text-left text-[10px] font-semibold text-text-muted min-w-[200px] border-b border-surface-highlight">
+            <tr className="sticky top-[28px] z-30 bg-surface-base">
+              <th className="sticky left-0 z-40 bg-surface-base px-3 py-1 text-left text-[10px] font-semibold text-text-muted min-w-[200px] border-b border-surface-highlight">
                 Organism
               </th>
               {antibiotics.map((ab, abIdx) => {
@@ -216,7 +216,7 @@ export default function AntibiogramHeatmap({ data, onOrganismClick }: Antibiogra
                   onMouseEnter={() => setHoverRow(org)}
                   onMouseLeave={() => setHoverRow(null)}
                 >
-                  <td className="sticky left-0 z-10 bg-[#111114] px-3 py-1.5 border-b border-border-subtle"
+                  <td className="sticky left-0 z-10 bg-surface-base px-3 py-1.5 border-b border-border-subtle"
                     style={hoverRow === org ? { backgroundColor: "var(--surface-overlay)" } : {}}
                   >
                     <button

@@ -23,7 +23,7 @@ function getTier(recommendation: ScoreRecommendation): Tier {
 
 const TIER_STYLES: Record<Tier, string> = {
   recommended: "border-success/40 bg-success/5",
-  available: "border-[#F59E0B]/40 bg-[#F59E0B]/5",
+  available: "border-warning/40 bg-warning/5",
   "not-applicable": "border-surface-highlight bg-surface-raised opacity-60",
 };
 

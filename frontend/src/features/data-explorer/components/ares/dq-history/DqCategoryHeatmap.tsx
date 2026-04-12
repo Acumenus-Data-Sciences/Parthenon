@@ -32,7 +32,7 @@ export default function DqCategoryHeatmap({
 
   if (categories.length === 0 || releases.length === 0) {
     return (
-      <div className="flex h-32 items-center justify-center text-[#555]">
+      <div className="flex h-32 items-center justify-center text-text-ghost">
         No heatmap data available. Run DQD on multiple releases to see category trends.
       </div>
     );
@@ -43,11 +43,11 @@ export default function DqCategoryHeatmap({
       <table className="w-full text-xs">
         <thead>
           <tr>
-            <th className="sticky left-0 bg-surface-raised px-3 py-2 text-left text-[11px] text-[#888]">
+            <th className="sticky left-0 bg-surface-raised px-3 py-2 text-left text-[11px] text-text-muted">
               Category
             </th>
             {releases.map((r) => (
-              <th key={r.id} className="px-2 py-2 text-center text-[10px] text-[#666]">
+              <th key={r.id} className="px-2 py-2 text-center text-[10px] text-text-ghost">
                 {r.name}
               </th>
             ))}
@@ -55,8 +55,8 @@ export default function DqCategoryHeatmap({
         </thead>
         <tbody>
           {categories.map((cat) => (
-            <tr key={cat} className="border-t border-[#1a1a22]">
-              <td className="sticky left-0 bg-surface-raised px-3 py-1.5 text-[#ccc]">{cat}</td>
+            <tr key={cat} className="border-t border-border-subtle">
+              <td className="sticky left-0 bg-surface-raised px-3 py-1.5 text-text-secondary">{cat}</td>
               {releases.map((r) => {
                 const rate = cellMap.get(`${r.id}-${cat}`);
                 return (
@@ -65,8 +65,8 @@ export default function DqCategoryHeatmap({
                       type="button"
                       onClick={() => onCellClick?.(r.id, cat)}
                       className={`block w-full rounded px-2 py-1.5 text-center text-[10px] font-mono transition-colors hover:ring-1 hover:ring-accent/50 ${
-                        rate !== undefined ? getCellColor(rate) : "bg-[#1a1a22]"
-                      } text-[#ccc]`}
+                        rate !== undefined ? getCellColor(rate) : "bg-surface-overlay"
+                      } text-text-secondary`}
                     >
                       {rate !== undefined ? `${rate}%` : "--"}
                     </button>

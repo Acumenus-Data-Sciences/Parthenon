@@ -11,8 +11,8 @@ import type { StudyMilestone } from "../types/study";
 
 const STATUS_ICONS: Record<string, { icon: typeof Clock; color: string }> = {
   pending: { icon: Clock, color: "var(--text-muted)" },
-  in_progress: { icon: Loader2, color: "#F59E0B" },
-  completed: { icon: CheckCircle2, color: "#34D399" },
+  in_progress: { icon: Loader2, color: 'var(--warning)' },
+  completed: { icon: CheckCircle2, color: 'var(--success)' },
   overdue: { icon: AlertTriangle, color: "var(--critical)" },
   cancelled: { icon: X, color: "var(--text-ghost)" },
 };

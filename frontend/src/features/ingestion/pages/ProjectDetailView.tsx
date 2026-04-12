@@ -204,7 +204,7 @@ export default function ProjectDetailView({ projectId, onBack }: ProjectDetailVi
             className={cn(
               "inline-flex items-center gap-2 rounded-lg px-4 py-1.5 text-xs font-medium transition-colors",
               project.status === "ready" || project.status === "mapping" || project.status === "completed"
-                ? "bg-success text-surface-base hover:bg-[#26BCA8]"
+                ? "bg-success text-surface-base hover:bg-success"
                 : "bg-surface-overlay text-text-ghost border border-surface-highlight pointer-events-none",
             )}
           >

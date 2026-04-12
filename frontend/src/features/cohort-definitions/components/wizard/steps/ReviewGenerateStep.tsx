@@ -178,7 +178,7 @@ export function ReviewGenerateStep({ onClose }: Props) {
             type="button"
             onClick={handleGenerate}
             disabled={isDisabled}
-            className="flex items-center gap-1.5 rounded-md bg-accent px-4 py-1.5 text-[13px] font-semibold text-surface-base transition-colors hover:bg-[#B8922A] disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-md bg-accent px-4 py-1.5 text-[13px] font-semibold text-surface-base transition-colors hover:bg-accent-dark disabled:opacity-50"
           >
             {isRunning && <Loader2 size={14} className="animate-spin" />}
             Generate

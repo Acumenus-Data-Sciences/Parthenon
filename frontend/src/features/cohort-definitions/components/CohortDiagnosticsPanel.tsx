@@ -153,7 +153,7 @@ function IncidenceRateSection({ rows }: { rows: IncidenceRateRow[] }) {
       {open && (
         <div className="overflow-x-auto max-h-72 overflow-y-auto">
           <table className="w-full text-xs">
-            <thead className="sticky top-0 bg-[#18181C]">
+            <thead className="sticky top-0 bg-surface-raised">
               <tr>
                 <th className="px-3 py-2 text-left font-medium text-text-muted">Cohort ID</th>
                 <th className="px-3 py-2 text-left font-medium text-text-muted">Age Group</th>
@@ -233,7 +233,7 @@ function OrphanConceptsSection({ rows }: { rows: OrphanConceptRow[] }) {
       {open && (
         <div className="overflow-x-auto max-h-64 overflow-y-auto">
           <table className="w-full text-xs">
-            <thead className="sticky top-0 bg-[#18181C]">
+            <thead className="sticky top-0 bg-surface-raised">
               <tr>
                 <th className="px-3 py-2 text-left font-medium text-text-muted">Concept ID</th>
                 <th className="px-3 py-2 text-left font-medium text-text-muted">Concept Name</th>
@@ -465,7 +465,7 @@ function TemporalCharacterizationSection({
       {open && (
         <div className="overflow-x-auto max-h-64 overflow-y-auto">
           <table className="w-full text-xs">
-            <thead className="sticky top-0 bg-[#18181C]">
+            <thead className="sticky top-0 bg-surface-raised">
               <tr>
                 <th className="px-3 py-2 text-left font-medium text-text-muted">Covariate</th>
                 <th className="px-3 py-2 text-right font-medium text-text-muted">Time Window</th>

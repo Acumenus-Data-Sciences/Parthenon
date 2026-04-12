@@ -56,7 +56,7 @@ function StatsBar() {
   const { data: stats, isLoading } = useHeorStats();
 
   const items = [
-    { label: "Total Analyses", value: stats?.total_analyses ?? 0, icon: BarChart2, color: "#F59E0B" },
+    { label: "Total Analyses", value: stats?.total_analyses ?? 0, icon: BarChart2, color: 'var(--warning)' },
     { label: "Completed", value: stats?.completed_analyses ?? 0, icon: CheckCircle2, color: "var(--success)" },
     { label: "Value Contracts", value: stats?.total_contracts ?? 0, icon: Handshake, color: "var(--domain-observation)" },
     {
@@ -442,9 +442,9 @@ export default function HeorPage() {
       <div className="flex items-center gap-3">
         <div
           className="flex items-center justify-center w-9 h-9 rounded-md flex-shrink-0"
-          style={{ backgroundColor: "#F59E0B18" }}
+          style={{ backgroundColor: 'var(--warning-bg)' }}
         >
-          <TrendingUp size={18} style={{ color: "#F59E0B" }} />
+          <TrendingUp size={18} style={{ color: 'var(--warning)' }} />
         </div>
         <div>
           <h1 className="text-2xl font-bold text-text-primary">

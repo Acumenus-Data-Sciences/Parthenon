@@ -53,8 +53,8 @@ function TrendIcon({ values }: { values: number[] }) {
   const last = values[values.length - 1];
   const prev = values[values.length - 2];
   if (last > prev * 1.05) return <TrendingUp size={12} className="text-critical" />;
-  if (last < prev * 0.95) return <TrendingDown size={12} className="text-[#818CF8]" />;
-  return <Minus size={12} className="text-[#22C55E]" />;
+  if (last < prev * 0.95) return <TrendingDown size={12} className="text-info" />;
+  return <Minus size={12} className="text-success" />;
 }
 
 export default function LabPanelDashboard({ labs, onConceptClick }: LabPanelDashboardProps) {
@@ -175,7 +175,7 @@ export default function LabPanelDashboard({ labs, onConceptClick }: LabPanelDash
           const isOpen = expandedPanel === panel.name || expandedPanel === null;
 
           return (
-            <div key={panel.name} className="rounded-xl border border-zinc-800/60 bg-[#111114] overflow-hidden mb-3 break-inside-avoid">
+            <div key={panel.name} className="rounded-xl border border-zinc-800/60 bg-surface-base overflow-hidden mb-3 break-inside-avoid">
               <button
                 type="button"
                 onClick={() => setExpandedPanel(expandedPanel === panel.name ? null : panel.name)}

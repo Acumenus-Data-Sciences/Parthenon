@@ -153,13 +153,13 @@ export function ConceptDetailDrawer({ event, onClose }: ConceptDetailDrawerProps
                     {event.range_low != null && event.range_high != null && (
                       <div className="mt-2">
                         {numericValue < event.range_low && (
-                          <span className="text-xs text-[#818CF8]">↓ Below normal range</span>
+                          <span className="text-xs text-info">↓ Below normal range</span>
                         )}
                         {numericValue > event.range_high && (
                           <span className="text-xs text-critical">↑ Above normal range</span>
                         )}
                         {numericValue >= event.range_low && numericValue <= event.range_high && (
-                          <span className="text-xs text-[#22C55E]">✓ Within normal range</span>
+                          <span className="text-xs text-success">✓ Within normal range</span>
                         )}
                       </div>
                     )}

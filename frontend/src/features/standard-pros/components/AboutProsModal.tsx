@@ -49,9 +49,9 @@ export function AboutProsModal({ onClose, stats }: AboutProsModalProps) {
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-4xl max-h-[calc(100vh-4rem)] overflow-y-auto rounded-2xl border border-[#2A2A2F] bg-surface-base shadow-2xl">
+      <div className="relative w-full max-w-4xl max-h-[calc(100vh-4rem)] overflow-y-auto rounded-2xl border border-border-default bg-surface-base shadow-2xl">
         {/* Sticky header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[#2A2A2F] bg-surface-base/95 backdrop-blur-sm px-6 py-4">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border-default bg-surface-base/95 backdrop-blur-sm px-6 py-4">
           <div>
             <h2 className="text-lg font-bold text-text-primary">
               About Standard PROs+
@@ -95,7 +95,7 @@ export function AboutProsModal({ onClose, stats }: AboutProsModalProps) {
                 return (
                   <div
                     key={pp.id}
-                    className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-4"
+                    className="rounded-xl border border-border-default bg-surface-raised p-4"
                   >
                     <div className="flex items-center gap-3 mb-2">
                       <div className="flex items-center justify-center w-7 h-7 rounded-md bg-critical/10">
@@ -126,7 +126,7 @@ export function AboutProsModal({ onClose, stats }: AboutProsModalProps) {
               {PILLARS.map((pillar) => (
                 <div
                   key={pillar.id}
-                  className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-4"
+                  className="rounded-xl border border-border-default bg-surface-raised p-4"
                 >
                   <div className="flex items-start gap-3">
                     <div
@@ -171,7 +171,7 @@ export function AboutProsModal({ onClose, stats }: AboutProsModalProps) {
                 { table: "app.survey_conduct", desc: "Administration metadata: respondent type, mode, completion status, visit linkage, scores", color: "var(--domain-observation)" },
                 { table: "app.survey_responses", desc: "Bridge table linking survey_conduct to observation rows with item-level values", color: "var(--critical)" },
               ].map((s) => (
-                <div key={s.table} className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-4">
+                <div key={s.table} className="rounded-xl border border-border-default bg-surface-raised p-4">
                   <div className="flex items-center gap-2 mb-1.5">
                     <Code2 size={12} style={{ color: s.color }} />
                     <span className="text-[11px] font-semibold font-['IBM_Plex_Mono',monospace] text-text-primary">
@@ -198,7 +198,7 @@ export function AboutProsModal({ onClose, stats }: AboutProsModalProps) {
             <SectionTitle icon={Wrench} color="var(--accent)" title="Implementation Roadmap" />
             <div className="space-y-3">
               {PHASES.map((phase, idx) => (
-                <div key={phase.phase} className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-4">
+                <div key={phase.phase} className="rounded-xl border border-border-default bg-surface-raised p-4">
                   <div className="flex items-center gap-3 mb-2">
                     <div
                       className={cn(
@@ -215,7 +215,7 @@ export function AboutProsModal({ onClose, stats }: AboutProsModalProps) {
                   </div>
                   <div className="flex flex-wrap gap-1.5 ml-9">
                     {phase.items.map((item) => (
-                      <span key={item} className="inline-block rounded-md bg-surface-base border border-[#2A2A2F]/50 px-2.5 py-1 text-[10px] text-text-secondary">
+                      <span key={item} className="inline-block rounded-md bg-surface-base border border-border-default/50 px-2.5 py-1 text-[10px] text-text-secondary">
                         {item}
                       </span>
                     ))}
@@ -292,7 +292,7 @@ function InsightCard({
   text: string;
 }) {
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-[#2A2A2F] bg-[#141418] p-4">
+    <div className="flex items-start gap-3 rounded-xl border border-border-default bg-surface-raised p-4">
       <div
         className="flex items-center justify-center w-7 h-7 rounded-md shrink-0"
         style={{ backgroundColor: `${color}15` }}

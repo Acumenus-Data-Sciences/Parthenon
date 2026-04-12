@@ -34,7 +34,7 @@ export default function CostTypeFilter({
           className={`rounded-full border px-3 py-1 text-xs transition-colors ${
             selectedTypeId === null
               ? "border-success bg-success/10 text-success"
-              : "border-[#333] text-[#888] hover:border-[#555]"
+              : "border-border-default text-text-muted hover:border-border-hover"
           }`}
         >
           All Types
@@ -47,7 +47,7 @@ export default function CostTypeFilter({
             className={`rounded-full border px-3 py-1 text-xs transition-colors ${
               selectedTypeId === ct.cost_type_concept_id
                 ? "border-success bg-success/10 text-success"
-                : "border-[#333] text-[#888] hover:border-[#555]"
+                : "border-border-default text-text-muted hover:border-border-hover"
             }`}
           >
             {ct.concept_name} ({ct.record_count.toLocaleString()})

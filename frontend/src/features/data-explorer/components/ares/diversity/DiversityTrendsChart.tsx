@@ -31,7 +31,7 @@ export default function DiversityTrendsChart({ data, sourceName }: DiversityTren
   if (data.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-surface-highlight bg-surface-raised py-12">
-        <p className="text-sm text-[#666]">No release data available for diversity trends.</p>
+        <p className="text-sm text-text-ghost">No release data available for diversity trends.</p>
       </div>
     );
   }
@@ -43,11 +43,11 @@ export default function DiversityTrendsChart({ data, sourceName }: DiversityTren
   };
 
   return (
-    <div className="rounded-lg border border-[#252530] bg-surface-raised p-4">
+    <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
       <div className="mb-3 flex items-center justify-between">
         <div>
           <h3 className="text-sm font-medium text-white">Diversity Trends: {sourceName}</h3>
-          <p className="mt-0.5 text-xs text-[#555]">
+          <p className="mt-0.5 text-xs text-text-ghost">
             Simpson's Diversity Index per release (0 = homogeneous, 1 = maximally diverse)
           </p>
         </div>
@@ -66,7 +66,7 @@ export default function DiversityTrendsChart({ data, sourceName }: DiversityTren
                 className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                   isActive
                     ? "border border-current bg-current/10"
-                    : "border border-[#252530] text-[#888] hover:text-[#ccc]"
+                    : "border border-border-subtle text-text-muted hover:text-text-secondary"
                 }`}
                 style={isActive ? { color: config.color, borderColor: config.color } : undefined}
               >
@@ -88,22 +88,22 @@ export default function DiversityTrendsChart({ data, sourceName }: DiversityTren
             <CartesianGrid strokeDasharray="3 3" stroke="#252530" />
             <XAxis
               dataKey="release_name"
-              tick={{ fill: "#888", fontSize: 10 }}
+              tick={{ fill: 'var(--text-muted)', fontSize: 10 }}
               angle={-30}
               textAnchor="end"
             />
             <YAxis
               domain={[0, 1]}
-              tick={{ fill: "#888", fontSize: 11 }}
+              tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
               tickFormatter={(v: number) => v.toFixed(2)}
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: "#1a1a22",
+                backgroundColor: 'var(--surface-overlay)',
                 border: "1px solid #333",
                 borderRadius: "8px",
               }}
-              labelStyle={{ color: "#fff" }}
+              labelStyle={{ color: 'var(--text-primary)' }}
             />
             <Legend verticalAlign="top" height={0} />
             {activeDimensions.map((dim) => {

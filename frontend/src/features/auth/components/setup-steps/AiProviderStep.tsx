@@ -333,7 +333,7 @@ export function AiProviderStep({ onConfigured }: Props) {
                 type="button"
                 onClick={handleSave}
                 disabled={updateMutation.isPending}
-                className="flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-surface-base hover:bg-[#D4AE3A] disabled:opacity-50"
+                className="flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-surface-base hover:bg-accent disabled:opacity-50"
               >
                 {updateMutation.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                 Save

@@ -100,7 +100,7 @@ export function ScanReport({ fields }: ScanReportProps) {
                   </td>
                   <td className="px-4 py-2.5 text-center">
                     {field.is_potential_pii ? (
-                      <span className="inline-flex items-center gap-1 text-[#E5A84B]" title={field.pii_type ?? "Potential PII"}>
+                      <span className="inline-flex items-center gap-1 text-warning" title={field.pii_type ?? "Potential PII"}>
                         <AlertTriangle size={14} />
                       </span>
                     ) : (

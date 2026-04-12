@@ -137,8 +137,8 @@ export function MeasureComplianceTable({
                       <span
                         className="inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-medium"
                         style={{
-                          backgroundColor: "#8B5CF615",
-                          color: "#8B5CF6",
+                          backgroundColor: "var(--info-bg)",
+                          color: 'var(--domain-observation)',
                         }}
                         title={
                           m.dedup_source

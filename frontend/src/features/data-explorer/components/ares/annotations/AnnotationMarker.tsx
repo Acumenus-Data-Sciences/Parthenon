@@ -46,9 +46,9 @@ export function AnnotationMarker({ sourceId, chartType, xValues }: AnnotationMar
             </div>
 
             {hoveredX === xVal && (
-              <div className="absolute bottom-full left-0 z-20 mb-1 w-56 rounded-lg border border-[#252530] bg-surface-raised p-2 shadow-xl">
+              <div className="absolute bottom-full left-0 z-20 mb-1 w-56 rounded-lg border border-border-subtle bg-surface-raised p-2 shadow-xl">
                 {xAnnotations.map((ann) => (
-                  <div key={ann.id} className="border-b border-[#252530] py-1.5 last:border-0">
+                  <div key={ann.id} className="border-b border-border-subtle py-1.5 last:border-0">
                     <p className="text-xs text-text-primary">{ann.annotation_text}</p>
                     {ann.creator && (
                       <p className="text-[10px] text-text-muted mt-0.5">{ann.creator.name}</p>

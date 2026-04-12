@@ -18,8 +18,8 @@ function ScoreBadge({ score, pass: _pass }: { score: number; pass: boolean }) {
     : score >= 70
       ? "bg-accent/20 text-accent"
       : score >= 50
-        ? "bg-[#F59E0B]/20 text-[#F59E0B]"
-        : "bg-primary/20 text-[#e85d75]";
+        ? "bg-warning/20 text-warning"
+        : "bg-primary/20 text-critical";
 
   return (
     <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${color}`}>
@@ -85,12 +85,12 @@ export default function FeasibilityView() {
               className={`flex w-full items-center justify-between rounded-lg border p-3 text-left transition-colors ${
                 selectedId === a.id
                   ? "border-accent bg-accent/5"
-                  : "border-[#252530] bg-surface-raised hover:border-[#333]"
+                  : "border-border-subtle bg-surface-raised hover:border-border-default"
               }`}
             >
               <div>
                 <p className="text-sm font-medium text-white">{a.name}</p>
-                <p className="text-[11px] text-[#666]">
+                <p className="text-[11px] text-text-ghost">
                   {new Date(a.created_at).toLocaleDateString()} | {a.sources_assessed} sources assessed
                 </p>
               </div>
@@ -100,7 +100,7 @@ export default function FeasibilityView() {
                     ? "bg-success/20 text-success"
                     : a.sources_passed > 0
                       ? "bg-accent/20 text-accent"
-                      : "bg-primary/20 text-[#e85d75]"
+                      : "bg-primary/20 text-critical"
                 }`}
               >
                 {a.sources_passed}/{a.sources_assessed} passed
@@ -113,7 +113,7 @@ export default function FeasibilityView() {
       {/* Detail view toggle */}
       {selectedAssessment?.results && (
         <div className="mb-3 flex items-center gap-2">
-          <span className="text-xs text-[#666]">View:</span>
+          <span className="text-xs text-text-ghost">View:</span>
           {(["table", "impact", "consort"] as const).map((mode) => (
             <button
               key={mode}
@@ -122,7 +122,7 @@ export default function FeasibilityView() {
               className={`rounded px-2 py-1 text-xs transition-colors ${
                 detailView === mode
                   ? "bg-accent/20 text-accent"
-                  : "text-[#888] hover:text-white"
+                  : "text-text-muted hover:text-white"
               }`}
             >
               {mode === "table" ? "Score Table" : mode === "impact" ? "Impact Analysis" : "CONSORT Flow"}
@@ -133,28 +133,28 @@ export default function FeasibilityView() {
 
       {/* Assessment results detail - Table view */}
       {selectedAssessment?.results && detailView === "table" && (
-        <div className="rounded-lg border border-[#252530] bg-surface-raised p-4">
+        <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
           <h3 className="mb-3 text-sm font-medium text-white">
             Results: {selectedAssessment.name}
           </h3>
-          <div className="overflow-hidden rounded-lg border border-[#252530]">
+          <div className="overflow-hidden rounded-lg border border-border-subtle">
             <table className="w-full text-sm">
-              <thead className="bg-[#1a1a22]">
-                <tr className="border-b border-[#252530]">
-                  <th className="px-3 py-2 text-left text-[11px] font-medium uppercase text-[#888]">Source</th>
-                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-[#888]">Domains</th>
-                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-[#888]">Concepts</th>
-                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-[#888]">Visits</th>
-                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-[#888]">Dates</th>
-                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-[#888]">Patients</th>
-                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-[#888]">Score</th>
-                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-[#888]">Overall</th>
-                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-[#888]">Forecast</th>
+              <thead className="bg-surface-overlay">
+                <tr className="border-b border-border-subtle">
+                  <th className="px-3 py-2 text-left text-[11px] font-medium uppercase text-text-muted">Source</th>
+                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-text-muted">Domains</th>
+                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-text-muted">Concepts</th>
+                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-text-muted">Visits</th>
+                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-text-muted">Dates</th>
+                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-text-muted">Patients</th>
+                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-text-muted">Score</th>
+                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-text-muted">Overall</th>
+                  <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-text-muted">Forecast</th>
                 </tr>
               </thead>
               <tbody>
                 {selectedAssessment.results.map((r: FeasibilityResult) => (
-                  <tr key={r.id} className="border-b border-[#1a1a22] hover:bg-[#1a1a22]">
+                  <tr key={r.id} className="border-b border-border-subtle hover:bg-surface-overlay">
                     <td className="px-3 py-2 text-white">{r.source_name}</td>
                     <td className="px-3 py-2 text-center">
                       <ScoreBadge score={r.domain_score ?? (r.domain_pass ? 100 : 0)} pass={r.domain_pass} />
@@ -178,7 +178,7 @@ export default function FeasibilityView() {
                             ? "bg-success/20 text-success"
                             : (r.composite_score ?? 0) >= 60
                               ? "bg-accent/20 text-accent"
-                              : "bg-primary/20 text-[#e85d75]"
+                              : "bg-primary/20 text-critical"
                         }`}
                       >
                         {r.composite_score ?? 0}%
@@ -190,12 +190,12 @@ export default function FeasibilityView() {
                           className={`rounded px-2 py-0.5 text-[10px] font-bold ${
                             r.overall_pass
                               ? "bg-success/20 text-success"
-                              : "bg-primary/20 text-[#e85d75]"
+                              : "bg-primary/20 text-critical"
                           }`}
                         >
                           {r.overall_pass ? "ELIGIBLE" : "INELIGIBLE"}
                         </span>
-                        <span className="text-[10px] text-[#666]">{r.composite_score ?? 0}% score</span>
+                        <span className="text-[10px] text-text-ghost">{r.composite_score ?? 0}% score</span>
                       </div>
                     </td>
                     <td className="px-3 py-2 text-center">
@@ -211,7 +211,7 @@ export default function FeasibilityView() {
                           className={`rounded px-2 py-0.5 text-[10px] font-medium transition-colors ${
                             forecastSourceId === r.source_id
                               ? "bg-accent text-black"
-                              : "border border-[#333] text-[#888] hover:border-accent hover:text-accent"
+                              : "border border-border-default text-text-muted hover:border-accent hover:text-accent"
                           }`}
                         >
                           {forecastSourceId === r.source_id ? "Hide" : "Forecast"}
@@ -254,7 +254,7 @@ export default function FeasibilityView() {
       )}
 
       {!assessments || assessments.length === 0 ? (
-        <p className="py-10 text-center text-[#555]">
+        <p className="py-10 text-center text-text-ghost">
           No assessments yet. Create one to evaluate if your network can support a proposed study.
         </p>
       ) : null}

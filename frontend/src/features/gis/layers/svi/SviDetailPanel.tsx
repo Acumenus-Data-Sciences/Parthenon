@@ -24,7 +24,7 @@ export function SviDetailPanel({ fips }: LayerDetailProps) {
     <div className="space-y-2">
       <div className="flex items-center justify-between text-xs">
         <span className="text-text-muted">Overall SVI</span>
-        <span className="font-medium text-[#E8E4DC]">
+        <span className="font-medium text-text-primary">
           {data.svi_overall !== null ? (data.svi_overall * 100).toFixed(0) + "%" : "—"}
         </span>
       </div>

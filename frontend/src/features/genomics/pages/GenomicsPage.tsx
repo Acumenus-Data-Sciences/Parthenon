@@ -312,7 +312,7 @@ function ClinVarPanel({ initialGene }: { initialGene?: string }) {
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#1E1E23]">
+                  <tbody className="divide-y divide-border-subtle">
                     {results.data.map((v: ClinVarVariant) => (
                       <tr key={v.id} className="hover:bg-surface-overlay transition-colors">
                         <td className="px-4 py-3 font-semibold text-text-primary text-xs">
@@ -400,7 +400,7 @@ export default function GenomicsPage() {
         { label: "Total Uploads", value: stats.total_uploads, icon: Upload, color: "var(--info)" },
         { label: "Total Variants", value: stats.total_variants.toLocaleString(), icon: Dna, color: "var(--domain-observation)" },
         { label: "OMOP Mapped", value: stats.mapped_variants.toLocaleString(), icon: CheckCircle2, color: "var(--success)" },
-        { label: "Pending Review", value: stats.review_required.toLocaleString(), icon: Clock, color: "#F59E0B" },
+        { label: "Pending Review", value: stats.review_required.toLocaleString(), icon: Clock, color: 'var(--warning)' },
       ]
     : [];
 
@@ -566,7 +566,7 @@ export default function GenomicsPage() {
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#1E1E23]">
+                <tbody className="divide-y divide-border-subtle">
                   {uploads.map((upload: GenomicUpload) => (
                     <tr
                       key={upload.id}

@@ -68,7 +68,7 @@ export function scoreToGrade(score: number): GradeInfo {
   if (score <= 0.05) return { letter: "A", color: "var(--success)", bg: "rgba(45,212,191,0.12)" };
   if (score <= 0.15) return { letter: "B", color: "var(--info)", bg: "rgba(96,165,250,0.12)" };
   if (score <= 0.30) return { letter: "C", color: "var(--accent)", bg: "rgba(201,162,39,0.12)" };
-  if (score <= 0.50) return { letter: "D", color: "#FB923C", bg: "rgba(251,146,60,0.12)" };
+  if (score <= 0.50) return { letter: "D", color: 'var(--domain-device)', bg: "rgba(251,146,60,0.12)" };
   return { letter: "F", color: "var(--critical)", bg: "rgba(232,90,107,0.12)" };
 }
 

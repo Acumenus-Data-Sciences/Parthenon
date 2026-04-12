@@ -377,7 +377,7 @@ export default function UnifiedAnalysisPicker({
                             e.stopPropagation();
                             handleSelectAllFromStudy(study);
                           }}
-                          className="text-xs font-medium text-accent hover:text-[#d4ad2f] transition-colors"
+                          className="text-xs font-medium text-accent hover:text-warning transition-colors"
                         >
                           {studyAnalyses.every((sa) =>
                             isSelected(selections, sa.analysis!.latest_execution!.id)

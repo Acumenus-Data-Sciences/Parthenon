@@ -23,7 +23,7 @@ export default function ArrivalForecastChart({
 }: ArrivalForecastChartProps) {
   if (forecast.historical.length === 0 && forecast.projected.length === 0) {
     return (
-      <div className="flex h-48 items-center justify-center text-[#555]">
+      <div className="flex h-48 items-center justify-center text-text-ghost">
         Insufficient historical data for forecast (minimum 6 months required).
       </div>
     );
@@ -62,13 +62,13 @@ export default function ArrivalForecastChart({
   const effectiveTarget = targetCount ?? null;
 
   return (
-    <div className="rounded-lg border border-[#252530] bg-surface-raised p-4">
+    <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
       <div className="mb-3 flex items-center justify-between">
         <div>
           <h4 className="text-sm font-medium text-white">
             Patient Arrival Forecast: {forecast.source_name}
           </h4>
-          <p className="text-[11px] text-[#666]">
+          <p className="text-[11px] text-text-ghost">
             Monthly rate: {forecast.monthly_rate > 0 ? `+${forecast.monthly_rate}` : forecast.monthly_rate} patients/month
             {forecast.months_to_target !== null && forecast.months_to_target > 0 && (
               <span className="ml-2 text-accent">
@@ -91,23 +91,23 @@ export default function ArrivalForecastChart({
             <CartesianGrid strokeDasharray="3 3" stroke="#252530" />
             <XAxis
               dataKey="month"
-              tick={{ fill: "#888", fontSize: 10 }}
-              axisLine={{ stroke: "#333" }}
+              tick={{ fill: 'var(--text-muted)', fontSize: 10 }}
+              axisLine={{ stroke: 'var(--border-default)' }}
               angle={-45}
               textAnchor="end"
               interval="preserveStartEnd"
             />
             <YAxis
-              tick={{ fill: "#888", fontSize: 11 }}
-              axisLine={{ stroke: "#333" }}
+              tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+              axisLine={{ stroke: 'var(--border-default)' }}
               tickFormatter={(v: number) => v.toLocaleString()}
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: "#1a1a22",
+                backgroundColor: 'var(--surface-overlay)',
                 border: "1px solid #333",
                 borderRadius: "8px",
-                color: "#ccc",
+                color: 'var(--text-secondary)',
                 fontSize: 12,
               }}
               formatter={((value: number | null, name: string) => {
@@ -122,7 +122,7 @@ export default function ArrivalForecastChart({
               }) as never}
             />
             <Legend
-              wrapperStyle={{ fontSize: 11, color: "#888" }}
+              wrapperStyle={{ fontSize: 11, color: 'var(--text-muted)' }}
               formatter={(value: string) => {
                 if (value === "historical") return "Actual";
                 if (value === "projected") return "Projected";
@@ -180,7 +180,7 @@ export default function ArrivalForecastChart({
                 strokeDasharray="4 4"
                 label={{
                   value: `Target: ${effectiveTarget.toLocaleString()}`,
-                  fill: "#e85d75",
+                  fill: "var(--critical)",
                   fontSize: 11,
                   position: "insideTopRight",
                 }}
@@ -190,7 +190,7 @@ export default function ArrivalForecastChart({
         </ResponsiveContainer>
       </div>
 
-      <p className="mt-2 text-[10px] text-[#555]">
+      <p className="mt-2 text-[10px] text-text-ghost">
         Projection based on linear regression of last 12 months. Confidence band widens with projection distance.
       </p>
     </div>

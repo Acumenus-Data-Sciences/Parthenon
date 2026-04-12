@@ -199,7 +199,7 @@ export function UserModal({ user, roles, onClose }: Props) {
               const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
               handleSubmit(fakeEvent);
             }}
-            className="rounded-lg bg-success px-4 py-2 text-sm font-semibold text-surface-base transition-colors hover:bg-[#25B8A5] disabled:opacity-50"
+            className="rounded-lg bg-success px-4 py-2 text-sm font-semibold text-surface-base transition-colors hover:bg-success disabled:opacity-50"
           >
             {isPending ? "Saving…" : isEdit ? "Save Changes" : "Create User"}
           </button>

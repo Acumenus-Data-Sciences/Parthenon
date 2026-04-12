@@ -3,7 +3,7 @@ export function ResultsSkeleton() {
     <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
       <div
         style={{
-          background: "#0A0A0D",
+          background: "var(--surface-darkest)",
           border: "1px solid var(--surface-elevated)",
           borderRadius: "8px",
           overflow: "hidden",
@@ -13,7 +13,7 @@ export function ResultsSkeleton() {
           style={{
             padding: "8px 14px",
             borderBottom: "1px solid var(--surface-elevated)",
-            background: "#111115",
+            background: "var(--surface-base)",
             height: "36px",
           }}
         />

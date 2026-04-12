@@ -61,7 +61,7 @@ export function SourceAccessControl({ source }: SourceAccessControlProps) {
     <div className="space-y-3 rounded-lg border border-border-default bg-surface-raised p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Shield size={14} className="text-[#818CF8]" />
+          <Shield size={14} className="text-info" />
           <h4 className="text-xs font-semibold text-text-primary">
             Access Control
           </h4>
@@ -70,7 +70,7 @@ export function SourceAccessControl({ source }: SourceAccessControlProps) {
           className={cn(
             "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium",
             isRestricted
-              ? "bg-[#818CF8]/10 text-[#818CF8]"
+              ? "bg-info/10 text-info"
               : "bg-success/10 text-success",
           )}
         >
@@ -95,7 +95,7 @@ export function SourceAccessControl({ source }: SourceAccessControlProps) {
               className={cn(
                 "inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-xs font-medium transition-colors",
                 active
-                  ? "border-[#818CF8]/40 bg-[#818CF8]/10 text-[#818CF8]"
+                  ? "border-info/40 bg-info/10 text-info"
                   : "border-border-default bg-surface-base text-text-muted hover:text-text-secondary",
               )}
             >
@@ -111,7 +111,7 @@ export function SourceAccessControl({ source }: SourceAccessControlProps) {
           type="button"
           onClick={handleSave}
           disabled={updateMutation.isPending}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-[#818CF8] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#6366F1] disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-info px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-domain-observation disabled:opacity-50"
         >
           {updateMutation.isPending ? (
             <Loader2 size={12} className="animate-spin" />

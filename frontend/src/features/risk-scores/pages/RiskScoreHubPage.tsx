@@ -351,7 +351,7 @@ export default function RiskScoreHubPage() {
           <div className="grid grid-cols-5 gap-3">
             {[
               { label: "Total", value: stats.total, icon: Briefcase, color: "var(--text-secondary)", drilldown: null as string | null },
-              { label: "Running", value: stats.running, icon: Loader2, color: "#F59E0B", drilldown: "running" },
+              { label: "Running", value: stats.running, icon: Loader2, color: 'var(--warning)', drilldown: "running" },
               { label: "Completed", value: stats.completed, icon: CheckCircle2, color: "var(--success)", drilldown: "completed" },
               { label: "Scores Available", value: stats.scores_available, icon: BarChart3, color: "var(--info)", drilldown: "__catalogue__" },
               { label: "Patients Scored", value: stats.patients_scored, icon: Users, color: "var(--domain-observation)", drilldown: null },
@@ -557,7 +557,7 @@ export default function RiskScoreHubPage() {
                   <p className="text-sm font-medium text-info">
                     Source-Level Completed Scores
                   </p>
-                  <p className="mt-1 text-xs text-[#93C5FD]">
+                  <p className="mt-1 text-xs text-info-light">
                     {legacyOnlySummaries.length} completed score
                     {legacyOnlySummaries.length === 1 ? "" : "s"} exist for the active source but are not attached to any v2 analysis execution.
                   </p>
@@ -565,7 +565,7 @@ export default function RiskScoreHubPage() {
                 <button
                   type="button"
                   onClick={() => setHubTab("catalogue")}
-                  className="shrink-0 text-xs text-info hover:text-[#93C5FD] transition-colors"
+                  className="shrink-0 text-xs text-info hover:text-info-light transition-colors"
                 >
                   Open Catalogue
                 </button>
@@ -582,10 +582,10 @@ export default function RiskScoreHubPage() {
                     }}
                     className="rounded-full border border-info/30 bg-info/10 px-3 py-1.5 text-left transition-colors hover:bg-info/20"
                   >
-                    <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#93C5FD]">
+                    <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-info-light">
                       {summary.score_id}
                     </span>
-                    <span className="ml-2 text-[11px] font-medium text-[#E0F2FE]">
+                    <span className="ml-2 text-[11px] font-medium text-info-light">
                       {summary.score_name}
                     </span>
                   </button>

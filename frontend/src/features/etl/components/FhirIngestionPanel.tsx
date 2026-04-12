@@ -458,7 +458,7 @@ export default function FhirIngestionPanel() {
                     ? "border-primary bg-primary/5"
                     : fileName
                       ? "border-success/40 bg-success/5"
-                      : "border-surface-highlight bg-surface-base hover:border-[#5A5660] hover:bg-surface-overlay",
+                      : "border-surface-highlight bg-surface-base hover:border-border-hover hover:bg-surface-overlay",
                 )}
               >
                 <input
@@ -483,7 +483,7 @@ export default function FhirIngestionPanel() {
                   </>
                 ) : (
                   <>
-                    <Upload size={28} className="text-[#5A5660]" />
+                    <Upload size={28} className="text-text-ghost" />
                     <div className="text-center">
                       <p className="text-sm font-medium text-text-secondary">
                         Drop a FHIR file here
@@ -638,12 +638,12 @@ export default function FhirIngestionPanel() {
       )}
 
       {/* ── Footer link ──────────────────────────────────────────────── */}
-      <div className="flex items-center gap-2 text-xs text-[#5A5660]">
+      <div className="flex items-center gap-2 text-xs text-text-ghost">
         <Activity size={11} />
         <span>Configure FHIR Server connections in</span>
         <Link
           to="/admin/fhir-connections"
-          className="inline-flex items-center gap-0.5 text-accent hover:text-[#D4AF40] transition-colors"
+          className="inline-flex items-center gap-0.5 text-accent hover:text-warning transition-colors"
         >
           Admin → FHIR Connections
           <ArrowRight size={11} />

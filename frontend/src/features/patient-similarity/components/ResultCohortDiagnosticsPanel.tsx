@@ -103,7 +103,7 @@ export function ResultCohortDiagnosticsPanel({
                 {profile.gender_distribution.map((row) => (
                   <span
                     key={row.concept_id}
-                    className="inline-flex items-center rounded-md border border-border-default bg-[#101014] px-2 py-1 text-xs text-text-secondary"
+                    className="inline-flex items-center rounded-md border border-border-default bg-surface-base px-2 py-1 text-xs text-text-secondary"
                   >
                     {row.label}: {row.count} ({fmtPercent(row.proportion)})
                   </span>
@@ -162,7 +162,7 @@ export function ResultCohortDiagnosticsPanel({
             {topImbalanced.map((row) => (
               <div
                 key={row.covariate_name}
-                className="rounded-md border border-border-default bg-[#101014] px-3 py-2 text-xs text-text-secondary"
+                className="rounded-md border border-border-default bg-surface-base px-3 py-2 text-xs text-text-secondary"
               >
                 <div className="font-medium text-text-primary">{row.covariate_name}</div>
                 <div className="mt-1 text-text-muted">
@@ -185,7 +185,7 @@ export function ResultCohortDiagnosticsPanel({
             <AlertTriangle size={12} />
             Warnings
           </div>
-          <ul className="mt-2 space-y-1 text-sm text-[#F1B6BE]">
+          <ul className="mt-2 space-y-1 text-sm text-critical-light">
             {warnings.map((warning) => (
               <li key={warning}>{warning}</li>
             ))}

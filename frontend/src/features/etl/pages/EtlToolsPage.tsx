@@ -88,7 +88,7 @@ function AqueductContent({
   // No project: show create card
   if (!existingProject) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 rounded-lg border border-dashed border-[#2E2E35] bg-surface-raised">
+      <div className="flex flex-col items-center justify-center py-20 rounded-lg border border-dashed border-border-default bg-surface-raised">
         <div className="w-16 h-16 rounded-full bg-surface-overlay flex items-center justify-center mb-4">
           <GitMerge size={28} className="text-success" />
         </div>
@@ -107,7 +107,7 @@ function AqueductContent({
             <select
               value={cdmVersion}
               onChange={(e) => setCdmVersion(e.target.value)}
-              className="rounded-lg bg-surface-overlay border border-[#2E2E35] px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-success"
+              className="rounded-lg bg-surface-overlay border border-border-default px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-success"
             >
               <option value="5.4">OMOP CDM v5.4</option>
               <option value="5.3">OMOP CDM v5.3</option>
@@ -194,7 +194,7 @@ export default function EtlToolsPage() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center py-20 rounded-lg border border-dashed border-[#2E2E35] bg-surface-raised">
+    <div className="flex flex-col items-center justify-center py-20 rounded-lg border border-dashed border-border-default bg-surface-raised">
       <div className="w-16 h-16 rounded-full bg-surface-overlay flex items-center justify-center mb-4">
         <GitMerge size={28} className="text-text-muted" />
       </div>

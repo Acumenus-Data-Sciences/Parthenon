@@ -31,7 +31,7 @@ function ErrorPanel({ message = 'Failed to load' }: { message?: string }) {
 
 function ChartCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={`rounded-xl border border-zinc-800/60 bg-[#111114] p-4 ${className}`}>
+    <div className={`rounded-xl border border-zinc-800/60 bg-surface-base p-4 ${className}`}>
       {children}
     </div>
   );

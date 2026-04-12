@@ -22,7 +22,7 @@ function getExpectedIcon(expected: boolean, hasData: boolean): { icon: string; c
   if (expected && hasData) return { icon: "check", color: "text-success", title: "Expected and present" };
   if (expected && !hasData) return { icon: "!", color: "text-primary", title: "Expected but missing" };
   if (!expected && hasData) return { icon: "+", color: "text-accent", title: "Unexpected bonus data" };
-  return { icon: "--", color: "text-[#555]", title: "Not expected, not present" };
+  return { icon: "--", color: "text-text-ghost", title: "Not expected, not present" };
 }
 
 export default function CoverageMatrixView() {
@@ -56,11 +56,11 @@ export default function CoverageMatrixView() {
   }, []);
 
   if (isLoading) {
-    return <div className="p-4 text-[#555]">Loading coverage matrix...</div>;
+    return <div className="p-4 text-text-ghost">Loading coverage matrix...</div>;
   }
 
   if (!matrix || matrix.sources.length === 0) {
-    return <div className="p-4 text-center text-[#555]">No sources available for coverage analysis.</div>;
+    return <div className="p-4 text-center text-text-ghost">No sources available for coverage analysis.</div>;
   }
 
   // Compute global earliest/latest for temporal bar scaling
@@ -88,18 +88,18 @@ export default function CoverageMatrixView() {
           type="button"
           onClick={handleExport}
           disabled={isExporting}
-          className="flex items-center gap-1.5 rounded-lg border border-[#252530] bg-surface-raised px-3 py-1.5 text-xs text-[#888] transition-colors hover:border-accent/30 hover:text-accent disabled:opacity-50"
+          className="flex items-center gap-1.5 rounded-lg border border-border-subtle bg-surface-raised px-3 py-1.5 text-xs text-text-muted transition-colors hover:border-accent/30 hover:text-accent disabled:opacity-50"
         >
           {isExporting ? "Exporting..." : "Export CSV"}
         </button>
       </div>
-      <p className="mb-4 text-xs text-[#666]">
+      <p className="mb-4 text-xs text-text-ghost">
         Domain availability across all data sources. Green = high density, amber = low density, red = no data.
       </p>
 
       {/* View mode toggle */}
       <div className="mb-3 flex items-center gap-2">
-        <span className="text-xs text-[#666]">View:</span>
+        <span className="text-xs text-text-ghost">View:</span>
         {(["records", "per_person", "date_range"] as const).map((mode) => (
           <button
             key={mode}
@@ -108,29 +108,29 @@ export default function CoverageMatrixView() {
             className={`rounded px-2 py-1 text-xs transition-colors ${
               viewMode === mode
                 ? "bg-accent/20 text-accent"
-                : "text-[#888] hover:text-white"
+                : "text-text-muted hover:text-white"
             }`}
           >
             {mode === "records" ? "Records" : mode === "per_person" ? "Per Person" : "Date Range"}
           </button>
         ))}
-        <span className="mx-2 text-[#333]">|</span>
+        <span className="mx-2 text-text-disabled">|</span>
         <button
           type="button"
           onClick={() => setShowExpected(!showExpected)}
           className={`rounded px-2 py-1 text-xs transition-colors ${
-            showExpected ? "bg-accent/20 text-accent" : "text-[#888] hover:text-white"
+            showExpected ? "bg-accent/20 text-accent" : "text-text-muted hover:text-white"
           }`}
         >
           Expected vs Actual
         </button>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-[#252530]">
+      <div className="overflow-x-auto rounded-lg border border-border-subtle">
         <table className="w-full text-sm">
-          <thead className="bg-[#1a1a22]">
+          <thead className="bg-surface-overlay">
             <tr>
-              <th className="sticky left-0 bg-[#1a1a22] px-3 py-2 text-left text-[11px] font-medium uppercase text-[#888]">
+              <th className="sticky left-0 bg-surface-overlay px-3 py-2 text-left text-[11px] font-medium uppercase text-text-muted">
                 Source
               </th>
               {matrix.domains.map((domain) => {
@@ -138,15 +138,15 @@ export default function CoverageMatrixView() {
                 return (
                   <th
                     key={domain}
-                    className={`px-3 py-2 text-center text-[11px] font-medium uppercase text-[#888] ${
+                    className={`px-3 py-2 text-center text-[11px] font-medium uppercase text-text-muted ${
                       isObsPeriod ? "border-x-2 border-accent/30 bg-accent/5" : ""
-                    } ${hoveredCol === domain ? "bg-[#1a1a22]" : ""}`}
+                    } ${hoveredCol === domain ? "bg-surface-overlay" : ""}`}
                   >
                     {domain.replace(/_/g, " ")}
                   </th>
                 );
               })}
-              <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-[#888]">
+              <th className="px-3 py-2 text-center text-[11px] font-medium uppercase text-text-muted">
                 Domains
               </th>
             </tr>
@@ -164,15 +164,15 @@ export default function CoverageMatrixView() {
                   key={source.id}
                   onMouseEnter={() => setHoveredRow(rowIdx)}
                   onMouseLeave={() => setHoveredRow(null)}
-                  className={`border-t border-[#1a1a22] ${
-                    hoveredRow === rowIdx ? "bg-[#1a1a22]" : ""
+                  className={`border-t border-border-subtle ${
+                    hoveredRow === rowIdx ? "bg-surface-overlay" : ""
                   }`}
                 >
                   <td className="sticky left-0 bg-surface-raised px-3 py-2 text-xs font-medium text-white">
                     <div className="flex flex-col">
                       <span>{source.name}</span>
                       {sourceType && (
-                        <span className="text-[10px] text-[#666]">{sourceType.toUpperCase()}</span>
+                        <span className="text-[10px] text-text-ghost">{sourceType.toUpperCase()}</span>
                       )}
                     </div>
                   </td>
@@ -191,7 +191,7 @@ export default function CoverageMatrixView() {
                         onMouseLeave={() => setHoveredCol(null)}
                         className={`px-2 py-1.5 text-center ${
                           isObsPeriod ? "border-x-2 border-accent/30 bg-accent/5" : ""
-                        } ${hoveredCol === domain ? "bg-[#1a1a22]" : ""}`}
+                        } ${hoveredCol === domain ? "bg-surface-overlay" : ""}`}
                       >
                         <div
                           className={`rounded px-2 py-1 text-xs font-mono ${getCellColor(cell.has_data, cell.density_per_person)} ${getCellTextColor(cell.has_data, cell.density_per_person)}`}
@@ -228,7 +228,7 @@ export default function CoverageMatrixView() {
                     );
                   })}
                   <td className="px-2 py-1.5 text-center">
-                    <span className="text-xs text-[#888]">
+                    <span className="text-xs text-text-muted">
                       {matrix.source_completeness?.[source.id] ?? 0}/{matrix.domains.length}
                     </span>
                   </td>
@@ -236,8 +236,8 @@ export default function CoverageMatrixView() {
               );
             })}
             {/* Domain summary row */}
-            <tr className="border-t-2 border-[#333] bg-[#1a1a22]">
-              <td className="sticky left-0 bg-[#1a1a22] px-3 py-2 text-xs font-medium text-accent">
+            <tr className="border-t-2 border-border-default bg-surface-overlay">
+              <td className="sticky left-0 bg-surface-overlay px-3 py-2 text-xs font-medium text-accent">
                 Network Total
               </td>
               {matrix.domains.map((domain) => (

@@ -209,7 +209,7 @@ export default function TumorBoardPage() {
                         ))}
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#1E1E23]">
+                    <tbody className="divide-y divide-border-subtle">
                       {panel.variants.map((v) => {
                         const sig = clinvarInfo(v.clinvar_significance);
                         const SigIcon = sig?.icon ?? ShieldQuestion;
@@ -327,7 +327,7 @@ export default function TumorBoardPage() {
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#1E1E23]">
+                <tbody className="divide-y divide-border-subtle">
                   {panel.similar_patients.map((s) => (
                     <tr key={s.gene} className="hover:bg-surface-overlay transition-colors">
                       <td className="px-4 py-2.5 font-semibold text-[var(--domain-observation)]">{s.gene}</td>

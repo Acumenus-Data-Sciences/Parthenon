@@ -148,7 +148,7 @@ export function FileReviewList({
           type="button"
           onClick={onStageAll}
           disabled={!canStage || isStaging}
-          className="flex items-center gap-2 rounded-md bg-success px-6 py-2.5 text-sm font-medium text-surface-base transition-colors hover:bg-[#26BCA8] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 rounded-md bg-success px-6 py-2.5 text-sm font-medium text-surface-base transition-colors hover:bg-success disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isStaging && <Loader2 size={16} className="animate-spin" />}
           {isStaging ? "Staging..." : "Stage All"}

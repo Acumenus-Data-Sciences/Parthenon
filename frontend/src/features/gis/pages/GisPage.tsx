@@ -79,7 +79,7 @@ export default function GisPage() {
 
   // Fullscreen uses fixed positioning over everything — single DeckGL instance, no remount
   const containerClass = isExpanded
-    ? "fixed inset-0 flex flex-col bg-[#0A0A0F]"
+    ? "fixed inset-0 flex flex-col bg-surface-darkest"
     : "flex h-[calc(100vh-4rem)] flex-col";
 
   return (
@@ -89,7 +89,7 @@ export default function GisPage() {
         <div className="flex items-center gap-3">
           <Globe className="h-5 w-5 text-accent" />
           <div>
-            <h1 className="text-lg font-semibold text-[#E8E4DC]">
+            <h1 className="text-lg font-semibold text-text-primary">
               GIS Explorer{selectedDiseaseName ? ` — ${selectedDiseaseName}` : ""}
             </h1>
             <p className="text-xs text-text-ghost">

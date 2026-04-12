@@ -175,7 +175,7 @@ export default function PacsStudyBrowser({
                   {studies.map((study, i) => (
                     <tr
                       key={study.study_instance_uid ?? i}
-                      className="border-b border-[#1E1E23] hover:bg-surface-overlay transition-colors"
+                      className="border-b border-border-subtle hover:bg-surface-overlay transition-colors"
                     >
                       <td className="px-3 py-2 text-text-primary truncate max-w-[120px]">
                         {study.patient_name ?? "--"}

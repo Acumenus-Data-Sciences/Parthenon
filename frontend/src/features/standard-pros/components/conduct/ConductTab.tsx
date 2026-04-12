@@ -31,7 +31,7 @@ type FilterId = (typeof FILTERS)[number]["id"];
 
 function EmptyState({ onCreate }: { onCreate: () => void }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[#2A2A2F] bg-[#141418] px-6 py-16 text-center">
+    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border-default bg-surface-raised px-6 py-16 text-center">
       <ClipboardList size={32} className="mb-3 text-text-ghost" />
       <h3 className="text-sm font-medium text-text-primary">No survey campaigns yet</h3>
       <p className="mt-1 max-w-lg text-xs leading-relaxed text-text-muted">
@@ -104,7 +104,7 @@ export function ConductTab() {
   return (
     <>
       <div className="space-y-6">
-        <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-5">
+        <div className="rounded-xl border border-border-default bg-surface-raised p-5">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
@@ -121,7 +121,7 @@ export function ConductTab() {
               <button
                 type="button"
                 onClick={() => campaignQuery.refetch()}
-                className="inline-flex items-center gap-2 rounded-lg border border-[#2A2A2F] px-3 py-2 text-xs font-medium text-text-muted hover:text-text-primary"
+                className="inline-flex items-center gap-2 rounded-lg border border-border-default px-3 py-2 text-xs font-medium text-text-muted hover:text-text-primary"
               >
                 <RefreshCcw size={12} />
                 Refresh
@@ -156,17 +156,17 @@ export function ConductTab() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-4">
+          <div className="rounded-xl border border-border-default bg-surface-raised p-4">
             <div className="text-lg font-semibold text-success">{campaignQuery.data?.total ?? 0}</div>
             <div className="text-[10px] uppercase tracking-wider text-text-ghost">Campaigns</div>
           </div>
-          <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-4">
+          <div className="rounded-xl border border-border-default bg-surface-raised p-4">
             <div className="text-lg font-semibold text-accent">
               {campaignDetails.filter((campaign) => campaign.status === "draft").length}
             </div>
             <div className="text-[10px] uppercase tracking-wider text-text-ghost">Draft</div>
           </div>
-          <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-4">
+          <div className="rounded-xl border border-border-default bg-surface-raised p-4">
             <div className="text-lg font-semibold text-[var(--domain-observation)]">
               {campaignDetails.filter((campaign) => campaign.status === "active").length}
             </div>

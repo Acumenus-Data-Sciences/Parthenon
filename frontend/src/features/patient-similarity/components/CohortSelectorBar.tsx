@@ -213,7 +213,7 @@ export function CohortSelectorBar({
             "px-4 py-1.5 rounded-md text-sm font-medium transition-colors shrink-0",
             "disabled:opacity-40 disabled:cursor-not-allowed",
             isCompareMode
-              ? "bg-primary text-white hover:bg-[#B22040]"
+              ? "bg-primary text-white hover:bg-primary-dark"
               : "bg-success text-surface-base hover:bg-success",
           )}
         >

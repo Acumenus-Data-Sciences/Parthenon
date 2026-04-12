@@ -51,7 +51,7 @@ function StudyCard({ study, onCompare, compareSelected }: {
     )}>
       {/* Thumbnail placeholder */}
       <div className="relative aspect-[4/3] bg-surface-base flex items-center justify-center">
-        <ScanLine size={28} className="text-[#1E1E23]" />
+        <ScanLine size={28} className="text-text-disabled" />
 
         {/* Modality badge */}
         <div
@@ -80,7 +80,7 @@ function StudyCard({ study, onCompare, compareSelected }: {
             href={`/ohif/viewer?StudyInstanceUIDs=${encodeURIComponent(study.study_instance_uid)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-md bg-info px-3 py-1.5 text-xs font-semibold text-surface-base hover:bg-[#3B82F6]"
+            className="inline-flex items-center gap-1.5 rounded-md bg-info px-3 py-1.5 text-xs font-semibold text-surface-base hover:bg-info"
           >
             <Monitor size={12} /> OHIF
           </a>

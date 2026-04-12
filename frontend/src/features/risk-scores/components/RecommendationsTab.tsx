@@ -70,7 +70,7 @@ export function RecommendationsTab({
 
   if (sourceId === 0 || analysis.design_json.targetCohortIds.length === 0) {
     return (
-      <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-8 text-center text-sm text-text-muted">
+      <div className="rounded-xl border border-border-default bg-surface-raised p-8 text-center text-sm text-text-muted">
         Select a source to view recommendations
       </div>
     );

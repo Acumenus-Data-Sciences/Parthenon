@@ -194,7 +194,7 @@ function ResultRow({
                 e.stopPropagation();
                 onAddToSet(result.concept_id, result.concept_name);
               }}
-              className="ml-auto inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[9px] text-primary hover:text-[#C5384C] hover:bg-primary/10 transition-colors"
+              className="ml-auto inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[9px] text-primary hover:text-critical hover:bg-primary/10 transition-colors"
             >
               <PlusCircle size={10} />
               Add to Set
@@ -441,7 +441,7 @@ export function SemanticSearchPanel({
             query.length >= 2 && (
               <div
                 ref={suggestionsRef}
-                className="absolute z-50 top-full mt-1 w-full rounded-lg border border-border-default bg-[#16161A] shadow-xl overflow-hidden"
+                className="absolute z-50 top-full mt-1 w-full rounded-lg border border-border-default bg-surface-raised shadow-xl overflow-hidden"
               >
                 {suggestionItems.slice(0, 10).map((s: HecateAutocompleteResult, i: number) => (
                   <button
@@ -553,7 +553,7 @@ export function SemanticSearchPanel({
               setVocabFilter("");
               setStandardFilter("all");
             }}
-            className="text-[10px] text-critical hover:text-[#F06B7F] transition-colors"
+            className="text-[10px] text-critical hover:text-critical-light transition-colors"
           >
             Clear filters
           </button>
@@ -624,7 +624,7 @@ export function SemanticSearchPanel({
                     setVocabFilter("");
                     setStandardFilter("all");
                   }}
-                  className="text-xs text-success hover:text-[#26B8A5] transition-colors"
+                  className="text-xs text-success hover:text-success transition-colors"
                 >
                   Try clearing filters
                 </button>

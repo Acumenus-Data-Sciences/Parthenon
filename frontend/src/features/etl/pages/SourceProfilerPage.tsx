@@ -321,7 +321,7 @@ export default function SourceProfilerPage() {
                       e.target.value ? Number(e.target.value) : "",
                     )
                   }
-                  className="w-full rounded-lg bg-surface-overlay border border-[#2E2E35] px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-primary"
+                  className="w-full rounded-lg bg-surface-overlay border border-border-default px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-primary"
                 >
                   <option value="">Select a database...</option>
                   {dbProjects.map((p) => (
@@ -350,7 +350,7 @@ export default function SourceProfilerPage() {
                   value={tableFilter}
                   onChange={(e) => setTableFilter(e.target.value)}
                   placeholder="e.g. person, visit_occurrence, condition_occurrence"
-                  className="w-full rounded-lg bg-surface-overlay border border-[#2E2E35] px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-primary"
+                  className="w-full rounded-lg bg-surface-overlay border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-primary"
                 />
               </div>
             </div>
@@ -381,7 +381,7 @@ export default function SourceProfilerPage() {
                     }
                     min={100}
                     max={1_000_000}
-                    className="w-full rounded-lg bg-surface-overlay border border-[#2E2E35] px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-primary"
+                    className="w-full rounded-lg bg-surface-overlay border border-border-default px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-primary"
                   />
                   <p className="text-[11px] text-text-ghost">
                     Limits row sampling for large tables. Default: 10,000.
@@ -415,7 +415,7 @@ export default function SourceProfilerPage() {
                   <button
                     type="button"
                     onClick={() => exportJson(result, resultSourceName)}
-                    className="inline-flex items-center gap-2 rounded-lg border border-[#2E2E35] bg-surface-overlay px-3 py-2.5 text-xs text-text-secondary hover:bg-surface-elevated transition-colors"
+                    className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-overlay px-3 py-2.5 text-xs text-text-secondary hover:bg-surface-elevated transition-colors"
                   >
                     <Download size={13} />
                     JSON
@@ -423,7 +423,7 @@ export default function SourceProfilerPage() {
                   <button
                     type="button"
                     onClick={() => exportCsv(result, resultSourceName)}
-                    className="inline-flex items-center gap-2 rounded-lg border border-[#2E2E35] bg-surface-overlay px-3 py-2.5 text-xs text-text-secondary hover:bg-surface-elevated transition-colors"
+                    className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-overlay px-3 py-2.5 text-xs text-text-secondary hover:bg-surface-elevated transition-colors"
                   >
                     <Download size={13} />
                     CSV
@@ -568,7 +568,7 @@ export default function SourceProfilerPage() {
                   value={tableSearch}
                   onChange={(e) => setTableSearch(e.target.value)}
                   placeholder="Search tables..."
-                  className="w-full rounded-lg bg-surface-overlay border border-[#2E2E35] pl-9 pr-8 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-primary"
+                  className="w-full rounded-lg bg-surface-overlay border border-border-default pl-9 pr-8 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-primary"
                 />
                 {tableSearch && (
                   <button
@@ -709,7 +709,7 @@ export default function SourceProfilerPage() {
 
       {/* -- Empty state -- */}
       {!result && !scanProgress.isScanning && !scanError && (
-        <div className="flex flex-col items-center justify-center py-20 rounded-lg border border-dashed border-[#2E2E35] bg-surface-raised">
+        <div className="flex flex-col items-center justify-center py-20 rounded-lg border border-dashed border-border-default bg-surface-raised">
           <div className="w-16 h-16 rounded-full bg-surface-overlay flex items-center justify-center mb-4">
             <ScanSearch size={28} className="text-text-muted" />
           </div>

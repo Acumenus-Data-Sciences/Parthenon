@@ -104,7 +104,7 @@ export function NewCampaignModal({
           <button
             type="button"
             onClick={handleClose}
-            className="rounded-lg border border-[#2A2A2F] px-4 py-2 text-sm text-text-muted hover:text-text-primary"
+            className="rounded-lg border border-border-default px-4 py-2 text-sm text-text-muted hover:text-text-primary"
           >
             Cancel
           </button>
@@ -141,7 +141,7 @@ export function NewCampaignModal({
               value={form.name}
               onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
               placeholder="Baseline mental health intake"
-              className="w-full rounded-lg border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
+              className="w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
             />
           </div>
 
@@ -152,7 +152,7 @@ export function NewCampaignModal({
             <select
               value={form.survey_instrument_id}
               onChange={(event) => setForm((current) => ({ ...current, survey_instrument_id: event.target.value }))}
-              className="w-full rounded-lg border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
+              className="w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
             >
               <option value="">Select an instrument</option>
               {instruments.map((instrument) => (
@@ -173,16 +173,16 @@ export function NewCampaignModal({
             onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
             rows={3}
             placeholder="Enrollment wave, inclusion notes, or operational instructions"
-            className="w-full rounded-lg border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
+            className="w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
           />
         </div>
 
-        <label className="flex items-start gap-3 rounded-xl border border-[#2A2A2F] bg-[#141418] p-4">
+        <label className="flex items-start gap-3 rounded-xl border border-border-default bg-surface-raised p-4">
           <input
             type="checkbox"
             checked={form.requires_honest_broker}
             onChange={(event) => setForm((current) => ({ ...current, requires_honest_broker: event.target.checked }))}
-            className="mt-1 h-4 w-4 rounded border-[#2A2A2F] bg-surface-base text-success focus:ring-success"
+            className="mt-1 h-4 w-4 rounded border-border-default bg-surface-base text-success focus:ring-success"
           />
           <div>
             <div className="text-sm font-medium text-text-primary">Require Honest Broker</div>
@@ -192,7 +192,7 @@ export function NewCampaignModal({
           </div>
         </label>
 
-        <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-4">
+        <div className="rounded-xl border border-border-default bg-surface-raised p-4">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <div className="text-xs font-medium uppercase tracking-wider text-text-muted">
@@ -209,7 +209,7 @@ export function NewCampaignModal({
                 value={form.cohortQuery}
                 onChange={(event) => setForm((current) => ({ ...current, cohortQuery: event.target.value }))}
                 placeholder="Search cohorts"
-                className="w-full rounded-lg border border-[#2A2A2F] bg-surface-base py-2 pl-9 pr-3 text-sm text-text-primary outline-none focus:border-success"
+                className="w-full rounded-lg border border-border-default bg-surface-base py-2 pl-9 pr-3 text-sm text-text-primary outline-none focus:border-success"
               />
             </div>
           </div>
@@ -221,7 +221,7 @@ export function NewCampaignModal({
               className={`w-full rounded-lg border px-3 py-3 text-left ${
                 form.cohort_generation_id === ""
                   ? "border-success bg-success/10"
-                  : "border-[#2A2A2F] bg-surface-base"
+                  : "border-border-default bg-surface-base"
               }`}
             >
               <div className="text-sm font-medium text-text-primary">No cohort seeding</div>
@@ -238,7 +238,7 @@ export function NewCampaignModal({
               }
 
               return (
-                <div key={cohort.id} className="rounded-lg border border-[#2A2A2F] bg-surface-base p-3">
+                <div key={cohort.id} className="rounded-lg border border-border-default bg-surface-base p-3">
                   <div className="text-sm font-medium text-text-primary">{cohort.name}</div>
                   {cohort.description && (
                     <div className="mt-1 text-[11px] text-text-ghost">{cohort.description}</div>
@@ -256,7 +256,7 @@ export function NewCampaignModal({
                             className={`w-full rounded-lg border px-3 py-2 text-left ${
                               selected
                                 ? "border-accent bg-accent/10"
-                                : "border-[#2A2A2F] bg-[#141418]"
+                                : "border-border-default bg-surface-raised"
                             }`}
                           >
                             <div className="flex items-center justify-between gap-2">

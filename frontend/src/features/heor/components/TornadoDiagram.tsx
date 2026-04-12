@@ -116,7 +116,7 @@ export default function TornadoDiagram({ tornadoData, baseIcer }: Props) {
                   <p className="text-[10px] text-text-muted mb-1.5">{d.type.replace(/_/g, " ")}</p>
                   <div className="space-y-0.5 text-xs">
                     <p className="text-text-secondary">
-                      Base: <span className="font-mono text-[#F59E0B]">{d.baseValue.toLocaleString()}</span>
+                      Base: <span className="font-mono text-warning">{d.baseValue.toLocaleString()}</span>
                     </p>
                     <p className="text-text-secondary">
                       Range: {d.lowValue.toLocaleString()} → {d.highValue.toLocaleString()}

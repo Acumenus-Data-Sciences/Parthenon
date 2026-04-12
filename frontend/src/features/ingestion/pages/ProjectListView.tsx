@@ -79,7 +79,7 @@ export function ProjectListView({ onSelectProject }: ProjectListViewProps) {
         <button
           type="button"
           onClick={() => setShowForm((v) => !v)}
-          className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#B22040]"
+          className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
         >
           <Plus size={16} />
           New Project
@@ -105,7 +105,7 @@ export function ProjectListView({ onSelectProject }: ProjectListViewProps) {
             type="button"
             onClick={handleCreate}
             disabled={!newName.trim() || createMutation.isPending}
-            className="rounded-md bg-success px-4 py-2 text-sm font-medium text-surface-base transition-colors hover:bg-[#26BCA8] disabled:opacity-50"
+            className="rounded-md bg-success px-4 py-2 text-sm font-medium text-surface-base transition-colors hover:bg-success disabled:opacity-50"
           >
             {createMutation.isPending ? (
               <Loader2 size={16} className="animate-spin" />

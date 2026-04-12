@@ -118,18 +118,18 @@ export function TierBreakdownChart({
             <XAxis
               dataKey="name"
               tick={{ fill: "var(--text-muted)", fontSize: 11 }}
-              axisLine={{ stroke: "#2A2A2F" }}
+              axisLine={{ stroke: 'var(--border-default)' }}
               tickLine={false}
             />
             <YAxis
               tick={{ fill: "var(--text-muted)", fontSize: 11 }}
-              axisLine={{ stroke: "#2A2A2F" }}
+              axisLine={{ stroke: 'var(--border-default)' }}
               tickLine={false}
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: "#141418",
-                border: "1px solid #2A2A2F",
+                backgroundColor: 'var(--surface-raised)',
+                border: '1px solid var(--border-default)',
                 borderRadius: 8,
                 fontSize: 12,
               }}
@@ -165,10 +165,10 @@ export function TierBreakdownChart({
       </div>
 
       {/* Summary table */}
-      <div className="overflow-hidden rounded-xl border border-[#2A2A2F]">
+      <div className="overflow-hidden rounded-xl border border-border-default">
         <table className="w-full text-xs">
           <thead>
-            <tr className="border-b border-[#2A2A2F] bg-surface-base">
+            <tr className="border-b border-border-default bg-surface-base">
               <th className="px-3 py-2 text-left text-text-muted font-medium">
                 Tier
               </th>
@@ -192,7 +192,7 @@ export function TierBreakdownChart({
               return (
                 <tr
                   key={t.risk_tier}
-                  className="border-b border-[#2A2A2F]/50 last:border-b-0 hover:bg-surface-overlay cursor-pointer transition-colors"
+                  className="border-b border-border-default/50 last:border-b-0 hover:bg-surface-overlay cursor-pointer transition-colors"
                   onClick={() => onTierClick?.(t.risk_tier)}
                 >
                   <td className="px-3 py-2 text-text-primary">

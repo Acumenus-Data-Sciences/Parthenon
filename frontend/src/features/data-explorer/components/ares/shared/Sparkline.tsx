@@ -11,7 +11,7 @@ export default function Sparkline({
   height = 20,
   color = "var(--success)",
 }: SparklineProps) {
-  if (data.length < 2) return <span className="text-[#555]">--</span>;
+  if (data.length < 2) return <span className="text-text-ghost">--</span>;
 
   const min = Math.min(...data);
   const max = Math.max(...data);

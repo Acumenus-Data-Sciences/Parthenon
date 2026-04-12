@@ -115,7 +115,7 @@ function DeleteConfirmModal({
             type="button"
             disabled={isPending}
             onClick={onConfirm}
-            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#B52238] disabled:opacity-50"
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark disabled:opacity-50"
           >
             {isPending ? "Deleting…" : "Delete"}
           </button>
@@ -186,7 +186,7 @@ export default function UsersPage() {
           <button
             type="button"
             onClick={() => setModalState({ open: true, user: null })}
-            className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-semibold text-surface-base transition-colors hover:bg-[#25B8A5]"
+            className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-semibold text-surface-base transition-colors hover:bg-success"
           >
             <Plus size={16} />
             New User

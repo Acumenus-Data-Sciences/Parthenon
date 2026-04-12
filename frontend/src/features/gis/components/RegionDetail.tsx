@@ -17,14 +17,14 @@ export function RegionDetail({
   if (!detail && !loading) return null;
 
   return (
-    <div className="rounded-lg border border-border-default bg-[#141418] p-4">
+    <div className="rounded-lg border border-border-default bg-surface-raised p-4">
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-[#E8E4DC]">
+        <h3 className="text-sm font-semibold text-text-primary">
           {loading ? "Loading..." : detail?.name}
         </h3>
         <button
           onClick={onClose}
-          className="text-xs text-text-ghost hover:text-[#E8E4DC]"
+          className="text-xs text-text-ghost hover:text-text-primary"
         >
           Close
         </button>
@@ -80,7 +80,7 @@ export function RegionDetail({
                     <span className="text-text-muted">
                       Concept {exp.concept_id}
                     </span>
-                    <span className="text-[#E8E4DC]">
+                    <span className="text-text-primary">
                       avg: {exp.avg?.toFixed(2) ?? "—"} ({exp.count} records)
                     </span>
                   </div>

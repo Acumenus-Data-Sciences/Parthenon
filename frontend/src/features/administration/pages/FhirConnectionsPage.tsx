@@ -74,7 +74,7 @@ function SyncRunRow({ run }: { run: FhirSyncRun }) {
   const isActive = ["pending", "exporting", "downloading", "processing"].includes(run.status);
 
   return (
-    <div className="flex items-center gap-3 px-3 py-2 border-b border-[#1E1E23] last:border-0 text-xs">
+    <div className="flex items-center gap-3 px-3 py-2 border-b border-border-subtle last:border-0 text-xs">
       <span className={`px-1.5 py-0.5 rounded-full font-medium min-w-[80px] text-center ${STATUS_BADGE[run.status] ?? "bg-surface-elevated text-text-muted"}`}>
         {isActive && <Loader2 size={10} className="inline animate-spin mr-1" />}
         {run.status}
@@ -125,8 +125,8 @@ function SyncRunsPanel({ connectionId }: { connectionId: number }) {
   }
 
   return (
-    <div className="mt-2 rounded-md border border-[#1E1E23] bg-surface-base/50 overflow-hidden">
-      <div className="px-3 py-1.5 bg-[#1E1E23]/50 text-[10px] font-medium text-text-ghost uppercase tracking-wider flex items-center gap-3">
+    <div className="mt-2 rounded-md border border-border-subtle bg-surface-base/50 overflow-hidden">
+      <div className="px-3 py-1.5 bg-surface-overlay/50 text-[10px] font-medium text-text-ghost uppercase tracking-wider flex items-center gap-3">
         <span className="min-w-[80px]">Status</span>
         <span className="min-w-[90px]">Started</span>
         <span className="min-w-[60px]">Duration</span>
@@ -406,7 +406,7 @@ function ConnectionCard({
                 <button
                   type="button"
                   onClick={() => handleSync(false)}
-                  className="w-full px-3 py-2 text-left text-xs hover:bg-[#1E1E23] transition-colors rounded-t-lg"
+                  className="w-full px-3 py-2 text-left text-xs hover:bg-surface-overlay transition-colors rounded-t-lg"
                 >
                   <div className="font-medium text-text-primary">
                     {conn.incremental_enabled && hasLastSync ? "Incremental Sync" : "Full Sync"}
@@ -421,7 +421,7 @@ function ConnectionCard({
                   <button
                     type="button"
                     onClick={() => handleSync(true)}
-                    className="w-full px-3 py-2 text-left text-xs hover:bg-[#1E1E23] transition-colors border-t border-border-default rounded-b-lg"
+                    className="w-full px-3 py-2 text-left text-xs hover:bg-surface-overlay transition-colors border-t border-border-default rounded-b-lg"
                   >
                     <div className="font-medium text-amber-400">Force Full Sync</div>
                     <div className="text-[10px] text-text-ghost mt-0.5">
@@ -510,7 +510,7 @@ function ConnectionCard({
 
       {/* Expanded details */}
       {expanded && (
-        <div className="mt-3 pt-3 border-t border-[#1E1E23] grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
+        <div className="mt-3 pt-3 border-t border-border-subtle grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
           <div><span className="text-text-ghost">Token endpoint:</span> <span className="text-text-secondary font-mono break-all">{conn.token_endpoint}</span></div>
           <div><span className="text-text-ghost">Client ID:</span> <span className="text-text-secondary font-mono">{conn.client_id}</span></div>
           <div><span className="text-text-ghost">Scopes:</span> <span className="text-text-secondary">{conn.scopes}</span></div>

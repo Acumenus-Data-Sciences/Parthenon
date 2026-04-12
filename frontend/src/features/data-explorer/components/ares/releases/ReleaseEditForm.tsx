@@ -30,10 +30,10 @@ export function ReleaseEditForm({ release, onSave, onCancel, isSaving }: Release
   };
 
   const inputClass =
-    "w-full rounded-lg border border-[#252530] bg-surface-base px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:border-accent focus:outline-none";
+    "w-full rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:border-accent focus:outline-none";
 
   return (
-    <div className="mt-3 space-y-3 border-t border-[#252530] pt-3">
+    <div className="mt-3 space-y-3 border-t border-border-subtle pt-3">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
           <label className="mb-1 block text-[10px] uppercase text-text-muted">Release Name</label>
@@ -91,14 +91,14 @@ export function ReleaseEditForm({ release, onSave, onCancel, isSaving }: Release
           type="button"
           onClick={handleSubmit}
           disabled={isSaving}
-          className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-surface-base hover:bg-[#e0b82e] disabled:opacity-50 transition-colors"
+          className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-surface-base hover:bg-warning disabled:opacity-50 transition-colors"
         >
           {isSaving ? "Saving..." : "Save"}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-lg border border-[#252530] px-4 py-2 text-sm text-text-muted hover:text-text-primary transition-colors"
+          className="rounded-lg border border-border-subtle px-4 py-2 text-sm text-text-muted hover:text-text-primary transition-colors"
         >
           Cancel
         </button>

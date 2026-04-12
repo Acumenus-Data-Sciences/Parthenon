@@ -264,7 +264,7 @@ function SchedulesPanel({
               {schedules.map((schedule) => (
                 <div
                   key={schedule.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border-default bg-[#101014] px-4 py-3"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border-default bg-surface-base px-4 py-3"
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
@@ -329,7 +329,7 @@ function SchedulesPanel({
                         })
                       }
                       disabled={triggerMutation.isPending || activeRuns > 0}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-success px-3 py-1.5 text-xs font-medium text-surface-base transition-colors hover:bg-[#26BCA8] disabled:cursor-not-allowed disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-success px-3 py-1.5 text-xs font-medium text-surface-base transition-colors hover:bg-success disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {triggerMutation.isPending ? (
                         <Loader2 size={12} className="animate-spin" />
@@ -429,8 +429,8 @@ function RecentRunsPanel({ runs }: { runs: PoseidonRun[] }) {
                         className={cn(
                           "cursor-pointer border-b border-border-default transition-colors",
                           selectedRun?.id === run.id
-                            ? "bg-[#17171B]"
-                            : "bg-surface-base hover:bg-[#131316]",
+                            ? "bg-surface-raised"
+                            : "bg-surface-base hover:bg-sidebar-bg",
                           isRunActive(run) && "animate-pulse",
                         )}
                       >
@@ -461,7 +461,7 @@ function RecentRunsPanel({ runs }: { runs: PoseidonRun[] }) {
                                 cancelMutation.mutate(run.id);
                               }}
                               disabled={cancelMutation.isPending}
-                              className="text-xs text-primary hover:text-[#C52240] hover:underline"
+                              className="text-xs text-primary hover:text-critical hover:underline"
                             >
                               Cancel
                             </button>
@@ -489,7 +489,7 @@ function RunDetailInline({ run }: { run: PoseidonRun }) {
   const stats = run.stats;
 
   return (
-    <div className="mt-3 rounded-lg border border-border-default bg-[#131316] p-4">
+    <div className="mt-3 rounded-lg border border-border-default bg-sidebar-bg p-4">
       <div className="flex items-center justify-between">
         <h4 className="text-sm font-medium text-text-primary">
           Run #{run.id}
@@ -556,7 +556,7 @@ function RunDetailInline({ run }: { run: PoseidonRun }) {
       )}
 
       {run.error_message && (
-        <div className="mt-3 rounded-md border border-primary/30 bg-[#1A1114] px-3 py-2">
+        <div className="mt-3 rounded-md border border-primary/30 bg-surface-base px-3 py-2">
           <div className="text-xs font-medium text-primary">Error</div>
           <pre className="mt-1 overflow-x-auto whitespace-pre-wrap text-xs text-text-secondary">
             {run.error_message}
@@ -630,8 +630,8 @@ function FreshnessPanel({
                     className={cn(
                       "flex items-center justify-between rounded-lg border px-3 py-2",
                       isStale
-                        ? "border-accent/30 bg-[#1A1710]"
-                        : "border-border-default bg-[#101014]",
+                        ? "border-accent/30 bg-surface-overlay"
+                        : "border-border-default bg-surface-base",
                     )}
                   >
                     <span className="text-sm text-text-primary">
@@ -722,7 +722,7 @@ function LineagePanel({
                     {items.map((node) => (
                       <div
                         key={node.key}
-                        className="rounded-md border border-border-default bg-[#101014] px-3 py-1.5"
+                        className="rounded-md border border-border-default bg-surface-base px-3 py-1.5"
                       >
                         <div className="text-xs font-medium text-text-primary">
                           {node.key}

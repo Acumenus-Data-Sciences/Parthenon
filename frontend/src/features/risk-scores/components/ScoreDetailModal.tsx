@@ -42,7 +42,7 @@ export function ScoreDetailModal({
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-2xl mx-4 rounded-xl border border-[#2A2A2F] bg-surface-base shadow-2xl max-h-[85vh] flex flex-col">
+      <div className="relative w-full max-w-2xl mx-4 rounded-xl border border-border-default bg-surface-base shadow-2xl max-h-[85vh] flex flex-col">
         {/* Header */}
         <div className="flex items-start justify-between gap-4 px-6 pt-6 pb-4 border-b border-border-default shrink-0">
           <div className="flex-1 min-w-0">
@@ -150,7 +150,7 @@ export function ScoreDetailModal({
                   {score.required_components.map((comp) => (
                     <span
                       key={comp}
-                      className="inline-block rounded bg-surface-overlay border border-[#2A2A2F] px-2 py-1 text-[10px] text-text-secondary font-['IBM_Plex_Mono',monospace]"
+                      className="inline-block rounded bg-surface-overlay border border-border-default px-2 py-1 text-[10px] text-text-secondary font-['IBM_Plex_Mono',monospace]"
                     >
                       {comp}
                     </span>
@@ -254,7 +254,7 @@ export function ScoreDetailModal({
                 <button
                   type="button"
                   onClick={() => onCreateAnalysis(score.score_id)}
-                  className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-medium text-white hover:bg-[#B42240] transition-colors"
+                  className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-medium text-white hover:bg-primary-dark transition-colors"
                 >
                   <Plus size={12} />
                   Create Analysis

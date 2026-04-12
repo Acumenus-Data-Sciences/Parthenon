@@ -16,7 +16,7 @@ const DOMAIN_CONFIG = [
   { key: 'lab_results', label: 'Labs', color: DOMAIN_COLORS.lab },
   { key: 'vitals', label: 'Vitals', color: DOMAIN_COLORS.vital },
   { key: 'input_events', label: 'Inputs', color: '#06B6D4' },
-  { key: 'output_events', label: 'Outputs', color: '#A855F7' },
+  { key: 'output_events', label: 'Outputs', color: 'var(--domain-observation)' },
   { key: 'microbiology', label: 'Micro', color: DOMAIN_COLORS.microbiology },
 ] as const;
 

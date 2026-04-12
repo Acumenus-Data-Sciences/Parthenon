@@ -9,7 +9,7 @@ export default function TemplateSelector({ onSelect }: TemplateSelectorProps) {
   const { data: templates, isLoading } = useFeasibilityTemplates();
 
   if (isLoading) {
-    return <span className="text-[10px] text-[#555]">Loading templates...</span>;
+    return <span className="text-[10px] text-text-ghost">Loading templates...</span>;
   }
 
   if (!templates || templates.length === 0) {
@@ -29,14 +29,14 @@ export default function TemplateSelector({ onSelect }: TemplateSelectorProps) {
 
   return (
     <div className="mb-3">
-      <label className="mb-1 block text-xs text-[#888]">Start from Template</label>
+      <label className="mb-1 block text-xs text-text-muted">Start from Template</label>
       <div className="flex flex-wrap gap-2">
         {templates.map((t: FeasibilityTemplate) => (
           <button
             key={t.id}
             type="button"
             onClick={() => handleSelect(t)}
-            className="rounded border border-[#333] bg-[#1a1a22] px-3 py-1.5 text-xs text-[#ccc] transition-colors hover:border-accent hover:text-accent"
+            className="rounded border border-border-default bg-surface-overlay px-3 py-1.5 text-xs text-text-secondary transition-colors hover:border-accent hover:text-accent"
             title={t.description ?? undefined}
           >
             {t.name}

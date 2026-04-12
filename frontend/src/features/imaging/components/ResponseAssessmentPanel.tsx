@@ -95,7 +95,7 @@ export default function ResponseAssessmentPanel({ personId, studies }: ResponseA
             type="button"
             onClick={handleCompute}
             disabled={!selectedStudyId || computeMutation.isPending}
-            className="inline-flex items-center gap-2 rounded-lg bg-[var(--domain-observation)] px-4 py-2 text-sm font-medium text-white hover:bg-[#8B5CF6] disabled:opacity-50 transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg bg-[var(--domain-observation)] px-4 py-2 text-sm font-medium text-white hover:bg-domain-observation disabled:opacity-50 transition-colors"
           >
             {computeMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <Activity size={14} />}
             Assess
@@ -136,7 +136,7 @@ export default function ResponseAssessmentPanel({ personId, studies }: ResponseA
         )}
 
         {assessments && assessments.length > 0 && (
-          <div className="divide-y divide-[#1E1E23]">
+          <div className="divide-y divide-border-subtle">
             {assessments.map((a) => (
               <div key={a.id} className="px-4 py-3">
                 <button

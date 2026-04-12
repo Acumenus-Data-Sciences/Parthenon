@@ -198,7 +198,7 @@ export function GisDataPanel() {
                 className="mt-0.5 accent-accent"
               />
               <div>
-                <p className="text-sm font-medium text-[#E8E4DC]">{src.name}</p>
+                <p className="text-sm font-medium text-text-primary">{src.name}</p>
                 <p className="text-xs text-text-ghost">
                   {src.description} ({src.size})
                 </p>
@@ -264,7 +264,7 @@ export function GisDataPanel() {
       {/* CLI command modal */}
       {modalOpen && cliCommand && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="mx-4 w-full max-w-lg rounded-lg border border-border-default bg-[#18181B] p-6 shadow-2xl">
+          <div className="mx-4 w-full max-w-lg rounded-lg border border-border-default bg-surface-raised p-6 shadow-2xl">
             <div className="flex items-center gap-2 text-accent">
               <Terminal className="h-5 w-5" />
               <h3 className="text-lg font-semibold">Run on Host</h3>

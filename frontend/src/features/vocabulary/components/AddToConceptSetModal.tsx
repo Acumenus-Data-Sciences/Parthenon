@@ -165,7 +165,7 @@ export function AddToConceptSetModal({
       <div
         className={cn(
           "relative z-10 w-full max-w-md mx-4",
-          "bg-[#16161b] border border-white/10 rounded-xl shadow-2xl",
+          "bg-surface-raised border border-white/10 rounded-xl shadow-2xl",
           "flex flex-col",
         )}
       >
@@ -378,7 +378,7 @@ export function AddToConceptSetModal({
           <button
             type="button"
             onClick={handleOpenBuilder}
-            className="text-[10px] text-accent hover:text-[#B8911F] transition-colors"
+            className="text-[10px] text-accent hover:text-accent-dark transition-colors"
           >
             Open Builder with current search →
           </button>

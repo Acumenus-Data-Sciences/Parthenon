@@ -277,7 +277,7 @@ export function ConnectionStep({ dialect, data, onChange }: Props) {
               Test Connection
             </button>
             {testResult && (
-              <div className={`flex items-center gap-1.5 text-xs ${testResult.success ? "text-[#4ADE80]" : "text-critical"}`}>
+              <div className={`flex items-center gap-1.5 text-xs ${testResult.success ? "text-success" : "text-critical"}`}>
                 {testResult.success
                   ? <CheckCircle2 size={12} />
                   : <XCircle size={12} />}

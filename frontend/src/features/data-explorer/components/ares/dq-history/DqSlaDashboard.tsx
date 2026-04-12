@@ -54,14 +54,14 @@ function SlaForm({
   };
 
   return (
-    <div className="mb-4 rounded-lg border border-[#252530] bg-surface-base p-4">
-      <h4 className="mb-3 text-xs font-medium uppercase tracking-wider text-[#888]">
+    <div className="mb-4 rounded-lg border border-border-subtle bg-surface-base p-4">
+      <h4 className="mb-3 text-xs font-medium uppercase tracking-wider text-text-muted">
         SLA Targets (min pass rate %)
       </h4>
       <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
         {targets.map((t, i) => (
           <div key={t.category} className="flex items-center gap-2">
-            <label className="w-32 text-xs text-[#888] capitalize">
+            <label className="w-32 text-xs text-text-muted capitalize">
               {t.category.replace(/_/g, " ")}
             </label>
             <input
@@ -71,9 +71,9 @@ function SlaForm({
               step={1}
               value={t.min_pass_rate}
               onChange={(e) => updateTarget(i, Number(e.target.value))}
-              className="w-16 rounded border border-[#333] bg-[#1a1a22] px-2 py-1 text-xs text-white"
+              className="w-16 rounded border border-border-default bg-surface-overlay px-2 py-1 text-xs text-white"
             />
-            <span className="text-xs text-[#555]">%</span>
+            <span className="text-xs text-text-ghost">%</span>
           </div>
         ))}
       </div>
@@ -95,7 +95,7 @@ function SlaForm({
 function ComplianceChart({ compliance }: { compliance: DqSlaCompliance[] }) {
   if (compliance.length === 0) {
     return (
-      <p className="py-8 text-center text-sm text-[#555]">
+      <p className="py-8 text-center text-sm text-text-ghost">
         No SLA targets defined. Set targets above to see compliance.
       </p>
     );
@@ -111,22 +111,22 @@ function ComplianceChart({ compliance }: { compliance: DqSlaCompliance[] }) {
 
   return (
     <div>
-      <h4 className="mb-3 text-xs font-medium uppercase tracking-wider text-[#888]">
+      <h4 className="mb-3 text-xs font-medium uppercase tracking-wider text-text-muted">
         Current Compliance
       </h4>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} layout="vertical" margin={{ left: 100, right: 20 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#252530" horizontal={false} />
-            <XAxis type="number" domain={[0, 100]} tick={{ fill: "#888", fontSize: 11 }} tickFormatter={(v: number) => `${v}%`} />
-            <YAxis type="category" dataKey="category" tick={{ fill: "#888", fontSize: 11 }} width={90} />
+            <XAxis type="number" domain={[0, 100]} tick={{ fill: 'var(--text-muted)', fontSize: 11 }} tickFormatter={(v: number) => `${v}%`} />
+            <YAxis type="category" dataKey="category" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} width={90} />
             <Tooltip
               contentStyle={{
-                backgroundColor: "#1a1a22",
+                backgroundColor: 'var(--surface-overlay)',
                 border: "1px solid #333",
                 borderRadius: "8px",
               }}
-              labelStyle={{ color: "#fff" }}
+              labelStyle={{ color: 'var(--text-primary)' }}
               formatter={((value: number, name: string) => [
                 `${value}%`,
                 name === "actual" ? "Actual" : "Target",
@@ -149,7 +149,7 @@ function ComplianceChart({ compliance }: { compliance: DqSlaCompliance[] }) {
 
       {/* Error budget sparkline table */}
       <div className="mt-4">
-        <h4 className="mb-2 text-xs font-medium uppercase tracking-wider text-[#888]">
+        <h4 className="mb-2 text-xs font-medium uppercase tracking-wider text-text-muted">
           Error Budget
         </h4>
         <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
@@ -162,12 +162,12 @@ function ComplianceChart({ compliance }: { compliance: DqSlaCompliance[] }) {
                   : "border-primary/30 bg-primary/5"
               }`}
             >
-              <p className="text-xs capitalize text-[#888]">{c.category.replace(/_/g, " ")}</p>
-              <p className={`text-sm font-semibold ${c.compliant ? "text-success" : "text-[#e85d75]"}`}>
+              <p className="text-xs capitalize text-text-muted">{c.category.replace(/_/g, " ")}</p>
+              <p className={`text-sm font-semibold ${c.compliant ? "text-success" : "text-critical"}`}>
                 {c.error_budget_remaining >= 0 ? "+" : ""}
                 {c.error_budget_remaining.toFixed(1)}%
               </p>
-              <p className="text-[10px] text-[#555]">
+              <p className="text-[10px] text-text-ghost">
                 {c.actual.toFixed(1)}% / {c.target}% target
               </p>
             </div>

@@ -292,7 +292,7 @@ export function NaturalLanguageTab() {
                   borderRadius: "6px",
                   border: "1px solid color-mix(in srgb, var(--primary) 25%, transparent)",
                   background: "color-mix(in srgb, var(--primary) 8%, transparent)",
-                  color: "#F87171",
+                  color: 'var(--critical)',
                   fontSize: "13px",
                 }}
               >

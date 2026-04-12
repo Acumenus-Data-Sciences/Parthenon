@@ -14,9 +14,9 @@ const DOMAIN_CONFIG: Record<
   condition: { label: "Condition", plural: "Conditions", color: "var(--critical)" },
   drug: { label: "Drug", plural: "Drugs", color: "var(--success)" },
   procedure: { label: "Procedure", plural: "Procedures", color: "var(--accent)" },
-  measurement: { label: "Measurement", plural: "Measurements", color: "#818CF8" },
-  observation: { label: "Observation", plural: "Observations", color: "#94A3B8" },
-  visit: { label: "Visit", plural: "Visits", color: "#F59E0B" },
+  measurement: { label: "Measurement", plural: "Measurements", color: 'var(--info)' },
+  observation: { label: "Observation", plural: "Observations", color: 'var(--text-muted)' },
+  visit: { label: "Visit", plural: "Visits", color: 'var(--warning)' },
 };
 
 function formatDate(iso: string): string {
@@ -150,9 +150,9 @@ function VisitCard({ visitGroup }: { visitGroup: VisitGroup }) {
         {/* Visit type icon */}
         <div
           className="flex items-center justify-center w-8 h-8 rounded-md shrink-0"
-          style={{ backgroundColor: "#F59E0B18" }}
+          style={{ backgroundColor: 'var(--warning-bg)' }}
         >
-          <Hospital size={15} className="text-[#F59E0B]" />
+          <Hospital size={15} className="text-warning" />
         </div>
 
         <div className="flex-1 min-w-0">

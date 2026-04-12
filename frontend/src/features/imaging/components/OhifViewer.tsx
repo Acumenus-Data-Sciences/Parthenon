@@ -171,7 +171,7 @@ export default function OhifViewer({
   const ohifMprUrl = `/ohif/viewer?StudyInstanceUIDs=${encodeURIComponent(studyInstanceUid)}&hangingProtocolId=${encodeURIComponent("@ohif/mnGrid")}`;
 
   return (
-    <div ref={containerRef} className={`relative rounded-lg border border-[#1E1E23] overflow-hidden ${className}`}>
+    <div ref={containerRef} className={`relative rounded-lg border border-border-subtle overflow-hidden ${className}`}>
       {loading && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-surface-base">
           <div className="flex flex-col items-center gap-3 text-text-muted">
@@ -259,7 +259,7 @@ export default function OhifViewer({
             href={ohifMprUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 rounded-md bg-surface-base/80 px-2 py-1 text-[10px] text-info hover:text-[#93C5FD] transition-colors backdrop-blur-sm"
+            className="inline-flex items-center gap-1 rounded-md bg-surface-base/80 px-2 py-1 text-[10px] text-info hover:text-info-light transition-colors backdrop-blur-sm"
             title="Open OHIF in MPR layout"
           >
             MPR

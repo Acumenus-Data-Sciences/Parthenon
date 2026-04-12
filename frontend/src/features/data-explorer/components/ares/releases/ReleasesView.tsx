@@ -39,7 +39,7 @@ function ReleaseCard({
   );
 
   return (
-    <div className="rounded-xl border border-[#252530] bg-surface-raised p-4">
+    <div className="rounded-xl border border-border-subtle bg-surface-raised p-4">
       <div className="flex items-start justify-between">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
@@ -97,7 +97,7 @@ function ReleaseCard({
 
       {/* ETL Provenance section — only visible when etl_metadata is populated */}
       {release.etl_metadata && Object.keys(release.etl_metadata).length > 0 && (
-        <div className="mt-3 border-t border-[#252530] pt-3">
+        <div className="mt-3 border-t border-border-subtle pt-3">
           <button
             type="button"
             onClick={() => setShowEtl(!showEtl)}
@@ -111,19 +111,19 @@ function ReleaseCard({
             <div className="mt-2 grid grid-cols-2 gap-x-6 gap-y-2 rounded-lg bg-surface-base p-3 text-xs">
               {release.etl_metadata.who && (
                 <div>
-                  <span className="text-[#555]">Ran by: </span>
+                  <span className="text-text-ghost">Ran by: </span>
                   <span className="text-text-primary">{release.etl_metadata.who}</span>
                 </div>
               )}
               {release.etl_metadata.code_version && (
                 <div>
-                  <span className="text-[#555]">Code version: </span>
+                  <span className="text-text-ghost">Code version: </span>
                   <span className="font-mono text-success">{release.etl_metadata.code_version}</span>
                 </div>
               )}
               {release.etl_metadata.duration_seconds != null && (
                 <div>
-                  <span className="text-[#555]">Duration: </span>
+                  <span className="text-text-ghost">Duration: </span>
                   <span className="text-text-primary">
                     {release.etl_metadata.duration_seconds >= 3600
                       ? `${Math.floor(release.etl_metadata.duration_seconds / 3600)}h ${Math.floor((release.etl_metadata.duration_seconds % 3600) / 60)}m`
@@ -135,13 +135,13 @@ function ReleaseCard({
               )}
               {release.etl_metadata.started_at && (
                 <div>
-                  <span className="text-[#555]">Started: </span>
+                  <span className="text-text-ghost">Started: </span>
                   <span className="text-text-primary">{new Date(release.etl_metadata.started_at).toLocaleString()}</span>
                 </div>
               )}
               {release.etl_metadata.parameters && Object.keys(release.etl_metadata.parameters).length > 0 && (
                 <div className="col-span-2 mt-1">
-                  <span className="text-[#555]">Parameters:</span>
+                  <span className="text-text-ghost">Parameters:</span>
                   <pre className="mt-1 overflow-x-auto rounded bg-surface-raised p-2 text-[10px] text-text-muted">
                     {JSON.stringify(release.etl_metadata.parameters, null, 2)}
                   </pre>
@@ -213,7 +213,7 @@ export function ReleasesView() {
   return (
     <div className="space-y-4">
       {/* Tab bar */}
-      <div className="flex gap-1 rounded-lg border border-[#252530] bg-surface-base p-1">
+      <div className="flex gap-1 rounded-lg border border-border-subtle bg-surface-base p-1">
         {tabs.map((tab) => (
           <button
             key={tab.key}
@@ -221,8 +221,8 @@ export function ReleasesView() {
             onClick={() => setActiveTab(tab.key)}
             className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
               activeTab === tab.key
-                ? "bg-[#252530] text-accent"
-                : "text-[#888] hover:text-[#ccc]"
+                ? "bg-surface-accent text-accent"
+                : "text-text-muted hover:text-text-secondary"
             }`}
           >
             {tab.label}
@@ -231,7 +231,7 @@ export function ReleasesView() {
       </div>
 
       {activeTab === "swimlane" && (
-        <div className="rounded-xl border border-[#252530] bg-surface-raised p-4">
+        <div className="rounded-xl border border-border-subtle bg-surface-raised p-4">
           <h3 className="mb-3 text-sm font-medium text-white">Release Timeline (All Sources)</h3>
           {timelineData ? (
             <SwimLaneTimeline data={timelineData} />
@@ -244,7 +244,7 @@ export function ReleasesView() {
       )}
 
       {activeTab === "calendar" && (
-        <div className="rounded-xl border border-[#252530] bg-surface-raised p-4">
+        <div className="rounded-xl border border-border-subtle bg-surface-raised p-4">
           <h3 className="mb-3 text-sm font-medium text-white">Release Calendar</h3>
           {calendarData ? (
             <ReleaseCalendar events={calendarData} />
@@ -263,7 +263,7 @@ export function ReleasesView() {
             <select
               value={selectedSourceId ?? ""}
               onChange={(e) => setSelectedSourceId(e.target.value ? Number(e.target.value) : null)}
-              className="rounded-lg border border-[#252530] bg-surface-raised px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none"
+              className="rounded-lg border border-border-subtle bg-surface-raised px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none"
             >
               <option value="">Select a source</option>
               {sources?.map((s) => (
@@ -275,7 +275,7 @@ export function ReleasesView() {
               <button
                 type="button"
                 onClick={() => setShowForm((prev) => !prev)}
-                className="flex items-center gap-1.5 rounded-lg border border-[#252530] bg-[#1a1a22] px-3 py-2 text-sm text-accent hover:border-accent transition-colors"
+                className="flex items-center gap-1.5 rounded-lg border border-border-subtle bg-surface-overlay px-3 py-2 text-sm text-accent hover:border-accent transition-colors"
               >
                 <Plus size={14} />
                 Create Release
@@ -285,14 +285,14 @@ export function ReleasesView() {
 
           {/* Create form */}
           {showForm && selectedSourceId && (
-            <div className="rounded-xl border border-[#252530] bg-surface-raised p-4 space-y-3">
+            <div className="rounded-xl border border-border-subtle bg-surface-raised p-4 space-y-3">
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <input
                   type="text"
                   placeholder="Release name"
                   value={formData.release_name}
                   onChange={(e) => setFormData({ ...formData, release_name: e.target.value })}
-                  className="rounded-lg border border-[#252530] bg-surface-base px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:border-accent focus:outline-none"
+                  className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:border-accent focus:outline-none"
                 />
                 <select
                   value={formData.release_type}
@@ -302,7 +302,7 @@ export function ReleasesView() {
                       release_type: e.target.value as "scheduled_etl" | "snapshot",
                     })
                   }
-                  className="rounded-lg border border-[#252530] bg-surface-base px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none"
+                  className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none"
                 >
                   <option value="scheduled_etl">Scheduled ETL</option>
                   <option value="snapshot">Snapshot</option>
@@ -312,7 +312,7 @@ export function ReleasesView() {
                   placeholder="CDM version (optional)"
                   value={formData.cdm_version ?? ""}
                   onChange={(e) => setFormData({ ...formData, cdm_version: e.target.value || undefined })}
-                  className="rounded-lg border border-[#252530] bg-surface-base px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:border-accent focus:outline-none"
+                  className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:border-accent focus:outline-none"
                 />
                 <input
                   type="text"
@@ -321,7 +321,7 @@ export function ReleasesView() {
                   onChange={(e) =>
                     setFormData({ ...formData, vocabulary_version: e.target.value || undefined })
                   }
-                  className="rounded-lg border border-[#252530] bg-surface-base px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:border-accent focus:outline-none"
+                  className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:border-accent focus:outline-none"
                 />
               </div>
               <div className="flex gap-2">
@@ -329,14 +329,14 @@ export function ReleasesView() {
                   type="button"
                   onClick={handleCreate}
                   disabled={createMutation.isPending || !formData.release_name.trim()}
-                  className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-surface-base hover:bg-[#e0b82e] disabled:opacity-50 transition-colors"
+                  className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-surface-base hover:bg-warning disabled:opacity-50 transition-colors"
                 >
                   {createMutation.isPending ? "Creating..." : "Create"}
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}
-                  className="rounded-lg border border-[#252530] px-4 py-2 text-sm text-text-muted hover:text-text-primary transition-colors"
+                  className="rounded-lg border border-border-subtle px-4 py-2 text-sm text-text-muted hover:text-text-primary transition-colors"
                 >
                   Cancel
                 </button>
