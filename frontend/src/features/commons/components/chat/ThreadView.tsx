@@ -36,8 +36,8 @@ export function ThreadView({ parentMessage, slug, currentUserId }: ThreadViewPro
   }
 
   return (
-    <div className="mb-4 ml-[64px] mr-3 overflow-hidden rounded-2xl border border-border-default bg-surface-base shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
-      <div className="flex items-center gap-1.5 border-b border-border-default bg-surface-raised px-4 py-2.5 text-[11px] text-muted-foreground">
+    <div className="mb-4 ml-[64px] mr-3 overflow-hidden rounded-2xl border border-border-default bg-surface-raised shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+      <div className="flex items-center gap-1.5 border-b border-border-default bg-surface-overlay px-4 py-2.5 text-[11px] text-muted-foreground">
         <span>Thread</span>
         <span className="opacity-50">·</span>
         <span>

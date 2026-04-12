@@ -38,7 +38,7 @@ export function AttachmentDisplay({ attachments }: AttachmentDisplayProps) {
               href={downloadUrl(img.id)}
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative block max-w-[260px] overflow-hidden rounded-2xl border border-border-default bg-surface-base shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-colors hover:border-surface-highlight"
+              className="group relative block max-w-[260px] overflow-hidden rounded-2xl border border-border-default bg-surface-raised shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition-colors hover:border-surface-highlight"
             >
               <img
                 src={`${API_BASE}/storage/${img.stored_path}`}
@@ -48,10 +48,10 @@ export function AttachmentDisplay({ attachments }: AttachmentDisplayProps) {
               />
               <div className="absolute inset-0 flex items-center justify-center bg-black/45 opacity-0 transition-opacity group-hover:opacity-100">
                 <div className="rounded-full border border-white/10 bg-black/40 p-2 backdrop-blur-sm">
-                  <Download className="h-5 w-5 text-text-primary" />
+                  <Download className="h-5 w-5 text-white" />
                 </div>
               </div>
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/65 to-transparent px-3 py-2 text-[11px] text-text-primary/85">
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/65 to-transparent px-3 py-2 text-[11px] text-white/85">
                 <div className="truncate font-medium">{img.original_name}</div>
               </div>
             </a>
@@ -64,9 +64,9 @@ export function AttachmentDisplay({ attachments }: AttachmentDisplayProps) {
         <a
           key={file.id}
           href={downloadUrl(file.id)}
-          className="flex max-w-sm items-center gap-3 rounded-2xl border border-border-default bg-surface-base px-3 py-3 text-sm text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] transition-colors hover:border-surface-highlight hover:bg-surface-raised"
+          className="flex max-w-sm items-center gap-3 rounded-2xl border border-border-default bg-surface-raised px-3 py-3 text-sm text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] transition-colors hover:border-surface-highlight hover:bg-surface-raised"
         >
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-surface-accent bg-surface-overlay">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border-default bg-surface-overlay">
             {file.mime_type === "application/pdf" ? (
               <FileText className="h-4 w-4 shrink-0 text-red-400" />
             ) : (
