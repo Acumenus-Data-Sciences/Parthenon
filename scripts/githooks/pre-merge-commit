@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+# =============================================================================
+# Parthenon — Pre-Merge-Commit Hook
+# =============================================================================
+# Refuses to create a merge commit when the incoming branch's merge-base is
+# stale relative to origin/main. Forces stale branches to be rebased first,
+# preventing the class of regression where long-lived worktree branches
+# silently revert refactors that landed on main after the branch was cut.
+#
+# Bypass: add "[stale-ok]" anywhere in the merge commit message, or use
+# git merge --no-verify.
+#
+# Tunables:
+#   STALE_HOURS     — max allowed age of merge-base behind origin/main (default 4)
+#   STALE_DELETIONS — max allowed deletions by stale branch without ack (default 10)
+# =============================================================================
+
+set -e
+
+STALE_HOURS=${STALE_HOURS:-4}
+STALE_DELETIONS=${STALE_DELETIONS:-10}
+
+REPO_ROOT=$(git rev-parse --show-toplevel)
+cd "$REPO_ROOT"
+
+MSG_FILE="${1:-.git/MERGE_MSG}"
+MSG=""
+if [ -f "$MSG_FILE" ]; then
+    MSG=$(cat "$MSG_FILE")
+fi
+
+# User-acknowledged stale merge — pass through
+if echo "$MSG" | grep -q '\[stale-ok\]'; then
+    exit 0
+fi
+
+# Identify the incoming branch HEAD (MERGE_HEAD exists during merge)
+if [ ! -f .git/MERGE_HEAD ]; then
+    exit 0
+fi
+INCOMING=$(cat .git/MERGE_HEAD)
+
+# Resolve origin/main; if unavailable (offline), warn and pass
+if ! git rev-parse --verify origin/main >/dev/null 2>&1; then
+    echo "pre-merge-commit: origin/main not found — skipping staleness check"
+    exit 0
+fi
+
+# Merge-base between incoming branch and current origin/main
+MERGE_BASE=$(git merge-base "$INCOMING" origin/main 2>/dev/null || true)
+if [ -z "$MERGE_BASE" ]; then
+    exit 0
+fi
+
+# If merge-base IS current origin/main, branch is fresh
+MAIN_HEAD=$(git rev-parse origin/main)
+if [ "$MERGE_BASE" = "$MAIN_HEAD" ]; then
+    exit 0
+fi
+
+# Age of merge-base
+BASE_EPOCH=$(git show -s --format=%ct "$MERGE_BASE")
+NOW_EPOCH=$(date +%s)
+AGE_HOURS=$(( (NOW_EPOCH - BASE_EPOCH) / 3600 ))
+
+if [ "$AGE_HOURS" -lt "$STALE_HOURS" ]; then
+    exit 0
+fi
+
+# Count file deletions the incoming branch would impose vs origin/main
+DELETIONS=$(git diff --name-only --diff-filter=D "$MAIN_HEAD...$INCOMING" 2>/dev/null | wc -l | tr -d ' ')
+
+echo ""
+echo "============================================================"
+echo "  pre-merge-commit: STALE BRANCH GUARD"
+echo "============================================================"
+echo ""
+echo "  Incoming branch:    $(git rev-parse --short "$INCOMING")"
+echo "  Merge-base age:     ${AGE_HOURS}h behind origin/main (threshold ${STALE_HOURS}h)"
+echo "  Files this branch would delete: $DELETIONS"
+echo ""
+echo "  This is the failure mode where sweep worktrees silently"
+echo "  revert recent refactors. REBASE before merging:"
+echo ""
+echo "    git fetch origin"
+echo "    git rebase origin/main     # on the incoming branch"
+echo "    # resolve conflicts FILE-BY-FILE; verify no surprise deletions"
+echo "    git log origin/main..HEAD --diff-filter=D --name-only"
+echo ""
+
+if [ "$DELETIONS" -gt "$STALE_DELETIONS" ]; then
+    echo "  REFUSED: ${DELETIONS} deletions exceeds soft limit (${STALE_DELETIONS})."
+    echo "  If these deletions are intentional, add [stale-ok] to the merge"
+    echo "  message, or list every deleted path in the commit body."
+    echo "============================================================"
+    exit 1
+fi
+
+echo "  REFUSED on age alone. Add [stale-ok] if intentional."
+echo "============================================================"
+exit 1

@@ -92,6 +92,33 @@ if [ -n "$STAGED_FRONTEND_TS" ]; then
     cd "$REPO_ROOT"
 fi
 
+# ── TypeScript: vite build (stricter than tsc; catches unresolved imports) ──
+# tsc --noEmit permits missing modules in some cases; vite build is what ships.
+# Gate on frontend changes that touch imports or routing (module graph).
+if [ -n "$STAGED_FRONTEND_TS" ]; then
+    # Only run when staged files touch imports/exports/delete modules — vite build
+    # is ~1-2s but parser startup adds cost. Skip for trivial edits.
+    NEEDS_VITE=0
+    if echo "$STAGED" | grep -qE '\.(ts|tsx)$'; then
+        # Run if any staged frontend file was added/deleted/renamed (module graph change)
+        if git diff --cached --name-only --diff-filter=ADR | grep -qE '^frontend/.*\.(ts|tsx)$'; then
+            NEEDS_VITE=1
+        # Or if any import statement changed in a staged file
+        elif git diff --cached -U0 -- 'frontend/**/*.ts' 'frontend/**/*.tsx' 2>/dev/null | grep -qE '^[+-][[:space:]]*import '; then
+            NEEDS_VITE=1
+        fi
+    fi
+    if [ "$NEEDS_VITE" -eq 1 ]; then
+        echo "Pre-commit: vite build..."
+        if docker compose exec -T node sh -c "cd /app && npx vite build" > /dev/null 2>&1; then
+            echo "  ✓ vite build"
+        else
+            echo "  ✗ vite build — run: docker compose exec node sh -c 'cd /app && npx vite build'"
+            ERRORS=$((ERRORS + 1))
+        fi
+    fi
+fi
+
 # ── Python: syntax check ───────────────────────────────────────────────────
 if [ "$HAS_PY" -gt 0 ]; then
     echo "Pre-commit: Python syntax..."
