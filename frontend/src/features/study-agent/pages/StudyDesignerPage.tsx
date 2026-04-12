@@ -116,7 +116,7 @@ export default function StudyDesignerPage() {
             <button
               onClick={handleIntentSubmit}
               disabled={!studyIntent.trim() || intentMutation.isPending}
-              className="mt-3 flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-text-primary transition-colors hover:bg-primary/80 disabled:opacity-50"
+              className="mt-3 flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80 disabled:opacity-50"
             >
               {intentMutation.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />

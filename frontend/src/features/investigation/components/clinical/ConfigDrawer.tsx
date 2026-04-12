@@ -587,7 +587,7 @@ export function ConfigDrawer({
             <button
               onClick={handleExecute}
               disabled={analysisType === "evidence_synthesis" || isPending}
-              className="px-5 py-2 rounded text-xs font-medium text-text-primary bg-primary hover:bg-primary-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-w-[110px] justify-center"
+              className="px-5 py-2 rounded text-xs font-medium text-primary-foreground bg-primary hover:bg-primary-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-w-[110px] justify-center"
             >
               {isPending ? (
                 <>

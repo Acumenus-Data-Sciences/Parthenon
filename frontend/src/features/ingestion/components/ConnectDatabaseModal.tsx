@@ -231,7 +231,7 @@ export default function ConnectDatabaseModal({
               type="button"
               onClick={handleConfirm}
               disabled={selectedTables.size === 0}
-              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-text-primary hover:bg-primary-light disabled:opacity-40 transition-colors"
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-light disabled:opacity-40 transition-colors"
             >
               Confirm ({selectedTables.size} tables)
             </button>

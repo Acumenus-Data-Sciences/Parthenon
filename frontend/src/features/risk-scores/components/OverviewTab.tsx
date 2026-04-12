@@ -237,7 +237,7 @@ export function OverviewTab({
               <button
                 type="button"
                 onClick={onRunClick}
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-text-primary hover:bg-primary-light transition-colors"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-light transition-colors"
               >
                 <Play className="h-4 w-4" />
                 Run Analysis
@@ -257,7 +257,7 @@ export function OverviewTab({
               <button
                 type="button"
                 onClick={onRunClick}
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-text-primary hover:bg-primary-light transition-colors"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-light transition-colors"
               >
                 <Play className="h-4 w-4" />
                 Retry Analysis

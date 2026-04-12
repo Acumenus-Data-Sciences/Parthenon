@@ -283,7 +283,7 @@ export default function DqdTab({ sourceId }: DqdTabProps) {
           onClick={() => runMutation.mutate()}
           disabled={runMutation.isPending || isRunning}
           className={cn(
-            "inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-text-primary",
+            "inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground",
             "hover:bg-primary-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
           )}
         >

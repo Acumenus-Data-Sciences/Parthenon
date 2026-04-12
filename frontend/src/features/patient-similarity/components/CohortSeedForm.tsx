@@ -243,7 +243,7 @@ export function CohortSeedForm({
         }
         className={cn(
           "w-full flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors",
-          "bg-primary text-text-primary hover:bg-primary-light",
+          "bg-primary text-primary-foreground hover:bg-primary-light",
           "disabled:opacity-50 disabled:cursor-not-allowed",
         )}
       >

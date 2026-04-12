@@ -153,7 +153,7 @@ export function CampaignCard({
               type="button"
               disabled={isMutating}
               onClick={() => onClose(campaign.id)}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-critical px-3 py-2 text-xs font-medium text-text-primary disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-critical px-3 py-2 text-xs font-medium text-white disabled:opacity-50"
             >
               <CircleOff size={12} />
               Close

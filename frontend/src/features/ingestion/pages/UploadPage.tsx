@@ -157,7 +157,7 @@ export default function UploadPage() {
         className={cn(
           "inline-flex items-center gap-2 rounded-lg px-6 py-2.5 text-sm font-medium transition-colors",
           canUpload
-            ? "bg-primary text-text-primary hover:bg-primary-light"
+            ? "bg-primary text-primary-foreground hover:bg-primary-light"
             : "bg-surface-accent text-text-ghost cursor-not-allowed",
         )}
       >

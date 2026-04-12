@@ -158,7 +158,7 @@ export default function JobDetailPage() {
             type="button"
             onClick={() => retryMutation.mutate()}
             disabled={retryMutation.isPending}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-text-primary hover:bg-primary-light transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary-light transition-colors disabled:opacity-50"
           >
             {retryMutation.isPending ? (
               <Loader2 size={14} className="animate-spin" />

@@ -187,7 +187,7 @@
   border-radius: var(--radius-sm);
   border: none;
   background: var(--primary);
-  color: var(--text-primary);
+  color: #FFFFFF;
   cursor: pointer;
   flex-shrink: 0;
   transition: background var(--duration-fast), box-shadow var(--duration-fast);

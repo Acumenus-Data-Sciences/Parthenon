@@ -514,7 +514,7 @@ export default function FhirIngestionPanel() {
                 isPending ||
                 (inputMode === "json" ? !jsonText.trim() : !fileContent)
               }
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-text-primary hover:bg-primary-light disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary-light disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               {isPending ? (
                 <>

@@ -395,7 +395,7 @@ export default function SourceProfilerPage() {
                 type="button"
                 onClick={handleScan}
                 disabled={!selectedProjectId || scanProgress.isScanning}
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-text-primary hover:bg-primary-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {scanProgress.isScanning ? (
                   <>

@@ -281,7 +281,7 @@ export default function UnmappedCodesView() {
                     <td className="px-3 py-2 text-right text-xs">
                       <span className="flex items-center justify-end gap-1.5">
                         {page === 1 && idx < 3 && (
-                          <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-text-primary">
+                          <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
                             #{idx + 1}
                           </span>
                         )}

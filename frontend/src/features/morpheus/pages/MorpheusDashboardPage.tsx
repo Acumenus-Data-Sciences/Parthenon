@@ -105,7 +105,7 @@ export default function MorpheusDashboardPage() {
         </div>
         <div className="flex gap-2">
           <button onClick={() => navigate(`/morpheus/journey?icu=true${ds}`)}
-            className="rounded-lg bg-primary/80 px-3 py-1.5 text-xs font-medium text-text-primary hover:bg-primary transition-colors">
+            className="rounded-lg bg-primary/80 px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary transition-colors">
             ICU Patients
           </button>
           <button onClick={() => navigate(`/morpheus/journey?deceased=true${ds}`)}

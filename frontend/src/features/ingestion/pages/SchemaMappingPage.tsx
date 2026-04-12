@@ -403,7 +403,7 @@ export default function SchemaMappingPage() {
         </button>
         <button
           onClick={() => navigate(`/ingestion/jobs/${jobId}/review`)}
-          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-text-primary transition hover:bg-primary/80"
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/80"
         >
           Continue to Concept Mapping
         </button>

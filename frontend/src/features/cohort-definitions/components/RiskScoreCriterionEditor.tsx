@@ -239,7 +239,7 @@ export function RiskScoreCriterionEditor({
           type="button"
           onClick={handleAdd}
           disabled={!canAdd}
-          className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-text-primary hover:bg-primary-light disabled:opacity-40 transition-colors"
+          className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary-light disabled:opacity-40 transition-colors"
         >
           <CheckCircle2 size={12} />
           Add

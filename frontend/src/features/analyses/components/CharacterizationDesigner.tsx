@@ -680,7 +680,7 @@ export function CharacterizationDesigner({
             onClick={handleDirectRun}
             disabled={!canDirectRun}
             className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50"
-            style={{ background: "var(--primary)", color: "var(--text-primary)" }}
+            style={{ background: "var(--primary)", color: "#FFFFFF" }}
             title={
               !sourceId
                 ? "Select a data source above to run"

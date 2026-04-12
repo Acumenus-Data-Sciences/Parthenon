@@ -170,7 +170,7 @@ function HeelPanel({ sourceId }: { sourceId: number }) {
           onClick={() => runMutation.mutate()}
           disabled={runMutation.isPending || isRunning}
           className={cn(
-            "inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-text-primary",
+            "inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground",
             "hover:bg-primary-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
           )}
         >
@@ -337,7 +337,7 @@ function AchillesPanel({ sourceId }: { sourceId: number }) {
           onClick={handleRun}
           disabled={runMutation.isPending}
           className={cn(
-            "inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-text-primary",
+            "inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground",
             "hover:bg-primary-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
           )}
         >

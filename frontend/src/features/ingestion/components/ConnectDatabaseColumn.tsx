@@ -76,7 +76,7 @@ export default function ConnectDatabaseColumn({ project }: ConnectDatabaseColumn
             type="button"
             onClick={handleStageDb}
             disabled={stageMutation.isPending}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-1.5 text-xs font-medium text-text-primary hover:bg-primary-light disabled:opacity-40 transition-colors ml-auto"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary-light disabled:opacity-40 transition-colors ml-auto"
           >
             {stageMutation.isPending ? <Loader2 size={12} className="animate-spin" /> : <Database size={12} />}
             Profile & Stage

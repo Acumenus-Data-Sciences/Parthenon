@@ -47,11 +47,11 @@ export function PipelineStepper({ currentStep, status }: PipelineStepperProps) {
                   state === "completed" &&
                     "bg-success text-surface-base",
                   state === "active" &&
-                    "bg-primary text-text-primary animate-pulse",
+                    "bg-primary text-primary-foreground animate-pulse",
                   state === "pending" &&
                     "border-2 border-surface-highlight text-text-ghost bg-transparent",
                   state === "failed" &&
-                    "bg-critical text-text-primary",
+                    "bg-critical text-white",
                 )}
               >
                 {state === "completed" ? (

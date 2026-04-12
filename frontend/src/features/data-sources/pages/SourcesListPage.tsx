@@ -56,7 +56,7 @@ export function SourcesListPage() {
           <button
             type="button"
             onClick={() => setWizardOpen(true)}
-            className="flex items-center gap-1.5 rounded-lg bg-primary-light px-3 py-2 text-sm font-medium text-text-primary hover:bg-critical transition-colors"
+            className="flex items-center gap-1.5 rounded-lg bg-primary-light px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-critical transition-colors"
           >
             <Plus size={14} />
             Add Source

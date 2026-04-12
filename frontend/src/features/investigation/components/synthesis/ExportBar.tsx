@@ -69,7 +69,7 @@ export function ExportBar({ investigationId, investigationTitle }: ExportBarProp
         <button
           onClick={() => { void handlePdf(); }}
           disabled={exportPdfMutation.isPending}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary hover:bg-primary-light disabled:opacity-50 disabled:cursor-not-allowed text-text-primary text-sm font-medium transition-colors"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary hover:bg-primary-light disabled:opacity-50 disabled:cursor-not-allowed text-primary-foreground text-sm font-medium transition-colors"
         >
           {exportPdfMutation.isPending ? (
             <Loader2 size={14} className="animate-spin" />

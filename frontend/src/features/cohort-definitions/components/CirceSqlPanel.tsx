@@ -170,7 +170,7 @@ export function CirceSqlPanel({ definitionId }: CirceSqlPanelProps) {
               type="button"
               onClick={() => compileMutation.mutate()}
               disabled={compileMutation.isPending}
-              className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium bg-primary text-text-primary hover:bg-primary/80 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/80 disabled:opacity-50"
             >
               {compileMutation.isPending ? (
                 <Loader2 size={12} className="animate-spin" />

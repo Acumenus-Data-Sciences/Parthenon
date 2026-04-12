@@ -36,7 +36,7 @@ export default function FilterBar({ filters, onChange, totalShown, totalAll }: F
                 (opt === 'all' && filters.icu === undefined) ||
                 (opt === 'yes' && filters.icu === true) ||
                 (opt === 'no' && filters.icu === false)
-                  ? 'bg-primary text-text-primary font-medium'
+                  ? 'bg-primary text-primary-foreground font-medium'
                   : 'border border-border-default bg-surface-base/50 text-text-muted hover:text-text-secondary'
               }`}>{opt === 'all' ? 'All' : opt === 'yes' ? 'Yes' : 'No'}</button>
           ))}
@@ -51,7 +51,7 @@ export default function FilterBar({ filters, onChange, totalShown, totalAll }: F
                 (opt === 'all' && filters.deceased === undefined) ||
                 (opt === 'survived' && filters.deceased === false) ||
                 (opt === 'deceased' && filters.deceased === true)
-                  ? 'bg-primary text-text-primary font-medium'
+                  ? 'bg-primary text-primary-foreground font-medium'
                   : 'border border-border-default bg-surface-base/50 text-text-muted hover:text-text-secondary'
               }`}>{opt === 'all' ? 'All' : opt === 'survived' ? 'Survived' : 'Deceased'}</button>
           ))}

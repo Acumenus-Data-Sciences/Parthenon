@@ -15,7 +15,7 @@ export default function AdmissionPicker({ admissions, selectedHadmId, onSelect }
         onClick={() => onSelect(null)}
         className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors focus:outline-none focus:ring-1 focus:ring-primary/30 ${
           selectedHadmId === null
-            ? 'bg-primary text-text-primary'
+            ? 'bg-primary text-primary-foreground'
             : 'border border-border-default bg-surface-base/50 text-text-muted hover:text-text-secondary'
         }`}
       >
@@ -30,7 +30,7 @@ export default function AdmissionPicker({ admissions, selectedHadmId, onSelect }
             onClick={() => onSelect(adm.hadm_id)}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors focus:outline-none focus:ring-1 focus:ring-primary/30 ${
               selectedHadmId === adm.hadm_id
-                ? 'bg-primary text-text-primary'
+                ? 'bg-primary text-primary-foreground'
                 : 'border border-border-default bg-surface-base/50 text-text-muted hover:text-text-secondary'
             }`}
           >

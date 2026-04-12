@@ -794,7 +794,7 @@ export function CohortDiagnosticsPanel({
             className={cn(
               "w-full inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors",
               sourceId && !mutation.isPending
-                ? "bg-primary text-text-primary hover:bg-primary/80"
+                ? "bg-primary text-primary-foreground hover:bg-primary/80"
                 : "bg-surface-overlay text-text-ghost cursor-not-allowed border border-border-default"
             )}
           >
