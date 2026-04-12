@@ -948,18 +948,12 @@ class PatientSimilarityController extends Controller
             $sourceCohortDef = CohortDefinition::find($validated['source_cohort_id']);
             $targetCohortDef = CohortDefinition::find($validated['target_cohort_id']);
 
-            // Load individual feature vectors for covariate balance + distributional divergence
-            $sourceVectors = PatientFeatureVector::where('source_id', $source->id)
-                ->whereIn('person_id', $sourceMemberIds)
-                ->get()
-                ->map(fn ($v) => $v->features)
-                ->all();
-
-            $targetVectors = PatientFeatureVector::where('source_id', $source->id)
-                ->whereIn('person_id', $targetMemberIds)
-                ->get()
-                ->map(fn ($v) => $v->features)
-                ->all();
+            // Load individual feature vectors for covariate balance + distributional
+            // divergence. Sample to 2000 per cohort and stream via cursor() so
+            // hydration of JSON-cast columns doesn't blow PHP's memory_limit
+            // on large cohorts (see CohortCentroidBuilder for same rationale).
+            $sourceVectors = $this->loadFeatureVectorFeatures($sourceMemberIds, $source->id);
+            $targetVectors = $this->loadFeatureVectorFeatures($targetMemberIds, $source->id);
 
             $covariates = $this->comparisonService->computeCovariateBalance($sourceVectors, $targetVectors);
             $distributional = $this->comparisonService->computeDistributionalDivergence(
@@ -1083,6 +1077,34 @@ class PatientSimilarityController extends Controller
         } catch (\Throwable $e) {
             return $this->errorResponse('Cross-cohort search failed', $e);
         }
+    }
+
+    /**
+     * Stream feature-vector `features` arrays for a set of person IDs,
+     * sampling to 2000 and using cursor() chunks to keep memory bounded.
+     *
+     * @param  array<int>  $personIds
+     * @return array<int, array<string, mixed>>
+     */
+    private function loadFeatureVectorFeatures(array $personIds, int $sourceId): array
+    {
+        if (count($personIds) > 2000) {
+            $personIds = collect($personIds)->shuffle()->take(2000)->all();
+        }
+
+        $out = [];
+        foreach (collect($personIds)->chunk(500) as $chunk) {
+            $query = PatientFeatureVector::query()
+                ->where('source_id', $sourceId)
+                ->whereIn('person_id', $chunk->all())
+                ->orderBy('id');
+
+            foreach ($query->cursor() as $vector) {
+                $out[] = $vector->features;
+            }
+        }
+
+        return $out;
     }
 
     private function errorResponse(string $message, \Throwable $exception): JsonResponse

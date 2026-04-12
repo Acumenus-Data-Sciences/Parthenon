@@ -368,18 +368,50 @@ if $DO_DB; then
   # Show pending migrations so the operator knows what will run
   echo "   Pending migrations:"
   docker compose exec php php artisan migrate:status 2>/dev/null | grep -E '^\s*No\b' | sed 's/^/     /'
+
+  # ── Schema-ownership preflight ────────────────────────────────────────────
+  # Laravel migrations run as the connection's PG role. If that role does not
+  # own the target tables (e.g., Docker PG `parthenon` role vs host-PG owner
+  # `smudoshi`), ALTER TABLE fails with SQLSTATE 42501. The column may still
+  # land later when someone re-runs as the correct owner, producing a
+  # half-applied / silently-diverged schema.
+  #
+  # Refuse to migrate unless the connected role owns every schema the
+  # migrations table records (`app`, `php`). Bypass with MIGRATE_SKIP_OWNER=1.
+  if $DB_ONLY && [ "${MIGRATE_SKIP_OWNER:-0}" != "1" ]; then
+    MIGRATE_USER=$(docker compose exec -T php sh -c \
+      "cd /var/www/html && php artisan tinker --execute='echo DB::getConfig(\"username\");'" 2>/dev/null | tr -d '\r\n ')
+    if [ -n "$MIGRATE_USER" ]; then
+      # Check ownership of app.users and app.migrations — the two tables the
+      # migrator needs ALTER / INSERT on.
+      BAD_OWNERS=$(docker compose exec -T postgres psql -U "$MIGRATE_USER" -d parthenon -tAc \
+        "SELECT schemaname||'.'||tablename||' owned by '||tableowner
+         FROM pg_tables
+         WHERE schemaname='app' AND tablename IN ('users','migrations')
+           AND tableowner <> '$MIGRATE_USER';" 2>/dev/null)
+      if [ -n "$BAD_OWNERS" ]; then
+        fail "Schema ownership mismatch — migrator role '$MIGRATE_USER' does not own:"
+        echo "$BAD_OWNERS" | sed 's/^/     /'
+        echo "     Fix: ALTER TABLE <table> OWNER TO $MIGRATE_USER;  (as superuser)"
+        echo "     Bypass: MIGRATE_SKIP_OWNER=1 ./deploy.sh --db"
+        ERRORS=$((ERRORS + 1))
+        OWNERSHIP_BLOCKED=1
+      fi
+    fi
+  fi
+
   # --force is required in production (APP_ENV=production) to bypass the
   # interactive confirmation prompt, but we guard against destructive
   # migrations by requiring an explicit --db flag and the tripwire above.
   # To run migrations: ./deploy.sh --db  (never automatic in full deploy)
-  if $DB_ONLY; then
+  if $DB_ONLY && [ "${OWNERSHIP_BLOCKED:-0}" != "1" ]; then
     if docker compose exec php php artisan migrate --force; then
       ok "Migrations applied"
     else
       fail "Migration failed"
       ERRORS=$((ERRORS + 1))
     fi
-  else
+  elif ! $DB_ONLY; then
     warn "Migrations skipped — use ./deploy.sh --db to run explicitly"
   fi
 
