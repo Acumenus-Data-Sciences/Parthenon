@@ -39,7 +39,7 @@ export function MarkdownRenderer({
       [&_hr]:my-4 [&_hr]:border-border-default
       [&_strong]:font-semibold [&_strong]:text-text-primary
       [&_em]:italic [&_em]:text-text-muted
-      [&_a]:text-success [&_a]:underline [&_a]:underline-offset-2 [&_a]:transition-colors hover:[&_a]:text-success-dark
+      [&_a]:text-success [&_a]:underline [&_a]:underline-offset-2 [&_a]:transition-colors hover:[&_a]:text-success
     ">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
@@ -52,14 +52,14 @@ export function MarkdownRenderer({
                 <button
                   type="button"
                   onClick={() => onNavigate(slug)}
-                  className="inline rounded px-1 text-success underline underline-offset-2 transition-colors hover:bg-success/10 hover:text-success-dark"
+                  className="inline rounded px-1 text-success underline underline-offset-2 transition-colors hover:bg-success/10 hover:text-success"
                 >
                   {children}
                 </button>
               );
             }
             return (
-              <a href={href} target="_blank" rel="noreferrer" className="text-success underline underline-offset-2 transition-colors hover:text-success-dark">
+              <a href={href} target="_blank" rel="noreferrer" className="text-success underline underline-offset-2 transition-colors hover:text-success">
                 {children}
               </a>
             );

@@ -37,6 +37,7 @@ export function MessageComposer({ channelName, onSend, disabled, onKeyDown, memb
     : [];
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reset picker index when query changes
     setMentionIndex(0);
   }, [mentionQuery]);
 
@@ -250,7 +251,7 @@ export function MessageComposer({ channelName, onSend, disabled, onKeyDown, memb
 
         {/* @mention autocomplete dropdown */}
         {mentionQuery !== null && mentionResults.length > 0 && (
-          <div className="absolute bottom-full left-0 z-20 mb-2 w-72 rounded-2xl border border-border-default bg-surface-raised py-1.5 shadow-[0_18px_40px_rgba(0,0,0,0.4)]">
+          <div className="absolute bottom-full left-0 z-20 mb-2 w-72 rounded-2xl border border-border-default bg-surface-overlay py-1.5 shadow-[0_18px_40px_rgba(0,0,0,0.4)]">
             {mentionResults.map((member, i) => (
               <button
                 key={member.id}
@@ -318,7 +319,7 @@ function ToolbarButton({
       type="button"
       title={title}
       onClick={onClick}
-      className="rounded-xl border border-border-default bg-surface-raised p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+      className="rounded-xl border border-border-default bg-surface-overlay p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
     >
       <Icon className="h-3.5 w-3.5" />
     </button>

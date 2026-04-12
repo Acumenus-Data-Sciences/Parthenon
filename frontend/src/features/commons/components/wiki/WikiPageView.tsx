@@ -56,7 +56,7 @@ export function WikiPageView({
             <button
               type="button"
               onClick={() => onViewSource(page.stored_filename!)}
-              className="inline-flex flex-shrink-0 items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#2DD4BF]/20 to-[#A78BFA]/20 border border-success/30 px-3 py-2 text-xs font-medium text-success transition-all hover:from-[#2DD4BF]/30 hover:to-[#A78BFA]/30"
+              className="inline-flex flex-shrink-0 items-center gap-1.5 rounded-lg bg-gradient-to-r from-success/20 to-[var(--domain-observation)]/20 border border-success/30 px-3 py-2 text-xs font-medium text-success transition-all hover:from-success/30 hover:to-[var(--domain-observation)]/30"
             >
               <FileType size={14} />
               View PDF

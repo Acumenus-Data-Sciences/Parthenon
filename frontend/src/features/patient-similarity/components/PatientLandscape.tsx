@@ -8,12 +8,12 @@ import type { LandscapePoint, LandscapeCluster, LandscapeResult } from "../types
 
 // ── Constants ────────────────────────────────────────────────────────
 
-const SCENE_BG = "var(--surface-base)";
-const TEAL = "var(--success)";
+const SCENE_BG = "#0E0E11";
+const TEAL = "#2DD4BF";
 const GRAY = "#4B5563";
 const CLUSTER_PALETTE = [
-  "var(--success)", "var(--accent)", "var(--primary)", "var(--domain-observation)", "var(--domain-procedure)",
-  "var(--info)", "var(--domain-observation)", "var(--domain-device)", "#84CC16", "#F43F5E",
+  "#2DD4BF", "#C9A227", "#9B1B30", "#6366F1", "#EC4899",
+  "#22D3EE", "#A78BFA", "#F97316", "#84CC16", "#F43F5E",
 ];
 
 const GENDER_LABELS: Record<number, string> = {
@@ -116,7 +116,7 @@ function PointCloud({ points, colorByCluster, is2D, onHover, onClick }: PointClo
       onPointerOut={handlePointerOut}
       onClick={handleClick}
     >
-      <sphereGeometry args={[0.015, 8, 8]}>
+      <sphereGeometry args={[0.025, 8, 8]}>
         <instancedBufferAttribute
           attach="attributes-color"
           args={[colorArray, 3]}
@@ -143,27 +143,27 @@ function PointTooltip({ point, clusters, is2D }: TooltipProps) {
       center
       style={{ pointerEvents: "none" }}
     >
-      <div className="rounded-lg border border-border-default bg-surface-raised/95 px-3 py-2 text-xs text-text-secondary shadow-xl backdrop-blur-sm whitespace-nowrap">
-        <div className="font-semibold text-text-primary">
+      <div className="rounded-lg border border-[#2A2A2E] bg-[#151518]/95 px-3 py-2 text-xs text-gray-300 shadow-xl backdrop-blur-sm whitespace-nowrap">
+        <div className="font-semibold text-[#F0EDE8]">
           Person {point.person_id}
         </div>
         <div className="mt-1 space-y-0.5">
           <div>
-            Age bucket: <span className="text-accent">{point.age_bucket}</span>
+            Age bucket: <span className="text-[#C9A227]">{point.age_bucket}</span>
           </div>
           <div>
             Gender:{" "}
-            <span className="text-success">
+            <span className="text-[#2DD4BF]">
               {GENDER_LABELS[point.gender_concept_id] ?? `ID ${point.gender_concept_id}`}
             </span>
           </div>
           {cluster && (
             <div>
-              Cluster: <span className="text-text-secondary">{cluster.label ?? `#${cluster.id}`}</span>
+              Cluster: <span className="text-[#C5C0B8]">{cluster.label ?? `#${cluster.id}`}</span>
             </div>
           )}
           {point.is_cohort_member && (
-            <div className="text-success font-medium">Cohort member</div>
+            <div className="text-[#2DD4BF] font-medium">Cohort member</div>
           )}
         </div>
       </div>
@@ -200,20 +200,20 @@ export function PatientLandscape({
   );
 
   return (
-    <div className="flex flex-col rounded-lg border border-border-default bg-surface-raised overflow-hidden">
+    <div className="flex flex-col rounded-lg border border-[#2A2A2E] bg-[#151518] overflow-hidden">
       {/* Top bar */}
-      <div className="flex items-center justify-between border-b border-border-default px-4 py-2">
+      <div className="flex items-center justify-between border-b border-[#232328] px-4 py-2">
         <div className="flex items-center gap-4">
           {/* 2D / 3D toggle */}
-          <div className="flex rounded border border-border-default overflow-hidden">
+          <div className="flex rounded border border-[#2A2A2E] overflow-hidden">
             <button
               type="button"
               onClick={() => setIs2D(false)}
               className={cn(
                 "px-2.5 py-1 text-xs font-medium transition-colors",
                 !is2D
-                  ? "bg-success/10 text-success"
-                  : "bg-surface-base text-text-ghost hover:text-text-secondary",
+                  ? "bg-[#2DD4BF]/10 text-[#2DD4BF]"
+                  : "bg-[#0E0E11] text-[#5A5650] hover:text-[#C5C0B8]",
               )}
             >
               <Layers size={12} className="inline mr-1" />
@@ -225,8 +225,8 @@ export function PatientLandscape({
               className={cn(
                 "px-2.5 py-1 text-xs font-medium transition-colors",
                 is2D
-                  ? "bg-success/10 text-success"
-                  : "bg-surface-base text-text-ghost hover:text-text-secondary",
+                  ? "bg-[#2DD4BF]/10 text-[#2DD4BF]"
+                  : "bg-[#0E0E11] text-[#5A5650] hover:text-[#C5C0B8]",
               )}
             >
               <Grid3X3 size={12} className="inline mr-1" />
@@ -241,8 +241,8 @@ export function PatientLandscape({
             className={cn(
               "px-2.5 py-1 text-xs font-medium rounded border transition-colors",
               colorByCluster
-                ? "border-accent/30 text-accent bg-accent/10"
-                : "border-border-default text-text-ghost hover:text-text-secondary",
+                ? "border-[#C9A227]/30 text-[#C9A227] bg-[#C9A227]/10"
+                : "border-[#2A2A2E] text-[#5A5650] hover:text-[#C5C0B8]",
             )}
           >
             {colorByCluster ? "Cluster colors" : "Cohort colors"}
@@ -250,9 +250,9 @@ export function PatientLandscape({
         </div>
 
         {/* Stats */}
-        <div className="flex items-center gap-4 text-xs text-text-ghost">
+        <div className="flex items-center gap-4 text-xs text-[#5A5650]">
           <span>
-            <span className="text-text-secondary font-medium">
+            <span className="text-[#C5C0B8] font-medium">
               {points.length.toLocaleString()}
             </span>{" "}
             patients projected
@@ -260,14 +260,14 @@ export function PatientLandscape({
           {stats?.projection_time_ms != null && stats.projection_time_ms > 0 && (
             <span>
               in{" "}
-              <span className="text-text-secondary">
+              <span className="text-[#C5C0B8]">
                 {(stats.projection_time_ms / 1000).toFixed(1)}s
               </span>
             </span>
           )}
           {clusters.length > 0 && (
             <span>
-              <span className="text-accent">{clusters.length}</span> clusters
+              <span className="text-[#C9A227]">{clusters.length}</span> clusters
             </span>
           )}
         </div>
@@ -310,7 +310,7 @@ export function PatientLandscape({
       </div>
 
       {/* Legend */}
-      <div className="flex items-center gap-6 border-t border-border-default px-4 py-2 text-xs text-text-ghost">
+      <div className="flex items-center gap-6 border-t border-[#232328] px-4 py-2 text-xs text-[#5A5650]">
         {!colorByCluster ? (
           <>
             <div className="flex items-center gap-1.5">

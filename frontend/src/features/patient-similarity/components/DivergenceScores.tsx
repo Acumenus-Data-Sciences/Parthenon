@@ -7,15 +7,15 @@ interface DivergenceScoresProps {
 }
 
 function getColor(score: number): string {
-  if (score < 0.3) return "var(--success)";
-  if (score < 0.6) return "var(--accent)";
-  return "var(--critical)";
+  if (score < 0.3) return "#2DD4BF";
+  if (score < 0.6) return "#C9A227";
+  return "#E85A6B";
 }
 
 function getBgColor(score: number): string {
-  if (score < 0.3) return "bg-success/10";
-  if (score < 0.6) return "bg-accent/10";
-  return "bg-critical/10";
+  if (score < 0.3) return "bg-[#2DD4BF]/10";
+  if (score < 0.6) return "bg-[#C9A227]/10";
+  return "bg-[#E85A6B]/10";
 }
 
 const DIMENSION_LABELS: Record<string, string> = {
@@ -32,13 +32,13 @@ export function DivergenceScores({
   overallDivergence,
 }: DivergenceScoresProps) {
   return (
-    <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+    <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-text-primary">
+        <h3 className="text-sm font-semibold text-[#F0EDE8]">
           Divergence Scores
         </h3>
         <div className="flex items-center gap-1.5">
-          <span className="text-[10px] text-text-ghost uppercase tracking-wider">
+          <span className="text-[10px] text-[#5A5650] uppercase tracking-wider">
             Overall:
           </span>
           <span
@@ -53,10 +53,10 @@ export function DivergenceScores({
       <div className="space-y-2">
         {Object.entries(divergence).map(([key, div]) => (
           <div key={key} className="flex items-center gap-3">
-            <span className="text-xs text-text-muted w-24 shrink-0">
+            <span className="text-xs text-[#8A857D] w-24 shrink-0">
               {DIMENSION_LABELS[key] ?? key}
             </span>
-            <div className="flex-1 h-2 rounded-full bg-surface-elevated overflow-hidden">
+            <div className="flex-1 h-2 rounded-full bg-[#232328] overflow-hidden">
               <div
                 className={cn("h-full rounded-full transition-all")}
                 style={{

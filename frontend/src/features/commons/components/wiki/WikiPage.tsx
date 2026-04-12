@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
   BookOpen,
@@ -74,7 +74,7 @@ export function WikiPage() {
   const [streaming, setStreaming] = useState(false);
 
   const pagesResponse = pagesQuery.data;
-  const pages = pagesResponse?.pages ?? [];
+  const pages = useMemo(() => pagesResponse?.pages ?? [], [pagesResponse]);
   const totalPages = pagesResponse?.total ?? 0;
   const activity = activityQuery.data ?? [];
   const lintIssues = lintResponse?.issues ?? [];
@@ -220,7 +220,7 @@ export function WikiPage() {
         <button
           type="button"
           onClick={() => setIngestModalOpen(true)}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-success px-3 py-2 text-sm font-medium text-surface-base transition-colors hover:bg-success-dark"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-success px-3 py-2 text-sm font-medium text-surface-base transition-colors hover:bg-success"
         >
           <Upload size={14} />
           Ingest
@@ -258,7 +258,7 @@ export function WikiPage() {
       {isEmpty ? (
         <div className="flex flex-1 items-center justify-center p-8">
           <div className="max-w-md text-center">
-            <BookOpen size={32} className="mx-auto mb-4 text-text-ghost" />
+            <BookOpen size={32} className="mx-auto mb-4 text-surface-highlight" />
             <h2 className="text-xl font-bold text-text-primary">Knowledge Base</h2>
             <p className="mt-2 text-sm leading-6 text-text-muted">
               Upload research papers, clinical guidelines, or any document.
@@ -268,7 +268,7 @@ export function WikiPage() {
               type="button"
               onClick={() => setIngestModalOpen(true)}
               disabled={ingestMutation.isPending}
-              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-success px-5 py-2.5 text-sm font-medium text-surface-base transition-colors hover:bg-success-dark"
+              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-success px-5 py-2.5 text-sm font-medium text-surface-base transition-colors hover:bg-success"
             >
               <Upload size={16} />
               Add your first paper
@@ -287,7 +287,7 @@ export function WikiPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search papers..."
-                  className="w-full rounded-lg border border-border-default bg-surface-base py-2 pl-9 pr-3 text-sm text-text-primary placeholder:text-text-ghost outline-none transition-colors focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40"
+                  className="w-full rounded-lg border border-border-default bg-surface-base py-2 pl-9 pr-3 text-sm text-text-primary placeholder:text-text-ghost outline-none transition-colors focus:border-success focus:ring-1 focus:ring-success/40"
                 />
               </div>
               <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-text-muted">

@@ -17,48 +17,48 @@ const DIMENSION_LABELS: Record<string, string> = {
 function getInterpretationColor(interpretation: string): string {
   switch (interpretation) {
     case "Very similar":
-      return "var(--success)";
+      return "#2DD4BF";
     case "Similar":
       return "#2DD4BF80";
     case "Moderate":
-      return "var(--accent)";
+      return "#C9A227";
     case "Divergent":
-      return "var(--primary)";
+      return "#9B1B30";
     default:
-      return "var(--text-muted)";
+      return "#8A857D";
   }
 }
 
 function getInterpretationBg(interpretation: string): string {
   switch (interpretation) {
     case "Very similar":
-      return "bg-success/10";
+      return "bg-[#2DD4BF]/10";
     case "Similar":
-      return "bg-success/5";
+      return "bg-[#2DD4BF]/5";
     case "Moderate":
-      return "bg-accent/10";
+      return "bg-[#C9A227]/10";
     case "Divergent":
-      return "bg-primary/10";
+      return "bg-[#9B1B30]/10";
     default:
-      return "bg-text-muted/10";
+      return "bg-[#8A857D]/10";
   }
 }
 
 function getMetricBadgeStyle(metric: string): string {
   return metric === "wasserstein"
-    ? "bg-accent/15 text-accent"
-    : "bg-success/15 text-success";
+    ? "bg-[#C9A227]/15 text-[#C9A227]"
+    : "bg-[#2DD4BF]/15 text-[#2DD4BF]";
 }
 
 export function DistributionalDivergence({
   rows,
 }: DistributionalDivergenceProps) {
   return (
-    <div className="rounded-lg border border-border-default bg-surface-raised p-4">
-      <h3 className="mb-3 text-sm font-semibold text-text-primary">
+    <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+      <h3 className="mb-3 text-sm font-semibold text-[#F0EDE8]">
         Distributional Divergence
       </h3>
-      <p className="mb-3 text-xs text-text-muted">
+      <p className="mb-3 text-xs text-[#8A857D]">
         Jensen-Shannon Divergence (JSD) for categorical and Wasserstein distance
         for continuous dimensions.
       </p>
@@ -66,15 +66,15 @@ export function DistributionalDivergence({
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
           <thead>
-            <tr className="border-b border-border-default">
-              <th className="pb-2 pr-4 text-text-ghost font-medium">
+            <tr className="border-b border-[#232328]">
+              <th className="pb-2 pr-4 text-[#5A5650] font-medium">
                 Dimension
               </th>
-              <th className="pb-2 pr-4 text-text-ghost font-medium">Metric</th>
-              <th className="pb-2 pr-4 text-text-ghost font-medium text-right">
+              <th className="pb-2 pr-4 text-[#5A5650] font-medium">Metric</th>
+              <th className="pb-2 pr-4 text-[#5A5650] font-medium text-right">
                 Value
               </th>
-              <th className="pb-2 text-text-ghost font-medium">
+              <th className="pb-2 text-[#5A5650] font-medium">
                 Interpretation
               </th>
             </tr>
@@ -83,9 +83,9 @@ export function DistributionalDivergence({
             {rows.map((row) => (
               <tr
                 key={row.dimension}
-                className="border-b border-border-default/50 last:border-0"
+                className="border-b border-[#232328]/50 last:border-0"
               >
-                <td className="py-2 pr-4 text-text-primary">
+                <td className="py-2 pr-4 text-[#F0EDE8]">
                   {DIMENSION_LABELS[row.dimension] ?? row.dimension}
                 </td>
                 <td className="py-2 pr-4">
@@ -98,7 +98,7 @@ export function DistributionalDivergence({
                     {row.metric === "wasserstein" ? "W1" : "JSD"}
                   </span>
                 </td>
-                <td className="py-2 pr-4 text-right tabular-nums text-text-primary">
+                <td className="py-2 pr-4 text-right tabular-nums text-[#F0EDE8]">
                   {row.value.toFixed(4)}
                 </td>
                 <td className="py-2">

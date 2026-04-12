@@ -34,49 +34,49 @@ export function CohortCentroidRadar({ profile }: CohortCentroidRadarProps) {
   }));
 
   return (
-    <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+    <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-text-primary">
+        <h3 className="text-sm font-semibold text-[#F0EDE8]">
           Cohort Centroid Profile
         </h3>
-        <span className="text-[10px] text-text-ghost uppercase tracking-wider">
+        <span className="text-[10px] text-[#5A5650] uppercase tracking-wider">
           {profile.member_count} members
         </span>
       </div>
 
       <ResponsiveContainer width="100%" height={260}>
         <RadarChart cx="50%" cy="50%" outerRadius="75%" data={data}>
-          <PolarGrid stroke="var(--surface-highlight)" />
+          <PolarGrid stroke="#323238" />
           <PolarAngleAxis
             dataKey="dimension"
-            tick={{ fill: "var(--text-muted)", fontSize: 11 }}
+            tick={{ fill: "#8A857D", fontSize: 11 }}
           />
           <PolarRadiusAxis
             angle={90}
             domain={[0, 100]}
-            tick={{ fill: "var(--text-ghost)", fontSize: 9 }}
+            tick={{ fill: "#5A5650", fontSize: 9 }}
             tickFormatter={(v: number) => `${v}%`}
           />
           <Radar
             name="Coverage"
             dataKey="coverage"
-            stroke="var(--success)"
-            fill="var(--success)"
+            stroke="#2DD4BF"
+            fill="#2DD4BF"
             fillOpacity={0.2}
             strokeWidth={2}
           />
           <Radar
             name="Diversity"
             dataKey="richness"
-            stroke="var(--accent)"
-            fill="var(--accent)"
+            stroke="#C9A227"
+            fill="#C9A227"
             fillOpacity={0.1}
             strokeWidth={1.5}
             strokeDasharray="4 3"
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: "var(--surface-overlay)",
+              backgroundColor: "#1A1A1E",
               border: "1px solid #323238",
               borderRadius: "8px",
               fontSize: "12px",
@@ -92,14 +92,14 @@ export function CohortCentroidRadar({ profile }: CohortCentroidRadarProps) {
       {/* Legend */}
       <div className="flex items-center justify-center gap-6 mt-1">
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-0.5 bg-success rounded" />
-          <span className="text-[10px] text-text-muted">
+          <div className="w-3 h-0.5 bg-[#2DD4BF] rounded" />
+          <span className="text-[10px] text-[#8A857D]">
             Coverage (% with data)
           </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="w-3 h-0.5 bg-accent rounded border-dashed" />
-          <span className="text-[10px] text-text-muted">
+          <div className="w-3 h-0.5 bg-[#C9A227] rounded border-dashed" />
+          <span className="text-[10px] text-[#8A857D]">
             Diversity (concepts/member)
           </span>
         </div>
@@ -110,16 +110,16 @@ export function CohortCentroidRadar({ profile }: CohortCentroidRadarProps) {
         {Object.entries(dims).map(([key, dim]) => (
           <div
             key={key}
-            className="rounded bg-surface-base px-2 py-1.5 text-center"
+            className="rounded bg-[#0E0E11] px-2 py-1.5 text-center"
           >
-            <div className="text-[10px] text-text-ghost uppercase tracking-wider">
+            <div className="text-[10px] text-[#5A5650] uppercase tracking-wider">
               {dim.label}
             </div>
-            <div className="text-xs font-medium text-text-secondary">
+            <div className="text-xs font-medium text-[#C5C0B8]">
               {Math.round(dim.coverage * 100)}%
             </div>
             {(dim.unique_concepts ?? dim.unique_measurements ?? dim.unique_genes) !== undefined && (
-              <div className="text-[10px] text-text-ghost">
+              <div className="text-[10px] text-[#5A5650]">
                 {dim.unique_concepts ?? dim.unique_measurements ?? dim.unique_genes} unique
               </div>
             )}

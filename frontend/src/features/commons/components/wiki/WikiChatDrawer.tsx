@@ -89,7 +89,7 @@ export function WikiChatDrawer({
         }`}
       >
         {/* Gradient border */}
-        <div className="h-full bg-gradient-to-b from-[#2DD4BF] to-[#A78BFA] p-[1px]">
+        <div className="h-full bg-gradient-to-b from-success to-[var(--domain-observation)] p-[1px]">
           <div className="flex h-full flex-col bg-surface-base">
             {/* Header */}
             <div className="flex items-center justify-between border-b border-border-default px-5 py-4">
@@ -194,7 +194,7 @@ export function WikiChatDrawer({
                   type="button"
                   onClick={handleSubmit}
                   disabled={loading || input.trim().length < 3}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base transition-colors hover:bg-success-dark disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base transition-colors hover:bg-success disabled:opacity-50"
                 >
                   {loading ? (
                     <>Searching...</>

@@ -30,7 +30,7 @@ export function WikiActivityDrawer({
         <div className="flex-1 overflow-y-auto p-3">
           {activity.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-              <History size={28} className="mb-3 text-text-ghost" />
+              <History size={28} className="mb-3 text-surface-highlight" />
               <p className="text-sm text-text-muted">No activity yet.</p>
             </div>
           ) : (

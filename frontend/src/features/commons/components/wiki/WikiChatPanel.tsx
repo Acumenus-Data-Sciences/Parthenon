@@ -146,7 +146,7 @@ export function WikiChatPanel({
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={currentPageTitle ? `Ask about "${currentPageTitle.slice(0, 40)}"...` : "Ask the knowledge base..."}
-            className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost outline-none transition-colors focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40"
+            className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost outline-none transition-colors focus:border-success focus:ring-1 focus:ring-success/40"
           />
           {currentPageTitle && (
             <p className="mt-1 pl-1 text-[10px] text-text-ghost">
@@ -168,7 +168,7 @@ export function WikiChatPanel({
           type="button"
           onClick={handleSubmit}
           disabled={loading || input.trim().length < 3}
-          className="flex items-center justify-center rounded-lg bg-success px-3 py-2 text-surface-base transition-colors hover:bg-success-dark disabled:opacity-50"
+          className="flex items-center justify-center rounded-lg bg-success px-3 py-2 text-surface-base transition-colors hover:bg-success disabled:opacity-50"
         >
           <Send size={16} />
         </button>

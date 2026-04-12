@@ -34,7 +34,7 @@ export function ChannelSettings({ channel, currentMember, slug }: ChannelSetting
   return (
     <div className="flex-1 space-y-4 overflow-y-auto px-3 py-3">
       {/* Notification Preferences */}
-      <div className="rounded-2xl border border-border-default bg-surface-base p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+      <div className="rounded-2xl border border-border-default bg-surface-raised p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
         <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Notifications</h3>
         <div className="space-y-1">
           {(["all", "mentions", "none"] as const).map((pref) => (
@@ -60,7 +60,7 @@ export function ChannelSettings({ channel, currentMember, slug }: ChannelSetting
       {isAdmin ? (
         <form
           onSubmit={handleSave}
-          className="space-y-3 rounded-2xl border border-border-default bg-surface-base p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]"
+          className="space-y-3 rounded-2xl border border-border-default bg-surface-raised p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]"
         >
           <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Channel Settings</h3>
           <div>
@@ -69,7 +69,7 @@ export function ChannelSettings({ channel, currentMember, slug }: ChannelSetting
               type="text"
               value={name}
               onChange={(e) => { setName(e.target.value); setSaved(false); }}
-              className="w-full rounded-xl border border-border-default bg-surface-raised px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-full rounded-xl border border-border-default bg-surface-overlay px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
           <div>
@@ -78,7 +78,7 @@ export function ChannelSettings({ channel, currentMember, slug }: ChannelSetting
               value={description}
               onChange={(e) => { setDescription(e.target.value); setSaved(false); }}
               rows={3}
-              className="w-full resize-none rounded-xl border border-border-default bg-surface-raised px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-full resize-none rounded-xl border border-border-default bg-surface-overlay px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
           <div className="flex items-center gap-2">
@@ -101,7 +101,7 @@ export function ChannelSettings({ channel, currentMember, slug }: ChannelSetting
           </div>
         </form>
       ) : (
-        <div className="space-y-2 rounded-2xl border border-border-default bg-surface-base p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+        <div className="space-y-2 rounded-2xl border border-border-default bg-surface-raised p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
           <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Channel Info</h3>
           <p className="text-xs text-muted-foreground">{channel.description || "No description"}</p>
           <p className="text-[11px] text-muted-foreground">

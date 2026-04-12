@@ -87,8 +87,14 @@ describe('RightPanel', () => {
       />,
       { wrapper }
     );
-    // Only one border-b row at the top — the unified header
-    const borderRows = container.querySelectorAll('[class*="border-b"]');
+    // Only one border-b row at the top — the unified header.
+    // Use a filter to match the exact "border-b" utility (bottom border),
+    // not substrings like "border-border-default".
+    const allEls = container.querySelectorAll('*');
+    const borderRows = Array.from(allEls).filter((el) => {
+      const cls = typeof el.className === 'string' ? el.className : '';
+      return cls.split(/\s+/).some((c) => c === 'border-b');
+    });
     expect(borderRows.length).toBe(1);
   });
 });

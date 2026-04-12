@@ -155,7 +155,7 @@ export function WikiPageTree({
 
       {sources.length === 0 && (
         <div className="px-3 py-12 text-center">
-          <FileText size={24} className="mx-auto mb-2 text-text-ghost" />
+          <FileText size={24} className="mx-auto mb-2 text-surface-highlight" />
           <p className="text-xs text-text-ghost">
             {searchQuery ? "No papers match this search." : "No papers ingested yet."}
           </p>
