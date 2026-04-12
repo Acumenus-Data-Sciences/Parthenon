@@ -89,6 +89,7 @@ export function CommonsLayout() {
 
   useEffect(() => {
     if (!activeCall && callModalOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing derived state from external call status
       setCallModalOpen(false);
     }
   }, [activeCall, callModalOpen]);
@@ -174,7 +175,7 @@ export function CommonsLayout() {
       </div>
 
       {/* Center content area */}
-      <div className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border-default bg-[#121216] shadow-[0_12px_32px_rgba(0,0,0,0.24)]">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border-default bg-surface-raised shadow-[0_12px_32px_rgba(0,0,0,0.24)]">
         {isAskAbby ? (
           <AskAbbyChannel />
         ) : view === "announcements" ? (
@@ -187,7 +188,7 @@ export function CommonsLayout() {
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[#2a2a31] bg-[#1a1a20] text-primary">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-border-default bg-surface-overlay text-primary">
                       <Hash className="h-4 w-4" />
                     </span>
                     <div className="min-w-0">
@@ -204,7 +205,7 @@ export function CommonsLayout() {
                   </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
-                  <div className="flex items-center gap-3 rounded-xl border border-[#2a2a31] bg-[#111115] px-4 py-2">
+                  <div className="flex items-center gap-3 rounded-xl border border-border-default bg-surface-raised px-4 py-2">
                     <div className="flex items-center gap-1.5">
                       <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Members</span>
                       <span className="text-sm font-semibold text-foreground">{members.length}</span>

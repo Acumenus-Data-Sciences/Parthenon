@@ -36,8 +36,8 @@ export function ThreadView({ parentMessage, slug, currentUserId }: ThreadViewPro
   }
 
   return (
-    <div className="mb-4 ml-[64px] mr-3 overflow-hidden rounded-2xl border border-[#2a2a31] bg-[#111115] shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
-      <div className="flex items-center gap-1.5 border-b border-[#2a2a31] bg-[#17171c] px-4 py-2.5 text-[11px] text-muted-foreground">
+    <div className="mb-4 ml-[64px] mr-3 overflow-hidden rounded-2xl border border-border-default bg-surface-raised shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+      <div className="flex items-center gap-1.5 border-b border-border-default bg-surface-overlay px-4 py-2.5 text-[11px] text-muted-foreground">
         <span>Thread</span>
         <span className="opacity-50">·</span>
         <span>
@@ -96,14 +96,14 @@ export function ThreadView({ parentMessage, slug, currentUserId }: ThreadViewPro
       </div>
 
       {/* Compact reply composer */}
-      <div className="flex gap-2 border-t border-[#2a2a31] bg-[#15151a] px-4 py-3">
+      <div className="flex gap-2 border-t border-border-default bg-surface-raised px-4 py-3">
         <textarea
           value={replyBody}
           onChange={(e) => setReplyBody(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Reply..."
           rows={1}
-          className="flex-1 resize-none rounded-xl border border-[#2a2a31] bg-[#101014] px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+          className="flex-1 resize-none rounded-xl border border-border-default bg-surface-base px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
         />
         <button
           onClick={handleSendReply}

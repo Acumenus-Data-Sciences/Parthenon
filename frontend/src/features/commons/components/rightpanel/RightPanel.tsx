@@ -71,7 +71,7 @@ export function RightPanel({
                     className={`flex items-center gap-1.5 rounded-xl border px-2 py-2 text-[11px] font-medium transition-colors ${
                       selected
                         ? "border-primary/30 bg-primary/12 text-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
-                        : "border-[#26262c] bg-[#121216]/90 text-muted-foreground hover:border-[#31313a] hover:bg-[#18181d] hover:text-foreground"
+                        : "border-border-default bg-surface-raised/90 text-muted-foreground hover:border-surface-highlight hover:bg-surface-overlay hover:text-foreground"
                     }`}
                   >
                     <Icon className="h-3.5 w-3.5 shrink-0" />

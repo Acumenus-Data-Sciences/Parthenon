@@ -38,7 +38,7 @@ function DateSeparator({ label }: { label: string }) {
   return (
     <div className="flex items-center gap-3 px-6 py-3">
       <div className="flex-1 h-px bg-white/[0.06]" />
-      <span className="select-none rounded-full border border-white/[0.06] bg-[#15151a] px-3 py-1 text-[11px] font-medium text-muted-foreground/70">
+      <span className="select-none rounded-full border border-white/[0.06] bg-surface-raised px-3 py-1 text-[11px] font-medium text-muted-foreground/70">
         {label}
       </span>
       <div className="flex-1 h-px bg-white/[0.06]" />
@@ -141,8 +141,8 @@ export function MessageList({
     <div ref={containerRef} className="flex-1 overflow-y-auto bg-[linear-gradient(180deg,rgba(255,255,255,0.02),transparent_18%)]">
       {sorted.length === 0 ? (
         <div className="flex h-full items-center justify-center p-8">
-          <div className="w-full max-w-lg rounded-3xl border border-[#26262c] bg-[#111115] px-8 py-10 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-[#2a2a31] bg-[#1a1a20]">
+          <div className="w-full max-w-lg rounded-3xl border border-border-default bg-surface-raised px-8 py-10 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-border-default bg-surface-overlay">
             <Hash className="h-8 w-8 text-muted-foreground/20" />
             </div>
             <div className="mt-4">

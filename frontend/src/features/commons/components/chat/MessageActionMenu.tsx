@@ -48,7 +48,7 @@ export function MessageActionMenu({
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-10 mt-1 min-w-[160px] rounded-lg border border-white/[0.08] bg-[#1a1a24] py-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.5)] backdrop-blur-xl">
+        <div className="absolute right-0 top-full z-10 mt-1 min-w-[160px] rounded-lg border border-white/[0.08] bg-surface-overlay py-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.5)] backdrop-blur-xl">
           <button
             onClick={() => { setShowEmojiPicker(true); setOpen(false); }}
             className="flex w-full items-center gap-2 px-3 py-1.5 text-[13px] text-foreground/90 hover:bg-white/[0.06] transition-colors"

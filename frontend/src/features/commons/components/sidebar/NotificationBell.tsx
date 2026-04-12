@@ -96,7 +96,7 @@ export function NotificationBell() {
       {open && createPortal(
         <div
           ref={panelRef}
-          className="fixed z-[220] w-96 overflow-hidden rounded-2xl border border-white/10 bg-[#17171c] shadow-[0_24px_80px_rgba(0,0,0,0.55)] ring-1 ring-black/35 backdrop-blur-xl"
+          className="fixed z-[220] w-96 overflow-hidden rounded-2xl border border-white/10 bg-surface-overlay shadow-[0_24px_80px_rgba(0,0,0,0.55)] ring-1 ring-black/35 backdrop-blur-xl"
           role="dialog"
           aria-label="Notifications"
         >
@@ -113,7 +113,7 @@ export function NotificationBell() {
               </button>
             )}
           </div>
-          <div className="max-h-[28rem] overflow-y-auto bg-[#17171c]">
+          <div className="max-h-[28rem] overflow-y-auto bg-surface-overlay">
             {notifications.length === 0 ? (
               <p className="p-6 text-center text-xs text-muted-foreground">
                 No notifications yet

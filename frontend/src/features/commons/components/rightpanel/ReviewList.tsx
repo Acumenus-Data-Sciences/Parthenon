@@ -19,7 +19,7 @@ export function ReviewList({ slug }: ReviewListProps) {
 
   if (reviews.length === 0) {
     return (
-      <div className="m-3 flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-[#2b2b32] bg-[#111115] p-6 text-center">
+      <div className="m-3 flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-border-default bg-surface-raised p-6 text-center">
         <ClipboardCheck className="h-8 w-8 text-muted-foreground/40" />
         <p className="text-sm text-muted-foreground">No review requests yet</p>
         <p className="text-xs text-muted-foreground/60">
@@ -85,7 +85,7 @@ function ReviewItem({
   const StatusIcon = cfg.icon;
 
   return (
-    <div className="rounded-xl border border-[#25252b] bg-[#111115] px-3 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+    <div className="rounded-xl border border-border-default bg-surface-raised px-3 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
       <div className="flex items-start gap-2">
         <div className={`mt-0.5 rounded-full p-1 ${cfg.bg}`}>
           <StatusIcon className={`h-3 w-3 ${cfg.color}`} />
@@ -146,7 +146,7 @@ function ReviewItem({
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   placeholder="What needs to change?"
-                    className="w-full rounded-xl border border-[#2a2a31] bg-[#17171c] px-2.5 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="w-full rounded-xl border border-border-default bg-surface-overlay px-2.5 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                 />
                   <div className="flex gap-1.5">
                     <button
