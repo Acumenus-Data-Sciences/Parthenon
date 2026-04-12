@@ -107,7 +107,7 @@ export function UserModal({ user, roles, onClose }: Props) {
                 required
                 value={form.name}
                 onChange={(e) => set("name", e.target.value)}
-                className="mt-1.5 w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-success focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors"
+                className="mt-1.5 w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-success focus:outline-none focus:ring-1 focus:ring-success/40 transition-colors"
               />
             </label>
 
@@ -121,7 +121,7 @@ export function UserModal({ user, roles, onClose }: Props) {
                 required
                 value={form.email}
                 onChange={(e) => set("email", e.target.value)}
-                className="mt-1.5 w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary font-['IBM_Plex_Mono',monospace] placeholder:text-text-ghost focus:border-success focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors"
+                className="mt-1.5 w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary font-['IBM_Plex_Mono',monospace] placeholder:text-text-ghost focus:border-success focus:outline-none focus:ring-1 focus:ring-success/40 transition-colors"
               />
             </label>
           </div>
@@ -142,7 +142,7 @@ export function UserModal({ user, roles, onClose }: Props) {
               placeholder={isEdit ? "••••••••" : "Min 8 chars, mixed case + number"}
               value={form.password}
               onChange={(e) => set("password", e.target.value)}
-              className="mt-1.5 w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-success focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors"
+              className="mt-1.5 w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-success focus:outline-none focus:ring-1 focus:ring-success/40 transition-colors"
             />
           </label>
 
@@ -168,7 +168,7 @@ export function UserModal({ user, roles, onClose }: Props) {
                       type="checkbox"
                       checked={checked}
                       onChange={() => toggleRole(r.name)}
-                      className="h-3.5 w-3.5 shrink-0 rounded border-surface-highlight accent-[#2DD4BF]"
+                      className="h-3.5 w-3.5 shrink-0 rounded border-surface-highlight accent-success"
                     />
                     <span
                       className="text-xs font-medium"

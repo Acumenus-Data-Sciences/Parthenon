@@ -95,7 +95,7 @@ export function CreateCohortModal({
               value={name}
               onChange={(e) => setName(e.target.value)}
               disabled={mutation.isPending}
-              className="form-input w-full rounded-lg border border-border-default bg-surface-overlay px-3 py-2 text-sm text-text-primary placeholder-[#5A5650] focus:border-success focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]"
+              className="form-input w-full rounded-lg border border-border-default bg-surface-overlay px-3 py-2 text-sm text-text-primary placeholder-text-ghost focus:border-success focus:outline-none focus:ring-1 focus:ring-success"
             />
           </div>
 
@@ -109,7 +109,7 @@ export function CreateCohortModal({
               onChange={(e) => setDescription(e.target.value)}
               disabled={mutation.isPending}
               rows={3}
-              className="form-input w-full rounded-lg border border-border-default bg-surface-overlay px-3 py-2 text-sm text-text-primary placeholder-[#5A5650] focus:border-success focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]"
+              className="form-input w-full rounded-lg border border-border-default bg-surface-overlay px-3 py-2 text-sm text-text-primary placeholder-text-ghost focus:border-success focus:outline-none focus:ring-1 focus:ring-success"
             />
           </div>
 

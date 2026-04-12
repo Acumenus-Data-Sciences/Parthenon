@@ -25,15 +25,15 @@ function ageBucketLabel(bucket: number | null | undefined): string {
 }
 
 function scoreGradient(score: number): string {
-  if (score >= 0.7) return "from-[#2DD4BF]/60 to-[#2DD4BF]/20";
-  if (score >= 0.4) return "from-[#C9A227]/60 to-[#C9A227]/20";
-  return "from-[#666666]/60 to-[#666666]/20";
+  if (score >= 0.7) return "from-success/60 to-success/20";
+  if (score >= 0.4) return "from-accent/60 to-accent/20";
+  return "from-text-muted/60 to-text-muted/20";
 }
 
 function scoreColor(score: number): string {
   if (score >= 0.7) return "var(--success)";
   if (score >= 0.4) return "var(--accent)";
-  return "#666666";
+  return "var(--text-muted)";
 }
 
 interface PatientCardProps {

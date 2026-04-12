@@ -57,7 +57,7 @@ export function WikiIngestModal({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Optional title override"
-            className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2.5 text-sm text-text-primary placeholder:text-text-ghost outline-none transition-colors focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40"
+            className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2.5 text-sm text-text-primary placeholder:text-text-ghost outline-none transition-colors focus:border-success focus:ring-1 focus:ring-success/40"
           />
 
           <div className="grid grid-cols-2 gap-2">
@@ -97,7 +97,7 @@ export function WikiIngestModal({
               onChange={(e) => setRawContent(e.target.value)}
               placeholder="Paste source text or markdown..."
               rows={10}
-              className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2.5 text-sm text-text-primary placeholder:text-text-ghost outline-none transition-colors focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40"
+              className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2.5 text-sm text-text-primary placeholder:text-text-ghost outline-none transition-colors focus:border-success focus:ring-1 focus:ring-success/40"
             />
           ) : (
             <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-surface-highlight bg-surface-base px-3 py-4 text-sm text-text-muted transition-colors hover:border-text-ghost">

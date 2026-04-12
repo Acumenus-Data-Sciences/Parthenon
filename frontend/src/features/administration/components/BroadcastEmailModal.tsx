@@ -64,7 +64,7 @@ export function BroadcastEmailModal({ userCount, onClose }: BroadcastEmailModalP
               placeholder="Email subject line…"
               maxLength={255}
               disabled={broadcast.isPending || !!result}
-              className="w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-success focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors disabled:opacity-50"
+              className="w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-success focus:outline-none focus:ring-1 focus:ring-success/40 transition-colors disabled:opacity-50"
             />
           </div>
 
@@ -78,7 +78,7 @@ export function BroadcastEmailModal({ userCount, onClose }: BroadcastEmailModalP
               rows={8}
               maxLength={10000}
               disabled={broadcast.isPending || !!result}
-              className="w-full resize-none rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-success focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors disabled:opacity-50"
+              className="w-full resize-none rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-success focus:outline-none focus:ring-1 focus:ring-success/40 transition-colors disabled:opacity-50"
             />
             <p className="mt-1 text-right text-[10px] text-text-ghost">
               {body.length.toLocaleString()} / 10,000

@@ -22,14 +22,14 @@ const COLOR_MAP = {
     activeBg: "bg-success/15",
     activeText: "text-success",
     activeBorder: "border-success/30",
-    ring: "ring-[#2DD4BF]/40",
+    ring: "ring-success/40",
     accent: "var(--success)",
   },
   gold: {
     activeBg: "bg-accent/20",
     activeText: "text-accent",
     activeBorder: "border-accent/40",
-    ring: "ring-[#C9A227]/40",
+    ring: "ring-accent/40",
     accent: "var(--accent)",
   },
 };
@@ -118,7 +118,7 @@ export default function TagSearchModal({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               autoFocus
-              className="w-full pl-9 pr-3 py-2 bg-surface-raised border border-border-default rounded-lg text-sm text-text-primary placeholder-[#5A5650] focus:outline-none focus:border-accent"
+              className="w-full pl-9 pr-3 py-2 bg-surface-raised border border-border-default rounded-lg text-sm text-text-primary placeholder-text-ghost focus:outline-none focus:border-accent"
             />
           </div>
           <div className="flex items-center gap-1 border border-border-default rounded-lg overflow-hidden">

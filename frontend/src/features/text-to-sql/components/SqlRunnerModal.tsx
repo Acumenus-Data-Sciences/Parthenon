@@ -165,8 +165,8 @@ function ErrorGuidance({ error }: { error: string | null }) {
         marginTop: "10px",
         padding: "12px 14px",
         borderRadius: "8px",
-        border: "1px solid #C9A22730",
-        background: "#C9A22708",
+        border: "1px solid color-mix(in srgb, var(--accent) 19%, transparent)",
+        background: "color-mix(in srgb, var(--accent) 3%, transparent)",
       }}
     >
       <div
@@ -574,8 +574,8 @@ export function SqlRunnerModal({
                 style={{
                   padding: "10px 12px",
                   borderRadius: "6px",
-                  border: "1px solid #9B1B3040",
-                  background: "#9B1B3015",
+                  border: "1px solid color-mix(in srgb, var(--primary) 25%, transparent)",
+                  background: "color-mix(in srgb, var(--primary) 8%, transparent)",
                   color: "var(--critical)",
                   fontSize: "12px",
                 }}
@@ -720,8 +720,8 @@ export function SqlRunnerModal({
                     gap: "4px",
                     padding: "3px 10px",
                     borderRadius: "20px",
-                    border: "1px solid #C9A22740",
-                    background: "#C9A22710",
+                    border: "1px solid color-mix(in srgb, var(--accent) 25%, transparent)",
+                    background: "color-mix(in srgb, var(--accent) 6%, transparent)",
                     color: "var(--accent)",
                     fontSize: "11px",
                     fontWeight: 600,
@@ -889,8 +889,8 @@ export function SqlRunnerModal({
                 gap: "6px",
                 padding: "8px 18px",
                 borderRadius: "7px",
-                border: "1px solid #2DD4BF40",
-                background: "#2DD4BF12",
+                border: "1px solid color-mix(in srgb, var(--success) 25%, transparent)",
+                background: "color-mix(in srgb, var(--success) 7%, transparent)",
                 color: "var(--success)",
                 fontSize: "13px",
                 fontWeight: 600,
@@ -899,10 +899,10 @@ export function SqlRunnerModal({
                 transition: "all 150ms",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = "#2DD4BF22";
+                e.currentTarget.style.background = "color-mix(in srgb, var(--success) 13%, transparent)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = "#2DD4BF12";
+                e.currentTarget.style.background = "color-mix(in srgb, var(--success) 7%, transparent)";
               }}
             >
               <Download size={14} />

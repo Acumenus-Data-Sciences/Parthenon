@@ -127,7 +127,7 @@ function SettingsForm({
                     step={0.5}
                     value={val}
                     onChange={(e) => handleWeightChange(dim.key, parseFloat(e.target.value))}
-                    className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-surface-accent accent-[#C9A227]"
+                    className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-surface-accent accent-accent"
                   />
                 </div>
               );

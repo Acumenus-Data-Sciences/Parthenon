@@ -126,7 +126,7 @@ export function CohortExpandDialog({
                   step={0.05}
                   value={minScore}
                   onChange={(e) => setMinScore(parseFloat(e.target.value))}
-                  className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-surface-elevated accent-[#2DD4BF]"
+                  className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-surface-elevated accent-success"
                 />
               </div>
 

@@ -137,7 +137,7 @@ export default function ConceptDetailDrawer({ event, onClose, dataset }: Concept
         {/* Header */}
         <div className="flex items-center justify-between border-b border-surface-highlight px-4 py-3">
           <h3 className="text-sm font-semibold text-text-primary truncate">{event.concept_name}</h3>
-          <button type="button" onClick={onClose} className="text-text-ghost hover:text-text-secondary transition-colors focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30 rounded">
+          <button type="button" onClick={onClose} className="text-text-ghost hover:text-text-secondary transition-colors focus:outline-none focus:ring-1 focus:ring-success/30 rounded">
             <X size={16} />
           </button>
         </div>
@@ -227,7 +227,7 @@ export default function ConceptDetailDrawer({ event, onClose, dataset }: Concept
             <Link
               to={`/vocabulary?concept=${event.concept_id}`}
               onClick={onClose}
-              className="flex items-center justify-center gap-1.5 w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-xs text-success transition-colors hover:bg-surface-raised focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30"
+              className="flex items-center justify-center gap-1.5 w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-xs text-success transition-colors hover:bg-surface-raised focus:outline-none focus:ring-1 focus:ring-success/30"
               title="View concept in Vocabulary Browser"
             >
               <ExternalLink size={12} /> View in Vocabulary Browser

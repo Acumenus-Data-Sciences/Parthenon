@@ -34,7 +34,7 @@ function StatusIcon({ status, number }: { status: ChapterStatus; number: number 
     case "in-progress":
       return (
         <div className="flex h-[22px] w-[22px] items-center justify-center rounded-full border-2 border-accent">
-          <Circle size={8} className="fill-[#C9A227] text-accent" />
+          <Circle size={8} className="fill-accent text-accent" />
         </div>
       );
     default:

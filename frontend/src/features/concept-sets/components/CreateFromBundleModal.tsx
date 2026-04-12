@@ -25,7 +25,7 @@ export function CreateFromBundleModal({
 
   const { data: bundlesData, isLoading } = useQuery({
     queryKey: ["care-bundles", "all"],
-    queryFn: () => listBundles({ per_page: 50 }),
+    queryFn: () => listBundles({ per_page: 200 }),
     enabled: open,
   });
 
@@ -93,7 +93,7 @@ export function CreateFromBundleModal({
               "w-full rounded-lg pl-9 pr-3 py-2 text-sm",
               "bg-surface-base border border-border-default",
               "text-text-primary placeholder:text-text-ghost",
-              "focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40",
+              "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
             )}
           />
         </div>
@@ -125,7 +125,7 @@ export function CreateFromBundleModal({
                     className={cn(
                       "w-full px-4 py-3 text-left transition-colors",
                       isSelected
-                        ? "bg-success/10 border-l-2 border-l-[#2DD4BF]"
+                        ? "bg-success/10 border-l-2 border-l-success"
                         : "hover:bg-surface-overlay",
                     )}
                   >
@@ -187,7 +187,7 @@ export function CreateFromBundleModal({
                   "w-full rounded-lg px-3 py-2 text-sm",
                   "bg-surface-base border border-border-default",
                   "text-text-primary placeholder:text-text-ghost",
-                  "focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40",
+                  "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
                 )}
               />
               <p className="mt-1 text-[10px] text-text-ghost">

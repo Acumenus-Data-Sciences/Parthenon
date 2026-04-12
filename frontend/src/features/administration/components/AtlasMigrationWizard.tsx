@@ -148,7 +148,7 @@ function ConnectStep({
   testing: boolean;
 }) {
   const inputCls =
-    "w-full px-3 py-2.5 text-sm bg-surface-base border border-border-default rounded-lg text-text-primary placeholder-[#5A5650] focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-[#C9A227]/30";
+    "w-full px-3 py-2.5 text-sm bg-surface-base border border-border-default rounded-lg text-text-primary placeholder-text-ghost focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/30";
   const labelCls = "block text-xs font-medium text-text-muted mb-1.5";
 
   return (
@@ -434,7 +434,7 @@ function SelectStep({
                         type="checkbox"
                         checked={selected[et.key].includes(item.id)}
                         onChange={() => toggleOne(et.key, item.id)}
-                        className="accent-[#C9A227] w-3.5 h-3.5"
+                        className="accent-accent w-3.5 h-3.5"
                       />
                       <span className="text-sm text-text-secondary truncate flex-1">{item.name}</span>
                       <span className="text-[10px] text-text-ghost font-mono shrink-0">#{item.id}</span>

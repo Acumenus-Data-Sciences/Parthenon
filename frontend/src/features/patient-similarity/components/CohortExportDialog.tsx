@@ -99,7 +99,7 @@ export function CohortExportDialog({
                     "w-full rounded-lg px-3 py-2 text-sm",
                     "bg-surface-base border border-border-default",
                     "text-text-primary placeholder:text-text-ghost",
-                    "focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40",
+                    "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
                   )}
                 />
               </div>
@@ -118,7 +118,7 @@ export function CohortExportDialog({
                     "w-full rounded-lg px-3 py-2 text-sm resize-none",
                     "bg-surface-base border border-border-default",
                     "text-text-primary placeholder:text-text-ghost",
-                    "focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40",
+                    "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
                   )}
                 />
               </div>
@@ -140,7 +140,7 @@ export function CohortExportDialog({
                   step={0.05}
                   value={minScore}
                   onChange={(e) => setMinScore(parseFloat(e.target.value))}
-                  className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-surface-elevated accent-[#2DD4BF]"
+                  className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-surface-elevated accent-success"
                 />
               </div>
 
