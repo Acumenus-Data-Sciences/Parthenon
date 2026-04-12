@@ -1370,6 +1370,75 @@ class PatientSimilarityController extends Controller
         }
     }
 
+    // ── Phenotype Discovery (Consensus Clustering) ─────────────────
+
+    /**
+     * POST /v1/patient-similarity/phenotype-discovery
+     *
+     * Discover latent patient subphenotypes via consensus clustering.
+     * Resolves cohort members, proxies to Python AI service.
+     */
+    public function phenotypeDiscovery(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'source_id' => ['required', 'integer', 'exists:sources,id'],
+            'cohort_definition_id' => ['required', 'integer'],
+            'method' => ['sometimes', 'string', 'in:consensus,kmeans,spectral'],
+            'k' => ['sometimes', 'integer', 'min:2', 'max:20'],
+        ]);
+
+        try {
+            $source = Source::with('daimons')->findOrFail($validated['source_id']);
+            SourceContext::forSource($source);
+
+            // Resolve cohort members
+            $personIds = $this->results()
+                ->table('cohort')
+                ->where('cohort_definition_id', $validated['cohort_definition_id'])
+                ->pluck('subject_id')
+                ->map(fn ($id) => (int) $id)
+                ->unique()
+                ->values()
+                ->all();
+
+            if (count($personIds) < 10) {
+                return response()->json([
+                    'error' => 'Cohort has fewer than 10 members ('.count($personIds).'). Generate it first or choose a larger cohort.',
+                ], 422);
+            }
+
+            $aiUrl = rtrim((string) config('services.ai.url', 'http://python-ai:8000'), '/');
+
+            $payload = [
+                'source_id' => $source->id,
+                'cohort_person_ids' => $personIds,
+            ];
+
+            if (isset($validated['method'])) {
+                $payload['method'] = $validated['method'];
+            }
+            if (isset($validated['k'])) {
+                $payload['k'] = $validated['k'];
+            }
+
+            /** @var Response $response */
+            $response = Http::timeout(300)->post("{$aiUrl}/patient-similarity/discover-phenotypes", $payload);
+
+            if ($response->failed()) {
+                $body = $response->json();
+                $detail = $body['detail'] ?? 'Phenotype discovery failed in AI service.';
+
+                return response()->json(['error' => $detail], $response->status());
+            }
+
+            return response()->json(['data' => $response->json()]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Phenotype discovery failed: '.$e->getMessage(),
+            ], 500);
+        }
+    }
+
     // ── UMAP Patient Landscape Projection ──────────────────────────
 
     /**

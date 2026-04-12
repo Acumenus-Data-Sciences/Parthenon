@@ -16,9 +16,9 @@ from sklearn.metrics import silhouette_score
 
 logger = logging.getLogger(__name__)
 
-MAX_PATIENTS = 5000
+MAX_PATIENTS = 2000
 DEFAULT_K_RANGE = (2, 10)
-DEFAULT_N_ITERATIONS = 100
+DEFAULT_N_ITERATIONS = 50
 DEFAULT_SUBSAMPLE_RATIO = 0.8
 
 
@@ -72,14 +72,28 @@ async def build_feature_matrix(
     lab_keys: set[str] = set()
 
     for rec in parsed:
-        if isinstance(rec["condition_concepts"], dict):
-            for cid in rec["condition_concepts"]:
+        conds = rec["condition_concepts"]
+        if isinstance(conds, dict):
+            for cid in conds:
                 dx_keys.add(f"dx_{cid}")
-        if isinstance(rec["drug_concepts"], dict):
-            for cid in rec["drug_concepts"]:
+        elif isinstance(conds, list):
+            for cid in conds:
+                dx_keys.add(f"dx_{cid}")
+
+        drugs = rec["drug_concepts"]
+        if isinstance(drugs, dict):
+            for cid in drugs:
                 rx_keys.add(f"rx_{cid}")
-        if isinstance(rec["lab_vector"], dict):
-            for lid in rec["lab_vector"]:
+        elif isinstance(drugs, list):
+            for cid in drugs:
+                rx_keys.add(f"rx_{cid}")
+
+        labs = rec["lab_vector"]
+        if isinstance(labs, dict):
+            for lid in labs:
+                lab_keys.add(f"lab_{lid}")
+        elif isinstance(labs, list):
+            for lid in labs:
                 lab_keys.add(f"lab_{lid}")
 
     sorted_dx = sorted(dx_keys)
@@ -101,26 +115,44 @@ async def build_feature_matrix(
         # Encode gender as 0/1 (8507=male -> 1, else -> 0)
         matrix[i, 1] = 1.0 if rec["gender_concept_id"] == 8507 else 0.0
 
-        if isinstance(rec["condition_concepts"], dict):
-            for cid in rec["condition_concepts"]:
+        conds = rec["condition_concepts"]
+        if isinstance(conds, dict):
+            for cid in conds:
+                key = f"dx_{cid}"
+                if key in col_idx:
+                    matrix[i, col_idx[key]] = 1.0
+        elif isinstance(conds, list):
+            for cid in conds:
                 key = f"dx_{cid}"
                 if key in col_idx:
                     matrix[i, col_idx[key]] = 1.0
 
-        if isinstance(rec["drug_concepts"], dict):
-            for cid in rec["drug_concepts"]:
+        drugs = rec["drug_concepts"]
+        if isinstance(drugs, dict):
+            for cid in drugs:
+                key = f"rx_{cid}"
+                if key in col_idx:
+                    matrix[i, col_idx[key]] = 1.0
+        elif isinstance(drugs, list):
+            for cid in drugs:
                 key = f"rx_{cid}"
                 if key in col_idx:
                     matrix[i, col_idx[key]] = 1.0
 
-        if isinstance(rec["lab_vector"], dict):
-            for lid, zscore in rec["lab_vector"].items():
+        labs = rec["lab_vector"]
+        if isinstance(labs, dict):
+            for lid, zscore in labs.items():
                 key = f"lab_{lid}"
                 if key in col_idx:
                     try:
                         matrix[i, col_idx[key]] = float(zscore)
                     except (ValueError, TypeError):
                         pass
+        elif isinstance(labs, list):
+            for lid in labs:
+                key = f"lab_{lid}"
+                if key in col_idx:
+                    matrix[i, col_idx[key]] = 1.0
 
     return matrix, feature_names, person_id_order
 
@@ -401,6 +433,18 @@ async def discover_phenotypes(
         _, best_labels, best_k, best_silhouette = consensus_cluster(
             matrix, k_range=k_range,
         )
+        # Consensus can fail on very sparse binary data — fall back to kmeans
+        if best_silhouette <= 0 or len(set(best_labels)) < 2:
+            logger.info("Consensus clustering found no structure, falling back to kmeans")
+            effective_k = k or 4
+            effective_k = min(effective_k, matrix.shape[0] - 1)
+            effective_k = max(effective_k, 2)
+            km = KMeans(n_clusters=effective_k, n_init=10, random_state=42)
+            best_labels = km.fit_predict(matrix)
+            best_k = effective_k
+            method = "kmeans"
+            if len(set(best_labels)) >= 2:
+                best_silhouette = float(silhouette_score(matrix, best_labels))
     elif method in ("kmeans", "spectral"):
         effective_k = k or 3
         effective_k = min(effective_k, matrix.shape[0] - 1)

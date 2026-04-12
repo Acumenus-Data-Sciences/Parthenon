@@ -757,6 +757,8 @@ Route::prefix('v1')->group(function () {
                 ->middleware(['permission:patient-similarity.view', 'throttle:5,1']);
             Route::post('/network-fusion', [PatientSimilarityController::class, 'networkFusion'])
                 ->middleware(['permission:patient-similarity.compute', 'throttle:2,60']);
+            Route::post('/phenotype-discovery', [PatientSimilarityController::class, 'phenotypeDiscovery'])
+                ->middleware(['permission:patient-similarity.compute', 'throttle:2,60']);
             Route::post('/landscape', [PatientSimilarityController::class, 'landscape'])
                 ->middleware(['permission:patient-similarity.view', 'throttle:5,1']);
         });
