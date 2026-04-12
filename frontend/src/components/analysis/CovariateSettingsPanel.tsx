@@ -97,7 +97,7 @@ export function CovariateSettingsPanel({
     if (items.length === 0) return null;
     return (
       <div className="space-y-2">
-        <p className="text-[10px] uppercase tracking-wider text-text-ghost font-semibold">
+        <p className="text-[10px] uppercase tracking-wider text-[#5A5650] font-semibold">
           {label}
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -109,8 +109,8 @@ export function CovariateSettingsPanel({
                 className={cn(
                   "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm cursor-pointer transition-colors",
                   checked
-                    ? "border-success/30 bg-success/5 text-success"
-                    : "border-border-default bg-surface-base text-text-muted hover:text-text-secondary",
+                    ? "border-[#2DD4BF]/30 bg-[#2DD4BF]/5 text-[#2DD4BF]"
+                    : "border-[#232328] bg-[#0E0E11] text-[#8A857D] hover:text-[#C5C0B8]",
                 )}
               >
                 <input
@@ -123,15 +123,15 @@ export function CovariateSettingsPanel({
                   className={cn(
                     "w-4 h-4 rounded border flex items-center justify-center shrink-0",
                     checked
-                      ? "border-success bg-success"
-                      : "border-surface-highlight",
+                      ? "border-[#2DD4BF] bg-[#2DD4BF]"
+                      : "border-[#323238]",
                   )}
                 >
                   {checked && (
                     <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                       <path
                         d="M2 5L4 7L8 3"
-                        stroke="var(--surface-base)"
+                        stroke="#0E0E11"
                         strokeWidth="1.5"
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -149,11 +149,11 @@ export function CovariateSettingsPanel({
   };
 
   return (
-    <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
-      <h3 className="text-sm font-semibold text-text-primary">
+    <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-4">
+      <h3 className="text-sm font-semibold text-[#F0EDE8]">
         Covariate Settings
       </h3>
-      <p className="text-xs text-text-muted">
+      <p className="text-xs text-[#8A857D]">
         Select which domains to include as covariates for FeatureExtraction.
       </p>
 
@@ -164,7 +164,7 @@ export function CovariateSettingsPanel({
       {/* Time Windows */}
       {showTimeWindows && (
         <div className="mt-4">
-          <label className="block text-xs font-medium text-text-muted mb-2">
+          <label className="block text-xs font-medium text-[#8A857D] mb-2">
             Time Windows
           </label>
           {timeWindows.map((tw, idx) => (
@@ -176,11 +176,11 @@ export function CovariateSettingsPanel({
                   updateWindow(idx, "start", Number(e.target.value))
                 }
                 className={cn(
-                  "w-28 rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                  "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
+                  "w-28 rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
+                  "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
                 )}
               />
-              <span className="text-xs text-text-ghost">to</span>
+              <span className="text-xs text-[#5A5650]">to</span>
               <input
                 type="number"
                 value={tw.end}
@@ -188,16 +188,16 @@ export function CovariateSettingsPanel({
                   updateWindow(idx, "end", Number(e.target.value))
                 }
                 className={cn(
-                  "w-28 rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                  "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
+                  "w-28 rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
+                  "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
                 )}
               />
-              <span className="text-xs text-text-ghost">days</span>
+              <span className="text-xs text-[#5A5650]">days</span>
               {timeWindows.length > 1 && (
                 <button
                   type="button"
                   onClick={() => removeWindow(idx)}
-                  className="text-text-muted hover:text-critical transition-colors"
+                  className="text-[#8A857D] hover:text-[#E85A6B] transition-colors"
                 >
                   <X size={14} />
                 </button>
@@ -207,7 +207,7 @@ export function CovariateSettingsPanel({
           <button
             type="button"
             onClick={addWindow}
-            className="text-xs text-success hover:text-success transition-colors"
+            className="text-xs text-[#2DD4BF] hover:text-[#26B8A5] transition-colors"
           >
             + Add time window
           </button>

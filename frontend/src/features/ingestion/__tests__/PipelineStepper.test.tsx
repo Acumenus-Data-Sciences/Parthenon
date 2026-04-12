@@ -38,13 +38,13 @@ describe("PipelineStepper", () => {
     );
 
     // First two steps (index 0, 1) should be completed with teal bg
-    expect(stepCircles[0]?.className).toContain("bg-success");
-    expect(stepCircles[1]?.className).toContain("bg-success");
+    expect(stepCircles[0]?.className).toContain("bg-[#2DD4BF]");
+    expect(stepCircles[1]?.className).toContain("bg-[#2DD4BF]");
 
     // Completed step labels should have teal text
-    expect(screen.getByText("Profiling").className).toContain("text-success");
+    expect(screen.getByText("Profiling").className).toContain("text-[#2DD4BF]");
     expect(screen.getByText("Schema Mapping").className).toContain(
-      "text-success",
+      "text-[#2DD4BF]",
     );
   });
 
@@ -59,7 +59,7 @@ describe("PipelineStepper", () => {
 
     // Third step (index 2) is the active step
     expect(stepCircles[2]?.className).toContain("animate-pulse");
-    expect(stepCircles[2]?.className).toContain("bg-primary");
+    expect(stepCircles[2]?.className).toContain("bg-[#9B1B30]");
   });
 
   it("shows pending steps as gray", () => {
@@ -73,13 +73,13 @@ describe("PipelineStepper", () => {
 
     // Steps 1-5 should be pending with gray border
     for (let i = 1; i < stepCircles.length; i++) {
-      expect(stepCircles[i]?.className).toContain("border-surface-highlight");
-      expect(stepCircles[i]?.className).toContain("text-text-ghost");
+      expect(stepCircles[i]?.className).toContain("border-[#323238]");
+      expect(stepCircles[i]?.className).toContain("text-[#5A5650]");
     }
 
     // Pending step labels should have gray text
     expect(screen.getByText("Schema Mapping").className).toContain(
-      "text-text-ghost",
+      "text-[#5A5650]",
     );
   });
 
@@ -105,7 +105,7 @@ describe("PipelineStepper", () => {
 
     // All 6 steps should be completed (teal)
     for (const circle of stepCircles) {
-      expect(circle.className).toContain("bg-success");
+      expect(circle.className).toContain("bg-[#2DD4BF]");
     }
   });
 
@@ -119,11 +119,11 @@ describe("PipelineStepper", () => {
     );
 
     // cdm_writing is index 4 - should be red (failed)
-    expect(stepCircles[4]?.className).toContain("bg-critical");
+    expect(stepCircles[4]?.className).toContain("bg-[#E85A6B]");
 
     // Its label should also be red
     expect(screen.getByText("CDM Writing").className).toContain(
-      "text-critical",
+      "text-[#E85A6B]",
     );
   });
 });

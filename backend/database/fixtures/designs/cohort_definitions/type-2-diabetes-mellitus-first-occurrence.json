@@ -1,0 +1,71 @@
+{
+    "id": 72,
+    "name": "Type 2 Diabetes Mellitus — First Occurrence",
+    "description": "Outcome cohort: first recorded diagnosis of Type 2 Diabetes Mellitus. No prior observation window requirement — used as the progression endpoint in the prediabetes study.",
+    "expression_json": {
+        "ConceptSets": [
+            {
+                "id": 0,
+                "name": "Type 2 Diabetes Mellitus",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 201826,
+                                "CONCEPT_NAME": "Type 2 diabetes mellitus",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            }
+        ],
+        "InclusionRules": [],
+        "QualifiedLimit": {
+            "Type": "First"
+        },
+        "ExpressionLimit": {
+            "Type": "First"
+        },
+        "PrimaryCriteria": {
+            "CriteriaList": [
+                {
+                    "ConditionOccurrence": {
+                        "First": true,
+                        "CodesetId": 0
+                    }
+                }
+            ],
+            "ObservationWindow": {
+                "PostDays": 0,
+                "PriorDays": 0
+            }
+        },
+        "CollapseSettings": {
+            "EraPad": 0,
+            "CollapseType": "ERA"
+        },
+        "CensoringCriteria": [],
+        "AdditionalCriteria": null
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-03-15T15:18:23.000000Z",
+    "updated_at": "2026-03-15T15:18:23.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "T2DM",
+        "diabetes",
+        "outcome",
+        "first-occurrence"
+    ],
+    "share_token": null,
+    "share_expires_at": null
+}

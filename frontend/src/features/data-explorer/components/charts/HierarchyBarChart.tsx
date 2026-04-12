@@ -4,8 +4,8 @@ import { formatCompact, CHART } from "./chartUtils";
 import type { HierarchyNode } from "../../types/dataExplorer";
 
 const LEVEL_PALETTE = [
-  "var(--success)", "var(--accent)", "var(--info)", "#A855F7", "#E5A84B",
-  "var(--critical)", "#34D399", "var(--domain-procedure)", "#8B5CF6", "#94A3B8",
+  "#2DD4BF", "#C9A227", "#60A5FA", "#A855F7", "#E5A84B",
+  "#E85A6B", "#34D399", "#F472B6", "#8B5CF6", "#94A3B8",
   "#6EE7B7", "#FCD34D", "#93C5FD", "#C084FC", "#FCA5A5",
 ];
 
@@ -70,29 +70,29 @@ export function HierarchyBarChart({ data, hasHierarchy, domain }: HierarchyBarCh
 
   if (!data.length) {
     return (
-      <div className="flex items-center justify-center rounded-xl border border-border-default bg-surface-raised py-12">
-        <p className="text-sm text-text-muted">No hierarchy data available</p>
+      <div className="flex items-center justify-center rounded-xl border border-[#232328] bg-[#151518] py-12">
+        <p className="text-sm text-[#8A857D]">No hierarchy data available</p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl border border-border-default bg-surface-raised p-6">
+    <div className="rounded-xl border border-[#232328] bg-[#151518] p-6">
       {/* Header with breadcrumbs */}
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-1.5 text-sm">
-          <span className="font-semibold uppercase tracking-wider text-text-muted">
+          <span className="font-semibold uppercase tracking-wider text-[#8A857D]">
             {hasHierarchy ? "Classification Hierarchy" : "Top Concepts"}
           </span>
           {path.length > 0 && (
             <>
               {path.map((segment, i) => (
-                <span key={i} className="flex items-center gap-1 text-text-secondary">
-                  <ChevronRight size={12} className="text-text-ghost" />
+                <span key={i} className="flex items-center gap-1 text-[#C5C0B8]">
+                  <ChevronRight size={12} className="text-[#5A5650]" />
                   <button
                     type="button"
                     onClick={() => setPath(path.slice(0, i + 1))}
-                    className="transition-colors hover:text-text-primary"
+                    className="transition-colors hover:text-[#F0EDE8]"
                   >
                     {segment.length > 30 ? segment.slice(0, 30) + "\u2026" : segment}
                   </button>
@@ -105,7 +105,7 @@ export function HierarchyBarChart({ data, hasHierarchy, domain }: HierarchyBarCh
           <button
             type="button"
             onClick={handleBack}
-            className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-text-muted transition-colors hover:bg-surface-elevated hover:text-text-secondary"
+            className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-[#8A857D] transition-colors hover:bg-[#232328] hover:text-[#C5C0B8]"
           >
             <CornerLeftUp size={12} />
             Back
@@ -122,7 +122,7 @@ export function HierarchyBarChart({ data, hasHierarchy, domain }: HierarchyBarCh
           return (
             <div
               key={d.name}
-              className="group flex items-center gap-3 rounded-lg px-2 py-1.5 transition-colors hover:bg-surface-overlay"
+              className="group flex items-center gap-3 rounded-lg px-2 py-1.5 transition-colors hover:bg-[#1A1A1E]"
               onClick={() => handleCellClick(d.name, d.hasChildren)}
               style={{ cursor: d.hasChildren ? "pointer" : "default" }}
               role={d.hasChildren ? "button" : undefined}
@@ -143,13 +143,13 @@ export function HierarchyBarChart({ data, hasHierarchy, domain }: HierarchyBarCh
                   style={{ backgroundColor: d.color }}
                 />
                 <span
-                  className="truncate text-xs text-text-secondary group-hover:text-text-primary"
+                  className="truncate text-xs text-[#C5C0B8] group-hover:text-[#F0EDE8]"
                   title={d.name}
                 >
                   {d.name}
                 </span>
                 {d.hasChildren && (
-                  <ChevronRight size={12} className="shrink-0 text-text-ghost" />
+                  <ChevronRight size={12} className="shrink-0 text-[#5A5650]" />
                 )}
               </div>
 
@@ -169,10 +169,10 @@ export function HierarchyBarChart({ data, hasHierarchy, domain }: HierarchyBarCh
 
               {/* Count + percentage */}
               <div className="flex w-28 shrink-0 items-baseline justify-end gap-2">
-                <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-secondary">
+                <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
                   {formatCompact(d.size)}
                 </span>
-                <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-text-ghost">
+                <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#5A5650]">
                   {pct.toFixed(1)}%
                 </span>
               </div>
@@ -183,15 +183,15 @@ export function HierarchyBarChart({ data, hasHierarchy, domain }: HierarchyBarCh
 
       {/* Total row */}
       {chartData.length > 1 && (
-        <div className="mt-2 flex items-center gap-3 border-t border-border-default px-2 pt-3">
+        <div className="mt-2 flex items-center gap-3 border-t border-[#232328] px-2 pt-3">
           <div className="w-44 shrink-0">
-            <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
               Total
             </span>
           </div>
           <div className="flex-1" />
           <div className="flex w-28 shrink-0 items-baseline justify-end gap-2">
-            <span className="font-['IBM_Plex_Mono',monospace] text-xs font-semibold text-text-primary">
+            <span className="font-['IBM_Plex_Mono',monospace] text-xs font-semibold text-[#F0EDE8]">
               {formatCompact(total)}
             </span>
           </div>

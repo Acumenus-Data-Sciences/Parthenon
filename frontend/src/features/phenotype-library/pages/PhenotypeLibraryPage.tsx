@@ -28,32 +28,32 @@ import {
 
 // ── Domain colour palette (cycles through teal/gold/crimson/violet/slate) ─
 const DOMAIN_COLORS: Record<string, string> = {
-  Condition: "bg-success/15 text-success border-success/30",
-  Drug: "bg-accent/15 text-accent border-accent/30",
-  Measurement: "bg-primary/15 text-critical border-primary/30",
-  Procedure: "bg-[var(--domain-observation)]/15 text-[var(--domain-observation)] border-[var(--domain-observation)]/30",
-  Observation: "bg-info/15 text-info border-info/30",
-  Device: "bg-success/15 text-success border-success/30",
+  Condition: "bg-[#2DD4BF]/15 text-[#2DD4BF] border-[#2DD4BF]/30",
+  Drug: "bg-[#C9A227]/15 text-[#C9A227] border-[#C9A227]/30",
+  Measurement: "bg-[#9B1B30]/15 text-[#E85A6B] border-[#9B1B30]/30",
+  Procedure: "bg-[#A78BFA]/15 text-[#A78BFA] border-[#A78BFA]/30",
+  Observation: "bg-[#60A5FA]/15 text-[#60A5FA] border-[#60A5FA]/30",
+  Device: "bg-[#34D399]/15 text-[#34D399] border-[#34D399]/30",
 };
 
 function domainColor(domain: string | null): string {
-  if (!domain) return "bg-surface-overlay text-text-ghost border-border-default";
+  if (!domain) return "bg-[#1C1C20] text-[#5A5650] border-[#232328]";
   return (
-    DOMAIN_COLORS[domain] ?? "bg-surface-overlay text-text-muted border-border-default"
+    DOMAIN_COLORS[domain] ?? "bg-[#1C1C20] text-[#8A857D] border-[#232328]"
   );
 }
 
 const SEVERITY_COLORS: Record<string, string> = {
-  acute: "bg-primary/15 text-critical border-primary/30",
-  chronic: "bg-accent/15 text-accent border-accent/30",
-  subacute: "bg-info/15 text-info border-info/30",
+  acute: "bg-[#9B1B30]/15 text-[#E85A6B] border-[#9B1B30]/30",
+  chronic: "bg-[#C9A227]/15 text-[#C9A227] border-[#C9A227]/30",
+  subacute: "bg-[#60A5FA]/15 text-[#60A5FA] border-[#60A5FA]/30",
 };
 
 function severityColor(severity: string | null): string {
   if (!severity) return "";
   return (
     SEVERITY_COLORS[severity.toLowerCase()] ??
-    "bg-surface-overlay text-text-muted border-border-default"
+    "bg-[#1C1C20] text-[#8A857D] border-[#232328]"
   );
 }
 
@@ -73,7 +73,7 @@ function StatCard({
 }) {
   return (
     <div
-      className="rounded-lg border border-border-default bg-surface-raised px-5 py-4 flex items-center gap-4 transition-colors hover:border-surface-highlight"
+      className="rounded-lg border border-[#232328] bg-[#151518] px-5 py-4 flex items-center gap-4 transition-colors hover:border-[#3A3A40]"
       onClick={onClick}
       style={onClick ? { cursor: "pointer" } : undefined}
       role={onClick ? "button" : undefined}
@@ -89,8 +89,8 @@ function StatCard({
         <Icon className="h-5 w-5" />
       </div>
       <div>
-        <div className="text-2xl font-bold text-text-primary">{value}</div>
-        <div className="text-xs text-text-muted mt-0.5">{label}</div>
+        <div className="text-2xl font-bold text-[#F0EDE8]">{value}</div>
+        <div className="text-xs text-[#8A857D] mt-0.5">{label}</div>
       </div>
     </div>
   );
@@ -99,7 +99,7 @@ function StatCard({
 // ── Tag pill ───────────────────────────────────────────────────────────────
 function TagPill({ tag }: { tag: string }) {
   return (
-    <span className="inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px] font-medium bg-surface-overlay text-text-muted border border-border-default">
+    <span className="inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#1C1C20] text-[#8A857D] border border-[#2A2A30]">
       {tag}
     </span>
   );
@@ -108,29 +108,29 @@ function TagPill({ tag }: { tag: string }) {
 // ── Row expand panel ──────────────────────────────────────────────────────
 function ExpandedPanel({ entry }: { entry: PhenotypeEntry }) {
   return (
-    <div className="px-5 pb-5 pt-2 bg-surface-base border-t border-surface-overlay space-y-3">
+    <div className="px-5 pb-5 pt-2 bg-[#0E0E11] border-t border-[#1C1C20] space-y-3">
       {entry.description && (
         <div>
-          <div className="text-[10px] uppercase tracking-widest text-text-ghost mb-1">
+          <div className="text-[10px] uppercase tracking-widest text-[#5A5650] mb-1">
             Description
           </div>
-          <p className="text-sm text-text-secondary leading-relaxed">
+          <p className="text-sm text-[#C5C0B8] leading-relaxed">
             {entry.description}
           </p>
         </div>
       )}
       {entry.logic_description && (
         <div>
-          <div className="text-[10px] uppercase tracking-widest text-text-ghost mb-1">
+          <div className="text-[10px] uppercase tracking-widest text-[#5A5650] mb-1">
             Logic
           </div>
-          <p className="text-sm text-text-muted leading-relaxed font-mono">
+          <p className="text-sm text-[#8A857D] leading-relaxed font-mono">
             {entry.logic_description}
           </p>
         </div>
       )}
       {!entry.description && !entry.logic_description && (
-        <p className="text-sm text-text-ghost italic">
+        <p className="text-sm text-[#5A5650] italic">
           No additional details available.
         </p>
       )}
@@ -227,14 +227,14 @@ export default function PhenotypeLibraryPage() {
       {/* ── Header ── */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/15">
-            <Library className="h-5 w-5 text-success" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#2DD4BF]/15">
+            <Library className="h-5 w-5 text-[#2DD4BF]" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-text-primary">
+            <h1 className="text-2xl font-bold text-[#F0EDE8]">
               Phenotype Library
             </h1>
-            <p className="text-sm text-text-muted">
+            <p className="text-sm text-[#8A857D]">
               300+ curated OHDSI phenotype definitions — browse, filter, and
               import in one click
             </p>
@@ -248,28 +248,28 @@ export default function PhenotypeLibraryPage() {
           label="Total Phenotypes"
           value={stats?.total ?? "—"}
           icon={BookOpen}
-          accent="bg-success/15 text-success"
+          accent="bg-[#2DD4BF]/15 text-[#2DD4BF]"
           onClick={() => { setSearch(""); setDomain(""); setPage(1); }}
         />
         <StatCard
           label="With Expression"
           value={stats?.with_expression ?? "—"}
           icon={Layers}
-          accent="bg-accent/15 text-accent"
+          accent="bg-[#C9A227]/15 text-[#C9A227]"
           onClick={() => { setSearch(""); setDomain(""); setPage(1); }}
         />
         <StatCard
           label="Domains Covered"
           value={stats?.domains ?? "—"}
           icon={Filter}
-          accent="bg-[var(--domain-observation)]/15 text-[var(--domain-observation)]"
+          accent="bg-[#A78BFA]/15 text-[#A78BFA]"
           onClick={() => { setSearch(""); setDomain(""); setPage(1); }}
         />
         <StatCard
           label="Imported"
           value={stats?.imported ?? "—"}
           icon={CheckCircle2}
-          accent="bg-primary/15 text-critical"
+          accent="bg-[#9B1B30]/15 text-[#E85A6B]"
           onClick={() => { setSearch(""); setDomain(""); setPage(1); }}
         />
       </div>
@@ -278,13 +278,13 @@ export default function PhenotypeLibraryPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         {/* Search input */}
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-ghost" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5A5650]" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search phenotypes by name or description…"
-            className="w-full rounded-lg border border-border-default bg-surface-raised pl-9 pr-4 py-2.5 text-sm text-text-primary placeholder-text-ghost focus:border-success focus:outline-none focus:ring-1 focus:ring-success/30 transition-colors"
+            className="w-full rounded-lg border border-[#232328] bg-[#151518] pl-9 pr-4 py-2.5 text-sm text-[#F0EDE8] placeholder-[#5A5650] focus:border-[#2DD4BF] focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30 transition-colors"
           />
         </div>
 
@@ -296,8 +296,8 @@ export default function PhenotypeLibraryPage() {
             className={cn(
               "flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm transition-colors min-w-[180px] justify-between",
               domain
-                ? "border-success/30 bg-success/10 text-success"
-                : "border-border-default bg-surface-raised text-text-muted hover:text-text-secondary",
+                ? "border-[#2DD4BF]/30 bg-[#2DD4BF]/10 text-[#2DD4BF]"
+                : "border-[#232328] bg-[#151518] text-[#8A857D] hover:text-[#C5C0B8]",
             )}
           >
             <span className="flex items-center gap-2">
@@ -313,7 +313,7 @@ export default function PhenotypeLibraryPage() {
           </button>
 
           {domainOpen && (
-            <div className="absolute right-0 top-full z-20 mt-1 w-52 rounded-lg border border-border-default bg-surface-raised shadow-xl py-1">
+            <div className="absolute right-0 top-full z-20 mt-1 w-52 rounded-lg border border-[#232328] bg-[#151518] shadow-xl py-1">
               <button
                 type="button"
                 onClick={() => {
@@ -322,8 +322,8 @@ export default function PhenotypeLibraryPage() {
                   setDomainOpen(false);
                 }}
                 className={cn(
-                  "w-full px-4 py-2 text-left text-sm transition-colors hover:bg-surface-overlay",
-                  !domain ? "text-success" : "text-text-secondary",
+                  "w-full px-4 py-2 text-left text-sm transition-colors hover:bg-[#1C1C20]",
+                  !domain ? "text-[#2DD4BF]" : "text-[#C5C0B8]",
                 )}
               >
                 All Domains
@@ -338,8 +338,8 @@ export default function PhenotypeLibraryPage() {
                     setDomainOpen(false);
                   }}
                   className={cn(
-                    "w-full px-4 py-2 text-left text-sm transition-colors hover:bg-surface-overlay",
-                    domain === d ? "text-success" : "text-text-secondary",
+                    "w-full px-4 py-2 text-left text-sm transition-colors hover:bg-[#1C1C20]",
+                    domain === d ? "text-[#2DD4BF]" : "text-[#C5C0B8]",
                   )}
                 >
                   {d}
@@ -352,7 +352,7 @@ export default function PhenotypeLibraryPage() {
 
       {/* ── Result count + loading indicator ── */}
       <div className="flex items-center justify-between">
-        <span className="text-sm text-text-ghost">
+        <span className="text-sm text-[#5A5650]">
           {listQuery.isFetching ? (
             <span className="flex items-center gap-1.5">
               <Loader2 className="h-3 w-3 animate-spin" />
@@ -374,7 +374,7 @@ export default function PhenotypeLibraryPage() {
               setDomain("");
               setPage(1);
             }}
-            className="text-xs text-text-ghost hover:text-text-secondary transition-colors"
+            className="text-xs text-[#5A5650] hover:text-[#C5C0B8] transition-colors"
           >
             Clear filters
           </button>
@@ -382,9 +382,9 @@ export default function PhenotypeLibraryPage() {
       </div>
 
       {/* ── Table ── */}
-      <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
+      <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
         {/* Table header */}
-        <div className="grid grid-cols-[1fr_120px_100px_1fr_140px] gap-4 border-b border-border-default px-5 py-3 text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
+        <div className="grid grid-cols-[1fr_120px_100px_1fr_140px] gap-4 border-b border-[#232328] px-5 py-3 text-[10px] font-semibold uppercase tracking-wider text-[#5A5650]">
           <div>Name</div>
           <div>Domain</div>
           <div>Severity</div>
@@ -394,7 +394,7 @@ export default function PhenotypeLibraryPage() {
 
         {/* Error state */}
         {listQuery.isError && (
-          <div className="flex items-center justify-center gap-2 py-16 text-critical">
+          <div className="flex items-center justify-center gap-2 py-16 text-[#E85A6B]">
             <AlertCircle className="h-5 w-5" />
             <span className="text-sm">Failed to load phenotype library.</span>
           </div>
@@ -402,7 +402,7 @@ export default function PhenotypeLibraryPage() {
 
         {/* Empty state */}
         {!listQuery.isError && !listQuery.isFetching && phenotypes.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-16 gap-3 text-text-ghost">
+          <div className="flex flex-col items-center justify-center py-16 gap-3 text-[#5A5650]">
             <Library className="h-10 w-10 opacity-30" />
             <span className="text-sm">No phenotypes found.</span>
             {(debouncedSearch || domain) && (
@@ -413,7 +413,7 @@ export default function PhenotypeLibraryPage() {
                   setDomain("");
                   setPage(1);
                 }}
-                className="text-xs text-success hover:underline"
+                className="text-xs text-[#2DD4BF] hover:underline"
               >
                 Clear filters
               </button>
@@ -429,13 +429,13 @@ export default function PhenotypeLibraryPage() {
             importMutation.variables === entry.cohort_id;
 
           return (
-            <div key={entry.cohort_id} className="border-b border-surface-overlay last:border-b-0">
+            <div key={entry.cohort_id} className="border-b border-[#1C1C20] last:border-b-0">
               {/* Main row */}
               <div
                 className={cn(
                   "grid grid-cols-[1fr_120px_100px_1fr_140px] gap-4 px-5 py-3.5 transition-colors cursor-pointer",
-                  "hover:bg-surface-overlay/60",
-                  isExpanded && "bg-surface-overlay/40",
+                  "hover:bg-[#1C1C20]/60",
+                  isExpanded && "bg-[#1C1C20]/40",
                 )}
                 onClick={() => toggleExpand(entry.cohort_id)}
               >
@@ -443,15 +443,15 @@ export default function PhenotypeLibraryPage() {
                 <div className="flex items-center gap-2 min-w-0">
                   <ChevronRight
                     className={cn(
-                      "h-3.5 w-3.5 shrink-0 text-text-ghost transition-transform",
-                      isExpanded && "rotate-90 text-success",
+                      "h-3.5 w-3.5 shrink-0 text-[#5A5650] transition-transform",
+                      isExpanded && "rotate-90 text-[#2DD4BF]",
                     )}
                   />
                   <div className="min-w-0">
-                    <div className="text-sm font-medium text-text-primary truncate">
+                    <div className="text-sm font-medium text-[#F0EDE8] truncate">
                       {entry.cohort_name}
                     </div>
-                    <div className="text-[10px] text-text-ghost font-mono mt-0.5">
+                    <div className="text-[10px] text-[#5A5650] font-mono mt-0.5">
                       #{entry.cohort_id}
                     </div>
                   </div>
@@ -469,7 +469,7 @@ export default function PhenotypeLibraryPage() {
                       {entry.domain}
                     </span>
                   ) : (
-                    <span className="text-text-ghost text-xs">—</span>
+                    <span className="text-[#5A5650] text-xs">—</span>
                   )}
                 </div>
 
@@ -485,7 +485,7 @@ export default function PhenotypeLibraryPage() {
                       {entry.severity}
                     </span>
                   ) : (
-                    <span className="text-text-ghost text-xs">—</span>
+                    <span className="text-[#5A5650] text-xs">—</span>
                   )}
                 </div>
 
@@ -497,13 +497,13 @@ export default function PhenotypeLibraryPage() {
                         <TagPill key={tag} tag={tag} />
                       ))}
                       {entry.tags.length > 3 && (
-                        <span className="text-[10px] text-text-ghost">
+                        <span className="text-[10px] text-[#5A5650]">
                           +{entry.tags.length - 3}
                         </span>
                       )}
                     </>
                   ) : (
-                    <span className="flex items-center gap-1 text-[10px] text-text-ghost">
+                    <span className="flex items-center gap-1 text-[10px] text-[#5A5650]">
                       <Tag className="h-3 w-3" />
                       no tags
                     </span>
@@ -516,7 +516,7 @@ export default function PhenotypeLibraryPage() {
                     <Link
                       to={`/cohort-definitions/${entry.imported_cohort_id}`}
                       onClick={(e) => e.stopPropagation()}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-success/30 bg-success/10 px-3 py-1.5 text-xs font-medium text-success hover:bg-success/20 transition-colors"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-[#2DD4BF]/30 bg-[#2DD4BF]/10 px-3 py-1.5 text-xs font-medium text-[#2DD4BF] hover:bg-[#2DD4BF]/20 transition-colors"
                     >
                       <CheckCircle2 className="h-3.5 w-3.5" />
                       Imported
@@ -538,8 +538,8 @@ export default function PhenotypeLibraryPage() {
                       className={cn(
                         "inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors",
                         entry.expression_json
-                          ? "border-primary/40 bg-primary/10 text-critical hover:bg-primary/20 disabled:opacity-60 disabled:cursor-not-allowed"
-                          : "border-border-default bg-transparent text-text-ghost cursor-not-allowed opacity-50",
+                          ? "border-[#9B1B30]/40 bg-[#9B1B30]/10 text-[#E85A6B] hover:bg-[#9B1B30]/20 disabled:opacity-60 disabled:cursor-not-allowed"
+                          : "border-[#232328] bg-transparent text-[#5A5650] cursor-not-allowed opacity-50",
                       )}
                     >
                       {isImporting ? (
@@ -563,7 +563,7 @@ export default function PhenotypeLibraryPage() {
       {/* ── Pagination ── */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
-          <span className="text-sm text-text-ghost">
+          <span className="text-sm text-[#5A5650]">
             Page {page} of {totalPages}
           </span>
           <div className="flex items-center gap-2">
@@ -571,7 +571,7 @@ export default function PhenotypeLibraryPage() {
               type="button"
               disabled={page <= 1}
               onClick={() => setPage((p) => p - 1)}
-              className="inline-flex items-center gap-1 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-muted hover:text-text-primary disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="inline-flex items-center gap-1 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#8A857D] hover:text-[#F0EDE8] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronLeft className="h-4 w-4" />
               Previous
@@ -598,8 +598,8 @@ export default function PhenotypeLibraryPage() {
                     className={cn(
                       "h-8 w-8 rounded-lg text-sm font-medium transition-colors",
                       pageNum === page
-                        ? "bg-success/20 text-success border border-success/30"
-                        : "text-text-muted hover:text-text-primary hover:bg-surface-overlay",
+                        ? "bg-[#2DD4BF]/20 text-[#2DD4BF] border border-[#2DD4BF]/30"
+                        : "text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#1C1C20]",
                     )}
                   >
                     {pageNum}
@@ -612,7 +612,7 @@ export default function PhenotypeLibraryPage() {
               type="button"
               disabled={page >= totalPages}
               onClick={() => setPage((p) => p + 1)}
-              className="inline-flex items-center gap-1 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-muted hover:text-text-primary disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="inline-flex items-center gap-1 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#8A857D] hover:text-[#F0EDE8] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               Next
               <ChevronRight className="h-4 w-4" />

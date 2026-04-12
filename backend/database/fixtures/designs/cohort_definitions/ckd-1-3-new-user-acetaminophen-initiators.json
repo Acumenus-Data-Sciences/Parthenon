@@ -1,0 +1,495 @@
+{
+    "id": 77,
+    "name": "CKD 1-3 New-User Acetaminophen Initiators",
+    "description": "Comparator cohort for Study 3: Adults with CKD Stage 1-3 initiating acetaminophen as their first systemic analgesic. Active comparator chosen for similar pain\/fever indication profile without nephrotoxic mechanism. Same 365-day analgesic washout as NSAID arm.",
+    "expression_json": {
+        "ConceptSets": [
+            {
+                "id": 0,
+                "name": "Index Drug",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1125315,
+                                "CONCEPT_CODE": "161",
+                                "CONCEPT_NAME": "acetaminophen",
+                                "VOCABULARY_ID": "RxNorm",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 1,
+                "name": "CKD Stages 1-3",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 443614,
+                                "CONCEPT_CODE": "431855005",
+                                "CONCEPT_NAME": "Chronic kidney disease stage 1",
+                                "VOCABULARY_ID": "SNOMED",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 443601,
+                                "CONCEPT_CODE": "431856006",
+                                "CONCEPT_NAME": "Chronic kidney disease stage 2",
+                                "VOCABULARY_ID": "SNOMED",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 443597,
+                                "CONCEPT_CODE": "433144002",
+                                "CONCEPT_NAME": "Chronic kidney disease stage 3",
+                                "VOCABULARY_ID": "SNOMED",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 2,
+                "name": "CKD Advanced Progression",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 443612,
+                                "CONCEPT_CODE": "431857002",
+                                "CONCEPT_NAME": "Chronic kidney disease stage 4",
+                                "VOCABULARY_ID": "SNOMED",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 443611,
+                                "CONCEPT_CODE": "433146000",
+                                "CONCEPT_NAME": "Chronic kidney disease stage 5",
+                                "VOCABULARY_ID": "SNOMED",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 37017813,
+                                "CONCEPT_CODE": "714152005",
+                                "CONCEPT_NAME": "Chronic kidney disease requiring dialysis",
+                                "VOCABULARY_ID": "SNOMED",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 3,
+                "name": "Analgesics — All Classes (Washout)",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1177480,
+                                "CONCEPT_CODE": "1177480",
+                                "CONCEPT_NAME": "ibuprofen",
+                                "VOCABULARY_ID": "RxNorm",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1115008,
+                                "CONCEPT_CODE": "1115008",
+                                "CONCEPT_NAME": "naproxen",
+                                "VOCABULARY_ID": "RxNorm",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1118084,
+                                "CONCEPT_CODE": "1118084",
+                                "CONCEPT_NAME": "celecoxib",
+                                "VOCABULARY_ID": "RxNorm",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1124300,
+                                "CONCEPT_CODE": "1124300",
+                                "CONCEPT_NAME": "diclofenac",
+                                "VOCABULARY_ID": "RxNorm",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1195492,
+                                "CONCEPT_CODE": "1195492",
+                                "CONCEPT_NAME": "etodolac",
+                                "VOCABULARY_ID": "RxNorm",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1178663,
+                                "CONCEPT_CODE": "1178663",
+                                "CONCEPT_NAME": "indomethacin",
+                                "VOCABULARY_ID": "RxNorm",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1136980,
+                                "CONCEPT_CODE": "1136980",
+                                "CONCEPT_NAME": "ketorolac",
+                                "VOCABULARY_ID": "RxNorm",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1150345,
+                                "CONCEPT_CODE": "1150345",
+                                "CONCEPT_NAME": "meloxicam",
+                                "VOCABULARY_ID": "RxNorm",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1113648,
+                                "CONCEPT_CODE": "1113648",
+                                "CONCEPT_NAME": "nabumetone",
+                                "VOCABULARY_ID": "RxNorm",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1146810,
+                                "CONCEPT_CODE": "1146810",
+                                "CONCEPT_NAME": "piroxicam",
+                                "VOCABULARY_ID": "RxNorm",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1236607,
+                                "CONCEPT_CODE": "1236607",
+                                "CONCEPT_NAME": "sulindac",
+                                "VOCABULARY_ID": "RxNorm",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1112807,
+                                "CONCEPT_CODE": "1112807",
+                                "CONCEPT_NAME": "aspirin",
+                                "VOCABULARY_ID": "RxNorm",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1125315,
+                                "CONCEPT_CODE": "1125315",
+                                "CONCEPT_NAME": "acetaminophen",
+                                "VOCABULARY_ID": "RxNorm",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            }
+        ],
+        "EndStrategy": {
+            "DateOffset": {
+                "Offset": 0,
+                "DateField": "ObservationPeriodEnd"
+            }
+        },
+        "CensorWindow": [],
+        "InclusionRules": [
+            {
+                "name": "Has CKD Stage 1-3 diagnosis within 365 days prior to index",
+                "expression": {
+                    "Type": "ALL",
+                    "Groups": [],
+                    "CriteriaList": [
+                        {
+                            "Criteria": {
+                                "ConditionOccurrence": {
+                                    "First": false,
+                                    "CodesetId": 1
+                                }
+                            },
+                            "Occurrence": {
+                                "Type": 2,
+                                "Count": 1
+                            },
+                            "StartWindow": {
+                                "End": {
+                                    "Days": 0,
+                                    "Coeff": -1
+                                },
+                                "Start": {
+                                    "Days": 365,
+                                    "Coeff": -1
+                                }
+                            },
+                            "RestrictVisit": false
+                        }
+                    ],
+                    "DemographicCriteriaList": []
+                },
+                "description": "Patient must have mild-to-moderate CKD at analgesic initiation"
+            },
+            {
+                "name": "No prior analgesic use — 365-day new-user washout",
+                "expression": {
+                    "Type": "ALL",
+                    "Groups": [],
+                    "CriteriaList": [
+                        {
+                            "Criteria": {
+                                "DrugExposure": {
+                                    "First": false,
+                                    "CodesetId": 3
+                                }
+                            },
+                            "Occurrence": {
+                                "Type": 0,
+                                "Count": 0
+                            },
+                            "StartWindow": {
+                                "End": {
+                                    "Days": 1,
+                                    "Coeff": -1
+                                },
+                                "Start": {
+                                    "Days": 365,
+                                    "Coeff": -1
+                                }
+                            },
+                            "RestrictVisit": false
+                        }
+                    ],
+                    "DemographicCriteriaList": []
+                },
+                "description": "Active comparator new-user design: treatment-naive to NSAIDs and acetaminophen"
+            },
+            {
+                "name": "No prior advanced CKD at baseline",
+                "expression": {
+                    "Type": "ALL",
+                    "Groups": [],
+                    "CriteriaList": [
+                        {
+                            "Criteria": {
+                                "ConditionOccurrence": {
+                                    "First": false,
+                                    "CodesetId": 2
+                                }
+                            },
+                            "Occurrence": {
+                                "Type": 0,
+                                "Count": 0
+                            },
+                            "StartWindow": {
+                                "End": {
+                                    "Days": 0,
+                                    "Coeff": -1
+                                },
+                                "Start": {
+                                    "Days": null,
+                                    "Coeff": -1
+                                }
+                            },
+                            "RestrictVisit": false
+                        }
+                    ],
+                    "DemographicCriteriaList": []
+                },
+                "description": "Exclude patients who have already progressed to Stage 4-5 or dialysis"
+            }
+        ],
+        "QualifiedLimit": {
+            "Type": "First"
+        },
+        "ExpressionLimit": {
+            "Type": "First"
+        },
+        "PrimaryCriteria": {
+            "CriteriaList": [
+                {
+                    "DrugExposure": {
+                        "First": true,
+                        "CodesetId": 0
+                    }
+                }
+            ],
+            "ObservationWindow": {
+                "PostDays": 0,
+                "PriorDays": 365
+            },
+            "PrimaryCriteriaLimit": {
+                "Type": "First"
+            }
+        },
+        "CollapseSettings": {
+            "EraPad": 30,
+            "CollapseType": "ERA"
+        },
+        "CensoringCriteria": []
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": null,
+    "updated_at": "2026-03-20T21:27:50.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "study-3",
+        "CKD",
+        "acetaminophen",
+        "new-user",
+        "comparator"
+    ],
+    "share_token": null,
+    "share_expires_at": null
+}

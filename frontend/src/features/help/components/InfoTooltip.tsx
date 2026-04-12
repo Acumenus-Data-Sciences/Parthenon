@@ -29,7 +29,7 @@ export function InfoTooltip({ text, size = 13, className }: InfoTooltipProps) {
         type="button"
         className={
           className ??
-          "inline-flex text-text-ghost hover:text-text-muted transition-colors"
+          "inline-flex text-[#5A5650] hover:text-[#8A857D] transition-colors"
         }
         onMouseEnter={() => setVisible(true)}
         onMouseLeave={() => setVisible(false)}
@@ -52,7 +52,7 @@ export function InfoTooltip({ text, size = 13, className }: InfoTooltipProps) {
               transform: "translateX(-50%)",
               zIndex: 9999,
             }}
-            className="max-w-xs rounded-lg border border-border-default bg-surface-overlay px-3 py-2 text-xs text-text-secondary shadow-xl"
+            className="max-w-xs rounded-lg border border-[#2A2A30] bg-[#1A1A20] px-3 py-2 text-xs text-[#C5C0B8] shadow-xl"
           >
             {text}
           </div>,

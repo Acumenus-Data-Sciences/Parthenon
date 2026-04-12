@@ -10,9 +10,9 @@ function getIcon(name: string): IconComponent {
 }
 
 const GROUP_ACCENT: Record<ClinicalAnalysisGroup, string> = {
-  characterize: "var(--success)",
-  compare: "var(--primary)",
-  predict: "var(--accent)",
+  characterize: "#2DD4BF",
+  compare: "#9B1B30",
+  predict: "#C9A227",
 };
 
 interface AnalysisCardProps {
@@ -41,8 +41,8 @@ export function AnalysisCard({
       title={disabled && disabledReason ? disabledReason : undefined}
       className={`group relative flex flex-col gap-3 rounded-xl border p-4 text-left transition-all duration-200 ${
         disabled
-          ? "cursor-default border-zinc-800 bg-zinc-900/50 opacity-60"
-          : "cursor-pointer border-zinc-800 bg-zinc-900/50 hover:border-zinc-600"
+          ? "cursor-default border-border-default bg-surface-base/50 opacity-60"
+          : "cursor-pointer border-border-default bg-surface-base/50 hover:border-border-hover"
       }`}
     >
       {/* Left border accent */}
@@ -78,7 +78,7 @@ export function AnalysisCard({
           {descriptor.prerequisites.map((prereq) => (
             <span
               key={prereq}
-              className="rounded-full bg-zinc-700 px-2 py-0.5 text-[10px] text-zinc-400"
+              className="rounded-full bg-surface-accent px-2 py-0.5 text-[10px] text-zinc-400"
             >
               {prereq}
             </span>

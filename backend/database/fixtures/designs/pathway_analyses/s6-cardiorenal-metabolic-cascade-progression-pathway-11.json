@@ -1,0 +1,26 @@
+{
+    "id": 11,
+    "name": "S6: Cardiorenal — Metabolic Cascade Progression Pathway",
+    "description": "Treatment pathway tracing disease progression from prediabetes through metabolic syndrome, hypertension, CKD stages 1-4, ESRD, and MACE in the Cardiorenal-Metabolic Cascade study.",
+    "design_json": {
+        "maxDepth": 6,
+        "minCellCount": 5,
+        "maxPathLength": 8,
+        "eventCohortIds": [
+            164,
+            163,
+            160,
+            161,
+            162,
+            167,
+            169,
+            168
+        ],
+        "targetCohortId": 166,
+        "combinationWindow": 30
+    },
+    "author_id": 117,
+    "created_at": "2026-03-20T00:29:03.000000Z",
+    "updated_at": "2026-03-20T00:29:03.000000Z",
+    "deleted_at": null
+}

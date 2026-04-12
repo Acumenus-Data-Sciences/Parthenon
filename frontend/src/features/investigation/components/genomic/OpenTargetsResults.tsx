@@ -18,10 +18,10 @@ function ScoreBar({ score }: { score: number }) {
   const pct = Math.min(Math.max(score, 0), 1) * 100;
   return (
     <div className="flex items-center gap-2">
-      <div className="flex-1 h-1.5 rounded-full bg-zinc-700/60 overflow-hidden">
+      <div className="flex-1 h-1.5 rounded-full bg-surface-accent/60 overflow-hidden">
         <div
           className="h-full rounded-full"
-          style={{ width: `${pct}%`, backgroundColor: "var(--accent)" }}
+          style={{ width: `${pct}%`, backgroundColor: "#C9A227" }}
         />
       </div>
       <span className="text-[10px] text-zinc-500 tabular-nums w-8 text-right">
@@ -56,9 +56,9 @@ function GeneCard({
 
   function getBadgeStyle(modality: string): string {
     const lower = modality.toLowerCase();
-    if (lower.includes("small")) return "border-success/40 text-success";
-    if (lower.includes("antibody")) return "border-primary/40 text-primary";
-    return "border-zinc-600 text-zinc-400";
+    if (lower.includes("small")) return "border-[#2DD4BF]/40 text-[#2DD4BF]";
+    if (lower.includes("antibody")) return "border-[#9B1B30]/40 text-[#9B1B30]";
+    return "border-border-hover text-zinc-400";
   }
 
   function handlePin() {
@@ -80,10 +80,10 @@ function GeneCard({
   }
 
   return (
-    <div className="flex flex-col gap-2.5 p-4 rounded-xl bg-zinc-900/50 border border-zinc-800 hover:border-zinc-700 transition-colors">
+    <div className="flex flex-col gap-2.5 p-4 rounded-xl bg-surface-base/50 border border-border-default hover:border-border-default transition-colors">
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-col gap-0.5 min-w-0">
-          <span className="text-sm font-bold truncate" style={{ color: "var(--success)" }}>
+          <span className="text-sm font-bold truncate" style={{ color: "#2DD4BF" }}>
             {symbol}
           </span>
           {geneName && (
@@ -92,13 +92,13 @@ function GeneCard({
         </div>
         <div className="flex items-center gap-1.5 flex-shrink-0">
           {biotype && (
-            <span className="text-[10px] px-2 py-0.5 rounded border border-zinc-700 text-zinc-500">
+            <span className="text-[10px] px-2 py-0.5 rounded border border-border-default text-zinc-500">
               {biotype}
             </span>
           )}
           <button
             onClick={handlePin}
-            className="text-[10px] px-2.5 py-1 rounded border border-zinc-600 text-zinc-400 hover:border-accent/50 hover:text-accent transition-colors whitespace-nowrap"
+            className="text-[10px] px-2.5 py-1 rounded border border-border-hover text-zinc-400 hover:border-[#C9A227]/50 hover:text-[#C9A227] transition-colors whitespace-nowrap"
           >
             Pin
           </button>
@@ -159,10 +159,10 @@ function DiseaseCard({
   }
 
   return (
-    <div className="flex flex-col gap-2.5 p-4 rounded-xl bg-zinc-900/50 border border-zinc-800 hover:border-zinc-700 transition-colors">
+    <div className="flex flex-col gap-2.5 p-4 rounded-xl bg-surface-base/50 border border-border-default hover:border-border-default transition-colors">
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-col gap-0.5 min-w-0">
-          <span className="text-sm font-bold leading-snug" style={{ color: "var(--primary)" }}>
+          <span className="text-sm font-bold leading-snug" style={{ color: "#9B1B30" }}>
             {name}
           </span>
           {description && (
@@ -171,7 +171,7 @@ function DiseaseCard({
         </div>
         <button
           onClick={handlePin}
-          className="flex-shrink-0 text-[10px] px-2.5 py-1 rounded border border-zinc-600 text-zinc-400 hover:border-accent/50 hover:text-accent transition-colors whitespace-nowrap"
+          className="flex-shrink-0 text-[10px] px-2.5 py-1 rounded border border-border-hover text-zinc-400 hover:border-[#C9A227]/50 hover:text-[#C9A227] transition-colors whitespace-nowrap"
         >
           Pin
         </button>
@@ -182,7 +182,7 @@ function DiseaseCard({
           {therapeuticAreas.map((area) => (
             <span
               key={area.name}
-              className="text-[10px] px-2 py-0.5 rounded border border-zinc-700 text-zinc-400"
+              className="text-[10px] px-2 py-0.5 rounded border border-border-default text-zinc-400"
             >
               {area.name}
             </span>

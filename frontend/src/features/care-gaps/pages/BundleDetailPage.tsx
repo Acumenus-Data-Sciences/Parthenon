@@ -32,10 +32,10 @@ function EvalStatusBadge({
   status: CareGapEvaluation["status"];
 }) {
   const config = {
-    pending: { icon: Clock, color: "var(--text-muted)", label: "Pending" },
-    running: { icon: Loader2, color: 'var(--warning)', label: "Running" },
-    completed: { icon: CheckCircle2, color: "var(--success)", label: "Completed" },
-    failed: { icon: XCircle, color: "var(--critical)", label: "Failed" },
+    pending: { icon: Clock, color: "#8A857D", label: "Pending" },
+    running: { icon: Loader2, color: "#F59E0B", label: "Running" },
+    completed: { icon: CheckCircle2, color: "#2DD4BF", label: "Completed" },
+    failed: { icon: XCircle, color: "#E85A6B", label: "Failed" },
   } as const;
   const c = config[status];
   const Icon = c.icon;
@@ -96,7 +96,7 @@ export default function BundleDetailPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 size={24} className="animate-spin text-text-muted" />
+        <Loader2 size={24} className="animate-spin text-[#8A857D]" />
       </div>
     );
   }
@@ -105,11 +105,11 @@ export default function BundleDetailPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <p className="text-critical">Failed to load bundle</p>
+          <p className="text-[#E85A6B]">Failed to load bundle</p>
           <button
             type="button"
             onClick={() => navigate("/care-gaps")}
-            className="mt-4 text-sm text-text-muted hover:text-text-primary transition-colors"
+            className="mt-4 text-sm text-[#8A857D] hover:text-[#F0EDE8] transition-colors"
           >
             Back to list
           </button>
@@ -126,30 +126,30 @@ export default function BundleDetailPage() {
           <button
             type="button"
             onClick={() => navigate("/care-gaps")}
-            className="inline-flex items-center gap-1 text-sm text-text-muted hover:text-text-primary transition-colors mb-3"
+            className="inline-flex items-center gap-1 text-sm text-[#8A857D] hover:text-[#F0EDE8] transition-colors mb-3"
           >
             <ArrowLeft size={14} />
             Care Gaps
           </button>
 
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-text-primary">
+            <h1 className="text-2xl font-bold text-[#F0EDE8]">
               {bundle.condition_name}
             </h1>
-            <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-success/10 text-success">
+            <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#2DD4BF]/10 text-[#2DD4BF]">
               {bundle.bundle_code}
             </span>
           </div>
 
           {bundle.description && (
-            <p className="mt-1 text-sm text-text-muted">
+            <p className="mt-1 text-sm text-[#8A857D]">
               {bundle.description}
             </p>
           )}
 
           <div className="flex items-center gap-2 mt-2">
             {bundle.disease_category && (
-              <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-accent/15 text-accent">
+              <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#C9A227]/15 text-[#C9A227]">
                 {bundle.disease_category}
               </span>
             )}
@@ -180,7 +180,7 @@ export default function BundleDetailPage() {
             type="button"
             onClick={handleDelete}
             disabled={deleteMutation.isPending}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-muted hover:text-critical hover:border-critical/30 transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#8A857D] hover:text-[#E85A6B] hover:border-[#E85A6B]/30 transition-colors disabled:opacity-50"
           >
             {deleteMutation.isPending ? (
               <Loader2 size={14} className="animate-spin" />
@@ -193,7 +193,7 @@ export default function BundleDetailPage() {
       </div>
 
       {/* Tab navigation */}
-      <div className="flex items-center gap-1 border-b border-border-default">
+      <div className="flex items-center gap-1 border-b border-[#232328]">
         {(
           [
             { key: "design" as const, label: "Design" },
@@ -208,13 +208,13 @@ export default function BundleDetailPage() {
             className={cn(
               "relative px-4 py-2.5 text-sm font-medium transition-colors",
               activeTab === tab.key
-                ? "text-success"
-                : "text-text-muted hover:text-text-secondary",
+                ? "text-[#2DD4BF]"
+                : "text-[#8A857D] hover:text-[#C5C0B8]",
             )}
           >
             {tab.label}
             {activeTab === tab.key && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-success" />
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2DD4BF]" />
             )}
           </button>
         ))}
@@ -226,8 +226,8 @@ export default function BundleDetailPage() {
       {activeTab === "compliance" && (
         <div className="space-y-6">
           {/* Evaluation controls */}
-          <div className="rounded-lg border border-border-default bg-surface-raised p-4">
-            <h3 className="text-sm font-semibold text-text-primary mb-3">
+          <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+            <h3 className="text-sm font-semibold text-[#F0EDE8] mb-3">
               Execute Evaluation
             </h3>
             <div className="flex items-center gap-3">
@@ -243,7 +243,7 @@ export default function BundleDetailPage() {
                 }
                 className={cn(
                   "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
-                  "bg-success text-surface-base hover:bg-success",
+                  "bg-[#2DD4BF] text-[#0E0E11] hover:bg-[#26B8A5]",
                   "disabled:opacity-50 disabled:cursor-not-allowed",
                 )}
               >
@@ -261,7 +261,7 @@ export default function BundleDetailPage() {
           {activeEvaluation?.result_json ? (
             <div className="space-y-4">
               {/* Overall summary */}
-              <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+              <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
                 <div className="flex items-center gap-6">
                   <ComplianceRing
                     percentage={
@@ -271,28 +271,28 @@ export default function BundleDetailPage() {
                     label="Overall"
                   />
                   <div className="space-y-1">
-                    <p className="text-xs text-text-muted">Total Patients</p>
-                    <p className="font-['IBM_Plex_Mono',monospace] text-lg font-bold text-success">
+                    <p className="text-xs text-[#8A857D]">Total Patients</p>
+                    <p className="font-['IBM_Plex_Mono',monospace] text-lg font-bold text-[#2DD4BF]">
                       {activeEvaluation.result_json.total_patients.toLocaleString()}
                     </p>
                   </div>
                   {activeEvaluation.compliance_summary && (
                     <>
                       <div className="space-y-1">
-                        <p className="text-xs text-text-muted">Gaps Met</p>
-                        <p className="font-['IBM_Plex_Mono',monospace] text-lg font-bold text-success">
+                        <p className="text-xs text-[#8A857D]">Gaps Met</p>
+                        <p className="font-['IBM_Plex_Mono',monospace] text-lg font-bold text-[#2DD4BF]">
                           {activeEvaluation.compliance_summary.met.toLocaleString()}
                         </p>
                       </div>
                       <div className="space-y-1">
-                        <p className="text-xs text-text-muted">Open Gaps</p>
-                        <p className="font-['IBM_Plex_Mono',monospace] text-lg font-bold text-primary">
+                        <p className="text-xs text-[#8A857D]">Open Gaps</p>
+                        <p className="font-['IBM_Plex_Mono',monospace] text-lg font-bold text-[#9B1B30]">
                           {activeEvaluation.compliance_summary.open.toLocaleString()}
                         </p>
                       </div>
                       <div className="space-y-1">
-                        <p className="text-xs text-text-muted">Excluded</p>
-                        <p className="font-['IBM_Plex_Mono',monospace] text-lg font-bold text-text-muted">
+                        <p className="text-xs text-[#8A857D]">Excluded</p>
+                        <p className="font-['IBM_Plex_Mono',monospace] text-lg font-bold text-[#8A857D]">
                           {activeEvaluation.compliance_summary.excluded.toLocaleString()}
                         </p>
                       </div>
@@ -307,8 +307,8 @@ export default function BundleDetailPage() {
               />
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
-              <p className="text-sm text-text-muted">
+            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
+              <p className="text-sm text-[#8A857D]">
                 {evaluateMutation.isPending
                   ? "Evaluation in progress..."
                   : "No evaluation results yet. Execute an evaluation to see compliance data."}
@@ -318,8 +318,8 @@ export default function BundleDetailPage() {
 
           {/* Evaluation history */}
           {evaluations && evaluations.length > 0 && (
-            <div className="rounded-lg border border-border-default bg-surface-raised p-5 space-y-3">
-              <h3 className="text-sm font-semibold text-text-primary">
+            <div className="rounded-lg border border-[#232328] bg-[#151518] p-5 space-y-3">
+              <h3 className="text-sm font-semibold text-[#F0EDE8]">
                 Evaluation History
               </h3>
               <div className="space-y-1">
@@ -331,16 +331,16 @@ export default function BundleDetailPage() {
                     className={cn(
                       "w-full flex items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors",
                       activeEvalId === ev.id
-                        ? "bg-success/10 border border-success/20"
-                        : "hover:bg-surface-overlay border border-transparent",
+                        ? "bg-[#2DD4BF]/10 border border-[#2DD4BF]/20"
+                        : "hover:bg-[#1A1A1E] border border-transparent",
                     )}
                   >
                     <EvalStatusBadge status={ev.status} />
-                    <span className="text-xs text-text-muted">
+                    <span className="text-xs text-[#8A857D]">
                       Source #{ev.source_id}
                     </span>
                     {ev.person_count != null && (
-                      <span className="text-xs text-text-secondary font-['IBM_Plex_Mono',monospace]">
+                      <span className="text-xs text-[#C5C0B8] font-['IBM_Plex_Mono',monospace]">
                         {ev.person_count.toLocaleString()} pts
                       </span>
                     )}
@@ -350,16 +350,16 @@ export default function BundleDetailPage() {
                         style={{
                           color:
                             ev.compliance_summary.compliance_pct >= 80
-                              ? "var(--success)"
+                              ? "#2DD4BF"
                               : ev.compliance_summary.compliance_pct >= 50
-                                ? "var(--accent)"
-                                : "var(--primary)",
+                                ? "#C9A227"
+                                : "#9B1B30",
                         }}
                       >
                         {ev.compliance_summary.compliance_pct.toFixed(0)}%
                       </span>
                     )}
-                    <span className="text-[10px] text-text-ghost">
+                    <span className="text-[10px] text-[#5A5650]">
                       {ev.evaluated_at
                         ? new Date(ev.evaluated_at).toLocaleDateString()
                         : ev.created_at

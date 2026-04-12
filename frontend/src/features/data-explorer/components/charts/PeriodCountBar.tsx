@@ -24,8 +24,8 @@ function CustomTooltip({
   const d = payload[0].payload;
   return (
     <div className={TOOLTIP_CLS}>
-      <p className="text-xs text-text-muted">{d.label} observation period(s)</p>
-      <p className="mt-0.5 font-['IBM_Plex_Mono',monospace] text-xs text-text-primary">
+      <p className="text-xs text-[#8A857D]">{d.label} observation period(s)</p>
+      <p className="mt-0.5 font-['IBM_Plex_Mono',monospace] text-xs text-[#F0EDE8]">
         {d.persons.toLocaleString()} persons
       </p>
     </div>

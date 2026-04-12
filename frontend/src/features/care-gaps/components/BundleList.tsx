@@ -57,7 +57,7 @@ export function BundleList({ onCreateClick }: BundleListProps) {
         <div className="relative flex-1 min-w-[200px] max-w-sm">
           <Search
             size={14}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8A857D]"
           />
           <input
             type="text"
@@ -65,9 +65,9 @@ export function BundleList({ onCreateClick }: BundleListProps) {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className={cn(
-              "w-full rounded-lg border border-border-default bg-surface-raised pl-9 pr-3 py-2 text-sm",
-              "text-text-primary placeholder:text-text-ghost",
-              "focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
+              "w-full rounded-lg border border-[#232328] bg-[#151518] pl-9 pr-3 py-2 text-sm",
+              "text-[#F0EDE8] placeholder:text-[#5A5650]",
+              "focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
             )}
           />
         </div>
@@ -78,8 +78,8 @@ export function BundleList({ onCreateClick }: BundleListProps) {
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             className={cn(
-              "appearance-none rounded-lg border border-border-default bg-surface-raised pl-3 pr-8 py-2 text-sm",
-              "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
+              "appearance-none rounded-lg border border-[#232328] bg-[#151518] pl-3 pr-8 py-2 text-sm",
+              "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
               "cursor-pointer",
             )}
           >
@@ -91,7 +91,7 @@ export function BundleList({ onCreateClick }: BundleListProps) {
           </select>
           <ChevronDown
             size={14}
-            className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-text-muted"
+            className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[#8A857D]"
           />
         </div>
 
@@ -102,8 +102,8 @@ export function BundleList({ onCreateClick }: BundleListProps) {
             setSortBy((prev) => (prev === "name" ? "compliance" : "name"))
           }
           className={cn(
-            "inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm",
-            "text-text-muted hover:text-text-primary hover:border-surface-highlight transition-colors",
+            "inline-flex items-center gap-1.5 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm",
+            "text-[#8A857D] hover:text-[#F0EDE8] hover:border-[#323238] transition-colors",
           )}
         >
           <SortAsc size={14} />
@@ -115,7 +115,7 @@ export function BundleList({ onCreateClick }: BundleListProps) {
           <button
             type="button"
             onClick={onCreateClick}
-            className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base hover:bg-success transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors"
           >
             <Plus size={16} />
             New Bundle
@@ -126,15 +126,15 @@ export function BundleList({ onCreateClick }: BundleListProps) {
       {/* Loading */}
       {isLoading && (
         <div className="flex items-center justify-center py-16">
-          <Loader2 size={24} className="animate-spin text-text-muted" />
+          <Loader2 size={24} className="animate-spin text-[#8A857D]" />
         </div>
       )}
 
       {/* Empty */}
       {!isLoading && sorted.length === 0 && (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-16">
-          <p className="text-sm text-text-muted">No bundles found</p>
-          <p className="mt-1 text-xs text-text-ghost">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-16">
+          <p className="text-sm text-[#8A857D]">No bundles found</p>
+          <p className="mt-1 text-xs text-[#5A5650]">
             {search || category !== "All Categories"
               ? "Try adjusting your filters"
               : "Create a bundle to get started"}

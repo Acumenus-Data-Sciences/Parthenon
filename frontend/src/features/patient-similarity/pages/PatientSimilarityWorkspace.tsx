@@ -6,8 +6,6 @@ import {
   usePropensityMatch,
   useCohortProfile,
   useCohortSimilaritySearch,
-  useNetworkFusion,
-  usePhenotypeDiscovery,
 } from '../hooks/usePatientSimilarity';
 import { projectPatientLandscape } from '../api/patientSimilarityApi';
 import { useCohortDefinitions } from '@/features/cohort-definitions/hooks/useCohortDefinitions';
@@ -20,12 +18,8 @@ import { CovariateBalancePanel } from '../components/CovariateBalancePanel';
 import { PsmPanel } from '../components/PsmPanel';
 import { LandscapePanel } from '../components/LandscapePanel';
 import { HeadToHeadDrawer } from '../components/HeadToHeadDrawer';
-import { SimilarityModeToggle } from '../components/SimilarityModeToggle';
 import { CentroidProfilePanel } from '../components/CentroidProfilePanel';
 import { SimilarPatientsPanel } from '../components/SimilarPatientsPanel';
-import { PhenotypeDiscoveryPanel } from '../components/PhenotypeDiscoveryPanel';
-import { HelpButton } from '@/features/help';
-import { NetworkFusionPanel } from '../components/NetworkFusionPanel';
 import type {
   CohortComparisonResult,
   CohortProfileResult,
@@ -34,8 +28,6 @@ import type {
   PropensityMatchResult,
   LandscapeResult,
   LandscapeParams,
-  PhenotypeDiscoveryResult,
-  NetworkFusionResult,
 } from '../types/patientSimilarity';
 import type { PipelineMode } from '../types/pipeline';
 
@@ -55,8 +47,7 @@ function buildBalanceSummary(covariates: CovariateBalanceRow[]): string {
 export default function PatientSimilarityWorkspace() {
   const { activeSourceId, setActiveSource } = useSourceStore();
 
-  const [sourceIdOverride, setSourceIdOverride] = useState<number | null>(null);
-  const sourceId = sourceIdOverride ?? activeSourceId;
+  const [sourceId, setSourceId] = useState<number | null>(activeSourceId);
   const [targetCohortId, setTargetCohortId] = useState<number | null>(null);
   const [comparatorCohortId, setComparatorCohortId] = useState<number | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -68,7 +59,6 @@ export default function PatientSimilarityWorkspace() {
   const [ageMin, setAgeMin] = useState(0);
   const [ageMax, setAgeMax] = useState(150);
   const [gender, setGender] = useState('');
-  const [similarityMode, setSimilarityMode] = useState<'auto' | 'interpretable' | 'embedding'>('auto');
 
   const pipeline = usePipeline();
   const compareMutation = useCompareCohorts();
@@ -81,8 +71,6 @@ export default function PatientSimilarityWorkspace() {
   const landscapeMutation = useMutation({
     mutationFn: (params: LandscapeParams) => projectPatientLandscape(params),
   });
-  const phenotypeMutation = usePhenotypeDiscovery();
-  const snfMutation = useNetworkFusion();
 
   // Resolve centroid step when profile query completes (fixes race condition in expand mode)
   useEffect(() => {
@@ -116,7 +104,7 @@ export default function PatientSimilarityWorkspace() {
 
   const handleSourceChange = useCallback(
     (id: number) => {
-      setSourceIdOverride(id);
+      setSourceId(id);
       setActiveSource(id);
       setTargetCohortId(null);
       setComparatorCohortId(null);
@@ -320,48 +308,8 @@ export default function PatientSimilarityWorkspace() {
         );
         return;
       }
-
-      if (stepId === 'phenotypes' && sourceId && targetCohortId) {
-        pipeline.markLoading('phenotypes');
-        const start = Date.now();
-        phenotypeMutation.mutate(
-          { source_id: sourceId, cohort_definition_id: targetCohortId },
-          {
-            onSuccess: (data) => {
-              pipeline.markCompleted('phenotypes', {
-                data,
-                summary: `${data.quality.k_used} clusters · silhouette ${data.quality.silhouette_score.toFixed(3)}`,
-                executionTimeMs: Date.now() - start,
-                completedAt: new Date(),
-              });
-            },
-            onError: () => pipeline.markError('phenotypes'),
-          },
-        );
-        return;
-      }
-
-      if (stepId === 'snf' && sourceId && targetCohortId) {
-        pipeline.markLoading('snf');
-        const start = Date.now();
-        snfMutation.mutate(
-          { source_id: sourceId, cohort_definition_id: targetCohortId },
-          {
-            onSuccess: (data) => {
-              pipeline.markCompleted('snf', {
-                data,
-                summary: `${data.communities.length} communities · ${data.n_patients} patients · ${data.convergence.iterations} iterations`,
-                executionTimeMs: Date.now() - start,
-                completedAt: new Date(),
-              });
-            },
-            onError: () => pipeline.markError('snf'),
-          },
-        );
-        return;
-      }
     },
-    [sourceId, targetCohortId, comparatorCohortId, pipeline, psmMutation, landscapeMutation, phenotypeMutation, snfMutation],
+    [sourceId, targetCohortId, comparatorCohortId, pipeline, psmMutation, landscapeMutation],
   );
 
   // ── Step Content Renderer ─────────────────────────────────────────
@@ -391,7 +339,7 @@ export default function PatientSimilarityWorkspace() {
             <SimilarPatientsPanel
               result={searchResult}
               sourceId={sourceId ?? 0}
-              onContinue={() => handleRunStep('landscape')}
+              onContinue={() => pipeline.expandStep('landscape')}
             />
           );
         }
@@ -427,7 +375,7 @@ export default function PatientSimilarityWorkspace() {
             <PsmPanel
               result={psmData}
               onExportMatched={() => { /* TODO: export matched cohort */ }}
-              onContinue={() => handleRunStep('landscape')}
+              onContinue={() => pipeline.expandStep('landscape')}
             />
           );
         }
@@ -438,31 +386,14 @@ export default function PatientSimilarityWorkspace() {
           return (
             <LandscapePanel
               result={landscapeData}
-              onContinue={() => handleRunStep('phenotypes')}
+              onContinue={() => pipeline.expandStep('phenotypes')}
             />
           );
-        }
-
-        case 'phenotypes': {
-          const phenotypeData = result?.data as PhenotypeDiscoveryResult | undefined;
-          if (!phenotypeData) return null;
-          return (
-            <PhenotypeDiscoveryPanel
-              result={phenotypeData}
-              onContinue={pipeline.mode === 'compare' ? () => handleRunStep('snf') : undefined}
-            />
-          );
-        }
-
-        case 'snf': {
-          const snfData = result?.data as NetworkFusionResult | undefined;
-          if (!snfData) return null;
-          return <NetworkFusionPanel result={snfData} />;
         }
 
         default:
           return (
-            <div className="flex min-h-[120px] items-center justify-center text-sm text-text-ghost">
+            <div className="flex min-h-[120px] items-center justify-center text-sm text-[#5A5650]">
               This step will be available in a future update.
             </div>
           );
@@ -477,27 +408,7 @@ export default function PatientSimilarityWorkspace() {
   const steps = (pipeline as unknown as { steps: import('../types/pipeline').StepDefinition[] }).steps;
 
   return (
-    <div className="space-y-6">
-      {/* Page header */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <div>
-            <h1 className="page-title">Patient Similarity</h1>
-            <p className="page-subtitle">
-              Compare cohort profiles, find similar patients, and run propensity score matching across OMOP CDM sources
-            </p>
-          </div>
-          <HelpButton helpKey="patient-similarity" />
-        </div>
-        <div className="flex items-center gap-2">
-          <SimilarityModeToggle
-            mode={similarityMode}
-            onChange={setSimilarityMode}
-          />
-        </div>
-      </div>
-
-      {/* Toolbar */}
+    <div className="flex h-full flex-col overflow-hidden bg-[#0E0E11]">
       <CohortSelectorBar
         mode={pipeline.mode}
         sourceId={sourceId}
@@ -512,18 +423,18 @@ export default function PatientSimilarityWorkspace() {
         isRunning={compareMutation.isPending || cohortSimilarityMutation.isPending}
       />
 
-      {/* Analysis pipeline */}
-      <AnalysisPipeline
-        steps={steps}
-        expandedSteps={pipeline.expandedSteps}
-        getStepStatus={pipeline.getStepStatus}
-        getStepResult={pipeline.getStepResult}
-        onToggleStep={pipeline.toggleStep}
-        onRunStep={handleRunStep}
-        renderStepContent={renderStepContent}
-      />
+      <div className="flex-1 overflow-y-auto">
+        <AnalysisPipeline
+          steps={steps}
+          expandedSteps={pipeline.expandedSteps}
+          getStepStatus={pipeline.getStepStatus}
+          getStepResult={pipeline.getStepResult}
+          onToggleStep={pipeline.toggleStep}
+          onRunStep={handleRunStep}
+          renderStepContent={renderStepContent}
+        />
+      </div>
 
-      {/* Drawers */}
       <SettingsDrawer
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}

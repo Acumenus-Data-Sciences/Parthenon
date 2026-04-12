@@ -17,17 +17,17 @@ const VERDICT_CONFIG: Record<
   protective: {
     label: "Significant protective effect",
     icon: "\u2193", // ↓
-    colorClasses: "bg-success/15 text-success border-success/30",
+    colorClasses: "bg-[#2DD4BF]/15 text-[#2DD4BF] border-[#2DD4BF]/30",
   },
   harmful: {
     label: "Significant harmful effect",
     icon: "\u2191", // ↑
-    colorClasses: "bg-critical/15 text-critical border-critical/30",
+    colorClasses: "bg-[#E85A6B]/15 text-[#E85A6B] border-[#E85A6B]/30",
   },
   not_significant: {
     label: "Not statistically significant",
     icon: "\u2194", // ↔
-    colorClasses: "bg-text-muted/15 text-text-muted border-text-muted/30",
+    colorClasses: "bg-[#8A857D]/15 text-[#8A857D] border-[#8A857D]/30",
   },
 };
 

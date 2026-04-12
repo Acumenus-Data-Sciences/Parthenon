@@ -1,0 +1,233 @@
+{
+    "id": 189,
+    "name": "S9: T2DM — New Insulin Users, No Prior Metformin",
+    "description": "Patients with first insulin exposure and T2DM diagnosis within ±180 days. Excludes any prior metformin use (ever). Active comparator for the Metformin Repurposing study.",
+    "expression_json": {
+        "ConceptSets": [
+            {
+                "id": 0,
+                "name": "Insulin Ingredients",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1596977,
+                                "CONCEPT_NAME": "insulin, regular, human",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 46221581,
+                                "CONCEPT_NAME": "insulin isophane",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1550023,
+                                "CONCEPT_NAME": "insulin lispro",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1502905,
+                                "CONCEPT_NAME": "insulin glargine",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 35198096,
+                                "CONCEPT_NAME": "insulin aspart",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 1,
+                "name": "Type 2 Diabetes Mellitus",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 201826,
+                                "CONCEPT_NAME": "Type 2 diabetes mellitus",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 2,
+                "name": "Metformin",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1503297,
+                                "CONCEPT_NAME": "metformin",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            }
+        ],
+        "EndStrategy": {
+            "DateOffset": {
+                "Offset": 0,
+                "DateField": "ObservationPeriodEnd"
+            }
+        },
+        "InclusionRules": [
+            {
+                "name": "No prior metformin exposure (ever)",
+                "expression": {
+                    "Type": "ALL",
+                    "Groups": [],
+                    "CriteriaList": [
+                        {
+                            "Criteria": {
+                                "DrugExposure": {
+                                    "CodesetId": 2
+                                }
+                            },
+                            "Occurrence": {
+                                "Type": 0,
+                                "Count": 0
+                            },
+                            "StartWindow": {
+                                "End": {
+                                    "Days": 1,
+                                    "Coeff": -1
+                                },
+                                "Start": {
+                                    "Days": 99999,
+                                    "Coeff": -1
+                                }
+                            },
+                            "RestrictVisit": false,
+                            "IgnoreObservationPeriod": false
+                        }
+                    ]
+                },
+                "description": "Exclude patients with any metformin exposure at any time prior to index date."
+            }
+        ],
+        "QualifiedLimit": {
+            "Type": "First"
+        },
+        "ExpressionLimit": {
+            "Type": "First"
+        },
+        "PrimaryCriteria": {
+            "CriteriaList": [
+                {
+                    "DrugExposure": {
+                        "First": true,
+                        "CodesetId": 0
+                    }
+                }
+            ],
+            "ObservationWindow": {
+                "PostDays": 0,
+                "PriorDays": 365
+            }
+        },
+        "CollapseSettings": {
+            "EraPad": 0,
+            "CollapseType": "ERA"
+        },
+        "CensoringCriteria": [],
+        "AdditionalCriteria": {
+            "Type": "ALL",
+            "Groups": [],
+            "CriteriaList": [
+                {
+                    "Criteria": {
+                        "ConditionOccurrence": {
+                            "CodesetId": 1
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 1
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 180,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 180,
+                            "Coeff": -1
+                        }
+                    },
+                    "RestrictVisit": false,
+                    "IgnoreObservationPeriod": false
+                }
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-03-19T23:51:25.000000Z",
+    "updated_at": "2026-03-20T02:18:02.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "metformin",
+        "insulin",
+        "comparator",
+        "s9"
+    ],
+    "share_token": null,
+    "share_expires_at": null
+}

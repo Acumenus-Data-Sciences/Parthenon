@@ -50,21 +50,21 @@ function ClinicalSummaryNode({
 
   if (completed > 0) {
     parts.push(
-      <span key="complete" style={{ color: "var(--success)" }}>
+      <span key="complete" style={{ color: "#2DD4BF" }}>
         {completed} complete
       </span>,
     );
   }
   if (running > 0) {
     parts.push(
-      <span key="running" style={{ color: "var(--accent)" }}>
+      <span key="running" style={{ color: "#C9A227" }}>
         {running} running
       </span>,
     );
   }
   if (failed > 0) {
     parts.push(
-      <span key="failed" style={{ color: "var(--primary)" }}>
+      <span key="failed" style={{ color: "#9B1B30" }}>
         {failed} failed
       </span>,
     );
@@ -125,7 +125,7 @@ interface KpiMetricCardProps {
 
 function KpiMetricCard({ metric }: KpiMetricCardProps) {
   return (
-    <div className="bg-zinc-900/50 border border-zinc-800 rounded-lg px-3 py-2 flex flex-col items-center min-w-[72px]">
+    <div className="bg-surface-base/50 border border-border-default rounded-lg px-3 py-2 flex flex-col items-center min-w-[72px]">
       <span className="text-2xl font-bold text-zinc-100 leading-none">{metric.value}</span>
       <span className="text-[10px] uppercase tracking-wider text-zinc-500 mt-1 whitespace-nowrap">
         {metric.label}
@@ -166,7 +166,7 @@ export function ContextBar({ investigation }: ContextBarProps) {
   const allZero = kpiMetrics.every((m) => m.value === 0);
 
   return (
-    <div className="flex flex-col border-b border-zinc-800 bg-zinc-950">
+    <div className="flex flex-col border-b border-border-default bg-surface-darkest">
       {/* KPI summary row */}
       <div className="flex items-center gap-2 px-4 pt-3 pb-2">
         {allZero ? (

@@ -85,19 +85,19 @@ export function UploadDialog({ onClose, sourceId }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="bg-surface-raised border border-border-default rounded-xl shadow-2xl w-full max-w-lg mx-4">
+      <div className="bg-[#151518] border border-[#232328] rounded-xl shadow-2xl w-full max-w-lg mx-4">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border-default">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#232328]">
           <div className="flex items-center gap-2">
-            <div className="flex items-center justify-center w-7 h-7 rounded-md bg-[var(--domain-observation)]/12">
-              <Dna size={14} style={{ color: "var(--domain-observation)" }} />
+            <div className="flex items-center justify-center w-7 h-7 rounded-md bg-[#A78BFA]/12">
+              <Dna size={14} style={{ color: "#A78BFA" }} />
             </div>
-            <h2 className="text-sm font-semibold text-text-primary">Upload Variant File</h2>
+            <h2 className="text-sm font-semibold text-[#F0EDE8]">Upload Variant File</h2>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="text-text-ghost hover:text-text-muted transition-colors"
+            className="text-[#5A5650] hover:text-[#8A857D] transition-colors"
           >
             <X size={16} />
           </button>
@@ -107,11 +107,11 @@ export function UploadDialog({ onClose, sourceId }: Props) {
           {/* Source selector (when multiple sources exist) */}
           {!sourceId && sources && sources.length > 1 && (
             <div>
-              <label className="block text-xs text-text-muted mb-1.5">Data Source</label>
+              <label className="block text-xs text-[#8A857D] mb-1.5">Data Source</label>
               <select
                 value={resolvedSourceId ?? ""}
                 onChange={(e) => setSelectedSourceId(Number(e.target.value))}
-                className="w-full rounded-lg bg-surface-base border border-border-default px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-success transition-colors"
+                className="w-full rounded-lg bg-[#0E0E11] border border-[#232328] px-3 py-2 text-sm text-[#F0EDE8] focus:outline-none focus:border-[#2DD4BF] transition-colors"
               >
                 {sources.map((s) => (
                   <option key={s.id} value={s.id}>{s.source_name}</option>
@@ -128,8 +128,8 @@ export function UploadDialog({ onClose, sourceId }: Props) {
             onClick={() => fileRef.current?.click()}
             className={`relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed py-8 cursor-pointer transition-colors ${
               dragOver
-                ? "border-success bg-success/10"
-                : "border-border-default hover:border-surface-highlight bg-surface-base"
+                ? "border-[#2DD4BF] bg-[#2DD4BF]/10"
+                : "border-[#2A2A30] hover:border-[#3A3A42] bg-[#0E0E11]"
             }`}
           >
             <input
@@ -140,23 +140,23 @@ export function UploadDialog({ onClose, sourceId }: Props) {
               onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
             />
             {file ? (
-              <div className="flex items-center gap-2 text-success">
+              <div className="flex items-center gap-2 text-[#2DD4BF]">
                 <CheckCircle2 size={16} />
-                <span className="text-sm font-medium text-text-primary">{file.name}</span>
-                <span className="text-xs text-text-ghost">({(file.size / 1024).toFixed(0)} KB)</span>
+                <span className="text-sm font-medium text-[#F0EDE8]">{file.name}</span>
+                <span className="text-xs text-[#5A5650]">({(file.size / 1024).toFixed(0)} KB)</span>
               </div>
             ) : (
               <>
-                <Upload size={24} className="text-text-ghost mb-2" />
-                <p className="text-sm text-text-muted">Drop file here or click to browse</p>
-                <p className="text-xs text-text-ghost mt-1">.vcf, .maf, .json</p>
+                <Upload size={24} className="text-[#5A5650] mb-2" />
+                <p className="text-sm text-[#8A857D]">Drop file here or click to browse</p>
+                <p className="text-xs text-[#5A5650] mt-1">.vcf, .maf, .json</p>
               </>
             )}
           </div>
 
           {/* Format selector */}
           <div>
-            <label className="block text-xs text-text-muted mb-1.5">File Format</label>
+            <label className="block text-xs text-[#8A857D] mb-1.5">File Format</label>
             <div className="grid grid-cols-2 gap-2">
               {(Object.keys(FORMAT_INFO) as UploadableFileFormat[]).map((f) => (
                 <button
@@ -165,48 +165,48 @@ export function UploadDialog({ onClose, sourceId }: Props) {
                   onClick={() => setFormat(f)}
                   className={`text-left p-2.5 rounded-lg border text-xs transition-colors ${
                     format === f
-                      ? "border-success bg-success/10 text-success"
-                      : "border-border-default hover:border-border-default text-text-muted"
+                      ? "border-[#2DD4BF] bg-[#2DD4BF]/10 text-[#2DD4BF]"
+                      : "border-[#232328] hover:border-[#2A2A30] text-[#8A857D]"
                   }`}
                 >
-                  <div className={`font-medium ${format === f ? "text-text-primary" : "text-text-secondary"}`}>
+                  <div className={`font-medium ${format === f ? "text-[#F0EDE8]" : "text-[#C5C0B8]"}`}>
                     {FORMAT_INFO[f].label}
                   </div>
-                  <div className="text-text-ghost mt-0.5">{FORMAT_INFO[f].ext}</div>
+                  <div className="text-[#5A5650] mt-0.5">{FORMAT_INFO[f].ext}</div>
                 </button>
               ))}
             </div>
-            <p className="text-xs text-text-ghost mt-1.5">{FORMAT_INFO[format].desc}</p>
+            <p className="text-xs text-[#5A5650] mt-1.5">{FORMAT_INFO[format].desc}</p>
           </div>
 
           {/* Genome build + sample ID */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs text-text-muted mb-1.5">Genome Build</label>
+              <label className="block text-xs text-[#8A857D] mb-1.5">Genome Build</label>
               <select
                 value={build}
                 onChange={(e) => setBuild(e.target.value as GenomeBuild)}
-                className="w-full rounded-lg bg-surface-base border border-border-default px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-success transition-colors"
+                className="w-full rounded-lg bg-[#0E0E11] border border-[#232328] px-3 py-2 text-sm text-[#F0EDE8] focus:outline-none focus:border-[#2DD4BF] transition-colors"
               >
                 <option value="GRCh38">GRCh38 / hg38</option>
                 <option value="GRCh37">GRCh37 / hg19</option>
               </select>
             </div>
             <div>
-              <label className="block text-xs text-text-muted mb-1.5">Sample ID (optional)</label>
+              <label className="block text-xs text-[#8A857D] mb-1.5">Sample ID (optional)</label>
               <input
                 type="text"
                 value={sampleId}
                 onChange={(e) => setSampleId(e.target.value)}
                 placeholder="SAMPLE_001"
-                className="w-full rounded-lg bg-surface-base border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success transition-colors"
+                className="w-full rounded-lg bg-[#0E0E11] border border-[#232328] px-3 py-2 text-sm text-[#F0EDE8] placeholder:text-[#5A5650] focus:outline-none focus:border-[#2DD4BF] transition-colors"
               />
             </div>
           </div>
 
           {/* Error */}
           {upload.isError && (
-            <div className="flex items-center gap-2 rounded-lg border border-critical/30 bg-critical/10 p-3 text-critical text-xs">
+            <div className="flex items-center gap-2 rounded-lg border border-[#E85A6B]/30 bg-[#E85A6B]/10 p-3 text-[#E85A6B] text-xs">
               <AlertCircle size={14} />
               <span>Upload failed. Please check the file format and try again.</span>
             </div>
@@ -214,11 +214,11 @@ export function UploadDialog({ onClose, sourceId }: Props) {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 px-5 py-4 border-t border-border-default">
+        <div className="flex items-center justify-end gap-3 px-5 py-4 border-t border-[#232328]">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-sm text-text-ghost hover:text-text-muted transition-colors"
+            className="px-4 py-2 text-sm text-[#5A5650] hover:text-[#8A857D] transition-colors"
           >
             Cancel
           </button>
@@ -226,7 +226,7 @@ export function UploadDialog({ onClose, sourceId }: Props) {
             type="button"
             onClick={handleSubmit}
             disabled={!file || !resolvedSourceId || upload.isPending || sourcesLoading}
-            className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base hover:bg-success disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {upload.isPending ? (
               <>

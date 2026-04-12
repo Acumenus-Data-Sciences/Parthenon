@@ -60,18 +60,18 @@ import {
 // ---------------------------------------------------------------------------
 
 const STATUS_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
-  draft: { bg: "var(--surface-elevated)", text: "var(--text-muted)", dot: "var(--text-muted)" },
-  protocol_development: { bg: "color-mix(in srgb, var(--info) 8%, transparent)", text: "var(--info)", dot: "var(--info)" },
-  feasibility: { bg: "color-mix(in srgb, var(--domain-observation) 8%, transparent)", text: "var(--domain-observation)", dot: "var(--domain-observation)" },
+  draft: { bg: "#232328", text: "#8A857D", dot: "#8A857D" },
+  protocol_development: { bg: "#60A5FA15", text: "#60A5FA", dot: "#60A5FA" },
+  feasibility: { bg: "#A78BFA15", text: "#A78BFA", dot: "#A78BFA" },
   irb_review: { bg: "#F59E0B15", text: "#F59E0B", dot: "#F59E0B" },
-  recruitment: { bg: "color-mix(in srgb, var(--success) 8%, transparent)", text: "var(--success)", dot: "var(--success)" },
+  recruitment: { bg: "#2DD4BF15", text: "#2DD4BF", dot: "#2DD4BF" },
   execution: { bg: "#34D39915", text: "#34D399", dot: "#34D399" },
-  analysis: { bg: "color-mix(in srgb, var(--info) 8%, transparent)", text: "var(--info)", dot: "var(--info)" },
-  synthesis: { bg: "color-mix(in srgb, var(--domain-observation) 8%, transparent)", text: "var(--domain-observation)", dot: "var(--domain-observation)" },
+  analysis: { bg: "#60A5FA15", text: "#60A5FA", dot: "#60A5FA" },
+  synthesis: { bg: "#A78BFA15", text: "#A78BFA", dot: "#A78BFA" },
   manuscript: { bg: "#FB923C15", text: "#FB923C", dot: "#FB923C" },
-  published: { bg: "color-mix(in srgb, var(--success) 8%, transparent)", text: "var(--success)", dot: "var(--success)" },
-  archived: { bg: "color-mix(in srgb, var(--text-ghost) 8%, transparent)", text: "var(--text-ghost)", dot: "var(--text-ghost)" },
-  withdrawn: { bg: "color-mix(in srgb, var(--critical) 8%, transparent)", text: "var(--critical)", dot: "var(--critical)" },
+  published: { bg: "#2DD4BF15", text: "#2DD4BF", dot: "#2DD4BF" },
+  archived: { bg: "#5A565015", text: "#5A5650", dot: "#5A5650" },
+  withdrawn: { bg: "#E85A6B15", text: "#E85A6B", dot: "#E85A6B" },
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -210,7 +210,7 @@ export default function StudyDetailPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 size={24} className="animate-spin text-text-muted" />
+        <Loader2 size={24} className="animate-spin text-[#8A857D]" />
       </div>
     );
   }
@@ -219,7 +219,7 @@ export default function StudyDetailPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <p className="text-critical">Failed to load study</p>
+          <p className="text-[#E85A6B]">Failed to load study</p>
           <button type="button" onClick={() => navigate("/studies")} className="btn btn-ghost btn-sm mt-4">
             Back to studies
           </button>
@@ -255,11 +255,11 @@ export default function StudyDetailPage() {
                 </div>
               ) : (
                 <>
-                  <h1 className="text-xl font-semibold text-text-primary truncate">{study.title}</h1>
+                  <h1 className="text-xl font-semibold text-[#F0EDE8] truncate">{study.title}</h1>
                   <button
                     type="button"
                     onClick={() => { setTitleDraft(study.title); setEditingTitle(true); }}
-                    className="text-text-ghost hover:text-text-secondary shrink-0"
+                    className="text-[#5A5650] hover:text-[#C5C0B8] shrink-0"
                   >
                     <Edit3 size={14} />
                   </button>
@@ -270,7 +270,7 @@ export default function StudyDetailPage() {
             {/* Badges row */}
             <div className="flex items-center gap-2 mt-2 flex-wrap">
               {study.short_title && (
-                <span className="px-2 py-0.5 rounded-md bg-surface-elevated text-xs text-text-secondary font-medium">
+                <span className="px-2 py-0.5 rounded-md bg-[#232328] text-xs text-[#C5C0B8] font-medium">
                   {study.short_title}
                 </span>
               )}
@@ -289,8 +289,8 @@ export default function StudyDetailPage() {
                 </button>
 
                 {showTransitions && allowedTransitions.length > 0 && (
-                  <div className="absolute left-0 top-full mt-1 w-56 rounded-lg border border-border-default bg-surface-overlay shadow-xl z-50 py-1">
-                    <p className="px-3 py-1.5 text-[10px] text-text-ghost uppercase tracking-wider">Transition to</p>
+                  <div className="absolute left-0 top-full mt-1 w-56 rounded-lg border border-[#232328] bg-[#1C1C20] shadow-xl z-50 py-1">
+                    <p className="px-3 py-1.5 text-[10px] text-[#5A5650] uppercase tracking-wider">Transition to</p>
                     {allowedTransitions.map((t) => {
                       const ts = STATUS_COLORS[t] ?? STATUS_COLORS.draft;
                       return (
@@ -299,7 +299,7 @@ export default function StudyDetailPage() {
                           type="button"
                           onClick={() => handleTransition(t)}
                           disabled={transitionMutation.isPending}
-                          className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm hover:bg-surface-elevated transition-colors"
+                          className="w-full flex items-center gap-2 px-3 py-2 text-left text-sm hover:bg-[#232328] transition-colors"
                         >
                           <span className="w-2 h-2 rounded-full" style={{ backgroundColor: ts.dot }} />
                           <span style={{ color: ts.text }}>{STATUS_LABELS[t] ?? t}</span>
@@ -311,7 +311,7 @@ export default function StudyDetailPage() {
               </div>
 
               {study.study_type && (
-                <span className="px-2 py-0.5 rounded-md bg-success/10 text-xs text-success">
+                <span className="px-2 py-0.5 rounded-md bg-[#2DD4BF]/10 text-xs text-[#2DD4BF]">
                   {study.study_type.replace(/_/g, " ")}
                 </span>
               )}
@@ -319,9 +319,9 @@ export default function StudyDetailPage() {
               {study.priority && study.priority !== "medium" && (
                 <span className={cn(
                   "px-2 py-0.5 rounded-md text-xs",
-                  study.priority === "critical" && "bg-critical/10 text-critical",
-                  study.priority === "high" && "bg-warning/10 text-warning",
-                  study.priority === "low" && "bg-text-muted/10 text-text-muted",
+                  study.priority === "critical" && "bg-[#E85A6B]/10 text-[#E85A6B]",
+                  study.priority === "high" && "bg-[#F59E0B]/10 text-[#F59E0B]",
+                  study.priority === "low" && "bg-[#8A857D]/10 text-[#8A857D]",
                 )}>
                   {study.priority}
                 </span>
@@ -400,7 +400,7 @@ export default function StudyDetailPage() {
               <Icon size={14} />
               {tab.label}
               {count != null && (
-                <span className="ml-0.5 text-[10px] font-medium text-text-ghost">
+                <span className="ml-0.5 text-[10px] font-medium text-[#5A5650]">
                   ({count})
                 </span>
               )}
@@ -449,31 +449,31 @@ function StudyOverview({
       <div className="lg:col-span-2 space-y-5">
         {/* Description & Objectives */}
         <div className="panel">
-          <h3 className="text-sm font-semibold text-text-secondary mb-3">About</h3>
+          <h3 className="text-sm font-semibold text-[#C5C0B8] mb-3">About</h3>
           {study.description ? (
-            <p className="text-sm text-text-muted leading-relaxed">{study.description}</p>
+            <p className="text-sm text-[#8A857D] leading-relaxed">{study.description}</p>
           ) : (
-            <p className="text-sm text-text-ghost italic">No description provided</p>
+            <p className="text-sm text-[#5A5650] italic">No description provided</p>
           )}
           {study.primary_objective && (
-            <div className="mt-3 pt-3 border-t border-border-default">
-              <p className="text-xs text-text-ghost uppercase tracking-wider mb-1">Primary Objective</p>
-              <p className="text-sm text-text-secondary">{study.primary_objective}</p>
+            <div className="mt-3 pt-3 border-t border-[#232328]">
+              <p className="text-xs text-[#5A5650] uppercase tracking-wider mb-1">Primary Objective</p>
+              <p className="text-sm text-[#C5C0B8]">{study.primary_objective}</p>
             </div>
           )}
           {study.hypothesis && (
-            <div className="mt-3 pt-3 border-t border-border-default">
-              <p className="text-xs text-text-ghost uppercase tracking-wider mb-1">Hypothesis</p>
-              <p className="text-sm text-text-secondary">{study.hypothesis}</p>
+            <div className="mt-3 pt-3 border-t border-[#232328]">
+              <p className="text-xs text-[#5A5650] uppercase tracking-wider mb-1">Hypothesis</p>
+              <p className="text-sm text-[#C5C0B8]">{study.hypothesis}</p>
             </div>
           )}
           {study.secondary_objectives && study.secondary_objectives.length > 0 && (
-            <div className="mt-3 pt-3 border-t border-border-default">
-              <p className="text-xs text-text-ghost uppercase tracking-wider mb-1">Secondary Objectives</p>
+            <div className="mt-3 pt-3 border-t border-[#232328]">
+              <p className="text-xs text-[#5A5650] uppercase tracking-wider mb-1">Secondary Objectives</p>
               <ul className="space-y-1">
                 {study.secondary_objectives.map((o, i) => (
-                  <li key={i} className="text-sm text-text-muted flex gap-2">
-                    <span className="text-text-ghost">{i + 1}.</span> {o}
+                  <li key={i} className="text-sm text-[#8A857D] flex gap-2">
+                    <span className="text-[#5A5650]">{i + 1}.</span> {o}
                   </li>
                 ))}
               </ul>
@@ -484,30 +484,30 @@ function StudyOverview({
         {/* Analysis Pipeline Summary */}
         {analyses && analyses.length > 0 && (
           <div className="panel">
-            <h3 className="text-sm font-semibold text-text-secondary mb-3">
+            <h3 className="text-sm font-semibold text-[#C5C0B8] mb-3">
               Analysis Pipeline ({analyses.length})
             </h3>
             <div className="space-y-2">
               {analyses.slice(0, 5).map((entry) => (
                 <div
                   key={entry.id}
-                  className="flex items-center justify-between rounded-lg px-3 py-2 border border-border-default bg-surface-raised"
+                  className="flex items-center justify-between rounded-lg px-3 py-2 border border-[#232328] bg-[#151518]"
                 >
                   <div className="flex items-center gap-3">
                     <span className={cn(
                       "px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider",
-                      "bg-success/10 text-success",
+                      "bg-[#2DD4BF]/10 text-[#2DD4BF]",
                     )}>
                       {entry.analysis_type}
                     </span>
-                    <span className="text-sm text-text-secondary">
+                    <span className="text-sm text-[#C5C0B8]">
                       {entry.analysis?.name ?? `#${entry.analysis_id}`}
                     </span>
                   </div>
                 </div>
               ))}
               {analyses.length > 5 && (
-                <p className="text-xs text-text-ghost text-center">+{analyses.length - 5} more analyses</p>
+                <p className="text-xs text-[#5A5650] text-center">+{analyses.length - 5} more analyses</p>
               )}
             </div>
           </div>
@@ -516,21 +516,21 @@ function StudyOverview({
         {/* Progress Summary */}
         {progress && progress.total > 0 && (
           <div className="panel">
-            <h3 className="text-sm font-semibold text-text-secondary mb-3">Execution Progress</h3>
+            <h3 className="text-sm font-semibold text-[#C5C0B8] mb-3">Execution Progress</h3>
             <div className="progress-bar mb-2">
               <div className="flex h-full">
                 {progress.completed > 0 && (
-                  <div style={{ width: `${(progress.completed / progress.total) * 100}%`, background: 'var(--success)', transition: "width 300ms" }} />
+                  <div style={{ width: `${(progress.completed / progress.total) * 100}%`, background: "#34D399", transition: "width 300ms" }} />
                 )}
                 {progress.running > 0 && (
-                  <div style={{ width: `${(progress.running / progress.total) * 100}%`, background: 'var(--warning)', transition: "width 300ms" }} />
+                  <div style={{ width: `${(progress.running / progress.total) * 100}%`, background: "#F59E0B", transition: "width 300ms" }} />
                 )}
                 {progress.failed > 0 && (
-                  <div style={{ width: `${(progress.failed / progress.total) * 100}%`, background: "var(--critical)", transition: "width 300ms" }} />
+                  <div style={{ width: `${(progress.failed / progress.total) * 100}%`, background: "#E85A6B", transition: "width 300ms" }} />
                 )}
               </div>
             </div>
-            <div className="flex gap-4 text-xs text-text-muted">
+            <div className="flex gap-4 text-xs text-[#8A857D]">
               <span>{progress.completed} completed</span>
               <span>{progress.running} running</span>
               <span>{progress.failed} failed</span>
@@ -544,68 +544,68 @@ function StudyOverview({
       <div className="space-y-5">
         {/* Metadata */}
         <div className="panel">
-          <h3 className="text-sm font-semibold text-text-secondary mb-3">Details</h3>
+          <h3 className="text-sm font-semibold text-[#C5C0B8] mb-3">Details</h3>
           <dl className="space-y-2.5 text-sm">
             {study.principal_investigator && (
               <div className="flex items-start gap-2">
-                <User size={14} className="text-text-ghost shrink-0 mt-0.5" />
+                <User size={14} className="text-[#5A5650] shrink-0 mt-0.5" />
                 <div>
-                  <dt className="text-[10px] text-text-ghost uppercase tracking-wider">Principal Investigator</dt>
-                  <dd className="text-text-secondary">{study.principal_investigator.name}</dd>
+                  <dt className="text-[10px] text-[#5A5650] uppercase tracking-wider">Principal Investigator</dt>
+                  <dd className="text-[#C5C0B8]">{study.principal_investigator.name}</dd>
                 </div>
               </div>
             )}
             {study.lead_data_scientist && (
               <div className="flex items-start gap-2">
-                <User size={14} className="text-text-ghost shrink-0 mt-0.5" />
+                <User size={14} className="text-[#5A5650] shrink-0 mt-0.5" />
                 <div>
-                  <dt className="text-[10px] text-text-ghost uppercase tracking-wider">Lead Data Scientist</dt>
-                  <dd className="text-text-secondary">{study.lead_data_scientist.name}</dd>
+                  <dt className="text-[10px] text-[#5A5650] uppercase tracking-wider">Lead Data Scientist</dt>
+                  <dd className="text-[#C5C0B8]">{study.lead_data_scientist.name}</dd>
                 </div>
               </div>
             )}
             {study.study_design && (
               <div className="flex items-start gap-2">
-                <Settings size={14} className="text-text-ghost shrink-0 mt-0.5" />
+                <Settings size={14} className="text-[#5A5650] shrink-0 mt-0.5" />
                 <div>
-                  <dt className="text-[10px] text-text-ghost uppercase tracking-wider">Study Design</dt>
-                  <dd className="text-text-secondary capitalize">{study.study_design.replace(/_/g, " ")}</dd>
+                  <dt className="text-[10px] text-[#5A5650] uppercase tracking-wider">Study Design</dt>
+                  <dd className="text-[#C5C0B8] capitalize">{study.study_design.replace(/_/g, " ")}</dd>
                 </div>
               </div>
             )}
             {study.phase && (
               <div className="flex items-start gap-2">
-                <Milestone size={14} className="text-text-ghost shrink-0 mt-0.5" />
+                <Milestone size={14} className="text-[#5A5650] shrink-0 mt-0.5" />
                 <div>
-                  <dt className="text-[10px] text-text-ghost uppercase tracking-wider">Phase</dt>
-                  <dd className="text-text-secondary">{study.phase}</dd>
+                  <dt className="text-[10px] text-[#5A5650] uppercase tracking-wider">Phase</dt>
+                  <dd className="text-[#C5C0B8]">{study.phase}</dd>
                 </div>
               </div>
             )}
             {study.protocol_version && (
               <div className="flex items-start gap-2">
-                <FileText size={14} className="text-text-ghost shrink-0 mt-0.5" />
+                <FileText size={14} className="text-[#5A5650] shrink-0 mt-0.5" />
                 <div>
-                  <dt className="text-[10px] text-text-ghost uppercase tracking-wider">Protocol Version</dt>
-                  <dd className="text-text-secondary">{study.protocol_version}</dd>
+                  <dt className="text-[10px] text-[#5A5650] uppercase tracking-wider">Protocol Version</dt>
+                  <dd className="text-[#C5C0B8]">{study.protocol_version}</dd>
                 </div>
               </div>
             )}
             {study.funding_source && (
               <div className="flex items-start gap-2">
-                <ExternalLink size={14} className="text-text-ghost shrink-0 mt-0.5" />
+                <ExternalLink size={14} className="text-[#5A5650] shrink-0 mt-0.5" />
                 <div>
-                  <dt className="text-[10px] text-text-ghost uppercase tracking-wider">Funding</dt>
-                  <dd className="text-text-secondary">{study.funding_source}</dd>
+                  <dt className="text-[10px] text-[#5A5650] uppercase tracking-wider">Funding</dt>
+                  <dd className="text-[#C5C0B8]">{study.funding_source}</dd>
                 </div>
               </div>
             )}
             {study.clinicaltrials_gov_id && (
               <div className="flex items-start gap-2">
-                <ExternalLink size={14} className="text-text-ghost shrink-0 mt-0.5" />
+                <ExternalLink size={14} className="text-[#5A5650] shrink-0 mt-0.5" />
                 <div>
-                  <dt className="text-[10px] text-text-ghost uppercase tracking-wider">ClinicalTrials.gov</dt>
-                  <dd className="text-success">{study.clinicaltrials_gov_id}</dd>
+                  <dt className="text-[10px] text-[#5A5650] uppercase tracking-wider">ClinicalTrials.gov</dt>
+                  <dd className="text-[#2DD4BF]">{study.clinicaltrials_gov_id}</dd>
                 </div>
               </div>
             )}
@@ -614,33 +614,33 @@ function StudyOverview({
 
         {/* Timeline */}
         <div className="panel">
-          <h3 className="text-sm font-semibold text-text-secondary mb-3">Timeline</h3>
+          <h3 className="text-sm font-semibold text-[#C5C0B8] mb-3">Timeline</h3>
           <dl className="space-y-2.5 text-sm">
             {study.study_start_date && (
               <div className="flex items-center gap-2">
-                <Calendar size={14} className="text-text-ghost" />
-                <dt className="text-text-ghost">Start:</dt>
-                <dd className="text-text-secondary">{new Date(study.study_start_date).toLocaleDateString()}</dd>
+                <Calendar size={14} className="text-[#5A5650]" />
+                <dt className="text-[#5A5650]">Start:</dt>
+                <dd className="text-[#C5C0B8]">{new Date(study.study_start_date).toLocaleDateString()}</dd>
               </div>
             )}
             {study.study_end_date && (
               <div className="flex items-center gap-2">
-                <Calendar size={14} className="text-text-ghost" />
-                <dt className="text-text-ghost">End:</dt>
-                <dd className="text-text-secondary">{new Date(study.study_end_date).toLocaleDateString()}</dd>
+                <Calendar size={14} className="text-[#5A5650]" />
+                <dt className="text-[#5A5650]">End:</dt>
+                <dd className="text-[#C5C0B8]">{new Date(study.study_end_date).toLocaleDateString()}</dd>
               </div>
             )}
             {study.target_enrollment_sites != null && (
               <div className="flex items-center gap-2">
-                <MapPin size={14} className="text-text-ghost" />
-                <dt className="text-text-ghost">Target Sites:</dt>
-                <dd className="text-text-secondary">{study.actual_enrollment_sites} / {study.target_enrollment_sites}</dd>
+                <MapPin size={14} className="text-[#5A5650]" />
+                <dt className="text-[#5A5650]">Target Sites:</dt>
+                <dd className="text-[#C5C0B8]">{study.actual_enrollment_sites} / {study.target_enrollment_sites}</dd>
               </div>
             )}
             <div className="flex items-center gap-2">
-              <Calendar size={14} className="text-text-ghost" />
-              <dt className="text-text-ghost">Created:</dt>
-              <dd className="text-text-secondary">{new Date(study.created_at).toLocaleDateString()}</dd>
+              <Calendar size={14} className="text-[#5A5650]" />
+              <dt className="text-[#5A5650]">Created:</dt>
+              <dd className="text-[#C5C0B8]">{new Date(study.created_at).toLocaleDateString()}</dd>
             </div>
           </dl>
         </div>
@@ -648,10 +648,10 @@ function StudyOverview({
         {/* Tags */}
         {study.tags && study.tags.length > 0 && (
           <div className="panel">
-            <h3 className="text-sm font-semibold text-text-secondary mb-2">Tags</h3>
+            <h3 className="text-sm font-semibold text-[#C5C0B8] mb-2">Tags</h3>
             <div className="flex flex-wrap gap-1.5">
               {study.tags.map((tag) => (
-                <span key={tag} className="px-2 py-0.5 rounded-md bg-surface-elevated text-xs text-text-muted">
+                <span key={tag} className="px-2 py-0.5 rounded-md bg-[#232328] text-xs text-[#8A857D]">
                   {tag}
                 </span>
               ))}
@@ -662,14 +662,14 @@ function StudyOverview({
         {/* Author */}
         {study.author && (
           <div className="panel">
-            <h3 className="text-sm font-semibold text-text-secondary mb-2">Created By</h3>
+            <h3 className="text-sm font-semibold text-[#C5C0B8] mb-2">Created By</h3>
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-full bg-success/10 flex items-center justify-center text-xs font-medium text-success">
+              <div className="w-7 h-7 rounded-full bg-[#2DD4BF]/10 flex items-center justify-center text-xs font-medium text-[#2DD4BF]">
                 {study.author.name.charAt(0).toUpperCase()}
               </div>
               <div>
-                <p className="text-sm text-text-secondary">{study.author.name}</p>
-                <p className="text-[10px] text-text-ghost">{study.author.email}</p>
+                <p className="text-sm text-[#C5C0B8]">{study.author.name}</p>
+                <p className="text-[10px] text-[#5A5650]">{study.author.email}</p>
               </div>
             </div>
           </div>

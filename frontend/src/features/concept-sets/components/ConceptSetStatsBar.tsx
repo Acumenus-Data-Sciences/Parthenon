@@ -7,15 +7,15 @@ export function ConceptSetStatsBar({ onStatClick, activeKey }: { onStatClick?: (
   if (!stats) return null;
 
   const metrics = [
-    { label: "Total", key: "total", value: stats.total, icon: Layers, color: "var(--text-secondary)" },
+    { label: "Total", key: "total", value: stats.total, icon: Layers, color: "#C5C0B8" },
     {
       label: "With Items",
       key: "with_items",
       value: stats.with_items,
       icon: CheckCircle2,
-      color: "var(--success)",
+      color: "#2DD4BF",
     },
-    { label: "Public", key: "public", value: stats.public, icon: Globe, color: "var(--info)" },
+    { label: "Public", key: "public", value: stats.public, icon: Globe, color: "#60A5FA" },
   ];
 
   return (
@@ -23,7 +23,7 @@ export function ConceptSetStatsBar({ onStatClick, activeKey }: { onStatClick?: (
       {metrics.map((m) => (
         <div
           key={m.label}
-          className={`flex items-center gap-3 rounded-lg border px-4 py-3 transition-colors cursor-pointer ${activeKey === m.key ? "border-accent/50 bg-accent/5" : "border-border-default bg-surface-raised hover:border-surface-highlight"}`}
+          className={`flex items-center gap-3 rounded-lg border px-4 py-3 transition-colors cursor-pointer ${activeKey === m.key ? "border-[#C9A227]/50 bg-[#C9A227]/5" : "border-[#232328] bg-[#151518] hover:border-[#3A3A40]"}`}
           onClick={() => onStatClick?.(m.key)}
           role="button"
           tabIndex={0}
@@ -42,7 +42,7 @@ export function ConceptSetStatsBar({ onStatClick, activeKey }: { onStatClick?: (
             >
               {m.value}
             </p>
-            <p className="text-[10px] text-text-ghost uppercase tracking-wider">
+            <p className="text-[10px] text-[#5A5650] uppercase tracking-wider">
               {m.label}
             </p>
           </div>

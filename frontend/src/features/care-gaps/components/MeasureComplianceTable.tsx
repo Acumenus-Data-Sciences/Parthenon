@@ -7,9 +7,9 @@ interface MeasureComplianceTableProps {
 }
 
 const DOMAIN_COLORS: Record<string, string> = {
-  condition: "var(--critical)",
-  drug: "var(--success)",
-  procedure: "var(--accent)",
+  condition: "#E85A6B",
+  drug: "#2DD4BF",
+  procedure: "#C9A227",
   measurement: "#818CF8",
   observation: "#94A3B8",
 };
@@ -18,9 +18,9 @@ type SortKey = "measure_code" | "measure_name" | "eligible" | "compliance_pct";
 type SortDir = "asc" | "desc";
 
 function getComplianceColor(pct: number): string {
-  if (pct >= 80) return "var(--success)";
-  if (pct >= 50) return "var(--accent)";
-  return "var(--primary)";
+  if (pct >= 80) return "#2DD4BF";
+  if (pct >= 50) return "#C9A227";
+  return "#9B1B30";
 }
 
 export function MeasureComplianceTable({
@@ -53,8 +53,8 @@ export function MeasureComplianceTable({
 
   if (measures.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-12">
-        <p className="text-sm text-text-muted">
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-12">
+        <p className="text-sm text-[#8A857D]">
           No measure results available yet.
         </p>
       </div>
@@ -62,10 +62,10 @@ export function MeasureComplianceTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-border-default">
+    <div className="overflow-x-auto rounded-lg border border-[#232328]">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-border-default bg-surface-raised">
+          <tr className="border-b border-[#232328] bg-[#151518]">
             {(
               [
                 { key: "measure_code" as const, label: "Code" },
@@ -74,7 +74,7 @@ export function MeasureComplianceTable({
             ).map(({ key, label }) => (
               <th
                 key={key}
-                className="px-4 py-3 text-left text-xs font-semibold text-text-muted cursor-pointer select-none hover:text-text-secondary transition-colors"
+                className="px-4 py-3 text-left text-xs font-semibold text-[#8A857D] cursor-pointer select-none hover:text-[#C5C0B8] transition-colors"
                 onClick={() => toggleSort(key)}
               >
                 <span className="inline-flex items-center gap-1">
@@ -83,11 +83,11 @@ export function MeasureComplianceTable({
                 </span>
               </th>
             ))}
-            <th className="px-4 py-3 text-left text-xs font-semibold text-text-muted">
+            <th className="px-4 py-3 text-left text-xs font-semibold text-[#8A857D]">
               Domain
             </th>
             <th
-              className="px-4 py-3 text-right text-xs font-semibold text-text-muted cursor-pointer select-none hover:text-text-secondary transition-colors"
+              className="px-4 py-3 text-right text-xs font-semibold text-[#8A857D] cursor-pointer select-none hover:text-[#C5C0B8] transition-colors"
               onClick={() => toggleSort("eligible")}
             >
               <span className="inline-flex items-center gap-1 justify-end">
@@ -95,14 +95,14 @@ export function MeasureComplianceTable({
                 <ArrowUpDown size={10} />
               </span>
             </th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-text-muted">
+            <th className="px-4 py-3 text-right text-xs font-semibold text-[#8A857D]">
               Met
             </th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-text-muted">
+            <th className="px-4 py-3 text-right text-xs font-semibold text-[#8A857D]">
               Not Met
             </th>
             <th
-              className="px-4 py-3 text-right text-xs font-semibold text-text-muted cursor-pointer select-none hover:text-text-secondary transition-colors min-w-[180px]"
+              className="px-4 py-3 text-right text-xs font-semibold text-[#8A857D] cursor-pointer select-none hover:text-[#C5C0B8] transition-colors min-w-[180px]"
               onClick={() => toggleSort("compliance_pct")}
             >
               <span className="inline-flex items-center gap-1 justify-end">
@@ -123,22 +123,22 @@ export function MeasureComplianceTable({
             return (
               <tr
                 key={m.measure_code}
-                className="border-b border-border-default last:border-b-0 hover:bg-surface-overlay transition-colors"
+                className="border-b border-[#232328] last:border-b-0 hover:bg-[#1A1A1E] transition-colors"
               >
                 {/* Code */}
-                <td className="px-4 py-3 font-['IBM_Plex_Mono',monospace] text-xs text-text-secondary">
+                <td className="px-4 py-3 font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
                   {m.measure_code}
                 </td>
                 {/* Name */}
-                <td className="px-4 py-3 text-text-primary">
+                <td className="px-4 py-3 text-[#F0EDE8]">
                   <div className="flex items-center gap-2">
                     <span>{m.measure_name}</span>
                     {m.is_deduplicated && (
                       <span
                         className="inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-medium"
                         style={{
-                          backgroundColor: "var(--info-bg)",
-                          color: 'var(--domain-observation)',
+                          backgroundColor: "#8B5CF615",
+                          color: "#8B5CF6",
                         }}
                         title={
                           m.dedup_source
@@ -166,21 +166,21 @@ export function MeasureComplianceTable({
                   </span>
                 </td>
                 {/* Eligible */}
-                <td className="px-4 py-3 text-right font-['IBM_Plex_Mono',monospace] text-xs text-text-secondary">
+                <td className="px-4 py-3 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
                   {m.eligible.toLocaleString()}
                 </td>
                 {/* Met */}
-                <td className="px-4 py-3 text-right font-['IBM_Plex_Mono',monospace] text-xs text-success">
+                <td className="px-4 py-3 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#2DD4BF]">
                   {m.met.toLocaleString()}
                 </td>
                 {/* Not Met */}
-                <td className="px-4 py-3 text-right font-['IBM_Plex_Mono',monospace] text-xs text-critical">
+                <td className="px-4 py-3 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#E85A6B]">
                   {m.not_met.toLocaleString()}
                 </td>
                 {/* Compliance */}
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2 justify-end">
-                    <div className="w-24 h-2 rounded-full bg-surface-elevated overflow-hidden">
+                    <div className="w-24 h-2 rounded-full bg-[#232328] overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all duration-500"
                         style={{

@@ -33,9 +33,9 @@ function CustomTooltip({
   if (!active || !payload?.length) return null;
   const item = payload[0].payload;
   return (
-    <div className="max-w-xs rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 shadow-lg">
+    <div className="max-w-xs rounded-lg border border-border-default bg-surface-base px-3 py-2 shadow-lg">
       <p className="text-sm font-medium text-zinc-200">{item.label}</p>
-      <p className="mt-0.5 font-mono text-xs text-success">
+      <p className="mt-0.5 font-mono text-xs text-[#2DD4BF]">
         {item.count.toLocaleString()} occurrences
       </p>
     </div>
@@ -72,15 +72,15 @@ export function SignalsBarChart({
         <XAxis
           type="number"
           tickFormatter={formatCompact}
-          tick={{ fill: "var(--text-secondary)", fontSize: 10 }}
-          axisLine={{ stroke: "var(--text-ghost)" }}
-          tickLine={{ stroke: "var(--text-ghost)" }}
+          tick={{ fill: "#d4d4d8", fontSize: 10 }}
+          axisLine={{ stroke: "#52525b" }}
+          tickLine={{ stroke: "#52525b" }}
         />
         <YAxis
           type="category"
           dataKey="displayLabel"
           width={200}
-          tick={{ fill: "var(--text-secondary)", fontSize: 10 }}
+          tick={{ fill: "#d4d4d8", fontSize: 10 }}
           axisLine={false}
           tickLine={false}
         />
@@ -90,7 +90,7 @@ export function SignalsBarChart({
         />
         <Bar
           dataKey="count"
-          fill="var(--success)"
+          fill="#2DD4BF"
           radius={[0, 4, 4, 0]}
           maxBarSize={20}
           onClick={(_data, _idx, e) => {

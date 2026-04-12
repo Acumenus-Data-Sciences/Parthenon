@@ -194,30 +194,30 @@ export function ConnectionStep({ dialect, data, onChange }: Props) {
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="text-lg font-semibold text-text-primary">Connection Details</h2>
-        <p className="mt-1 text-sm text-text-muted">
+        <h2 className="text-lg font-semibold text-[#F0EDE8]">Connection Details</h2>
+        <p className="mt-1 text-sm text-[#8A857D]">
           Configure how Parthenon identifies and connects to this source.
         </p>
       </div>
 
       {/* Source Name */}
       <div className="space-y-1.5">
-        <label className="block text-sm font-medium text-text-secondary">
-          Source Name <span className="text-critical">*</span>
+        <label className="block text-sm font-medium text-[#C5C0B8]">
+          Source Name <span className="text-[#E85A6B]">*</span>
         </label>
         <input
           type="text"
           value={data.source_name}
           onChange={(e) => handleNameChange(e.target.value)}
           placeholder="e.g. Acumenus Production CDM"
-          className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary placeholder-text-ghost focus:border-accent focus:outline-none"
+          className="w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8] placeholder-[#5A5650] focus:border-[#C9A227] focus:outline-none"
         />
       </div>
 
       {/* Source Key */}
       <div className="space-y-1.5">
-        <label className="block text-sm font-medium text-text-secondary">
-          Source Key <span className="text-critical">*</span>
+        <label className="block text-sm font-medium text-[#C5C0B8]">
+          Source Key <span className="text-[#E85A6B]">*</span>
         </label>
         <input
           type="text"
@@ -227,9 +227,9 @@ export function ConnectionStep({ dialect, data, onChange }: Props) {
             onChange({ ...data, source_key: e.target.value.toUpperCase().replace(/[^A-Z0-9_-]/g, "") });
           }}
           placeholder="ACUMENUS_PROD"
-          className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 font-mono text-sm text-accent placeholder-text-ghost focus:border-accent focus:outline-none"
+          className="w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 font-mono text-sm text-[#C9A227] placeholder-[#5A5650] focus:border-[#C9A227] focus:outline-none"
         />
-        <p className="flex items-center gap-1 text-xs text-text-ghost">
+        <p className="flex items-center gap-1 text-xs text-[#5A5650]">
           <Info size={10} />
           Stable identifier — cannot be changed after creation.
         </p>
@@ -237,26 +237,26 @@ export function ConnectionStep({ dialect, data, onChange }: Props) {
 
       {/* Dialect-specific connection fields */}
       {fields.length > 0 && (
-        <div className="rounded-lg border border-border-default bg-surface-base p-4 space-y-3">
-          <p className="text-xs font-semibold uppercase tracking-wider text-text-ghost">
+        <div className="rounded-lg border border-[#232328] bg-[#0E0E11] p-4 space-y-3">
+          <p className="text-xs font-semibold uppercase tracking-wider text-[#5A5650]">
             {dialect.charAt(0).toUpperCase() + dialect.slice(1)} Connection
           </p>
           <div className="grid grid-cols-2 gap-3">
             {fields.map((f) => (
               <div key={f.key} className={`space-y-1 ${f.key === "db_host" || f.key.includes("path") || f.key.includes("hostname") ? "col-span-2" : ""}`}>
-                <label className="block text-xs font-medium text-text-secondary">
+                <label className="block text-xs font-medium text-[#C5C0B8]">
                   {f.label}
-                  {f.required && <span className="ml-0.5 text-critical">*</span>}
+                  {f.required && <span className="ml-0.5 text-[#E85A6B]">*</span>}
                 </label>
                 <input
                   type={f.type ?? "text"}
                   value={getFieldValue(f)}
                   onChange={(e) => setFieldValue(f, e.target.value)}
                   placeholder={f.placeholder}
-                  className={`w-full rounded-md border border-border-default bg-surface-raised px-3 py-1.5 text-sm text-text-primary placeholder-text-ghost focus:border-accent focus:outline-none ${f.mono ? "font-mono" : ""}`}
+                  className={`w-full rounded-md border border-[#232328] bg-[#151518] px-3 py-1.5 text-sm text-[#F0EDE8] placeholder-[#5A5650] focus:border-[#C9A227] focus:outline-none ${f.mono ? "font-mono" : ""}`}
                 />
                 {f.helper && (
-                  <p className="flex items-start gap-1 text-[10px] text-text-ghost leading-tight">
+                  <p className="flex items-start gap-1 text-[10px] text-[#5A5650] leading-tight">
                     <Info size={9} className="mt-0.5 shrink-0" />
                     {f.helper}
                   </p>
@@ -271,13 +271,13 @@ export function ConnectionStep({ dialect, data, onChange }: Props) {
               type="button"
               onClick={runTest}
               disabled={testing || !canTest}
-              className="flex items-center gap-1.5 rounded-md border border-surface-highlight px-3 py-1.5 text-xs font-medium text-text-secondary hover:border-accent hover:text-accent disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center gap-1.5 rounded-md border border-[#323238] px-3 py-1.5 text-xs font-medium text-[#C5C0B8] hover:border-[#C9A227] hover:text-[#C9A227] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               {testing && <Loader2 size={11} className="animate-spin" />}
               Test Connection
             </button>
             {testResult && (
-              <div className={`flex items-center gap-1.5 text-xs ${testResult.success ? "text-success" : "text-critical"}`}>
+              <div className={`flex items-center gap-1.5 text-xs ${testResult.success ? "text-[#4ADE80]" : "text-[#E85A6B]"}`}>
                 {testResult.success
                   ? <CheckCircle2 size={12} />
                   : <XCircle size={12} />}
@@ -295,27 +295,27 @@ export function ConnectionStep({ dialect, data, onChange }: Props) {
       {/* Legacy named connection — only shown when no db_host-based approach */}
       {fields.length === 0 && (
         <div className="space-y-1.5">
-          <label className="block text-sm font-medium text-text-secondary">Laravel Connection Name</label>
+          <label className="block text-sm font-medium text-[#C5C0B8]">Laravel Connection Name</label>
           <input
             type="text"
             value={data.source_connection}
             onChange={(e) => onChange({ ...data, source_connection: e.target.value })}
             placeholder="cdm"
-            className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 font-mono text-sm text-text-primary placeholder-text-ghost focus:border-accent focus:outline-none"
+            className="w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 font-mono text-sm text-[#F0EDE8] placeholder-[#5A5650] focus:border-[#C9A227] focus:outline-none"
           />
         </div>
       )}
 
       {/* Cache toggle */}
-      <div className="flex items-center justify-between rounded-lg border border-border-default bg-surface-base px-4 py-3">
+      <div className="flex items-center justify-between rounded-lg border border-[#232328] bg-[#0E0E11] px-4 py-3">
         <div>
-          <p className="text-sm font-medium text-text-secondary">Enable Query Cache</p>
-          <p className="text-xs text-text-ghost">Cache Achilles results for faster dashboard loads</p>
+          <p className="text-sm font-medium text-[#C5C0B8]">Enable Query Cache</p>
+          <p className="text-xs text-[#5A5650]">Cache Achilles results for faster dashboard loads</p>
         </div>
         <button
           type="button"
           onClick={() => onChange({ ...data, is_cache_enabled: !data.is_cache_enabled })}
-          className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 transition-colors duration-200 ${data.is_cache_enabled ? "border-accent bg-accent" : "border-surface-highlight bg-surface-highlight"}`}
+          className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 transition-colors duration-200 ${data.is_cache_enabled ? "border-[#C9A227] bg-[#C9A227]" : "border-[#323238] bg-[#323238]"}`}
         >
           <span className={`pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform duration-200 ${data.is_cache_enabled ? "translate-x-4" : "translate-x-0"}`} />
         </button>

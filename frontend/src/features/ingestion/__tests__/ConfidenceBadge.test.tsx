@@ -49,8 +49,8 @@ describe("ConfidenceBadge", () => {
   it("applies teal color class for high confidence", () => {
     const { container } = render(<ConfidenceBadge score={0.98} />);
     const badge = container.firstElementChild as HTMLElement;
-    expect(badge.className).toContain("text-success");
-    expect(badge.className).toContain("bg-success/20");
+    expect(badge.className).toContain("text-[#2DD4BF]");
+    expect(badge.className).toContain("bg-[#2DD4BF]/20");
   });
 
   it("applies gold color class for medium confidence", () => {
@@ -63,7 +63,7 @@ describe("ConfidenceBadge", () => {
   it("applies red color class for low confidence", () => {
     const { container } = render(<ConfidenceBadge score={0.3} />);
     const badge = container.firstElementChild as HTMLElement;
-    expect(badge.className).toContain("text-critical");
-    expect(badge.className).toContain("bg-critical/20");
+    expect(badge.className).toContain("text-[#E85A6B]");
+    expect(badge.className).toContain("bg-[#E85A6B]/20");
   });
 });

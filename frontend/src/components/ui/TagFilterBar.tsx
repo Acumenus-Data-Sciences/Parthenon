@@ -19,15 +19,15 @@ interface TagFilterBarProps {
 const COLOR_MAP = {
   teal: {
     activePill:
-      "bg-success/15 text-success border border-success/30",
+      "bg-[#2DD4BF]/15 text-[#2DD4BF] border border-[#2DD4BF]/30",
     inactivePill:
-      "bg-surface-overlay text-text-muted border border-border-default hover:border-surface-highlight",
+      "bg-[#1A1A1F] text-[#8A857D] border border-[#2A2A30] hover:border-[#3A3A42]",
   },
   gold: {
     activePill:
-      "bg-accent/20 text-accent ring-1 ring-accent/40",
+      "bg-[#C9A227]/20 text-[#C9A227] ring-1 ring-[#C9A227]/40",
     inactivePill:
-      "bg-surface-overlay text-text-muted hover:text-text-secondary hover:bg-surface-elevated",
+      "bg-[#1C1C20] text-[#8A857D] hover:text-[#C5C0B8] hover:bg-[#232328]",
   },
 };
 
@@ -58,7 +58,7 @@ export default function TagFilterBar({
   return (
     <>
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs text-text-ghost">Filter by tag:</span>
+        <span className="text-xs text-[#5A5650]">Filter by tag:</span>
 
         {displayTags.map((tag) => {
           const active = activeTags.includes(tag);
@@ -86,7 +86,7 @@ export default function TagFilterBar({
           <button
             type="button"
             onClick={() => setModalOpen(true)}
-            className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium bg-surface-elevated text-text-muted hover:text-text-primary hover:bg-surface-accent transition-colors"
+            className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium bg-[#232328] text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#2A2A30] transition-colors"
           >
             <Search size={10} />
             {adjustedHiddenCount} more
@@ -98,7 +98,7 @@ export default function TagFilterBar({
           <button
             type="button"
             onClick={() => setModalOpen(true)}
-            className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium text-text-ghost hover:text-text-muted transition-colors"
+            className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium text-[#5A5650] hover:text-[#8A857D] transition-colors"
           >
             <Search size={10} />
             Search
@@ -109,7 +109,7 @@ export default function TagFilterBar({
           <button
             type="button"
             onClick={onClear}
-            className="text-xs text-text-ghost hover:text-text-muted transition-colors"
+            className="text-xs text-[#5A5650] hover:text-[#8A857D] transition-colors"
           >
             Clear all
           </button>

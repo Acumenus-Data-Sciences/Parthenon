@@ -21,7 +21,7 @@ describe("ChartMetricCard", () => {
 
   it("does not render subtitle when not provided", () => {
     const { container } = render(<ChartMetricCard label="HR" value="1.2" />);
-    const subtitleElements = container.querySelectorAll(".text-text-ghost");
+    const subtitleElements = container.querySelectorAll(".text-\\[\\#5A5650\\]");
     expect(subtitleElements.length).toBe(0);
   });
 

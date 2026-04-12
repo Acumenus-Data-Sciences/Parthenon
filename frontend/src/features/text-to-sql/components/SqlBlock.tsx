@@ -26,8 +26,8 @@ export function SqlBlock({ sql, safety, libraryEntry, libraryParams, dialect }: 
       <div className="relative">
         <div
           style={{
-            background: "var(--surface-darkest)",
-            border: "1px solid var(--surface-elevated)",
+            background: "#0A0A0D",
+            border: "1px solid #232328",
             borderRadius: "8px",
             overflow: "hidden",
           }}
@@ -38,14 +38,14 @@ export function SqlBlock({ sql, safety, libraryEntry, libraryParams, dialect }: 
               alignItems: "center",
               justifyContent: "space-between",
               padding: "8px 14px",
-              borderBottom: "1px solid var(--surface-elevated)",
-              background: "var(--surface-base)",
+              borderBottom: "1px solid #232328",
+              background: "#111115",
             }}
           >
             <span
               style={{
                 fontSize: "11px",
-                color: "var(--text-muted)",
+                color: "#8A857D",
                 fontFamily:
                   "var(--font-mono, 'IBM Plex Mono', monospace)",
                 letterSpacing: "0.5px",
@@ -63,9 +63,9 @@ export function SqlBlock({ sql, safety, libraryEntry, libraryParams, dialect }: 
                   gap: "5px",
                   padding: "3px 10px",
                   borderRadius: "5px",
-                  border: "1px solid var(--success)30",
-                  background: "color-mix(in srgb, var(--success) 4%, transparent)",
-                  color: sql ? "var(--success)" : "#555",
+                  border: "1px solid #2DD4BF30",
+                  background: "#2DD4BF0A",
+                  color: sql ? "#2DD4BF" : "#555",
                   fontSize: "12px",
                   cursor: sql ? "pointer" : "not-allowed",
                   transition: "all 150ms",
@@ -73,13 +73,13 @@ export function SqlBlock({ sql, safety, libraryEntry, libraryParams, dialect }: 
                 }}
                 onMouseEnter={(e) => {
                   if (sql) {
-                    e.currentTarget.style.background = "color-mix(in srgb, var(--success) 9%, transparent)";
-                    e.currentTarget.style.borderColor = "color-mix(in srgb, var(--success) 38%, transparent)";
+                    e.currentTarget.style.background = "#2DD4BF18";
+                    e.currentTarget.style.borderColor = "#2DD4BF60";
                   }
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "color-mix(in srgb, var(--success) 4%, transparent)";
-                  e.currentTarget.style.borderColor = "color-mix(in srgb, var(--success) 19%, transparent)";
+                  e.currentTarget.style.background = "#2DD4BF0A";
+                  e.currentTarget.style.borderColor = "#2DD4BF30";
                 }}
               >
                 <Play size={11} />
@@ -93,9 +93,9 @@ export function SqlBlock({ sql, safety, libraryEntry, libraryParams, dialect }: 
                   gap: "5px",
                   padding: "3px 10px",
                   borderRadius: "5px",
-                  border: "1px solid var(--surface-elevated)",
-                  background: copied ? "color-mix(in srgb, var(--success) 6%, transparent)" : "var(--surface-overlay)",
-                  color: copied ? "var(--success)" : "var(--text-muted)",
+                  border: "1px solid #232328",
+                  background: copied ? "#2DD4BF10" : "#1C1C20",
+                  color: copied ? "#2DD4BF" : "#8A857D",
                   fontSize: "12px",
                   cursor: "pointer",
                   transition: "all 150ms",
@@ -115,7 +115,7 @@ export function SqlBlock({ sql, safety, libraryEntry, libraryParams, dialect }: 
                 "'IBM Plex Mono', 'Fira Code', 'Cascadia Code', monospace",
               fontSize: "13px",
               lineHeight: "1.65",
-              color: "var(--text-secondary)",
+              color: "#C5C0B8",
               overflowX: "auto",
               whiteSpace: "pre-wrap",
               wordBreak: "break-word",

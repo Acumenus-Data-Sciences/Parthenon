@@ -10,19 +10,19 @@ const sviLayer: GisLayer = {
   id: "svi",
   name: "Social Vulnerability",
   description: "CDC/ATSDR SVI by census tract",
-  color: "var(--critical)",
+  color: "#E85A6B",
   icon: Shield,
   mapOverlay: SviMapOverlay as unknown as GisLayer["mapOverlay"],
   legendItems: [
-    { label: "Low vulnerability", color: "color-mix(in srgb, var(--critical) 18%, transparent)", type: "gradient" },
-    { label: "High vulnerability", color: "var(--critical)", type: "gradient" },
+    { label: "Low vulnerability", color: "#E85A6B30", type: "gradient" },
+    { label: "High vulnerability", color: "#E85A6B", type: "gradient" },
   ],
   getTooltipData: (feature): TooltipEntry[] => [
     {
       layerId: "svi",
       label: "SVI",
       value: feature.value !== undefined ? `${(Number(feature.value) * 100).toFixed(0)}%` : "—",
-      color: "var(--critical)",
+      color: "#E85A6B",
     },
   ],
   analysisPanel: SviAnalysisPanel,

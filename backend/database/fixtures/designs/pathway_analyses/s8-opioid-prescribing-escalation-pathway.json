@@ -1,0 +1,17 @@
+{
+    "id": 306,
+    "name": "S8: Opioid — Prescribing Escalation Pathway",
+    "description": "Treatment pathway tracing opioid initiation through escalating adverse events including drug misuse, dependence, medication-assisted treatment, naloxone administration, and death in the Opioid Trajectory study.",
+    "design_json": {
+        "targetCohortId": "s8-c1",
+        "eventCohortIds": ["s8-c3", "s8-c4", "s8-c6", "s8-c7", "s8-c5"],
+        "maxDepth": 5,
+        "combinationWindow": 30,
+        "maxPathLength": 6,
+        "minCellCount": 5
+    },
+    "author_id": 117,
+    "created_at": "2026-03-19T21:00:00.000000Z",
+    "updated_at": "2026-03-19T21:00:00.000000Z",
+    "deleted_at": null
+}

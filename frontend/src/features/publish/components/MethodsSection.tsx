@@ -33,45 +33,45 @@ export function MethodsSection({ section }: MethodsSectionProps) {
   return (
     <div data-testid="methods-section" className="space-y-4">
       <div>
-        <h4 className="text-sm font-semibold text-text-primary mb-1">
+        <h4 className="text-sm font-semibold text-[#F0EDE8] mb-1">
           Study Design
         </h4>
-        <p className="text-sm text-text-primary/70">{designType}</p>
+        <p className="text-sm text-[#F0EDE8]/70">{designType}</p>
       </div>
 
       {objective && (
         <div>
-          <h4 className="text-sm font-semibold text-text-primary mb-1">
+          <h4 className="text-sm font-semibold text-[#F0EDE8] mb-1">
             Primary Objective
           </h4>
-          <p className="text-sm text-text-primary/70">{objective}</p>
+          <p className="text-sm text-[#F0EDE8]/70">{objective}</p>
         </div>
       )}
 
       {hypothesis && (
         <div>
-          <h4 className="text-sm font-semibold text-text-primary mb-1">
+          <h4 className="text-sm font-semibold text-[#F0EDE8] mb-1">
             Hypothesis
           </h4>
-          <p className="text-sm text-text-primary/70">{hypothesis}</p>
+          <p className="text-sm text-[#F0EDE8]/70">{hypothesis}</p>
         </div>
       )}
 
       {rationale && (
         <div>
-          <h4 className="text-sm font-semibold text-text-primary mb-1">
+          <h4 className="text-sm font-semibold text-[#F0EDE8] mb-1">
             Scientific Rationale
           </h4>
-          <p className="text-sm text-text-primary/70">{rationale}</p>
+          <p className="text-sm text-[#F0EDE8]/70">{rationale}</p>
         </div>
       )}
 
       {(targetCohort || comparatorCohort || outcomeCohort) && (
         <div>
-          <h4 className="text-sm font-semibold text-text-primary mb-1">
+          <h4 className="text-sm font-semibold text-[#F0EDE8] mb-1">
             Cohort Definitions
           </h4>
-          <ul className="text-sm text-text-primary/70 list-disc list-inside space-y-1">
+          <ul className="text-sm text-[#F0EDE8]/70 list-disc list-inside space-y-1">
             {targetCohort && <li>Target: {targetCohort}</li>}
             {comparatorCohort && <li>Comparator: {comparatorCohort}</li>}
             {outcomeCohort && <li>Outcome: {outcomeCohort}</li>}
@@ -81,10 +81,10 @@ export function MethodsSection({ section }: MethodsSectionProps) {
 
       {timeAtRisk && (
         <div>
-          <h4 className="text-sm font-semibold text-text-primary mb-1">
+          <h4 className="text-sm font-semibold text-[#F0EDE8] mb-1">
             Time-at-Risk
           </h4>
-          <p className="text-sm text-text-primary/70">
+          <p className="text-sm text-[#F0EDE8]/70">
             Start: {String(timeAtRisk.start ?? "cohort start")}, End:{" "}
             {String(timeAtRisk.end ?? "cohort end")}
           </p>
@@ -93,24 +93,24 @@ export function MethodsSection({ section }: MethodsSectionProps) {
 
       {matchingStrategy && (
         <div>
-          <h4 className="text-sm font-semibold text-text-primary mb-1">
+          <h4 className="text-sm font-semibold text-[#F0EDE8] mb-1">
             Matching Strategy
           </h4>
-          <p className="text-sm text-text-primary/70">{matchingStrategy}</p>
+          <p className="text-sm text-[#F0EDE8]/70">{matchingStrategy}</p>
         </div>
       )}
 
       {modelType && (
         <div>
-          <h4 className="text-sm font-semibold text-text-primary mb-1">
+          <h4 className="text-sm font-semibold text-[#F0EDE8] mb-1">
             Model Settings
           </h4>
-          <p className="text-sm text-text-primary/70">{modelType}</p>
+          <p className="text-sm text-[#F0EDE8]/70">{modelType}</p>
         </div>
       )}
 
       {!content && (
-        <p className="text-sm text-text-primary/50 italic">
+        <p className="text-sm text-[#F0EDE8]/50 italic">
           No methods data available. Methods will be auto-generated when
           analysis parameters are provided.
         </p>

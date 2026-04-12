@@ -30,13 +30,13 @@ export function SectionEditor({
   const pinCount = pins.length;
 
   return (
-    <div className="bg-zinc-900/30 border border-zinc-800 rounded-xl p-4">
+    <div className="bg-surface-base/30 border border-border-default rounded-xl p-4">
       {/* Section header */}
       <div className="flex items-center justify-between mb-3">
         <span className="text-sm font-semibold text-zinc-200">{sectionLabel}</span>
         <span
           className={`inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full text-xs font-medium ${
-            pinCount > 0 ? "bg-teal-900 text-teal-300" : "bg-zinc-700 text-zinc-400"
+            pinCount > 0 ? "bg-teal-900 text-teal-300" : "bg-surface-accent text-zinc-400"
           }`}
         >
           {pinCount}

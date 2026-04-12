@@ -21,7 +21,7 @@ export function RiskScoreAnalysisCard({
 }: RiskScoreAnalysisCardProps) {
   const latestExecution = analysis.executions?.[0];
   const status = latestExecution?.status ?? "draft";
-  const statusColor = ANALYSIS_STATUS_COLORS[status] ?? "var(--text-muted)";
+  const statusColor = ANALYSIS_STATUS_COLORS[status] ?? "#8A857D";
 
   const scoreCount = analysis.design_json.scoreIds.length;
   const cohortCount = analysis.design_json.targetCohortIds.length;
@@ -30,20 +30,20 @@ export function RiskScoreAnalysisCard({
     <button
       type="button"
       onClick={onClick}
-      className="flex flex-col text-left rounded-lg border border-border-default bg-surface-raised p-5 hover:border-success/30 hover:bg-surface-overlay transition-all group"
+      className="flex flex-col text-left rounded-lg border border-[#232328] bg-[#151518] p-5 hover:border-[#2DD4BF]/30 hover:bg-[#1C1C20] transition-all group"
     >
       {/* Name */}
-      <h3 className="text-sm font-semibold text-text-primary leading-snug line-clamp-2 mb-2 group-hover:text-success transition-colors">
+      <h3 className="text-sm font-semibold text-[#F0EDE8] leading-snug line-clamp-2 mb-2 group-hover:text-[#2DD4BF] transition-colors">
         {analysis.name}
       </h3>
 
       {/* Description */}
       {analysis.description ? (
-        <p className="text-xs text-text-muted line-clamp-2 mb-3">
+        <p className="text-xs text-[#8A857D] line-clamp-2 mb-3">
           {analysis.description}
         </p>
       ) : (
-        <p className="text-xs text-text-ghost italic line-clamp-2 mb-3 flex items-center gap-1">
+        <p className="text-xs text-[#5A5650] italic line-clamp-2 mb-3 flex items-center gap-1">
           <Activity className="w-3 h-3" />
           No description
         </p>
@@ -51,10 +51,10 @@ export function RiskScoreAnalysisCard({
 
       {/* Score count + Cohort count badges */}
       <div className="flex flex-wrap items-center gap-1.5 mb-3">
-        <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-success/10 text-success">
+        <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#2DD4BF]/10 text-[#2DD4BF]">
           {scoreCount} {scoreCount === 1 ? "score" : "scores"}
         </span>
-        <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-info/10 text-info">
+        <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#60A5FA]/10 text-[#60A5FA]">
           {cohortCount} {cohortCount === 1 ? "cohort" : "cohorts"}
         </span>
       </div>
@@ -77,15 +77,15 @@ export function RiskScoreAnalysisCard({
       </div>
 
       {/* Footer: Author + Date */}
-      <div className="flex items-center justify-between mt-auto pt-3 border-t border-border-default">
+      <div className="flex items-center justify-between mt-auto pt-3 border-t border-[#232328]">
         <div className="flex items-center gap-1.5">
           {analysis.author ? (
-            <span className="text-[11px] text-text-muted">
+            <span className="text-[11px] text-[#8A857D]">
               {analysis.author.name}
             </span>
           ) : null}
         </div>
-        <span className="text-[11px] text-text-ghost">
+        <span className="text-[11px] text-[#5A5650]">
           {formatDate(analysis.created_at)}
         </span>
       </div>

@@ -89,11 +89,11 @@ export function ExecutionTracker({
   // ── Queued / Pending ──────────────────────────────────────────────────────
   if (status === "queued" || status === "pending") {
     return (
-      <div className="flex items-center gap-3 rounded-lg border border-zinc-800 bg-zinc-900/60 px-4 py-3">
+      <div className="flex items-center gap-3 rounded-lg border border-border-default bg-surface-base/60 px-4 py-3">
         {/* Pulsing dot */}
         <span className="relative flex h-2.5 w-2.5">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-zinc-500 opacity-60" />
-          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-zinc-500" />
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-surface-overlay opacity-60" />
+          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-surface-overlay" />
         </span>
         <span className="text-sm text-zinc-400">Waiting in queue...</span>
       </div>
@@ -103,7 +103,7 @@ export function ExecutionTracker({
   // ── Running ───────────────────────────────────────────────────────────────
   if (status === "running") {
     return (
-      <div className="flex items-center gap-4 rounded-lg border border-zinc-800 bg-zinc-900/60 px-4 py-3">
+      <div className="flex items-center gap-4 rounded-lg border border-border-default bg-surface-base/60 px-4 py-3">
         {/* Animated icon */}
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal-500/10">
           <Icon className="h-4 w-4 animate-pulse text-teal-400" />
@@ -149,7 +149,7 @@ export function ExecutionTracker({
     return (
       <div className="flex flex-col gap-3">
         {/* Header bar */}
-        <div className="flex items-center gap-2 rounded-t-lg border border-zinc-800 bg-zinc-900/60 px-4 py-2">
+        <div className="flex items-center gap-2 rounded-t-lg border border-border-default bg-surface-base/60 px-4 py-2">
           <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-teal-500/10">
             <Icon className="h-3 w-3 text-teal-400" />
           </div>
@@ -176,10 +176,10 @@ export function ExecutionTracker({
       "Analysis failed. Check logs for details.";
 
     return (
-      <div className="flex items-start gap-3 rounded-lg border border-primary/50 bg-primary/10 px-4 py-3">
-        <LucideIcons.AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+      <div className="flex items-start gap-3 rounded-lg border border-[#9B1B30]/50 bg-[#9B1B30]/10 px-4 py-3">
+        <LucideIcons.AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#9B1B30]" />
         <div className="flex flex-col gap-1">
-          <span className="text-sm font-medium text-primary">
+          <span className="text-sm font-medium text-[#9B1B30]">
             {status === "cancelled" ? "Analysis cancelled" : "Analysis failed"}
           </span>
           <span className="text-xs text-zinc-400">{failMessage}</span>
@@ -190,10 +190,10 @@ export function ExecutionTracker({
 
   // Fallback: unknown status — treat as queued
   return (
-    <div className="flex items-center gap-3 rounded-lg border border-zinc-800 bg-zinc-900/60 px-4 py-3">
+    <div className="flex items-center gap-3 rounded-lg border border-border-default bg-surface-base/60 px-4 py-3">
       <span className="relative flex h-2.5 w-2.5">
-        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-zinc-500 opacity-60" />
-        <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-zinc-500" />
+        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-surface-overlay opacity-60" />
+        <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-surface-overlay" />
       </span>
       <span className="text-sm text-zinc-400">Initializing...</span>
     </div>

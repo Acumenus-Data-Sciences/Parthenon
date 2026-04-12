@@ -1,0 +1,131 @@
+{
+    "id": 232,
+    "name": "S10: Prediabetes Escapers — 5yr Follow-Up, No T2DM",
+    "description": "Patients with first prediabetes diagnosis who have at least 5 years of follow-up observation and never develop T2DM. Negative phenotype target cohort for the Prediabetes Reversal study.",
+    "expression_json": {
+        "ConceptSets": [
+            {
+                "id": 0,
+                "name": "Prediabetes",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 37018196,
+                                "CONCEPT_NAME": "Prediabetes",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 1,
+                "name": "Type 2 Diabetes Mellitus",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 201826,
+                                "CONCEPT_NAME": "Type 2 diabetes mellitus",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            }
+        ],
+        "InclusionRules": [
+            {
+                "name": "No T2DM diagnosis after index",
+                "expression": {
+                    "Type": "ALL",
+                    "Groups": [],
+                    "CriteriaList": [
+                        {
+                            "Criteria": {
+                                "ConditionOccurrence": {
+                                    "CodesetId": 1
+                                }
+                            },
+                            "Occurrence": {
+                                "Type": 0,
+                                "Count": 0
+                            },
+                            "StartWindow": {
+                                "Start": {
+                                    "Days": 0,
+                                    "Coeff": 1
+                                },
+                                "End": {
+                                    "Days": 99999,
+                                    "Coeff": 1
+                                }
+                            },
+                            "RestrictVisit": false,
+                            "IgnoreObservationPeriod": false
+                        }
+                    ]
+                },
+                "description": "Exclude patients who develop T2DM at any point after index date."
+            }
+        ],
+        "QualifiedLimit": {
+            "Type": "First"
+        },
+        "ExpressionLimit": {
+            "Type": "First"
+        },
+        "PrimaryCriteria": {
+            "CriteriaList": [
+                {
+                    "ConditionOccurrence": {
+                        "First": true,
+                        "CodesetId": 0
+                    }
+                }
+            ],
+            "ObservationWindow": {
+                "PostDays": 1825,
+                "PriorDays": 365
+            }
+        },
+        "EndStrategy": {
+            "DateOffset": {
+                "DateField": "StartDate",
+                "Offset": 1825
+            }
+        },
+        "CollapseSettings": {
+            "EraPad": 0,
+            "CollapseType": "ERA"
+        },
+        "CensoringCriteria": []
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-03-19T21:00:00.000000Z",
+    "updated_at": "2026-03-19T21:00:00.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "prediabetes",
+        "escapers",
+        "target",
+        "s10"
+    ],
+    "share_token": null,
+    "share_expires_at": null
+}

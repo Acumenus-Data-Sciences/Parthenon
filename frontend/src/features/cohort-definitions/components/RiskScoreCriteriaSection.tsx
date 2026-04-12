@@ -13,7 +13,7 @@ export function RiskScoreCriteriaSection() {
 
   return (
     <div className="space-y-3">
-      <p className="text-xs text-text-ghost">
+      <p className="text-xs text-[#5A5650]">
         Filter cohort by pre-computed risk score values or tiers from Risk Score
         Analyses.
       </p>
@@ -21,14 +21,14 @@ export function RiskScoreCriteriaSection() {
       {criteria.map((criterion, i) => (
         <div
           key={criterion.id}
-          className="flex items-center justify-between rounded-lg border border-primary/30 bg-primary/10 px-3 py-2"
+          className="flex items-center justify-between rounded-lg border border-[#9B1B30]/30 bg-[#9B1B30]/10 px-3 py-2"
         >
           <div className="flex items-center gap-2 min-w-0">
-            <Activity size={12} className="text-critical shrink-0" />
-            <span className="text-xs text-text-primary truncate">
+            <Activity size={12} className="text-[#E85A6B] shrink-0" />
+            <span className="text-xs text-[#F0EDE8] truncate">
               {criterion.label}
             </span>
-            <span className="text-[10px] text-text-muted shrink-0">
+            <span className="text-[10px] text-[#8A857D] shrink-0">
               {criterion.scoreName}
             </span>
             {criterion.exclude && (
@@ -60,7 +60,7 @@ export function RiskScoreCriteriaSection() {
         <button
           type="button"
           onClick={() => setShowAdd(true)}
-          className="flex items-center gap-2 rounded-lg border border-dashed border-primary/40 px-3 py-2 text-xs text-critical hover:border-primary hover:text-critical/80 transition-colors"
+          className="flex items-center gap-2 rounded-lg border border-dashed border-[#9B1B30]/40 px-3 py-2 text-xs text-[#E85A6B] hover:border-[#9B1B30] hover:text-[#E85A6B]/80 transition-colors"
         >
           <Plus size={12} />
           Add Risk Score Criterion

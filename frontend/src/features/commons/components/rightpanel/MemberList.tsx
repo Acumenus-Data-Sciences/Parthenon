@@ -20,7 +20,7 @@ export function MemberList({ members, presenceUsers = [] }: MemberListProps) {
   if (members.length === 0) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-2 px-5 text-center">
-        <div className="w-full rounded-2xl border border-dashed border-border-default bg-surface-raised px-4 py-6">
+        <div className="w-full rounded-2xl border border-dashed border-[#2b2b32] bg-[#111115] px-4 py-6">
           <p className="text-[13px] font-medium text-muted-foreground">No members</p>
         </div>
       </div>
@@ -61,13 +61,13 @@ export function MemberList({ members, presenceUsers = [] }: MemberListProps) {
         return (
           <div
             key={member.id}
-            className="mx-3 mb-2 flex items-center gap-2.5 rounded-xl border border-border-default bg-surface-raised px-3 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] transition-colors hover:border-surface-highlight hover:bg-surface-raised"
+            className="mx-3 mb-2 flex items-center gap-2.5 rounded-xl border border-[#25252b] bg-[#111115] px-3 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] transition-colors hover:border-[#31313a] hover:bg-[#15151a]"
           >
           <div className="relative shrink-0">
             <UserAvatar user={{ id: member.user_id, name: member.user.name }} size="sm" />
             {isOnline && (
               <span
-                className={`absolute -bottom-px -right-px h-2.5 w-2.5 rounded-full ring-2 ring-surface-raised ${
+                className={`absolute -bottom-px -right-px h-2.5 w-2.5 rounded-full ring-2 ring-[#151518] ${
                   isActive ? "bg-green-500" : "bg-amber-400"
                 }`}
               />

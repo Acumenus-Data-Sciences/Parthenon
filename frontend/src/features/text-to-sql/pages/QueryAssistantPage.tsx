@@ -69,14 +69,14 @@ export default function QueryAssistantPage() {
             flexShrink: 0,
           }}
         >
-          <MessageSquareCode size={22} style={{ color: "var(--primary)" }} />
+          <MessageSquareCode size={22} style={{ color: "#9B1B30" }} />
         </div>
         <div style={{ flex: 1 }}>
           <h1
             style={{
               fontSize: "22px",
               fontWeight: 700,
-              color: "var(--text-primary)",
+              color: "#F0EDE8",
               margin: 0,
             }}
           >
@@ -85,7 +85,7 @@ export default function QueryAssistantPage() {
           <p
             style={{
               fontSize: "13px",
-              color: "var(--text-muted)",
+              color: "#8A857D",
               margin: "2px 0 0",
             }}
           >
@@ -107,7 +107,7 @@ export default function QueryAssistantPage() {
             <span
               style={{
                 fontSize: "11px",
-                color: "var(--text-muted)",
+                color: "#8A857D",
                 textTransform: "uppercase",
                 letterSpacing: "0.5px",
                 fontWeight: 600,
@@ -121,11 +121,11 @@ export default function QueryAssistantPage() {
                 onChange={(e) => handleDialectChange(e.target.value)}
                 style={{
                   appearance: "none",
-                  background: "var(--surface-raised)",
-                  border: "1px solid var(--surface-elevated)",
+                  background: "#151518",
+                  border: "1px solid #232328",
                   borderRadius: "8px",
                   padding: "7px 32px 7px 12px",
-                  color: "var(--text-primary)",
+                  color: "#F0EDE8",
                   fontSize: "13px",
                   fontWeight: 500,
                   cursor: "pointer",
@@ -134,10 +134,10 @@ export default function QueryAssistantPage() {
                   transition: "border-color 150ms",
                 }}
                 onFocus={(e) => {
-                  e.currentTarget.style.borderColor = "var(--primary)";
+                  e.currentTarget.style.borderColor = "#9B1B30";
                 }}
                 onBlur={(e) => {
-                  e.currentTarget.style.borderColor = "var(--surface-elevated)";
+                  e.currentTarget.style.borderColor = "#232328";
                 }}
               >
                 {dialects.map((d) => (
@@ -153,7 +153,7 @@ export default function QueryAssistantPage() {
                   right: "10px",
                   top: "50%",
                   transform: "translateY(-50%)",
-                  color: "var(--text-muted)",
+                  color: "#8A857D",
                   pointerEvents: "none",
                 }}
               />
@@ -167,9 +167,9 @@ export default function QueryAssistantPage() {
                   gap: "4px",
                   padding: "3px 8px",
                   borderRadius: "20px",
-                  border: "1px solid color-mix(in srgb, var(--accent) 19%, transparent)",
-                  background: "color-mix(in srgb, var(--accent) 3%, transparent)",
-                  color: "var(--accent)",
+                  border: "1px solid #C9A22730",
+                  background: "#C9A22708",
+                  color: "#C9A227",
                   fontSize: "10px",
                   fontWeight: 600,
                   cursor: "default",
@@ -189,7 +189,7 @@ export default function QueryAssistantPage() {
           display: "flex",
           gap: "2px",
           marginBottom: "24px",
-          borderBottom: "1px solid var(--surface-elevated)",
+          borderBottom: "1px solid #232328",
         }}
       >
         <TabButton
@@ -237,8 +237,8 @@ function TabButton({
         padding: "10px 20px",
         background: "none",
         border: "none",
-        borderBottom: `2px solid ${active ? "var(--primary)" : "transparent"}`,
-        color: active ? "var(--text-primary)" : "var(--text-muted)",
+        borderBottom: `2px solid ${active ? "#9B1B30" : "transparent"}`,
+        color: active ? "#F0EDE8" : "#8A857D",
         fontSize: "14px",
         fontWeight: active ? 600 : 500,
         cursor: "pointer",
@@ -248,13 +248,13 @@ function TabButton({
       }}
       onMouseEnter={(e) => {
         if (!active) {
-          e.currentTarget.style.color = "var(--text-secondary)";
+          e.currentTarget.style.color = "#C5C0B8";
           e.currentTarget.style.borderBottomColor = "#333";
         }
       }}
       onMouseLeave={(e) => {
         if (!active) {
-          e.currentTarget.style.color = "var(--text-muted)";
+          e.currentTarget.style.color = "#8A857D";
           e.currentTarget.style.borderBottomColor = "transparent";
         }
       }}

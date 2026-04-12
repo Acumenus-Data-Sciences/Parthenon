@@ -46,7 +46,7 @@ export function ProportionalBar({
             >
               {/* Inline percentage if wide enough */}
               {pct > 12 && (
-                <span className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-surface-base">
+                <span className="absolute inset-0 flex items-center justify-center text-xs font-semibold text-[#0E0E11]">
                   {pct.toFixed(1)}%
                 </span>
               )}
@@ -61,7 +61,7 @@ export function ProportionalBar({
           <span className="text-xs" style={{ color: segments[hovered].color }}>
             {segments[hovered].label}
           </span>
-          <span className="ml-2 font-['IBM_Plex_Mono',monospace] text-xs text-text-primary">
+          <span className="ml-2 font-['IBM_Plex_Mono',monospace] text-xs text-[#F0EDE8]">
             {formatCompact(segments[hovered].value)} (
             {((segments[hovered].value / total) * 100).toFixed(1)}%)
           </span>
@@ -79,7 +79,7 @@ export function ProportionalBar({
                   className="inline-block h-2.5 w-2.5 rounded-sm"
                   style={{ backgroundColor: seg.color }}
                 />
-                <span className="text-xs text-text-secondary">
+                <span className="text-xs text-[#C5C0B8]">
                   {seg.label}: {formatCompact(seg.value)} ({pct.toFixed(1)}%)
                 </span>
               </div>

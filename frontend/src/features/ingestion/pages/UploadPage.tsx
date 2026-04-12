@@ -44,15 +44,15 @@ export default function UploadPage() {
       <div className="flex items-center gap-3">
         <Link
           to="/ingestion"
-          className="inline-flex items-center justify-center w-8 h-8 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-overlay transition-colors"
+          className="inline-flex items-center justify-center w-8 h-8 rounded-md text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#1C1C20] transition-colors"
         >
           <ArrowLeft size={18} />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">
+          <h1 className="text-2xl font-bold text-[#F0EDE8]">
             Upload Source File
           </h1>
-          <p className="mt-1 text-sm text-text-muted">
+          <p className="mt-1 text-sm text-[#8A857D]">
             Select a data source and upload a file to begin profiling
           </p>
         </div>
@@ -60,7 +60,7 @@ export default function UploadPage() {
 
       {/* Source Selector */}
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-text-secondary">
+        <label className="block text-sm font-medium text-[#C5C0B8]">
           Data Source
         </label>
         <div className="relative">
@@ -69,14 +69,14 @@ export default function UploadPage() {
             onClick={() => setDropdownOpen(!dropdownOpen)}
             disabled={sourcesLoading}
             className={cn(
-              "flex items-center justify-between w-full rounded-lg border bg-surface-raised px-4 py-2.5 text-sm text-left transition-colors",
+              "flex items-center justify-between w-full rounded-lg border bg-[#151518] px-4 py-2.5 text-sm text-left transition-colors",
               dropdownOpen
-                ? "border-primary"
-                : "border-border-default hover:border-surface-highlight",
+                ? "border-[#9B1B30]"
+                : "border-[#232328] hover:border-[#323238]",
               sourcesLoading && "opacity-50 cursor-not-allowed",
             )}
           >
-            <span className={selectedSource ? "text-text-primary" : "text-text-ghost"}>
+            <span className={selectedSource ? "text-[#F0EDE8]" : "text-[#5A5650]"}>
               {sourcesLoading
                 ? "Loading sources..."
                 : selectedSource
@@ -86,16 +86,16 @@ export default function UploadPage() {
             <ChevronDown
               size={16}
               className={cn(
-                "text-text-muted transition-transform",
+                "text-[#8A857D] transition-transform",
                 dropdownOpen && "rotate-180",
               )}
             />
           </button>
 
           {dropdownOpen && sources && (
-            <div className="absolute z-10 mt-1 w-full rounded-lg border border-border-default bg-surface-overlay shadow-lg overflow-hidden">
+            <div className="absolute z-10 mt-1 w-full rounded-lg border border-[#232328] bg-[#1C1C20] shadow-lg overflow-hidden">
               {sources.length === 0 ? (
-                <div className="px-4 py-3 text-sm text-text-muted">
+                <div className="px-4 py-3 text-sm text-[#8A857D]">
                   No sources available
                 </div>
               ) : (
@@ -108,14 +108,14 @@ export default function UploadPage() {
                       setDropdownOpen(false);
                     }}
                     className={cn(
-                      "flex flex-col w-full px-4 py-2.5 text-left text-sm hover:bg-surface-elevated transition-colors",
-                      selectedSource?.id === source.id && "bg-surface-elevated",
+                      "flex flex-col w-full px-4 py-2.5 text-left text-sm hover:bg-[#232328] transition-colors",
+                      selectedSource?.id === source.id && "bg-[#232328]",
                     )}
                   >
-                    <span className="font-medium text-text-primary">
+                    <span className="font-medium text-[#F0EDE8]">
                       {source.source_name}
                     </span>
-                    <span className="text-xs text-text-muted font-['IBM_Plex_Mono',monospace]">
+                    <span className="text-xs text-[#8A857D] font-['IBM_Plex_Mono',monospace]">
                       {source.source_key}
                     </span>
                   </button>
@@ -128,7 +128,7 @@ export default function UploadPage() {
 
       {/* File Upload Zone */}
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-text-secondary">
+        <label className="block text-sm font-medium text-[#C5C0B8]">
           Source File
         </label>
         <FileUploadZone
@@ -140,8 +140,8 @@ export default function UploadPage() {
 
       {/* Error */}
       {uploadMutation.isError && (
-        <div className="rounded-lg border border-critical/30 bg-critical/10 px-4 py-3">
-          <p className="text-sm text-critical">
+        <div className="rounded-lg border border-[#E85A6B]/30 bg-[#E85A6B]/10 px-4 py-3">
+          <p className="text-sm text-[#E85A6B]">
             {uploadMutation.error instanceof Error
               ? uploadMutation.error.message
               : "Upload failed. Please try again."}
@@ -157,8 +157,8 @@ export default function UploadPage() {
         className={cn(
           "inline-flex items-center gap-2 rounded-lg px-6 py-2.5 text-sm font-medium transition-colors",
           canUpload
-            ? "bg-primary text-text-primary hover:bg-primary-light"
-            : "bg-surface-accent text-text-ghost cursor-not-allowed",
+            ? "bg-[#9B1B30] text-[#F0EDE8] hover:bg-[#B82D42]"
+            : "bg-[#2A2A30] text-[#5A5650] cursor-not-allowed",
         )}
       >
         {uploadMutation.isPending ? (

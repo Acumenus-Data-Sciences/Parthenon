@@ -144,13 +144,13 @@ export function EstimationDesigner({
   return (
     <div className="space-y-6">
       {/* Name & Description */}
-      <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
-        <h3 className="text-sm font-semibold text-text-primary">
+      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-4">
+        <h3 className="text-sm font-semibold text-[#F0EDE8]">
           Basic Information
         </h3>
         <div className="space-y-3">
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1">
+            <label className="block text-xs font-medium text-[#8A857D] mb-1">
               Name
             </label>
             <input
@@ -159,14 +159,14 @@ export function EstimationDesigner({
               onChange={(e) => setName(e.target.value)}
               placeholder="Estimation analysis name"
               className={cn(
-                "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                "text-text-primary placeholder:text-text-ghost",
-                "focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
+                "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
+                "text-[#F0EDE8] placeholder:text-[#5A5650]",
+                "focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
               )}
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1">
+            <label className="block text-xs font-medium text-[#8A857D] mb-1">
               Description
             </label>
             <textarea
@@ -175,9 +175,9 @@ export function EstimationDesigner({
               placeholder="Optional description"
               rows={2}
               className={cn(
-                "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                "text-text-primary placeholder:text-text-ghost resize-none",
-                "focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
+                "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
+                "text-[#F0EDE8] placeholder:text-[#5A5650] resize-none",
+                "focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
               )}
             />
           </div>
@@ -185,15 +185,15 @@ export function EstimationDesigner({
       </div>
 
       {/* Target Cohort */}
-      <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
-        <h3 className="text-sm font-semibold text-text-primary">
+      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-3">
+        <h3 className="text-sm font-semibold text-[#F0EDE8]">
           Target Cohort
         </h3>
-        <p className="text-xs text-text-muted">
+        <p className="text-xs text-[#8A857D]">
           Select the treatment/exposure cohort.
         </p>
         {loadingCohorts ? (
-          <Loader2 size={16} className="animate-spin text-text-muted" />
+          <Loader2 size={16} className="animate-spin text-[#8A857D]" />
         ) : (
           <select
             value={design.targetCohortId || ""}
@@ -204,8 +204,8 @@ export function EstimationDesigner({
               }))
             }
             className={cn(
-              "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-              "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
+              "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
+              "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
             )}
           >
             <option value="">Select target cohort...</option>
@@ -219,15 +219,15 @@ export function EstimationDesigner({
       </div>
 
       {/* Comparator Cohort */}
-      <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
-        <h3 className="text-sm font-semibold text-text-primary">
+      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-3">
+        <h3 className="text-sm font-semibold text-[#F0EDE8]">
           Comparator Cohort
         </h3>
-        <p className="text-xs text-text-muted">
+        <p className="text-xs text-[#8A857D]">
           Select the comparator/control cohort.
         </p>
         {loadingCohorts ? (
-          <Loader2 size={16} className="animate-spin text-text-muted" />
+          <Loader2 size={16} className="animate-spin text-[#8A857D]" />
         ) : (
           <select
             value={design.comparatorCohortId || ""}
@@ -238,8 +238,8 @@ export function EstimationDesigner({
               }))
             }
             className={cn(
-              "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-              "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
+              "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
+              "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
             )}
           >
             <option value="">Select comparator cohort...</option>
@@ -253,15 +253,15 @@ export function EstimationDesigner({
       </div>
 
       {/* Outcome Cohorts */}
-      <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
-        <h3 className="text-sm font-semibold text-text-primary">
+      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-3">
+        <h3 className="text-sm font-semibold text-[#F0EDE8]">
           Outcome Cohorts
         </h3>
-        <p className="text-xs text-text-muted">
+        <p className="text-xs text-[#8A857D]">
           Select one or more outcome cohorts to estimate effects for.
         </p>
         {loadingCohorts ? (
-          <Loader2 size={16} className="animate-spin text-text-muted" />
+          <Loader2 size={16} className="animate-spin text-[#8A857D]" />
         ) : (
           <>
             <select
@@ -271,8 +271,8 @@ export function EstimationDesigner({
                 e.target.value = "";
               }}
               className={cn(
-                "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
+                "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
+                "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
               )}
               defaultValue=""
             >
@@ -292,7 +292,7 @@ export function EstimationDesigner({
                   return (
                     <span
                       key={id}
-                      className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs text-critical"
+                      className="inline-flex items-center gap-1 rounded-full bg-[#9B1B30]/10 px-2.5 py-1 text-xs text-[#E85A6B]"
                     >
                       {cohort?.name ?? `Cohort #${id}`}
                       <button
@@ -312,13 +312,13 @@ export function EstimationDesigner({
       </div>
 
       {/* Model Settings */}
-      <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
-        <h3 className="text-sm font-semibold text-text-primary">
+      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-4">
+        <h3 className="text-sm font-semibold text-[#F0EDE8]">
           Model Settings
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1">
+            <label className="block text-xs font-medium text-[#8A857D] mb-1">
               Model Type
             </label>
             <select
@@ -333,8 +333,8 @@ export function EstimationDesigner({
                 }))
               }
               className={cn(
-                "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
+                "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
+                "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
               )}
             >
               <option value="cox">Cox Proportional Hazards</option>
@@ -343,7 +343,7 @@ export function EstimationDesigner({
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1">
+            <label className="block text-xs font-medium text-[#8A857D] mb-1">
               End Anchor
             </label>
             <select
@@ -360,8 +360,8 @@ export function EstimationDesigner({
                 }))
               }
               className={cn(
-                "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
+                "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
+                "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
               )}
             >
               <option value="cohort start">Cohort Start</option>
@@ -369,7 +369,7 @@ export function EstimationDesigner({
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1">
+            <label className="block text-xs font-medium text-[#8A857D] mb-1">
               Time at Risk Start (days)
             </label>
             <input
@@ -385,13 +385,13 @@ export function EstimationDesigner({
                 }))
               }
               className={cn(
-                "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
+                "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
+                "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
               )}
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1">
+            <label className="block text-xs font-medium text-[#8A857D] mb-1">
               Time at Risk End (days)
             </label>
             <input
@@ -407,8 +407,8 @@ export function EstimationDesigner({
                 }))
               }
               className={cn(
-                "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
+                "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
+                "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
               )}
             />
           </div>
@@ -416,9 +416,9 @@ export function EstimationDesigner({
       </div>
 
       {/* Propensity Score */}
-      <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
+      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-text-primary">
+          <h3 className="text-sm font-semibold text-[#F0EDE8]">
             Propensity Score
           </h3>
           <button
@@ -435,8 +435,8 @@ export function EstimationDesigner({
             className={cn(
               "relative w-9 h-5 rounded-full transition-colors",
               design.propensityScore.enabled
-                ? "bg-success"
-                : "bg-surface-highlight",
+                ? "bg-[#2DD4BF]"
+                : "bg-[#323238]",
             )}
           >
             <span
@@ -451,7 +451,7 @@ export function EstimationDesigner({
         {design.propensityScore.enabled && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium text-text-muted mb-1">
+              <label className="block text-xs font-medium text-[#8A857D] mb-1">
                 PS Adjustment Method
               </label>
               <select
@@ -466,8 +466,8 @@ export function EstimationDesigner({
                   }))
                 }
                 className={cn(
-                  "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                  "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
+                  "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
+                  "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
                 )}
               >
                 {psMethodOptions.map((opt) => (
@@ -476,7 +476,7 @@ export function EstimationDesigner({
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-text-muted mb-1">
+              <label className="block text-xs font-medium text-[#8A857D] mb-1">
                 Trimming (%)
               </label>
               <input
@@ -495,13 +495,13 @@ export function EstimationDesigner({
                   }))
                 }
                 className={cn(
-                  "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                  "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
+                  "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
+                  "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
                 )}
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-text-muted mb-1">
+              <label className="block text-xs font-medium text-[#8A857D] mb-1">
                 Matching Ratio
               </label>
               <input
@@ -522,13 +522,13 @@ export function EstimationDesigner({
                   }))
                 }
                 className={cn(
-                  "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                  "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
+                  "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
+                  "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
                 )}
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-text-muted mb-1">
+              <label className="block text-xs font-medium text-[#8A857D] mb-1">
                 Caliper
               </label>
               <input
@@ -550,13 +550,13 @@ export function EstimationDesigner({
                   }))
                 }
                 className={cn(
-                  "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                  "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
+                  "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
+                  "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
                 )}
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-text-muted mb-1">
+              <label className="block text-xs font-medium text-[#8A857D] mb-1">
                 Stratification Strata
               </label>
               <input
@@ -576,8 +576,8 @@ export function EstimationDesigner({
                   }))
                 }
                 className={cn(
-                  "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                  "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
+                  "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
+                  "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
                 )}
               />
             </div>
@@ -599,7 +599,7 @@ export function EstimationDesigner({
           type="button"
           onClick={handleSave}
           disabled={isSaving || !name.trim()}
-          className="inline-flex items-center gap-2 rounded-lg bg-success px-5 py-2.5 text-sm font-medium text-surface-base hover:bg-success transition-colors disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-5 py-2.5 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors disabled:opacity-50"
         >
           {isSaving ? (
             <Loader2 size={14} className="animate-spin" />

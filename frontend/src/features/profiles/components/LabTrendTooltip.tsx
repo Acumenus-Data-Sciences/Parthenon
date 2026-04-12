@@ -35,7 +35,7 @@ export const LabTrendTooltip = ({ active, payload, range, unitName }: LabTrendTo
     '';
 
   return (
-    <div className="rounded-md border border-amber-600/40 bg-zinc-900/95 px-3 py-2 text-xs text-zinc-100 shadow-lg">
+    <div className="rounded-md border border-amber-600/40 bg-surface-base/95 px-3 py-2 text-xs text-zinc-100 shadow-lg">
       <div className="text-zinc-400">{format(new Date(point.ts), 'MMM d, yyyy')}</div>
       <div className="font-medium">
         {point.value} {unitName}

@@ -37,7 +37,7 @@ const DOMAIN_ITEMS: DomainItem[] = [
     label: "Synthesis",
     icon: <FileText size={16} />,
     activeColor: "text-zinc-300",
-    activeBorder: "border-l-2 border-zinc-300",
+    activeBorder: "border-l-2 border-border-hover",
   },
 ];
 
@@ -51,8 +51,8 @@ export function LeftRail({ pinCount, runCount }: LeftRailProps) {
 
   return (
     <div
-      className="w-52 flex flex-col h-full border-r border-zinc-800"
-      style={{ backgroundColor: "var(--surface-base)" }}
+      className="w-52 flex flex-col h-full border-r border-border-default"
+      style={{ backgroundColor: "#0E0E11" }}
     >
       <div className="px-3 py-4">
         <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-3 px-2">
@@ -68,8 +68,8 @@ export function LeftRail({ pinCount, runCount }: LeftRailProps) {
                 className={[
                   "flex items-center gap-2.5 px-2 py-2 rounded-r text-left w-full transition-colors",
                   isActive
-                    ? `${item.activeBorder} bg-zinc-900 ${item.activeColor}`
-                    : "border-l-2 border-transparent text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200",
+                    ? `${item.activeBorder} bg-surface-base ${item.activeColor}`
+                    : "border-l-2 border-transparent text-zinc-400 hover:bg-surface-base hover:text-zinc-200",
                 ].join(" ")}
               >
                 <span className={isActive ? item.activeColor : ""}>{item.icon}</span>
@@ -80,7 +80,7 @@ export function LeftRail({ pinCount, runCount }: LeftRailProps) {
         </nav>
       </div>
 
-      <div className="mx-3 border-t border-zinc-800 my-2" />
+      <div className="mx-3 border-t border-border-default my-2" />
 
       <div className="px-3 flex flex-col gap-0.5">
         <button
@@ -89,8 +89,8 @@ export function LeftRail({ pinCount, runCount }: LeftRailProps) {
           className={[
             "flex items-center gap-2.5 px-2 py-2 w-full text-left rounded transition-colors",
             pinCount > 0
-              ? "text-teal-400 hover:bg-zinc-900"
-              : "text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300",
+              ? "text-teal-400 hover:bg-surface-base"
+              : "text-zinc-500 hover:bg-surface-base hover:text-zinc-300",
           ].join(" ")}
           aria-label="Toggle evidence sidebar"
         >
@@ -105,8 +105,8 @@ export function LeftRail({ pinCount, runCount }: LeftRailProps) {
           className={[
             "flex items-center gap-2.5 px-2 py-2 w-full text-left rounded transition-colors",
             runCount > 0
-              ? "text-teal-400 hover:bg-zinc-900"
-              : "text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300",
+              ? "text-teal-400 hover:bg-surface-base"
+              : "text-zinc-500 hover:bg-surface-base hover:text-zinc-300",
           ].join(" ")}
           aria-label="Switch to clinical domain run history"
         >

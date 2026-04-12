@@ -14,9 +14,9 @@ const ROW_HEIGHT = 28;
 // Dark theme colors
 const COLOR_TEXT = "#d4d4d8";        // zinc-300
 const COLOR_AXIS = "#52525b";        // zinc-600
-const COLOR_CI = "var(--primary)";          // crimson
-const COLOR_POINT = "var(--success)";       // teal
-const COLOR_NULL = "var(--accent)";        // gold
+const COLOR_CI = "#9B1B30";          // crimson
+const COLOR_POINT = "#2DD4BF";       // teal
+const COLOR_NULL = "#C9A227";        // gold
 
 function formatHR(hr: number, lower: number, upper: number): string {
   return `${hr.toFixed(2)} [${lower.toFixed(2)}, ${upper.toFixed(2)}]`;
@@ -133,7 +133,7 @@ export function ForestPlotWrapper({
         .attr("cy", yCenter)
         .attr("r", 5)
         .attr("fill", COLOR_POINT)
-        .attr("stroke", "var(--surface-base)")
+        .attr("stroke", "#0E0E11")
         .attr("stroke-width", 1);
 
       // Label text (left)

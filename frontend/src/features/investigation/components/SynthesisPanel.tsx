@@ -87,15 +87,15 @@ export function SynthesisPanel({ investigation }: SynthesisPanelProps) {
   return (
     <div className="flex flex-col h-full">
       {/* Sub-tab bar */}
-      <div className="flex items-center gap-1 px-6 pt-4 pb-2 border-b border-zinc-800">
+      <div className="flex items-center gap-1 px-6 pt-4 pb-2 border-b border-border-default">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
               activeTab === tab.id
-                ? "bg-zinc-800 text-zinc-100"
-                : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50"
+                ? "bg-surface-raised text-zinc-100"
+                : "text-zinc-500 hover:text-zinc-300 hover:bg-surface-raised/50"
             }`}
           >
             {tab.label}
@@ -114,7 +114,7 @@ export function SynthesisPanel({ investigation }: SynthesisPanelProps) {
                   return (
                     <div
                       key="research_question"
-                      className="bg-zinc-900/30 border border-zinc-800 rounded-xl p-4"
+                      className="bg-surface-base/30 border border-border-default rounded-xl p-4"
                     >
                       <div className="flex items-center justify-between mb-3">
                         <span className="text-sm font-semibold text-zinc-200">

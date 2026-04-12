@@ -28,7 +28,7 @@ export const LabValuesTable = ({ values, unitName, range }: LabValuesTableProps)
   return (
     <table className="w-full text-xs">
       <thead>
-        <tr className="border-b border-zinc-800 text-zinc-500">
+        <tr className="border-b border-border-default text-zinc-500">
           <th className="py-1 pr-2 text-left">Date</th>
           <th className="py-1 pr-2 text-right">Value</th>
           <th className="py-1 pr-2 text-right">Range</th>
@@ -37,7 +37,7 @@ export const LabValuesTable = ({ values, unitName, range }: LabValuesTableProps)
       </thead>
       <tbody>
         {values.map((v, i) => (
-          <tr key={`${v.date}-${i}`} className="border-b border-zinc-900">
+          <tr key={`${v.date}-${i}`} className="border-b border-border-subtle">
             <td className="py-1 pr-2 text-zinc-400">{v.date}</td>
             <td className="py-1 pr-2 text-right text-zinc-100">
               {v.value != null ? v.value : '\u2014'} {unitName}

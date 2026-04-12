@@ -133,26 +133,26 @@ export function NetBenefitCurve({ data }: NetBenefitCurveProps) {
         width={width}
         height={height}
         viewBox={`0 0 ${width} ${height}`}
-        className="text-text-primary"
+        className="text-[#F0EDE8]"
         role="img"
         aria-label="Decision curve analysis showing net benefit vs threshold probability"
         data-testid="net-benefit-curve-svg"
       >
-        <rect width={width} height={height} fill="var(--surface-raised)" rx={8} />
+        <rect width={width} height={height} fill="#151518" rx={8} />
 
         {/* Grid */}
         {xTicks.map((v) => (
           <g key={`x-${v}`}>
-            <line x1={toX(v)} y1={padding.top} x2={toX(v)} y2={padding.top + plotH} stroke="var(--border-default)" strokeWidth={0.5} />
-            <text x={toX(v)} y={padding.top + plotH + 16} textAnchor="middle" fill="var(--text-ghost)" fontSize={10}>
+            <line x1={toX(v)} y1={padding.top} x2={toX(v)} y2={padding.top + plotH} stroke="#232328" strokeWidth={0.5} />
+            <text x={toX(v)} y={padding.top + plotH + 16} textAnchor="middle" fill="#5A5650" fontSize={10}>
               {v.toFixed(1)}
             </text>
           </g>
         ))}
         {yTicks.map((v) => (
           <g key={`y-${v}`}>
-            <line x1={padding.left} y1={toY(v)} x2={padding.left + plotW} y2={toY(v)} stroke="var(--border-default)" strokeWidth={0.5} />
-            <text x={padding.left - 8} y={toY(v) + 4} textAnchor="end" fill="var(--text-ghost)" fontSize={9}>
+            <line x1={padding.left} y1={toY(v)} x2={padding.left + plotW} y2={toY(v)} stroke="#232328" strokeWidth={0.5} />
+            <text x={padding.left - 8} y={toY(v) + 4} textAnchor="end" fill="#5A5650" fontSize={9}>
               {v.toFixed(3)}
             </text>
           </g>
@@ -165,7 +165,7 @@ export function NetBenefitCurve({ data }: NetBenefitCurveProps) {
             y1={toY(0)}
             x2={padding.left + plotW}
             y2={toY(0)}
-            stroke="var(--text-ghost)"
+            stroke="#5A5650"
             strokeWidth={1}
             strokeDasharray="4 4"
           />
@@ -176,7 +176,7 @@ export function NetBenefitCurve({ data }: NetBenefitCurveProps) {
           <path
             key={`benefit-${i}`}
             d={d}
-            fill="var(--success)"
+            fill="#2DD4BF"
             opacity={0.12}
             data-testid="benefit-region"
           />
@@ -188,17 +188,17 @@ export function NetBenefitCurve({ data }: NetBenefitCurveProps) {
           y1={toY(0)}
           x2={padding.left + plotW}
           y2={toY(0)}
-          stroke="var(--text-ghost)"
+          stroke="#5A5650"
           strokeWidth={1.5}
           strokeDasharray="6 4"
           opacity={0.5}
         />
 
         {/* Treat All */}
-        <path d={treatAllPath} fill="none" stroke="var(--critical)" strokeWidth={1.5} strokeDasharray="6 4" />
+        <path d={treatAllPath} fill="none" stroke="#E85A6B" strokeWidth={1.5} strokeDasharray="6 4" />
 
         {/* Model */}
-        <path d={modelPath} fill="none" stroke="var(--success)" strokeWidth={2} />
+        <path d={modelPath} fill="none" stroke="#2DD4BF" strokeWidth={2} />
 
         {/* Crossover labels */}
         {crossoverPoints.map((pt, i) => (
@@ -207,15 +207,15 @@ export function NetBenefitCurve({ data }: NetBenefitCurveProps) {
               cx={toX(pt.threshold)}
               cy={toY(pt.y)}
               r={4}
-              fill="var(--critical)"
-              stroke="var(--surface-base)"
+              fill="#E85A6B"
+              stroke="#0E0E11"
               strokeWidth={1.5}
             />
             <text
               x={toX(pt.threshold)}
               y={toY(pt.y) - 10}
               textAnchor="middle"
-              fill="var(--critical)"
+              fill="#E85A6B"
               fontSize={8}
               fontFamily="IBM Plex Mono, monospace"
             >
@@ -225,28 +225,28 @@ export function NetBenefitCurve({ data }: NetBenefitCurveProps) {
         ))}
 
         {/* Plot boundary */}
-        <rect x={padding.left} y={padding.top} width={plotW} height={plotH} fill="none" stroke="var(--border-default)" strokeWidth={1} />
+        <rect x={padding.left} y={padding.top} width={plotW} height={plotH} fill="none" stroke="#323238" strokeWidth={1} />
 
         {/* Legend */}
         <g transform={`translate(${padding.left + plotW - 170}, ${padding.top + 8})`}>
-          <rect x={0} y={0} width={160} height={58} rx={4} fill="var(--surface-base)" stroke="var(--border-default)" strokeWidth={1} />
-          <line x1={10} y1={12} x2={30} y2={12} stroke="var(--success)" strokeWidth={2} />
-          <text x={36} y={16} fill="var(--text-secondary)" fontSize={10}>Model</text>
-          <line x1={10} y1={28} x2={30} y2={28} stroke="var(--critical)" strokeWidth={1.5} strokeDasharray="6 4" />
-          <text x={36} y={32} fill="var(--text-secondary)" fontSize={10}>Treat All</text>
-          <line x1={10} y1={44} x2={30} y2={44} stroke="var(--text-ghost)" strokeWidth={1.5} strokeDasharray="4 4" />
-          <text x={36} y={48} fill="var(--text-secondary)" fontSize={10}>Treat None</text>
+          <rect x={0} y={0} width={160} height={58} rx={4} fill="#0E0E11" stroke="#232328" strokeWidth={1} />
+          <line x1={10} y1={12} x2={30} y2={12} stroke="#2DD4BF" strokeWidth={2} />
+          <text x={36} y={16} fill="#C5C0B8" fontSize={10}>Model</text>
+          <line x1={10} y1={28} x2={30} y2={28} stroke="#E85A6B" strokeWidth={1.5} strokeDasharray="6 4" />
+          <text x={36} y={32} fill="#C5C0B8" fontSize={10}>Treat All</text>
+          <line x1={10} y1={44} x2={30} y2={44} stroke="#5A5650" strokeWidth={1.5} strokeDasharray="4 4" />
+          <text x={36} y={48} fill="#C5C0B8" fontSize={10}>Treat None</text>
         </g>
 
         {/* Axis labels */}
-        <text x={padding.left + plotW / 2} y={height - 8} textAnchor="middle" fill="var(--text-muted)" fontSize={11} fontWeight={600}>
+        <text x={padding.left + plotW / 2} y={height - 8} textAnchor="middle" fill="#8A857D" fontSize={11} fontWeight={600}>
           Threshold Probability
         </text>
         <text
           x={14}
           y={padding.top + plotH / 2}
           textAnchor="middle"
-          fill="var(--text-muted)"
+          fill="#8A857D"
           fontSize={11}
           fontWeight={600}
           transform={`rotate(-90 14 ${padding.top + plotH / 2})`}

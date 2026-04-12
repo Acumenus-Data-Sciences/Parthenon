@@ -67,16 +67,16 @@ export function FileReviewList({
 
   return (
     <div className="space-y-3">
-      <div className="rounded-lg border border-border-default overflow-hidden">
+      <div className="rounded-lg border border-[#232328] overflow-hidden">
         {/* Header */}
-        <div className="flex items-center gap-4 border-b border-border-default bg-surface-raised px-4 py-2">
-          <span className="flex-[2] text-xs font-medium uppercase tracking-wider text-text-muted">
+        <div className="flex items-center gap-4 border-b border-[#232328] bg-[#151518] px-4 py-2">
+          <span className="flex-[2] text-xs font-medium uppercase tracking-wider text-[#8A857D]">
             Original File
           </span>
-          <span className="flex-[2] text-xs font-medium uppercase tracking-wider text-text-muted">
+          <span className="flex-[2] text-xs font-medium uppercase tracking-wider text-[#8A857D]">
             Table Name
           </span>
-          <span className="w-20 text-right text-xs font-medium uppercase tracking-wider text-text-muted">
+          <span className="w-20 text-right text-xs font-medium uppercase tracking-wider text-[#8A857D]">
             Size
           </span>
           <span className="w-10" />
@@ -91,12 +91,12 @@ export function FileReviewList({
           return (
             <div
               key={`${file.name}-${index}`}
-              className="flex items-start gap-4 border-b border-border-default bg-surface-base px-4 py-3 last:border-b-0"
+              className="flex items-start gap-4 border-b border-[#232328] bg-[#0E0E11] px-4 py-3 last:border-b-0"
             >
               {/* Filename */}
               <div className="flex flex-[2] items-center gap-2 min-w-0">
-                <FileText size={16} className="shrink-0 text-accent" />
-                <span className="truncate text-sm text-text-muted">{file.name}</span>
+                <FileText size={16} className="shrink-0 text-[#C9A227]" />
+                <span className="truncate text-sm text-[#8A857D]">{file.name}</span>
               </div>
 
               {/* Table name input */}
@@ -107,10 +107,10 @@ export function FileReviewList({
                   onChange={(e) => onTableNameChange(index, e.target.value)}
                   disabled={isStaging}
                   className={cn(
-                    "w-full rounded-md border bg-surface-base px-3 py-1.5 text-sm text-text-primary font-mono placeholder-text-ghost focus:outline-none transition-colors",
+                    "w-full rounded-md border bg-[#0E0E11] px-3 py-1.5 text-sm text-[#F0EDE8] font-mono placeholder-[#5A5650] focus:outline-none transition-colors",
                     hasError
                       ? "border-red-500 focus:border-red-400"
-                      : "border-surface-highlight focus:border-accent",
+                      : "border-[#323238] focus:border-[#C9A227]",
                   )}
                   placeholder="table_name"
                 />
@@ -123,7 +123,7 @@ export function FileReviewList({
               </div>
 
               {/* Size */}
-              <div className="w-20 text-right text-sm text-text-muted pt-1.5">
+              <div className="w-20 text-right text-sm text-[#8A857D] pt-1.5">
                 {formatFileSize(file.size)}
               </div>
 
@@ -132,7 +132,7 @@ export function FileReviewList({
                 type="button"
                 onClick={() => onRemove(index)}
                 disabled={isStaging}
-                className="w-10 flex items-center justify-center pt-1 text-text-muted hover:text-critical transition-colors disabled:opacity-50"
+                className="w-10 flex items-center justify-center pt-1 text-[#8A857D] hover:text-[#E85A6B] transition-colors disabled:opacity-50"
                 aria-label={`Remove ${file.name}`}
               >
                 <X size={16} />
@@ -148,7 +148,7 @@ export function FileReviewList({
           type="button"
           onClick={onStageAll}
           disabled={!canStage || isStaging}
-          className="flex items-center gap-2 rounded-md bg-success px-6 py-2.5 text-sm font-medium text-surface-base transition-colors hover:bg-success disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 rounded-md bg-[#2DD4BF] px-6 py-2.5 text-sm font-medium text-[#0E0E11] transition-colors hover:bg-[#26BCA8] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isStaging && <Loader2 size={16} className="animate-spin" />}
           {isStaging ? "Staging..." : "Stage All"}

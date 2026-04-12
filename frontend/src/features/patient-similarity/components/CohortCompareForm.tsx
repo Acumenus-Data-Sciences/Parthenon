@@ -95,7 +95,7 @@ export function CohortCompareForm({
     <form onSubmit={handleCompare} className="space-y-5">
       {/* Source Selector */}
       <div>
-        <label className="block text-[10px] text-text-ghost uppercase tracking-wider mb-1.5">
+        <label className="block text-[10px] text-[#5A5650] uppercase tracking-wider mb-1.5">
           Data Source
         </label>
         <select
@@ -103,9 +103,9 @@ export function CohortCompareForm({
           onChange={(e) => onSourceChange(parseInt(e.target.value, 10))}
           className={cn(
             "w-full rounded-lg px-3 py-2 text-sm",
-            "bg-surface-base border border-border-default",
-            "text-text-primary",
-            "focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/15",
+            "bg-[#0E0E11] border border-[#232328]",
+            "text-[#F0EDE8]",
+            "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
           )}
         >
           <option value={0}>Select source...</option>
@@ -119,11 +119,11 @@ export function CohortCompareForm({
 
       {/* Source Cohort */}
       <div>
-        <label className="block text-[10px] text-text-ghost uppercase tracking-wider mb-1.5">
+        <label className="block text-[10px] text-[#5A5650] uppercase tracking-wider mb-1.5">
           Source Cohort
         </label>
         {cohortsLoading ? (
-          <div className="flex items-center gap-2 text-xs text-text-ghost py-2">
+          <div className="flex items-center gap-2 text-xs text-[#5A5650] py-2">
             <Loader2 size={12} className="animate-spin" />
             Loading...
           </div>
@@ -135,9 +135,9 @@ export function CohortCompareForm({
             }
             className={cn(
               "w-full rounded-lg px-3 py-2 text-sm",
-              "bg-surface-base border border-border-default",
-              "text-text-primary",
-              "focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/15",
+              "bg-[#0E0E11] border border-[#232328]",
+              "text-[#F0EDE8]",
+              "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
             )}
           >
             <option value={0}>Select source cohort...</option>
@@ -160,11 +160,11 @@ export function CohortCompareForm({
 
       {/* Target Cohort */}
       <div>
-        <label className="block text-[10px] text-text-ghost uppercase tracking-wider mb-1.5">
+        <label className="block text-[10px] text-[#5A5650] uppercase tracking-wider mb-1.5">
           Target Cohort
         </label>
         {cohortsLoading ? (
-          <div className="flex items-center gap-2 text-xs text-text-ghost py-2">
+          <div className="flex items-center gap-2 text-xs text-[#5A5650] py-2">
             <Loader2 size={12} className="animate-spin" />
             Loading...
           </div>
@@ -176,9 +176,9 @@ export function CohortCompareForm({
             }
             className={cn(
               "w-full rounded-lg px-3 py-2 text-sm",
-              "bg-surface-base border border-border-default",
-              "text-text-primary",
-              "focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/15",
+              "bg-[#0E0E11] border border-[#232328]",
+              "text-[#F0EDE8]",
+              "focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40",
             )}
           >
             <option value={0}>Select target cohort...</option>
@@ -207,7 +207,7 @@ export function CohortCompareForm({
         disabled={isComparing || !bothGenerated || sourceId <= 0}
         className={cn(
           "w-full flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors",
-          "bg-primary text-white hover:bg-primary-dark",
+          "bg-[#9B1B30] text-white hover:bg-[#B22040]",
           "disabled:opacity-50 disabled:cursor-not-allowed",
         )}
       >
@@ -229,7 +229,7 @@ export function CohortCompareForm({
           disabled={isSearching}
           className={cn(
             "w-full flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors",
-            "bg-success/10 text-success border border-success/30 hover:bg-success/20",
+            "bg-[#2DD4BF]/10 text-[#2DD4BF] border border-[#2DD4BF]/30 hover:bg-[#2DD4BF]/20",
             "disabled:opacity-50 disabled:cursor-not-allowed",
           )}
         >

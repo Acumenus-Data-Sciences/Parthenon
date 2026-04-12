@@ -65,11 +65,11 @@ export function CalibrationPlot({
       width={width}
       height={height}
       viewBox={`0 0 ${width} ${height}`}
-      className="text-text-primary"
+      className="text-[#F0EDE8]"
       data-testid="calibration-plot-svg"
     >
       {/* Background */}
-      <rect width={width} height={height} fill="var(--surface-raised)" rx={8} />
+      <rect width={width} height={height} fill="#151518" rx={8} />
 
       {/* Grid */}
       {gridLines.map((v) => (
@@ -79,7 +79,7 @@ export function CalibrationPlot({
             y1={padding.top}
             x2={toX(v)}
             y2={padding.top + plotH}
-            stroke="var(--border-default)"
+            stroke="#232328"
             strokeWidth={0.5}
           />
           <line
@@ -87,14 +87,14 @@ export function CalibrationPlot({
             y1={toY(v)}
             x2={padding.left + plotW}
             y2={toY(v)}
-            stroke="var(--border-default)"
+            stroke="#232328"
             strokeWidth={0.5}
           />
           <text
             x={toX(v)}
             y={padding.top + plotH + 16}
             textAnchor="middle"
-            fill="var(--text-ghost)"
+            fill="#5A5650"
             fontSize={10}
           >
             {v.toFixed(1)}
@@ -103,7 +103,7 @@ export function CalibrationPlot({
             x={padding.left - 8}
             y={toY(v) + 3}
             textAnchor="end"
-            fill="var(--text-ghost)"
+            fill="#5A5650"
             fontSize={10}
           >
             {v.toFixed(1)}
@@ -117,7 +117,7 @@ export function CalibrationPlot({
         y1={toY(0)}
         x2={toX(1)}
         y2={toY(1)}
-        stroke="var(--border-default)"
+        stroke="#323238"
         strokeWidth={1}
         strokeDasharray="6 4"
       />
@@ -134,7 +134,7 @@ export function CalibrationPlot({
             y1={toY(clampedY0)}
             x2={toX(1)}
             y2={toY(clampedY1)}
-            stroke="var(--accent)"
+            stroke="#C9A227"
             strokeWidth={1.5}
             strokeDasharray="4 3"
             opacity={0.7}
@@ -149,8 +149,8 @@ export function CalibrationPlot({
             cx={toX(pt.predicted)}
             cy={toY(pt.observed)}
             r={5}
-            fill="var(--success)"
-            stroke="var(--surface-base)"
+            fill="#2DD4BF"
+            stroke="#0E0E11"
             strokeWidth={1.5}
             opacity={0.9}
           />
@@ -164,7 +164,7 @@ export function CalibrationPlot({
         width={plotW}
         height={plotH}
         fill="none"
-        stroke="var(--border-default)"
+        stroke="#323238"
         strokeWidth={1}
       />
 
@@ -175,14 +175,14 @@ export function CalibrationPlot({
         width={130}
         height={40}
         rx={4}
-        fill="var(--surface-base)"
-        stroke="var(--border-default)"
+        fill="#0E0E11"
+        stroke="#232328"
         strokeWidth={1}
       />
       <text
         x={padding.left + 16}
         y={padding.top + 24}
-        fill="var(--accent)"
+        fill="#C9A227"
         fontSize={10}
         fontFamily="IBM Plex Mono, monospace"
       >
@@ -191,7 +191,7 @@ export function CalibrationPlot({
       <text
         x={padding.left + 16}
         y={padding.top + 40}
-        fill="var(--accent)"
+        fill="#C9A227"
         fontSize={10}
         fontFamily="IBM Plex Mono, monospace"
       >
@@ -205,15 +205,15 @@ export function CalibrationPlot({
         width={112}
         height={40}
         rx={4}
-        fill="var(--surface-base)"
-        stroke="var(--border-default)"
+        fill="#0E0E11"
+        stroke="#232328"
         strokeWidth={1}
         data-testid="ici-emax-annotation"
       />
       <text
         x={padding.left + plotW - 112}
         y={padding.top + 24}
-        fill="var(--success)"
+        fill="#2DD4BF"
         fontSize={10}
         fontFamily="IBM Plex Mono, monospace"
         data-testid="ici-value"
@@ -223,7 +223,7 @@ export function CalibrationPlot({
       <text
         x={padding.left + plotW - 112}
         y={padding.top + 40}
-        fill="var(--critical)"
+        fill="#E85A6B"
         fontSize={10}
         fontFamily="IBM Plex Mono, monospace"
         data-testid="emax-value"
@@ -245,7 +245,7 @@ export function CalibrationPlot({
                 y={barAreaTop + (barAreaH - 4) - barH}
                 width={barW}
                 height={barH}
-                fill="var(--success)"
+                fill="#2DD4BF"
                 opacity={0.3}
                 rx={1}
               />
@@ -255,7 +255,7 @@ export function CalibrationPlot({
             x={padding.left + plotW / 2}
             y={barAreaTop + barAreaH + 4}
             textAnchor="middle"
-            fill="var(--text-ghost)"
+            fill="#5A5650"
             fontSize={8}
           >
             Patient count per predicted probability bin
@@ -268,7 +268,7 @@ export function CalibrationPlot({
         x={padding.left + plotW / 2}
         y={barAreaTop - 6}
         textAnchor="middle"
-        fill="var(--text-muted)"
+        fill="#8A857D"
         fontSize={11}
         fontWeight={600}
       >
@@ -278,7 +278,7 @@ export function CalibrationPlot({
         x={14}
         y={padding.top + plotH / 2}
         textAnchor="middle"
-        fill="var(--text-muted)"
+        fill="#8A857D"
         fontSize={11}
         fontWeight={600}
         transform={`rotate(-90 14 ${padding.top + plotH / 2})`}

@@ -16,22 +16,22 @@ export function RuccAnalysisPanel({ conceptId, metric }: LayerAnalysisProps) {
     staleTime: 60_000,
   });
 
-  if (isLoading) return <p className="text-xs text-text-ghost">Loading...</p>;
-  if (!data?.length) return <p className="text-xs text-text-ghost">No data</p>;
+  if (isLoading) return <p className="text-xs text-[#5A5650]">Loading...</p>;
+  if (!data?.length) return <p className="text-xs text-[#5A5650]">No data</p>;
 
   const chartData = data.map((d) => ({
     name: d.category.charAt(0).toUpperCase() + d.category.slice(1),
     rate: d.rate,
-    fill: CATEGORY_COLORS[d.category] ?? "var(--text-muted)",
+    fill: CATEGORY_COLORS[d.category] ?? "#8A857D",
   }));
 
   return (
     <ResponsiveContainer width="100%" height={120}>
       <BarChart data={chartData}>
-        <CartesianGrid strokeDasharray="3 3" stroke="var(--border-default)" />
-        <XAxis dataKey="name" tick={{ fill: "var(--text-muted)", fontSize: 10 }} />
-        <YAxis tick={{ fill: "var(--text-muted)", fontSize: 10 }} />
-        <Tooltip contentStyle={{ backgroundColor: 'var(--surface-raised)', border: "1px solid var(--surface-elevated)", borderRadius: 8, fontSize: 11 }} />
+        <CartesianGrid strokeDasharray="3 3" stroke="#232328" />
+        <XAxis dataKey="name" tick={{ fill: "#8A857D", fontSize: 10 }} />
+        <YAxis tick={{ fill: "#8A857D", fontSize: 10 }} />
+        <Tooltip contentStyle={{ backgroundColor: "#141418", border: "1px solid #232328", borderRadius: 8, fontSize: 11 }} />
         <Bar dataKey="rate" radius={[2, 2, 0, 0]}>
           {chartData.map((entry, i) => (
             <Cell key={i} fill={entry.fill} />

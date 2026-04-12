@@ -21,7 +21,7 @@ export function CrossLinkBadge({ pinId, crossLinks }: CrossLinkBadgeProps) {
         style={{
           backgroundColor: "rgba(45, 212, 191, 0.1)",
           borderColor: "rgba(45, 212, 191, 0.3)",
-          color: "var(--success)",
+          color: "#2DD4BF",
         }}
       >
         <span>🔗</span>
@@ -30,13 +30,13 @@ export function CrossLinkBadge({ pinId, crossLinks }: CrossLinkBadgeProps) {
 
       {showTooltip && (
         <div
-          className="absolute bottom-full left-1/2 mb-2 z-50 min-w-[180px] max-w-xs rounded-xl border border-zinc-700 shadow-xl text-xs"
+          className="absolute bottom-full left-1/2 mb-2 z-50 min-w-[180px] max-w-xs rounded-xl border border-border-default shadow-xl text-xs"
           style={{
             transform: "translateX(-50%)",
-            backgroundColor: 'var(--surface-raised)',
+            backgroundColor: "#18181b",
           }}
         >
-          <div className="px-3 py-2 border-b border-zinc-700">
+          <div className="px-3 py-2 border-b border-border-default">
             <span className="font-semibold text-zinc-300">Cross-domain links</span>
           </div>
           <ul className="px-3 py-2 flex flex-col gap-1.5">
@@ -46,7 +46,7 @@ export function CrossLinkBadge({ pinId, crossLinks }: CrossLinkBadgeProps) {
                   className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded"
                   style={{
                     backgroundColor: "rgba(155, 27, 48, 0.2)",
-                    color: "var(--primary)",
+                    color: "#9B1B30",
                     border: "1px solid rgba(155, 27, 48, 0.3)",
                   }}
                 >

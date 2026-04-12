@@ -18,19 +18,19 @@ const GROUP_META: GroupMeta[] = [
     group: "characterize",
     label: "Characterize",
     description: "Describe your populations — demographics, comorbidities, and treatment patterns.",
-    color: "var(--success)",
+    color: "#2DD4BF",
   },
   {
     group: "compare",
     label: "Compare",
     description: "Estimate causal effects and compare outcomes across exposures or time windows.",
-    color: "var(--primary)",
+    color: "#9B1B30",
   },
   {
     group: "predict",
     label: "Predict",
     description: "Train patient-level machine learning models to forecast future outcomes.",
-    color: "var(--accent)",
+    color: "#C9A227",
   },
 ];
 

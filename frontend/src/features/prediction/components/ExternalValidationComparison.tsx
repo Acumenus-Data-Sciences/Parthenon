@@ -7,15 +7,15 @@ interface ExternalValidationComparisonProps {
 }
 
 function aucColor(auc: number): string {
-  if (auc >= 0.7) return "var(--success)";
-  if (auc >= 0.6) return "var(--accent)";
-  return "var(--critical)";
+  if (auc >= 0.7) return "#2DD4BF";
+  if (auc >= 0.6) return "#C9A227";
+  return "#E85A6B";
 }
 
 function calSlopeColor(slope: number): string {
-  if (slope >= 0.8 && slope <= 1.2) return "var(--success)";
-  if (slope >= 0.6 && slope <= 1.4) return "var(--accent)";
-  return "var(--critical)";
+  if (slope >= 0.8 && slope <= 1.2) return "#2DD4BF";
+  if (slope >= 0.6 && slope <= 1.4) return "#C9A227";
+  return "#E85A6B";
 }
 
 export function ExternalValidationComparison({
@@ -45,11 +45,11 @@ export function ExternalValidationComparison({
           width={width}
           height={height}
           viewBox={`0 0 ${width} ${height}`}
-          className="text-text-primary"
+          className="text-[#F0EDE8]"
           role="img"
           aria-label="External validation AUC forest plot"
         >
-          <rect width={width} height={height} fill="var(--surface-raised)" rx={8} />
+          <rect width={width} height={height} fill="#151518" rx={8} />
 
           {/* Grid lines and x-axis ticks */}
           {xTicks.map((v) => (
@@ -59,14 +59,14 @@ export function ExternalValidationComparison({
                 y1={padding.top}
                 x2={toX(v)}
                 y2={padding.top + plotH}
-                stroke="var(--border-default)"
+                stroke="#232328"
                 strokeWidth={0.5}
               />
               <text
                 x={toX(v)}
                 y={padding.top + plotH + 16}
                 textAnchor="middle"
-                fill="var(--text-ghost)"
+                fill="#5A5650"
                 fontSize={10}
               >
                 {v.toFixed(1)}
@@ -80,7 +80,7 @@ export function ExternalValidationComparison({
             y1={padding.top}
             x2={toX(0.5)}
             y2={padding.top + plotH}
-            stroke="var(--text-ghost)"
+            stroke="#5A5650"
             strokeWidth={1}
             strokeDasharray="4 4"
           />
@@ -89,7 +89,7 @@ export function ExternalValidationComparison({
           {allDatabases.map((db, i) => {
             const y = padding.top + i * rowHeight + rowHeight / 2;
             const isDev = i === 0;
-            const color = isDev ? "var(--success)" : "var(--accent)";
+            const color = isDev ? "#2DD4BF" : "#C9A227";
             const ciLeft = Math.max(db.auc_ci_lower, xMin);
             const ciRight = Math.min(db.auc_ci_upper, xMax);
             const aucClamped = Math.max(Math.min(db.auc, xMax), xMin);
@@ -103,7 +103,7 @@ export function ExternalValidationComparison({
                     y={padding.top + i * rowHeight}
                     width={width}
                     height={rowHeight}
-                    fill="var(--surface-overlay)"
+                    fill="#1A1A1E"
                   />
                 )}
 
@@ -112,7 +112,7 @@ export function ExternalValidationComparison({
                   x={padding.left - 10}
                   y={y + 4}
                   textAnchor="end"
-                  fill={isDev ? "var(--success)" : "var(--text-secondary)"}
+                  fill={isDev ? "#2DD4BF" : "#C5C0B8"}
                   fontSize={11}
                   fontWeight={isDev ? 600 : 400}
                 >
@@ -140,7 +140,7 @@ export function ExternalValidationComparison({
                 <polygon
                   points={`${toX(aucClamped)},${y - 6} ${toX(aucClamped) + 5},${y} ${toX(aucClamped)},${y + 6} ${toX(aucClamped) - 5},${y}`}
                   fill={color}
-                  stroke="var(--surface-raised)"
+                  stroke="#151518"
                   strokeWidth={0.5}
                 />
 
@@ -166,7 +166,7 @@ export function ExternalValidationComparison({
             width={plotW}
             height={plotH}
             fill="none"
-            stroke="var(--border-default)"
+            stroke="#323238"
             strokeWidth={1}
           />
 
@@ -175,7 +175,7 @@ export function ExternalValidationComparison({
             x={padding.left + plotW / 2}
             y={height - 6}
             textAnchor="middle"
-            fill="var(--text-muted)"
+            fill="#8A857D"
             fontSize={11}
             fontWeight={600}
           >
@@ -185,29 +185,29 @@ export function ExternalValidationComparison({
       </div>
 
       {/* Metrics Comparison Table */}
-      <div className="rounded-lg border border-border-default overflow-hidden">
+      <div className="rounded-lg border border-[#232328] overflow-hidden">
         <table className="w-full">
           <thead>
-            <tr className="bg-surface-overlay">
-              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+            <tr className="bg-[#1C1C20]">
+              <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                 Database
               </th>
-              <th className="px-3 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+              <th className="px-3 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                 Population
               </th>
-              <th className="px-3 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+              <th className="px-3 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                 Outcomes
               </th>
-              <th className="px-3 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+              <th className="px-3 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                 AUC (95% CI)
               </th>
-              <th className="px-3 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+              <th className="px-3 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                 Brier
               </th>
-              <th className="px-3 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+              <th className="px-3 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                 Cal. Slope
               </th>
-              <th className="px-3 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+              <th className="px-3 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                 Cal. Intercept
               </th>
             </tr>
@@ -218,34 +218,34 @@ export function ExternalValidationComparison({
               return (
                 <tr
                   key={db.database_name}
-                  className={i % 2 === 0 ? "bg-surface-raised" : "bg-surface-overlay"}
-                  style={isDev ? { borderLeft: "3px solid var(--success)" } : undefined}
+                  className={i % 2 === 0 ? "bg-[#151518]" : "bg-[#1A1A1E]"}
+                  style={isDev ? { borderLeft: "3px solid #2DD4BF" } : undefined}
                 >
                   <td className="px-4 py-3 text-sm">
-                    <span className={isDev ? "text-success font-semibold" : "text-text-primary"}>
+                    <span className={isDev ? "text-[#2DD4BF] font-semibold" : "text-[#F0EDE8]"}>
                       {db.database_name}
                     </span>
                     {isDev && (
-                      <span className="ml-2 px-1.5 py-0.5 rounded text-[9px] font-medium bg-success/10 text-success">
+                      <span className="ml-2 px-1.5 py-0.5 rounded text-[9px] font-medium bg-[#2DD4BF]/10 text-[#2DD4BF]">
                         DEV
                       </span>
                     )}
                   </td>
-                  <td className="px-3 py-3 text-right font-['IBM_Plex_Mono',monospace] text-xs text-text-secondary">
+                  <td className="px-3 py-3 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
                     {num(db.population_size).toLocaleString()}
                   </td>
-                  <td className="px-3 py-3 text-right font-['IBM_Plex_Mono',monospace] text-xs text-text-secondary">
+                  <td className="px-3 py-3 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
                     {num(db.outcome_count).toLocaleString()}
                   </td>
                   <td className="px-3 py-3 text-right font-['IBM_Plex_Mono',monospace] text-xs">
                     <span style={{ color: aucColor(db.auc) }}>
                       {fmt(db.auc)}
                     </span>
-                    <span className="text-text-ghost ml-1">
+                    <span className="text-[#5A5650] ml-1">
                       ({fmt(db.auc_ci_lower, 2)}-{fmt(db.auc_ci_upper, 2)})
                     </span>
                   </td>
-                  <td className="px-3 py-3 text-right font-['IBM_Plex_Mono',monospace] text-xs text-text-secondary">
+                  <td className="px-3 py-3 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
                     {fmt(db.brier_score, 4)}
                   </td>
                   <td className="px-3 py-3 text-right font-['IBM_Plex_Mono',monospace] text-xs">
@@ -253,7 +253,7 @@ export function ExternalValidationComparison({
                       {fmt(db.calibration_slope)}
                     </span>
                   </td>
-                  <td className="px-3 py-3 text-right font-['IBM_Plex_Mono',monospace] text-xs text-text-secondary">
+                  <td className="px-3 py-3 text-right font-['IBM_Plex_Mono',monospace] text-xs text-[#C5C0B8]">
                     {fmt(db.calibration_intercept)}
                   </td>
                 </tr>

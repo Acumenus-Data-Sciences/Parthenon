@@ -25,11 +25,11 @@ export const CDM_TABLE_ORDER = [
 ];
 
 export const CDM_TABLE_COLORS: Record<string, string> = {
-  person: "var(--success)",
-  visit_occurrence: "var(--info)",
-  condition_occurrence: "var(--domain-procedure)",
-  drug_exposure: "var(--accent)",
-  procedure_occurrence: "var(--domain-observation)",
+  person: "#2DD4BF",
+  visit_occurrence: "#60A5FA",
+  condition_occurrence: "#F472B6",
+  drug_exposure: "#C9A227",
+  procedure_occurrence: "#A78BFA",
   measurement: "#34D399",
   observation: "#FB923C",
   device_exposure: "#818CF8",

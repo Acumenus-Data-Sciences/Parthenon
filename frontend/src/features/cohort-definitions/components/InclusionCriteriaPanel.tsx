@@ -41,7 +41,7 @@ export function InclusionCriteriaPanel() {
 
   return (
     <div className="space-y-4">
-      <p className="text-xs text-text-ghost">
+      <p className="text-xs text-[#5A5650]">
         Define additional inclusion criteria that must be satisfied after the
         initial qualifying events. These further restrict which people qualify
         for the cohort.
@@ -53,12 +53,12 @@ export function InclusionCriteriaPanel() {
           onChange={handleGroupChange}
         />
       ) : (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-8">
-          <AlertCircle size={20} className="text-surface-highlight mb-2" />
-          <p className="text-sm text-text-muted">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-8">
+          <AlertCircle size={20} className="text-[#323238] mb-2" />
+          <p className="text-sm text-[#8A857D]">
             No additional inclusion criteria
           </p>
-          <p className="mt-1 text-xs text-text-ghost">
+          <p className="mt-1 text-xs text-[#5A5650]">
             All people matching primary criteria will be included
           </p>
         </div>
@@ -74,7 +74,7 @@ export function InclusionCriteriaPanel() {
         <button
           type="button"
           onClick={() => setShowAdd(true)}
-          className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-4 py-2.5 text-sm text-text-secondary hover:bg-surface-overlay hover:text-text-primary transition-colors"
+          className="inline-flex items-center gap-2 rounded-lg border border-[#232328] bg-[#151518] px-4 py-2.5 text-sm text-[#C5C0B8] hover:bg-[#1A1A1E] hover:text-[#F0EDE8] transition-colors"
         >
           <Plus size={14} />
           Add Inclusion Rule

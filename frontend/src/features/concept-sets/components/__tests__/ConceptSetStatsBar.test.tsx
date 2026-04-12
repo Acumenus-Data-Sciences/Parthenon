@@ -49,6 +49,6 @@ describe("ConceptSetStatsBar", () => {
     });
     render(<ConceptSetStatsBar activeKey="public" />);
     const publicTile = screen.getByText("Public").closest("[role='button']")!;
-    expect(publicTile.className).toContain("var(--accent)");
+    expect(publicTile.className).toContain("#C9A227");
   });
 });

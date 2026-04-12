@@ -6,9 +6,9 @@ import type { ClinicalAnalysisGroup, ClinicalAnalysisType, Investigation } from 
 // ── Constants ──────────────────────────────────────────────────────────────
 
 const GROUP_COLOR: Record<ClinicalAnalysisGroup, string> = {
-  characterize: "var(--success)",
-  compare: "var(--primary)",
-  predict: "var(--accent)",
+  characterize: "#2DD4BF",
+  compare: "#9B1B30",
+  predict: "#C9A227",
 };
 
 type QueuedStatus = "configured" | "queued" | "running" | "complete" | "failed";
@@ -40,17 +40,17 @@ const STATUS_CONFIG: Record<
   },
   configured: {
     label: "Pending",
-    dotClass: "bg-zinc-500",
+    dotClass: "bg-surface-overlay",
     textClass: "text-zinc-400",
-    bgClass: "bg-zinc-500/10",
-    borderClass: "border-zinc-700",
+    bgClass: "bg-surface-raised/10",
+    borderClass: "border-border-default",
   },
   failed: {
     label: "Failed",
-    dotClass: "bg-primary",
-    textClass: "text-primary",
-    bgClass: "bg-primary/10",
-    borderClass: "border-primary/30",
+    dotClass: "bg-[#9B1B30]",
+    textClass: "text-[#9B1B30]",
+    bgClass: "bg-[#9B1B30]/10",
+    borderClass: "border-[#9B1B30]/30",
   },
 };
 
@@ -115,7 +115,7 @@ export function RunHistoryPanel({
   // ── Empty state ─────────────────────────────────────────────────────────
   if (rows.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-zinc-800 bg-zinc-900/30 px-6 py-14 text-center">
+      <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border-default bg-surface-base/30 px-6 py-14 text-center">
         <Clock className="h-8 w-8 text-zinc-700" />
         <p className="text-sm text-zinc-500">
           No analyses have been run yet. Select an analysis from the gallery to get started.
@@ -148,7 +148,7 @@ export function RunHistoryPanel({
         return (
           <div
             key={`${qa.analysis_id}-${executionId}`}
-            className="group flex items-center gap-3 rounded-lg border border-zinc-800 bg-zinc-900/50 px-4 py-3 transition-colors hover:border-zinc-700"
+            className="group flex items-center gap-3 rounded-lg border border-border-default bg-surface-base/50 px-4 py-3 transition-colors hover:border-border-default"
           >
             {/* Group accent stripe */}
             <div
@@ -193,7 +193,7 @@ export function RunHistoryPanel({
                 type="button"
                 disabled
                 title="Coming in Phase 4"
-                className="flex shrink-0 items-center gap-1.5 rounded-md border border-zinc-700 bg-zinc-800 px-2.5 py-1 text-[11px] text-zinc-500 opacity-50 cursor-not-allowed"
+                className="flex shrink-0 items-center gap-1.5 rounded-md border border-border-default bg-surface-raised px-2.5 py-1 text-[11px] text-zinc-500 opacity-50 cursor-not-allowed"
               >
                 <GitCompare className="h-3 w-3" />
                 Compare
@@ -207,7 +207,7 @@ export function RunHistoryPanel({
                 onClick={() =>
                   onSelectExecution(qa.api_prefix, qa.analysis_id, executionId, qa.analysis_type)
                 }
-                className="flex shrink-0 items-center gap-1.5 rounded-md border border-zinc-700 bg-zinc-800 px-2.5 py-1 text-[11px] text-zinc-300 transition-colors hover:border-zinc-600 hover:text-zinc-100"
+                className="flex shrink-0 items-center gap-1.5 rounded-md border border-border-default bg-surface-raised px-2.5 py-1 text-[11px] text-zinc-300 transition-colors hover:border-border-hover hover:text-zinc-100"
                 title="View or replay this execution"
               >
                 <RotateCcw className="h-3 w-3" />
@@ -222,7 +222,7 @@ export function RunHistoryPanel({
                 onClick={() =>
                   onSelectExecution(qa.api_prefix, qa.analysis_id, executionId, qa.analysis_type)
                 }
-                className="flex shrink-0 items-center gap-1.5 rounded-md border border-zinc-700 bg-zinc-800 px-2.5 py-1 text-[11px] text-zinc-300 transition-colors hover:border-zinc-600 hover:text-zinc-100"
+                className="flex shrink-0 items-center gap-1.5 rounded-md border border-border-default bg-surface-raised px-2.5 py-1 text-[11px] text-zinc-300 transition-colors hover:border-border-hover hover:text-zinc-100"
                 title="View execution details"
               >
                 View

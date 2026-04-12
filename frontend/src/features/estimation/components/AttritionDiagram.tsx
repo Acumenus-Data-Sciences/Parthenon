@@ -32,8 +32,8 @@ export function AttritionDiagram({
   const leftCol = sideMargin + excludeBoxWidth + 16;
   const rightCol = leftCol + boxWidth + columnGap;
 
-  const TARGET_COLOR = "var(--success)";
-  const COMPARATOR_COLOR = "var(--accent)";
+  const TARGET_COLOR = "#2DD4BF";
+  const COMPARATOR_COLOR = "#C9A227";
 
   function renderColumn(
     steps: AttritionStep[],
@@ -57,7 +57,7 @@ export function AttritionDiagram({
             width={boxWidth}
             height={boxHeight}
             rx={6}
-            fill="var(--surface-base)"
+            fill="#0E0E11"
             stroke={color}
             strokeWidth={1.5}
           />
@@ -65,7 +65,7 @@ export function AttritionDiagram({
             x={colX + boxWidth / 2}
             y={y + 18}
             textAnchor="middle"
-            fill="var(--text-secondary)"
+            fill="#C5C0B8"
             fontSize={10}
           >
             {step.description.length > 38
@@ -92,12 +92,12 @@ export function AttritionDiagram({
                 y1={y + boxHeight}
                 x2={colX + boxWidth / 2}
                 y2={y + boxHeight + arrowHeight}
-                stroke="var(--border-default)"
+                stroke="#323238"
                 strokeWidth={1.5}
               />
               <polygon
                 points={`${colX + boxWidth / 2 - 4},${y + boxHeight + arrowHeight - 6} ${colX + boxWidth / 2 + 4},${y + boxHeight + arrowHeight - 6} ${colX + boxWidth / 2},${y + boxHeight + arrowHeight}`}
-                fill="var(--surface-highlight)"
+                fill="#323238"
               />
             </g>
           )}
@@ -114,7 +114,7 @@ export function AttritionDiagram({
                 y1={y + boxHeight / 2}
                 x2={excludeX + (excludeAlign === "left" ? excludeBoxWidth : 0)}
                 y2={y + boxHeight / 2}
-                stroke="var(--critical)"
+                stroke="#E85A6B"
                 strokeWidth={1}
                 strokeDasharray="4 3"
               />
@@ -124,15 +124,15 @@ export function AttritionDiagram({
                 width={excludeBoxWidth}
                 height={36}
                 rx={4}
-                fill="color-mix(in srgb, var(--critical) 6%, transparent)"
-                stroke="var(--critical)"
+                fill="#E85A6B10"
+                stroke="#E85A6B"
                 strokeWidth={0.8}
               />
               <text
                 x={excludeX + excludeBoxWidth / 2}
                 y={y + boxHeight / 2 - 3}
                 textAnchor="middle"
-                fill="var(--critical)"
+                fill="#E85A6B"
                 fontSize={9}
               >
                 Excluded
@@ -141,7 +141,7 @@ export function AttritionDiagram({
                 x={excludeX + excludeBoxWidth / 2}
                 y={y + boxHeight / 2 + 12}
                 textAnchor="middle"
-                fill="var(--critical)"
+                fill="#E85A6B"
                 fontSize={11}
                 fontWeight={600}
                 fontFamily="IBM Plex Mono, monospace"
@@ -161,14 +161,14 @@ export function AttritionDiagram({
         width={totalWidth}
         height={totalHeight}
         viewBox={`0 0 ${totalWidth} ${totalHeight}`}
-        className="text-text-primary"
+        className="text-[#F0EDE8]"
         role="img"
         aria-label="Attrition diagram showing patient flow"
       >
         <rect
           width={totalWidth}
           height={totalHeight}
-          fill="var(--surface-raised)"
+          fill="#151518"
           rx={8}
         />
 

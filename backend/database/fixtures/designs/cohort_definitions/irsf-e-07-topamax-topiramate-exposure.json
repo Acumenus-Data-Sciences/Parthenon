@@ -1,0 +1,74 @@
+{
+    "id": 219,
+    "name": "IRSF E-07: Topamax (Topiramate) Exposure",
+    "description": "Event cohort: Drug exposure eras for Topamax (Topiramate) (concept 19082966). 203 patients in IRSF-NHS dataset. All exposure periods captured (not just first) with 30-day era gap for continuous use detection. includeDescendants enabled for brand\/generic\/formulation coverage. Used as event cohort in AED treatment pathway analysis.",
+    "expression_json": {
+        "ConceptSets": [
+            {
+                "id": 0,
+                "name": "Topamax (Topiramate)",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 19082966,
+                                "CONCEPT_NAME": "Topamax (Topiramate)",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Branded Drug",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": true,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            }
+        ],
+        "InclusionRules": [],
+        "QualifiedLimit": {
+            "Type": "All"
+        },
+        "ExpressionLimit": {
+            "Type": "All"
+        },
+        "PrimaryCriteria": {
+            "CriteriaList": [
+                {
+                    "DrugExposure": {
+                        "CodesetId": 0
+                    }
+                }
+            ],
+            "ObservationWindow": {
+                "PostDays": 0,
+                "PriorDays": 0
+            }
+        },
+        "CollapseSettings": {
+            "EraPad": 30,
+            "CollapseType": "ERA"
+        },
+        "CensoringCriteria": [],
+        "AdditionalCriteria": {
+            "Type": "ALL",
+            "Groups": [],
+            "CriteriaList": []
+        }
+    },
+    "author_id": 117,
+    "is_public": false,
+    "version": 1,
+    "created_at": "2026-03-27T00:01:42.000000Z",
+    "updated_at": "2026-03-27T00:01:42.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "irsf",
+        "event",
+        "aed",
+        "pathway"
+    ],
+    "share_token": null,
+    "share_expires_at": null
+}

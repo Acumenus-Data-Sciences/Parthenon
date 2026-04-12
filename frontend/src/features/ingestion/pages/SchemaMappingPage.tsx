@@ -33,11 +33,11 @@ const CDM_TABLES = [
 ] as const;
 
 const LOGIC_LABELS: Record<MappingLogic, { label: string; color: string }> = {
-  direct: { label: "Direct", color: "text-success" },
-  transform: { label: "Transform", color: "text-domain-observation" },
-  concat: { label: "Concat", color: "text-info" },
-  lookup: { label: "Lookup", color: "text-warning" },
-  constant: { label: "Constant", color: "text-text-muted" },
+  direct: { label: "Direct", color: "text-[#2DD4BF]" },
+  transform: { label: "Transform", color: "text-[#A855F7]" },
+  concat: { label: "Concat", color: "text-[#60A5FA]" },
+  lookup: { label: "Lookup", color: "text-[#E5A84B]" },
+  constant: { label: "Constant", color: "text-[#8A857D]" },
 };
 
 export default function SchemaMappingPage() {
@@ -129,7 +129,7 @@ export default function SchemaMappingPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        <Loader2 className="h-6 w-6 animate-spin text-[#9B1B30]" />
       </div>
     );
   }
@@ -139,10 +139,10 @@ export default function SchemaMappingPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-text-primary">
+          <h1 className="text-xl font-semibold text-[#F0EDE8]">
             Schema Mapping
           </h1>
-          <p className="mt-1 text-sm text-text-muted">
+          <p className="mt-1 text-sm text-[#8A857D]">
             Map source columns to OMOP CDM tables and fields
           </p>
         </div>
@@ -150,7 +150,7 @@ export default function SchemaMappingPage() {
           <button
             onClick={() => suggestMutation.mutate()}
             disabled={suggestMutation.isPending}
-            className="flex items-center gap-2 rounded-lg border border-primary/40 bg-primary/10 px-4 py-2 text-sm font-medium text-primary transition hover:bg-primary/20 disabled:opacity-50"
+            className="flex items-center gap-2 rounded-lg border border-[#9B1B30]/40 bg-[#9B1B30]/10 px-4 py-2 text-sm font-medium text-[#9B1B30] transition hover:bg-[#9B1B30]/20 disabled:opacity-50"
           >
             {suggestMutation.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -162,7 +162,7 @@ export default function SchemaMappingPage() {
           <button
             onClick={() => confirmMutation.mutate()}
             disabled={confirmMutation.isPending || stats.total === 0}
-            className="flex items-center gap-2 rounded-lg bg-success/10 border border-success/30 px-4 py-2 text-sm font-medium text-success transition hover:bg-success/20 disabled:opacity-50"
+            className="flex items-center gap-2 rounded-lg bg-[#2DD4BF]/10 border border-[#2DD4BF]/30 px-4 py-2 text-sm font-medium text-[#2DD4BF] transition hover:bg-[#2DD4BF]/20 disabled:opacity-50"
           >
             <Check className="h-4 w-4" />
             Confirm All
@@ -171,34 +171,34 @@ export default function SchemaMappingPage() {
       </div>
 
       {/* Stats Bar */}
-      <div className="flex items-center gap-6 rounded-xl border border-border-default bg-surface-raised px-6 py-4">
+      <div className="flex items-center gap-6 rounded-xl border border-[#232328] bg-[#151518] px-6 py-4">
         <div>
-          <span className="text-2xl font-semibold font-['IBM_Plex_Mono',monospace] text-text-primary">
+          <span className="text-2xl font-semibold font-['IBM_Plex_Mono',monospace] text-[#F0EDE8]">
             {stats.total}
           </span>
-          <span className="ml-2 text-sm text-text-muted">Mappings</span>
+          <span className="ml-2 text-sm text-[#8A857D]">Mappings</span>
         </div>
-        <div className="h-8 w-px bg-surface-elevated" />
+        <div className="h-8 w-px bg-[#232328]" />
         <div>
-          <span className="text-2xl font-semibold font-['IBM_Plex_Mono',monospace] text-success">
+          <span className="text-2xl font-semibold font-['IBM_Plex_Mono',monospace] text-[#2DD4BF]">
             {stats.confirmed}
           </span>
-          <span className="ml-2 text-sm text-text-muted">Confirmed</span>
+          <span className="ml-2 text-sm text-[#8A857D]">Confirmed</span>
         </div>
-        <div className="h-8 w-px bg-surface-elevated" />
+        <div className="h-8 w-px bg-[#232328]" />
         <div>
-          <span className="text-2xl font-semibold font-['IBM_Plex_Mono',monospace] text-info">
+          <span className="text-2xl font-semibold font-['IBM_Plex_Mono',monospace] text-[#60A5FA]">
             {stats.highConf}
           </span>
-          <span className="ml-2 text-sm text-text-muted">High Confidence</span>
+          <span className="ml-2 text-sm text-[#8A857D]">High Confidence</span>
         </div>
         {stats.total > 0 && (
           <>
-            <div className="h-8 w-px bg-surface-elevated" />
+            <div className="h-8 w-px bg-[#232328]" />
             <div className="flex-1">
-              <div className="h-2 rounded-full bg-surface-overlay overflow-hidden">
+              <div className="h-2 rounded-full bg-[#1A1A1E] overflow-hidden">
                 <div
-                  className="h-full rounded-full bg-success transition-all"
+                  className="h-full rounded-full bg-[#2DD4BF] transition-all"
                   style={{
                     width: `${(stats.confirmed / stats.total) * 100}%`,
                   }}
@@ -211,13 +211,13 @@ export default function SchemaMappingPage() {
 
       {/* Source Columns Panel (unmapped) */}
       {profile?.fields && mappings.length === 0 && (
-        <div className="rounded-xl border border-border-default bg-surface-raised p-6">
+        <div className="rounded-xl border border-[#232328] bg-[#151518] p-6">
           <div className="flex items-center gap-2 mb-4">
-            <Columns className="h-4 w-4 text-warning" />
-            <h2 className="text-sm font-medium text-text-primary">
+            <Columns className="h-4 w-4 text-[#E5A84B]" />
+            <h2 className="text-sm font-medium text-[#F0EDE8]">
               Source Columns
             </h2>
-            <span className="text-xs text-text-muted">
+            <span className="text-xs text-[#8A857D]">
               ({profile.fields.length} columns detected)
             </span>
           </div>
@@ -225,20 +225,20 @@ export default function SchemaMappingPage() {
             {profile.fields.map((field) => (
               <div
                 key={field.id}
-                className="rounded-lg border border-border-default bg-surface-overlay px-3 py-2"
+                className="rounded-lg border border-[#232328] bg-[#1A1A1E] px-3 py-2"
               >
-                <span className="text-sm font-['IBM_Plex_Mono',monospace] text-text-secondary">
+                <span className="text-sm font-['IBM_Plex_Mono',monospace] text-[#C5C0B8]">
                   {field.column_name}
                 </span>
-                <span className="ml-2 text-xs text-text-ghost">
+                <span className="ml-2 text-xs text-[#5A5650]">
                   {field.inferred_type}
                 </span>
               </div>
             ))}
           </div>
-          <p className="mt-4 text-sm text-text-muted">
+          <p className="mt-4 text-sm text-[#8A857D]">
             Click{" "}
-            <span className="text-primary font-medium">AI Suggest</span> to
+            <span className="text-[#9B1B30] font-medium">AI Suggest</span> to
             auto-generate schema mappings from source columns to CDM tables.
           </p>
         </div>
@@ -248,42 +248,42 @@ export default function SchemaMappingPage() {
       {CDM_TABLES.filter((t) => groupedMappings[t]?.length).map((table) => (
         <div
           key={table}
-          className="rounded-xl border border-border-default bg-surface-raised overflow-hidden"
+          className="rounded-xl border border-[#232328] bg-[#151518] overflow-hidden"
         >
-          <div className="flex items-center gap-3 border-b border-border-default bg-surface-overlay px-6 py-3">
-            <Database className="h-4 w-4 text-primary" />
-            <h3 className="text-sm font-semibold text-text-primary">
+          <div className="flex items-center gap-3 border-b border-[#232328] bg-[#1A1A1E] px-6 py-3">
+            <Database className="h-4 w-4 text-[#9B1B30]" />
+            <h3 className="text-sm font-semibold text-[#F0EDE8]">
               {table}
             </h3>
-            <span className="rounded-full bg-surface-elevated px-2 py-0.5 text-xs text-text-muted">
+            <span className="rounded-full bg-[#232328] px-2 py-0.5 text-xs text-[#8A857D]">
               {groupedMappings[table].length} columns
             </span>
           </div>
-          <div className="divide-y divide-border-default">
+          <div className="divide-y divide-[#232328]">
             {groupedMappings[table].map((mapping) => (
               <div
                 key={mapping.id}
                 className={cn(
                   "flex items-center gap-4 px-6 py-3 transition",
                   mapping.is_confirmed
-                    ? "bg-success/5"
-                    : "hover:bg-surface-overlay",
+                    ? "bg-[#2DD4BF]/5"
+                    : "hover:bg-[#1A1A1E]",
                 )}
               >
                 {/* Source Column */}
                 <div className="w-48 shrink-0">
-                  <span className="text-sm font-['IBM_Plex_Mono',monospace] text-warning">
+                  <span className="text-sm font-['IBM_Plex_Mono',monospace] text-[#E5A84B]">
                     {mapping.source_column}
                   </span>
                   {mapping.source_table && (
-                    <span className="ml-1 text-xs text-text-ghost">
+                    <span className="ml-1 text-xs text-[#5A5650]">
                       ({mapping.source_table})
                     </span>
                   )}
                 </div>
 
                 {/* Arrow */}
-                <ArrowRight className="h-4 w-4 shrink-0 text-text-ghost" />
+                <ArrowRight className="h-4 w-4 shrink-0 text-[#5A5650]" />
 
                 {/* CDM Column */}
                 {editingId === mapping.id ? (
@@ -296,7 +296,7 @@ export default function SchemaMappingPage() {
                           cdm_table: e.target.value,
                         }))
                       }
-                      className="rounded-md border border-border-default bg-surface-base px-2 py-1 text-sm text-text-primary"
+                      className="rounded-md border border-[#232328] bg-[#0E0E11] px-2 py-1 text-sm text-[#F0EDE8]"
                     >
                       {CDM_TABLES.map((t) => (
                         <option key={t} value={t}>
@@ -312,7 +312,7 @@ export default function SchemaMappingPage() {
                           cdm_column: e.target.value,
                         }))
                       }
-                      className="rounded-md border border-border-default bg-surface-base px-2 py-1 text-sm text-text-primary font-['IBM_Plex_Mono',monospace] w-48"
+                      className="rounded-md border border-[#232328] bg-[#0E0E11] px-2 py-1 text-sm text-[#F0EDE8] font-['IBM_Plex_Mono',monospace] w-48"
                     />
                     <select
                       value={editValues.mapping_logic || mapping.mapping_logic}
@@ -322,7 +322,7 @@ export default function SchemaMappingPage() {
                           mapping_logic: e.target.value as MappingLogic,
                         }))
                       }
-                      className="rounded-md border border-border-default bg-surface-base px-2 py-1 text-sm text-text-primary"
+                      className="rounded-md border border-[#232328] bg-[#0E0E11] px-2 py-1 text-sm text-[#F0EDE8]"
                     >
                       {Object.entries(LOGIC_LABELS).map(([k, v]) => (
                         <option key={k} value={k}>
@@ -332,13 +332,13 @@ export default function SchemaMappingPage() {
                     </select>
                     <button
                       onClick={handleSaveEdit}
-                      className="rounded p-1 text-success hover:bg-success/10"
+                      className="rounded p-1 text-[#2DD4BF] hover:bg-[#2DD4BF]/10"
                     >
                       <Check className="h-4 w-4" />
                     </button>
                     <button
                       onClick={handleCancelEdit}
-                      className="rounded p-1 text-critical hover:bg-critical/10"
+                      className="rounded p-1 text-[#E85A6B] hover:bg-[#E85A6B]/10"
                     >
                       <X className="h-4 w-4" />
                     </button>
@@ -348,20 +348,20 @@ export default function SchemaMappingPage() {
                     className="flex flex-1 items-center gap-3 cursor-pointer group"
                     onClick={() => handleStartEdit(mapping)}
                   >
-                    <span className="text-sm font-['IBM_Plex_Mono',monospace] text-text-primary group-hover:text-primary transition">
+                    <span className="text-sm font-['IBM_Plex_Mono',monospace] text-[#F0EDE8] group-hover:text-[#9B1B30] transition">
                       {mapping.cdm_column}
                     </span>
                     <span
                       className={cn(
                         "text-xs",
                         LOGIC_LABELS[mapping.mapping_logic]?.color ||
-                          "text-text-muted",
+                          "text-[#8A857D]",
                       )}
                     >
                       {LOGIC_LABELS[mapping.mapping_logic]?.label ||
                         mapping.mapping_logic}
                     </span>
-                    <ChevronDown className="h-3 w-3 text-text-ghost opacity-0 group-hover:opacity-100 transition" />
+                    <ChevronDown className="h-3 w-3 text-[#5A5650] opacity-0 group-hover:opacity-100 transition" />
                   </div>
                 )}
 
@@ -373,7 +373,7 @@ export default function SchemaMappingPage() {
                 {/* Confirmed Status */}
                 <div className="w-8 shrink-0">
                   {mapping.is_confirmed && (
-                    <Check className="h-4 w-4 text-success" />
+                    <Check className="h-4 w-4 text-[#2DD4BF]" />
                   )}
                 </div>
               </div>
@@ -384,10 +384,10 @@ export default function SchemaMappingPage() {
 
       {/* Empty State */}
       {mappings.length === 0 && !profile?.fields?.length && (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-border-default bg-surface-raised py-16">
-          <Database className="h-10 w-10 text-text-ghost mb-3" />
-          <p className="text-sm text-text-muted">No schema mappings yet</p>
-          <p className="mt-1 text-xs text-text-ghost">
+        <div className="flex flex-col items-center justify-center rounded-xl border border-[#232328] bg-[#151518] py-16">
+          <Database className="h-10 w-10 text-[#5A5650] mb-3" />
+          <p className="text-sm text-[#8A857D]">No schema mappings yet</p>
+          <p className="mt-1 text-xs text-[#5A5650]">
             Upload and profile a file first, then generate AI suggestions
           </p>
         </div>
@@ -397,13 +397,13 @@ export default function SchemaMappingPage() {
       <div className="flex items-center justify-between pt-4">
         <button
           onClick={() => navigate(`/ingestion/jobs/${jobId}`)}
-          className="rounded-lg border border-border-default px-4 py-2 text-sm text-text-muted hover:text-text-primary transition"
+          className="rounded-lg border border-[#232328] px-4 py-2 text-sm text-[#8A857D] hover:text-[#F0EDE8] transition"
         >
           Back to Job
         </button>
         <button
           onClick={() => navigate(`/ingestion/jobs/${jobId}/review`)}
-          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-text-primary transition hover:bg-primary/80"
+          className="rounded-lg bg-[#9B1B30] px-4 py-2 text-sm font-medium text-[#F0EDE8] transition hover:bg-[#9B1B30]/80"
         >
           Continue to Concept Mapping
         </button>

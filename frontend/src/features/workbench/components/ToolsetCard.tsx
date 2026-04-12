@@ -28,8 +28,8 @@ export function ToolsetCard({ toolset }: ToolsetCardProps) {
       disabled={!isClickable}
       className={`group relative flex flex-col gap-4 rounded-2xl border p-6 text-left transition-all duration-200 ${
         isClickable
-          ? "cursor-pointer border-zinc-700/60 bg-zinc-900/50 hover:border-zinc-600 hover:bg-zinc-900/80 hover:shadow-lg"
-          : "cursor-default border-zinc-800/40 bg-zinc-950/30 opacity-60"
+          ? "cursor-pointer border-border-default/60 bg-surface-base/50 hover:border-border-hover hover:bg-surface-base/80 hover:shadow-lg"
+          : "cursor-default border-border-default/40 bg-surface-darkest/30 opacity-60"
       }`}
       style={
         isClickable
@@ -59,7 +59,7 @@ export function ToolsetCard({ toolset }: ToolsetCardProps) {
           />
         </div>
         {toolset.badge && (
-          <span className="rounded-full border border-zinc-700 bg-zinc-800 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+          <span className="rounded-full border border-border-default bg-surface-raised px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
             {toolset.badge}
           </span>
         )}
@@ -90,7 +90,7 @@ export function ToolsetCard({ toolset }: ToolsetCardProps) {
           </span>
         ) : (
           <span className="flex items-center gap-1.5 text-xs font-medium text-zinc-500">
-            <span className="h-1.5 w-1.5 rounded-full bg-zinc-500" />
+            <span className="h-1.5 w-1.5 rounded-full bg-surface-overlay" />
             SDK Required
           </span>
         )}

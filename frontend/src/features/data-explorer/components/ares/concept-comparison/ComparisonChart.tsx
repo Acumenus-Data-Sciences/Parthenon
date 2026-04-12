@@ -12,7 +12,7 @@ import {
 } from "recharts";
 import type { ConceptComparison, MultiConceptComparison } from "../../../types/ares";
 
-const CONCEPT_COLORS = ["var(--success)", "var(--accent)", "#e85d75", "#7c8aed", "#59c990"];
+const CONCEPT_COLORS = ["#2DD4BF", "#C9A227", "#e85d75", "#7c8aed", "#59c990"];
 
 interface SingleComparisonChartProps {
   data: ConceptComparison[];
@@ -42,7 +42,7 @@ export default function ComparisonChart(props: ComparisonChartProps) {
 
   if (!data || data.length === 0) {
     return (
-      <div className="flex h-48 items-center justify-center text-text-ghost">
+      <div className="flex h-48 items-center justify-center text-[#555]">
         No comparison data available.
       </div>
     );
@@ -67,24 +67,24 @@ export default function ComparisonChart(props: ComparisonChartProps) {
           <CartesianGrid strokeDasharray="3 3" stroke="#252530" />
           <XAxis
             dataKey="source"
-            tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
-            axisLine={{ stroke: 'var(--border-default)' }}
+            tick={{ fill: "#888", fontSize: 11 }}
+            axisLine={{ stroke: "#333" }}
             angle={-30}
             textAnchor="end"
           />
           <YAxis
-            tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
-            axisLine={{ stroke: 'var(--border-default)' }}
+            tick={{ fill: "#888", fontSize: 11 }}
+            axisLine={{ stroke: "#333" }}
             tickFormatter={(v: number) =>
               metric === "rate_per_1000" ? `${v}/1k` : v.toLocaleString()
             }
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: 'var(--surface-overlay)',
+              backgroundColor: "#1a1a22",
               border: "1px solid #333",
               borderRadius: "8px",
-              color: 'var(--text-secondary)',
+              color: "#ccc",
               fontSize: 12,
             }}
             /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -105,12 +105,12 @@ export default function ComparisonChart(props: ComparisonChartProps) {
               label={{
                 value: `CDC National Rate: ${benchmarkRate} per 1,000`,
                 position: "top",
-                fill: "var(--critical)",
+                fill: "#e85d75",
                 fontSize: 10,
               }}
             />
           )}
-          <Bar dataKey="value" fill="var(--accent)" radius={[4, 4, 0, 0]}>
+          <Bar dataKey="value" fill="#C9A227" radius={[4, 4, 0, 0]}>
             {metric === "rate_per_1000" && (
               <ErrorBar dataKey="error" width={4} stroke="#888" strokeWidth={1} />
             )}
@@ -130,7 +130,7 @@ function GroupedBars({
 }) {
   if (multiData.sources.length === 0) {
     return (
-      <div className="flex h-48 items-center justify-center text-text-ghost">
+      <div className="flex h-48 items-center justify-center text-[#555]">
         No comparison data available.
       </div>
     );
@@ -157,29 +157,29 @@ function GroupedBars({
           <CartesianGrid strokeDasharray="3 3" stroke="#252530" />
           <XAxis
             dataKey="source"
-            tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
-            axisLine={{ stroke: 'var(--border-default)' }}
+            tick={{ fill: "#888", fontSize: 11 }}
+            axisLine={{ stroke: "#333" }}
             angle={-30}
             textAnchor="end"
           />
           <YAxis
-            tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
-            axisLine={{ stroke: 'var(--border-default)' }}
+            tick={{ fill: "#888", fontSize: 11 }}
+            axisLine={{ stroke: "#333" }}
             tickFormatter={(v: number) =>
               metric === "rate_per_1000" ? `${v}/1k` : v.toLocaleString()
             }
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: 'var(--surface-overlay)',
+              backgroundColor: "#1a1a22",
               border: "1px solid #333",
               borderRadius: "8px",
-              color: 'var(--text-secondary)',
+              color: "#ccc",
               fontSize: 12,
             }}
           />
           <Legend
-            wrapperStyle={{ fontSize: 11, color: 'var(--text-muted)' }}
+            wrapperStyle={{ fontSize: 11, color: "#888" }}
           />
           {multiData.concepts.map((concept, i) => (
             <Bar

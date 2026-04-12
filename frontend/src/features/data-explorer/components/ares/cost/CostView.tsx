@@ -29,10 +29,10 @@ type CostTab = "overview" | "distribution" | "care-setting" | "trends" | "cross-
 
 function EmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-surface-highlight bg-surface-raised py-16">
-      <div className="mb-3 text-4xl text-text-disabled">$</div>
+    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[#323238] bg-[#151518] py-16">
+      <div className="mb-3 text-4xl text-[#333]">$</div>
       <h3 className="mb-2 text-sm font-medium text-white">No Cost Data Available</h3>
-      <p className="max-w-md text-center text-xs text-text-ghost">
+      <p className="max-w-md text-center text-xs text-[#666]">
         Cost data requires claims-based datasets (e.g., MarketScan, Optum, PharMetrics).
         EHR-derived datasets like SynPUF, MIMIC-IV, and most academic medical center data
         typically do not populate the OMOP cost table.
@@ -76,7 +76,7 @@ export default function CostView() {
     <div className="p-4">
       {/* Source selector */}
       <div className="mb-4 flex items-center gap-4">
-        <label className="text-sm text-text-muted">Source:</label>
+        <label className="text-sm text-[#888]">Source:</label>
         <select
           value={selectedSourceId ?? ""}
           onChange={(e) => {
@@ -84,7 +84,7 @@ export default function CostView() {
             setSelectedCostTypeId(null);
             setActiveTab("overview");
           }}
-          className="rounded border border-border-default bg-surface-overlay px-3 py-1.5 text-sm text-white"
+          className="rounded border border-[#333] bg-[#1a1a22] px-3 py-1.5 text-sm text-white"
         >
           <option value="">Select source...</option>
           {sources?.map((s) => (
@@ -96,7 +96,7 @@ export default function CostView() {
 
         {/* Tab navigation */}
         {selectedSourceId && summary?.has_cost_data && (
-          <div className="ml-auto flex flex-wrap items-center gap-1 rounded-lg border border-border-subtle bg-surface-base p-0.5">
+          <div className="ml-auto flex flex-wrap items-center gap-1 rounded-lg border border-[#252530] bg-[#0E0E11] p-0.5">
             {(["overview", "distribution", "care-setting", "trends", "drivers", "cross-source"] as const).map((tab) => {
               const labels: Record<string, string> = {
                 overview: "Overview",
@@ -113,8 +113,8 @@ export default function CostView() {
                   onClick={() => setActiveTab(tab)}
                   className={`rounded-md px-3 py-1 text-xs transition-colors ${
                     activeTab === tab
-                      ? "bg-surface-accent text-white"
-                      : "text-text-ghost hover:text-white"
+                      ? "bg-[#252530] text-white"
+                      : "text-[#666] hover:text-white"
                   }`}
                 >
                   {labels[tab]}
@@ -126,10 +126,10 @@ export default function CostView() {
       </div>
 
       {!selectedSourceId && (
-        <p className="py-10 text-center text-text-ghost">Select a source to view cost data.</p>
+        <p className="py-10 text-center text-[#555]">Select a source to view cost data.</p>
       )}
 
-      {selectedSourceId && isLoading && <p className="text-text-ghost">Loading cost data...</p>}
+      {selectedSourceId && isLoading && <p className="text-[#555]">Loading cost data...</p>}
 
       {selectedSourceId && !isLoading && summary && !summary.has_cost_data && <EmptyState />}
 
@@ -147,21 +147,21 @@ export default function CostView() {
           {/* PPPY + Total Cost summary cards */}
           {summary.total_cost !== undefined && (
             <div className="mb-4 grid grid-cols-2 gap-3 md:grid-cols-4">
-              <div className="rounded-lg border border-border-subtle bg-surface-raised p-3 text-center">
-                <p className="text-xl font-semibold text-success">{formatCurrency(summary.total_cost)}</p>
-                <p className="text-[10px] text-text-ghost">Total Cost</p>
+              <div className="rounded-lg border border-[#252530] bg-[#151518] p-3 text-center">
+                <p className="text-xl font-semibold text-[#2DD4BF]">{formatCurrency(summary.total_cost)}</p>
+                <p className="text-[10px] text-[#666]">Total Cost</p>
               </div>
-              <div className="rounded-lg border border-border-subtle bg-surface-raised p-3 text-center">
-                <p className="text-xl font-semibold text-accent">{formatCurrency(summary.pppy ?? 0)}</p>
-                <p className="text-[10px] text-text-ghost">Per-Patient-Per-Year</p>
+              <div className="rounded-lg border border-[#252530] bg-[#151518] p-3 text-center">
+                <p className="text-xl font-semibold text-[#C9A227]">{formatCurrency(summary.pppy ?? 0)}</p>
+                <p className="text-[10px] text-[#666]">Per-Patient-Per-Year</p>
               </div>
-              <div className="rounded-lg border border-border-subtle bg-surface-raised p-3 text-center">
+              <div className="rounded-lg border border-[#252530] bg-[#151518] p-3 text-center">
                 <p className="text-xl font-semibold text-white">{(summary.person_count ?? 0).toLocaleString()}</p>
-                <p className="text-[10px] text-text-ghost">Persons</p>
+                <p className="text-[10px] text-[#666]">Persons</p>
               </div>
-              <div className="rounded-lg border border-border-subtle bg-surface-raised p-3 text-center">
+              <div className="rounded-lg border border-[#252530] bg-[#151518] p-3 text-center">
                 <p className="text-xl font-semibold text-white">{(summary.avg_observation_years ?? 0).toFixed(1)} yr</p>
-                <p className="text-[10px] text-text-ghost">Avg Observation</p>
+                <p className="text-[10px] text-[#666]">Avg Observation</p>
               </div>
             </div>
           )}
@@ -170,7 +170,7 @@ export default function CostView() {
           {activeTab === "overview" && (
             <>
               {/* Cost by domain bar chart */}
-              <div className="mb-6 rounded-lg border border-border-subtle bg-surface-raised p-4">
+              <div className="mb-6 rounded-lg border border-[#252530] bg-[#151518] p-4">
                 <h3 className="mb-3 text-sm font-medium text-white">Cost by Domain</h3>
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
@@ -184,25 +184,25 @@ export default function CostView() {
                       <CartesianGrid strokeDasharray="3 3" stroke="#252530" />
                       <XAxis
                         dataKey="label"
-                        tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+                        tick={{ fill: "#888", fontSize: 11 }}
                         angle={-30}
                         textAnchor="end"
                       />
                       <YAxis
-                        tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+                        tick={{ fill: "#888", fontSize: 11 }}
                         tickFormatter={(v: number) => formatCurrency(v)}
                       />
                       <Tooltip
                         contentStyle={{
-                          backgroundColor: 'var(--surface-overlay)',
+                          backgroundColor: "#1a1a22",
                           border: "1px solid #333",
                           borderRadius: "8px",
                         }}
-                        labelStyle={{ color: 'var(--text-primary)' }}
+                        labelStyle={{ color: "#fff" }}
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         formatter={((value: number | string) => [formatCurrency(Number(value)), "Total Cost"]) as any}
                       />
-                      <Bar dataKey="total_cost" fill="var(--success)" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="total_cost" fill="#2DD4BF" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -210,12 +210,12 @@ export default function CostView() {
                 {/* Summary stats */}
                 <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
                   {summary.domains.map((d) => (
-                    <div key={d.domain} className="rounded border border-border-subtle bg-surface-base p-3">
-                      <p className="text-[10px] uppercase tracking-wider text-text-ghost">
+                    <div key={d.domain} className="rounded border border-[#252530] bg-[#0E0E11] p-3">
+                      <p className="text-[10px] uppercase tracking-wider text-[#666]">
                         {formatDomain(d.domain)}
                       </p>
                       <p className="text-sm font-semibold text-white">{formatCurrency(d.total_cost)}</p>
-                      <p className="text-[10px] text-text-ghost">
+                      <p className="text-[10px] text-[#555]">
                         {d.record_count.toLocaleString()} records | avg {formatCurrency(d.avg_cost)}
                       </p>
                     </div>
@@ -227,23 +227,23 @@ export default function CostView() {
 
           {/* Distribution tab — box plots */}
           {activeTab === "distribution" && distributionData && (
-            <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
+            <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
               <h3 className="mb-3 text-sm font-medium text-white">Cost Distribution by Domain</h3>
-              <p className="mb-4 text-xs text-text-ghost">
+              <p className="mb-4 text-xs text-[#555]">
                 Box-and-whisker plots showing cost spread. Box = IQR (P25-P75), whiskers = P10-P90,
                 gold line = median, red dot = mean.
               </p>
               {distributionData.has_cost_data ? (
                 <CostBoxPlot distributions={distributionData.distributions} />
               ) : (
-                <p className="py-8 text-center text-sm text-text-ghost">No distribution data available.</p>
+                <p className="py-8 text-center text-sm text-[#555]">No distribution data available.</p>
               )}
             </div>
           )}
 
           {/* Care setting tab */}
           {activeTab === "care-setting" && careSettingData && (
-            <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
+            <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
               <h3 className="mb-3 text-sm font-medium text-white">Cost by Care Setting</h3>
               <CareSettingBreakdown settings={careSettingData.settings} />
             </div>
@@ -251,7 +251,7 @@ export default function CostView() {
 
           {/* Trends tab */}
           {activeTab === "trends" && trends && trends.has_cost_data && trends.months.length > 0 && (
-            <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
+            <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
               <h3 className="mb-3 text-sm font-medium text-white">Monthly Cost Trends</h3>
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
@@ -262,30 +262,30 @@ export default function CostView() {
                     <CartesianGrid strokeDasharray="3 3" stroke="#252530" />
                     <XAxis
                       dataKey="month"
-                      tick={{ fill: 'var(--text-muted)', fontSize: 10 }}
+                      tick={{ fill: "#888", fontSize: 10 }}
                       angle={-45}
                       textAnchor="end"
                     />
                     <YAxis
-                      tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+                      tick={{ fill: "#888", fontSize: 11 }}
                       tickFormatter={(v: number) => formatCurrency(v)}
                     />
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: 'var(--surface-overlay)',
+                        backgroundColor: "#1a1a22",
                         border: "1px solid #333",
                         borderRadius: "8px",
                       }}
-                      labelStyle={{ color: 'var(--text-primary)' }}
+                      labelStyle={{ color: "#fff" }}
                       // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       formatter={((value: number | string) => [formatCurrency(Number(value)), "Total Cost"]) as any}
                     />
                     <Line
                       type="monotone"
                       dataKey="total_cost"
-                      stroke="var(--accent)"
+                      stroke="#C9A227"
                       strokeWidth={2}
-                      dot={{ fill: "var(--accent)", r: 3 }}
+                      dot={{ fill: "#C9A227", r: 3 }}
                       activeDot={{ r: 5 }}
                     />
                   </LineChart>
@@ -296,7 +296,7 @@ export default function CostView() {
 
           {/* Cost Drivers tab */}
           {activeTab === "drivers" && (
-            <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
+            <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
               <h3 className="mb-3 text-sm font-medium text-white">Top Cost Drivers</h3>
               <CostDriversView sourceId={selectedSourceId} />
             </div>
@@ -304,7 +304,7 @@ export default function CostView() {
 
           {/* Cross-Source tab */}
           {activeTab === "cross-source" && (
-            <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
+            <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
               <h3 className="mb-3 text-sm font-medium text-white">Cross-Source Cost Comparison</h3>
               <CrossSourceCostChart />
             </div>

@@ -1,0 +1,53 @@
+{
+    "id": 33,
+    "name": "Study 4: MACE Incidence by Age Group — Cardiometabolic Triad",
+    "description": "Age-stratified MACE event rates in patients with full cardiometabolic triad over 5-year follow-up.",
+    "design_json": {
+        "ageGroups": [
+            {
+                "maxAge": 44,
+                "minAge": 18
+            },
+            {
+                "maxAge": 54,
+                "minAge": 45
+            },
+            {
+                "maxAge": 64,
+                "minAge": 55
+            },
+            {
+                "maxAge": 74,
+                "minAge": 65
+            },
+            {
+                "maxAge": 120,
+                "minAge": 75
+            }
+        ],
+        "timeAtRisk": {
+            "end": {
+                "offset": 1825,
+                "dateField": "index_date"
+            },
+            "start": {
+                "offset": 1,
+                "dateField": "index_date"
+            }
+        },
+        "description": "MACE (MI + stroke) incidence rate in the full cardiometabolic triad cohort, stratified by age group. Estimates event rates per 100 person-years across age strata.",
+        "analysisType": "IncidenceRate",
+        "minCellCount": 5,
+        "stratifyByAge": true,
+        "targetCohortId": 79,
+        "outcomeCohortIds": [
+            81
+        ],
+        "stratifyByGender": false,
+        "stratifyByCalendarYear": false
+    },
+    "author_id": 117,
+    "created_at": null,
+    "updated_at": null,
+    "deleted_at": null
+}

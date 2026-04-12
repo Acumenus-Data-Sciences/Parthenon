@@ -14,7 +14,7 @@ const DOMAIN_ACCENT: Record<EvidenceDomain, string> = {
   phenotype: "border-teal-400",
   clinical: "border-red-700",
   genomic: "border-yellow-600",
-  synthesis: "border-zinc-300",
+  synthesis: "border-border-hover",
 };
 
 /** Extract a leading integer from a summary string, e.g. "3 concept sets" → [3, "concept sets"]. */
@@ -55,8 +55,8 @@ export function ContextCard({
       className={[
         "rounded-xl p-3 text-left transition-colors flex-1 min-w-0",
         isActive
-          ? `border-l-2 ${DOMAIN_ACCENT[domain]} bg-zinc-800`
-          : "border border-zinc-800 bg-zinc-950 hover:bg-zinc-900",
+          ? `border-l-2 ${DOMAIN_ACCENT[domain]} bg-surface-raised`
+          : "border border-border-default bg-surface-darkest hover:bg-surface-base",
       ].join(" ")}
     >
       <p className="text-xs uppercase tracking-wider text-zinc-500 mb-1 truncate">

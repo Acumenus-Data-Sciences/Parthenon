@@ -120,19 +120,19 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
         )}
       >
         {/* Gradient border wrapper */}
-        <div className="h-full bg-gradient-to-b from-success to-[var(--domain-observation)] p-[1px] shadow-[0_0_40px_rgba(45,212,191,0.15)]">
-          <div className="h-full bg-surface-base flex flex-col">
+        <div className="h-full bg-gradient-to-b from-[#2DD4BF] to-[#A78BFA] p-[1px] shadow-[0_0_40px_rgba(45,212,191,0.15)]">
+          <div className="h-full bg-[#0E0E11] flex flex-col">
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-border-default">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[#232328]">
               <div className="flex items-center gap-2.5">
-                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-success/20 to-[var(--domain-observation)]/20">
-                  <Sparkles size={16} className="text-success" />
+                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-[#2DD4BF]/20 to-[#A78BFA]/20">
+                  <Sparkles size={16} className="text-[#2DD4BF]" />
                 </div>
                 <div>
-                  <h2 className="text-sm font-semibold text-text-primary">
+                  <h2 className="text-sm font-semibold text-[#F0EDE8]">
                     Abby AI
                   </h2>
-                  <p className="text-[10px] text-text-muted">
+                  <p className="text-[10px] text-[#8A857D]">
                     Intelligent Cohort Builder
                   </p>
                 </div>
@@ -142,7 +142,7 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
                   <button
                     type="button"
                     onClick={handleReset}
-                    className="inline-flex items-center px-2 py-1 rounded text-[10px] font-medium text-text-muted hover:text-text-primary hover:bg-surface-overlay transition-colors"
+                    className="inline-flex items-center px-2 py-1 rounded text-[10px] font-medium text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#1C1C20] transition-colors"
                   >
                     New query
                   </button>
@@ -150,7 +150,7 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
                 <button
                   type="button"
                   onClick={handleClose}
-                  className="inline-flex items-center justify-center w-7 h-7 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-overlay transition-colors"
+                  className="inline-flex items-center justify-center w-7 h-7 rounded-md text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#1C1C20] transition-colors"
                 >
                   <X size={16} />
                 </button>
@@ -162,7 +162,7 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
               {/* Example prompts */}
               {showExamples && !result && (
                 <div className="space-y-2">
-                  <p className="text-xs font-medium text-text-muted uppercase tracking-wider">
+                  <p className="text-xs font-medium text-[#8A857D] uppercase tracking-wider">
                     Try an example
                   </p>
                   <div className="space-y-1.5">
@@ -173,15 +173,15 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
                         onClick={() => handleExampleClick(example)}
                         className={cn(
                           "w-full text-left px-3 py-2.5 rounded-lg text-sm",
-                          "border border-border-default bg-surface-raised",
-                          "text-text-secondary hover:text-text-primary",
-                          "hover:border-success/30 hover:bg-success/5",
+                          "border border-[#232328] bg-[#151518]",
+                          "text-[#C5C0B8] hover:text-[#F0EDE8]",
+                          "hover:border-[#2DD4BF]/30 hover:bg-[#2DD4BF]/5",
                           "transition-all group flex items-center gap-2",
                         )}
                       >
                         <ChevronRight
                           size={12}
-                          className="text-text-ghost group-hover:text-success transition-colors shrink-0"
+                          className="text-[#5A5650] group-hover:text-[#2DD4BF] transition-colors shrink-0"
                         />
                         <span>{example}</span>
                       </button>
@@ -194,10 +194,10 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
               {isLoading && (
                 <div className="flex flex-col items-center justify-center py-12 gap-4">
                   <div className="relative">
-                    <div className="w-10 h-10 rounded-full border-2 border-success/20 border-t-success animate-spin" />
-                    <div className="absolute inset-0 rounded-full animate-pulse bg-success/5" />
+                    <div className="w-10 h-10 rounded-full border-2 border-[#2DD4BF]/20 border-t-[#2DD4BF] animate-spin" />
+                    <div className="absolute inset-0 rounded-full animate-pulse bg-[#2DD4BF]/5" />
                   </div>
-                  <p className="text-sm text-text-muted">
+                  <p className="text-sm text-[#8A857D]">
                     Abby is analyzing your research question
                     <span className="inline-flex ml-0.5">
                       <span className="animate-[bounce_1.4s_infinite_0ms] inline-block">.</span>
@@ -210,14 +210,14 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
 
               {/* Error */}
               {(buildMutation.isError || refineMutation.isError) && (
-                <div className="rounded-lg border border-critical/30 bg-critical/5 px-4 py-3">
+                <div className="rounded-lg border border-[#E85A6B]/30 bg-[#E85A6B]/5 px-4 py-3">
                   <div className="flex items-start gap-2">
-                    <AlertTriangle size={14} className="text-critical mt-0.5 shrink-0" />
+                    <AlertTriangle size={14} className="text-[#E85A6B] mt-0.5 shrink-0" />
                     <div>
-                      <p className="text-sm font-medium text-critical">
+                      <p className="text-sm font-medium text-[#E85A6B]">
                         Something went wrong
                       </p>
-                      <p className="text-xs text-text-muted mt-1">
+                      <p className="text-xs text-[#8A857D] mt-1">
                         {(buildMutation.error ?? refineMutation.error)?.message ??
                           "Failed to process your request. Please try again."}
                       </p>
@@ -230,11 +230,11 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
               {result && !isLoading && (
                 <div ref={resultsRef} className="space-y-4">
                   {/* Explanation */}
-                  <div className="rounded-lg border border-border-default bg-surface-overlay px-4 py-3">
-                    <p className="text-xs font-medium text-text-muted uppercase tracking-wider mb-2">
+                  <div className="rounded-lg border border-[#232328] bg-[#1C1C20] px-4 py-3">
+                    <p className="text-xs font-medium text-[#8A857D] uppercase tracking-wider mb-2">
                       Analysis
                     </p>
-                    <p className="text-sm text-text-secondary leading-relaxed whitespace-pre-wrap">
+                    <p className="text-sm text-[#C5C0B8] leading-relaxed whitespace-pre-wrap">
                       {result.explanation}
                     </p>
                   </div>
@@ -242,19 +242,19 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
                   {/* Concept sets */}
                   {result.concept_sets.length > 0 && (
                     <div>
-                      <p className="text-xs font-medium text-text-muted uppercase tracking-wider mb-2">
+                      <p className="text-xs font-medium text-[#8A857D] uppercase tracking-wider mb-2">
                         Concept Sets ({result.concept_sets.length})
                       </p>
                       <div className="space-y-1.5">
                         {result.concept_sets.map((cs) => (
                           <div
                             key={cs.name}
-                            className="flex items-center justify-between px-3 py-2 rounded-lg border border-border-default bg-surface-raised"
+                            className="flex items-center justify-between px-3 py-2 rounded-lg border border-[#232328] bg-[#151518]"
                           >
-                            <span className="text-sm text-text-primary truncate">
+                            <span className="text-sm text-[#F0EDE8] truncate">
                               {cs.name}
                             </span>
-                            <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium bg-success/10 text-success shrink-0 ml-2">
+                            <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium bg-[#2DD4BF]/10 text-[#2DD4BF] shrink-0 ml-2">
                               {cs.concepts.length} concepts
                             </span>
                           </div>
@@ -265,17 +265,17 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
 
                   {/* Warnings */}
                   {result.warnings.length > 0 && (
-                    <div className="rounded-lg border border-accent/30 bg-accent/10 px-4 py-3">
+                    <div className="rounded-lg border border-[#C9A227]/30 bg-[#C9A227]/10 px-4 py-3">
                       <div className="flex items-start gap-2">
                         <AlertTriangle
                           size={14}
-                          className="text-accent mt-0.5 shrink-0"
+                          className="text-[#C9A227] mt-0.5 shrink-0"
                         />
                         <div className="space-y-1">
                           {result.warnings.map((warning) => (
                             <p
                               key={warning}
-                              className="text-xs text-accent"
+                              className="text-xs text-[#C9A227]"
                             >
                               {warning}
                             </p>
@@ -293,7 +293,7 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
                       className={cn(
                         "flex-1 inline-flex items-center justify-center gap-1.5",
                         "rounded-lg px-4 py-2.5 text-sm font-medium",
-                        "bg-success text-surface-base hover:bg-success",
+                        "bg-[#2DD4BF] text-[#0E0E11] hover:bg-[#26B8A5]",
                         "transition-colors",
                       )}
                     >
@@ -305,10 +305,10 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
                       className={cn(
                         "inline-flex items-center justify-center gap-1.5",
                         "rounded-lg px-4 py-2.5 text-sm font-medium",
-                        "border border-border-default bg-surface-raised",
-                        "text-text-muted hover:text-text-primary hover:border-success/30",
+                        "border border-[#232328] bg-[#151518]",
+                        "text-[#8A857D] hover:text-[#F0EDE8] hover:border-[#2DD4BF]/30",
                         "transition-colors",
-                        refineMode && "border-[var(--domain-observation)]/30 text-[var(--domain-observation)]",
+                        refineMode && "border-[#A78BFA]/30 text-[#A78BFA]",
                       )}
                     >
                       Refine
@@ -324,9 +324,9 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
                         placeholder="How would you like to modify this cohort?"
                         rows={3}
                         className={cn(
-                          "w-full rounded-lg border border-[var(--domain-observation)]/30 bg-surface-raised px-3 py-2.5",
-                          "text-sm text-text-primary placeholder:text-text-ghost",
-                          "focus:outline-none focus:border-[var(--domain-observation)]/60",
+                          "w-full rounded-lg border border-[#A78BFA]/30 bg-[#151518] px-3 py-2.5",
+                          "text-sm text-[#F0EDE8] placeholder:text-[#5A5650]",
+                          "focus:outline-none focus:border-[#A78BFA]/60",
                           "resize-none transition-colors",
                         )}
                       />
@@ -337,8 +337,8 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
                         className={cn(
                           "w-full inline-flex items-center justify-center gap-1.5",
                           "rounded-lg px-4 py-2 text-sm font-medium",
-                          "bg-gradient-to-r from-success to-[var(--domain-observation)]",
-                          "text-surface-base hover:opacity-90",
+                          "bg-gradient-to-r from-[#2DD4BF] to-[#A78BFA]",
+                          "text-[#0E0E11] hover:opacity-90",
                           "transition-opacity disabled:opacity-40 disabled:cursor-not-allowed",
                         )}
                       >
@@ -356,7 +356,7 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
             </div>
 
             {/* Input area — fixed at bottom */}
-            <div className="border-t border-border-default px-5 py-4 space-y-2">
+            <div className="border-t border-[#232328] px-5 py-4 space-y-2">
               <textarea
                 ref={textareaRef}
                 value={prompt}
@@ -373,15 +373,15 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
                 rows={3}
                 disabled={isLoading}
                 className={cn(
-                  "w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2.5",
-                  "text-sm text-text-primary placeholder:text-text-ghost",
-                  "focus:outline-none focus:border-success/40",
+                  "w-full rounded-lg border border-[#232328] bg-[#151518] px-3 py-2.5",
+                  "text-sm text-[#F0EDE8] placeholder:text-[#5A5650]",
+                  "focus:outline-none focus:border-[#2DD4BF]/40",
                   "resize-none transition-colors",
                   "disabled:opacity-50",
                 )}
               />
               <div className="flex items-center justify-between">
-                <span className="text-[10px] text-text-ghost">
+                <span className="text-[10px] text-[#5A5650]">
                   {prompt.length}/{MAX_CHARS}
                 </span>
                 <button
@@ -390,7 +390,7 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
                   disabled={!prompt.trim() || isLoading}
                   className={cn(
                     "inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium",
-                    "bg-success text-surface-base hover:bg-success",
+                    "bg-[#2DD4BF] text-[#0E0E11] hover:bg-[#26B8A5]",
                     "transition-colors disabled:opacity-40 disabled:cursor-not-allowed",
                   )}
                 >

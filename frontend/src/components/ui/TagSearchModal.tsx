@@ -19,18 +19,18 @@ interface TagSearchModalProps {
 
 const COLOR_MAP = {
   teal: {
-    activeBg: "bg-success/15",
-    activeText: "text-success",
-    activeBorder: "border-success/30",
-    ring: "ring-success/40",
-    accent: "var(--success)",
+    activeBg: "bg-[#2DD4BF]/15",
+    activeText: "text-[#2DD4BF]",
+    activeBorder: "border-[#2DD4BF]/30",
+    ring: "ring-[#2DD4BF]/40",
+    accent: "#2DD4BF",
   },
   gold: {
-    activeBg: "bg-accent/20",
-    activeText: "text-accent",
-    activeBorder: "border-accent/40",
-    ring: "ring-accent/40",
-    accent: "var(--accent)",
+    activeBg: "bg-[#C9A227]/20",
+    activeText: "text-[#C9A227]",
+    activeBorder: "border-[#C9A227]/40",
+    ring: "ring-[#C9A227]/40",
+    accent: "#C9A227",
   },
 };
 
@@ -93,35 +93,35 @@ export default function TagSearchModal({
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-lg rounded-xl border border-border-default bg-surface-base shadow-2xl">
+      <div className="relative w-full max-w-lg rounded-xl border border-[#232328] bg-[#0E0E11] shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-border-default px-5 py-4">
-          <h3 className="text-sm font-semibold text-text-primary">
+        <div className="flex items-center justify-between border-b border-[#232328] px-5 py-4">
+          <h3 className="text-sm font-semibold text-[#F0EDE8]">
             Browse Tags ({tags.length})
           </h3>
           <button
             type="button"
             onClick={onClose}
-            className="rounded p-1 text-text-ghost hover:bg-surface-elevated hover:text-text-primary transition-colors"
+            className="rounded p-1 text-[#5A5650] hover:bg-[#232328] hover:text-[#F0EDE8] transition-colors"
           >
             <X size={16} />
           </button>
         </div>
 
         {/* Search + sort */}
-        <div className="flex items-center gap-3 border-b border-border-default px-5 py-3">
+        <div className="flex items-center gap-3 border-b border-[#232328] px-5 py-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-ghost" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#5A5650]" />
             <input
               type="text"
               placeholder="Search tags..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               autoFocus
-              className="w-full pl-9 pr-3 py-2 bg-surface-raised border border-border-default rounded-lg text-sm text-text-primary placeholder-text-ghost focus:outline-none focus:border-accent"
+              className="w-full pl-9 pr-3 py-2 bg-[#151518] border border-[#232328] rounded-lg text-sm text-[#F0EDE8] placeholder-[#5A5650] focus:outline-none focus:border-[#C9A227]"
             />
           </div>
-          <div className="flex items-center gap-1 border border-border-default rounded-lg overflow-hidden">
+          <div className="flex items-center gap-1 border border-[#232328] rounded-lg overflow-hidden">
             {sortOptions.map(({ mode, label }) => (
               <button
                 key={mode}
@@ -129,8 +129,8 @@ export default function TagSearchModal({
                 onClick={() => setSortMode(mode)}
                 className={`px-2.5 py-2 text-[11px] font-medium transition-colors ${
                   sortMode === mode
-                    ? "bg-surface-elevated text-text-primary"
-                    : "text-text-ghost hover:text-text-muted"
+                    ? "bg-[#232328] text-[#F0EDE8]"
+                    : "text-[#5A5650] hover:text-[#8A857D]"
                 }`}
               >
                 {label}
@@ -141,14 +141,14 @@ export default function TagSearchModal({
 
         {/* Active tags summary */}
         {activeTags.length > 0 && (
-          <div className="flex items-center justify-between border-b border-border-default px-5 py-2">
-            <span className="text-xs text-text-ghost">
+          <div className="flex items-center justify-between border-b border-[#232328] px-5 py-2">
+            <span className="text-xs text-[#5A5650]">
               {activeTags.length} selected
             </span>
             <button
               type="button"
               onClick={onClear}
-              className="text-xs text-text-ghost hover:text-text-muted transition-colors"
+              className="text-xs text-[#5A5650] hover:text-[#8A857D] transition-colors"
             >
               Clear all
             </button>
@@ -161,7 +161,7 @@ export default function TagSearchModal({
           style={{ maxHeight: "50vh" }}
         >
           {sortedTags.length === 0 ? (
-            <p className="text-sm text-text-ghost text-center py-8">
+            <p className="text-sm text-[#5A5650] text-center py-8">
               No tags match &ldquo;{search}&rdquo;
             </p>
           ) : (
@@ -177,7 +177,7 @@ export default function TagSearchModal({
                     className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
                       active
                         ? `${colors.activeBg} ${colors.activeText} ring-1 ${colors.ring}`
-                        : "bg-surface-overlay text-text-muted hover:text-text-secondary hover:bg-surface-elevated"
+                        : "bg-[#1C1C20] text-[#8A857D] hover:text-[#C5C0B8] hover:bg-[#232328]"
                     }`}
                   >
                     {active && <Check size={12} />}
@@ -193,11 +193,11 @@ export default function TagSearchModal({
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end border-t border-border-default px-5 py-3">
+        <div className="flex justify-end border-t border-[#232328] px-5 py-3">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 bg-surface-elevated text-text-primary text-sm font-medium rounded-lg hover:bg-surface-accent transition-colors"
+            className="px-4 py-2 bg-[#232328] text-[#F0EDE8] text-sm font-medium rounded-lg hover:bg-[#2A2A30] transition-colors"
           >
             Done
           </button>

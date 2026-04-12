@@ -93,19 +93,19 @@ export function RiskScoreCriterionEditor({
   void sourceId;
 
   return (
-    <div className="space-y-4 rounded-lg border border-primary/30 bg-primary/5 p-4">
-      <div className="flex items-center gap-2 text-sm font-medium text-critical">
+    <div className="space-y-4 rounded-lg border border-[#9B1B30]/30 bg-[#9B1B30]/5 p-4">
+      <div className="flex items-center gap-2 text-sm font-medium text-[#E85A6B]">
         <Activity size={14} />
         Add Risk Score Criterion
       </div>
 
       {/* Analysis selector */}
       <div>
-        <label className="block text-[10px] text-text-ghost uppercase tracking-wider mb-1">
+        <label className="block text-[10px] text-[#5A5650] uppercase tracking-wider mb-1">
           Risk Score Analysis
         </label>
         {loadingAnalyses ? (
-          <Loader2 size={14} className="animate-spin text-text-muted" />
+          <Loader2 size={14} className="animate-spin text-[#8A857D]" />
         ) : (
           <select
             value={selectedAnalysisId ?? ""}
@@ -130,7 +130,7 @@ export function RiskScoreCriterionEditor({
       {/* Score selector */}
       {selectedAnalysisId && scoreIds.length > 0 && (
         <div>
-          <label className="block text-[10px] text-text-ghost uppercase tracking-wider mb-1">
+          <label className="block text-[10px] text-[#5A5650] uppercase tracking-wider mb-1">
             Score
           </label>
           <select
@@ -152,7 +152,7 @@ export function RiskScoreCriterionEditor({
       {selectedScoreId && (
         <>
           <div>
-            <label className="block text-[10px] text-text-ghost uppercase tracking-wider mb-1">
+            <label className="block text-[10px] text-[#5A5650] uppercase tracking-wider mb-1">
               Filter By
             </label>
             <div className="flex items-center gap-2">
@@ -162,8 +162,8 @@ export function RiskScoreCriterionEditor({
                 className={cn(
                   "px-3 py-1.5 rounded-md text-xs font-medium border transition-colors",
                   filterMode === "value"
-                    ? "bg-primary/20 border-primary/40 text-critical"
-                    : "border-border-default text-text-muted hover:text-text-secondary",
+                    ? "bg-[#9B1B30]/20 border-[#9B1B30]/40 text-[#E85A6B]"
+                    : "border-[#232328] text-[#8A857D] hover:text-[#C5C0B8]",
                 )}
               >
                 Score Value
@@ -174,8 +174,8 @@ export function RiskScoreCriterionEditor({
                 className={cn(
                   "px-3 py-1.5 rounded-md text-xs font-medium border transition-colors",
                   filterMode === "tier"
-                    ? "bg-primary/20 border-primary/40 text-critical"
-                    : "border-border-default text-text-muted hover:text-text-secondary",
+                    ? "bg-[#9B1B30]/20 border-[#9B1B30]/40 text-[#E85A6B]"
+                    : "border-[#232328] text-[#8A857D] hover:text-[#C5C0B8]",
                 )}
               >
                 Risk Tier
@@ -221,12 +221,12 @@ export function RiskScoreCriterionEditor({
           )}
 
           {/* Exclude toggle */}
-          <label className="flex items-center gap-2 text-xs text-text-muted">
+          <label className="flex items-center gap-2 text-xs text-[#8A857D]">
             <input
               type="checkbox"
               checked={exclude}
               onChange={(e) => setExclude(e.target.checked)}
-              className="rounded border-surface-highlight"
+              className="rounded border-[#323238]"
             />
             Exclude patients matching this criterion
           </label>
@@ -234,12 +234,12 @@ export function RiskScoreCriterionEditor({
       )}
 
       {/* Actions */}
-      <div className="flex items-center gap-2 pt-2 border-t border-border-default">
+      <div className="flex items-center gap-2 pt-2 border-t border-[#232328]">
         <button
           type="button"
           onClick={handleAdd}
           disabled={!canAdd}
-          className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-white hover:bg-primary-dark disabled:opacity-40 transition-colors"
+          className="flex items-center gap-1.5 rounded-md bg-[#9B1B30] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#B42240] disabled:opacity-40 transition-colors"
         >
           <CheckCircle2 size={12} />
           Add
@@ -247,7 +247,7 @@ export function RiskScoreCriterionEditor({
         <button
           type="button"
           onClick={onCancel}
-          className="px-3 py-1.5 rounded-md text-xs text-text-muted hover:text-text-secondary transition-colors"
+          className="px-3 py-1.5 rounded-md text-xs text-[#8A857D] hover:text-[#C5C0B8] transition-colors"
         >
           Cancel
         </button>

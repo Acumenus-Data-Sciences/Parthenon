@@ -25,7 +25,7 @@ export default function ParetoChart({ data, top20Coverage }: ParetoChartProps) {
 
   return (
     <div>
-      <div className="mb-3 rounded-lg border border-accent/30 bg-accent/10 px-4 py-2 text-sm text-accent">
+      <div className="mb-3 rounded-lg border border-[#C9A227]/30 bg-[#C9A227]/10 px-4 py-2 text-sm text-[#C9A227]">
         Top 20 codes cover {top20Coverage.toFixed(1)}% of all unmapped records
       </div>
       <div className="h-72">
@@ -34,36 +34,36 @@ export default function ParetoChart({ data, top20Coverage }: ParetoChartProps) {
             <CartesianGrid strokeDasharray="3 3" stroke="#252530" />
             <XAxis
               dataKey="source_code"
-              tick={{ fill: 'var(--text-muted)', fontSize: 9 }}
+              tick={{ fill: "#888", fontSize: 9 }}
               angle={-45}
               textAnchor="end"
               interval={0}
             />
             <YAxis
               yAxisId="count"
-              tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+              tick={{ fill: "#888", fontSize: 11 }}
               tickFormatter={(v: number) => v.toLocaleString()}
             />
             <YAxis
               yAxisId="pct"
               orientation="right"
-              tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+              tick={{ fill: "#888", fontSize: 11 }}
               tickFormatter={(v: number) => `${v}%`}
               domain={[0, 100]}
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: 'var(--surface-overlay)',
+                backgroundColor: "#1a1a22",
                 border: "1px solid #333",
                 borderRadius: "8px",
-                color: 'var(--text-secondary)',
+                color: "#ccc",
                 fontSize: 12,
               }}
             />
             <Bar
               yAxisId="count"
               dataKey="record_count"
-              fill="var(--success)"
+              fill="#2DD4BF"
               radius={[2, 2, 0, 0]}
               name="Records"
             />
@@ -71,7 +71,7 @@ export default function ParetoChart({ data, top20Coverage }: ParetoChartProps) {
               yAxisId="pct"
               type="monotone"
               dataKey="cumulative_percent"
-              stroke="var(--accent)"
+              stroke="#C9A227"
               strokeWidth={2}
               dot={false}
               name="Cumulative %"

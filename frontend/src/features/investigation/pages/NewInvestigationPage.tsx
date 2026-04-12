@@ -79,7 +79,7 @@ export default function NewInvestigationPage() {
   return (
     <div
       className="min-h-screen flex flex-col px-4"
-      style={{ backgroundColor: "var(--surface-base)" }}
+      style={{ backgroundColor: "#0E0E11" }}
     >
       {/* Back link */}
       <div className="pt-6 pb-2 max-w-lg w-full mx-auto">
@@ -93,7 +93,7 @@ export default function NewInvestigationPage() {
       </div>
 
       <div className="flex-1 flex items-center justify-center">
-      <div className="max-w-lg w-full mx-auto bg-zinc-900/50 border border-zinc-800 rounded-2xl p-8">
+      <div className="max-w-lg w-full mx-auto bg-surface-base/50 border border-border-default rounded-2xl p-8">
         <h1 className="text-xl font-bold text-zinc-100 mb-1">
           New Evidence Investigation
         </h1>
@@ -108,7 +108,7 @@ export default function NewInvestigationPage() {
               htmlFor="title"
               className="block text-sm font-medium text-zinc-300 mb-1.5"
             >
-              Title <span className="text-primary">*</span>
+              Title <span className="text-[#9B1B30]">*</span>
             </label>
             <input
               id="title"
@@ -117,7 +117,7 @@ export default function NewInvestigationPage() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g., Cardiovascular risk in T2DM patients"
-              className="w-full rounded-lg bg-zinc-900 border border-zinc-700 px-3 py-2 text-zinc-100 placeholder-zinc-600 text-sm focus:outline-none focus:border-zinc-500 transition-colors"
+              className="w-full rounded-lg bg-surface-base border border-border-default px-3 py-2 text-zinc-100 placeholder-zinc-600 text-sm focus:outline-none focus:border-border-hover transition-colors"
             />
           </div>
 
@@ -136,10 +136,10 @@ export default function NewInvestigationPage() {
               value={researchQuestion}
               onChange={(e) => setResearchQuestion(e.target.value)}
               placeholder="What is the comparative effectiveness of..."
-              className="w-full rounded-lg bg-zinc-900 border border-zinc-700 px-3 py-2 text-zinc-100 placeholder-zinc-600 text-sm focus:outline-none focus:border-zinc-500 transition-colors resize-none"
+              className="w-full rounded-lg bg-surface-base border border-border-default px-3 py-2 text-zinc-100 placeholder-zinc-600 text-sm focus:outline-none focus:border-border-hover transition-colors resize-none"
             />
             {isLongEnough && (
-              <p className="mt-1 text-xs text-success">
+              <p className="mt-1 text-xs text-[#2DD4BF]">
                 AI will analyze your research question to suggest phenotype
                 concepts.
               </p>
@@ -151,7 +151,7 @@ export default function NewInvestigationPage() {
             type="submit"
             disabled={isPending || !title.trim()}
             className="w-full flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ backgroundColor: "var(--primary)" }}
+            style={{ backgroundColor: "#9B1B30" }}
           >
             {isPending ? (
               <>

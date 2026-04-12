@@ -3,7 +3,7 @@
  * Colors from the mockup wireframe — varied, not all crimson.
  */
 const AVATAR_COLORS = [
-  "var(--primary)", // crimson (brand)
+  "#9B1B30", // crimson (brand)
   "#2563eb", // blue
   "#7c3aed", // purple
   "#0891b2", // cyan

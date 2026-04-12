@@ -112,7 +112,7 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <span className="text-xs text-text-muted">
+          <span className="text-xs text-[#8A857D]">
             {items.length} items
           </span>
         </div>
@@ -121,7 +121,7 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
           type="button"
           onClick={handleResolve}
           disabled={isResolving}
-          className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-secondary hover:bg-surface-overlay hover:text-text-primary transition-colors disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#C5C0B8] hover:bg-[#1A1A1E] hover:text-[#F0EDE8] transition-colors disabled:opacity-50"
         >
           {isResolving ? (
             <Loader2 size={14} className="animate-spin" />
@@ -130,7 +130,7 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
           )}
           Resolve
           {resolveResult && (
-            <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-success/15 px-2 py-0.5 text-xs font-medium text-success">
+            <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-[#2DD4BF]/15 px-2 py-0.5 text-xs font-medium text-[#2DD4BF]">
               <Hash size={10} />
               {resolveResult.count.toLocaleString()}
             </span>
@@ -140,16 +140,16 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
 
       {/* Bulk action toolbar */}
       {someSelected && (
-        <div className="flex items-center gap-2 rounded-lg border border-success/20 bg-success/5 px-4 py-2">
-          <span className="text-xs font-medium text-success">
+        <div className="flex items-center gap-2 rounded-lg border border-[#2DD4BF]/20 bg-[#2DD4BF]/5 px-4 py-2">
+          <span className="text-xs font-medium text-[#2DD4BF]">
             {selectedItemIds.size} selected
           </span>
-          <div className="mx-2 h-4 w-px bg-surface-elevated" />
+          <div className="mx-2 h-4 w-px bg-[#232328]" />
           <button
             type="button"
             onClick={() => handleBulkUpdate("include_descendants", true)}
             disabled={bulkUpdateMutation.isPending}
-            className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-text-secondary bg-surface-overlay border border-border-default hover:bg-surface-elevated transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-[#C5C0B8] bg-[#1A1A1F] border border-[#232328] hover:bg-[#232328] transition-colors disabled:opacity-50"
           >
             <GitBranch size={11} />
             Descendants On
@@ -158,7 +158,7 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
             type="button"
             onClick={() => handleBulkUpdate("include_descendants", false)}
             disabled={bulkUpdateMutation.isPending}
-            className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-text-secondary bg-surface-overlay border border-border-default hover:bg-surface-elevated transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-[#C5C0B8] bg-[#1A1A1F] border border-[#232328] hover:bg-[#232328] transition-colors disabled:opacity-50"
           >
             <GitBranch size={11} className="opacity-40" />
             Descendants Off
@@ -167,7 +167,7 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
             type="button"
             onClick={() => handleBulkUpdate("include_mapped", true)}
             disabled={bulkUpdateMutation.isPending}
-            className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-text-secondary bg-surface-overlay border border-border-default hover:bg-surface-elevated transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-[#C5C0B8] bg-[#1A1A1F] border border-[#232328] hover:bg-[#232328] transition-colors disabled:opacity-50"
           >
             <MapPin size={11} />
             Mapped On
@@ -176,7 +176,7 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
             type="button"
             onClick={() => handleBulkUpdate("include_mapped", false)}
             disabled={bulkUpdateMutation.isPending}
-            className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-text-secondary bg-surface-overlay border border-border-default hover:bg-surface-elevated transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-[#C5C0B8] bg-[#1A1A1F] border border-[#232328] hover:bg-[#232328] transition-colors disabled:opacity-50"
           >
             <MapPin size={11} className="opacity-40" />
             Mapped Off
@@ -185,7 +185,7 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
             type="button"
             onClick={() => handleBulkUpdate("is_excluded", true)}
             disabled={bulkUpdateMutation.isPending}
-            className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-critical bg-surface-overlay border border-border-default hover:bg-surface-elevated transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-[#E85A6B] bg-[#1A1A1F] border border-[#232328] hover:bg-[#232328] transition-colors disabled:opacity-50"
           >
             <Ban size={11} />
             Exclude
@@ -194,23 +194,23 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
             type="button"
             onClick={() => handleBulkUpdate("is_excluded", false)}
             disabled={bulkUpdateMutation.isPending}
-            className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-success bg-surface-overlay border border-border-default hover:bg-surface-elevated transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-medium text-[#2DD4BF] bg-[#1A1A1F] border border-[#232328] hover:bg-[#232328] transition-colors disabled:opacity-50"
           >
             <Check size={11} />
             Include
           </button>
           {bulkUpdateMutation.isPending && (
-            <Loader2 size={12} className="animate-spin text-text-muted ml-1" />
+            <Loader2 size={12} className="animate-spin text-[#8A857D] ml-1" />
           )}
         </div>
       )}
 
       {/* Resolve Result Panel */}
       {showResolve && resolveResult && (
-        <div className="rounded-lg border border-success/20 bg-success/5 px-4 py-3">
+        <div className="rounded-lg border border-[#2DD4BF]/20 bg-[#2DD4BF]/5 px-4 py-3">
           <div className="flex items-center gap-2">
-            <CheckCircle2 size={16} className="text-success" />
-            <p className="text-sm text-success">
+            <CheckCircle2 size={16} className="text-[#2DD4BF]" />
+            <p className="text-sm text-[#2DD4BF]">
               Resolved to{" "}
               <span className="font-semibold">
                 {resolveResult.count.toLocaleString()}
@@ -223,11 +223,11 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
 
       {/* Items Table */}
       {items.length > 0 ? (
-        <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
+        <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="bg-surface-overlay">
+                <tr className="bg-[#1C1C20]">
                   <th className="px-3 py-2.5 w-10">
                     <input
                       type="checkbox"
@@ -238,34 +238,34 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
                             someSelected && !allSelected;
                       }}
                       onChange={toggleSelectAll}
-                      className="h-3.5 w-3.5 rounded border-surface-highlight bg-surface-base text-success focus:ring-success/40 cursor-pointer"
+                      className="h-3.5 w-3.5 rounded border-[#323238] bg-[#0E0E11] text-[#2DD4BF] focus:ring-[#2DD4BF]/40 cursor-pointer"
                     />
                   </th>
-                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                     Concept ID
                   </th>
-                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                     Name
                   </th>
-                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                     Domain
                   </th>
-                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                     Vocabulary
                   </th>
-                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                     Standard
                   </th>
-                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                     Excluded
                   </th>
-                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                     Descendants
                   </th>
-                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+                  <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                     Mapped
                   </th>
-                  <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+                  <th className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
                     Actions
                   </th>
                 </tr>
@@ -310,10 +310,10 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
           </div>
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-12">
-          <Search size={24} className="text-surface-highlight mb-3" />
-          <p className="text-sm text-text-muted">No concepts added yet</p>
-          <p className="mt-1 text-xs text-text-ghost">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#323238] bg-[#151518] py-12">
+          <Search size={24} className="text-[#323238] mb-3" />
+          <p className="text-sm text-[#8A857D]">No concepts added yet</p>
+          <p className="mt-1 text-xs text-[#5A5650]">
             Use the search panel to find and add concepts to this set
           </p>
         </div>

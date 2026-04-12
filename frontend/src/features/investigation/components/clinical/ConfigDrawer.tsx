@@ -42,7 +42,7 @@ function SelectInput({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       disabled={disabled}
-      className="w-full bg-zinc-800/60 border border-zinc-700 rounded px-3 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-success/60 disabled:opacity-50"
+      className="w-full bg-surface-raised/60 border border-border-default rounded px-3 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-[#2DD4BF]/60 disabled:opacity-50"
     >
       {children}
     </select>
@@ -67,7 +67,7 @@ function NumberInput({
       min={min}
       aria-label={label}
       onChange={(e) => onChange(Number(e.target.value))}
-      className="w-full bg-zinc-800/60 border border-zinc-700 rounded px-3 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-success/60"
+      className="w-full bg-surface-raised/60 border border-border-default rounded px-3 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-[#2DD4BF]/60"
     />
   );
 }
@@ -294,7 +294,7 @@ export function ConfigDrawer({
             </div>
             <div className="flex flex-col gap-1">
               <FieldLabel>Outcome Cohorts</FieldLabel>
-              <div className="rounded border border-zinc-700 bg-zinc-800/40 max-h-40 overflow-y-auto p-2 flex flex-col gap-1">
+              <div className="rounded border border-border-default bg-surface-raised/40 max-h-40 overflow-y-auto p-2 flex flex-col gap-1">
                 {allCohorts.length === 0 && (
                   <p className="text-[11px] text-zinc-500 p-1">No cohorts available.</p>
                 )}
@@ -307,12 +307,12 @@ export function ConfigDrawer({
                       type="checkbox"
                       checked={outcomeCohortIds.includes(c.id)}
                       onChange={() => toggleOutcomeCohort(c.id)}
-                      className="accent-success w-3 h-3"
+                      className="accent-[#2DD4BF] w-3 h-3"
                     />
                     <span className="text-xs text-zinc-300 group-hover:text-zinc-100 transition-colors flex items-center gap-1.5">
                       {c.name}
                       {investigationCohortIds.has(c.id) && (
-                        <span className="text-[10px] px-1 py-0.5 rounded bg-success/10 text-success border border-success/20">
+                        <span className="text-[10px] px-1 py-0.5 rounded bg-[#2DD4BF]/10 text-[#2DD4BF] border border-[#2DD4BF]/20">
                           From investigation
                         </span>
                       )}
@@ -341,7 +341,7 @@ export function ConfigDrawer({
                       value={opt.value}
                       checked={psMethod === opt.value}
                       onChange={() => setPsMethod(opt.value)}
-                      className="accent-success"
+                      className="accent-[#2DD4BF]"
                     />
                     <span className="text-xs text-zinc-300">{opt.label}</span>
                   </label>
@@ -409,7 +409,7 @@ export function ConfigDrawer({
 
       case "evidence_synthesis":
         return (
-          <div className="rounded border border-zinc-700 bg-zinc-800/20 p-4 text-center">
+          <div className="rounded border border-border-default bg-surface-raised/20 p-4 text-center">
             <p className="text-xs text-zinc-400">
               Select 2+ completed estimation results
             </p>
@@ -444,7 +444,7 @@ export function ConfigDrawer({
       <div
         className={[
           "fixed top-0 right-0 z-50 flex h-full w-[480px] flex-col",
-          "bg-zinc-950 border-l border-zinc-800 shadow-2xl",
+          "bg-surface-darkest border-l border-border-default shadow-2xl",
           "transition-transform duration-300 ease-in-out",
           isOpen ? "translate-x-0" : "translate-x-full",
         ].join(" ")}
@@ -453,7 +453,7 @@ export function ConfigDrawer({
         aria-label={descriptor?.name ?? "Analysis configuration"}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-zinc-800 px-5 py-4 flex-shrink-0">
+        <div className="flex items-center justify-between border-b border-border-default px-5 py-4 flex-shrink-0">
           <div>
             <h2 className="text-sm font-semibold text-zinc-100">
               {descriptor?.name ?? "Configure Analysis"}
@@ -467,7 +467,7 @@ export function ConfigDrawer({
           <button
             onClick={onClose}
             aria-label="Close drawer"
-            className="ml-4 flex-shrink-0 rounded p-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 transition-colors"
+            className="ml-4 flex-shrink-0 rounded p-1.5 text-zinc-400 hover:bg-surface-raised hover:text-zinc-100 transition-colors"
           >
             <svg
               className="w-4 h-4"
@@ -540,11 +540,11 @@ export function ConfigDrawer({
             {analysisType !== "evidence_synthesis" &&
               analysisType !== "pathway" && (
                 <div className="flex items-center gap-2">
-                  <div className="h-px flex-1 bg-zinc-800" />
+                  <div className="h-px flex-1 bg-surface-raised" />
                   <span className="text-[10px] uppercase tracking-wide text-zinc-600">
                     Analysis Parameters
                   </span>
-                  <div className="h-px flex-1 bg-zinc-800" />
+                  <div className="h-px flex-1 bg-surface-raised" />
                 </div>
               )}
 
@@ -554,7 +554,7 @@ export function ConfigDrawer({
         </div>
 
         {/* Footer */}
-        <div className="flex-shrink-0 border-t border-zinc-800 px-5 py-4 flex items-center justify-between gap-3">
+        <div className="flex-shrink-0 border-t border-border-default px-5 py-4 flex items-center justify-between gap-3">
           {/* Estimated time badge */}
           {descriptor && (
             <span className="text-[11px] text-zinc-500 flex items-center gap-1">
@@ -578,14 +578,14 @@ export function ConfigDrawer({
           <div className="flex items-center gap-2 ml-auto">
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded text-xs text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+              className="px-4 py-2 rounded text-xs text-zinc-400 hover:text-zinc-200 hover:bg-surface-raised transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handleExecute}
               disabled={analysisType === "evidence_synthesis" || isPending}
-              className="px-5 py-2 rounded text-xs font-medium text-white bg-primary hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-w-[110px] justify-center"
+              className="px-5 py-2 rounded text-xs font-medium text-white bg-[#9B1B30] hover:bg-[#b02035] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-w-[110px] justify-center"
             >
               {isPending ? (
                 <>

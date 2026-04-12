@@ -30,13 +30,13 @@ interface MetricCardProps {
 
 function MetricCard({ label, value, favorable, unfavorable }: MetricCardProps) {
   const valueClass = unfavorable
-    ? "text-primary"
+    ? "text-[#9B1B30]"
     : favorable
-      ? "text-success"
+      ? "text-[#2DD4BF]"
       : "text-zinc-100";
 
   return (
-    <div className="flex flex-col gap-1 rounded-lg border border-zinc-800 bg-zinc-900/60 p-3">
+    <div className="flex flex-col gap-1 rounded-lg border border-border-default bg-surface-base/60 p-3">
       <span className={`text-3xl font-bold leading-none ${valueClass}`}>
         {value ?? "—"}
       </span>
@@ -68,7 +68,7 @@ function PinButton({ onClick }: PinButtonProps) {
     <button
       type="button"
       onClick={onClick}
-      className="flex items-center gap-1.5 rounded-md border border-zinc-700 bg-zinc-800/60 px-2.5 py-1 text-xs text-zinc-400 transition hover:border-accent/60 hover:text-accent"
+      className="flex items-center gap-1.5 rounded-md border border-border-default bg-surface-raised/60 px-2.5 py-1 text-xs text-zinc-400 transition hover:border-[#C9A227]/60 hover:text-[#C9A227]"
     >
       <Pin className="h-3 w-3" />
       Pin to Dossier
@@ -135,10 +135,10 @@ function CharacterizationResults({
           <span className="text-xs font-medium uppercase tracking-wide text-zinc-500">
             Top Features by SMD
           </span>
-          <div className="overflow-hidden rounded-lg border border-zinc-800">
+          <div className="overflow-hidden rounded-lg border border-border-default">
             <table className="w-full text-xs">
               <thead>
-                <tr className="border-b border-zinc-800 bg-zinc-900/80">
+                <tr className="border-b border-border-default bg-surface-base/80">
                   <th className="px-3 py-2 text-left font-medium text-zinc-500">
                     Covariate
                   </th>
@@ -153,7 +153,7 @@ function CharacterizationResults({
                   return (
                     <tr
                       key={i}
-                      className="border-b border-zinc-800/50 last:border-0"
+                      className="border-b border-border-default/50 last:border-0"
                     >
                       <td className="px-3 py-1.5 text-zinc-300">
                         {(cov.covariate_name ?? cov.name) as string | undefined ?? "—"}
@@ -194,8 +194,8 @@ function IncidenceRateResults({
       </span>
 
       {/* Rate card */}
-      <div className="flex flex-col gap-1 rounded-lg border border-zinc-800 bg-zinc-900/60 p-4">
-        <span className="text-3xl font-bold text-success">
+      <div className="flex flex-col gap-1 rounded-lg border border-border-default bg-surface-base/60 p-4">
+        <span className="text-3xl font-bold text-[#2DD4BF]">
           {rate != null ? rate.toFixed(4) : "—"}
         </span>
         <span className="text-xs text-zinc-500">per person-year</span>
@@ -259,10 +259,10 @@ function EstimationResults({
     kmData?.target_curve || kmData?.comparator_curve
       ? [
           ...(kmData?.target_curve
-            ? [{ label: "Target", color: "var(--success)", points: kmData.target_curve }]
+            ? [{ label: "Target", color: "#2DD4BF", points: kmData.target_curve }]
             : []),
           ...(kmData?.comparator_curve
-            ? [{ label: "Comparator", color: "var(--primary)", points: kmData.comparator_curve }]
+            ? [{ label: "Comparator", color: "#9B1B30", points: kmData.comparator_curve }]
             : []),
         ]
       : undefined;
@@ -283,13 +283,13 @@ function EstimationResults({
       </span>
 
       {/* HR card */}
-      <div className="flex flex-col gap-1 rounded-lg border border-zinc-800 bg-zinc-900/60 p-4">
+      <div className="flex flex-col gap-1 rounded-lg border border-border-default bg-surface-base/60 p-4">
         <span
           className={`text-3xl font-bold leading-none ${
             hrFavorable
-              ? "text-success"
+              ? "text-[#2DD4BF]"
               : hrUnfavorable
-                ? "text-primary"
+                ? "text-[#9B1B30]"
                 : "text-zinc-100"
           }`}
         >
@@ -386,9 +386,9 @@ function PredictionResults({
       </span>
 
       {/* AUC card */}
-      <div className="flex flex-col gap-1 rounded-lg border border-zinc-800 bg-zinc-900/60 p-4">
+      <div className="flex flex-col gap-1 rounded-lg border border-border-default bg-surface-base/60 p-4">
         <span
-          className={`text-3xl font-bold leading-none ${aucFavorable ? "text-success" : "text-zinc-100"}`}
+          className={`text-3xl font-bold leading-none ${aucFavorable ? "text-[#2DD4BF]" : "text-zinc-100"}`}
         >
           {aucDisplay}
         </span>
@@ -458,13 +458,13 @@ function SccsResults({
         Self-Controlled Case Series
       </span>
 
-      <div className="flex flex-col gap-1 rounded-lg border border-zinc-800 bg-zinc-900/60 p-4">
+      <div className="flex flex-col gap-1 rounded-lg border border-border-default bg-surface-base/60 p-4">
         <span
           className={`text-3xl font-bold leading-none ${
             irrFavorable
-              ? "text-success"
+              ? "text-[#2DD4BF]"
               : irrUnfavorable
-                ? "text-primary"
+                ? "text-[#9B1B30]"
                 : "text-zinc-100"
           }`}
         >
@@ -526,13 +526,13 @@ function EvidenceSynthesisResults({
       </span>
 
       {/* Pooled HR */}
-      <div className="flex flex-col gap-1 rounded-lg border border-zinc-800 bg-zinc-900/60 p-4">
+      <div className="flex flex-col gap-1 rounded-lg border border-border-default bg-surface-base/60 p-4">
         <span
           className={`text-3xl font-bold leading-none ${
             hrFavorable
-              ? "text-success"
+              ? "text-[#2DD4BF]"
               : hrUnfavorable
-                ? "text-primary"
+                ? "text-[#9B1B30]"
                 : "text-zinc-100"
           }`}
         >
@@ -601,9 +601,9 @@ function PathwayResults({
             return (
               <li
                 key={i}
-                className="flex items-start gap-3 rounded-lg border border-zinc-800 bg-zinc-900/60 px-3 py-2"
+                className="flex items-start gap-3 rounded-lg border border-border-default bg-surface-base/60 px-3 py-2"
               >
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-zinc-800 text-[10px] font-bold text-zinc-400">
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-surface-raised text-[10px] font-bold text-zinc-400">
                   {i + 1}
                 </span>
                 <div className="flex flex-col gap-0.5">
@@ -624,7 +624,7 @@ function PathwayResults({
           })}
         </ol>
       ) : (
-        <div className="rounded-lg border border-zinc-800 bg-zinc-900/60 px-4 py-6 text-center text-sm text-zinc-500">
+        <div className="rounded-lg border border-border-default bg-surface-base/60 px-4 py-6 text-center text-sm text-zinc-500">
           No sequence data available
         </div>
       )}
@@ -651,7 +651,7 @@ export function ResultCards({
   onPinFinding,
 }: ResultCardsProps) {
   return (
-    <div className="rounded-b-lg border border-t-0 border-zinc-800 bg-zinc-950/40 p-4">
+    <div className="rounded-b-lg border border-t-0 border-border-default bg-surface-darkest/40 p-4">
       {analysisType === "characterization" && (
         <CharacterizationResults result={result} onPinFinding={onPinFinding} />
       )}

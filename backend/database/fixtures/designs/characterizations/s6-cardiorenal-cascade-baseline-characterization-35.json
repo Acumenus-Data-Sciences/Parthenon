@@ -1,0 +1,46 @@
+{
+    "id": 35,
+    "name": "S6: Cardiorenal Cascade — Baseline Characterization",
+    "description": "Baseline covariate profile comparison between new prediabetes patients and matched controls. Evaluates demographic, clinical, and pharmacological balance for the Cardiorenal-Metabolic Cascade study.",
+    "design_json": {
+        "topN": 100,
+        "ageBreaks": [
+            18,
+            40,
+            55,
+            65,
+            75
+        ],
+        "description": "Baseline characterization comparing prediabetes target cohort vs matched controls across demographics, conditions, drugs, measurements, procedures, and visits in the 365 days prior to index.",
+        "timeWindows": [
+            {
+                "id": 1,
+                "label": "365 days prior to index",
+                "endDays": 0,
+                "startDays": -365
+            }
+        ],
+        "analysisType": "Characterization",
+        "featureTypes": [
+            "demographics",
+            "conditions",
+            "drugs",
+            "measurements",
+            "procedures",
+            "visits"
+        ],
+        "minCellCount": 5,
+        "stratifyByAge": true,
+        "targetCohortIds": [
+            166
+        ],
+        "stratifyByGender": true,
+        "comparatorCohortIds": [
+            165
+        ]
+    },
+    "author_id": 117,
+    "created_at": "2026-03-20T00:29:26.000000Z",
+    "updated_at": "2026-03-20T00:29:26.000000Z",
+    "deleted_at": null
+}

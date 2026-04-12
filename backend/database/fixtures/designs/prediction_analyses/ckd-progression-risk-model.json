@@ -1,0 +1,46 @@
+{
+    "id": 3,
+    "name": "CKD Progression Risk Model",
+    "description": "Patient-level prediction model for CKD progression risk using LASSO logistic regression with demographics, lab values, and comorbidity features.",
+    "design_json": {
+        "model": {
+            "type": "lasso_logistic_regression",
+            "hyperParameters": {
+                "variance": 0.01
+            }
+        },
+        "timeAtRisk": {
+            "end": 365,
+            "start": 1,
+            "endAnchor": "cohort start"
+        },
+        "splitSettings": {
+            "splitSeed": 42,
+            "testFraction": 0.25
+        },
+        "targetCohortId": 69,
+        "outcomeCohortId": 69,
+        "covariateSettings": {
+            "timeWindows": [
+                {
+                    "end": 0,
+                    "start": -365
+                }
+            ],
+            "useDemographics": true,
+            "useDrugExposure": true,
+            "useConditionOccurrence": true,
+            "useProcedureOccurrence": false
+        },
+        "populationSettings": {
+            "minTimeAtRisk": 365,
+            "washoutPeriod": 365,
+            "requireTimeAtRisk": true,
+            "removeSubjectsWithPriorOutcome": true
+        }
+    },
+    "author_id": 117,
+    "created_at": "2026-03-15T02:58:11.000000Z",
+    "updated_at": "2026-03-19T21:28:48.000000Z",
+    "deleted_at": "2026-03-19T21:28:48.000000Z"
+}

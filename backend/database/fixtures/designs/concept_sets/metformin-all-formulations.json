@@ -1,0 +1,28 @@
+{
+    "id": 68,
+    "name": "Metformin All Formulations",
+    "description": "Metformin ingredient (RxNorm 1503297) and all descendant clinical drug forms — immediate and extended release, standalone and combination products.",
+    "expression_json": null,
+    "author_id": 117,
+    "is_public": true,
+    "tags": [
+        "metformin",
+        "diabetes",
+        "biguanide"
+    ],
+    "created_at": "2026-03-15T15:15:36.000000Z",
+    "updated_at": "2026-03-15T15:15:36.000000Z",
+    "deleted_at": null,
+    "items": [
+        {
+            "id": 470,
+            "concept_set_id": 68,
+            "concept_id": 1503297,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-19T23:51:25.000000Z",
+            "updated_at": "2026-03-19T23:51:25.000000Z"
+        }
+    ]
+}

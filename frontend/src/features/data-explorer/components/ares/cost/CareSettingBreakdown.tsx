@@ -27,9 +27,9 @@ function formatCurrency(value: number): string {
 }
 
 const CARE_COLORS: Record<string, string> = {
-  "Inpatient Visit": "var(--primary)",
-  "Outpatient Visit": "var(--success)",
-  "Emergency Room Visit": "var(--accent)",
+  "Inpatient Visit": "#9B1B30",
+  "Outpatient Visit": "#2DD4BF",
+  "Emergency Room Visit": "#C9A227",
   "Emergency Room and Inpatient Visit": "#e85d75",
   "Pharmacy visit": "#7c8aed",
 };
@@ -37,7 +37,7 @@ const CARE_COLORS: Record<string, string> = {
 export default function CareSettingBreakdown({ settings }: CareSettingBreakdownProps) {
   if (settings.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-surface-highlight bg-surface-raised py-10 text-center text-sm text-text-ghost">
+      <div className="rounded-lg border border-dashed border-[#323238] bg-[#151518] py-10 text-center text-sm text-[#555]">
         No care setting cost data available. Requires Visit-domain cost records joined with
         visit_occurrence.
       </div>
@@ -60,21 +60,21 @@ export default function CareSettingBreakdown({ settings }: CareSettingBreakdownP
             <CartesianGrid strokeDasharray="3 3" stroke="#252530" />
             <XAxis
               dataKey="name"
-              tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+              tick={{ fill: "#888", fontSize: 11 }}
               angle={-20}
               textAnchor="end"
             />
             <YAxis
-              tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+              tick={{ fill: "#888", fontSize: 11 }}
               tickFormatter={(v: number) => formatCurrency(v)}
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: 'var(--surface-overlay)',
+                backgroundColor: "#1a1a22",
                 border: "1px solid #333",
                 borderRadius: "8px",
               }}
-              labelStyle={{ color: 'var(--text-primary)' }}
+              labelStyle={{ color: "#fff" }}
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               formatter={((value: number | string) => [formatCurrency(Number(value)), "Total Cost"]) as any}
             />
@@ -90,12 +90,12 @@ export default function CareSettingBreakdown({ settings }: CareSettingBreakdownP
       {/* Detail cards */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {settings.map((s) => (
-          <div key={s.visit_concept_id} className="rounded border border-border-subtle bg-surface-base p-3">
-            <p className="text-[10px] uppercase tracking-wider text-text-ghost">
+          <div key={s.visit_concept_id} className="rounded border border-[#252530] bg-[#0E0E11] p-3">
+            <p className="text-[10px] uppercase tracking-wider text-[#666]">
               {s.setting.replace(/ Visit$/, "")}
             </p>
             <p className="text-sm font-semibold text-white">{formatCurrency(s.total_cost)}</p>
-            <p className="text-[10px] text-text-ghost">
+            <p className="text-[10px] text-[#555]">
               {s.record_count.toLocaleString()} records | avg {formatCurrency(s.avg_cost)}
             </p>
           </div>

@@ -29,11 +29,11 @@ export function SystematicErrorPlot({
   const plotW = width - padding.left - padding.right;
   const plotH = height - padding.top - padding.bottom;
 
-  const NC_COLOR = "var(--success)";
-  const NC_CALIBRATED_COLOR = "var(--success)";
-  const PC_COLOR = "var(--accent)";
-  const FUNNEL_COLOR = "var(--critical)";
-  const ARROW_COLOR = "var(--text-muted)";
+  const NC_COLOR = "#2DD4BF";
+  const NC_CALIBRATED_COLOR = "#2DD4BF";
+  const PC_COLOR = "#C9A227";
+  const FUNNEL_COLOR = "#E85A6B";
+  const ARROW_COLOR = "#8A857D";
 
   // Determine if calibrated data is available
   const hasCalibrated =
@@ -112,11 +112,11 @@ export function SystematicErrorPlot({
         width={width}
         height={height}
         viewBox={`0 0 ${width} ${height}`}
-        className="text-text-primary"
+        className="text-[#F0EDE8]"
         role="img"
         aria-label="Systematic error plot showing negative control effect estimates"
       >
-        <rect width={width} height={height} fill="var(--surface-raised)" rx={8} />
+        <rect width={width} height={height} fill="#151518" rx={8} />
 
         {/* Grid */}
         {xTicks.map((v) => (
@@ -126,14 +126,14 @@ export function SystematicErrorPlot({
               y1={padding.top}
               x2={toX(v)}
               y2={padding.top + plotH}
-              stroke="var(--border-default)"
+              stroke="#232328"
               strokeWidth={0.5}
             />
             <text
               x={toX(v)}
               y={padding.top + plotH + 16}
               textAnchor="middle"
-              fill="var(--text-ghost)"
+              fill="#5A5650"
               fontSize={10}
             >
               {v.toFixed(1)}
@@ -147,14 +147,14 @@ export function SystematicErrorPlot({
               y1={toY(v)}
               x2={padding.left + plotW}
               y2={toY(v)}
-              stroke="var(--border-default)"
+              stroke="#232328"
               strokeWidth={0.5}
             />
             <text
               x={padding.left - 8}
               y={toY(v) + 4}
               textAnchor="end"
-              fill="var(--text-ghost)"
+              fill="#5A5650"
               fontSize={10}
             >
               {v.toFixed(1)}
@@ -179,7 +179,7 @@ export function SystematicErrorPlot({
           y1={padding.top}
           x2={toX(0)}
           y2={padding.top + plotH}
-          stroke="var(--accent)"
+          stroke="#C9A227"
           strokeWidth={1.5}
           strokeDasharray="6 4"
           opacity={0.6}
@@ -268,7 +268,7 @@ export function SystematicErrorPlot({
                 cy={toY(nc.calibrated_se_log_rr!)}
                 r={4}
                 fill={NC_CALIBRATED_COLOR}
-                stroke="var(--surface-raised)"
+                stroke="#151518"
                 strokeWidth={0.5}
                 opacity={0.9}
               >
@@ -288,7 +288,7 @@ export function SystematicErrorPlot({
             r={4}
             fill={PC_COLOR}
             opacity={0.7}
-            stroke="var(--surface-raised)"
+            stroke="#151518"
             strokeWidth={0.5}
           >
             <title>
@@ -305,7 +305,7 @@ export function SystematicErrorPlot({
           width={plotW}
           height={plotH}
           fill="none"
-          stroke="var(--border-default)"
+          stroke="#323238"
           strokeWidth={1}
         />
 
@@ -319,29 +319,29 @@ export function SystematicErrorPlot({
             width={200}
             height={legendH}
             rx={4}
-            fill="var(--surface-base)"
-            stroke="var(--border-default)"
+            fill="#0E0E11"
+            stroke="#232328"
             strokeWidth={1}
           />
           {hasCalibrated ? (
             <>
               <circle cx={14} cy={14} r={3} fill="none" stroke={NC_COLOR} strokeWidth={1.5} />
-              <text x={24} y={18} fill="var(--text-secondary)" fontSize={10}>
+              <text x={24} y={18} fill="#C5C0B8" fontSize={10}>
                 Pre-calibration ({negativeControls.length})
               </text>
               <circle cx={14} cy={34} r={3} fill={NC_CALIBRATED_COLOR} />
-              <text x={24} y={38} fill="var(--text-secondary)" fontSize={10}>
+              <text x={24} y={38} fill="#C5C0B8" fontSize={10}>
                 Post-calibration
               </text>
               <line x1={8} y1={50} x2={20} y2={50} stroke={ARROW_COLOR} strokeWidth={1} opacity={0.6} />
-              <text x={24} y={54} fill="var(--text-secondary)" fontSize={10}>
+              <text x={24} y={54} fill="#C5C0B8" fontSize={10}>
                 Calibration shift
               </text>
             </>
           ) : (
             <>
               <circle cx={14} cy={12} r={3} fill={NC_COLOR} />
-              <text x={24} y={16} fill="var(--text-secondary)" fontSize={10}>
+              <text x={24} y={16} fill="#C5C0B8" fontSize={10}>
                 Negative Controls ({negativeControls.length})
               </text>
             </>
@@ -357,7 +357,7 @@ export function SystematicErrorPlot({
               <text
                 x={24}
                 y={hasCalibrated ? legendH - 4 : 36}
-                fill="var(--text-secondary)"
+                fill="#C5C0B8"
                 fontSize={10}
               >
                 Positive Controls ({positiveControls.length})
@@ -371,7 +371,7 @@ export function SystematicErrorPlot({
           x={padding.left + plotW / 2}
           y={height - 8}
           textAnchor="middle"
-          fill="var(--text-muted)"
+          fill="#8A857D"
           fontSize={11}
           fontWeight={600}
         >
@@ -381,7 +381,7 @@ export function SystematicErrorPlot({
           x={14}
           y={padding.top + plotH / 2}
           textAnchor="middle"
-          fill="var(--text-muted)"
+          fill="#8A857D"
           fontSize={11}
           fontWeight={600}
           transform={`rotate(-90 14 ${padding.top + plotH / 2})`}

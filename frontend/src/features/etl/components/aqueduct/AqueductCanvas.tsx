@@ -289,7 +289,7 @@ function AqueductCanvasInner({
       style: {
         background: "transparent",
         border: "none",
-        color: "var(--accent)",
+        color: "#C9A227",
         fontSize: "15px",
         fontWeight: 600,
         textTransform: "uppercase" as const,
@@ -309,7 +309,7 @@ function AqueductCanvasInner({
       style: {
         background: "transparent",
         border: "none",
-        color: "var(--success)",
+        color: "#2DD4BF",
         fontSize: "15px",
         fontWeight: 600,
         textTransform: "uppercase" as const,
@@ -617,9 +617,9 @@ function AqueductCanvasInner({
         maxZoom={3}
         proOptions={{ hideAttribution: true }}
       >
-        <Controls className="!bg-surface-overlay !border-border-default" />
-        <MiniMap className="!bg-surface-overlay" />
-        <Background variant={BackgroundVariant.Dots} color="var(--surface-accent)" gap={20} />
+        <Controls className="!bg-[#1C1C20] !border-[#2A2A30]" />
+        <MiniMap className="!bg-[#1C1C20]" />
+        <Background variant={BackgroundVariant.Dots} color="#2A2A30" gap={20} />
       </ReactFlow>
     </div>
   );
@@ -662,7 +662,7 @@ function AqueductCanvasInner({
   // Expanded mode: portal to document.body, covering everything
   if (isFullscreen) {
     return createPortal(
-      <div className="fixed inset-0 flex flex-col bg-surface-base" style={{ zIndex: 200 }}>
+      <div className="fixed inset-0 flex flex-col bg-[#0E0E11]" style={{ zIndex: 200 }}>
         {toolbar}
         {banner}
         {canvas}

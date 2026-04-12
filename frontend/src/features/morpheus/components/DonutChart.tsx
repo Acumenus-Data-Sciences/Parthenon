@@ -16,7 +16,7 @@ export default function DonutChart({ data, title, size = 140 }: DonutChartProps)
   const total = data.reduce((sum, d) => sum + d.value, 0);
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
 
-  if (!total) return <div className="text-text-ghost text-sm py-8 text-center">No data</div>;
+  if (!total) return <div className="text-[#5A5650] text-sm py-8 text-center">No data</div>;
 
   const cx = size / 2;
   const cy = size / 2;
@@ -52,7 +52,7 @@ export default function DonutChart({ data, title, size = 140 }: DonutChartProps)
 
   return (
     <div>
-      {title && <h3 className="text-xs font-semibold text-text-secondary mb-3">{title}</h3>}
+      {title && <h3 className="text-xs font-semibold text-[#C5C0B8] mb-3">{title}</h3>}
       <div className="flex items-center gap-5">
         <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
           {arcs.map((arc) => (
@@ -60,7 +60,7 @@ export default function DonutChart({ data, title, size = 140 }: DonutChartProps)
               key={arc.index}
               d={arc.path}
               fill={arc.color}
-              stroke="var(--surface-base)"
+              stroke="#0E0E11"
               strokeWidth={2}
               opacity={hoverIdx === null || hoverIdx === arc.index ? 1 : 0.4}
               onMouseEnter={() => setHoverIdx(arc.index)}
@@ -68,10 +68,10 @@ export default function DonutChart({ data, title, size = 140 }: DonutChartProps)
               className="transition-opacity duration-150 cursor-pointer"
             />
           ))}
-          <text x={cx} y={cy - 2} textAnchor="middle" fill="var(--text-primary)" fontSize={20} fontWeight="bold">
+          <text x={cx} y={cy - 2} textAnchor="middle" fill="#F0EDE8" fontSize={20} fontWeight="bold">
             {total.toLocaleString()}
           </text>
-          <text x={cx} y={cy + 14} textAnchor="middle" fill="var(--text-ghost)" fontSize={9}>
+          <text x={cx} y={cy + 14} textAnchor="middle" fill="#5A5650" fontSize={9}>
             patients
           </text>
         </svg>
@@ -84,8 +84,8 @@ export default function DonutChart({ data, title, size = 140 }: DonutChartProps)
               onMouseLeave={() => setHoverIdx(null)}
             >
               <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: d.color }} />
-              <span className="text-xs text-text-secondary font-medium">{d.label}</span>
-              <span className="text-xs text-text-ghost tabular-nums">{d.value.toLocaleString()} ({Math.round(d.value / total * 100)}%)</span>
+              <span className="text-xs text-[#C5C0B8] font-medium">{d.label}</span>
+              <span className="text-xs text-[#5A5650] tabular-nums">{d.value.toLocaleString()} ({Math.round(d.value / total * 100)}%)</span>
             </div>
           ))}
         </div>

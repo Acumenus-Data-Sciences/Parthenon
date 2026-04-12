@@ -16,21 +16,21 @@ describe("CIBar", () => {
     const lines = svg.querySelectorAll("line");
     // CI horizontal line is the second line (first is the null reference)
     const ciLine = lines[1];
-    expect(ciLine.getAttribute("stroke")).toBe("var(--text-muted)");
+    expect(ciLine.getAttribute("stroke")).toBe("#8A857D");
   });
 
   it("uses teal when estimate < null and CI does not span null", () => {
     render(<CIBar estimate={0.7} ciLower={0.5} ciUpper={0.9} />);
     const svg = screen.getByTestId("ci-bar");
     const circle = svg.querySelector("circle");
-    expect(circle?.getAttribute("fill")).toBe("var(--success)");
+    expect(circle?.getAttribute("fill")).toBe("#2DD4BF");
   });
 
   it("uses red when estimate > null and CI does not span null", () => {
     render(<CIBar estimate={1.5} ciLower={1.1} ciUpper={2.0} />);
     const svg = screen.getByTestId("ci-bar");
     const circle = svg.querySelector("circle");
-    expect(circle?.getAttribute("fill")).toBe("var(--critical)");
+    expect(circle?.getAttribute("fill")).toBe("#E85A6B");
   });
 
   it("includes aria-label with CI range and estimate", () => {
@@ -51,7 +51,7 @@ describe("CIBar", () => {
     const svg = screen.getByTestId("ci-bar");
     const lines = svg.querySelectorAll("line");
     const nullLine = lines[0];
-    expect(nullLine.getAttribute("stroke")).toBe("var(--accent)");
+    expect(nullLine.getAttribute("stroke")).toBe("#C9A227");
     expect(nullLine.getAttribute("stroke-dasharray")).toBe("3,3");
   });
 

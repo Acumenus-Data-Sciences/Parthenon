@@ -43,7 +43,7 @@ function RecommendationGroup({
 
   return (
     <div>
-      <h3 className="text-sm font-medium text-text-muted uppercase tracking-wider mb-3">
+      <h3 className="text-sm font-medium text-[#8A857D] uppercase tracking-wider mb-3">
         {label}
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -70,7 +70,7 @@ export function RecommendationsTab({
 
   if (sourceId === 0 || analysis.design_json.targetCohortIds.length === 0) {
     return (
-      <div className="rounded-xl border border-border-default bg-surface-raised p-8 text-center text-sm text-text-muted">
+      <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-8 text-center text-sm text-[#8A857D]">
         Select a source to view recommendations
       </div>
     );
@@ -79,7 +79,7 @@ export function RecommendationsTab({
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <Loader2 className="h-6 w-6 animate-spin text-text-ghost" />
+        <Loader2 className="h-6 w-6 animate-spin text-[#5A5650]" />
       </div>
     );
   }

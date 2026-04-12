@@ -65,8 +65,8 @@ export default function StudyDesignerPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20">
-          <Brain className="h-5 w-5 text-primary" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#9B1B30]/20">
+          <Brain className="h-5 w-5 text-[#9B1B30]" />
         </div>
         <div>
           <h1 className="text-2xl font-bold text-white">Study Designer</h1>
@@ -77,14 +77,14 @@ export default function StudyDesignerPage() {
       </div>
 
       {/* Tab bar */}
-      <div className="flex gap-1 rounded-lg bg-zinc-900 p-1">
+      <div className="flex gap-1 rounded-lg bg-surface-base p-1">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
               activeTab === tab.id
-                ? "bg-zinc-800 text-white"
+                ? "bg-surface-raised text-white"
                 : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
@@ -97,7 +97,7 @@ export default function StudyDesignerPage() {
       {/* Intent Tab */}
       {activeTab === "intent" && (
         <div className="space-y-4">
-          <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-6">
+          <div className="rounded-lg border border-border-default bg-surface-base/50 p-6">
             <h2 className="mb-3 text-lg font-semibold text-white">
               Describe Your Study
             </h2>
@@ -110,13 +110,13 @@ export default function StudyDesignerPage() {
               value={studyIntent}
               onChange={(e) => setStudyIntent(e.target.value)}
               placeholder="e.g., Compare the risk of heart failure in patients newly prescribed SGLT2 inhibitors vs DPP-4 inhibitors among adults with type 2 diabetes..."
-              className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 text-white placeholder-zinc-500 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+              className="w-full rounded-lg border border-border-default bg-surface-raised px-4 py-3 text-white placeholder-zinc-500 focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]"
               rows={4}
             />
             <button
               onClick={handleIntentSubmit}
               disabled={!studyIntent.trim() || intentMutation.isPending}
-              className="mt-3 flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary/80 disabled:opacity-50"
+              className="mt-3 flex items-center gap-2 rounded-lg bg-[#9B1B30] px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#9B1B30]/80 disabled:opacity-50"
             >
               {intentMutation.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -130,8 +130,8 @@ export default function StudyDesignerPage() {
           {/* Intent split results */}
           {intentMutation.data && (
             <div className="grid grid-cols-2 gap-4">
-              <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
-                <div className="mb-2 flex items-center gap-2 text-success">
+              <div className="rounded-lg border border-border-default bg-surface-base/50 p-4">
+                <div className="mb-2 flex items-center gap-2 text-[#2DD4BF]">
                   <Target className="h-4 w-4" />
                   <span className="text-sm font-semibold">
                     Target Population
@@ -141,8 +141,8 @@ export default function StudyDesignerPage() {
                   {intentMutation.data.target}
                 </p>
               </div>
-              <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
-                <div className="mb-2 flex items-center gap-2 text-accent">
+              <div className="rounded-lg border border-border-default bg-surface-base/50 p-4">
+                <div className="mb-2 flex items-center gap-2 text-[#C9A227]">
                   <Users className="h-4 w-4" />
                   <span className="text-sm font-semibold">Outcome</span>
                 </div>
@@ -155,7 +155,7 @@ export default function StudyDesignerPage() {
 
           {/* Recommendations */}
           {recommendMutation.data && recommendMutation.data.length > 0 && (
-            <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-6">
+            <div className="rounded-lg border border-border-default bg-surface-base/50 p-6">
               <h3 className="mb-4 text-lg font-semibold text-white">
                 Recommended Phenotypes
               </h3>
@@ -164,9 +164,9 @@ export default function StudyDesignerPage() {
                   (rec: PhenotypeRecommendation, i: number) => (
                     <div
                       key={rec.cohortId ?? i}
-                      className="flex items-start gap-3 rounded-lg border border-zinc-700/50 bg-zinc-800/50 p-4 transition-colors hover:border-zinc-600"
+                      className="flex items-start gap-3 rounded-lg border border-border-default/50 bg-surface-raised/50 p-4 transition-colors hover:border-border-hover"
                     >
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent/20 text-sm font-bold text-accent">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#C9A227]/20 text-sm font-bold text-[#C9A227]">
                         {i + 1}
                       </div>
                       <div className="min-w-0 flex-1">
@@ -197,7 +197,7 @@ export default function StudyDesignerPage() {
       {/* Search Tab */}
       {activeTab === "search" && (
         <div className="space-y-4">
-          <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-6">
+          <div className="rounded-lg border border-border-default bg-surface-base/50 p-6">
             <h2 className="mb-3 text-lg font-semibold text-white">
               Search Phenotype Library
             </h2>
@@ -211,12 +211,12 @@ export default function StudyDesignerPage() {
                   searchMutation.mutate(searchQuery)
                 }
                 placeholder="Search for phenotypes (e.g., type 2 diabetes, heart failure, COPD)..."
-                className="flex-1 rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2.5 text-white placeholder-zinc-500 focus:border-accent focus:outline-none"
+                className="flex-1 rounded-lg border border-border-default bg-surface-raised px-4 py-2.5 text-white placeholder-zinc-500 focus:border-[#C9A227] focus:outline-none"
               />
               <button
                 onClick={() => searchMutation.mutate(searchQuery)}
                 disabled={!searchQuery.trim() || searchMutation.isPending}
-                className="flex items-center gap-2 rounded-lg bg-zinc-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-zinc-600 disabled:opacity-50"
+                className="flex items-center gap-2 rounded-lg bg-surface-accent px-5 py-2.5 text-sm font-medium text-white hover:bg-surface-overlay disabled:opacity-50"
               >
                 {searchMutation.isPending ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -229,18 +229,18 @@ export default function StudyDesignerPage() {
           </div>
 
           {searchMutation.data && searchMutation.data.length > 0 && (
-            <div className="rounded-lg border border-zinc-800 bg-zinc-900/50">
-              <div className="border-b border-zinc-800 px-4 py-3">
+            <div className="rounded-lg border border-border-default bg-surface-base/50">
+              <div className="border-b border-border-default px-4 py-3">
                 <span className="text-sm font-medium text-zinc-300">
                   {searchMutation.data.length} results found
                 </span>
               </div>
-              <div className="divide-y divide-zinc-800">
+              <div className="divide-y divide-border-default">
                 {searchMutation.data.map(
                   (result: PhenotypeSearchResult, i: number) => (
                     <div
                       key={result.cohortId ?? i}
-                      className="flex items-center gap-4 px-4 py-3 transition-colors hover:bg-zinc-800/50"
+                      className="flex items-center gap-4 px-4 py-3 transition-colors hover:bg-surface-raised/50"
                     >
                       <div className="text-xs font-mono text-zinc-500">
                         #{result.cohortId}
@@ -278,12 +278,12 @@ export default function StudyDesignerPage() {
 
       {/* Recommend Tab */}
       {activeTab === "recommend" && (
-        <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-6">
+        <div className="rounded-lg border border-border-default bg-surface-base/50 p-6">
           <p className="text-sm text-zinc-400">
             Enter a study intent on the{" "}
             <button
               onClick={() => setActiveTab("intent")}
-              className="text-accent hover:underline"
+              className="text-[#C9A227] hover:underline"
             >
               Study Intent
             </button>{" "}
@@ -295,7 +295,7 @@ export default function StudyDesignerPage() {
       {/* Lint Tab */}
       {activeTab === "lint" && (
         <div className="space-y-4">
-          <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-6">
+          <div className="rounded-lg border border-border-default bg-surface-base/50 p-6">
             <h2 className="mb-3 text-lg font-semibold text-white">
               Lint Cohort Definition
             </h2>
@@ -308,13 +308,13 @@ export default function StudyDesignerPage() {
               value={lintJson}
               onChange={(e) => setLintJson(e.target.value)}
               placeholder='{"ConceptSets": [...], "PrimaryCriteria": {...}, ...}'
-              className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 font-mono text-sm text-white placeholder-zinc-500 focus:border-accent focus:outline-none"
+              className="w-full rounded-lg border border-border-default bg-surface-raised px-4 py-3 font-mono text-sm text-white placeholder-zinc-500 focus:border-[#C9A227] focus:outline-none"
               rows={8}
             />
             <button
               onClick={() => lintMutation.mutate(lintJson)}
               disabled={!lintJson.trim() || lintMutation.isPending}
-              className="mt-3 flex items-center gap-2 rounded-lg bg-zinc-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-zinc-600 disabled:opacity-50"
+              className="mt-3 flex items-center gap-2 rounded-lg bg-surface-accent px-5 py-2.5 text-sm font-medium text-white hover:bg-surface-overlay disabled:opacity-50"
             >
               {lintMutation.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -326,9 +326,9 @@ export default function StudyDesignerPage() {
           </div>
 
           {lintMutation.data && (
-            <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-6">
+            <div className="rounded-lg border border-border-default bg-surface-base/50 p-6">
               {lintMutation.data.length === 0 ? (
-                <div className="flex items-center gap-2 text-success">
+                <div className="flex items-center gap-2 text-[#2DD4BF]">
                   <span className="text-lg">No issues found</span>
                 </div>
               ) : (
@@ -345,7 +345,7 @@ export default function StudyDesignerPage() {
                           ? "border-red-800/50 bg-red-900/20 text-red-300"
                           : w.severity === "warning"
                             ? "border-yellow-800/50 bg-yellow-900/20 text-yellow-300"
-                            : "border-zinc-700/50 bg-zinc-800/50 text-zinc-300"
+                            : "border-border-default/50 bg-surface-raised/50 text-zinc-300"
                       }`}
                     >
                       <span className="font-mono text-xs uppercase opacity-70">

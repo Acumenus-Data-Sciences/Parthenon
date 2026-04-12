@@ -1,0 +1,51 @@
+{
+    "id": 18,
+    "name": "Study 3: Baseline Characterization — NSAID vs Acetaminophen Initiators in CKD",
+    "description": "Baseline covariate profile for Study 3 target and comparator cohorts in CKD population.",
+    "design_json": {
+        "topN": 100,
+        "ageBreaks": [
+            18,
+            40,
+            55,
+            65,
+            75
+        ],
+        "description": "Baseline characterization comparing NSAID initiators vs acetaminophen initiators in CKD patients. Key features: CKD stage distribution, pain diagnoses, comorbidities (diabetes, hypertension, CHF), concurrent nephrotoxic medications, prior lab values (creatinine, eGFR if available).",
+        "timeWindows": [
+            {
+                "id": 1,
+                "label": "365 days prior to index",
+                "endDays": 0,
+                "startDays": -365
+            },
+            {
+                "id": 2,
+                "label": "30 days prior to index",
+                "endDays": 0,
+                "startDays": -30
+            }
+        ],
+        "analysisType": "Characterization",
+        "featureTypes": [
+            "demographics",
+            "conditions",
+            "drugs",
+            "procedures",
+            "measurements"
+        ],
+        "minCellCount": 5,
+        "stratifyByAge": true,
+        "targetCohortIds": [
+            76
+        ],
+        "stratifyByGender": true,
+        "comparatorCohortIds": [
+            77
+        ]
+    },
+    "author_id": 117,
+    "created_at": null,
+    "updated_at": "2026-03-19T04:00:15.000000Z",
+    "deleted_at": null
+}

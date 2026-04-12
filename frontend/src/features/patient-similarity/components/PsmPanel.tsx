@@ -26,30 +26,30 @@ export function PsmPanel({ result, onExportMatched, onContinue }: PsmPanelProps)
     <div className="space-y-4 p-4">
       {/* Metrics row */}
       <div className="grid grid-cols-4 gap-3">
-        <div className="rounded-lg border border-border-default bg-surface-raised px-4 py-3">
-          <div className="text-xs text-text-ghost">AUC</div>
-          <div className="mt-1 text-xl font-semibold text-success">
+        <div className="rounded-lg border border-[#232328] bg-[#151518] px-4 py-3">
+          <div className="text-xs text-[#5A5650]">AUC</div>
+          <div className="mt-1 text-xl font-semibold text-[#2DD4BF]">
             {model_metrics.auc.toFixed(3)}
           </div>
         </div>
 
-        <div className="rounded-lg border border-border-default bg-surface-raised px-4 py-3">
-          <div className="text-xs text-text-ghost">Matched Pairs</div>
-          <div className="mt-1 text-xl font-semibold text-accent">
+        <div className="rounded-lg border border-[#232328] bg-[#151518] px-4 py-3">
+          <div className="text-xs text-[#5A5650]">Matched Pairs</div>
+          <div className="mt-1 text-xl font-semibold text-[#C9A227]">
             {matched_pairs.length.toLocaleString()}
           </div>
         </div>
 
-        <div className="rounded-lg border border-border-default bg-surface-raised px-4 py-3">
-          <div className="text-xs text-text-ghost">SMD Reduction</div>
-          <div className="mt-1 text-xl font-semibold text-success">
+        <div className="rounded-lg border border-[#232328] bg-[#151518] px-4 py-3">
+          <div className="text-xs text-[#5A5650]">SMD Reduction</div>
+          <div className="mt-1 text-xl font-semibold text-[#2DD4BF]">
             {smdReduction !== null ? `${smdReduction}%` : '—'}
           </div>
         </div>
 
-        <div className="rounded-lg border border-border-default bg-surface-raised px-4 py-3">
-          <div className="text-xs text-text-ghost">Caliper</div>
-          <div className="mt-1 text-xl font-semibold text-text-muted">
+        <div className="rounded-lg border border-[#232328] bg-[#151518] px-4 py-3">
+          <div className="text-xs text-[#5A5650]">Caliper</div>
+          <div className="mt-1 text-xl font-semibold text-[#8A857D]">
             {model_metrics.caliper.toFixed(4)}
           </div>
         </div>
@@ -65,18 +65,18 @@ export function PsmPanel({ result, onExportMatched, onContinue }: PsmPanelProps)
       </div>
 
       {/* Action bar */}
-      <div className="flex items-center justify-between border-t border-border-default pt-4">
+      <div className="flex items-center justify-between border-t border-[#232328] pt-4">
         <button
           type="button"
           onClick={onExportMatched}
-          className="rounded-md border border-surface-highlight bg-surface-raised px-4 py-2 text-sm text-text-secondary transition-colors hover:border-text-ghost hover:text-text-primary"
+          className="rounded-md border border-[#323238] bg-[#151518] px-4 py-2 text-sm text-[#C5C0B8] transition-colors hover:border-[#5A5650] hover:text-[#F0EDE8]"
         >
           Export Matched Cohort
         </button>
         <button
           type="button"
           onClick={onContinue}
-          className="rounded-md bg-success px-4 py-2 text-sm font-medium text-surface-base transition-colors hover:bg-success"
+          className="rounded-md bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] transition-colors hover:bg-[#22B8A0]"
         >
           Continue to Landscape →
         </button>

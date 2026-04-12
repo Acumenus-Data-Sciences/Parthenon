@@ -16,18 +16,18 @@ import ResponseAssessmentPanel from "./ResponseAssessmentPanel";
 // ── Color Palette ───────────────────────────────────────────────────────
 
 const MODALITY_COLORS: Record<string, string> = {
-  CT: "var(--info)",
-  MR: "var(--domain-observation)",
+  CT: "#60A5FA",
+  MR: "#A78BFA",
   PT: "#F59E0B",
-  US: "var(--success)",
-  CR: "var(--text-muted)",
-  DX: "var(--text-muted)",
-  NM: "var(--domain-procedure)",
+  US: "#2DD4BF",
+  CR: "#8A857D",
+  DX: "#8A857D",
+  NM: "#F472B6",
 };
 
 const DRUG_COLORS = [
-  "var(--critical)", "var(--info)", "var(--success)", "#F59E0B", "var(--domain-observation)",
-  "var(--domain-procedure)", "#34D399", "#FB923C", "#818CF8", "#C084FC",
+  "#E85A6B", "#60A5FA", "#2DD4BF", "#F59E0B", "#A78BFA",
+  "#F472B6", "#34D399", "#FB923C", "#818CF8", "#C084FC",
 ];
 
 const MEASUREMENT_TYPE_LABELS: Record<string, string> = {
@@ -69,43 +69,43 @@ function SummaryCards({ data }: { data: TimelineData }) {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
       {/* Demographics */}
-      <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
         <div className="flex items-center gap-2 mb-2">
-          <User size={14} className="text-[var(--domain-observation)]" />
-          <span className="text-[10px] text-text-ghost uppercase tracking-wider">Patient</span>
+          <User size={14} className="text-[#A78BFA]" />
+          <span className="text-[10px] text-[#5A5650] uppercase tracking-wider">Patient</span>
         </div>
-        <p className="text-sm text-text-primary font-semibold font-mono">
+        <p className="text-sm text-[#F0EDE8] font-semibold font-mono">
           Person {person.person_id}
         </p>
-        <p className="text-xs text-text-muted mt-1">
+        <p className="text-xs text-[#8A857D] mt-1">
           {[person.gender, age ? `${age}y` : null, person.race].filter(Boolean).join(" · ") || "Demographics unavailable"}
         </p>
       </div>
 
       {/* Studies */}
-      <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
         <div className="flex items-center gap-2 mb-2">
-          <ScanLine size={14} className="text-info" />
-          <span className="text-[10px] text-text-ghost uppercase tracking-wider">Studies</span>
+          <ScanLine size={14} className="text-[#60A5FA]" />
+          <span className="text-[10px] text-[#5A5650] uppercase tracking-wider">Studies</span>
         </div>
-        <p className="text-lg text-info font-semibold font-mono">
+        <p className="text-lg text-[#60A5FA] font-semibold font-mono">
           {summary.total_studies}
         </p>
-        <p className="text-xs text-text-muted mt-1">
+        <p className="text-xs text-[#8A857D] mt-1">
           {summary.modalities.join(", ") || "—"} · {summary.imaging_span_days ? `${summary.imaging_span_days}d span` : "single study"}
         </p>
       </div>
 
       {/* Measurements */}
-      <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
         <div className="flex items-center gap-2 mb-2">
-          <Ruler size={14} className="text-success" />
-          <span className="text-[10px] text-text-ghost uppercase tracking-wider">Measurements</span>
+          <Ruler size={14} className="text-[#2DD4BF]" />
+          <span className="text-[10px] text-[#5A5650] uppercase tracking-wider">Measurements</span>
         </div>
-        <p className="text-lg text-success font-semibold font-mono">
+        <p className="text-lg text-[#2DD4BF] font-semibold font-mono">
           {summary.total_measurements}
         </p>
-        <p className="text-xs text-text-muted mt-1">
+        <p className="text-xs text-[#8A857D] mt-1">
           {summary.measurement_types.length > 0
             ? summary.measurement_types.map(t => MEASUREMENT_TYPE_LABELS[t] ?? t).join(", ")
             : "No measurements yet"}
@@ -113,15 +113,15 @@ function SummaryCards({ data }: { data: TimelineData }) {
       </div>
 
       {/* Drug exposures */}
-      <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
         <div className="flex items-center gap-2 mb-2">
-          <Pill size={14} className="text-warning" />
-          <span className="text-[10px] text-text-ghost uppercase tracking-wider">Treatments</span>
+          <Pill size={14} className="text-[#F59E0B]" />
+          <span className="text-[10px] text-[#5A5650] uppercase tracking-wider">Treatments</span>
         </div>
-        <p className="text-lg text-warning font-semibold font-mono">
+        <p className="text-lg text-[#F59E0B] font-semibold font-mono">
           {summary.total_drugs}
         </p>
-        <p className="text-xs text-text-muted mt-1">
+        <p className="text-xs text-[#8A857D] mt-1">
           {summary.date_range.first && summary.date_range.last
             ? `${formatDate(summary.date_range.first)} – ${formatDate(summary.date_range.last)}`
             : "—"}
@@ -169,23 +169,23 @@ function VisualTimeline({ data }: { data: TimelineData }) {
 
   if (studies.length === 0) {
     return (
-      <div className="rounded-lg border border-border-default bg-surface-raised p-8 text-center text-sm text-text-ghost">
+      <div className="rounded-lg border border-[#232328] bg-[#151518] p-8 text-center text-sm text-[#5A5650]">
         No imaging studies found for this patient.
       </div>
     );
   }
 
   return (
-    <div className="rounded-lg border border-border-default bg-surface-raised p-6 space-y-6">
-      <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
-        <Calendar size={14} className="text-info" />
+    <div className="rounded-lg border border-[#232328] bg-[#151518] p-6 space-y-6">
+      <h3 className="text-sm font-semibold text-[#F0EDE8] flex items-center gap-2">
+        <Calendar size={14} className="text-[#60A5FA]" />
         Longitudinal Timeline
       </h3>
 
       {/* Drug exposure bars */}
       {drug_exposures.length > 0 && (
         <div className="space-y-1.5">
-          <p className="text-[10px] text-text-ghost uppercase tracking-wider mb-2">Treatment Context</p>
+          <p className="text-[10px] text-[#5A5650] uppercase tracking-wider mb-2">Treatment Context</p>
           <div className="relative" style={{ height: drug_exposures.length * 28 + 4 }}>
             {drug_exposures.map((drug, i) => {
               const left = xPos(drug.start_date);
@@ -219,14 +219,14 @@ function VisualTimeline({ data }: { data: TimelineData }) {
 
       {/* Study nodes on timeline axis */}
       <div className="space-y-2">
-        <p className="text-[10px] text-text-ghost uppercase tracking-wider">Imaging Studies</p>
+        <p className="text-[10px] text-[#5A5650] uppercase tracking-wider">Imaging Studies</p>
         <div className="relative h-16">
           {/* Axis line */}
-          <div className="absolute top-1/2 left-0 right-0 h-px bg-surface-accent" />
+          <div className="absolute top-1/2 left-0 right-0 h-px bg-[#2A2A30]" />
 
           {studies.map((study) => {
             const left = xPos(study.study_date);
-            const color = MODALITY_COLORS[study.modality ?? ""] ?? "var(--text-muted)";
+            const color = MODALITY_COLORS[study.modality ?? ""] ?? "#8A857D";
             const studyMeasurements = measurementsByStudy.get(study.id) ?? [];
 
             return (
@@ -245,12 +245,12 @@ function VisualTimeline({ data }: { data: TimelineData }) {
                   <ScanLine size={14} style={{ color }} />
                 </div>
                 {/* Date label */}
-                <span className="text-[9px] text-text-ghost whitespace-nowrap">
+                <span className="text-[9px] text-[#5A5650] whitespace-nowrap">
                   {study.study_date ? new Date(study.study_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "2-digit" }) : "?"}
                 </span>
                 {/* Measurement indicator */}
                 {studyMeasurements.length > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-success text-[8px] font-bold text-surface-base flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#2DD4BF] text-[8px] font-bold text-[#0E0E11] flex items-center justify-center">
                     {studyMeasurements.length}
                   </span>
                 )}
@@ -272,56 +272,56 @@ function VisualTimeline({ data }: { data: TimelineData }) {
 
 function StudyListTable({ studies }: { studies: TimelineStudy[] }) {
   return (
-    <div className="rounded-lg border border-border-default bg-surface-raised">
-      <div className="px-4 py-3 border-b border-border-default">
-        <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
-          <ScanLine size={14} className="text-info" />
+    <div className="rounded-lg border border-[#232328] bg-[#151518]">
+      <div className="px-4 py-3 border-b border-[#232328]">
+        <h3 className="text-sm font-semibold text-[#F0EDE8] flex items-center gap-2">
+          <ScanLine size={14} className="text-[#60A5FA]" />
           All Studies ({studies.length})
         </h3>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-border-default">
+            <tr className="border-b border-[#232328]">
               {["Date", "Modality", "Body Part", "Description", "Series", "Images", "Measurements", ""].map(h => (
-                <th key={h} className="px-4 py-2.5 text-left text-[10px] font-medium text-text-ghost uppercase tracking-wider">
+                <th key={h} className="px-4 py-2.5 text-left text-[10px] font-medium text-[#5A5650] uppercase tracking-wider">
                   {h}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-border-subtle">
+          <tbody className="divide-y divide-[#1E1E23]">
             {studies.map(study => (
-              <tr key={study.id} className="hover:bg-surface-overlay transition-colors">
-                <td className="px-4 py-3 text-text-secondary text-xs">{formatDate(study.study_date)}</td>
+              <tr key={study.id} className="hover:bg-[#1A1A1F] transition-colors">
+                <td className="px-4 py-3 text-[#C5C0B8] text-xs">{formatDate(study.study_date)}</td>
                 <td className="px-4 py-3">
                   <span
                     className="inline-block rounded px-2 py-0.5 text-[10px] font-semibold"
                     style={{
-                      backgroundColor: `${MODALITY_COLORS[study.modality ?? ""] ?? "var(--text-muted)"}18`,
-                      color: MODALITY_COLORS[study.modality ?? ""] ?? "var(--text-muted)",
+                      backgroundColor: `${MODALITY_COLORS[study.modality ?? ""] ?? "#8A857D"}18`,
+                      color: MODALITY_COLORS[study.modality ?? ""] ?? "#8A857D",
                     }}
                   >
                     {study.modality ?? "—"}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-text-muted text-xs">{study.body_part_examined ?? "—"}</td>
-                <td className="px-4 py-3 text-text-muted text-xs max-w-xs truncate">{study.study_description ?? "—"}</td>
-                <td className="px-4 py-3 text-text-secondary text-xs text-center">{study.num_series}</td>
-                <td className="px-4 py-3 text-text-secondary text-xs text-center">{study.num_images}</td>
+                <td className="px-4 py-3 text-[#8A857D] text-xs">{study.body_part_examined ?? "—"}</td>
+                <td className="px-4 py-3 text-[#8A857D] text-xs max-w-xs truncate">{study.study_description ?? "—"}</td>
+                <td className="px-4 py-3 text-[#C5C0B8] text-xs text-center">{study.num_series}</td>
+                <td className="px-4 py-3 text-[#C5C0B8] text-xs text-center">{study.num_images}</td>
                 <td className="px-4 py-3 text-center">
                   {study.measurement_count > 0 ? (
-                    <span className="inline-block rounded-full px-2 py-0.5 text-[10px] font-medium bg-success/15 text-success">
+                    <span className="inline-block rounded-full px-2 py-0.5 text-[10px] font-medium bg-[#2DD4BF]/15 text-[#2DD4BF]">
                       {study.measurement_count}
                     </span>
                   ) : (
-                    <span className="text-text-ghost text-xs">—</span>
+                    <span className="text-[#5A5650] text-xs">—</span>
                   )}
                 </td>
                 <td className="px-4 py-3">
                   <Link
                     to={`/imaging/studies/${study.id}`}
-                    className="inline-flex items-center gap-1 text-xs text-success hover:text-success transition-colors"
+                    className="inline-flex items-center gap-1 text-xs text-[#2DD4BF] hover:text-[#26B8A5] transition-colors"
                   >
                     View <ChevronRight size={12} />
                   </Link>
@@ -340,39 +340,39 @@ function StudyListTable({ studies }: { studies: TimelineStudy[] }) {
 function DrugExposureTable({ drugs }: { drugs: DrugExposure[] }) {
   if (drugs.length === 0) {
     return (
-      <div className="rounded-lg border border-border-default bg-surface-raised p-6 text-center text-sm text-text-ghost">
+      <div className="rounded-lg border border-[#232328] bg-[#151518] p-6 text-center text-sm text-[#5A5650]">
         No drug exposures found in the imaging window.
       </div>
     );
   }
 
   return (
-    <div className="rounded-lg border border-border-default bg-surface-raised">
-      <div className="px-4 py-3 border-b border-border-default">
-        <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
-          <Pill size={14} className="text-warning" />
+    <div className="rounded-lg border border-[#232328] bg-[#151518]">
+      <div className="px-4 py-3 border-b border-[#232328]">
+        <h3 className="text-sm font-semibold text-[#F0EDE8] flex items-center gap-2">
+          <Pill size={14} className="text-[#F59E0B]" />
           Treatment Context ({drugs.length} drugs)
         </h3>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-border-default">
+            <tr className="border-b border-[#232328]">
               {["Drug Name", "Class", "Start", "End", "Days Supply"].map(h => (
-                <th key={h} className="px-4 py-2.5 text-left text-[10px] font-medium text-text-ghost uppercase tracking-wider">
+                <th key={h} className="px-4 py-2.5 text-left text-[10px] font-medium text-[#5A5650] uppercase tracking-wider">
                   {h}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-border-subtle">
+          <tbody className="divide-y divide-[#1E1E23]">
             {drugs.map((drug, i) => (
-              <tr key={`${drug.drug_concept_id}-${i}`} className="hover:bg-surface-overlay transition-colors">
-                <td className="px-4 py-3 text-text-primary text-xs font-medium max-w-xs truncate">{drug.drug_name}</td>
-                <td className="px-4 py-3 text-text-muted text-xs">{drug.drug_class ?? "—"}</td>
-                <td className="px-4 py-3 text-text-secondary text-xs">{formatDate(drug.start_date)}</td>
-                <td className="px-4 py-3 text-text-secondary text-xs">{formatDate(drug.end_date)}</td>
-                <td className="px-4 py-3 text-text-secondary text-xs font-mono">{drug.total_days}d</td>
+              <tr key={`${drug.drug_concept_id}-${i}`} className="hover:bg-[#1A1A1F] transition-colors">
+                <td className="px-4 py-3 text-[#F0EDE8] text-xs font-medium max-w-xs truncate">{drug.drug_name}</td>
+                <td className="px-4 py-3 text-[#8A857D] text-xs">{drug.drug_class ?? "—"}</td>
+                <td className="px-4 py-3 text-[#C5C0B8] text-xs">{formatDate(drug.start_date)}</td>
+                <td className="px-4 py-3 text-[#C5C0B8] text-xs">{formatDate(drug.end_date)}</td>
+                <td className="px-4 py-3 text-[#C5C0B8] text-xs font-mono">{drug.total_days}d</td>
               </tr>
             ))}
           </tbody>
@@ -397,16 +397,16 @@ export default function PatientTimeline({ data, isLoading, error }: PatientTimel
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <Loader2 size={24} className="animate-spin text-success" />
+        <Loader2 size={24} className="animate-spin text-[#2DD4BF]" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="rounded-lg border border-critical/30 bg-critical/10 p-6 flex items-center gap-3">
-        <AlertCircle size={18} className="text-critical flex-shrink-0" />
-        <p className="text-sm text-critical">Failed to load patient timeline: {error.message}</p>
+      <div className="rounded-lg border border-[#E85A6B]/30 bg-[#E85A6B]/10 p-6 flex items-center gap-3">
+        <AlertCircle size={18} className="text-[#E85A6B] flex-shrink-0" />
+        <p className="text-sm text-[#E85A6B]">Failed to load patient timeline: {error.message}</p>
       </div>
     );
   }
@@ -422,14 +422,14 @@ export default function PatientTimeline({ data, isLoading, error }: PatientTimel
         <button
           type="button"
           onClick={() => setShowDrugs(!showDrugs)}
-          className="text-xs text-text-muted hover:text-text-primary transition-colors"
+          className="text-xs text-[#8A857D] hover:text-[#F0EDE8] transition-colors"
         >
           {showDrugs ? "Hide" : "Show"} treatment details ({data.drug_exposures.length})
         </button>
         <button
           type="button"
           onClick={() => setShowAssessments(!showAssessments)}
-          className="text-xs text-[var(--domain-observation)] hover:text-domain-observation transition-colors"
+          className="text-xs text-[#A78BFA] hover:text-[#C4B5FD] transition-colors"
         >
           {showAssessments ? "Hide" : "Show"} response assessments
         </button>

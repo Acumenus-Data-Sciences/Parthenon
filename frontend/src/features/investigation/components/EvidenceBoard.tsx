@@ -21,7 +21,7 @@ const STATUS_BADGE: Record<
 > = {
   draft: {
     label: "Draft",
-    className: "bg-zinc-800 text-zinc-400 border border-zinc-700",
+    className: "bg-surface-raised text-zinc-400 border border-border-default",
   },
   active: {
     label: "Active",
@@ -33,7 +33,7 @@ const STATUS_BADGE: Record<
   },
   archived: {
     label: "Archived",
-    className: "bg-zinc-900 text-zinc-600 border border-zinc-700",
+    className: "bg-surface-base text-zinc-600 border border-border-default",
   },
 };
 
@@ -90,10 +90,10 @@ export function EvidenceBoard({ investigation }: EvidenceBoardProps) {
   return (
     <div
       className="flex flex-col min-h-screen"
-      style={{ backgroundColor: "var(--surface-base)" }}
+      style={{ backgroundColor: "#0E0E11" }}
     >
       {/* Top bar */}
-      <div className="shrink-0 border-b border-zinc-800 bg-zinc-950 px-4 py-3">
+      <div className="shrink-0 border-b border-border-default bg-surface-darkest px-4 py-3">
         <div className="flex items-center justify-between gap-4">
           {/* Left: back link + title + breadcrumb */}
           <div className="flex flex-col gap-0.5 min-w-0">

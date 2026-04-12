@@ -52,7 +52,7 @@ export function OpenTargetsSearch({
         <div className="flex items-center gap-2">
           <span
             className="text-xs font-semibold uppercase tracking-wide"
-            style={{ color: "var(--accent)" }}
+            style={{ color: "#C9A227" }}
           >
             Open Targets
           </span>
@@ -61,14 +61,14 @@ export function OpenTargetsSearch({
       </div>
 
       {/* Query type toggle */}
-      <div className="flex gap-1 p-0.5 rounded-lg bg-zinc-800/60 w-fit">
+      <div className="flex gap-1 p-0.5 rounded-lg bg-surface-raised/60 w-fit">
         {(["gene", "disease"] as const).map((type) => (
           <button
             key={type}
             onClick={() => setQueryType(type)}
             className={`text-xs px-3 py-1 rounded-md transition-colors capitalize ${
               queryType === type
-                ? "bg-zinc-700 text-zinc-100"
+                ? "bg-surface-accent text-zinc-100"
                 : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
@@ -88,18 +88,18 @@ export function OpenTargetsSearch({
               ? "Search gene symbol or name (e.g. BRCA1)"
               : "Search disease or phenotype (e.g. breast cancer)"
           }
-          className="w-full text-sm bg-zinc-800/60 border border-zinc-700 rounded-lg px-3 py-2 text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors"
+          className="w-full text-sm bg-surface-raised/60 border border-border-default rounded-lg px-3 py-2 text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-border-hover transition-colors"
         />
         {isLoading && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
-            <div className="w-3.5 h-3.5 border-2 border-zinc-600 border-t-accent rounded-full animate-spin" />
+            <div className="w-3.5 h-3.5 border-2 border-border-hover border-t-[#C9A227] rounded-full animate-spin" />
           </div>
         )}
       </div>
 
       {/* States */}
       {isError && (
-        <p className="text-xs text-primary px-1">
+        <p className="text-xs text-[#9B1B30] px-1">
           {error instanceof Error ? error.message : "Search failed. Please try again."}
         </p>
       )}

@@ -90,7 +90,7 @@ export function CommonsCallModal({
       size="full"
       className="max-w-[min(1280px,96vw)]"
     >
-      <div className="h-[78vh] overflow-hidden rounded-2xl border border-border-default bg-surface-base">
+      <div className="h-[78vh] overflow-hidden rounded-2xl border border-[#232328] bg-[#0f1014]">
         {call && token && serverUrl && permissionGranted ? (
           <LiveKitRoom
             token={token}
@@ -107,7 +107,7 @@ export function CommonsCallModal({
           </LiveKitRoom>
         ) : call && !permissionGranted ? (
           <div className="flex h-full items-center justify-center">
-            <div className="max-w-md rounded-2xl border border-border-default bg-surface-raised px-6 py-5 text-center">
+            <div className="max-w-md rounded-2xl border border-[#25252b] bg-[#151518] px-6 py-5 text-center">
               <p className="text-sm font-medium text-foreground">
                 Allow {call.call_type === "video" ? "camera and microphone" : "microphone"} access
               </p>
@@ -133,7 +133,7 @@ export function CommonsCallModal({
           </div>
         ) : (
           <div className="flex h-full items-center justify-center">
-            <div className="rounded-2xl border border-border-default bg-surface-raised px-6 py-5 text-center">
+            <div className="rounded-2xl border border-[#25252b] bg-[#151518] px-6 py-5 text-center">
               <p className="text-sm font-medium text-foreground">
                 {tokenMutation.isPending ? "Joining call..." : "Preparing room..."}
               </p>

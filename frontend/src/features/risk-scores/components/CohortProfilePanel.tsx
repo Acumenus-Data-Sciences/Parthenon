@@ -16,7 +16,7 @@ interface CohortProfilePanelProps {
 
 function SectionHeader({ children }: { children: React.ReactNode }) {
   return (
-    <h4 className="mb-2 text-[10px] uppercase tracking-wider text-text-ghost">
+    <h4 className="mb-2 text-[10px] uppercase tracking-wider text-[#5A5650]">
       {children}
     </h4>
   );
@@ -35,12 +35,12 @@ function PercentageBar({
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between">
-        <span className="text-sm text-text-secondary">{label}</span>
-        <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-ghost">
+        <span className="text-sm text-[#C5C0B8]">{label}</span>
+        <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#5A5650]">
           {pct}%
         </span>
       </div>
-      <div className="h-2 w-full rounded-full bg-surface-elevated">
+      <div className="h-2 w-full rounded-full bg-[#232328]">
         <div
           className="h-2 rounded-full"
           style={{ width: `${pct}%`, backgroundColor: color }}
@@ -63,16 +63,16 @@ export function CohortProfilePanel({
       .join(", ");
 
     return (
-      <div className="rounded-xl border border-border-default bg-surface-raised px-4 py-3">
-        <p className="text-sm text-text-secondary">
-          <span className="font-['IBM_Plex_Mono',monospace] text-text-primary">
+      <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] px-4 py-3">
+        <p className="text-sm text-[#C5C0B8]">
+          <span className="font-['IBM_Plex_Mono',monospace] text-[#E8E4DE]">
             {profile.patient_count.toLocaleString()}
           </span>{" "}
           patients &bull; Age {profile.min_age}&ndash;{profile.max_age} &bull;{" "}
           {femalePctDisplay}% female
         </p>
         {topThree && (
-          <p className="mt-1 text-xs text-text-ghost">{topThree}</p>
+          <p className="mt-1 text-xs text-[#5A5650]">{topThree}</p>
         )}
       </div>
     );
@@ -82,18 +82,18 @@ export function CohortProfilePanel({
   const measurementEntries = Object.entries(profile.measurement_coverage);
 
   return (
-    <div className="space-y-6 rounded-xl border border-border-default bg-surface-raised p-6">
+    <div className="space-y-6 rounded-xl border border-[#2A2A2F] bg-[#141418] p-6">
       {/* Demographics */}
       <div>
         <SectionHeader>Demographics</SectionHeader>
         <div className="flex flex-wrap items-center gap-6">
           <div>
-            <span className="font-['IBM_Plex_Mono',monospace] text-2xl text-text-primary">
+            <span className="font-['IBM_Plex_Mono',monospace] text-2xl text-[#E8E4DE]">
               {profile.patient_count.toLocaleString()}
             </span>
-            <span className="ml-2 text-xs text-text-ghost">patients</span>
+            <span className="ml-2 text-xs text-[#5A5650]">patients</span>
           </div>
-          <div className="text-sm text-text-secondary">
+          <div className="text-sm text-[#C5C0B8]">
             Age{" "}
             <span className="font-['IBM_Plex_Mono',monospace]">
               {profile.min_age}
@@ -104,12 +104,12 @@ export function CohortProfilePanel({
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-text-secondary">
+            <span className="text-sm text-[#C5C0B8]">
               {femalePctDisplay}% female
             </span>
-            <div className="h-2 w-20 rounded-full bg-surface-elevated">
+            <div className="h-2 w-20 rounded-full bg-[#232328]">
               <div
-                className="h-2 rounded-full bg-success"
+                className="h-2 rounded-full bg-[#2DD4BF]"
                 style={{ width: `${femalePctDisplay}%` }}
               />
             </div>
@@ -127,7 +127,7 @@ export function CohortProfilePanel({
                 key={condition.concept_id}
                 label={condition.name}
                 value={condition.prevalence}
-                color="var(--success)"
+                color="#2DD4BF"
               />
             ))}
           </div>

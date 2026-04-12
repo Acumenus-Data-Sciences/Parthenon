@@ -450,7 +450,7 @@ export function CharacterizationDesigner({
               key={key}
               className="flex items-start gap-3 rounded-lg border px-3 py-3 cursor-pointer transition-colors"
               style={directAnalyses[key]
-                ? { borderColor: "color-mix(in srgb, var(--success) 25%, transparent)", background: "color-mix(in srgb, var(--success) 3%, transparent)" }
+                ? { borderColor: "#2DD4BF40", background: "#2DD4BF08" }
                 : { borderColor: "var(--border-default)", background: "var(--surface-overlay)" }
               }
             >
@@ -467,7 +467,7 @@ export function CharacterizationDesigner({
                 />
               </div>
               <div>
-                <p className="text-sm font-medium" style={{ color: directAnalyses[key] ? "var(--success)" : "var(--text-secondary)" }}>
+                <p className="text-sm font-medium" style={{ color: directAnalyses[key] ? "#2DD4BF" : "var(--text-secondary)" }}>
                   {label}
                 </p>
                 <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
@@ -502,7 +502,7 @@ export function CharacterizationDesigner({
                 disabled={active}
                 className="rounded-md border px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-40 disabled:cursor-default"
                 style={active
-                  ? { borderColor: "color-mix(in srgb, var(--accent) 25%, transparent)", background: "color-mix(in srgb, var(--accent) 6%, transparent)", color: "var(--accent)" }
+                  ? { borderColor: "#C9A22740", background: "#C9A22710", color: "#C9A227" }
                   : { borderColor: "var(--border-default)", background: "var(--surface-overlay)", color: "var(--text-muted)" }
                 }
               >
@@ -680,7 +680,7 @@ export function CharacterizationDesigner({
             onClick={handleDirectRun}
             disabled={!canDirectRun}
             className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50"
-            style={{ background: "var(--primary)", color: "var(--text-primary)" }}
+            style={{ background: "#9B1B30", color: "#F0EDE8" }}
             title={
               !sourceId
                 ? "Select a data source above to run"
@@ -697,7 +697,7 @@ export function CharacterizationDesigner({
             Run Direct (OHDSI)
           </button>
           {directRunMutation.isError && (
-            <p className="text-xs" style={{ color: "var(--critical)" }}>
+            <p className="text-xs" style={{ color: "#E85A6B" }}>
               {directRunMutation.error instanceof Error
                 ? directRunMutation.error.message
                 : "Run failed"}

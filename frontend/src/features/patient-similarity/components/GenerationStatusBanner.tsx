@@ -43,7 +43,7 @@ export function GenerationStatusBanner({
 
   if (isLoading) {
     return (
-      <div className="flex items-center gap-2 text-xs text-text-ghost py-1.5">
+      <div className="flex items-center gap-2 text-xs text-[#5A5650] py-1.5">
         <Loader2 size={12} className="animate-spin" />
         Checking generation status...
       </div>
@@ -56,9 +56,9 @@ export function GenerationStatusBanner({
 
   if (isGenerating) {
     return (
-      <div className="flex items-center gap-2 rounded-lg bg-success/5 border border-success/20 px-3 py-2 mt-1.5">
-        <Loader2 size={14} className="animate-spin text-success" />
-        <span className="text-xs text-success">
+      <div className="flex items-center gap-2 rounded-lg bg-[#2DD4BF]/5 border border-[#2DD4BF]/20 px-3 py-2 mt-1.5">
+        <Loader2 size={14} className="animate-spin text-[#2DD4BF]" />
+        <span className="text-xs text-[#2DD4BF]">
           {generateMutation.isPending ? "Queueing generation..." : "Generating cohort..."}
         </span>
       </div>
@@ -67,10 +67,10 @@ export function GenerationStatusBanner({
 
   if (!profile.generated) {
     return (
-      <div className="rounded-lg bg-accent/5 border border-accent/20 px-3 py-2 mt-1.5">
+      <div className="rounded-lg bg-[#C9A227]/5 border border-[#C9A227]/20 px-3 py-2 mt-1.5">
         <div className="flex items-center gap-2">
-          <AlertTriangle size={14} className="text-accent shrink-0" />
-          <span className="text-xs text-accent">
+          <AlertTriangle size={14} className="text-[#C9A227] shrink-0" />
+          <span className="text-xs text-[#C9A227]">
             Not generated for this source
           </span>
         </div>
@@ -81,7 +81,7 @@ export function GenerationStatusBanner({
           }
           className={cn(
             "mt-2 w-full rounded px-3 py-1.5 text-xs font-medium transition-colors",
-            "bg-accent/10 text-accent hover:bg-accent/20 border border-accent/30",
+            "bg-[#C9A227]/10 text-[#C9A227] hover:bg-[#C9A227]/20 border border-[#C9A227]/30",
           )}
         >
           Generate Now
@@ -92,9 +92,9 @@ export function GenerationStatusBanner({
 
   return (
     <div className="flex items-center gap-2 py-1.5">
-      <CheckCircle2 size={12} className="text-success" />
-      <span className="text-xs text-text-muted">
-        <span className="font-medium text-text-secondary">
+      <CheckCircle2 size={12} className="text-[#2DD4BF]" />
+      <span className="text-xs text-[#8A857D]">
+        <span className="font-medium text-[#C5C0B8]">
           {profile.member_count}
         </span>{" "}
         members

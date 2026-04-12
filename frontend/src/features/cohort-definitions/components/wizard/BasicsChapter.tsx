@@ -41,8 +41,8 @@ export function BasicsChapter() {
     <div className="flex flex-col gap-5">
       {/* Name */}
       <div>
-        <label className="mb-1.5 block text-[13px] font-medium text-text-secondary">
-          Cohort Name <span className="text-critical">*</span>
+        <label className="mb-1.5 block text-[13px] font-medium text-[#ccc]">
+          Cohort Name <span className="text-[#E85A6B]">*</span>
         </label>
         <input
           type="text"
@@ -50,33 +50,33 @@ export function BasicsChapter() {
           onChange={(e) => setName(e.target.value)}
           placeholder="e.g., Type 2 Diabetes on Metformin"
           autoFocus
-          className="w-full rounded-lg border border-border-default bg-surface-base px-4 py-2.5 text-[14px] text-text-secondary placeholder-text-ghost outline-none transition-colors focus:border-accent"
+          className="w-full rounded-lg border border-[#333] bg-[#0E0E11] px-4 py-2.5 text-[14px] text-[#ccc] placeholder-[#555] outline-none transition-colors focus:border-[#C9A227]"
         />
       </div>
 
       {/* Description */}
       <div>
-        <label className="mb-1.5 block text-[13px] font-medium text-text-secondary">
-          Description <span className="text-[11px] text-text-ghost">(optional)</span>
+        <label className="mb-1.5 block text-[13px] font-medium text-[#ccc]">
+          Description <span className="text-[11px] text-[#555]">(optional)</span>
         </label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Describe the clinical context and purpose of this cohort..."
           rows={3}
-          className="w-full resize-none rounded-lg border border-border-default bg-surface-base px-4 py-2.5 text-[13px] text-text-secondary placeholder-text-ghost outline-none transition-colors focus:border-accent"
+          className="w-full resize-none rounded-lg border border-[#333] bg-[#0E0E11] px-4 py-2.5 text-[13px] text-[#ccc] placeholder-[#555] outline-none transition-colors focus:border-[#C9A227]"
         />
       </div>
 
       {/* Domain */}
       <div>
-        <label className="mb-1.5 block text-[13px] font-medium text-text-secondary">
+        <label className="mb-1.5 block text-[13px] font-medium text-[#ccc]">
           Clinical Domain
         </label>
         <select
           value={domain}
           onChange={(e) => setDomain(e.target.value)}
-          className="w-full rounded-lg border border-border-default bg-surface-base px-4 py-2.5 text-[13px] text-text-secondary outline-none transition-colors focus:border-accent"
+          className="w-full rounded-lg border border-[#333] bg-[#0E0E11] px-4 py-2.5 text-[13px] text-[#ccc] outline-none transition-colors focus:border-[#C9A227]"
         >
           <option value="">Select a domain...</option>
           {DOMAIN_OPTIONS.map((d) => (
@@ -89,20 +89,20 @@ export function BasicsChapter() {
 
       {/* Tags */}
       <div>
-        <label className="mb-1.5 block text-[13px] font-medium text-text-secondary">
-          Tags <span className="text-[11px] text-text-ghost">(optional)</span>
+        <label className="mb-1.5 block text-[13px] font-medium text-[#ccc]">
+          Tags <span className="text-[11px] text-[#555]">(optional)</span>
         </label>
         <div className="flex flex-wrap gap-2">
           {tags.map((tag) => (
             <span
               key={tag}
-              className="flex items-center gap-1 rounded-md border border-border-default bg-surface-overlay px-2.5 py-1 text-[12px] text-text-secondary"
+              className="flex items-center gap-1 rounded-md border border-[#333] bg-[#1a1a2e] px-2.5 py-1 text-[12px] text-[#ccc]"
             >
               {tag}
               <button
                 type="button"
                 onClick={() => handleRemoveTag(tag)}
-                className="text-text-ghost hover:text-critical"
+                className="text-[#555] hover:text-[#E85A6B]"
               >
                 <X size={12} />
               </button>
@@ -115,7 +115,7 @@ export function BasicsChapter() {
             onKeyDown={handleTagKeyDown}
             onBlur={handleAddTag}
             placeholder="Add tag..."
-            className="rounded-md border border-border-default bg-surface-base px-3 py-1 text-[12px] text-text-secondary placeholder-text-ghost outline-none focus:border-accent"
+            className="rounded-md border border-[#333] bg-[#0E0E11] px-3 py-1 text-[12px] text-[#ccc] placeholder-[#555] outline-none focus:border-[#C9A227]"
           />
         </div>
       </div>
@@ -123,8 +123,8 @@ export function BasicsChapter() {
       {/* Validation hint */}
       {!name && (
         <div className="rounded-lg border border-[rgba(201,162,39,0.15)] bg-[rgba(201,162,39,0.05)] px-4 py-3">
-          <span className="text-[13px] text-text-muted">
-            <strong className="text-accent">Required:</strong> Enter a name for your cohort to continue.
+          <span className="text-[13px] text-[#999]">
+            <strong className="text-[#C9A227]">Required:</strong> Enter a name for your cohort to continue.
           </span>
         </div>
       )}

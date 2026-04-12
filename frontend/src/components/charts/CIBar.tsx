@@ -58,10 +58,10 @@ export function CIBar({
   // Color logic
   const spansNull = ciLower <= nullValue && ciUpper >= nullValue;
   const color = spansNull
-    ? "var(--text-muted)" // gray — not significant
+    ? "#8A857D" // gray — not significant
     : estimate < nullValue
-      ? "var(--success)" // teal — protective
-      : "var(--critical)"; // red — harmful
+      ? "#2DD4BF" // teal — protective
+      : "#E85A6B"; // red — harmful
 
   return (
     <svg
@@ -78,7 +78,7 @@ export function CIBar({
         y1={2}
         x2={xNull}
         y2={height - 2}
-        stroke="var(--accent)"
+        stroke="#C9A227"
         strokeWidth={1}
         strokeDasharray="3,3"
       />

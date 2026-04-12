@@ -39,14 +39,14 @@ export function ConceptSetPicker({ value, onChange }: ConceptSetPickerProps) {
         <div className="relative flex-1">
           <Layers
             size={14}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8A857D]"
           />
           <select
             value={value ?? ""}
             onChange={(e) => onChange(Number(e.target.value))}
             className={cn(
-              "w-full appearance-none rounded-lg border border-border-default bg-surface-base pl-9 pr-8 py-2 text-sm",
-              "text-text-primary focus:border-success focus:outline-none focus:ring-1 focus:ring-success/40",
+              "w-full appearance-none rounded-lg border border-[#232328] bg-[#0E0E11] pl-9 pr-8 py-2 text-sm",
+              "text-[#F0EDE8] focus:border-[#2DD4BF] focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40",
               "cursor-pointer",
             )}
           >
@@ -61,7 +61,7 @@ export function ConceptSetPicker({ value, onChange }: ConceptSetPickerProps) {
           </select>
           <ChevronDown
             size={14}
-            className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-text-muted"
+            className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[#8A857D]"
           />
         </div>
 
@@ -71,8 +71,8 @@ export function ConceptSetPicker({ value, onChange }: ConceptSetPickerProps) {
           className={cn(
             "inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
             showNew
-              ? "bg-success/15 text-success border border-success/30"
-              : "bg-surface-raised text-text-secondary border border-border-default hover:bg-surface-overlay",
+              ? "bg-[#2DD4BF]/15 text-[#2DD4BF] border border-[#2DD4BF]/30"
+              : "bg-[#151518] text-[#C5C0B8] border border-[#232328] hover:bg-[#1A1A1E]",
           )}
         >
           <Plus size={14} />
@@ -96,16 +96,16 @@ export function ConceptSetPicker({ value, onChange }: ConceptSetPickerProps) {
             placeholder="Concept set name..."
             autoFocus
             className={cn(
-              "flex-1 rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-              "text-text-primary placeholder:text-text-ghost",
-              "focus:border-success focus:outline-none focus:ring-1 focus:ring-success/40",
+              "flex-1 rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
+              "text-[#F0EDE8] placeholder:text-[#5A5650]",
+              "focus:border-[#2DD4BF] focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40",
             )}
           />
           <button
             type="button"
             onClick={handleCreate}
             disabled={!newName.trim()}
-            className="rounded-lg bg-success px-3 py-2 text-sm font-medium text-surface-base hover:bg-success transition-colors disabled:opacity-50"
+            className="rounded-lg bg-[#2DD4BF] px-3 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors disabled:opacity-50"
           >
             Create
           </button>

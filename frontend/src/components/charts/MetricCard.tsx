@@ -13,10 +13,10 @@ export interface ChartMetricCardProps {
 }
 
 const COLOR_MAP: Record<string, string> = {
-  teal: "text-success",
-  gold: "text-accent",
-  crimson: "text-critical",
-  default: "text-text-primary",
+  teal: "text-[#2DD4BF]",
+  gold: "text-[#C9A227]",
+  crimson: "text-[#E85A6B]",
+  default: "text-[#F0EDE8]",
 };
 
 export function ChartMetricCard({
@@ -33,12 +33,12 @@ export function ChartMetricCard({
     <div
       data-testid="chart-metric-card"
       className={cn(
-        "rounded-lg border border-border-default bg-surface-raised p-4",
+        "rounded-lg border border-[#232328] bg-[#151518] p-4",
         className,
       )}
     >
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium uppercase tracking-wider text-text-muted">
+        <span className="text-xs font-medium uppercase tracking-wider text-[#8A857D]">
           {label}
         </span>
         {badge}
@@ -47,12 +47,12 @@ export function ChartMetricCard({
         {value}
       </div>
       {subValue && (
-        <span className="mt-0.5 block text-xs text-text-ghost font-['IBM_Plex_Mono',monospace]">
+        <span className="mt-0.5 block text-xs text-[#5A5650] font-['IBM_Plex_Mono',monospace]">
           {subValue}
         </span>
       )}
       {subtitle && (
-        <span className="mt-0.5 block text-xs text-text-ghost">{subtitle}</span>
+        <span className="mt-0.5 block text-xs text-[#5A5650]">{subtitle}</span>
       )}
       {children}
     </div>

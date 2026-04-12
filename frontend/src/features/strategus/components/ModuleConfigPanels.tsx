@@ -25,7 +25,7 @@ import { KNOWN_MODULES } from "../types";
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <h4 className="mb-2 text-xs font-medium uppercase tracking-wide text-text-muted">
+    <h4 className="mb-2 text-xs font-medium uppercase tracking-wide text-[#8A857D]">
       {children}
     </h4>
   );
@@ -33,7 +33,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <label className="mb-1 block text-sm text-text-secondary">{children}</label>
+    <label className="mb-1 block text-sm text-[#C5C0B8]">{children}</label>
   );
 }
 
@@ -58,7 +58,7 @@ function NumberInput({
       min={min}
       max={max}
       step={step}
-      className="w-full rounded-lg border border-border-default bg-surface-overlay px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/40"
+      className="w-full rounded-lg border border-[#232328] bg-[#1C1C20] px-3 py-2 text-sm text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/40"
     />
   );
 }
@@ -81,7 +81,7 @@ function Toggle({
         onClick={() => onChange(!checked)}
         className={[
           "relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors",
-          checked ? "bg-success" : "bg-surface-elevated",
+          checked ? "bg-[#2DD4BF]" : "bg-[#232328]",
         ].join(" ")}
       >
         <span
@@ -91,7 +91,7 @@ function Toggle({
           ].join(" ")}
         />
       </button>
-      <span className="text-sm text-text-secondary">{label}</span>
+      <span className="text-sm text-[#C5C0B8]">{label}</span>
     </label>
   );
 }
@@ -125,7 +125,7 @@ function CohortMultiSelect({
     <div>
       <FieldLabel>{label}</FieldLabel>
       {filtered.length === 0 ? (
-        <p className="text-xs text-text-ghost">
+        <p className="text-xs text-[#5A5650]">
           No {filterRole ?? ""} cohorts available. Add cohorts in the Shared
           Cohorts step.
         </p>
@@ -136,21 +136,21 @@ function CohortMultiSelect({
             return (
               <label
                 key={c.cohortId}
-                className="flex cursor-pointer items-center gap-2.5 rounded-md border border-border-default bg-surface-overlay px-3 py-2"
+                className="flex cursor-pointer items-center gap-2.5 rounded-md border border-[#232328] bg-[#1C1C20] px-3 py-2"
               >
                 <input
                   type="checkbox"
                   checked={isChecked}
                   onChange={() => toggleId(c.cohortId)}
-                  className="h-3.5 w-3.5 rounded border-text-ghost accent-success"
+                  className="h-3.5 w-3.5 rounded border-[#5A5650] accent-[#2DD4BF]"
                 />
-                <span className="flex-1 text-sm text-text-primary">
+                <span className="flex-1 text-sm text-[#F0EDE8]">
                   {c.cohortName}
                 </span>
-                <span className="rounded border border-border-default px-1.5 py-px text-[10px] font-medium capitalize text-text-muted">
+                <span className="rounded border border-[#232328] px-1.5 py-px text-[10px] font-medium capitalize text-[#8A857D]">
                   {c.role}
                 </span>
-                <span className="font-mono text-[10px] text-text-ghost">
+                <span className="font-mono text-[10px] text-[#5A5650]">
                   #{c.cohortId}
                 </span>
               </label>
@@ -163,9 +163,9 @@ function CohortMultiSelect({
 }
 
 const ROLE_COLORS: Record<string, string> = {
-  target: "text-success",
-  comparator: "text-accent",
-  outcome: "text-primary",
+  target: "text-[#2DD4BF]",
+  comparator: "text-[#C9A227]",
+  outcome: "text-[#9B1B30]",
 };
 
 // We reference ROLE_COLORS to keep them discoverable even though not all panels use them
@@ -335,7 +335,7 @@ function PLPPanel({
               e.target.value as PatientLevelPredictionSettings["modelType"],
             )
           }
-          className="w-full rounded-lg border border-border-default bg-surface-overlay px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none"
+          className="w-full rounded-lg border border-[#232328] bg-[#1C1C20] px-3 py-2 text-sm text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none"
         >
           <option value="lassoLogistic">Lasso Logistic Regression</option>
           <option value="gradientBoosting">Gradient Boosting</option>
@@ -674,7 +674,7 @@ function EvidenceSynthesisPanel({
           onChange={(e) =>
             update("method", e.target.value as EvidenceSynthesisSettings["method"])
           }
-          className="w-full rounded-lg border border-border-default bg-surface-overlay px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none"
+          className="w-full rounded-lg border border-[#232328] bg-[#1C1C20] px-3 py-2 text-sm text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none"
         >
           <option value="fixedEffects">Fixed Effects</option>
           <option value="randomEffects">Random Effects</option>
@@ -686,7 +686,7 @@ function EvidenceSynthesisPanel({
         <select
           value={settings.evidenceSynthesisSource}
           onChange={(e) => update("evidenceSynthesisSource", e.target.value)}
-          className="w-full rounded-lg border border-border-default bg-surface-overlay px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none"
+          className="w-full rounded-lg border border-[#232328] bg-[#1C1C20] px-3 py-2 text-sm text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none"
         >
           <option value="CohortMethod">Cohort Method</option>
           <option value="SelfControlledCaseSeries">
@@ -700,9 +700,9 @@ function EvidenceSynthesisPanel({
 
 function CohortGeneratorPanel() {
   return (
-    <div className="flex items-center gap-3 rounded-lg border border-success/20 bg-success/5 px-4 py-3">
-      <Info size={15} className="shrink-0 text-success" />
-      <p className="text-sm text-text-secondary">
+    <div className="flex items-center gap-3 rounded-lg border border-[#2DD4BF]/20 bg-[#2DD4BF]/5 px-4 py-3">
+      <Info size={15} className="shrink-0 text-[#2DD4BF]" />
+      <p className="text-sm text-[#C5C0B8]">
         No configuration needed. CohortGenerator automatically builds cohorts
         from the shared cohort definitions.
       </p>
@@ -787,7 +787,7 @@ export function ModuleConfigPanel({
       return <CohortGeneratorPanel />;
     default:
       return (
-        <p className="text-sm text-text-ghost">
+        <p className="text-sm text-[#5A5650]">
           Unknown module: {moduleName}
         </p>
       );
@@ -824,11 +824,11 @@ export function ModuleConfigStep({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-border-default bg-surface-raised p-5">
-        <h2 className="mb-1 text-lg font-semibold text-text-primary">
+      <div className="rounded-lg border border-[#232328] bg-[#151518] p-5">
+        <h2 className="mb-1 text-lg font-semibold text-[#F0EDE8]">
           Module Settings
         </h2>
-        <p className="mb-4 text-sm text-text-muted">
+        <p className="mb-4 text-sm text-[#8A857D]">
           Configure per-module parameters. Click a module to expand its settings.
         </p>
 
@@ -841,7 +841,7 @@ export function ModuleConfigStep({
             return (
               <div
                 key={name}
-                className="rounded-lg border border-border-default bg-surface-base"
+                className="rounded-lg border border-[#232328] bg-[#0E0E11]"
               >
                 <button
                   type="button"
@@ -849,21 +849,21 @@ export function ModuleConfigStep({
                   className="flex w-full items-center gap-3 px-4 py-3 text-left"
                 >
                   {isOpen ? (
-                    <ChevronDown size={14} className="text-accent" />
+                    <ChevronDown size={14} className="text-[#C9A227]" />
                   ) : (
-                    <ChevronRight size={14} className="text-text-ghost" />
+                    <ChevronRight size={14} className="text-[#5A5650]" />
                   )}
-                  <span className="flex-1 text-sm font-medium text-text-primary">
+                  <span className="flex-1 text-sm font-medium text-[#F0EDE8]">
                     {meta?.label ?? name}
                   </span>
                   {name === "CohortGeneratorModule" && (
-                    <span className="rounded bg-success/15 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-success">
+                    <span className="rounded bg-[#2DD4BF]/15 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[#2DD4BF]">
                       Auto
                     </span>
                   )}
                 </button>
                 {isOpen && (
-                  <div className="border-t border-border-default px-4 py-4">
+                  <div className="border-t border-[#232328] px-4 py-4">
                     <ModuleConfigPanel
                       moduleName={name}
                       settings={currentSettings}

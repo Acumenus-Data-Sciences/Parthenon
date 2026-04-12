@@ -9,7 +9,7 @@ export interface LabPanelConfig {
 export const LAB_PANELS: LabPanelConfig[] = [
   {
     name: 'Renal',
-    color: 'var(--info)',
+    color: '#3B82F6',
     tests: [
       'creatinine', 'urea nitrogen', 'potassium', 'sodium', 'chloride',
       'bicarbonate', 'calcium, total', 'phosphate', 'magnesium',
@@ -17,7 +17,7 @@ export const LAB_PANELS: LabPanelConfig[] = [
   },
   {
     name: 'Hepatic',
-    color: 'var(--warning)',
+    color: '#F59E0B',
     tests: [
       'alanine aminotransferase', 'asparate aminotransferase',
       'alkaline phosphatase', 'bilirubin, total', 'bilirubin, direct',
@@ -26,7 +26,7 @@ export const LAB_PANELS: LabPanelConfig[] = [
   },
   {
     name: 'Hematologic',
-    color: "var(--critical)",
+    color: '#E85A6B',
     tests: [
       'white blood cells', 'hemoglobin', 'hematocrit', 'platelet count',
       'red blood cells', 'mcv', 'mch', 'mchc', 'rdw',
@@ -34,21 +34,21 @@ export const LAB_PANELS: LabPanelConfig[] = [
   },
   {
     name: 'Metabolic',
-    color: 'var(--success)',
+    color: '#22C55E',
     tests: [
       'glucose', 'lactate', 'anion gap',
     ],
   },
   {
     name: 'Coagulation',
-    color: 'var(--domain-observation)',
+    color: '#A855F7',
     tests: [
       'pt', 'inr(pt)', 'ptt', 'fibrinogen', 'd-dimer',
     ],
   },
   {
     name: 'Cardiac',
-    color: 'var(--domain-procedure)',
+    color: '#EC4899',
     tests: [
       'troponin t', 'troponin i', 'ck (cpk)', 'ck-mb', 'ldh',
       'ntprobnp', 'bnp',
@@ -56,7 +56,7 @@ export const LAB_PANELS: LabPanelConfig[] = [
   },
   {
     name: 'Inflammatory',
-    color: 'var(--domain-device)',
+    color: '#F97316',
     tests: [
       'c-reactive protein', 'procalcitonin', 'ferritin',
     ],

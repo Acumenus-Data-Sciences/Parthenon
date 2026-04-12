@@ -273,7 +273,7 @@ export function ForgotPasswordModal({
                   fontFamily: "var(--font-body)",
                   fontSize: "var(--text-base)",
                   fontWeight: 600,
-                  color: 'var(--text-primary)',
+                  color: "#fff",
                   background: "var(--gradient-crimson)",
                   border: "1px solid var(--primary-light)",
                   borderRadius: "var(--radius-md)",

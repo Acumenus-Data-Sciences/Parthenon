@@ -49,14 +49,14 @@ export default function DqHistoryView() {
       {/* Header with source selector and tab toggle */}
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <label className="text-sm text-text-muted">Source:</label>
+          <label className="text-sm text-[#888]">Source:</label>
           <select
             value={selectedSourceId ?? ""}
             onChange={(e) => {
               setSelectedSourceId(Number(e.target.value) || null);
               setSelectedReleaseId(null);
             }}
-            className="rounded border border-border-default bg-surface-overlay px-3 py-1.5 text-sm text-white"
+            className="rounded border border-[#333] bg-[#1a1a22] px-3 py-1.5 text-sm text-white"
           >
             <option value="">Select source...</option>
             {sources?.map((s) => (
@@ -72,7 +72,7 @@ export default function DqHistoryView() {
               type="button"
               onClick={handleExport}
               disabled={exportMutation.isPending}
-              className="rounded border border-border-default px-3 py-1.5 text-xs text-text-muted transition-colors hover:border-border-hover hover:text-white disabled:opacity-50"
+              className="rounded border border-[#333] px-3 py-1.5 text-xs text-[#888] transition-colors hover:border-[#555] hover:text-white disabled:opacity-50"
             >
               {exportMutation.isPending ? "Exporting..." : "Export CSV"}
             </button>
@@ -80,7 +80,7 @@ export default function DqHistoryView() {
         </div>
 
         {/* Tab toggle */}
-        <div className="flex gap-1 rounded-lg border border-border-default p-0.5">
+        <div className="flex gap-1 rounded-lg border border-[#333] p-0.5">
           {(["trends", "heatmap", "sla", "overlay"] as const).map((tab) => {
             const labels: Record<string, string> = {
               trends: "Trends",
@@ -94,7 +94,7 @@ export default function DqHistoryView() {
                 type="button"
                 onClick={() => setActiveTab(tab)}
                 className={`rounded px-3 py-1 text-xs ${
-                  activeTab === tab ? "bg-success text-black" : "text-text-muted"
+                  activeTab === tab ? "bg-[#2DD4BF] text-black" : "text-[#888]"
                 }`}
               >
                 {labels[tab]}
@@ -105,17 +105,17 @@ export default function DqHistoryView() {
       </div>
 
       {!selectedSourceId && activeTab !== "overlay" && (
-        <p className="py-10 text-center text-text-ghost">Select a source to view DQ history.</p>
+        <p className="py-10 text-center text-[#555]">Select a source to view DQ history.</p>
       )}
 
       {/* Trends tab */}
       {activeTab === "trends" && selectedSourceId && (
         <>
-          {trendsLoading && <p className="text-text-ghost">Loading DQ history...</p>}
+          {trendsLoading && <p className="text-[#555]">Loading DQ history...</p>}
 
           {!trendsLoading && trends && (
             <>
-              <div className="mb-6 rounded-lg border border-border-subtle bg-surface-raised p-4">
+              <div className="mb-6 rounded-lg border border-[#252530] bg-[#151518] p-4">
                 <h3 className="mb-3 text-sm font-medium text-white">DQ Pass Rate Over Releases</h3>
                 <DqTrendChart
                   data={trends}
@@ -125,9 +125,9 @@ export default function DqHistoryView() {
               </div>
 
               {selectedReleaseId && (
-                <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
+                <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
                   {deltasLoading ? (
-                    <p className="text-text-ghost">Loading deltas...</p>
+                    <p className="text-[#555]">Loading deltas...</p>
                   ) : (
                     <DqDeltaTable
                       deltas={deltas ?? []}
@@ -143,9 +143,9 @@ export default function DqHistoryView() {
 
       {/* Heatmap tab */}
       {activeTab === "heatmap" && selectedSourceId && (
-        <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
+        <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
           <h3 className="mb-3 text-sm font-medium text-white">Category x Release Heatmap</h3>
-          {heatmapLoading && <p className="text-text-ghost">Loading heatmap...</p>}
+          {heatmapLoading && <p className="text-[#555]">Loading heatmap...</p>}
           {heatmapData && (
             <DqCategoryHeatmap
               releases={heatmapData.releases}
@@ -162,7 +162,7 @@ export default function DqHistoryView() {
 
       {/* SLA tab */}
       {activeTab === "sla" && selectedSourceId && (
-        <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
+        <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
           <h3 className="mb-3 text-sm font-medium text-white">SLA Compliance Dashboard</h3>
           <DqSlaDashboard sourceId={selectedSourceId} />
         </div>
@@ -170,9 +170,9 @@ export default function DqHistoryView() {
 
       {/* Cross-source overlay tab */}
       {activeTab === "overlay" && (
-        <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
+        <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
           <h3 className="mb-3 text-sm font-medium text-white">Cross-Source DQ Overlay</h3>
-          {overlayLoading && <p className="text-text-ghost">Loading overlay data...</p>}
+          {overlayLoading && <p className="text-[#555]">Loading overlay data...</p>}
           {overlayData && overlayData.length > 0 && (
             <DqTrendChart
               data={[]}
@@ -180,7 +180,7 @@ export default function DqHistoryView() {
             />
           )}
           {overlayData && overlayData.length === 0 && (
-            <p className="py-10 text-center text-text-ghost">No DQ data available across sources.</p>
+            <p className="py-10 text-center text-[#555]">No DQ data available across sources.</p>
           )}
         </div>
       )}

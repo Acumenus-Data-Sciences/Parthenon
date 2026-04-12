@@ -73,7 +73,7 @@ export function LoginPage() {
         style={{
           position: "absolute",
           inset: 0,
-          background: "var(--surface-darkest)",
+          background: "#08060A",
         }}
       />
 
@@ -736,7 +736,7 @@ export function LoginPage() {
                 fontFamily: "var(--font-body)",
                 fontSize: "var(--text-base)",
                 fontWeight: 600,
-                color: 'var(--text-primary)',
+                color: "#fff",
                 background: "var(--gradient-crimson)",
                 border: "1px solid var(--primary-light)",
                 borderRadius: "var(--radius-md)",

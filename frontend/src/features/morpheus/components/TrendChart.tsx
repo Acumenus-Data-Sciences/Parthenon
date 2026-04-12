@@ -16,7 +16,7 @@ interface TrendChartProps {
 }
 
 export default function TrendChart({
-  data, barColor = 'var(--success)', lineColor = 'var(--critical)',
+  data, barColor = '#2DD4BF', lineColor = '#E85A6B',
   title, barLabel, lineLabel,
 }: TrendChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -49,7 +49,7 @@ export default function TrendChart({
     return [0, step, step * 2, step * 3, step * 4].filter(v => v <= maxBar * 1.1);
   }, [maxBar]);
 
-  if (!data.length) return <div className="text-text-ghost text-sm py-8 text-center">No trend data</div>;
+  if (!data.length) return <div className="text-[#5A5650] text-sm py-8 text-center">No trend data</div>;
 
   const linePath = hasLine ? data.map((d, i) => {
     const x = padL + i * (barW + gap) + barW / 2;
@@ -59,7 +59,7 @@ export default function TrendChart({
 
   return (
     <div ref={containerRef} className="relative">
-      {title && <h3 className="text-xs font-semibold text-text-secondary mb-3">{title}</h3>}
+      {title && <h3 className="text-xs font-semibold text-[#C5C0B8] mb-3">{title}</h3>}
       <svg width={width} height={svgH}>
         {/* Y grid lines + labels */}
         {yTicks.map((v) => {
@@ -67,7 +67,7 @@ export default function TrendChart({
           return (
             <g key={v}>
               <line x1={padL} y1={y} x2={width - padR} y2={y} stroke="#1F1F24" strokeWidth={1} />
-              <text x={padL - 6} y={y + 3} textAnchor="end" fill="var(--text-ghost)" fontSize={9}>{v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}</text>
+              <text x={padL - 6} y={y + 3} textAnchor="end" fill="#5A5650" fontSize={9}>{v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}</text>
             </g>
           );
         })}
@@ -87,7 +87,7 @@ export default function TrendChart({
                 opacity={0.85} className="transition-opacity hover:opacity-100" />
               {/* X label — show every Nth */}
               {(data.length <= 12 || i % Math.ceil(data.length / 8) === 0) && (
-                <text x={x + barW / 2} y={padT + chartH + 14} textAnchor="middle" fill="var(--text-ghost)" fontSize={8}>
+                <text x={x + barW / 2} y={padT + chartH + 14} textAnchor="middle" fill="#5A5650" fontSize={8}>
                   {data.length <= 12 ? d.label.slice(2) : d.label.slice(5)}
                 </text>
               )}
@@ -103,7 +103,7 @@ export default function TrendChart({
               if (d.lineValue === undefined) return null;
               const x = padL + i * (barW + gap) + barW / 2;
               const y = padT + chartH - (d.lineValue / maxLine) * chartH;
-              return <circle key={i} cx={x} cy={y} r={3} fill={lineColor} stroke="var(--surface-base)" strokeWidth={1.5} />;
+              return <circle key={i} cx={x} cy={y} r={3} fill={lineColor} stroke="#0E0E11" strokeWidth={1.5} />;
             })}
             {/* Right Y axis for line */}
             {[0, 0.5, 1].map((pct) => {
@@ -115,11 +115,11 @@ export default function TrendChart({
         )}
 
         {/* Baseline */}
-        <line x1={padL} y1={padT + chartH} x2={width - padR} y2={padT + chartH} stroke="var(--border-default)" strokeWidth={1} />
+        <line x1={padL} y1={padT + chartH} x2={width - padR} y2={padT + chartH} stroke="#323238" strokeWidth={1} />
       </svg>
 
       {/* Legend */}
-      <div className="flex items-center gap-4 mt-1 text-[10px] text-text-muted">
+      <div className="flex items-center gap-4 mt-1 text-[10px] text-[#8A857D]">
         {barLabel && <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm" style={{ backgroundColor: barColor }} /> {barLabel}</span>}
         {lineLabel && hasLine && <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{ backgroundColor: lineColor }} /> {lineLabel}</span>}
       </div>
@@ -127,10 +127,10 @@ export default function TrendChart({
       {/* Tooltip */}
       {tooltip && (
         <div
-          className="fixed z-50 rounded-lg border border-surface-highlight bg-surface-overlay px-3 py-2 text-xs text-text-secondary shadow-xl pointer-events-none"
+          className="fixed z-50 rounded-lg border border-[#323238] bg-[#1A1A1E] px-3 py-2 text-xs text-[#C5C0B8] shadow-xl pointer-events-none"
           style={{ top: tooltip.y - 60, left: tooltip.x + 12 }}
         >
-          <div className="font-medium text-text-primary">{tooltip.item.label}</div>
+          <div className="font-medium text-[#F0EDE8]">{tooltip.item.label}</div>
           <div>{barLabel ?? 'Value'}: {tooltip.item.barValue.toLocaleString()}</div>
           {tooltip.item.lineValue !== undefined && <div>{lineLabel ?? 'Rate'}: {tooltip.item.lineValue.toFixed(1)}%</div>}
         </div>

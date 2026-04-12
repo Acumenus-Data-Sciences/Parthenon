@@ -24,7 +24,7 @@ export function VersionHistory({ investigationId, investigationStatus }: Version
           <button
             onClick={handleCreate}
             disabled={createVersion.isPending}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed text-zinc-300 text-xs font-medium transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-raised hover:bg-surface-accent disabled:opacity-50 disabled:cursor-not-allowed text-zinc-300 text-xs font-medium transition-colors"
           >
             {createVersion.isPending ? (
               <Loader2 size={12} className="animate-spin" />
@@ -50,10 +50,10 @@ export function VersionHistory({ investigationId, investigationStatus }: Version
           {versions.map((v) => (
             <div
               key={v.id}
-              className="flex items-center justify-between bg-zinc-900/50 border border-zinc-800 rounded-lg px-3 py-2"
+              className="flex items-center justify-between bg-surface-base/50 border border-border-default rounded-lg px-3 py-2"
             >
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-mono font-semibold bg-zinc-800 text-zinc-300">
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-mono font-semibold bg-surface-raised text-zinc-300">
                   v{v.version_number}
                 </span>
                 {v.creator && (

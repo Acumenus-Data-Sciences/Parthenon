@@ -25,16 +25,16 @@ function SignificanceVerdictBadge({ hr, ciLower, ciUpper }: { hr: number; ciLowe
   let color: string;
   if (isProtective) {
     label = "Significant (Protective)";
-    color = "text-success border-success/30 bg-success/5";
+    color = "text-[#2DD4BF] border-[#2DD4BF]/30 bg-[#2DD4BF]/5";
   } else if (isHarmful) {
     label = "Significant (Harmful)";
-    color = "text-critical border-critical/30 bg-critical/5";
+    color = "text-[#E85A6B] border-[#E85A6B]/30 bg-[#E85A6B]/5";
   } else if (isSignificant) {
     label = "Significant";
-    color = "text-accent border-accent/30 bg-accent/5";
+    color = "text-[#C9A227] border-[#C9A227]/30 bg-[#C9A227]/5";
   } else {
     label = "Not Significant";
-    color = "text-text-muted border-text-muted/30 bg-text-muted/5";
+    color = "text-[#8A857D] border-[#8A857D]/30 bg-[#8A857D]/5";
   }
 
   return (
@@ -98,17 +98,17 @@ export function EvidenceSynthesisVerdictDashboard({ result }: EvidenceSynthesisV
   return (
     <div className="space-y-4">
       {/* Top row: Pooled HR + Significance */}
-      <div className="rounded-lg border border-border-default bg-surface-raised p-5">
+      <div className="rounded-lg border border-[#232328] bg-[#151518] p-5">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <p className="text-xs text-text-muted mb-1">{methodLabel} Pooled Estimate</p>
-            <p className="text-3xl font-bold font-mono text-text-primary">
+            <p className="text-xs text-[#8A857D] mb-1">{methodLabel} Pooled Estimate</p>
+            <p className="text-3xl font-bold font-mono text-[#F0EDE8]">
               HR {fmt(hr)}
             </p>
-            <p className="text-sm font-mono text-text-secondary mt-1">
+            <p className="text-sm font-mono text-[#C5C0B8] mt-1">
               95% CI [{fmt(ciLower)}, {fmt(ciUpper)}]
               {piLower != null && piUpper != null && (
-                <span className="text-text-muted ml-3">
+                <span className="text-[#8A857D] ml-3">
                   PI [{fmt(piLower)}, {fmt(piUpper)}]
                 </span>
               )}
@@ -116,7 +116,7 @@ export function EvidenceSynthesisVerdictDashboard({ result }: EvidenceSynthesisV
           </div>
           <div className="flex flex-col items-start sm:items-end gap-2">
             <SignificanceVerdictBadge hr={hr} ciLower={ciLower} ciUpper={ciUpper} />
-            <p className="text-xs text-text-muted">
+            <p className="text-xs text-[#8A857D]">
               {protectiveSites} of {sites.length} sites show protective effect
             </p>
           </div>
@@ -157,10 +157,10 @@ export function EvidenceSynthesisVerdictDashboard({ result }: EvidenceSynthesisV
 
 function MetricCard({ label, value, subtitle }: { label: string; value: string; subtitle: string }) {
   return (
-    <div className="rounded-lg border border-border-default bg-surface-raised p-4 text-center">
-      <p className="text-lg font-bold text-text-primary font-mono">{value}</p>
-      <p className="text-xs text-text-muted mt-1">{label}</p>
-      <p className="text-[10px] text-text-ghost mt-0.5">{subtitle}</p>
+    <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 text-center">
+      <p className="text-lg font-bold text-[#F0EDE8] font-mono">{value}</p>
+      <p className="text-xs text-[#8A857D] mt-1">{label}</p>
+      <p className="text-[10px] text-[#5A5650] mt-0.5">{subtitle}</p>
     </div>
   );
 }

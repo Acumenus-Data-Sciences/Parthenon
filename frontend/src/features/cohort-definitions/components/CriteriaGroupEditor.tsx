@@ -69,22 +69,22 @@ export function CriteriaGroupEditor({
 
   const borderColor =
     depth === 0
-      ? "border-border-default"
+      ? "border-[#232328]"
       : depth === 1
-        ? "border-success/20"
-        : "border-accent/20";
+        ? "border-[#2DD4BF]/20"
+        : "border-[#C9A227]/20";
 
   return (
     <div
       className={cn(
         "rounded-lg border p-4 space-y-3",
         borderColor,
-        depth === 0 ? "bg-surface-raised" : "bg-surface-overlay",
+        depth === 0 ? "bg-[#151518]" : "bg-[#1A1A1E]",
       )}
     >
       {/* Group type selector */}
       <div className="flex items-center gap-2">
-        <span className="text-xs text-text-muted">Match</span>
+        <span className="text-xs text-[#8A857D]">Match</span>
         {GROUP_TYPES.map((opt) => (
           <button
             key={opt.value}
@@ -94,14 +94,14 @@ export function CriteriaGroupEditor({
             className={cn(
               "rounded-lg px-3 py-1 text-xs font-semibold transition-colors",
               group.Type === opt.value
-                ? "bg-success/15 text-success border border-success/30"
-                : "bg-surface-base text-text-ghost border border-border-default hover:text-text-muted",
+                ? "bg-[#2DD4BF]/15 text-[#2DD4BF] border border-[#2DD4BF]/30"
+                : "bg-[#0E0E11] text-[#5A5650] border border-[#232328] hover:text-[#8A857D]",
             )}
           >
             {opt.label}
           </button>
         ))}
-        <span className="text-xs text-text-muted">of the following:</span>
+        <span className="text-xs text-[#8A857D]">of the following:</span>
       </div>
 
       {/* Criteria list */}
@@ -132,7 +132,7 @@ export function CriteriaGroupEditor({
               <button
                 type="button"
                 onClick={() => handleNestedGroupRemove(i)}
-                className="absolute top-2 right-2 text-xs text-text-muted hover:text-critical transition-colors"
+                className="absolute top-2 right-2 text-xs text-[#8A857D] hover:text-[#E85A6B] transition-colors"
               >
                 Remove group
               </button>
@@ -143,18 +143,18 @@ export function CriteriaGroupEditor({
 
       {/* Empty state */}
       {(group.CriteriaList ?? []).length === 0 && (group.Groups ?? []).length === 0 && (
-        <div className="flex items-center justify-center py-6 text-xs text-text-ghost">
+        <div className="flex items-center justify-center py-6 text-xs text-[#5A5650]">
           No criteria in this group. Add rules or nested groups below.
         </div>
       )}
 
       {/* Add buttons */}
       {depth < 2 && (
-        <div className="flex items-center gap-2 pt-2 border-t border-border-default">
+        <div className="flex items-center gap-2 pt-2 border-t border-[#232328]">
           <button
             type="button"
             onClick={handleAddNestedGroup}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-surface-base px-3 py-1.5 text-xs text-text-muted hover:text-text-secondary hover:bg-surface-overlay transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-1.5 text-xs text-[#8A857D] hover:text-[#C5C0B8] hover:bg-[#1C1C20] transition-colors"
           >
             <Plus size={12} />
             Add Nested Group

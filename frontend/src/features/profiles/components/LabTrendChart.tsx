@@ -78,9 +78,9 @@ export const LabTrendChart = ({
             <ReferenceArea
               y1={range.low}
               y2={range.high}
-              fill="var(--success)"
+              fill="#2DD4BF"
               fillOpacity={0.12}
-              stroke="var(--success)"
+              stroke="#2DD4BF"
               strokeOpacity={0.35}
               strokeDasharray="2 2"
               ifOverflow="extendDomain"
@@ -88,7 +88,7 @@ export const LabTrendChart = ({
           )}
           <Tooltip
             content={<LabTrendTooltip range={range} unitName={unitName} />}
-            cursor={{ stroke: 'var(--accent)', strokeWidth: 1, strokeDasharray: '2 2' }}
+            cursor={{ stroke: '#C9A227', strokeWidth: 1, strokeDasharray: '2 2' }}
           />
           <Line
             type="monotone"

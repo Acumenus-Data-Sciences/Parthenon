@@ -84,9 +84,9 @@ describe("ForestPlot", () => {
     // Background rects + boundary + data rects = at least 2 data rects
     const dataRects = Array.from(rects).filter(
       (r) =>
-        r.getAttribute("fill") === "var(--success)" ||
-        r.getAttribute("fill") === "var(--critical)" ||
-        r.getAttribute("fill") === "var(--text-muted)",
+        r.getAttribute("fill") === "#2DD4BF" ||
+        r.getAttribute("fill") === "#E85A6B" ||
+        r.getAttribute("fill") === "#8A857D",
     );
     expect(dataRects.length).toBe(2);
   });

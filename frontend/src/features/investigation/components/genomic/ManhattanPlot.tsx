@@ -11,10 +11,10 @@ export interface ManhattanPlotProps {
 }
 
 // Dark clinical theme colors
-const COLOR_BG = "var(--surface-base)";
-const COLOR_CRIMSON = "var(--primary)";
-const COLOR_GOLD = "var(--accent)";
-const COLOR_TEAL = "var(--success)";
+const COLOR_BG = "#0E0E11";
+const COLOR_CRIMSON = "#9B1B30";
+const COLOR_GOLD = "#C9A227";
+const COLOR_TEAL = "#2DD4BF";
 const COLOR_ZINC_300 = "#d4d4d8";
 const COLOR_ZINC_500 = "#71717a";
 const COLOR_ZINC_600 = "#52525b";
@@ -337,7 +337,7 @@ export default function ManhattanPlot({
   if (data.length === 0) {
     return (
       <div
-        className="flex items-center justify-center text-zinc-500 text-sm rounded border border-zinc-800"
+        className="flex items-center justify-center text-zinc-500 text-sm rounded border border-border-default"
         style={{ width, height }}
       >
         No GWAS data available

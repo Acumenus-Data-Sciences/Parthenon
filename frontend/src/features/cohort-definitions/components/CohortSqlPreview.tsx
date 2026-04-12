@@ -41,12 +41,12 @@ export function CohortSqlPreview({ definitionId }: CohortSqlPreviewProps) {
   };
 
   return (
-    <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
+    <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-surface-overlay">
+      <div className="flex items-center justify-between px-4 py-3 bg-[#1C1C20]">
         <div className="flex items-center gap-2">
-          <Code size={14} className="text-accent" />
-          <h4 className="text-sm font-semibold text-text-primary">
+          <Code size={14} className="text-[#C9A227]" />
+          <h4 className="text-sm font-semibold text-[#F0EDE8]">
             SQL Preview
           </h4>
         </div>
@@ -56,15 +56,15 @@ export function CohortSqlPreview({ definitionId }: CohortSqlPreviewProps) {
           <div className="relative">
             <Database
               size={12}
-              className="absolute left-2.5 top-1/2 -translate-y-1/2 text-text-ghost"
+              className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#5A5650]"
             />
             <select
               value={sourceId ?? ""}
               onChange={(e) => setSourceId(Number(e.target.value) || null)}
               disabled={loadingSources}
               className={cn(
-                "appearance-none rounded-lg border border-border-default bg-surface-base pl-7 pr-7 py-1.5 text-xs",
-                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
+                "appearance-none rounded-lg border border-[#232328] bg-[#0E0E11] pl-7 pr-7 py-1.5 text-xs",
+                "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
                 "cursor-pointer min-w-[160px]",
               )}
             >
@@ -77,7 +77,7 @@ export function CohortSqlPreview({ definitionId }: CohortSqlPreviewProps) {
             </select>
             <ChevronDown
               size={12}
-              className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-text-ghost"
+              className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[#5A5650]"
             />
           </div>
 
@@ -85,7 +85,7 @@ export function CohortSqlPreview({ definitionId }: CohortSqlPreviewProps) {
             type="button"
             onClick={() => refetch()}
             disabled={!sourceId || loadingSql}
-            className="inline-flex items-center justify-center w-7 h-7 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-elevated transition-colors disabled:opacity-40"
+            className="inline-flex items-center justify-center w-7 h-7 rounded-md text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#232328] transition-colors disabled:opacity-40"
             title="Refresh SQL"
           >
             <RefreshCw
@@ -98,11 +98,11 @@ export function CohortSqlPreview({ definitionId }: CohortSqlPreviewProps) {
             type="button"
             onClick={handleCopy}
             disabled={!sqlResult?.sql}
-            className="inline-flex items-center justify-center w-7 h-7 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-elevated transition-colors disabled:opacity-40"
+            className="inline-flex items-center justify-center w-7 h-7 rounded-md text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#232328] transition-colors disabled:opacity-40"
             title="Copy SQL"
           >
             {copied ? (
-              <Check size={12} className="text-success" />
+              <Check size={12} className="text-[#2DD4BF]" />
             ) : (
               <Copy size={12} />
             )}
@@ -113,23 +113,23 @@ export function CohortSqlPreview({ definitionId }: CohortSqlPreviewProps) {
       {/* SQL content */}
       <div className="max-h-80 overflow-auto">
         {!sourceId ? (
-          <div className="flex items-center justify-center py-12 text-xs text-text-ghost">
+          <div className="flex items-center justify-center py-12 text-xs text-[#5A5650]">
             Select a data source to preview SQL
           </div>
         ) : loadingSql ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 size={18} className="animate-spin text-text-muted" />
+            <Loader2 size={18} className="animate-spin text-[#8A857D]" />
           </div>
         ) : error ? (
-          <div className="flex items-center justify-center py-12 text-xs text-critical">
+          <div className="flex items-center justify-center py-12 text-xs text-[#E85A6B]">
             Failed to generate SQL preview
           </div>
         ) : sqlResult?.sql ? (
-          <pre className="p-4 text-xs leading-relaxed text-text-secondary font-['IBM_Plex_Mono',monospace] whitespace-pre-wrap break-words">
+          <pre className="p-4 text-xs leading-relaxed text-[#C5C0B8] font-['IBM_Plex_Mono',monospace] whitespace-pre-wrap break-words">
             {sqlResult.sql}
           </pre>
         ) : (
-          <div className="flex items-center justify-center py-12 text-xs text-text-ghost">
+          <div className="flex items-center justify-center py-12 text-xs text-[#5A5650]">
             No SQL generated. Ensure the cohort definition is saved first.
           </div>
         )}

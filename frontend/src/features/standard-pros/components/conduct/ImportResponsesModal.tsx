@@ -43,7 +43,7 @@ export function ImportResponsesModal({
           <button
             type="button"
             onClick={handleClose}
-            className="rounded-lg border border-border-default px-4 py-2 text-sm text-text-muted hover:text-text-primary"
+            className="rounded-lg border border-[#2A2A2F] px-4 py-2 text-sm text-[#8A857D] hover:text-[#F0EDE8]"
           >
             Cancel
           </button>
@@ -51,7 +51,7 @@ export function ImportResponsesModal({
             type="button"
             disabled={csv.trim() === "" || isSubmitting}
             onClick={() => onSubmit(csv)}
-            className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] disabled:opacity-50"
           >
             {isSubmitting && <Loader2 size={14} className="animate-spin" />}
             Import CSV
@@ -60,17 +60,17 @@ export function ImportResponsesModal({
       )}
     >
       <div className="space-y-4">
-        <div className="rounded-lg border border-border-default bg-surface-raised px-4 py-3">
-          <p className="text-xs text-text-secondary">
+        <div className="rounded-lg border border-[#2A2A2F] bg-[#141418] px-4 py-3">
+          <p className="text-xs text-[#C5C0B8]">
             Paste CSV with a required <code>person_id</code> column and item columns matching
             <code>item_#</code>, raw item ids, or exact item text.
           </p>
-          <p className="mt-2 text-[11px] font-['IBM_Plex_Mono',monospace] text-text-ghost">
+          <p className="mt-2 text-[11px] font-['IBM_Plex_Mono',monospace] text-[#5A5650]">
             Example header: {sampleHeader}
           </p>
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-text-muted">
+          <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-[#8A857D]">
             CSV File
           </label>
           <input
@@ -84,7 +84,7 @@ export function ImportResponsesModal({
 
               setCsv(await file.text());
             }}
-            className="block w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-secondary file:mr-3 file:rounded-md file:border-0 file:bg-surface-base file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-text-primary"
+            className="block w-full rounded-lg border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-sm text-[#C5C0B8] file:mr-3 file:rounded-md file:border-0 file:bg-[#0E0E11] file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-[#F0EDE8]"
           />
         </div>
         <textarea
@@ -92,7 +92,7 @@ export function ImportResponsesModal({
           onChange={(event) => setCsv(event.target.value)}
           rows={16}
           placeholder={`${sampleHeader}\n101,1,2,3`}
-          className="w-full rounded-lg border border-border-default bg-surface-raised px-3 py-3 font-['IBM_Plex_Mono',monospace] text-xs text-text-primary outline-none focus:border-success"
+          className="w-full rounded-lg border border-[#2A2A2F] bg-[#141418] px-3 py-3 font-['IBM_Plex_Mono',monospace] text-xs text-[#F0EDE8] outline-none focus:border-[#2DD4BF]"
         />
       </div>
     </Modal>

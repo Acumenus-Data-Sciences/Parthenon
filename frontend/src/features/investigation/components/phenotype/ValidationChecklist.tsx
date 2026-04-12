@@ -58,16 +58,16 @@ export function ValidationChecklist({ investigation }: ValidationChecklistProps)
   const progressPct = Math.round((passed / total) * 100);
 
   return (
-    <div className="rounded-lg border border-zinc-700/50 bg-zinc-900/60 p-3">
+    <div className="rounded-lg border border-border-default/50 bg-surface-base/60 p-3">
       {/* Summary header */}
       <div className="flex items-center justify-between mb-2">
         <h4 className="text-xs font-medium text-zinc-300">QC Checklist</h4>
         <span
           className={`text-[10px] font-medium px-1.5 py-0.5 rounded border ${
             passed === total
-              ? "text-success bg-teal-900/20 border-teal-600/30"
+              ? "text-[#2DD4BF] bg-teal-900/20 border-teal-600/30"
               : passed === 0
-                ? "text-primary bg-red-900/10 border-red-700/30"
+                ? "text-[#9B1B30] bg-red-900/10 border-red-700/30"
                 : "text-amber-400 bg-amber-900/20 border-amber-600/30"
           }`}
         >
@@ -76,13 +76,13 @@ export function ValidationChecklist({ investigation }: ValidationChecklistProps)
       </div>
 
       {/* Progress bar */}
-      <div className="h-1 rounded-full bg-zinc-800 mb-3 overflow-hidden">
+      <div className="h-1 rounded-full bg-surface-raised mb-3 overflow-hidden">
         <div
           className={`h-full rounded-full transition-all duration-300 ${
             passed === total
-              ? "bg-success"
+              ? "bg-[#2DD4BF]"
               : passed === 0
-                ? "bg-primary"
+                ? "bg-[#9B1B30]"
                 : "bg-amber-500"
           }`}
           style={{ width: `${progressPct}%` }}
@@ -94,7 +94,7 @@ export function ValidationChecklist({ investigation }: ValidationChecklistProps)
         {checks.map((check) => (
           <li key={check.label} className="flex items-start gap-2">
             {check.pass ? (
-              <CheckCircle2 className="w-3.5 h-3.5 text-success shrink-0 mt-0.5" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-[#2DD4BF] shrink-0 mt-0.5" />
             ) : (
               <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
             )}

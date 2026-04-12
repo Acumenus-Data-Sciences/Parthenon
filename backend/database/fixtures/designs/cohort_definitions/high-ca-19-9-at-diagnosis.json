@@ -1,0 +1,123 @@
+{
+    "id": 224,
+    "name": "High CA 19-9 at Diagnosis",
+    "description": "PDAC patients with CA 19-9 (LOINC 3022914) greater than 37 U\/mL measured within 30 days of initial diagnosis. Elevated CA 19-9 is associated with advanced disease and worse prognosis.",
+    "expression_json": {
+        "ConceptSets": [
+            {
+                "id": 0,
+                "name": "PDAC Condition",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 4180793,
+                                "CONCEPT_CODE": "",
+                                "CONCEPT_NAME": "Malignant tumor of pancreas",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 1,
+                "name": "CA 19-9 Measurement",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 3022914,
+                                "CONCEPT_CODE": "",
+                                "CONCEPT_NAME": "CA 19-9 [Units\/volume] in Serum or Plasma",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            }
+        ],
+        "QualifiedLimit": {
+            "Type": "First"
+        },
+        "ExpressionLimit": {
+            "Type": "First"
+        },
+        "PrimaryCriteria": {
+            "CriteriaList": [
+                {
+                    "ConditionOccurrence": {
+                        "First": true,
+                        "CodesetId": 0
+                    }
+                }
+            ],
+            "ObservationWindow": {
+                "PostDays": 0,
+                "PriorDays": 0
+            }
+        },
+        "CollapseSettings": {
+            "EraPad": 0,
+            "CollapseType": "ERA"
+        },
+        "AdditionalCriteria": {
+            "Type": "ALL",
+            "Groups": [],
+            "CriteriaList": [
+                {
+                    "Criteria": {
+                        "Measurement": {
+                            "CodesetId": 1,
+                            "ValueAsNumber": {
+                                "Op": "gt",
+                                "Value": 37
+                            }
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 1
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 30,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 0,
+                            "Coeff": 1
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-03-28T18:26:28.000000Z",
+    "updated_at": "2026-03-30T21:06:43.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "pancreatic-cancer",
+        "pdac",
+        "ca19-9",
+        "biomarker",
+        "corpus"
+    ],
+    "share_token": null,
+    "share_expires_at": null
+}

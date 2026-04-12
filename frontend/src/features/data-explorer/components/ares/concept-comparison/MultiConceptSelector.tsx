@@ -3,7 +3,7 @@ import { X } from "lucide-react";
 import { useConceptSearch } from "../../../hooks/useNetworkData";
 import type { ConceptSearchResult } from "../../../types/ares";
 
-const CONCEPT_COLORS = ["var(--success)", "var(--accent)", "#e85d75", "#7c8aed", "#59c990"];
+const CONCEPT_COLORS = ["#2DD4BF", "#C9A227", "#e85d75", "#7c8aed", "#59c990"];
 
 interface MultiConceptSelectorProps {
   selectedConcepts: ConceptSearchResult[];
@@ -72,16 +72,16 @@ export default function MultiConceptSelector({
               setShowDropdown(true);
             }}
             onFocus={() => setShowDropdown(true)}
-            className="w-full rounded-lg border border-border-default bg-surface-overlay px-4 py-2 text-sm text-white
-                       placeholder-[#555] focus:border-accent focus:outline-none"
+            className="w-full rounded-lg border border-[#333] bg-[#1a1a22] px-4 py-2 text-sm text-white
+                       placeholder-[#555] focus:border-[#C9A227] focus:outline-none"
           />
           {isLoading && (
-            <span className="absolute right-3 top-2.5 text-xs text-text-ghost">Searching...</span>
+            <span className="absolute right-3 top-2.5 text-xs text-[#555]">Searching...</span>
           )}
 
           {showDropdown && searchResults && searchResults.length > 0 && (
-            <div className="absolute z-20 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-border-default
-                          bg-surface-overlay shadow-xl">
+            <div className="absolute z-20 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-[#333]
+                          bg-[#1a1a22] shadow-xl">
               {searchResults
                 .filter((c) => !selectedConcepts.some((sc) => sc.concept_id === c.concept_id))
                 .map((concept) => (
@@ -89,10 +89,10 @@ export default function MultiConceptSelector({
                     key={concept.concept_id}
                     type="button"
                     onClick={() => handleSelect(concept)}
-                    className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm hover:bg-surface-accent"
+                    className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm hover:bg-[#252530]"
                   >
                     <span className="text-white">{concept.concept_name}</span>
-                    <span className="text-[10px] text-text-ghost">
+                    <span className="text-[10px] text-[#666]">
                       {concept.domain_id} | {concept.vocabulary_id} | ID: {concept.concept_id}
                     </span>
                   </button>

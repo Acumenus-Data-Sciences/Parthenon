@@ -11,7 +11,7 @@ function StepStatusIcon({ status }: { status: PlanStep['status'] }) {
         <span className="text-teal-400 text-[13px] animate-pulse">◌</span>
       );
     case 'completed':
-      return <span className="text-success text-[13px]">●</span>;
+      return <span className="text-[#2DD4BF] text-[13px]">●</span>;
     case 'failed':
       return <span className="text-red-400 text-[13px]">✕</span>;
     case 'skipped':
@@ -74,10 +74,10 @@ export default function AbbyPlanCard({
   const isCancelled = plan.status === 'cancelled';
 
   return (
-    <div className="rounded-xl border border-success/20 bg-surface-base shadow-md mt-2 overflow-hidden">
+    <div className="rounded-xl border border-[#2DD4BF]/20 bg-[#0E0E11] shadow-md mt-2 overflow-hidden">
       {/* Header */}
       <div className="flex items-center gap-2 px-4 py-2.5 border-b border-white/[0.06] bg-gradient-to-r from-teal-900/10 to-transparent">
-        <span className="text-[10px] px-1.5 py-px rounded bg-success/10 text-success font-medium uppercase tracking-wide">
+        <span className="text-[10px] px-1.5 py-px rounded bg-[#2DD4BF]/10 text-[#2DD4BF] font-medium uppercase tracking-wide">
           Action Plan
         </span>
         {isExecuting && (
@@ -86,7 +86,7 @@ export default function AbbyPlanCard({
           </span>
         )}
         {isCompleted && (
-          <span className="text-[10px] text-success">Completed</span>
+          <span className="text-[10px] text-[#2DD4BF]">Completed</span>
         )}
         {isFailed && (
           <span className="text-[10px] text-red-400">Failed</span>
@@ -116,7 +116,7 @@ export default function AbbyPlanCard({
           <button
             type="button"
             onClick={() => onApprove(plan.plan_id)}
-            className="px-4 py-1.5 rounded-md text-[12px] font-medium bg-success/10 hover:bg-success/20 text-success border border-success/30 transition-all duration-150 cursor-pointer"
+            className="px-4 py-1.5 rounded-md text-[12px] font-medium bg-[#2DD4BF]/10 hover:bg-[#2DD4BF]/20 text-[#2DD4BF] border border-[#2DD4BF]/30 transition-all duration-150 cursor-pointer"
           >
             Approve &amp; Execute
           </button>
@@ -143,7 +143,7 @@ export default function AbbyPlanCard({
         <div className="px-4 py-3 border-t border-white/[0.06]">
           <p
             className={`text-[12px] ${
-              isCompleted ? 'text-success' : 'text-red-400'
+              isCompleted ? 'text-[#2DD4BF]' : 'text-red-400'
             }`}
           >
             {isCompleted

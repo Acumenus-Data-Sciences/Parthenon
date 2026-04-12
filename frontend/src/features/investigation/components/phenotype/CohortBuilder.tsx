@@ -185,8 +185,8 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
               key={opt.id}
               className={`flex items-start gap-2.5 rounded border px-3 py-2.5 cursor-pointer transition-colors ${
                 importMode === opt.id
-                  ? "border-success/50 bg-teal-900/10"
-                  : "border-zinc-700/50 bg-zinc-800/40 hover:bg-zinc-800/70"
+                  ? "border-[#2DD4BF]/50 bg-teal-900/10"
+                  : "border-border-default/50 bg-surface-raised/40 hover:bg-surface-raised/70"
               }`}
             >
               <input
@@ -195,7 +195,7 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
                 value={opt.id}
                 checked={importMode === opt.id}
                 onChange={() => handleModeChange(opt.id)}
-                className="mt-0.5 accent-success shrink-0"
+                className="mt-0.5 accent-[#2DD4BF] shrink-0"
               />
               <div>
                 <span className="text-xs font-medium text-zinc-200">{opt.label}</span>
@@ -235,7 +235,7 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
             }}
             rows={10}
             placeholder={'Paste Atlas cohort definition JSON here…\n\n{"ConceptSets": [], "PrimaryCriteria": {...}}'}
-            className="w-full bg-zinc-800/60 border border-zinc-700 rounded px-3 py-2 text-xs text-zinc-200 placeholder:text-zinc-500 font-mono focus:outline-none focus:border-success/60 resize-y"
+            className="w-full bg-surface-raised/60 border border-border-default rounded px-3 py-2 text-xs text-zinc-200 placeholder:text-zinc-500 font-mono focus:outline-none focus:border-[#2DD4BF]/60 resize-y"
           />
           <div className="flex items-center justify-between gap-2">
             <p className="text-[11px] text-zinc-500">
@@ -243,16 +243,16 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
             </p>
             <button
               onClick={handleAtlasParse}
-              className="shrink-0 px-3 py-1.5 rounded text-xs font-medium bg-success/10 text-success border border-success/30 hover:bg-success/20 transition-colors"
+              className="shrink-0 px-3 py-1.5 rounded text-xs font-medium bg-[#2DD4BF]/10 text-[#2DD4BF] border border-[#2DD4BF]/30 hover:bg-[#2DD4BF]/20 transition-colors"
             >
               Parse &amp; Import
             </button>
           </div>
           {atlasParseError && (
-            <p className="text-[11px] text-primary">{atlasParseError}</p>
+            <p className="text-[11px] text-[#9B1B30]">{atlasParseError}</p>
           )}
           {atlasSummary && (
-            <p className="text-[11px] text-success">{atlasSummary} — imported successfully.</p>
+            <p className="text-[11px] text-[#2DD4BF]">{atlasSummary} — imported successfully.</p>
           )}
         </div>
       )}
@@ -262,7 +262,7 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
           <p className="text-xs font-medium text-zinc-400 uppercase tracking-wide">
             File Upload
           </p>
-          <label className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-zinc-700 rounded-lg p-8 cursor-pointer hover:border-zinc-600 transition-colors">
+          <label className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-border-default rounded-lg p-8 cursor-pointer hover:border-border-hover transition-colors">
             <svg
               className="w-8 h-8 text-zinc-600"
               fill="none"
@@ -288,10 +288,10 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
             />
           </label>
           {fileInfo && (
-            <div className="rounded border border-zinc-700/50 bg-zinc-800/40 px-3 py-2 flex flex-col gap-0.5">
+            <div className="rounded border border-border-default/50 bg-surface-raised/40 px-3 py-2 flex flex-col gap-0.5">
               <p className="text-xs text-zinc-300 font-medium">{fileInfo.name}</p>
               <p className="text-[11px] text-zinc-500">{fileInfo.size}</p>
-              <p className="text-[11px] text-success">{fileInfo.summary}</p>
+              <p className="text-[11px] text-[#2DD4BF]">{fileInfo.summary}</p>
             </div>
           )}
         </div>
@@ -313,13 +313,13 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
                 key={id}
                 className={`inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] border ${
                   primaryId === id
-                    ? "bg-accent/15 text-accent border-accent/30"
-                    : "bg-zinc-800/60 text-zinc-300 border-zinc-700"
+                    ? "bg-[#C9A227]/15 text-[#C9A227] border-[#C9A227]/30"
+                    : "bg-surface-raised/60 text-zinc-300 border-border-default"
                 }`}
               >
                 {name}
                 {primaryId === id && (
-                  <span className="text-[10px] text-accent">★</span>
+                  <span className="text-[10px] text-[#C9A227]">★</span>
                 )}
                 <button
                   onClick={() => {
@@ -349,9 +349,9 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
 
       {/* Concept sets from Explore tab */}
       {conceptSetCount > 0 && (
-        <div className="rounded border border-zinc-700/50 bg-zinc-800/30 px-3 py-2.5">
+        <div className="rounded border border-border-default/50 bg-surface-raised/30 px-3 py-2.5">
           <p className="text-xs text-zinc-400">
-            <span className="text-success font-medium">{conceptSetCount} concept set{conceptSetCount !== 1 ? "s" : ""}</span>{" "}
+            <span className="text-[#2DD4BF] font-medium">{conceptSetCount} concept set{conceptSetCount !== 1 ? "s" : ""}</span>{" "}
             built in the Explore tab will be included in cohort generation.
           </p>
         </div>

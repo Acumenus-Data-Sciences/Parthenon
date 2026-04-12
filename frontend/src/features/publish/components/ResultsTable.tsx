@@ -36,7 +36,7 @@ export default function ResultsTable({ data, tableNumber }: ResultsTableProps) {
         <thead>
           <tr
             className="border-t-2 border-b border-gray-900"
-            style={{ borderBottomWidth: "1px", borderBottomColor: 'var(--border-default)' }}
+            style={{ borderBottomWidth: "1px", borderBottomColor: "#999" }}
           >
             {data.headers.map((header) => (
               <th

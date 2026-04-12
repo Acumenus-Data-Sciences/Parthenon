@@ -31,14 +31,14 @@ export function SccsResults({ execution, isLoading }: SccsResultsProps) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 size={24} className="animate-spin text-text-muted" />
+        <Loader2 size={24} className="animate-spin text-[#8A857D]" />
       </div>
     );
   }
 
   if (!execution) {
     return (
-      <div className="text-center py-12 text-text-ghost text-sm">
+      <div className="text-center py-12 text-[#5A5650] text-sm">
         No execution selected. Run the analysis to see results.
       </div>
     );
@@ -47,8 +47,8 @@ export function SccsResults({ execution, isLoading }: SccsResultsProps) {
   if (execution.status === "running" || execution.status === "queued" || execution.status === "pending") {
     return (
       <div className="flex flex-col items-center justify-center py-12 gap-3">
-        <Loader2 size={24} className="animate-spin text-success" />
-        <p className="text-sm text-text-muted">
+        <Loader2 size={24} className="animate-spin text-[#2DD4BF]" />
+        <p className="text-sm text-[#8A857D]">
           SCCS analysis is {execution.status}...
         </p>
       </div>
@@ -57,12 +57,12 @@ export function SccsResults({ execution, isLoading }: SccsResultsProps) {
 
   if (execution.status === "failed") {
     return (
-      <div className="rounded-lg border border-critical/30 bg-critical/5 p-4">
+      <div className="rounded-lg border border-[#E85A6B]/30 bg-[#E85A6B]/5 p-4">
         <div className="flex items-start gap-2">
-          <AlertCircle size={16} className="text-critical shrink-0 mt-0.5" />
+          <AlertCircle size={16} className="text-[#E85A6B] shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-medium text-critical">Execution Failed</p>
-            <p className="text-xs text-text-muted mt-1">
+            <p className="text-sm font-medium text-[#E85A6B]">Execution Failed</p>
+            <p className="text-xs text-[#8A857D] mt-1">
               {execution.fail_message ?? "Unknown error"}
             </p>
           </div>
@@ -75,7 +75,7 @@ export function SccsResults({ execution, isLoading }: SccsResultsProps) {
 
   if (!result || result.status !== "completed") {
     return (
-      <div className="text-center py-12 text-text-ghost text-sm">
+      <div className="text-center py-12 text-[#5A5650] text-sm">
         {result?.message ?? "No results available."}
       </div>
     );
@@ -132,12 +132,12 @@ function SccsResultsContent({
           ].map((card) => (
             <div
               key={card.label}
-              className="rounded-lg border border-border-default bg-surface-raised p-4 text-center"
+              className="rounded-lg border border-[#232328] bg-[#151518] p-4 text-center"
             >
-              <p className="text-2xl font-bold text-text-primary">
+              <p className="text-2xl font-bold text-[#F0EDE8]">
                 {num(card.value).toLocaleString()}
               </p>
-              <p className="text-xs text-text-muted mt-1">{card.label}</p>
+              <p className="text-xs text-[#8A857D] mt-1">{card.label}</p>
             </div>
           ))}
         </div>
@@ -145,18 +145,18 @@ function SccsResultsContent({
 
       {/* Enhanced IRR Estimates Table */}
       {sortedEstimates.length > 0 && (
-        <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
-          <div className="p-4 border-b border-border-default">
-            <h3 className="text-sm font-semibold text-text-primary">
+        <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+          <div className="p-4 border-b border-[#232328]">
+            <h3 className="text-sm font-semibold text-[#F0EDE8]">
               Incidence Rate Ratios
             </h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border-default">
+                <tr className="border-b border-[#232328]">
                   <th
-                    className="px-4 py-2 text-left text-xs font-medium text-text-muted cursor-pointer hover:text-text-primary select-none"
+                    className="px-4 py-2 text-left text-xs font-medium text-[#8A857D] cursor-pointer hover:text-[#F0EDE8] select-none"
                     onClick={() => toggleSort("covariate")}
                   >
                     <span className="inline-flex items-center gap-1">
@@ -165,7 +165,7 @@ function SccsResultsContent({
                     </span>
                   </th>
                   <th
-                    className="px-4 py-2 text-left text-xs font-medium text-text-muted cursor-pointer hover:text-text-primary select-none"
+                    className="px-4 py-2 text-left text-xs font-medium text-[#8A857D] cursor-pointer hover:text-[#F0EDE8] select-none"
                     onClick={() => toggleSort("irr")}
                   >
                     <span className="inline-flex items-center gap-1">
@@ -174,7 +174,7 @@ function SccsResultsContent({
                     </span>
                   </th>
                   {["95% CI Lower", "95% CI Upper", "Log RR", "SE", ""].map((h) => (
-                    <th key={h || "forest"} className="px-4 py-2 text-left text-xs font-medium text-text-muted">
+                    <th key={h || "forest"} className="px-4 py-2 text-left text-xs font-medium text-[#8A857D]">
                       {h || "Forest Plot"}
                     </th>
                   ))}
@@ -182,18 +182,18 @@ function SccsResultsContent({
               </thead>
               <tbody>
                 {sortedEstimates.map((est, idx) => (
-                  <tr key={idx} className="border-b border-border-default last:border-0">
-                    <td className="px-4 py-2 text-text-primary">{est.covariate}</td>
+                  <tr key={idx} className="border-b border-[#232328] last:border-0">
+                    <td className="px-4 py-2 text-[#F0EDE8]">{est.covariate}</td>
                     <td className={cn(
                       "px-4 py-2 font-mono font-semibold",
-                      num(est.irr) > 1 ? "text-critical" : num(est.irr) < 1 ? "text-success" : "text-text-primary",
+                      num(est.irr) > 1 ? "text-[#E85A6B]" : num(est.irr) < 1 ? "text-[#2DD4BF]" : "text-[#F0EDE8]",
                     )}>
                       {fmt(est.irr)}
                     </td>
-                    <td className="px-4 py-2 font-mono text-text-muted">{fmt(est.ci_lower)}</td>
-                    <td className="px-4 py-2 font-mono text-text-muted">{fmt(est.ci_upper)}</td>
-                    <td className="px-4 py-2 font-mono text-text-muted">{fmt(est.log_rr, 4)}</td>
-                    <td className="px-4 py-2 font-mono text-text-muted">{fmt(est.se_log_rr, 4)}</td>
+                    <td className="px-4 py-2 font-mono text-[#8A857D]">{fmt(est.ci_lower)}</td>
+                    <td className="px-4 py-2 font-mono text-[#8A857D]">{fmt(est.ci_upper)}</td>
+                    <td className="px-4 py-2 font-mono text-[#8A857D]">{fmt(est.log_rr, 4)}</td>
+                    <td className="px-4 py-2 font-mono text-[#8A857D]">{fmt(est.se_log_rr, 4)}</td>
                     <td className="px-4 py-2">
                       <InlineMiniForestPlot
                         irr={num(est.irr)}
@@ -211,8 +211,8 @@ function SccsResultsContent({
 
       {/* SCCS Era Timeline */}
       {result.eras && result.eras.length > 0 && (
-        <div className="rounded-lg border border-border-default bg-surface-raised p-4">
-          <h3 className="text-sm font-semibold text-text-primary mb-4">
+        <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+          <h3 className="text-sm font-semibold text-[#F0EDE8] mb-4">
             Risk Window Timeline
           </h3>
           <div className="flex justify-center">
@@ -223,7 +223,7 @@ function SccsResultsContent({
 
       {/* Execution Info */}
       {result.elapsed_seconds != null && (
-        <p className="text-xs text-text-ghost">
+        <p className="text-xs text-[#5A5650]">
           Completed in {fmt(result.elapsed_seconds, 1)}s
         </p>
       )}

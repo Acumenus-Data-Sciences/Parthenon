@@ -2,19 +2,19 @@ import { useConceptHierarchy } from "../../hooks/useConceptSearch";
 import type { ConceptSearchResult } from "../../types";
 
 const DOMAIN_BADGE_CLASSES: Record<string, string> = {
-  Condition: "bg-primary/20 text-primary border border-primary/30",
+  Condition: "bg-[#9B1B30]/20 text-[#9B1B30] border border-[#9B1B30]/30",
   Drug: "bg-teal-900/30 text-teal-400 border border-teal-500/30",
-  Measurement: "bg-yellow-900/30 text-accent border border-yellow-600/30",
+  Measurement: "bg-yellow-900/30 text-[#C9A227] border border-yellow-600/30",
   Procedure: "bg-blue-900/30 text-blue-400 border border-blue-500/30",
   Observation: "bg-purple-900/30 text-purple-400 border border-purple-500/30",
   Device: "bg-orange-900/30 text-orange-400 border border-orange-500/30",
-  Visit: "bg-zinc-700/50 text-zinc-300 border border-zinc-600/30",
+  Visit: "bg-surface-accent/50 text-zinc-300 border border-border-hover/30",
 };
 
 function domainBadgeClass(domain: string): string {
   return (
     DOMAIN_BADGE_CLASSES[domain] ??
-    "bg-zinc-700/50 text-zinc-400 border border-zinc-600/30"
+    "bg-surface-accent/50 text-zinc-400 border border-border-hover/30"
   );
 }
 
@@ -29,15 +29,15 @@ function ConceptNode({ concept, indent, variant }: ConceptNodeProps) {
 
   const rowClass =
     variant === "selected"
-      ? "border border-success/40 bg-success/5 rounded px-2 py-1.5"
+      ? "border border-[#2DD4BF]/40 bg-[#2DD4BF]/5 rounded px-2 py-1.5"
       : "py-1";
 
   return (
     <div className="flex items-start" style={{ paddingLeft: `${indentPx}px` }}>
       {indent > 0 && (
         <div className="mr-1.5 mt-2 shrink-0 flex flex-col items-center">
-          <div className="w-px h-2 bg-zinc-700" />
-          <div className="w-2 h-px bg-zinc-700" />
+          <div className="w-px h-2 bg-surface-accent" />
+          <div className="w-2 h-px bg-surface-accent" />
         </div>
       )}
       <div className={`flex-1 min-w-0 ${rowClass}`}>
@@ -59,7 +59,7 @@ function ConceptNode({ concept, indent, variant }: ConceptNodeProps) {
             {concept.domain_id}
           </span>
           {variant === "selected" && (
-            <span className="text-[10px] text-success font-semibold">
+            <span className="text-[10px] text-[#2DD4BF] font-semibold">
               (selected)
             </span>
           )}
@@ -80,7 +80,7 @@ export function ConceptTree({ conceptId, conceptName }: ConceptTreeProps) {
   if (isLoading) {
     return (
       <div className="flex items-center gap-2 text-xs text-zinc-500 py-2">
-        <div className="h-3 w-3 animate-spin rounded-full border-2 border-zinc-600 border-t-success" />
+        <div className="h-3 w-3 animate-spin rounded-full border-2 border-border-hover border-t-[#2DD4BF]" />
         Loading hierarchy…
       </div>
     );

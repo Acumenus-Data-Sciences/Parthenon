@@ -2,10 +2,10 @@ import { memo } from "react";
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 
 const DOMAIN_COLORS: Record<string, string> = {
-  Person: "var(--success)",
+  Person: "#2DD4BF",
   Visit: "#3B82F6",
-  Condition: "var(--accent)",
-  Drug: "var(--primary)",
+  Condition: "#C9A227",
+  Drug: "#9B1B30",
   Procedure: "#A855F7",
   Measurement: "#8B5CF6",
   Observation: "#F59E0B",

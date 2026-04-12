@@ -1,0 +1,47 @@
+{
+    "id": 10,
+    "name": "S10: Predict T2DM Progression from Prediabetes Baseline (LASSO)",
+    "description": "Patient-level prediction model estimating 5-year risk of Type 2 Diabetes Mellitus progression among prediabetes patients using LASSO logistic regression with demographics, conditions, drugs, and measurements.",
+    "design_json": {
+        "model": {
+            "type": "lasso_logistic_regression",
+            "hyperParameters": {
+                "variance": 0.01
+            }
+        },
+        "timeAtRisk": {
+            "end": 1825,
+            "start": 1,
+            "endAnchor": "cohort start"
+        },
+        "splitSettings": {
+            "splitSeed": 42,
+            "testFraction": 0.25
+        },
+        "targetCohortId": 156,
+        "outcomeCohortId": 158,
+        "covariateSettings": {
+            "timeWindows": [
+                {
+                    "end": 0,
+                    "start": -365
+                }
+            ],
+            "useMeasurement": true,
+            "useDemographics": true,
+            "useDrugExposure": true,
+            "useConditionOccurrence": true,
+            "useProcedureOccurrence": false
+        },
+        "populationSettings": {
+            "minTimeAtRisk": 365,
+            "washoutPeriod": 365,
+            "requireTimeAtRisk": true,
+            "removeSubjectsWithPriorOutcome": true
+        }
+    },
+    "author_id": 117,
+    "created_at": "2026-03-20T00:29:03.000000Z",
+    "updated_at": "2026-03-20T00:29:03.000000Z",
+    "deleted_at": null
+}

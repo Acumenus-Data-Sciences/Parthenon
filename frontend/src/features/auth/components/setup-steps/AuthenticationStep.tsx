@@ -124,23 +124,23 @@ function ProviderCard({
   };
 
   return (
-    <div className="rounded-lg border border-border-default bg-surface-overlay overflow-hidden">
+    <div className="rounded-lg border border-[#232328] bg-[#1A1A1E] overflow-hidden">
       {/* Card header */}
       <div className="flex items-center justify-between px-5 py-4">
         <div className="flex items-center gap-3">
-          <div className={cn("flex h-9 w-9 items-center justify-center rounded-lg bg-surface-elevated", meta.color)}>
+          <div className={cn("flex h-9 w-9 items-center justify-center rounded-lg bg-[#232328]", meta.color)}>
             <Icon className="h-5 w-5" />
           </div>
           <div>
-            <p className="font-medium text-text-primary">{meta.label}</p>
-            <p className="text-xs text-text-muted">{meta.description}</p>
+            <p className="font-medium text-[#F0EDE8]">{meta.label}</p>
+            <p className="text-xs text-[#8A857D]">{meta.description}</p>
           </div>
         </div>
 
         <div className="flex items-center gap-3 shrink-0 ml-4">
           {/* Toggle */}
           <label className="flex cursor-pointer items-center gap-2">
-            <span className="text-xs text-text-muted">
+            <span className="text-xs text-[#8A857D]">
               {provider.is_enabled ? "Enabled" : "Disabled"}
             </span>
             <div className="relative">
@@ -153,7 +153,7 @@ function ProviderCard({
               <div
                 className={cn(
                   "h-5 w-9 rounded-full transition-colors",
-                  provider.is_enabled ? "bg-accent" : "bg-surface-highlight",
+                  provider.is_enabled ? "bg-[#C9A227]" : "bg-[#323238]",
                 )}
               />
               <div
@@ -168,7 +168,7 @@ function ProviderCard({
           {/* Configure expand */}
           <button
             onClick={() => setOpen((o) => !o)}
-            className="flex items-center gap-1 rounded-md border border-border-default px-3 py-1.5 text-xs font-medium text-text-muted hover:bg-surface-elevated"
+            className="flex items-center gap-1 rounded-md border border-[#232328] px-3 py-1.5 text-xs font-medium text-[#8A857D] hover:bg-[#232328]"
           >
             Configure {open ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
           </button>
@@ -177,7 +177,7 @@ function ProviderCard({
 
       {/* Collapsible config */}
       {open && (
-        <div className="border-t border-border-default px-5 pb-5 pt-4">
+        <div className="border-t border-[#232328] px-5 pb-5 pt-4">
           <ConfigForm
             settings={provider.settings}
             onSave={handleSave}
@@ -187,11 +187,11 @@ function ProviderCard({
 
           {/* Test connection (LDAP, OIDC only) */}
           {["ldap", "oidc"].includes(provider.provider_type) && (
-            <div className="mt-4 border-t border-border-default pt-4">
+            <div className="mt-4 border-t border-[#232328] pt-4">
               <button
                 onClick={handleTest}
                 disabled={test.isPending}
-                className="flex items-center gap-2 rounded-md border border-border-default px-3 py-1.5 text-sm text-text-muted hover:bg-surface-elevated disabled:opacity-50"
+                className="flex items-center gap-2 rounded-md border border-[#232328] px-3 py-1.5 text-sm text-[#8A857D] hover:bg-[#232328] disabled:opacity-50"
               >
                 {test.isPending ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -237,8 +237,8 @@ export function AuthenticationStep({ onConfigured }: Props) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-6 w-6 animate-spin text-accent" />
-        <span className="ml-2 text-sm text-text-muted">Loading auth providers...</span>
+        <Loader2 className="h-6 w-6 animate-spin text-[#C9A227]" />
+        <span className="ml-2 text-sm text-[#8A857D]">Loading auth providers...</span>
       </div>
     );
   }
@@ -246,21 +246,21 @@ export function AuthenticationStep({ onConfigured }: Props) {
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-lg font-semibold text-text-primary">Authentication Providers</h3>
-        <p className="text-sm text-text-muted">
+        <h3 className="text-lg font-semibold text-[#F0EDE8]">Authentication Providers</h3>
+        <p className="text-sm text-[#8A857D]">
           Configure external identity providers for single sign-on. This step is optional —
           local username/password authentication is always available.
         </p>
       </div>
 
       {/* Built-in auth banner */}
-      <div className="flex items-center gap-3 rounded-lg border border-border-default bg-surface-overlay px-5 py-4 opacity-70">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-surface-elevated text-accent">
+      <div className="flex items-center gap-3 rounded-lg border border-[#232328] bg-[#1A1A1E] px-5 py-4 opacity-70">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#232328] text-[#C9A227]">
           <Fingerprint className="h-5 w-5" />
         </div>
         <div className="flex-1">
-          <p className="font-medium text-text-primary">Username & Password</p>
-          <p className="text-xs text-text-muted">
+          <p className="font-medium text-[#F0EDE8]">Username & Password</p>
+          <p className="text-xs text-[#8A857D]">
             Built-in Sanctum authentication — always active.
           </p>
         </div>

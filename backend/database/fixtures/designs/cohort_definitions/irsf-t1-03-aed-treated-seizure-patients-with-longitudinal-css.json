@@ -1,0 +1,264 @@
+{
+    "id": 200,
+    "name": "IRSF T1-03: AED-Treated Seizure Patients with Longitudinal CSS",
+    "description": "Patients on anticonvulsants with seizure diagnosis and 2+ CSS assessments. N~484. Gold standard for AED comparative effectiveness research.",
+    "expression_json": {
+        "ConceptSets": [
+            {
+                "id": 0,
+                "name": "CSS Total Score",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 2000001000,
+                                "CONCEPT_NAME": "CSS Total Score",
+                                "VOCABULARY_ID": "IRSF-NHS",
+                                "CONCEPT_CLASS_ID": "Clinical Observation",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 1,
+                "name": "Seizure\/Epilepsy (IRSF)",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Observation",
+                                "CONCEPT_ID": 2000002018,
+                                "CONCEPT_NAME": "IRSF MBA Seizures",
+                                "VOCABULARY_ID": "IRSF-NHS",
+                                "CONCEPT_CLASS_ID": "Clinical Observation",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 2000001013,
+                                "CONCEPT_NAME": "IRSF CSS Epilepsy\/Seizures",
+                                "VOCABULARY_ID": "IRSF-NHS",
+                                "CONCEPT_CLASS_ID": "Clinical Observation",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 2,
+                "name": "Antiepileptic Drugs (AEDs)",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 19099447,
+                                "CONCEPT_NAME": "Keppra",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Brand Name",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 19038928,
+                                "CONCEPT_NAME": "Lamictal",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Brand Name",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 19100210,
+                                "CONCEPT_NAME": "Trileptal",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Brand Name",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 798874,
+                                "CONCEPT_NAME": "clonazepam",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 19061077,
+                                "CONCEPT_NAME": "Depakote",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Brand Name",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 19082966,
+                                "CONCEPT_NAME": "Topamax",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Brand Name",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 19061845,
+                                "CONCEPT_NAME": "Diastat",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Brand Name",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 723013,
+                                "CONCEPT_NAME": "diazepam",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            }
+        ],
+        "InclusionRules": [],
+        "QualifiedLimit": {
+            "Type": "First"
+        },
+        "ExpressionLimit": {
+            "Type": "First"
+        },
+        "PrimaryCriteria": {
+            "CriteriaList": [
+                {
+                    "Measurement": {
+                        "CodesetId": 0
+                    }
+                }
+            ],
+            "ObservationWindow": {
+                "PostDays": 0,
+                "PriorDays": 0
+            }
+        },
+        "CollapseSettings": {
+            "EraPad": 0,
+            "CollapseType": "ERA"
+        },
+        "CensoringCriteria": [],
+        "AdditionalCriteria": {
+            "Type": "ALL",
+            "Groups": [],
+            "CriteriaList": [
+                {
+                    "Criteria": {
+                        "Observation": {
+                            "CodesetId": 1
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 1
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 99999,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 99999,
+                            "Coeff": -1
+                        }
+                    }
+                },
+                {
+                    "Criteria": {
+                        "DrugExposure": {
+                            "CodesetId": 2
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 1
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 99999,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 99999,
+                            "Coeff": -1
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-03-26T20:46:03.000000Z",
+    "updated_at": "2026-03-26T20:46:03.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "IRSF-NHS",
+        "Tier 1",
+        "Clinical Trial",
+        "Treatment",
+        "Seizure"
+    ],
+    "share_token": null,
+    "share_expires_at": null
+}

@@ -52,7 +52,7 @@ function renderSortableHeader({
   return (
     <th
       className={cn(
-        "px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-text-muted cursor-pointer hover:text-text-secondary transition-colors select-none",
+        "px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-[#8A857D] cursor-pointer hover:text-[#C5C0B8] transition-colors select-none",
         className,
       )}
       onClick={() => onSort(field)}
@@ -62,7 +62,7 @@ function renderSortableHeader({
         <ArrowUpDown
           size={10}
           className={
-            sortField === field ? "text-success" : "text-text-ghost"
+            sortField === field ? "text-[#2DD4BF]" : "text-[#5A5650]"
           }
         />
       </span>
@@ -275,7 +275,7 @@ export function FeatureComparisonTable({
       <div className="relative">
         <Search
           size={14}
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost"
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
         />
         <input
           type="text"
@@ -283,19 +283,19 @@ export function FeatureComparisonTable({
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Filter features..."
           className={cn(
-            "w-full rounded-lg border border-border-default bg-surface-base pl-9 pr-3 py-2 text-sm",
-            "text-text-primary placeholder:text-text-ghost",
-            "focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
+            "w-full rounded-lg border border-[#232328] bg-[#0E0E11] pl-9 pr-3 py-2 text-sm",
+            "text-[#F0EDE8] placeholder:text-[#5A5650]",
+            "focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
           )}
         />
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
+      <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
         <div className="max-h-[600px] overflow-auto">
           <table className="w-full">
             <thead className="sticky top-0 z-10">
-              <tr className="bg-surface-overlay">
+              <tr className="bg-[#1C1C20]">
                 {renderSortableHeader({
                   field: "feature_name",
                   label: "Feature Name",
@@ -362,7 +362,7 @@ export function FeatureComparisonTable({
                 <tr>
                   <td
                     colSpan={colSpan}
-                    className="px-4 py-8 text-center text-sm text-text-ghost"
+                    className="px-4 py-8 text-center text-sm text-[#5A5650]"
                   >
                     No features found
                   </td>
@@ -373,7 +373,7 @@ export function FeatureComparisonTable({
         </div>
       </div>
 
-      <p className="text-[10px] text-text-ghost">
+      <p className="text-[10px] text-[#5A5650]">
         Showing {filteredAndSorted.length} of {mergedRows.length} features
         {" across "}
         {domainGroups.length} domains
@@ -405,7 +405,7 @@ function DomainGroupRows({
     <>
       {/* Domain header row */}
       <tr
-        className="bg-surface-overlay cursor-pointer hover:bg-border-subtle transition-colors"
+        className="bg-[#1A1A1E] cursor-pointer hover:bg-[#1E1E24] transition-colors"
         onClick={onToggle}
         data-testid={`domain-group-${group.domain}`}
       >
@@ -416,14 +416,14 @@ function DomainGroupRows({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               {isCollapsed ? (
-                <ChevronRight size={14} className="text-text-ghost" />
+                <ChevronRight size={14} className="text-[#5A5650]" />
               ) : (
-                <ChevronDown size={14} className="text-text-ghost" />
+                <ChevronDown size={14} className="text-[#5A5650]" />
               )}
-              <span className="text-xs font-semibold text-text-secondary">
+              <span className="text-xs font-semibold text-[#C5C0B8]">
                 {group.domain}
               </span>
-              <span className="text-[10px] text-text-ghost">
+              <span className="text-[10px] text-[#5A5650]">
                 ({group.rows.length} covariates)
               </span>
             </div>
@@ -432,10 +432,10 @@ function DomainGroupRows({
                 className={cn(
                   "font-['IBM_Plex_Mono',monospace] text-[11px] font-medium",
                   group.meanAbsSmd > 0.2
-                    ? "text-critical"
+                    ? "text-[#E85A6B]"
                     : group.meanAbsSmd > 0.1
-                      ? "text-warning"
-                      : "text-text-secondary",
+                      ? "text-[#F59E0B]"
+                      : "text-[#C5C0B8]",
                 )}
               >
                 Mean |SMD|: {fmt(group.meanAbsSmd)}
@@ -451,47 +451,47 @@ function DomainGroupRows({
           <tr
             key={row.feature_name}
             className={cn(
-              "border-t border-surface-overlay transition-colors",
-              i % 2 === 0 ? "bg-surface-raised" : "bg-surface-overlay",
+              "border-t border-[#1C1C20] transition-colors",
+              i % 2 === 0 ? "bg-[#151518]" : "bg-[#1A1A1E]",
             )}
           >
-            <td className="px-4 py-2.5 text-sm text-text-primary pl-10">
+            <td className="px-4 py-2.5 text-sm text-[#F0EDE8] pl-10">
               {row.feature_name}
             </td>
-            <td className="px-4 py-2.5 text-right font-['IBM_Plex_Mono',monospace] text-sm text-text-secondary">
+            <td className="px-4 py-2.5 text-right font-['IBM_Plex_Mono',monospace] text-sm text-[#C5C0B8]">
               {row.target_count.toLocaleString()}
             </td>
             <td className="px-4 py-2.5 text-right">
               <div className="flex items-center justify-end gap-2">
-                <div className="w-16 h-1.5 rounded-full bg-surface-elevated overflow-hidden">
+                <div className="w-16 h-1.5 rounded-full bg-[#232328] overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-success"
+                    className="h-full rounded-full bg-[#2DD4BF]"
                     style={{
                       width: `${Math.min(row.target_percent, 100)}%`,
                     }}
                   />
                 </div>
-                <span className="font-['IBM_Plex_Mono',monospace] text-sm text-text-secondary w-14 text-right">
+                <span className="font-['IBM_Plex_Mono',monospace] text-sm text-[#C5C0B8] w-14 text-right">
                   {fmt(row.target_percent, 1)}%
                 </span>
               </div>
             </td>
             {hasComparator && (
               <>
-                <td className="px-4 py-2.5 text-right font-['IBM_Plex_Mono',monospace] text-sm text-text-secondary">
+                <td className="px-4 py-2.5 text-right font-['IBM_Plex_Mono',monospace] text-sm text-[#C5C0B8]">
                   {row.comparator_count.toLocaleString()}
                 </td>
                 <td className="px-4 py-2.5 text-right">
                   <div className="flex items-center justify-end gap-2">
-                    <div className="w-16 h-1.5 rounded-full bg-surface-elevated overflow-hidden">
+                    <div className="w-16 h-1.5 rounded-full bg-[#232328] overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-accent"
+                        className="h-full rounded-full bg-[#C9A227]"
                         style={{
                           width: `${Math.min(row.comparator_percent, 100)}%`,
                         }}
                       />
                     </div>
-                    <span className="font-['IBM_Plex_Mono',monospace] text-sm text-text-secondary w-14 text-right">
+                    <span className="font-['IBM_Plex_Mono',monospace] text-sm text-[#C5C0B8] w-14 text-right">
                       {fmt(row.comparator_percent, 1)}%
                     </span>
                   </div>
@@ -502,16 +502,16 @@ function DomainGroupRows({
                       className={cn(
                         "font-['IBM_Plex_Mono',monospace] text-sm font-medium",
                         row.smd > 0.2
-                          ? "text-critical"
+                          ? "text-[#E85A6B]"
                           : row.smd > 0.1
-                            ? "text-warning"
-                            : "text-text-secondary",
+                            ? "text-[#F59E0B]"
+                            : "text-[#C5C0B8]",
                       )}
                     >
                       {fmt(row.smd)}
                     </span>
                   ) : (
-                    <span className="text-xs text-text-ghost">--</span>
+                    <span className="text-xs text-[#5A5650]">--</span>
                   )}
                 </td>
               </>

@@ -21,8 +21,8 @@ function UserBubble() {
     );
   }
   return (
-    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-surface-overlay">
-      <User size={12} className="text-text-muted" />
+    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#1A1A1E]">
+      <User size={12} className="text-[#8A857D]" />
     </div>
   );
 }
@@ -84,10 +84,10 @@ export function WikiChatPanel({
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col border-t border-border-default bg-surface-raised">
+    <div className="flex min-h-0 flex-1 flex-col border-t border-[#232328] bg-[#151518]">
       {/* Messages — scrolls within the space the parent allocates */}
       {messages.length > 0 && (
-        <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto border-b border-border-default px-5 py-3">
+        <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto border-b border-[#232328] px-5 py-3">
           <div ref={contentRef} className="space-y-3">
             {messages.map((msg, idx) => {
               const isStreamingMsg = loading && msg.role === "assistant" && idx === messages.length - 1;
@@ -99,7 +99,7 @@ export function WikiChatPanel({
                     </div>
                   ) : isStreamingMsg ? (
                     <div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center">
-                      <Loader2 size={16} className="animate-spin text-success" />
+                      <Loader2 size={16} className="animate-spin text-[#2DD4BF]" />
                     </div>
                   ) : (
                     <div className="mt-0.5 flex-shrink-0">
@@ -108,19 +108,19 @@ export function WikiChatPanel({
                   )}
                   <div className="min-w-0 flex-1">
                     {msg.role === "user" ? (
-                      <p className="text-sm text-text-primary">{msg.content}</p>
+                      <p className="text-sm text-[#F0EDE8]">{msg.content}</p>
                     ) : msg.content ? (
-                      <div className="text-sm text-text-secondary">
+                      <div className="text-sm text-[#C5C0B8]">
                         <MarkdownRenderer markdown={msg.content} onNavigate={onNavigate} />
                       </div>
                     ) : isStreamingMsg ? (
-                      <p className="text-sm text-text-ghost">Generating response...</p>
+                      <p className="text-sm text-[#5A5650]">Generating response...</p>
                     ) : null}
                     {msg.citations && msg.citations.length > 0 && (
                       <div className="mt-1.5 flex flex-wrap gap-1">
                         {msg.citations.map((c) => (
                           <button key={c.slug} type="button" onClick={() => onNavigate(c.slug)}
-                            className="rounded border border-border-default bg-surface-overlay px-2 py-0.5 text-[10px] text-text-muted transition-colors hover:border-success/30 hover:text-success"
+                            className="rounded border border-[#232328] bg-[#1A1A1E] px-2 py-0.5 text-[10px] text-[#8A857D] transition-colors hover:border-[#2DD4BF]/30 hover:text-[#2DD4BF]"
                           >
                             {c.title.slice(0, 40)}
                           </button>
@@ -146,10 +146,10 @@ export function WikiChatPanel({
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={currentPageTitle ? `Ask about "${currentPageTitle.slice(0, 40)}"...` : "Ask the knowledge base..."}
-            className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost outline-none transition-colors focus:border-success focus:ring-1 focus:ring-success/40"
+            className="w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm text-[#F0EDE8] placeholder:text-[#5A5650] outline-none transition-colors focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40"
           />
           {currentPageTitle && (
-            <p className="mt-1 pl-1 text-[10px] text-text-ghost">
+            <p className="mt-1 pl-1 text-[10px] text-[#5A5650]">
               Abby is scoped to this paper and its related wiki pages.
             </p>
           )}
@@ -158,7 +158,7 @@ export function WikiChatPanel({
           <button
             type="button"
             onClick={onExpandChat}
-            className="rounded-lg border border-border-default bg-surface-raised p-2 text-text-muted transition-colors hover:text-success"
+            className="rounded-lg border border-[#232328] bg-[#151518] p-2 text-[#8A857D] transition-colors hover:text-[#2DD4BF]"
             title="Expand chat"
           >
             <Maximize2 size={14} />
@@ -168,7 +168,7 @@ export function WikiChatPanel({
           type="button"
           onClick={handleSubmit}
           disabled={loading || input.trim().length < 3}
-          className="flex items-center justify-center rounded-lg bg-success px-3 py-2 text-surface-base transition-colors hover:bg-success disabled:opacity-50"
+          className="flex items-center justify-center rounded-lg bg-[#2DD4BF] px-3 py-2 text-[#0E0E11] transition-colors hover:bg-[#26B8A5] disabled:opacity-50"
         >
           <Send size={16} />
         </button>

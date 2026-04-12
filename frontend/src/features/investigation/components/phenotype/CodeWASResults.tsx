@@ -51,7 +51,7 @@ export function CodeWASResults({ result, onPinFinding }: CodeWASResultsProps) {
           {summaryEntries.map(([key, val]) => (
             <div
               key={key}
-              className="flex flex-col gap-0.5 px-3 py-2 rounded border border-zinc-700/50 bg-zinc-800/40 min-w-[90px]"
+              className="flex flex-col gap-0.5 px-3 py-2 rounded border border-border-default/50 bg-surface-raised/40 min-w-[90px]"
             >
               <span className="text-[10px] text-zinc-500 uppercase tracking-wide">
                 {key.replace(/_/g, " ")}
@@ -89,15 +89,15 @@ export function CodeWASResults({ result, onPinFinding }: CodeWASResultsProps) {
           </p>
 
           {/* Recharts horizontal bar chart */}
-          <div className="rounded border border-zinc-700/50 bg-zinc-800/20 px-3 py-3">
+          <div className="rounded border border-border-default/50 bg-surface-raised/20 px-3 py-3">
             <SignalsBarChart signals={result.top_signals} maxSignals={20} />
           </div>
 
           {/* Pin table — detail rows below the chart */}
-          <div className="rounded border border-zinc-700/50 overflow-hidden">
+          <div className="rounded border border-border-default/50 overflow-hidden">
             <table className="w-full text-xs">
               <thead>
-                <tr className="border-b border-zinc-700/50 bg-zinc-800/60">
+                <tr className="border-b border-border-default/50 bg-surface-raised/60">
                   <th className="text-left px-3 py-2 text-zinc-500 font-medium">
                     Label
                   </th>
@@ -111,7 +111,7 @@ export function CodeWASResults({ result, onPinFinding }: CodeWASResultsProps) {
                 {result.top_signals.map((signal, i) => (
                   <tr
                     key={i}
-                    className="border-b border-zinc-700/30 last:border-0 hover:bg-zinc-800/30 transition-colors"
+                    className="border-b border-border-default/30 last:border-0 hover:bg-surface-raised/30 transition-colors"
                   >
                     <td className="px-3 py-2 text-zinc-200">{signal.label}</td>
                     <td className="px-3 py-2 text-zinc-300 text-right tabular-nums">
@@ -121,7 +121,7 @@ export function CodeWASResults({ result, onPinFinding }: CodeWASResultsProps) {
                       <button
                         onClick={() => handlePin(signal.label, signal.count)}
                         title="Pin to dossier"
-                        className="text-[10px] px-2 py-0.5 rounded border border-zinc-600 text-zinc-400 hover:border-accent/50 hover:text-accent transition-colors"
+                        className="text-[10px] px-2 py-0.5 rounded border border-border-hover text-zinc-400 hover:border-[#C9A227]/50 hover:text-[#C9A227] transition-colors"
                       >
                         Pin
                       </button>
@@ -136,7 +136,7 @@ export function CodeWASResults({ result, onPinFinding }: CodeWASResultsProps) {
 
       {/* Forest plot — D3 dark-themed */}
       {forestData.length > 0 && (
-        <div className="rounded border border-zinc-700/50 bg-zinc-800/20 px-4 py-4">
+        <div className="rounded border border-border-default/50 bg-surface-raised/20 px-4 py-4">
           <ForestPlotWrapper
             data={forestData}
             title="Effect Estimates"
@@ -145,7 +145,7 @@ export function CodeWASResults({ result, onPinFinding }: CodeWASResultsProps) {
       )}
 
       {/* Volcano plot placeholder */}
-      <div className="rounded border border-zinc-700/30 bg-zinc-800/20 px-4 py-3 text-xs text-zinc-500">
+      <div className="rounded border border-border-default/30 bg-surface-raised/20 px-4 py-3 text-xs text-zinc-500">
         Interactive volcano plot coming in a future update.
       </div>
     </div>

@@ -11,7 +11,7 @@ const DOMAIN_BADGE_STYLE: Record<EvidenceDomain, string> = {
   phenotype: "bg-teal-900 text-teal-300",
   clinical: "bg-red-950 text-red-400",
   genomic: "bg-yellow-950 text-yellow-500",
-  synthesis: "bg-zinc-800 text-zinc-300",
+  synthesis: "bg-surface-raised text-zinc-300",
 };
 
 function extractPayloadSummary(payload: Record<string, unknown>): string {
@@ -26,7 +26,7 @@ export function PinCard({ pin, onDelete, onToggleKeyFinding }: PinCardProps) {
   const summary = extractPayloadSummary(pin.finding_payload);
 
   return (
-    <div className="flex items-start gap-2 p-2 rounded-lg bg-zinc-900 border border-zinc-800 group">
+    <div className="flex items-start gap-2 p-2 rounded-lg bg-surface-base border border-border-default group">
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5 mb-1">
           <span
@@ -44,7 +44,7 @@ export function PinCard({ pin, onDelete, onToggleKeyFinding }: PinCardProps) {
                 size={11}
                 className={
                   pin.is_key_finding
-                    ? "text-accent fill-accent"
+                    ? "text-[#C9A227] fill-[#C9A227]"
                     : "text-zinc-600 fill-none"
                 }
               />

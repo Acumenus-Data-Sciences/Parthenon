@@ -104,7 +104,7 @@ export default function PoseidonPage() {
   if (dashboardQuery.isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 size={20} className="animate-spin text-text-muted" />
+        <Loader2 size={20} className="animate-spin text-[#8A857D]" />
       </div>
     );
   }
@@ -120,7 +120,7 @@ export default function PoseidonPage() {
             <button
               type="button"
               onClick={() => dashboardQuery.refetch()}
-              className="mt-3 text-sm text-success hover:underline"
+              className="mt-3 text-sm text-[#2DD4BF] hover:underline"
             >
               Retry
             </button>
@@ -137,15 +137,15 @@ export default function PoseidonPage() {
       {/* Page header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-text-primary">Poseidon</h2>
-          <p className="mt-1 text-sm text-text-muted">
+          <h2 className="text-lg font-semibold text-[#F0EDE8]">Poseidon</h2>
+          <p className="mt-1 text-sm text-[#8A857D]">
             CDM refresh orchestration — incremental loads, dependency-aware execution, and per-source scheduling via dbt + Dagster
           </p>
         </div>
         <button
           type="button"
           onClick={() => dashboardQuery.refetch()}
-          className="inline-flex items-center gap-2 rounded-lg border border-surface-highlight px-3 py-2 text-sm text-text-secondary transition-colors hover:text-text-primary"
+          className="inline-flex items-center gap-2 rounded-lg border border-[#323238] px-3 py-2 text-sm text-[#C5C0B8] transition-colors hover:text-[#F0EDE8]"
         >
           <RefreshCw size={14} />
           Refresh
@@ -237,16 +237,16 @@ function SchedulesPanel({
           className="flex w-full items-center justify-between text-left"
         >
           <div className="flex items-center gap-2">
-            <Calendar size={16} className="text-accent" />
-            <span className="text-sm font-medium text-text-primary">
+            <Calendar size={16} className="text-[#C9A227]" />
+            <span className="text-sm font-medium text-[#F0EDE8]">
               Source Schedules
             </span>
             <Badge variant="inactive">{schedules.length}</Badge>
           </div>
           {expanded ? (
-            <ChevronUp size={16} className="text-text-muted" />
+            <ChevronUp size={16} className="text-[#8A857D]" />
           ) : (
-            <ChevronDown size={16} className="text-text-muted" />
+            <ChevronDown size={16} className="text-[#8A857D]" />
           )}
         </button>
       }
@@ -264,11 +264,11 @@ function SchedulesPanel({
               {schedules.map((schedule) => (
                 <div
                   key={schedule.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border-default bg-surface-base px-4 py-3"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[#232328] bg-[#101014] px-4 py-3"
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-text-primary">
+                      <span className="text-sm font-medium text-[#F0EDE8]">
                         {schedule.source?.source_name ?? `Source #${schedule.source_id}`}
                       </span>
                       <Badge
@@ -276,16 +276,16 @@ function SchedulesPanel({
                       >
                         {schedule.is_active ? "Active" : "Paused"}
                       </Badge>
-                      <span className="text-xs text-text-muted">
+                      <span className="text-xs text-[#8A857D]">
                         {SCHEDULE_TYPE_LABEL[schedule.schedule_type] ?? schedule.schedule_type}
                         {schedule.cron_expr && (
-                          <span className="ml-1 font-mono text-accent">
+                          <span className="ml-1 font-mono text-[#C9A227]">
                             {schedule.cron_expr}
                           </span>
                         )}
                       </span>
                     </div>
-                    <div className="mt-1 flex items-center gap-4 text-xs text-text-muted">
+                    <div className="mt-1 flex items-center gap-4 text-xs text-[#8A857D]">
                       <span>
                         Last run: {formatDateTime(schedule.last_run_at)}
                       </span>
@@ -309,7 +309,7 @@ function SchedulesPanel({
                         })
                       }
                       disabled={updateMutation.isPending}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-surface-highlight px-3 py-1.5 text-xs text-text-secondary transition-colors hover:text-text-primary"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-[#323238] px-3 py-1.5 text-xs text-[#C5C0B8] transition-colors hover:text-[#F0EDE8]"
                       title={schedule.is_active ? "Pause schedule" : "Activate schedule"}
                     >
                       {schedule.is_active ? (
@@ -329,7 +329,7 @@ function SchedulesPanel({
                         })
                       }
                       disabled={triggerMutation.isPending || activeRuns > 0}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-success px-3 py-1.5 text-xs font-medium text-surface-base transition-colors hover:bg-success disabled:cursor-not-allowed disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-[#2DD4BF] px-3 py-1.5 text-xs font-medium text-[#0E0E11] transition-colors hover:bg-[#26BCA8] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {triggerMutation.isPending ? (
                         <Loader2 size={12} className="animate-spin" />
@@ -365,16 +365,16 @@ function RecentRunsPanel({ runs }: { runs: PoseidonRun[] }) {
           className="flex w-full items-center justify-between text-left"
         >
           <div className="flex items-center gap-2">
-            <Activity size={16} className="text-success" />
-            <span className="text-sm font-medium text-text-primary">
+            <Activity size={16} className="text-[#2DD4BF]" />
+            <span className="text-sm font-medium text-[#F0EDE8]">
               Recent Runs
             </span>
             <Badge variant="inactive">{runs.length}</Badge>
           </div>
           {expanded ? (
-            <ChevronUp size={16} className="text-text-muted" />
+            <ChevronUp size={16} className="text-[#8A857D]" />
           ) : (
-            <ChevronDown size={16} className="text-text-muted" />
+            <ChevronDown size={16} className="text-[#8A857D]" />
           )}
         </button>
       }
@@ -390,29 +390,29 @@ function RecentRunsPanel({ runs }: { runs: PoseidonRun[] }) {
           ) : (
             <div className="space-y-0">
               {/* Table */}
-              <div className="overflow-hidden rounded-lg border border-border-default">
+              <div className="overflow-hidden rounded-lg border border-[#232328]">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-border-default bg-surface-raised">
-                      <th className="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-text-muted">
+                    <tr className="border-b border-[#232328] bg-[#151518]">
+                      <th className="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-[#8A857D]">
                         Source
                       </th>
-                      <th className="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-text-muted">
+                      <th className="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-[#8A857D]">
                         Type
                       </th>
-                      <th className="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-text-muted">
+                      <th className="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-[#8A857D]">
                         Status
                       </th>
-                      <th className="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-text-muted">
+                      <th className="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-[#8A857D]">
                         Trigger
                       </th>
-                      <th className="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-text-muted">
+                      <th className="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-[#8A857D]">
                         Duration
                       </th>
-                      <th className="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-text-muted">
+                      <th className="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-[#8A857D]">
                         Started
                       </th>
-                      <th className="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-text-muted">
+                      <th className="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider text-[#8A857D]">
                         Actions
                       </th>
                     </tr>
@@ -427,29 +427,29 @@ function RecentRunsPanel({ runs }: { runs: PoseidonRun[] }) {
                           )
                         }
                         className={cn(
-                          "cursor-pointer border-b border-border-default transition-colors",
+                          "cursor-pointer border-b border-[#232328] transition-colors",
                           selectedRun?.id === run.id
-                            ? "bg-surface-raised"
-                            : "bg-surface-base hover:bg-sidebar-bg",
+                            ? "bg-[#17171B]"
+                            : "bg-[#0E0E11] hover:bg-[#131316]",
                           isRunActive(run) && "animate-pulse",
                         )}
                       >
-                        <td className="px-4 py-2.5 text-sm text-text-primary">
+                        <td className="px-4 py-2.5 text-sm text-[#F0EDE8]">
                           {run.source?.source_name ?? "—"}
                         </td>
-                        <td className="px-4 py-2.5 text-sm text-text-secondary">
+                        <td className="px-4 py-2.5 text-sm text-[#C5C0B8]">
                           {formatRunType(run.run_type)}
                         </td>
                         <td className="px-4 py-2.5">
                           {runStatusBadge(run.status)}
                         </td>
-                        <td className="px-4 py-2.5 text-xs text-text-muted">
+                        <td className="px-4 py-2.5 text-xs text-[#8A857D]">
                           {run.triggered_by}
                         </td>
-                        <td className="px-4 py-2.5 text-right font-mono text-sm text-text-muted">
+                        <td className="px-4 py-2.5 text-right font-mono text-sm text-[#8A857D]">
                           {formatDuration(run.started_at, run.completed_at)}
                         </td>
-                        <td className="px-4 py-2.5 text-sm text-text-muted">
+                        <td className="px-4 py-2.5 text-sm text-[#8A857D]">
                           {formatDateTime(run.started_at)}
                         </td>
                         <td className="px-4 py-2.5 text-right">
@@ -461,7 +461,7 @@ function RecentRunsPanel({ runs }: { runs: PoseidonRun[] }) {
                                 cancelMutation.mutate(run.id);
                               }}
                               disabled={cancelMutation.isPending}
-                              className="text-xs text-primary hover:text-critical hover:underline"
+                              className="text-xs text-[#9B1B30] hover:text-[#C52240] hover:underline"
                             >
                               Cancel
                             </button>
@@ -489,11 +489,11 @@ function RunDetailInline({ run }: { run: PoseidonRun }) {
   const stats = run.stats;
 
   return (
-    <div className="mt-3 rounded-lg border border-border-default bg-sidebar-bg p-4">
+    <div className="mt-3 rounded-lg border border-[#232328] bg-[#131316] p-4">
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-medium text-text-primary">
+        <h4 className="text-sm font-medium text-[#F0EDE8]">
           Run #{run.id}
-          <span className="ml-2 font-mono text-xs text-text-muted">
+          <span className="ml-2 font-mono text-xs text-[#8A857D]">
             {run.dagster_run_id}
           </span>
         </h4>
@@ -556,9 +556,9 @@ function RunDetailInline({ run }: { run: PoseidonRun }) {
       )}
 
       {run.error_message && (
-        <div className="mt-3 rounded-md border border-primary/30 bg-surface-base px-3 py-2">
-          <div className="text-xs font-medium text-primary">Error</div>
-          <pre className="mt-1 overflow-x-auto whitespace-pre-wrap text-xs text-text-secondary">
+        <div className="mt-3 rounded-md border border-[#9B1B30]/30 bg-[#1A1114] px-3 py-2">
+          <div className="text-xs font-medium text-[#9B1B30]">Error</div>
+          <pre className="mt-1 overflow-x-auto whitespace-pre-wrap text-xs text-[#C5C0B8]">
             {run.error_message}
           </pre>
         </div>
@@ -588,8 +588,8 @@ function FreshnessPanel({
           className="flex w-full items-center justify-between text-left"
         >
           <div className="flex items-center gap-2">
-            <Clock size={16} className="text-accent" />
-            <span className="text-sm font-medium text-text-primary">
+            <Clock size={16} className="text-[#C9A227]" />
+            <span className="text-sm font-medium text-[#F0EDE8]">
               CDM Freshness
             </span>
             {entries.length > 0 && (
@@ -597,9 +597,9 @@ function FreshnessPanel({
             )}
           </div>
           {expanded ? (
-            <ChevronUp size={16} className="text-text-muted" />
+            <ChevronUp size={16} className="text-[#8A857D]" />
           ) : (
-            <ChevronDown size={16} className="text-text-muted" />
+            <ChevronDown size={16} className="text-[#8A857D]" />
           )}
         </button>
       }
@@ -607,7 +607,7 @@ function FreshnessPanel({
       {expanded && (
         <>
           {isLoading ? (
-            <div className="flex items-center gap-2 py-4 text-sm text-text-muted">
+            <div className="flex items-center gap-2 py-4 text-sm text-[#8A857D]">
               <Loader2 size={14} className="animate-spin" />
               Loading freshness data from Dagster...
             </div>
@@ -630,17 +630,17 @@ function FreshnessPanel({
                     className={cn(
                       "flex items-center justify-between rounded-lg border px-3 py-2",
                       isStale
-                        ? "border-accent/30 bg-surface-overlay"
-                        : "border-border-default bg-surface-base",
+                        ? "border-[#C9A227]/30 bg-[#1A1710]"
+                        : "border-[#232328] bg-[#101014]",
                     )}
                   >
-                    <span className="text-sm text-text-primary">
+                    <span className="text-sm text-[#F0EDE8]">
                       {entry.table}
                     </span>
                     <span
                       className={cn(
                         "text-xs",
-                        isStale ? "text-accent" : "text-text-muted",
+                        isStale ? "text-[#C9A227]" : "text-[#8A857D]",
                       )}
                     >
                       {entry.last_materialized
@@ -682,8 +682,8 @@ function LineagePanel({
           className="flex w-full items-center justify-between text-left"
         >
           <div className="flex items-center gap-2">
-            <GitBranch size={16} className="text-success" />
-            <span className="text-sm font-medium text-text-primary">
+            <GitBranch size={16} className="text-[#2DD4BF]" />
+            <span className="text-sm font-medium text-[#F0EDE8]">
               Asset Lineage
             </span>
             {nodes.length > 0 && (
@@ -691,9 +691,9 @@ function LineagePanel({
             )}
           </div>
           {expanded ? (
-            <ChevronUp size={16} className="text-text-muted" />
+            <ChevronUp size={16} className="text-[#8A857D]" />
           ) : (
-            <ChevronDown size={16} className="text-text-muted" />
+            <ChevronDown size={16} className="text-[#8A857D]" />
           )}
         </button>
       }
@@ -701,7 +701,7 @@ function LineagePanel({
       {expanded && (
         <>
           {isLoading ? (
-            <div className="flex items-center gap-2 py-4 text-sm text-text-muted">
+            <div className="flex items-center gap-2 py-4 text-sm text-[#8A857D]">
               <Loader2 size={14} className="animate-spin" />
               Loading lineage from Dagster...
             </div>
@@ -715,20 +715,20 @@ function LineagePanel({
             <div className="space-y-4">
               {tiers.map(({ label, items }, tierIdx) => (
                 <div key={label}>
-                  <div className="mb-2 text-xs font-medium uppercase tracking-wider text-text-muted">
+                  <div className="mb-2 text-xs font-medium uppercase tracking-wider text-[#8A857D]">
                     {label}
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {items.map((node) => (
                       <div
                         key={node.key}
-                        className="rounded-md border border-border-default bg-surface-base px-3 py-1.5"
+                        className="rounded-md border border-[#232328] bg-[#101014] px-3 py-1.5"
                       >
-                        <div className="text-xs font-medium text-text-primary">
+                        <div className="text-xs font-medium text-[#F0EDE8]">
                           {node.key}
                         </div>
                         {node.dependencies.length > 0 && (
-                          <div className="mt-0.5 text-[10px] text-text-muted">
+                          <div className="mt-0.5 text-[10px] text-[#8A857D]">
                             depends on: {node.dependencies.join(", ")}
                           </div>
                         )}
@@ -736,7 +736,7 @@ function LineagePanel({
                     ))}
                   </div>
                   {tierIdx < tiers.length - 1 && (
-                    <div className="mt-3 flex justify-center text-surface-highlight">
+                    <div className="mt-3 flex justify-center text-[#323238]">
                       <ChevronDown size={16} />
                     </div>
                   )}

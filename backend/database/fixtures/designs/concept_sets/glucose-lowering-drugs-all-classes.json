@@ -1,0 +1,240 @@
+{
+    "id": 70,
+    "name": "Glucose-Lowering Drugs — All Classes",
+    "description": "All antidiabetic drug ingredients used as washout period exclusion criteria: insulins (regular, isophane, lispro), sulfonylureas (glipizide, glimepiride, glyburide), thiazolidinediones (pioglitazone, rosiglitazone), DPP-4 inhibitors (sitagliptin, saxagliptin), GLP-1 RAs (exenatide, liraglutide, semaglutide, dulaglutide), SGLT-2 inhibitors (empagliflozin, dapagliflozin, canagliflozin), glinides (repaglinide, nateglinide), acarbose.",
+    "expression_json": null,
+    "author_id": 117,
+    "is_public": true,
+    "tags": [
+        "antidiabetic",
+        "washout",
+        "glucose-lowering",
+        "insulin",
+        "sulfonylurea"
+    ],
+    "created_at": "2026-03-15T15:15:36.000000Z",
+    "updated_at": "2026-03-15T15:15:36.000000Z",
+    "deleted_at": null,
+    "items": [
+        {
+            "id": 430,
+            "concept_set_id": 70,
+            "concept_id": 1596977,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-19T23:51:25.000000Z",
+            "updated_at": "2026-03-19T23:51:25.000000Z"
+        },
+        {
+            "id": 431,
+            "concept_set_id": 70,
+            "concept_id": 46221581,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-19T23:51:25.000000Z",
+            "updated_at": "2026-03-19T23:51:25.000000Z"
+        },
+        {
+            "id": 432,
+            "concept_set_id": 70,
+            "concept_id": 1550023,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-19T23:51:25.000000Z",
+            "updated_at": "2026-03-19T23:51:25.000000Z"
+        },
+        {
+            "id": 433,
+            "concept_set_id": 70,
+            "concept_id": 1502905,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-19T23:51:25.000000Z",
+            "updated_at": "2026-03-19T23:51:25.000000Z"
+        },
+        {
+            "id": 434,
+            "concept_set_id": 70,
+            "concept_id": 35198096,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-19T23:51:25.000000Z",
+            "updated_at": "2026-03-19T23:51:25.000000Z"
+        },
+        {
+            "id": 435,
+            "concept_set_id": 70,
+            "concept_id": 1560171,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-19T23:51:25.000000Z",
+            "updated_at": "2026-03-19T23:51:25.000000Z"
+        },
+        {
+            "id": 436,
+            "concept_set_id": 70,
+            "concept_id": 1597756,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-19T23:51:25.000000Z",
+            "updated_at": "2026-03-19T23:51:25.000000Z"
+        },
+        {
+            "id": 437,
+            "concept_set_id": 70,
+            "concept_id": 1559684,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-19T23:51:25.000000Z",
+            "updated_at": "2026-03-19T23:51:25.000000Z"
+        },
+        {
+            "id": 438,
+            "concept_set_id": 70,
+            "concept_id": 1525215,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-19T23:51:25.000000Z",
+            "updated_at": "2026-03-19T23:51:25.000000Z"
+        },
+        {
+            "id": 439,
+            "concept_set_id": 70,
+            "concept_id": 1547504,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-19T23:51:25.000000Z",
+            "updated_at": "2026-03-19T23:51:25.000000Z"
+        },
+        {
+            "id": 440,
+            "concept_set_id": 70,
+            "concept_id": 1580747,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-19T23:51:25.000000Z",
+            "updated_at": "2026-03-19T23:51:25.000000Z"
+        },
+        {
+            "id": 441,
+            "concept_set_id": 70,
+            "concept_id": 40166035,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-19T23:51:25.000000Z",
+            "updated_at": "2026-03-19T23:51:25.000000Z"
+        },
+        {
+            "id": 442,
+            "concept_set_id": 70,
+            "concept_id": 1583722,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-19T23:51:25.000000Z",
+            "updated_at": "2026-03-19T23:51:25.000000Z"
+        },
+        {
+            "id": 443,
+            "concept_set_id": 70,
+            "concept_id": 40170911,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-19T23:51:25.000000Z",
+            "updated_at": "2026-03-19T23:51:25.000000Z"
+        },
+        {
+            "id": 444,
+            "concept_set_id": 70,
+            "concept_id": 793143,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-19T23:51:25.000000Z",
+            "updated_at": "2026-03-19T23:51:25.000000Z"
+        },
+        {
+            "id": 445,
+            "concept_set_id": 70,
+            "concept_id": 45774435,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-19T23:51:25.000000Z",
+            "updated_at": "2026-03-19T23:51:25.000000Z"
+        },
+        {
+            "id": 446,
+            "concept_set_id": 70,
+            "concept_id": 45774751,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-19T23:51:25.000000Z",
+            "updated_at": "2026-03-19T23:51:25.000000Z"
+        },
+        {
+            "id": 447,
+            "concept_set_id": 70,
+            "concept_id": 44785829,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-19T23:51:25.000000Z",
+            "updated_at": "2026-03-19T23:51:25.000000Z"
+        },
+        {
+            "id": 448,
+            "concept_set_id": 70,
+            "concept_id": 43526465,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-19T23:51:25.000000Z",
+            "updated_at": "2026-03-19T23:51:25.000000Z"
+        },
+        {
+            "id": 449,
+            "concept_set_id": 70,
+            "concept_id": 1516766,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-19T23:51:25.000000Z",
+            "updated_at": "2026-03-19T23:51:25.000000Z"
+        },
+        {
+            "id": 450,
+            "concept_set_id": 70,
+            "concept_id": 1502826,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-19T23:51:25.000000Z",
+            "updated_at": "2026-03-19T23:51:25.000000Z"
+        },
+        {
+            "id": 451,
+            "concept_set_id": 70,
+            "concept_id": 1529331,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-19T23:51:25.000000Z",
+            "updated_at": "2026-03-19T23:51:25.000000Z"
+        }
+    ]
+}

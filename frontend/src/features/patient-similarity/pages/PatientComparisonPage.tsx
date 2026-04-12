@@ -24,9 +24,9 @@ import type {
 // ── Helpers ──────────────────────────────────────────────────────────
 
 function getOverallScoreColor(score: number): string {
-  if (score >= 0.8) return "var(--success)";
-  if (score >= 0.5) return "var(--accent)";
-  return "var(--text-muted)";
+  if (score >= 0.8) return "#2DD4BF";
+  if (score >= 0.5) return "#C9A227";
+  return "#8A857D";
 }
 
 function formatGender(genderConceptId: number | null): string {
@@ -103,7 +103,7 @@ function ScoreBanner({
       : "Limited overlap found between these patients.";
 
   return (
-    <div className="rounded-lg border border-border-default bg-surface-raised p-5">
+    <div className="rounded-lg border border-[#232328] bg-[#151518] p-5">
       <div className="flex items-start justify-between">
         <div className="space-y-2 flex-1 min-w-0 mr-6">
           <div className="flex items-center gap-3">
@@ -117,7 +117,7 @@ function ScoreBanner({
               {scoreLabel(overall_score)} Similarity
             </span>
           </div>
-          <p className="text-sm text-text-secondary leading-relaxed">{narrative}</p>
+          <p className="text-sm text-[#C5C0B8] leading-relaxed">{narrative}</p>
         </div>
       </div>
     </div>
@@ -138,44 +138,44 @@ const DIMENSIONS: DimensionInfo[] = [
     key: "demographics",
     label: "Demographics",
     icon: <User size={14} />,
-    color: "var(--text-muted)",
+    color: "#8A857D",
   },
   {
     key: "conditions",
     label: "Conditions",
     icon: <Stethoscope size={14} />,
-    color: "var(--primary)",
+    color: "#9B1B30",
   },
   {
     key: "measurements",
     label: "Lab Values",
     icon: <Activity size={14} />,
-    color: "var(--accent)",
+    color: "#C9A227",
   },
   {
     key: "drugs",
     label: "Medications",
     icon: <Pill size={14} />,
-    color: "var(--success)",
+    color: "#2DD4BF",
   },
   {
     key: "procedures",
     label: "Procedures",
     icon: <FlaskConical size={14} />,
-    color: "var(--domain-observation)",
+    color: "#7C6CDB",
   },
   {
     key: "genomics",
     label: "Genomics",
     icon: <Dna size={14} />,
-    color: "var(--critical)",
+    color: "#E85A6B",
   },
 ];
 
 function DimensionScoresGrid({ scores }: { scores: DimensionScores }) {
   return (
-    <div className="rounded-lg border border-border-default bg-surface-raised p-4">
-      <h3 className="text-[10px] text-text-ghost uppercase tracking-wider font-semibold mb-3">
+    <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+      <h3 className="text-[10px] text-[#5A5650] uppercase tracking-wider font-semibold mb-3">
         Dimension Breakdown
       </h3>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -187,13 +187,13 @@ function DimensionScoresGrid({ scores }: { scores: DimensionScores }) {
               className={cn(
                 "rounded-lg border p-3 space-y-1.5",
                 score === null
-                  ? "border-surface-overlay bg-surface-base/50 opacity-50"
-                  : "border-border-default bg-surface-base",
+                  ? "border-[#1C1C20] bg-[#0E0E11]/50 opacity-50"
+                  : "border-[#232328] bg-[#0E0E11]",
               )}
             >
               <div className="flex items-center gap-1.5">
                 <span style={{ color }}>{icon}</span>
-                <span className="text-xs text-text-secondary font-medium">
+                <span className="text-xs text-[#C5C0B8] font-medium">
                   {label}
                 </span>
               </div>
@@ -250,38 +250,38 @@ function DemographicsComparison({
   ];
 
   return (
-    <div className="rounded-lg border border-border-default bg-surface-raised p-4">
-      <h3 className="text-[10px] text-text-ghost uppercase tracking-wider font-semibold mb-3">
+    <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+      <h3 className="text-[10px] text-[#5A5650] uppercase tracking-wider font-semibold mb-3">
         Patient Demographics
       </h3>
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-border-default">
-            <th className="py-1.5 text-left text-[10px] text-text-ghost uppercase tracking-wider font-semibold w-28" />
-            <th className="py-1.5 text-center text-[10px] text-text-ghost uppercase tracking-wider font-semibold">
+          <tr className="border-b border-[#232328]">
+            <th className="py-1.5 text-left text-[10px] text-[#5A5650] uppercase tracking-wider font-semibold w-28" />
+            <th className="py-1.5 text-center text-[10px] text-[#5A5650] uppercase tracking-wider font-semibold">
               Patient A (#{pA.person_id})
             </th>
             <th className="py-1.5 w-10" />
-            <th className="py-1.5 text-center text-[10px] text-text-ghost uppercase tracking-wider font-semibold">
+            <th className="py-1.5 text-center text-[10px] text-[#5A5650] uppercase tracking-wider font-semibold">
               Patient B (#{pB.person_id})
             </th>
           </tr>
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={row.label} className="border-b border-surface-overlay">
-              <td className="py-2 text-xs text-text-muted">{row.label}</td>
-              <td className="py-2 text-center text-xs text-text-secondary font-medium tabular-nums">
+            <tr key={row.label} className="border-b border-[#1C1C20]">
+              <td className="py-2 text-xs text-[#8A857D]">{row.label}</td>
+              <td className="py-2 text-center text-xs text-[#C5C0B8] font-medium tabular-nums">
                 {row.a}
               </td>
               <td className="py-2 text-center">
                 {row.match ? (
-                  <CheckCircle2 size={12} className="text-success mx-auto" />
+                  <CheckCircle2 size={12} className="text-[#2DD4BF] mx-auto" />
                 ) : (
-                  <XCircle size={12} className="text-text-ghost mx-auto" />
+                  <XCircle size={12} className="text-[#5A5650] mx-auto" />
                 )}
               </td>
-              <td className="py-2 text-center text-xs text-text-secondary font-medium tabular-nums">
+              <td className="py-2 text-center text-xs text-[#C5C0B8] font-medium tabular-nums">
                 {row.b}
               </td>
             </tr>
@@ -309,24 +309,24 @@ function SharedFeatureSection({
 }) {
   if (totalShared === 0) {
     return (
-      <div className="rounded-lg border border-surface-overlay bg-surface-base/50 p-4 opacity-60">
+      <div className="rounded-lg border border-[#1C1C20] bg-[#0E0E11]/50 p-4 opacity-60">
         <div className="flex items-center gap-2 mb-2">
           <span style={{ color: accentColor }}>{icon}</span>
-          <h4 className="text-xs text-text-ghost font-semibold uppercase tracking-wider">
+          <h4 className="text-xs text-[#5A5650] font-semibold uppercase tracking-wider">
             {title}
           </h4>
         </div>
-        <p className="text-xs text-text-ghost">No shared {title.toLowerCase()}</p>
+        <p className="text-xs text-[#5A5650]">No shared {title.toLowerCase()}</p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+    <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <span style={{ color: accentColor }}>{icon}</span>
-          <h4 className="text-xs text-text-ghost font-semibold uppercase tracking-wider">
+          <h4 className="text-xs text-[#5A5650] font-semibold uppercase tracking-wider">
             {title}
           </h4>
         </div>
@@ -344,7 +344,7 @@ function SharedFeatureSection({
         {items.map((concept) => (
           <span
             key={concept.concept_id}
-            className="inline-flex items-center rounded-md border px-2 py-1 text-xs text-text-secondary"
+            className="inline-flex items-center rounded-md border px-2 py-1 text-xs text-[#C5C0B8]"
             style={{ borderColor: `${accentColor}30`, backgroundColor: `${accentColor}08` }}
             title={`Concept ID: ${concept.concept_id}`}
           >
@@ -352,7 +352,7 @@ function SharedFeatureSection({
           </span>
         ))}
         {totalShared > items.length && (
-          <span className="inline-flex items-center text-[10px] text-text-ghost px-2 py-1">
+          <span className="inline-flex items-center text-[10px] text-[#5A5650] px-2 py-1">
             +{totalShared - items.length} more
           </span>
         )}
@@ -385,27 +385,27 @@ function UniqueFeaturesSummary({
       shared: sharedCond,
       uniqueA: uniqueACond,
       uniqueB: uniqueBCond,
-      color: "var(--primary)",
+      color: "#9B1B30",
     },
     {
       label: "Medications",
       shared: shared_features.drug_count,
       uniqueA: null,
       uniqueB: null,
-      color: "var(--success)",
+      color: "#2DD4BF",
     },
     {
       label: "Procedures",
       shared: shared_features.procedure_count,
       uniqueA: null,
       uniqueB: null,
-      color: "var(--domain-observation)",
+      color: "#7C6CDB",
     },
   ];
 
   return (
-    <div className="rounded-lg border border-border-default bg-surface-raised p-4">
-      <h3 className="text-[10px] text-text-ghost uppercase tracking-wider font-semibold mb-3">
+    <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+      <h3 className="text-[10px] text-[#5A5650] uppercase tracking-wider font-semibold mb-3">
         Feature Overlap
       </h3>
       <div className="space-y-2">
@@ -422,7 +422,7 @@ function UniqueFeaturesSummary({
           return (
             <div key={row.label} className="space-y-1">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-text-muted">{row.label}</span>
+                <span className="text-xs text-[#8A857D]">{row.label}</span>
                 <div className="flex items-center gap-2">
                   <span
                     className="text-xs font-medium tabular-nums"
@@ -431,20 +431,20 @@ function UniqueFeaturesSummary({
                     {row.shared} shared
                   </span>
                   {pct !== null && (
-                    <span className="text-[10px] text-text-ghost tabular-nums">
+                    <span className="text-[10px] text-[#5A5650] tabular-nums">
                       ({pct}% overlap)
                     </span>
                   )}
                 </div>
               </div>
               {total != null && total > 0 && (
-                <div className="flex h-1.5 rounded-full overflow-hidden bg-surface-overlay">
+                <div className="flex h-1.5 rounded-full overflow-hidden bg-[#1C1C20]">
                   {row.uniqueA != null && row.uniqueA > 0 && (
                     <div
                       className="h-full"
                       style={{
                         width: `${(row.uniqueA / total) * 100}%`,
-                        backgroundColor: "var(--text-ghost)",
+                        backgroundColor: "#5A5650",
                       }}
                       title={`Patient A only: ${row.uniqueA}`}
                     />
@@ -462,7 +462,7 @@ function UniqueFeaturesSummary({
                       className="h-full"
                       style={{
                         width: `${(row.uniqueB / total) * 100}%`,
-                        backgroundColor: "var(--surface-highlight)",
+                        backgroundColor: "#3A3A40",
                       }}
                       title={`Patient B only: ${row.uniqueB}`}
                     />
@@ -499,16 +499,16 @@ export default function PatientComparisonPage() {
   if (personA <= 0 || personB <= 0 || sourceId <= 0) {
     return (
       <div className="flex flex-col items-center justify-center py-24">
-        <AlertCircle size={36} className="text-critical mb-4" />
-        <h2 className="text-lg font-semibold text-text-primary">
+        <AlertCircle size={36} className="text-[#E85A6B] mb-4" />
+        <h2 className="text-lg font-semibold text-[#F0EDE8]">
           Missing Parameters
         </h2>
-        <p className="mt-2 text-sm text-text-muted">
+        <p className="mt-2 text-sm text-[#8A857D]">
           person_a, person_b, and source_id are required.
         </p>
         <Link
           to="/patient-similarity"
-          className="mt-4 text-sm text-success hover:underline"
+          className="mt-4 text-sm text-[#2DD4BF] hover:underline"
         >
           Back to Patient Similarity
         </Link>
@@ -519,30 +519,25 @@ export default function PatientComparisonPage() {
   return (
     <div className="space-y-4 max-w-5xl">
       {/* Header */}
-      <div>
+      <div className="flex items-center gap-4">
         <Link
           to={backUrl}
-          className="inline-flex items-center gap-1 text-sm text-text-muted hover:text-text-primary transition-colors mb-3"
+          className="flex items-center gap-1.5 text-xs text-[#5A5650] hover:text-[#C5C0B8] transition-colors"
         >
           <ArrowLeft size={14} />
-          Patient Similarity
+          Back to results
         </Link>
-        <div className="flex items-center gap-3">
-          <h1 className="page-title">Patient Comparison</h1>
-          <span className="text-sm text-text-muted tabular-nums font-['IBM_Plex_Mono',monospace]">
-            #{personA} vs #{personB}
-          </span>
-        </div>
-        <p className="page-subtitle">
-          Head-to-head similarity analysis across all clinical dimensions
-        </p>
+        <h1 className="page-title">Patient Comparison</h1>
+        <span className="text-xs text-[#5A5650] tabular-nums">
+          #{personA} vs #{personB}
+        </span>
       </div>
 
       {/* Loading */}
       {isLoading && (
         <div className="flex items-center justify-center py-24">
-          <Loader2 size={24} className="animate-spin text-success" />
-          <span className="ml-3 text-sm text-text-muted">
+          <Loader2 size={24} className="animate-spin text-[#2DD4BF]" />
+          <span className="ml-3 text-sm text-[#8A857D]">
             Comparing patients...
           </span>
         </div>
@@ -550,8 +545,8 @@ export default function PatientComparisonPage() {
 
       {/* Error */}
       {isError && (
-        <div className="rounded-lg border border-critical/20 bg-critical/5 px-4 py-3">
-          <p className="text-sm text-critical">
+        <div className="rounded-lg border border-[#E85A6B]/20 bg-[#E85A6B]/5 px-4 py-3">
+          <p className="text-sm text-[#E85A6B]">
             Comparison failed. Please verify both patients exist in this data
             source.
           </p>
@@ -575,20 +570,20 @@ export default function PatientComparisonPage() {
 
           {/* Shared features — named concepts */}
           <div className="space-y-3">
-            <h3 className="text-[10px] text-text-ghost uppercase tracking-wider font-semibold">
+            <h3 className="text-[10px] text-[#5A5650] uppercase tracking-wider font-semibold">
               Shared Clinical Features
             </h3>
             <SharedFeatureSection
               title="Conditions"
               icon={<Stethoscope size={14} />}
-              accentColor="var(--primary)"
+              accentColor="#9B1B30"
               items={comparison.shared_features.condition_names ?? []}
               totalShared={comparison.shared_features.condition_count}
             />
             <SharedFeatureSection
               title="Medications"
               icon={<Pill size={14} />}
-              accentColor="var(--success)"
+              accentColor="#2DD4BF"
               items={comparison.shared_features.drug_names ?? []}
               totalShared={comparison.shared_features.drug_count}
             />

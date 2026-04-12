@@ -13,7 +13,7 @@ import {
 import { AnnotationMarker } from "../annotations/AnnotationMarker";
 import type { DqTrendPoint } from "../../../types/ares";
 
-const SOURCE_COLORS = ["var(--success)", "var(--accent)", "#e85d75", "#7c8aed", "#59c990", "#f0a8d0", "#87ceeb"];
+const SOURCE_COLORS = ["#2DD4BF", "#C9A227", "#e85d75", "#7c8aed", "#59c990", "#f0a8d0", "#87ceeb"];
 
 interface OverlaySource {
   source_id: number;
@@ -40,7 +40,7 @@ export default function DqTrendChart({ data, sourceId, onReleaseClick, overlayDa
 
   if (data.length === 0) {
     return (
-      <div className="flex h-64 items-center justify-center text-text-ghost">
+      <div className="flex h-64 items-center justify-center text-[#555]">
         No DQ history data available. Run DQD on at least two releases to see trends.
       </div>
     );
@@ -77,47 +77,47 @@ export default function DqTrendChart({ data, sourceId, onReleaseClick, overlayDa
             <CartesianGrid strokeDasharray="3 3" stroke="#252530" />
             <XAxis
               dataKey="label"
-              tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
-              axisLine={{ stroke: 'var(--border-default)' }}
+              tick={{ fill: "#888", fontSize: 11 }}
+              axisLine={{ stroke: "#333" }}
             />
             <YAxis
               domain={[0, 100]}
-              tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
-              axisLine={{ stroke: 'var(--border-default)' }}
+              tick={{ fill: "#888", fontSize: 11 }}
+              axisLine={{ stroke: "#333" }}
               tickFormatter={(v: number) => `${v}%`}
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: 'var(--surface-overlay)',
+                backgroundColor: "#1a1a22",
                 border: "1px solid #333",
                 borderRadius: "8px",
-                color: 'var(--text-secondary)',
+                color: "#ccc",
                 fontSize: 12,
               }}
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               formatter={((value: number | string) => [`${Number(value).toFixed(1)}%`, "Pass Rate"]) as any}
             />
             {/* Good zone: >90% -- green */}
-            <ReferenceArea y1={90} y2={100} fill="var(--success)" fillOpacity={0.05} ifOverflow="extendDomain" />
+            <ReferenceArea y1={90} y2={100} fill="#2DD4BF" fillOpacity={0.05} ifOverflow="extendDomain" />
 
             {/* Warning zone: 80-90% -- amber */}
-            <ReferenceArea y1={80} y2={90} fill="var(--accent)" fillOpacity={0.05} ifOverflow="extendDomain" />
+            <ReferenceArea y1={80} y2={90} fill="#C9A227" fillOpacity={0.05} ifOverflow="extendDomain" />
 
             {/* Danger zone: <80% -- red */}
-            <ReferenceArea y1={0} y2={80} fill="var(--primary)" fillOpacity={0.05} ifOverflow="extendDomain" />
+            <ReferenceArea y1={0} y2={80} fill="#9B1B30" fillOpacity={0.05} ifOverflow="extendDomain" />
 
-            <ReferenceLine y={80} stroke="var(--accent)" strokeDasharray="5 5" />
+            <ReferenceLine y={80} stroke="#C9A227" strokeDasharray="5 5" />
             <Line
               type="monotone"
               dataKey="pass_rate"
-              stroke="var(--success)"
+              stroke="#2DD4BF"
               strokeWidth={2}
-              dot={{ fill: "var(--success)", r: 5, cursor: "pointer" }}
-              activeDot={{ r: 7, fill: "var(--success)" }}
+              dot={{ fill: "#2DD4BF", r: 5, cursor: "pointer" }}
+              activeDot={{ r: 7, fill: "#2DD4BF" }}
             />
           </LineChart>
         </ResponsiveContainer>
-        <p className="mt-1 text-center text-[10px] text-text-ghost">
+        <p className="mt-1 text-center text-[10px] text-[#555]">
           Click a release point to view delta details. Green &gt;90%, amber 80-90%, red &lt;80%.
         </p>
       </div>
@@ -149,31 +149,31 @@ function OverlayChart({ overlayData }: { overlayData: OverlaySource[] }) {
           <CartesianGrid strokeDasharray="3 3" stroke="#252530" />
           <XAxis
             dataKey="date"
-            tick={{ fill: 'var(--text-muted)', fontSize: 10 }}
-            axisLine={{ stroke: 'var(--border-default)' }}
+            tick={{ fill: "#888", fontSize: 10 }}
+            axisLine={{ stroke: "#333" }}
             angle={-30}
             textAnchor="end"
           />
           <YAxis
             domain={[0, 100]}
-            tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
-            axisLine={{ stroke: 'var(--border-default)' }}
+            tick={{ fill: "#888", fontSize: 11 }}
+            axisLine={{ stroke: "#333" }}
             tickFormatter={(v: number) => `${v}%`}
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: 'var(--surface-overlay)',
+              backgroundColor: "#1a1a22",
               border: "1px solid #333",
               borderRadius: "8px",
-              color: 'var(--text-secondary)',
+              color: "#ccc",
               fontSize: 12,
             }}
           />
-          <Legend wrapperStyle={{ fontSize: 11, color: 'var(--text-muted)' }} />
-          <ReferenceArea y1={90} y2={100} fill="var(--success)" fillOpacity={0.05} ifOverflow="extendDomain" />
-          <ReferenceArea y1={80} y2={90} fill="var(--accent)" fillOpacity={0.05} ifOverflow="extendDomain" />
-          <ReferenceArea y1={0} y2={80} fill="var(--primary)" fillOpacity={0.05} ifOverflow="extendDomain" />
-          <ReferenceLine y={80} stroke="var(--accent)" strokeDasharray="5 5" />
+          <Legend wrapperStyle={{ fontSize: 11, color: "#888" }} />
+          <ReferenceArea y1={90} y2={100} fill="#2DD4BF" fillOpacity={0.05} ifOverflow="extendDomain" />
+          <ReferenceArea y1={80} y2={90} fill="#C9A227" fillOpacity={0.05} ifOverflow="extendDomain" />
+          <ReferenceArea y1={0} y2={80} fill="#9B1B30" fillOpacity={0.05} ifOverflow="extendDomain" />
+          <ReferenceLine y={80} stroke="#C9A227" strokeDasharray="5 5" />
 
           {overlayData.map((source, i) => (
             <Line
@@ -189,7 +189,7 @@ function OverlayChart({ overlayData }: { overlayData: OverlaySource[] }) {
           ))}
         </LineChart>
       </ResponsiveContainer>
-      <p className="mt-1 text-center text-[10px] text-text-ghost">
+      <p className="mt-1 text-center text-[10px] text-[#555]">
         DQ pass rates overlaid across all sources on a unified timeline.
       </p>
     </div>

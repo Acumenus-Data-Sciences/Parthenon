@@ -1,0 +1,53 @@
+{
+    "id": 29,
+    "name": "Study 2: CKD Progression Incidence by Age Group (Lisinopril Arm)",
+    "description": "Age-stratified CKD advancement incidence rates in the ACEi-treated hypertensive CKD population.",
+    "design_json": {
+        "ageGroups": [
+            {
+                "maxAge": 39,
+                "minAge": 18
+            },
+            {
+                "maxAge": 54,
+                "minAge": 40
+            },
+            {
+                "maxAge": 64,
+                "minAge": 55
+            },
+            {
+                "maxAge": 74,
+                "minAge": 65
+            },
+            {
+                "maxAge": 120,
+                "minAge": 75
+            }
+        ],
+        "timeAtRisk": {
+            "end": {
+                "offset": 1825,
+                "dateField": "index_date"
+            },
+            "start": {
+                "offset": 1,
+                "dateField": "index_date"
+            }
+        },
+        "description": "Incidence rate analysis of CKD advanced progression (Stages 4-5\/dialysis) in lisinopril-treated hypertensive CKD 1-3 patients, stratified by age group. Characterizes baseline CKD progression rates across age strata.",
+        "analysisType": "IncidenceRate",
+        "minCellCount": 5,
+        "stratifyByAge": true,
+        "targetCohortId": 73,
+        "outcomeCohortIds": [
+            75
+        ],
+        "stratifyByGender": false,
+        "stratifyByCalendarYear": false
+    },
+    "author_id": 117,
+    "created_at": null,
+    "updated_at": null,
+    "deleted_at": null
+}

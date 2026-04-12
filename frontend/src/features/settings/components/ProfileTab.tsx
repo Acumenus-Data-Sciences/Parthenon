@@ -68,27 +68,27 @@ export function ProfileTab() {
   };
 
   const inputClass = cn(
-    "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-    "text-text-primary placeholder:text-text-ghost",
-    "focus:border-success focus:outline-none focus:ring-1 focus:ring-success/40",
+    "w-full rounded-lg border border-[#232328] bg-[#0E0E11] px-3 py-2 text-sm",
+    "text-[#F0EDE8] placeholder:text-[#5A5650]",
+    "focus:border-[#2DD4BF] focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40",
   );
 
   return (
     <div className="max-w-2xl space-y-8">
       {/* Avatar */}
-      <section className="rounded-lg border border-border-default bg-surface-raised p-6">
-        <h3 className="text-sm font-semibold text-text-primary mb-4">Profile Photo</h3>
+      <section className="rounded-lg border border-[#232328] bg-[#151518] p-6">
+        <h3 className="text-sm font-semibold text-[#F0EDE8] mb-4">Profile Photo</h3>
         <AvatarUpload />
       </section>
 
       {/* Profile Details */}
-      <section className="rounded-lg border border-border-default bg-surface-raised p-6 space-y-5">
-        <h3 className="text-sm font-semibold text-text-primary">Profile Details</h3>
+      <section className="rounded-lg border border-[#232328] bg-[#151518] p-6 space-y-5">
+        <h3 className="text-sm font-semibold text-[#F0EDE8]">Profile Details</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-              Name <span className="text-critical">*</span>
+            <label className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
+              Name <span className="text-[#E85A6B]">*</span>
             </label>
             <input
               type="text"
@@ -100,7 +100,7 @@ export function ProfileTab() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+            <label className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
               Phone
             </label>
             <input
@@ -113,7 +113,7 @@ export function ProfileTab() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+            <label className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
               Job Title
             </label>
             <input
@@ -126,7 +126,7 @@ export function ProfileTab() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+            <label className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
               Department
             </label>
             <input
@@ -139,7 +139,7 @@ export function ProfileTab() {
           </div>
 
           <div className="space-y-1.5 md:col-span-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+            <label className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
               Organization
             </label>
             <input
@@ -152,7 +152,7 @@ export function ProfileTab() {
           </div>
 
           <div className="space-y-1.5 md:col-span-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+            <label className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
               Bio
             </label>
             <textarea
@@ -163,7 +163,7 @@ export function ProfileTab() {
               className={cn(inputClass, "resize-none")}
               placeholder="A brief description about yourself and your research interests..."
             />
-            <p className="text-xs text-text-ghost text-right">
+            <p className="text-xs text-[#5A5650] text-right">
               {form.bio.length}/2000
             </p>
           </div>
@@ -178,7 +178,7 @@ export function ProfileTab() {
           disabled={updateMutation.isPending || !form.name.trim()}
           className={cn(
             "inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium transition-colors",
-            "bg-success text-surface-base hover:bg-success disabled:opacity-50",
+            "bg-[#2DD4BF] text-[#0E0E11] hover:bg-[#26B8A5] disabled:opacity-50",
           )}
         >
           {updateMutation.isPending ? (
@@ -198,8 +198,8 @@ export function ProfileTab() {
             className={cn(
               "flex items-center gap-2 rounded-lg border px-4 py-3 text-sm shadow-lg animate-in slide-in-from-bottom-2",
               toast.type === "success"
-                ? "border-success/30 bg-surface-raised text-success"
-                : "border-critical/30 bg-surface-raised text-critical",
+                ? "border-[#2DD4BF]/30 bg-[#151518] text-[#2DD4BF]"
+                : "border-[#E85A6B]/30 bg-[#151518] text-[#E85A6B]",
             )}
           >
             {toast.type === "success" ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}

@@ -77,8 +77,8 @@ export function CompleteStep({ wizardState, steps, onFinish, completing, onGoToS
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-text-primary">Parthenon is ready!</h2>
-        <p className="mt-2 text-base text-text-muted">
+        <h2 className="text-2xl font-bold text-[#F0EDE8]">Parthenon is ready!</h2>
+        <p className="mt-2 text-base text-[#8A857D]">
           {allDone
             ? "All setup steps completed. You can return to this wizard any time via Administration."
             : `${completedCount} of ${visibleItems.length} steps completed — skipped steps can be configured any time.`}
@@ -88,7 +88,7 @@ export function CompleteStep({ wizardState, steps, onFinish, completing, onGoToS
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         {/* Summary checklist */}
         <div className="space-y-2">
-          <p className="text-sm font-medium uppercase tracking-wide text-text-muted">
+          <p className="text-sm font-medium uppercase tracking-wide text-[#8A857D]">
             Setup summary
           </p>
           {visibleItems.map((item) => {
@@ -97,17 +97,17 @@ export function CompleteStep({ wizardState, steps, onFinish, completing, onGoToS
             return (
               <div
                 key={item.key}
-                className="flex items-center gap-3 rounded-lg border border-border-default bg-surface-overlay px-4 py-2.5"
+                className="flex items-center gap-3 rounded-lg border border-[#232328] bg-[#1A1A1E] px-4 py-2.5"
               >
                 {done ? (
                   <CheckCircle2 size={15} className="shrink-0 text-emerald-400" />
                 ) : (
-                  <Circle size={15} className="shrink-0 text-text-ghost" />
+                  <Circle size={15} className="shrink-0 text-[#5A5650]" />
                 )}
                 <span
                   className={cn(
                     "flex-1 text-base",
-                    done ? "text-text-primary" : "text-text-ghost",
+                    done ? "text-[#F0EDE8]" : "text-[#5A5650]",
                   )}
                 >
                   {item.label}
@@ -117,7 +117,7 @@ export function CompleteStep({ wizardState, steps, onFinish, completing, onGoToS
                   <button
                     type="button"
                     onClick={() => onGoToStep(item.stepKey)}
-                    className="flex shrink-0 items-center gap-1 text-sm text-text-ghost transition-colors hover:text-accent"
+                    className="flex shrink-0 items-center gap-1 text-sm text-[#5A5650] transition-colors hover:text-[#C9A227]"
                     title={`Go back to ${item.label}`}
                   >
                     <RotateCcw size={11} />
@@ -131,7 +131,7 @@ export function CompleteStep({ wizardState, steps, onFinish, completing, onGoToS
 
         {/* Quick-start next steps */}
         <div className="space-y-2">
-          <p className="text-sm font-medium uppercase tracking-wide text-text-muted">
+          <p className="text-sm font-medium uppercase tracking-wide text-[#8A857D]">
             What to do next
           </p>
           {NEXT_STEPS.map((ns) => (
@@ -139,17 +139,17 @@ export function CompleteStep({ wizardState, steps, onFinish, completing, onGoToS
               key={ns.href}
               to={ns.href}
               onClick={onFinish}
-              className="flex items-start justify-between gap-3 rounded-lg border border-border-default bg-surface-overlay px-4 py-2.5 transition-colors hover:border-accent/30 hover:bg-accent/5 group"
+              className="flex items-start justify-between gap-3 rounded-lg border border-[#232328] bg-[#1A1A1E] px-4 py-2.5 transition-colors hover:border-[#C9A227]/30 hover:bg-[#C9A227]/5 group"
             >
               <div>
-                <p className="text-base font-medium text-text-primary group-hover:text-accent transition-colors">
+                <p className="text-base font-medium text-[#F0EDE8] group-hover:text-[#C9A227] transition-colors">
                   {ns.label}
                 </p>
-                <p className="mt-0.5 text-sm text-text-muted">{ns.description}</p>
+                <p className="mt-0.5 text-sm text-[#8A857D]">{ns.description}</p>
               </div>
               <ArrowUpRight
                 size={14}
-                className="mt-0.5 shrink-0 text-text-ghost group-hover:text-accent transition-colors"
+                className="mt-0.5 shrink-0 text-[#5A5650] group-hover:text-[#C9A227] transition-colors"
               />
             </Link>
           ))}
@@ -163,8 +163,8 @@ export function CompleteStep({ wizardState, steps, onFinish, completing, onGoToS
           onClick={onFinish}
           disabled={completing}
           className={cn(
-            "inline-flex items-center gap-2 rounded-lg bg-accent px-8 py-3 text-base font-semibold text-surface-base",
-            "hover:bg-accent transition-colors disabled:opacity-50",
+            "inline-flex items-center gap-2 rounded-lg bg-[#C9A227] px-8 py-3 text-base font-semibold text-[#0E0E11]",
+            "hover:bg-[#D4AE3A] transition-colors disabled:opacity-50",
           )}
         >
           {completing ? (

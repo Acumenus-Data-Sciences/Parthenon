@@ -18,7 +18,7 @@ describe('PipelineStep', () => {
     );
     expect(screen.getByText('3')).toBeInTheDocument();
     expect(screen.getByText('Propensity Score Matching')).toBeInTheDocument();
-    expect(screen.getByText('Run')).toBeInTheDocument();
+    expect(screen.getByText('Run ▸')).toBeInTheDocument();
     expect(screen.queryByText('Panel content')).not.toBeInTheDocument();
   });
 
@@ -35,7 +35,7 @@ describe('PipelineStep', () => {
       </PipelineStep>,
     );
     expect(screen.getByText('Profile Comparison')).toBeInTheDocument();
-    expect(screen.queryByText('Run')).not.toBeInTheDocument();
+    expect(screen.queryByText('Run ▸')).not.toBeInTheDocument();
   });
 
   it('renders completed collapsed state with summary', () => {
@@ -108,7 +108,7 @@ describe('PipelineStep', () => {
         <div>Content</div>
       </PipelineStep>,
     );
-    fireEvent.click(screen.getByText('Run'));
+    fireEvent.click(screen.getByText('Run ▸'));
     expect(onRun).toHaveBeenCalledOnce();
   });
 });

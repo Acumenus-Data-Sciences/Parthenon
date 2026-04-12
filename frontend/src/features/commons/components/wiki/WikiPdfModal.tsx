@@ -59,32 +59,32 @@ export function WikiPdfModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={onClose}>
       <div
-        className="relative flex h-[90vh] w-[85vw] max-w-6xl flex-col overflow-hidden rounded-lg border border-border-default bg-surface-raised shadow-2xl"
+        className="relative flex h-[90vh] w-[85vw] max-w-6xl flex-col overflow-hidden rounded-lg border border-[#232328] bg-[#151518] shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-border-default bg-surface-overlay px-5 py-3">
-          <p className="truncate text-sm font-medium text-text-primary">{filename}</p>
+        <div className="flex items-center justify-between border-b border-[#232328] bg-[#1C1C20] px-5 py-3">
+          <p className="truncate text-sm font-medium text-[#F0EDE8]">{filename}</p>
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={handleDownload}
               disabled={!blobUrl}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-surface-raised px-3 py-1.5 text-xs font-medium text-text-muted transition-colors hover:text-text-primary disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#232328] bg-[#151518] px-3 py-1.5 text-xs font-medium text-[#8A857D] transition-colors hover:text-[#F0EDE8] disabled:opacity-50"
             >
               <Download size={14} />
               Download
             </button>
-            <button type="button" onClick={onClose} className="rounded-lg p-1.5 text-text-muted transition-colors hover:text-text-primary">
+            <button type="button" onClick={onClose} className="rounded-lg p-1.5 text-[#8A857D] transition-colors hover:text-[#F0EDE8]">
               <X size={16} />
             </button>
           </div>
         </div>
 
         {/* PDF */}
-        <div className="flex flex-1 items-center justify-center bg-surface-base">
+        <div className="flex flex-1 items-center justify-center bg-[#0E0E11]">
           {error ? (
-            <p className="text-sm text-critical">{error}</p>
+            <p className="text-sm text-[#E85A6B]">{error}</p>
           ) : blobUrl ? (
             <object
               data={blobUrl}
@@ -92,11 +92,11 @@ export function WikiPdfModal({
               className="h-full w-full"
             >
               <div className="flex flex-col items-center justify-center gap-3 p-8">
-                <p className="text-sm text-text-muted">PDF preview not available in this browser.</p>
+                <p className="text-sm text-[#8A857D]">PDF preview not available in this browser.</p>
                 <button
                   type="button"
                   onClick={handleDownload}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base transition-colors hover:bg-success"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] transition-colors hover:bg-[#26B8A5]"
                 >
                   <Download size={14} />
                   Download PDF
@@ -104,7 +104,7 @@ export function WikiPdfModal({
               </div>
             </object>
           ) : (
-            <div className="flex items-center gap-2 text-sm text-text-muted">
+            <div className="flex items-center gap-2 text-sm text-[#8A857D]">
               <Loader2 size={16} className="animate-spin" />
               Loading PDF...
             </div>

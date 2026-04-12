@@ -51,11 +51,11 @@ function StudyCard({ study, onPinFinding }: StudyCardProps) {
   }
 
   return (
-    <div className="flex flex-col gap-2.5 p-4 rounded-xl bg-zinc-900/50 border border-zinc-800 hover:border-zinc-700 transition-colors">
+    <div className="flex flex-col gap-2.5 p-4 rounded-xl bg-surface-base/50 border border-border-default hover:border-border-default transition-colors">
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-col gap-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[10px] px-2 py-0.5 rounded border font-mono" style={{ borderColor: "color-mix(in srgb, var(--success) 25%, transparent)", color: "var(--success)" }}>
+            <span className="text-[10px] px-2 py-0.5 rounded border font-mono" style={{ borderColor: "#2DD4BF40", color: "#2DD4BF" }}>
               {study.accessionId}
             </span>
             {year && (
@@ -74,7 +74,7 @@ function StudyCard({ study, onPinFinding }: StudyCardProps) {
         </div>
         <button
           onClick={handlePin}
-          className="flex-shrink-0 text-[10px] px-2.5 py-1 rounded border border-zinc-600 text-zinc-400 hover:border-success/50 hover:text-success transition-colors whitespace-nowrap"
+          className="flex-shrink-0 text-[10px] px-2.5 py-1 rounded border border-border-hover text-zinc-400 hover:border-[#2DD4BF]/50 hover:text-[#2DD4BF] transition-colors whitespace-nowrap"
         >
           Pin
         </button>
@@ -168,11 +168,11 @@ function SnpCard({ assoc, onPinFinding }: SnpCardProps) {
   }
 
   return (
-    <div className="flex flex-col gap-2.5 p-4 rounded-xl bg-zinc-900/50 border border-zinc-800 hover:border-zinc-700 transition-colors">
+    <div className="flex flex-col gap-2.5 p-4 rounded-xl bg-surface-base/50 border border-border-default hover:border-border-default transition-colors">
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-col gap-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm font-bold font-mono" style={{ color: "var(--success)" }}>
+            <span className="text-sm font-bold font-mono" style={{ color: "#2DD4BF" }}>
               {rsId}
             </span>
             {chr && pos != null && (
@@ -192,13 +192,13 @@ function SnpCard({ assoc, onPinFinding }: SnpCardProps) {
         </div>
         <div className="flex items-center gap-1.5 flex-shrink-0">
           {funcClass && (
-            <span className="text-[10px] px-2 py-0.5 rounded border border-zinc-700 text-zinc-500">
+            <span className="text-[10px] px-2 py-0.5 rounded border border-border-default text-zinc-500">
               {funcClass.replace(/_/g, " ")}
             </span>
           )}
           <button
             onClick={handlePin}
-            className="text-[10px] px-2.5 py-1 rounded border border-zinc-600 text-zinc-400 hover:border-success/50 hover:text-success transition-colors whitespace-nowrap"
+            className="text-[10px] px-2.5 py-1 rounded border border-border-hover text-zinc-400 hover:border-[#2DD4BF]/50 hover:text-[#2DD4BF] transition-colors whitespace-nowrap"
           >
             Pin
           </button>

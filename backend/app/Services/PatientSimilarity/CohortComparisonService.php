@@ -395,7 +395,7 @@ final class CohortComparisonService
 
         $ids = array_keys($conceptIds);
         $names = DB::connection('omop')
-            ->table('vocab.concept')
+            ->table('concept')
             ->whereIn('concept_id', $ids)
             ->pluck('concept_name', 'concept_id')
             ->all();

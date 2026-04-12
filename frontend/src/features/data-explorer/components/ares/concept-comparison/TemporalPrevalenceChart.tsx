@@ -10,7 +10,7 @@ import {
 } from "recharts";
 import type { TemporalPrevalenceSource } from "../../../types/ares";
 
-const SOURCE_COLORS = ["var(--success)", "var(--accent)", "#e85d75", "#7c8aed", "#59c990", "#f0a8d0", "#87ceeb"];
+const SOURCE_COLORS = ["#2DD4BF", "#C9A227", "#e85d75", "#7c8aed", "#59c990", "#f0a8d0", "#87ceeb"];
 
 interface TemporalPrevalenceChartProps {
   sources: TemporalPrevalenceSource[];
@@ -20,7 +20,7 @@ interface TemporalPrevalenceChartProps {
 export default function TemporalPrevalenceChart({ sources, title }: TemporalPrevalenceChartProps) {
   if (sources.length === 0) {
     return (
-      <div className="flex h-48 items-center justify-center text-text-ghost">
+      <div className="flex h-48 items-center justify-center text-[#555]">
         No temporal prevalence data available.
       </div>
     );
@@ -42,29 +42,29 @@ export default function TemporalPrevalenceChart({ sources, title }: TemporalPrev
 
   return (
     <div>
-      {title && <h4 className="mb-2 text-xs font-medium text-text-muted">{title}</h4>}
+      {title && <h4 className="mb-2 text-xs font-medium text-[#888]">{title}</h4>}
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 30, left: 20 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#252530" />
             <XAxis
               dataKey="release"
-              tick={{ fill: 'var(--text-muted)', fontSize: 10 }}
-              axisLine={{ stroke: 'var(--border-default)' }}
+              tick={{ fill: "#888", fontSize: 10 }}
+              axisLine={{ stroke: "#333" }}
               angle={-30}
               textAnchor="end"
             />
             <YAxis
-              tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
-              axisLine={{ stroke: 'var(--border-default)' }}
+              tick={{ fill: "#888", fontSize: 11 }}
+              axisLine={{ stroke: "#333" }}
               tickFormatter={(v: number) => `${v}/1k`}
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: 'var(--surface-overlay)',
+                backgroundColor: "#1a1a22",
                 border: "1px solid #333",
                 borderRadius: "8px",
-                color: 'var(--text-secondary)',
+                color: "#ccc",
                 fontSize: 12,
               }}
               /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -74,7 +74,7 @@ export default function TemporalPrevalenceChart({ sources, title }: TemporalPrev
               ]) as any}
               /* eslint-enable @typescript-eslint/no-explicit-any */
             />
-            <Legend wrapperStyle={{ fontSize: 11, color: 'var(--text-muted)' }} />
+            <Legend wrapperStyle={{ fontSize: 11, color: "#888" }} />
 
             {sources.map((source, i) => (
               <Line
@@ -91,7 +91,7 @@ export default function TemporalPrevalenceChart({ sources, title }: TemporalPrev
           </LineChart>
         </ResponsiveContainer>
       </div>
-      <p className="mt-1 text-center text-[10px] text-text-ghost">
+      <p className="mt-1 text-center text-[10px] text-[#555]">
         Prevalence rate per 1,000 across releases by source.
       </p>
     </div>

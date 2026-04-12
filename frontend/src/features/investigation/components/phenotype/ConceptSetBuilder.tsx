@@ -16,7 +16,7 @@ function CountBadge({ conceptId }: CountBadgeProps) {
 
   if (isLoading) {
     return (
-      <span className="text-[10px] text-zinc-600 bg-zinc-800 border border-zinc-700 rounded px-1.5 py-0.5">
+      <span className="text-[10px] text-zinc-600 bg-surface-raised border border-border-default rounded px-1.5 py-0.5">
         …
       </span>
     );
@@ -25,7 +25,7 @@ function CountBadge({ conceptId }: CountBadgeProps) {
   if (!data) return null;
 
   return (
-    <span className="text-[10px] font-medium text-accent bg-yellow-900/20 border border-yellow-600/30 rounded px-1.5 py-0.5">
+    <span className="text-[10px] font-medium text-[#C9A227] bg-yellow-900/20 border border-yellow-600/30 rounded px-1.5 py-0.5">
       {data.patient_count.toLocaleString()} pts
     </span>
   );
@@ -44,8 +44,8 @@ function ConceptRow({ entry, onChange, onRemove }: ConceptRowProps) {
     <div
       className={`rounded border px-3 py-2.5 transition-colors ${
         isExcluded
-          ? "border-primary/30 bg-primary/5"
-          : "border-zinc-700/50 bg-zinc-800/40"
+          ? "border-[#9B1B30]/30 bg-[#9B1B30]/5"
+          : "border-border-default/50 bg-surface-raised/40"
       }`}
     >
       <div className="flex items-start justify-between gap-2">
@@ -56,7 +56,7 @@ function ConceptRow({ entry, onChange, onRemove }: ConceptRowProps) {
             </span>
             <CountBadge conceptId={concept.concept_id} />
             {isExcluded && (
-              <span className="text-[10px] font-semibold text-primary bg-primary/10 border border-primary/30 rounded px-1 py-0.5 leading-none">
+              <span className="text-[10px] font-semibold text-[#9B1B30] bg-[#9B1B30]/10 border border-[#9B1B30]/30 rounded px-1 py-0.5 leading-none">
                 Excluded
               </span>
             )}
@@ -69,7 +69,7 @@ function ConceptRow({ entry, onChange, onRemove }: ConceptRowProps) {
                 onChange={(e) =>
                   onChange({ ...entry, includeDescendants: e.target.checked })
                 }
-                className="rounded border-zinc-600 bg-zinc-900 text-success focus:ring-success/30 h-3 w-3"
+                className="rounded border-border-hover bg-surface-base text-[#2DD4BF] focus:ring-[#2DD4BF]/30 h-3 w-3"
               />
               <span className="text-[11px] text-zinc-400">
                 Include descendants
@@ -82,7 +82,7 @@ function ConceptRow({ entry, onChange, onRemove }: ConceptRowProps) {
                 onChange={(e) =>
                   onChange({ ...entry, isExcluded: e.target.checked })
                 }
-                className="rounded border-zinc-600 bg-zinc-900 text-primary focus:ring-primary/30 h-3 w-3"
+                className="rounded border-border-hover bg-surface-base text-[#9B1B30] focus:ring-[#9B1B30]/30 h-3 w-3"
               />
               <span className="text-[11px] text-zinc-400">Exclude</span>
             </label>
@@ -94,7 +94,7 @@ function ConceptRow({ entry, onChange, onRemove }: ConceptRowProps) {
         </div>
         <button
           onClick={onRemove}
-          className="shrink-0 text-zinc-600 hover:text-primary transition-colors mt-0.5"
+          className="shrink-0 text-zinc-600 hover:text-[#9B1B30] transition-colors mt-0.5"
           title="Remove from concept set"
           aria-label="Remove concept"
         >
@@ -160,12 +160,12 @@ export function ConceptSetBuilder({
           value={setName}
           onChange={(e) => onSetNameChange(e.target.value)}
           placeholder="Untitled concept set"
-          className="flex-1 min-w-0 bg-zinc-900 border border-zinc-700 rounded px-2 py-1 text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-success/60 focus:ring-1 focus:ring-success/20 transition-colors"
+          className="flex-1 min-w-0 bg-surface-base border border-border-default rounded px-2 py-1 text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-[#2DD4BF]/60 focus:ring-1 focus:ring-[#2DD4BF]/20 transition-colors"
         />
         <button
           onClick={onNewSet}
           title="Save current set and create a new one"
-          className="shrink-0 px-2 py-1 rounded border border-zinc-700 bg-zinc-800 text-[11px] font-medium text-zinc-300 hover:bg-zinc-700 hover:text-zinc-100 hover:border-zinc-600 transition-colors whitespace-nowrap"
+          className="shrink-0 px-2 py-1 rounded border border-border-default bg-surface-raised text-[11px] font-medium text-zinc-300 hover:bg-surface-accent hover:text-zinc-100 hover:border-border-hover transition-colors whitespace-nowrap"
         >
           + New Set
         </button>
@@ -177,7 +177,7 @@ export function ConceptSetBuilder({
           <select
             value={savedSets.find((s) => s.name === setName)?.id ?? ""}
             onChange={(e) => onSwitchSet(e.target.value)}
-            className="w-full bg-zinc-900 border border-zinc-700 rounded px-2 py-1 text-[11px] text-zinc-300 focus:outline-none focus:border-success/60 focus:ring-1 focus:ring-success/20 transition-colors cursor-pointer"
+            className="w-full bg-surface-base border border-border-default rounded px-2 py-1 text-[11px] text-zinc-300 focus:outline-none focus:border-[#2DD4BF]/60 focus:ring-1 focus:ring-[#2DD4BF]/20 transition-colors cursor-pointer"
           >
             {savedSets.map((s) => (
               <option key={s.id} value={s.id}>
@@ -201,7 +201,7 @@ export function ConceptSetBuilder({
       </div>
 
       {entries.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center rounded border border-dashed border-zinc-700/50 bg-zinc-900/30">
+        <div className="flex-1 flex items-center justify-center rounded border border-dashed border-border-default/50 bg-surface-base/30">
           <p className="text-center text-xs text-zinc-600 px-4 leading-relaxed">
             Search for concepts and add them to build your concept set
           </p>

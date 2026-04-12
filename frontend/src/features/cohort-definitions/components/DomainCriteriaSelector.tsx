@@ -26,43 +26,43 @@ const DOMAIN_OPTIONS: {
     value: "ConditionOccurrence",
     label: "Condition",
     icon: Activity,
-    color: "var(--critical)",
+    color: "#E85A6B",
   },
   {
     value: "DrugExposure",
     label: "Drug",
     icon: Pill,
-    color: "var(--info)",
+    color: "#60A5FA",
   },
   {
     value: "ProcedureOccurrence",
     label: "Procedure",
     icon: Stethoscope,
-    color: "var(--accent)",
+    color: "#C9A227",
   },
   {
     value: "Measurement",
     label: "Measurement",
     icon: BarChart3,
-    color: "var(--success)",
+    color: "#2DD4BF",
   },
   {
     value: "Observation",
     label: "Observation",
     icon: Eye,
-    color: "var(--domain-observation)",
+    color: "#A78BFA",
   },
   {
     value: "VisitOccurrence",
     label: "Visit",
     icon: Building2,
-    color: 'var(--domain-device)',
+    color: "#FB923C",
   },
   {
     value: "Death",
     label: "Death",
     icon: Skull,
-    color: "var(--text-muted)",
+    color: "#8A857D",
   },
 ];
 
@@ -95,14 +95,14 @@ export function DomainCriteriaSelector({
   };
 
   return (
-    <div className="rounded-lg border border-border-default bg-surface-overlay p-4 space-y-4">
-      <h4 className="text-sm font-semibold text-text-primary">
+    <div className="rounded-lg border border-[#232328] bg-[#1A1A1E] p-4 space-y-4">
+      <h4 className="text-sm font-semibold text-[#F0EDE8]">
         Add Criterion
       </h4>
 
       {/* Domain selector */}
       <div className="space-y-2">
-        <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+        <label className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
           Domain
         </label>
         <div className="grid grid-cols-4 gap-2">
@@ -117,8 +117,8 @@ export function DomainCriteriaSelector({
                 className={cn(
                   "flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-medium transition-colors",
                   isSelected
-                    ? "border-success/30 bg-success/10 text-success"
-                    : "border-border-default bg-surface-raised text-text-muted hover:text-text-secondary hover:bg-surface-overlay",
+                    ? "border-[#2DD4BF]/30 bg-[#2DD4BF]/10 text-[#2DD4BF]"
+                    : "border-[#232328] bg-[#151518] text-[#8A857D] hover:text-[#C5C0B8] hover:bg-[#1C1C20]",
                 )}
               >
                 <Icon size={14} style={{ color: opt.color }} />
@@ -133,7 +133,7 @@ export function DomainCriteriaSelector({
       {selectedDomain && (
         <>
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+            <label className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
               Concept Set
             </label>
             <ConceptSetPicker value={codesetId} onChange={setCodesetId} />
@@ -145,9 +145,9 @@ export function DomainCriteriaSelector({
               type="checkbox"
               checked={firstOnly}
               onChange={(e) => setFirstOnly(e.target.checked)}
-              className="rounded border-border-default bg-surface-base text-success focus:ring-success/40"
+              className="rounded border-[#232328] bg-[#0E0E11] text-[#2DD4BF] focus:ring-[#2DD4BF]/40"
             />
-            <span className="text-xs text-text-muted">
+            <span className="text-xs text-[#8A857D]">
               First occurrence only
             </span>
           </label>
@@ -166,7 +166,7 @@ export function DomainCriteriaSelector({
                 {domainInfo.label}
               </span>
               {codesetId !== null && (
-                <span className="text-xs text-text-ghost">
+                <span className="text-xs text-[#5A5650]">
                   Codeset #{codesetId}
                 </span>
               )}
@@ -174,12 +174,12 @@ export function DomainCriteriaSelector({
           )}
 
           {/* Actions */}
-          <div className="flex items-center gap-2 pt-2 border-t border-border-default">
+          <div className="flex items-center gap-2 pt-2 border-t border-[#232328]">
             <button
               type="button"
               onClick={handleAdd}
               disabled={codesetId === null}
-              className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base hover:bg-success transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors disabled:opacity-50"
             >
               Add Criterion
             </button>
@@ -187,7 +187,7 @@ export function DomainCriteriaSelector({
               <button
                 type="button"
                 onClick={onCancel}
-                className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-4 py-2 text-sm text-text-muted hover:text-text-secondary transition-colors"
+                className="inline-flex items-center gap-2 rounded-lg border border-[#232328] bg-[#151518] px-4 py-2 text-sm text-[#8A857D] hover:text-[#C5C0B8] transition-colors"
               >
                 Cancel
               </button>

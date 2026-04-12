@@ -157,6 +157,13 @@ export const router = createBrowserRouter(
               ).then((m) => ({ Component: m.default })),
           },
           {
+            path: "new",
+            lazy: () =>
+              import(
+                "@/features/cohort-definitions/pages/CohortWizardPage"
+              ).then((m) => ({ Component: m.default })),
+          },
+          {
             path: ":id",
             lazy: () =>
               import(

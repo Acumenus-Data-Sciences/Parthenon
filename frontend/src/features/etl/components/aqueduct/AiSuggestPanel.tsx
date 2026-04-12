@@ -141,7 +141,7 @@ export function AiSuggestPanel({
         </span>
         <button
           onClick={handleAcceptAllTop}
-          className="flex items-center gap-1.5 px-4 py-2 text-sm rounded bg-success/10 text-success hover:bg-success/20 transition-colors font-medium"
+          className="flex items-center gap-1.5 px-4 py-2 text-sm rounded bg-[#2DD4BF]/10 text-[#2DD4BF] hover:bg-[#2DD4BF]/20 transition-colors font-medium"
         >
           <CheckCheck className="w-4 h-4" />
           Accept All Top Suggestions
@@ -159,9 +159,9 @@ export function AiSuggestPanel({
     >
       <div className="flex flex-col h-full">
         {/* Toolbar */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border-default">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-[#2A2A30]">
           <div className="flex items-center gap-2 text-sm text-gray-400">
-            <Sparkles className="w-4 h-4 text-accent" />
+            <Sparkles className="w-4 h-4 text-[#C9A227]" />
             <span>
               {filteredGroups.length} unmapped columns with suggestions
             </span>
@@ -169,7 +169,7 @@ export function AiSuggestPanel({
           <button
             onClick={handleRefresh}
             disabled={suggest.isPending}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded bg-surface-elevated hover:bg-surface-accent/80 text-gray-300 transition-colors disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded bg-[#232328] hover:bg-[#2A2A30]/80 text-gray-300 transition-colors disabled:opacity-50"
           >
             <RefreshCw
               className={`w-3.5 h-3.5 ${suggest.isPending ? "animate-spin" : ""}`}
@@ -195,7 +195,7 @@ export function AiSuggestPanel({
               </span>
               <button
                 onClick={handleRefresh}
-                className="px-3 py-1.5 text-xs rounded bg-surface-elevated hover:bg-surface-accent/80 text-gray-300"
+                className="px-3 py-1.5 text-xs rounded bg-[#232328] hover:bg-[#2A2A30]/80 text-gray-300"
               >
                 Retry
               </button>
@@ -240,10 +240,10 @@ function SuggestionGroup({
   ) => void;
 }) {
   return (
-    <div className="rounded-lg border border-border-default overflow-hidden">
+    <div className="rounded-lg border border-[#2A2A30] overflow-hidden">
       {/* CDM column header */}
-      <div className="flex items-center gap-2 px-3 py-2 bg-surface-overlay">
-        <span className="font-medium text-success text-sm">
+      <div className="flex items-center gap-2 px-3 py-2 bg-[#1C1C20]">
+        <span className="font-medium text-[#2DD4BF] text-sm">
           {group.target_column}
         </span>
         {group.is_required && (
@@ -259,11 +259,11 @@ function SuggestionGroup({
           No matching source columns found
         </div>
       ) : (
-        <div className="divide-y divide-border-default/40">
+        <div className="divide-y divide-[#2A2A30]/40">
           {group.suggestions.map((s, i) => (
             <div
               key={s.source_column}
-              className="px-3 py-2 hover:bg-surface-elevated/50 transition-colors"
+              className="px-3 py-2 hover:bg-[#232328]/50 transition-colors"
             >
               <div className="flex items-center gap-3">
                 {/* Rank badge */}
@@ -272,18 +272,18 @@ function SuggestionGroup({
                 </span>
 
                 {/* Source column name */}
-                <span className="text-sm text-accent font-medium flex-1 min-w-0 truncate">
+                <span className="text-sm text-[#C9A227] font-medium flex-1 min-w-0 truncate">
                   {s.source_column}
                 </span>
 
                 {/* Mapping type badge */}
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-800 text-gray-400">
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface-raised text-gray-400">
                   {s.mapping_type}
                 </span>
 
                 {/* Score bar */}
                 <div className="flex items-center gap-1.5 w-24">
-                  <div className="flex-1 h-1.5 rounded-full bg-gray-800 overflow-hidden">
+                  <div className="flex-1 h-1.5 rounded-full bg-surface-raised overflow-hidden">
                     <div
                       className={`h-full rounded-full ${scoreColor(s.score)}`}
                       style={{ width: `${Math.round(s.score * 100)}%` }}
@@ -307,7 +307,7 @@ function SuggestionGroup({
                       s.logic,
                     )
                   }
-                  className="flex items-center gap-1 px-2 py-1 text-xs rounded bg-success/10 text-success hover:bg-success/20 transition-colors"
+                  className="flex items-center gap-1 px-2 py-1 text-xs rounded bg-[#2DD4BF]/10 text-[#2DD4BF] hover:bg-[#2DD4BF]/20 transition-colors"
                   title={`Map ${s.source_column} → ${group.target_column} as ${s.mapping_type}`}
                 >
                   <Check className="w-3 h-3" />

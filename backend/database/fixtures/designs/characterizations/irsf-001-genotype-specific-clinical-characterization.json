@@ -1,0 +1,29 @@
+{
+    "id": 39,
+    "name": "IRSF-001: Genotype-Specific Clinical Characterization",
+    "description": "Head-to-head characterization of 5 Rett syndrome genotype subgroups across all OMOP CDM domains. Targets are rarer genotypes (CDKL5, FOXG1, MECP2 Duplication) compared against the two largest MECP2 point mutation groups (severe R168X\/R255X\/R270X and mild R294X\/R133C). All 6 feature builders extract demographics, conditions, drugs, procedures, measurements, and visits. Standardized mean differences (SMD) computed for all 6 target-comparator pairings to identify distinguishing clinical features.",
+    "design_json": {
+        "featureTypes": [
+            "demographics",
+            "conditions",
+            "drugs",
+            "procedures",
+            "measurements",
+            "visits"
+        ],
+        "minCellCount": 5,
+        "targetCohortIds": [
+            204,
+            205,
+            206
+        ],
+        "comparatorCohortIds": [
+            198,
+            199
+        ]
+    },
+    "author_id": 117,
+    "created_at": "2026-03-27T00:03:59.000000Z",
+    "updated_at": "2026-03-27T00:03:59.000000Z",
+    "deleted_at": null
+}

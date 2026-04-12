@@ -1,0 +1,32 @@
+{
+    "id": 78,
+    "name": "Acetaminophen All Formulations (Study 3 Comparator Drug)",
+    "description": "Acetaminophen (paracetamol) as the active comparator analgesic. Chosen for similar indication profile to NSAIDs (pain\/fever) without nephrotoxic mechanism.",
+    "expression_json": {
+        "items": []
+    },
+    "author_id": 117,
+    "is_public": true,
+    "tags": [
+        "study-3",
+        "acetaminophen",
+        "paracetamol",
+        "analgesic",
+        "comparator"
+    ],
+    "created_at": null,
+    "updated_at": null,
+    "deleted_at": null,
+    "items": [
+        {
+            "id": 363,
+            "concept_set_id": 78,
+            "concept_id": 1125315,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-19T23:51:25.000000Z",
+            "updated_at": "2026-03-19T23:51:25.000000Z"
+        }
+    ]
+}

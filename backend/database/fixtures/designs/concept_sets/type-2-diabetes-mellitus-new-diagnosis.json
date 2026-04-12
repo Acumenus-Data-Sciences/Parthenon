@@ -1,0 +1,28 @@
+{
+    "id": 69,
+    "name": "Type 2 Diabetes Mellitus — New Diagnosis",
+    "description": "Type 2 diabetes mellitus (SNOMED 201826) with all descendants. Used as the primary outcome (T2DM progression endpoint).",
+    "expression_json": null,
+    "author_id": 117,
+    "is_public": true,
+    "tags": [
+        "T2DM",
+        "diabetes",
+        "outcome"
+    ],
+    "created_at": "2026-03-15T15:15:36.000000Z",
+    "updated_at": "2026-03-15T15:15:36.000000Z",
+    "deleted_at": null,
+    "items": [
+        {
+            "id": 496,
+            "concept_set_id": 69,
+            "concept_id": 201826,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-03-19T23:51:25.000000Z",
+            "updated_at": "2026-03-19T23:51:25.000000Z"
+        }
+    ]
+}

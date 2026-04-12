@@ -31,26 +31,26 @@ export function PhoebeRecommendationsPanel({
   );
 
   return (
-    <div className="rounded-lg border border-border-default bg-surface-overlay">
+    <div className="rounded-lg border border-[#232328] bg-[#1A1A1E]">
       {/* Header / toggle */}
       <button
         type="button"
         onClick={() => setExpanded((prev) => !prev)}
-        className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-semibold text-text-primary hover:bg-surface-overlay transition-colors rounded-lg"
+        className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-semibold text-[#F0EDE8] hover:bg-[#1C1C20] transition-colors rounded-lg"
       >
         {expanded ? (
-          <ChevronDown size={14} className="text-text-muted" />
+          <ChevronDown size={14} className="text-[#8A857D]" />
         ) : (
-          <ChevronRight size={14} className="text-text-muted" />
+          <ChevronRight size={14} className="text-[#8A857D]" />
         )}
-        <Sparkles size={14} className="text-accent" />
+        <Sparkles size={14} className="text-[#C9A227]" />
         <span>Phoebe Recommendations</span>
-        <span className="inline-flex items-center gap-1 rounded-full border border-accent/40 bg-accent/10 px-2.5 py-0.5 text-[10px] font-semibold tracking-wide text-accent">
+        <span className="inline-flex items-center gap-1 rounded-full border border-[#C9A227]/40 bg-[#C9A227]/10 px-2.5 py-0.5 text-[10px] font-semibold tracking-wide text-[#C9A227]">
           <Sparkles className="h-3 w-3" />
           Powered by Phoebe
         </span>
         {!isLoading && recommendations.length > 0 && (
-          <span className="ml-auto inline-flex items-center rounded-full bg-accent/15 px-2 py-0.5 text-xs font-medium text-accent">
+          <span className="ml-auto inline-flex items-center rounded-full bg-[#C9A227]/15 px-2 py-0.5 text-xs font-medium text-[#C9A227]">
             {recommendations.length}
           </span>
         )}
@@ -58,14 +58,14 @@ export function PhoebeRecommendationsPanel({
 
       {/* Add All button — shown in header when expanded and there are unadded recommendations */}
       {expanded && onAddAll && notYetAdded.length > 1 && (
-        <div className="flex justify-end border-b border-border-default bg-surface-base px-3 py-1.5">
+        <div className="flex justify-end border-b border-[#232328] bg-[#0E0E11] px-3 py-1.5">
           <button
             type="button"
             onClick={() => onAddAll(notYetAdded.map((r) => r.concept_id))}
             disabled={isAddingConcept}
             className={cn(
               "inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
-              "text-accent hover:bg-accent/10",
+              "text-[#C9A227] hover:bg-[#C9A227]/10",
               "disabled:opacity-50 disabled:cursor-not-allowed",
             )}
           >
@@ -77,21 +77,21 @@ export function PhoebeRecommendationsPanel({
 
       {/* Expanded content */}
       {expanded && (
-        <div className="border-t border-border-default">
+        <div className="border-t border-[#232328]">
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
-              <Loader2 size={18} className="animate-spin text-text-muted" />
+              <Loader2 size={18} className="animate-spin text-[#8A857D]" />
             </div>
           ) : isError ? (
-            <div className="flex items-center justify-center py-8 text-xs text-text-ghost">
+            <div className="flex items-center justify-center py-8 text-xs text-[#5A5650]">
               Recommendations unavailable
             </div>
           ) : recommendations.length === 0 ? (
-            <div className="flex items-center justify-center py-8 text-xs text-text-ghost">
+            <div className="flex items-center justify-center py-8 text-xs text-[#5A5650]">
               No recommendations found
             </div>
           ) : (
-            <div className="max-h-64 overflow-y-auto divide-y divide-border-default">
+            <div className="max-h-64 overflow-y-auto divide-y divide-[#232328]">
               {recommendations.map((rec) => {
                 const alreadyAdded = existingConceptIds.has(rec.concept_id);
 
@@ -101,21 +101,21 @@ export function PhoebeRecommendationsPanel({
                     className="flex items-center gap-3 px-3 py-2"
                   >
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-text-primary truncate">
+                      <p className="text-sm text-[#F0EDE8] truncate">
                         {rec.concept_name}
                       </p>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <span className="font-['IBM_Plex_Mono',monospace] text-xs tabular-nums text-accent">
+                        <span className="font-['IBM_Plex_Mono',monospace] text-xs tabular-nums text-[#C9A227]">
                           {rec.concept_id}
                         </span>
-                        <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-success/15 text-success">
+                        <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#2DD4BF]/15 text-[#2DD4BF]">
                           {rec.score.toFixed(2)}
                         </span>
                       </div>
                     </div>
 
                     {alreadyAdded ? (
-                      <span className="text-[10px] text-text-ghost shrink-0">
+                      <span className="text-[10px] text-[#5A5650] shrink-0">
                         Added
                       </span>
                     ) : (
@@ -125,7 +125,7 @@ export function PhoebeRecommendationsPanel({
                         disabled={isAddingConcept}
                         className={cn(
                           "inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium transition-colors",
-                          "text-text-muted hover:text-success hover:bg-success/10",
+                          "text-[#8A857D] hover:text-[#2DD4BF] hover:bg-[#2DD4BF]/10",
                           "disabled:opacity-50 disabled:cursor-not-allowed",
                         )}
                         title="Add to concept set"

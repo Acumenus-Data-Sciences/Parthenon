@@ -151,7 +151,7 @@ function AbbyBubble({
           {entry.dataResult ? (
             <DataInterrogationResult result={entry.dataResult} />
           ) : (
-            <div className="prose prose-sm prose-invert max-w-none text-[13px] text-foreground leading-relaxed [&_p]:my-1 [&_ul]:my-2 [&_ol]:my-2 [&_li]:my-0.5 [&_pre]:bg-surface-raised [&_pre]:border [&_pre]:border-white/[0.06] [&_pre]:rounded-md [&_pre]:p-3 [&_code]:text-teal-400">
+            <div className="prose prose-sm prose-invert max-w-none text-[13px] text-foreground leading-relaxed [&_p]:my-1 [&_ul]:my-2 [&_ol]:my-2 [&_li]:my-0.5 [&_pre]:bg-[#13131a] [&_pre]:border [&_pre]:border-white/[0.06] [&_pre]:rounded-md [&_pre]:p-3 [&_code]:text-teal-400">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {entry.response ? entry.response.content : entry.content}
               </ReactMarkdown>
@@ -463,7 +463,7 @@ export default function AskAbbyChannel() {
     <div className="flex flex-1 min-h-0">
       {/* History sidebar */}
       {historyOpen && (
-        <div className="flex w-[220px] shrink-0 flex-col border-r border-white/[0.04] bg-surface-base">
+        <div className="flex w-[220px] shrink-0 flex-col border-r border-white/[0.04] bg-[#101014]">
           <div className="flex items-center justify-between border-b border-white/[0.06] px-3 py-2.5">
             <span className="text-[12px] font-semibold text-foreground">History</span>
             <button
@@ -598,7 +598,7 @@ export default function AskAbbyChannel() {
                   </span>
                 </div>
                 <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-sm bg-muted">
-                  <div className="prose prose-sm prose-invert max-w-none text-[13px] text-foreground leading-relaxed [&_p]:my-1 [&_ul]:my-2 [&_ol]:my-2 [&_li]:my-0.5 [&_pre]:bg-surface-raised [&_pre]:border [&_pre]:border-white/[0.06] [&_pre]:rounded-md [&_pre]:p-3 [&_code]:text-teal-400">
+                  <div className="prose prose-sm prose-invert max-w-none text-[13px] text-foreground leading-relaxed [&_p]:my-1 [&_ul]:my-2 [&_ol]:my-2 [&_li]:my-0.5 [&_pre]:bg-[#13131a] [&_pre]:border [&_pre]:border-white/[0.06] [&_pre]:rounded-md [&_pre]:p-3 [&_code]:text-teal-400">
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
                       {streamingContent}
                     </ReactMarkdown>
@@ -650,7 +650,7 @@ export default function AskAbbyChannel() {
               onKeyDown={handleKeyDown}
               placeholder="Ask Abby anything about your research network..."
               disabled={isLoading || isDataLoading}
-              className="flex-1 h-10 px-3.5 text-[13px] bg-surface-raised border border-white/[0.08] rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/30 disabled:opacity-60 transition-all duration-150"
+              className="flex-1 h-10 px-3.5 text-[13px] bg-[#13131a] border border-white/[0.08] rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/30 disabled:opacity-60 transition-all duration-150"
             />
             <button
               onClick={() => handleSend()}

@@ -1,0 +1,78 @@
+{
+    "id": 60,
+    "name": "S9R: Metformin T2DM vs Untreated Progressors — CKD Risk (PS-Stratified Cox)",
+    "description": "Metformin repurposing redesign: T2DM patients who initiated metformin vs prediabetes patients who progressed to T2DM without metformin. Tests renal protection hypothesis.",
+    "design_json": {
+        "model": {
+            "type": "cox",
+            "covariateSettings": {
+                "endDays": 0,
+                "useCharlsonIndex": true,
+                "longTermStartDays": -365,
+                "useDemographicsAge": true,
+                "useDrugEraLongTerm": false,
+                "useDemographicsRace": true,
+                "useDemographicsGender": true,
+                "useDrugExposureLongTerm": false,
+                "useConditionOccurrenceLongTerm": true
+            }
+        },
+        "timeAtRisk": {
+            "end": {
+                "offset": 1825,
+                "dateField": "index_date"
+            },
+            "start": {
+                "offset": 1,
+                "dateField": "index_date"
+            }
+        },
+        "description": "Metformin-treated T2DM patients vs prediabetes progressors (who developed T2DM without metformin) on CKD risk. Tests if early metformin confers renal protection.",
+        "analysisType": "CohortMethod",
+        "targetCohortId": 190,
+        "propensityScore": {
+            "method": "stratification",
+            "enabled": true,
+            "trimming": {
+                "type": "preference_score",
+                "fraction": 0.05
+            },
+            "stratification": {
+                "strata": 5
+            }
+        },
+        "studyPopulation": {
+            "minTimeAtRisk": 1,
+            "riskWindowEnd": 1825,
+            "washoutPeriod": 0,
+            "riskWindowStart": 1,
+            "requireTimeAtRisk": true,
+            "priorOutcomeLookback": 99999,
+            "removeDuplicateSubjects": "keep first",
+            "removeSubjectsWithPriorOutcome": true
+        },
+        "outcomeCohortIds": [
+            157
+        ],
+        "covariateSettings": {
+            "useCharlsonIndex": true,
+            "excludedConceptIds": [
+                1503297,
+                201826
+            ],
+            "useDemographicsAge": true,
+            "useDrugEraLongTerm": false,
+            "useDemographicsRace": true,
+            "useDemographicsGender": true,
+            "useDrugExposureLongTerm": false,
+            "useConditionOccurrenceLongTerm": true
+        },
+        "outcomeOfInterest": 157,
+        "comparatorCohortId": 159,
+        "negativeControlOutcomeIds": []
+    },
+    "author_id": 117,
+    "created_at": "2026-03-20T21:03:31.000000Z",
+    "updated_at": "2026-03-20T21:16:33.000000Z",
+    "deleted_at": null
+}

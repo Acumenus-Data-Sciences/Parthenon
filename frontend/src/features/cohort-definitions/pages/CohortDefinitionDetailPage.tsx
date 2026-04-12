@@ -242,7 +242,7 @@ export default function CohortDefinitionDetailPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 size={24} className="animate-spin text-text-muted" />
+        <Loader2 size={24} className="animate-spin text-[#8A857D]" />
       </div>
     );
   }
@@ -251,11 +251,11 @@ export default function CohortDefinitionDetailPage() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <p className="text-critical">Failed to load cohort definition</p>
+          <p className="text-[#E85A6B]">Failed to load cohort definition</p>
           <button
             type="button"
             onClick={() => navigate("/cohort-definitions")}
-            className="mt-4 text-sm text-text-muted hover:text-text-primary transition-colors"
+            className="mt-4 text-sm text-[#8A857D] hover:text-[#F0EDE8] transition-colors"
           >
             Back to list
           </button>
@@ -319,7 +319,7 @@ export default function CohortDefinitionDetailPage() {
           <button
             type="button"
             onClick={() => navigate("/cohort-definitions")}
-            className="inline-flex items-center gap-1 text-sm text-text-muted hover:text-text-primary transition-colors mb-3"
+            className="inline-flex items-center gap-1 text-sm text-[#8A857D] hover:text-[#F0EDE8] transition-colors mb-3"
           >
             <ArrowLeft size={14} />
             Cohort Definitions
@@ -341,7 +341,7 @@ export default function CohortDefinitionDetailPage() {
                 }}
                 autoFocus
                 className={cn(
-                  "text-2xl font-bold bg-transparent border-b-2 border-success text-text-primary",
+                  "text-2xl font-bold bg-transparent border-b-2 border-[#2DD4BF] text-[#F0EDE8]",
                   "focus:outline-none px-0 py-0",
                 )}
               />
@@ -349,7 +349,7 @@ export default function CohortDefinitionDetailPage() {
                 type="button"
                 onClick={handleSaveName}
                 disabled={updateMutation.isPending}
-                className="inline-flex items-center justify-center w-8 h-8 rounded-md text-success hover:bg-success/10 transition-colors"
+                className="inline-flex items-center justify-center w-8 h-8 rounded-md text-[#2DD4BF] hover:bg-[#2DD4BF]/10 transition-colors"
               >
                 {updateMutation.isPending ? (
                   <Loader2 size={14} className="animate-spin" />
@@ -361,7 +361,7 @@ export default function CohortDefinitionDetailPage() {
           ) : (
             <h1
               onClick={() => setIsEditingName(true)}
-              className="text-2xl font-bold text-text-primary cursor-pointer hover:text-success transition-colors"
+              className="text-2xl font-bold text-[#F0EDE8] cursor-pointer hover:text-[#2DD4BF] transition-colors"
               title="Click to edit"
             >
               {definition.name}
@@ -385,15 +385,15 @@ export default function CohortDefinitionDetailPage() {
                 autoFocus
                 placeholder="Add a description..."
                 className={cn(
-                  "flex-1 text-sm bg-transparent border-b border-success text-text-secondary",
-                  "placeholder:text-text-ghost focus:outline-none px-0 py-0",
+                  "flex-1 text-sm bg-transparent border-b border-[#2DD4BF] text-[#C5C0B8]",
+                  "placeholder:text-[#5A5650] focus:outline-none px-0 py-0",
                 )}
               />
               <button
                 type="button"
                 onClick={handleSaveDescription}
                 disabled={updateMutation.isPending}
-                className="inline-flex items-center justify-center w-8 h-8 rounded-md text-success hover:bg-success/10 transition-colors"
+                className="inline-flex items-center justify-center w-8 h-8 rounded-md text-[#2DD4BF] hover:bg-[#2DD4BF]/10 transition-colors"
               >
                 {updateMutation.isPending ? (
                   <Loader2 size={14} className="animate-spin" />
@@ -408,8 +408,8 @@ export default function CohortDefinitionDetailPage() {
               className={cn(
                 "mt-1 text-sm cursor-pointer transition-colors",
                 definition.description
-                  ? "text-text-muted hover:text-text-secondary"
-                  : "text-text-ghost hover:text-text-muted",
+                  ? "text-[#8A857D] hover:text-[#C5C0B8]"
+                  : "text-[#5A5650] hover:text-[#8A857D]",
               )}
               title="Click to edit"
             >
@@ -419,10 +419,10 @@ export default function CohortDefinitionDetailPage() {
 
           {/* Version badge + last saved */}
           <div className="flex items-center gap-3 mt-2">
-            <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-accent/15 text-accent">
+            <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#C9A227]/15 text-[#C9A227]">
               v{definition.version}
             </span>
-            <span className="text-[10px] text-text-ghost">
+            <span className="text-[10px] text-[#5A5650]">
               Last saved{" "}
               {new Date(definition.updated_at).toLocaleString("en-US", {
                 month: "short",
@@ -438,13 +438,13 @@ export default function CohortDefinitionDetailPage() {
             {definition.tags?.map((tag) => (
               <span
                 key={tag}
-                className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] bg-surface-overlay text-text-muted border border-border-default group"
+                className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-[10px] bg-[#1A1A1F] text-[#8A857D] border border-[#2A2A30] group"
               >
                 {tag}
                 <button
                   type="button"
                   onClick={() => handleRemoveTag(tag)}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity text-text-ghost hover:text-critical"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity text-[#5A5650] hover:text-[#E85A6B]"
                 >
                   <X size={8} />
                 </button>
@@ -467,13 +467,13 @@ export default function CohortDefinitionDetailPage() {
                 }}
                 autoFocus
                 placeholder="tag name"
-                className="rounded px-2 py-0.5 text-[10px] w-20 bg-surface-base border border-success text-text-primary placeholder:text-text-ghost focus:outline-none"
+                className="rounded px-2 py-0.5 text-[10px] w-20 bg-[#0E0E11] border border-[#2DD4BF] text-[#F0EDE8] placeholder:text-[#5A5650] focus:outline-none"
               />
             ) : (
               <button
                 type="button"
                 onClick={() => setIsAddingTag(true)}
-                className="inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px] text-text-ghost hover:text-text-muted border border-dashed border-surface-highlight hover:border-text-ghost transition-colors"
+                className="inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px] text-[#5A5650] hover:text-[#8A857D] border border-dashed border-[#323238] hover:border-[#5A5650] transition-colors"
               >
                 <Plus size={8} />
                 tag
@@ -488,9 +488,9 @@ export default function CohortDefinitionDetailPage() {
               onChange={(e) => handleDomainChange(e.target.value)}
               className={cn(
                 "rounded-md px-2 py-1 text-xs border transition-colors",
-                "bg-surface-overlay border-border-default text-text-secondary",
-                "hover:border-surface-highlight focus:border-success focus:outline-none",
-                !definition.domain && "text-text-ghost",
+                "bg-[#1A1A1F] border-[#2A2A30] text-[#C5C0B8]",
+                "hover:border-[#3A3A42] focus:border-[#2DD4BF] focus:outline-none",
+                !definition.domain && "text-[#5A5650]",
               )}
             >
               <option value="">Assign a domain</option>
@@ -513,8 +513,8 @@ export default function CohortDefinitionDetailPage() {
             className={cn(
               "inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
               isDirty
-                ? "bg-success text-surface-base hover:bg-success"
-                : "border border-border-default bg-surface-raised text-text-ghost cursor-not-allowed",
+                ? "bg-[#2DD4BF] text-[#0E0E11] hover:bg-[#26B8A5]"
+                : "border border-[#232328] bg-[#151518] text-[#5A5650] cursor-not-allowed",
             )}
           >
             {updateMutation.isPending ? (
@@ -524,7 +524,7 @@ export default function CohortDefinitionDetailPage() {
             )}
             Save
             {isDirty && (
-              <span className="inline-flex w-2 h-2 rounded-full bg-surface-base/40" />
+              <span className="inline-flex w-2 h-2 rounded-full bg-[#0E0E11]/40" />
             )}
           </button>
 
@@ -536,8 +536,8 @@ export default function CohortDefinitionDetailPage() {
             className={cn(
               "inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition-colors",
               definition.is_public
-                ? "border-success/30 bg-success/10 text-success"
-                : "border-border-default bg-surface-raised text-text-muted hover:text-text-secondary",
+                ? "border-[#2DD4BF]/30 bg-[#2DD4BF]/10 text-[#2DD4BF]"
+                : "border-[#232328] bg-[#151518] text-[#8A857D] hover:text-[#C5C0B8]",
             )}
           >
             {definition.is_public ? (
@@ -552,7 +552,7 @@ export default function CohortDefinitionDetailPage() {
           <button
             type="button"
             onClick={() => setAbbyOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium bg-gradient-to-r from-success/20 to-[var(--domain-observation)]/20 border border-success/30 text-success hover:from-success/30 hover:to-[var(--domain-observation)]/30 transition-all"
+            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium bg-gradient-to-r from-[#2DD4BF]/20 to-[#A78BFA]/20 border border-[#2DD4BF]/30 text-[#2DD4BF] hover:from-[#2DD4BF]/30 hover:to-[#A78BFA]/30 transition-all"
           >
             <Sparkles size={14} />
             Abby AI
@@ -562,7 +562,7 @@ export default function CohortDefinitionDetailPage() {
           <button
             type="button"
             onClick={handleExport}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-muted hover:text-text-secondary transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#8A857D] hover:text-[#C5C0B8] transition-colors"
           >
             <Download size={14} />
             Export
@@ -572,7 +572,7 @@ export default function CohortDefinitionDetailPage() {
           <button
             type="button"
             onClick={() => setShareOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-muted hover:text-text-secondary transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#8A857D] hover:text-[#C5C0B8] transition-colors"
           >
             <Share2 size={14} />
             Share
@@ -583,7 +583,7 @@ export default function CohortDefinitionDetailPage() {
             type="button"
             onClick={handleCopy}
             disabled={copyMutation.isPending}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-muted hover:text-text-secondary transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#8A857D] hover:text-[#C5C0B8] transition-colors disabled:opacity-50"
           >
             {copyMutation.isPending ? (
               <Loader2 size={14} className="animate-spin" />
@@ -599,7 +599,7 @@ export default function CohortDefinitionDetailPage() {
               type="button"
               onClick={handleDeprecate}
               disabled={deprecateMutation.isPending}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-muted hover:text-amber-400 hover:border-amber-500/30 transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#8A857D] hover:text-amber-400 hover:border-amber-500/30 transition-colors disabled:opacity-50"
             >
               {deprecateMutation.isPending ? (
                 <Loader2 size={14} className="animate-spin" />
@@ -615,7 +615,7 @@ export default function CohortDefinitionDetailPage() {
             type="button"
             onClick={handleDelete}
             disabled={deleteMutation.isPending}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-muted hover:text-critical hover:border-critical/30 transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[#232328] bg-[#151518] px-3 py-2 text-sm text-[#8A857D] hover:text-[#E85A6B] hover:border-[#E85A6B]/30 transition-colors disabled:opacity-50"
           >
             {deleteMutation.isPending ? (
               <Loader2 size={14} className="animate-spin" />
@@ -628,7 +628,7 @@ export default function CohortDefinitionDetailPage() {
       </div>
 
       {/* Tab navigation */}
-      <div className="flex items-center gap-1 border-b border-border-default">
+      <div className="flex items-center gap-1 border-b border-[#232328]">
         {(
           [
             { key: "editor", label: "Expression Editor" },
@@ -645,13 +645,13 @@ export default function CohortDefinitionDetailPage() {
             className={cn(
               "relative px-4 py-2.5 text-sm font-medium transition-colors",
               activeTab === tab.key
-                ? "text-success"
-                : "text-text-muted hover:text-text-secondary",
+                ? "text-[#2DD4BF]"
+                : "text-[#8A857D] hover:text-[#C5C0B8]",
             )}
           >
             {tab.label}
             {activeTab === tab.key && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-success" />
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2DD4BF]" />
             )}
           </button>
         ))}
@@ -666,7 +666,7 @@ export default function CohortDefinitionDetailPage() {
           <CohortSqlPreview definitionId={cohortId} />
           <CirceSqlPanel definitionId={cohortId} />
           <div>
-            <h3 className="text-sm font-semibold text-text-primary mb-3">
+            <h3 className="text-sm font-semibold text-[#F0EDE8] mb-3">
               Generation History
             </h3>
             <GenerationHistoryTable definitionId={cohortId} />

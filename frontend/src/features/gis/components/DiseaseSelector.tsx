@@ -29,18 +29,18 @@ export function DiseaseSelector({ selectedConceptId, onSelect }: DiseaseSelector
   }, [selectedConceptId, topConditions, searchResults, categoryConditions]);
 
   return (
-    <div className="space-y-2 rounded-lg border border-border-default bg-surface-raised p-3">
-      <span className="text-xs font-semibold uppercase tracking-wider text-text-ghost">
+    <div className="space-y-2 rounded-lg border border-[#232328] bg-[#18181B] p-3">
+      <span className="text-xs font-semibold uppercase tracking-wider text-[#5A5650]">
         Disease
       </span>
 
       {selectedName && (
-        <p className="text-sm font-medium text-accent">{selectedName}</p>
+        <p className="text-sm font-medium text-[#C9A227]">{selectedName}</p>
       )}
 
       {/* Search input */}
       <div className="relative">
-        <Search className="absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-text-ghost" />
+        <Search className="absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-[#5A5650]" />
         <input
           type="text"
           value={search}
@@ -49,7 +49,7 @@ export function DiseaseSelector({ selectedConceptId, onSelect }: DiseaseSelector
             if (e.target.value.length >= 2) setMode("search");
           }}
           placeholder="Search conditions..."
-          className="w-full rounded border border-border-default bg-surface-base py-1.5 pl-7 pr-2 text-xs text-text-primary placeholder-text-ghost focus:border-accent/50 focus:outline-none"
+          className="w-full rounded border border-[#232328] bg-[#0E0E11] py-1.5 pl-7 pr-2 text-xs text-[#E8E4DC] placeholder-[#5A5650] focus:border-[#C9A227]/50 focus:outline-none"
         />
       </div>
 
@@ -58,7 +58,7 @@ export function DiseaseSelector({ selectedConceptId, onSelect }: DiseaseSelector
         <button
           onClick={() => { setMode("picks"); setSearch(""); }}
           className={`rounded px-2 py-0.5 text-[10px] ${
-            mode === "picks" ? "bg-accent/20 text-accent" : "text-text-ghost hover:text-text-muted"
+            mode === "picks" ? "bg-[#C9A227]/20 text-[#C9A227]" : "text-[#5A5650] hover:text-[#8A857D]"
           }`}
         >
           Top
@@ -66,7 +66,7 @@ export function DiseaseSelector({ selectedConceptId, onSelect }: DiseaseSelector
         <button
           onClick={() => { setMode("categories"); setSearch(""); }}
           className={`rounded px-2 py-0.5 text-[10px] ${
-            mode === "categories" ? "bg-accent/20 text-accent" : "text-text-ghost hover:text-text-muted"
+            mode === "categories" ? "bg-[#C9A227]/20 text-[#C9A227]" : "text-[#5A5650] hover:text-[#8A857D]"
           }`}
         >
           Categories
@@ -96,10 +96,10 @@ export function DiseaseSelector({ selectedConceptId, onSelect }: DiseaseSelector
                 onClick={() =>
                   setExpandedCategory(expandedCategory === cat.category ? null : cat.category)
                 }
-                className="flex w-full items-center justify-between rounded px-2 py-1 text-xs hover:bg-surface-elevated"
+                className="flex w-full items-center justify-between rounded px-2 py-1 text-xs hover:bg-[#232328]"
               >
-                <span className="text-text-muted">{cat.category}</span>
-                <span className="flex items-center gap-1 text-text-ghost">
+                <span className="text-[#8A857D]">{cat.category}</span>
+                <span className="flex items-center gap-1 text-[#5A5650]">
                   {cat.condition_count}
                   {expandedCategory === cat.category ? (
                     <ChevronDown className="h-3 w-3" />
@@ -109,19 +109,19 @@ export function DiseaseSelector({ selectedConceptId, onSelect }: DiseaseSelector
                 </span>
               </button>
               {expandedCategory === cat.category && categoryConditions && (
-                <div className="ml-2 space-y-0.5 border-l border-border-default pl-2">
+                <div className="ml-2 space-y-0.5 border-l border-[#232328] pl-2">
                   {categoryConditions.map((c) => (
                     <button
                       key={c.concept_id}
                       onClick={() => onSelect(c.concept_id, c.name)}
                       className={`flex w-full items-center justify-between rounded px-2 py-0.5 text-xs ${
                         c.concept_id === selectedConceptId
-                          ? "bg-accent/20 text-accent"
-                          : "text-text-muted hover:bg-surface-elevated"
+                          ? "bg-[#C9A227]/20 text-[#C9A227]"
+                          : "text-[#8A857D] hover:bg-[#232328]"
                       }`}
                     >
                       <span className="truncate">{c.name}</span>
-                      <span className="ml-1 text-text-ghost">{c.patient_count.toLocaleString()}</span>
+                      <span className="ml-1 text-[#5A5650]">{c.patient_count.toLocaleString()}</span>
                     </button>
                   ))}
                 </div>
@@ -135,7 +135,7 @@ export function DiseaseSelector({ selectedConceptId, onSelect }: DiseaseSelector
       {mode === "search" && searchResults && (
         <div className="max-h-48 space-y-0.5 overflow-y-auto">
           {searchResults.length === 0 ? (
-            <p className="px-2 py-1 text-xs text-text-ghost">No matching conditions</p>
+            <p className="px-2 py-1 text-xs text-[#5A5650]">No matching conditions</p>
           ) : (
             searchResults.map((c) => (
               <button
@@ -143,12 +143,12 @@ export function DiseaseSelector({ selectedConceptId, onSelect }: DiseaseSelector
                 onClick={() => onSelect(c.concept_id, c.name)}
                 className={`flex w-full items-center justify-between rounded px-2 py-1 text-xs ${
                   c.concept_id === selectedConceptId
-                    ? "bg-accent/20 text-accent"
-                    : "text-text-muted hover:bg-surface-elevated"
+                    ? "bg-[#C9A227]/20 text-[#C9A227]"
+                    : "text-[#8A857D] hover:bg-[#232328]"
                 }`}
               >
                 <span className="truncate">{c.name}</span>
-                <span className="ml-1 text-text-ghost">{c.patient_count.toLocaleString()}</span>
+                <span className="ml-1 text-[#5A5650]">{c.patient_count.toLocaleString()}</span>
               </button>
             ))
           )}
@@ -173,8 +173,8 @@ function ConditionPill({
       title={`${condition.patient_count.toLocaleString()} patients`}
       className={`rounded px-2 py-0.5 text-[10px] transition-colors ${
         selected
-          ? "bg-accent/20 font-medium text-accent"
-          : "bg-surface-elevated text-text-ghost hover:text-text-muted"
+          ? "bg-[#C9A227]/20 font-medium text-[#C9A227]"
+          : "bg-[#232328] text-[#5A5650] hover:text-[#8A857D]"
       }`}
     >
       {condition.name}

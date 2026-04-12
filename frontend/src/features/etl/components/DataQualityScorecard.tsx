@@ -83,10 +83,10 @@ export function DataQualityScorecard({ tables, piiColumnCount }: { tables: Table
   ];
 
   return (
-    <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
-      <div className="px-4 py-3 bg-surface-overlay border-b border-border-default flex items-center gap-2">
-        <Shield size={15} className="text-text-muted" />
-        <h4 className="text-sm font-medium text-text-primary">Data Quality Scorecard</h4>
+    <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
+      <div className="px-4 py-3 bg-[#1C1C20] border-b border-[#232328] flex items-center gap-2">
+        <Shield size={15} className="text-[#8A857D]" />
+        <h4 className="text-sm font-medium text-[#F0EDE8]">Data Quality Scorecard</h4>
       </div>
       <div className="p-4">
         <div className="flex items-center gap-4 mb-4">
@@ -97,8 +97,8 @@ export function DataQualityScorecard({ tables, piiColumnCount }: { tables: Table
             {grade.letter}
           </div>
           <div>
-            <p className="text-sm font-medium text-text-primary">Overall Data Completeness</p>
-            <p className="text-xs text-text-muted mt-0.5">
+            <p className="text-sm font-medium text-[#F0EDE8]">Overall Data Completeness</p>
+            <p className="text-xs text-[#8A857D] mt-0.5">
               Based on average null fraction across {fmtNumberFull(stats.totalCols)} columns in{" "}
               {tables.length} tables
             </p>
@@ -109,38 +109,38 @@ export function DataQualityScorecard({ tables, piiColumnCount }: { tables: Table
           {checks.map((check) => (
             <div
               key={check.label}
-              className="flex items-center justify-between py-2 px-3 rounded-lg bg-surface-overlay"
+              className="flex items-center justify-between py-2 px-3 rounded-lg bg-[#1C1C20]"
             >
               <div className="flex items-center gap-2">
                 {check.severity === "ok" && (
-                  <CheckCircle2 size={14} className="text-success" />
+                  <CheckCircle2 size={14} className="text-[#2DD4BF]" />
                 )}
                 {check.severity === "warn" && (
-                  <AlertTriangle size={14} className="text-accent" />
+                  <AlertTriangle size={14} className="text-[#C9A227]" />
                 )}
                 {check.severity === "error" && (
-                  <AlertTriangle size={14} className="text-critical" />
+                  <AlertTriangle size={14} className="text-[#E85A6B]" />
                 )}
                 {check.severity === "info" && (
-                  <Info size={14} className="text-info" />
+                  <Info size={14} className="text-[#60A5FA]" />
                 )}
                 {check.severity === "pii" && (
                   <ShieldAlert size={14} className="text-amber-400" />
                 )}
-                <span className="text-xs text-text-secondary">{check.label}</span>
+                <span className="text-xs text-[#C5C0B8]">{check.label}</span>
               </div>
               <span
                 className={cn(
                   "text-xs font-mono tabular-nums",
                   check.severity === "ok"
-                    ? "text-success"
+                    ? "text-[#2DD4BF]"
                     : check.severity === "error"
-                      ? "text-critical"
+                      ? "text-[#E85A6B]"
                       : check.severity === "warn"
-                        ? "text-accent"
+                        ? "text-[#C9A227]"
                         : check.severity === "pii"
                           ? "text-amber-400"
-                          : "text-info",
+                          : "text-[#60A5FA]",
                 )}
               >
                 {check.count}/{check.total}

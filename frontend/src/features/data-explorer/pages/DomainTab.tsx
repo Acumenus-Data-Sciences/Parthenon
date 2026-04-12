@@ -44,7 +44,7 @@ export default function DomainTab({ sourceId, initialDomain }: DomainTabProps) {
       {/* Main content */}
       <div className={cn("flex-1 space-y-6", selectedConceptId != null && "pr-4")}>
         {/* Domain sub-tabs */}
-        <div className="flex items-center gap-1 border-b border-border-default">
+        <div className="flex items-center gap-1 border-b border-[#232328]">
           {DOMAINS.map((domain) => (
             <button
               key={domain}
@@ -56,13 +56,13 @@ export default function DomainTab({ sourceId, initialDomain }: DomainTabProps) {
               className={cn(
                 "relative px-4 py-2.5 text-sm transition-colors",
                 activeDomain === domain
-                  ? "text-text-primary font-medium"
-                  : "text-text-muted hover:text-text-secondary",
+                  ? "text-[#F0EDE8] font-medium"
+                  : "text-[#8A857D] hover:text-[#C5C0B8]",
               )}
             >
               {DOMAIN_LABELS[domain]}
               {activeDomain === domain && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent" />
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#C9A227]" />
               )}
             </button>
           ))}
@@ -71,19 +71,19 @@ export default function DomainTab({ sourceId, initialDomain }: DomainTabProps) {
         {/* Domain summary stats */}
         {domainSummary.data && (
           <div className="grid grid-cols-2 gap-4">
-            <div className="rounded-xl border border-border-default bg-surface-raised p-4">
-              <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+            <div className="rounded-xl border border-[#232328] bg-[#151518] p-4">
+              <p className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
                 Total Records
               </p>
-              <p className="mt-1 font-serif text-xl font-bold text-text-primary">
+              <p className="mt-1 font-serif text-xl font-bold text-[#F0EDE8]">
                 {domainSummary.data.totalRecords.toLocaleString()}
               </p>
             </div>
-            <div className="rounded-xl border border-border-default bg-surface-raised p-4">
-              <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+            <div className="rounded-xl border border-[#232328] bg-[#151518] p-4">
+              <p className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
                 Distinct Concepts
               </p>
-              <p className="mt-1 font-serif text-xl font-bold text-text-primary">
+              <p className="mt-1 font-serif text-xl font-bold text-[#F0EDE8]">
                 {domainSummary.data.totalConcepts.toLocaleString()}
               </p>
             </div>
@@ -93,14 +93,14 @@ export default function DomainTab({ sourceId, initialDomain }: DomainTabProps) {
         {/* Loading state */}
         {domainSummary.isLoading && (
           <div className="flex items-center justify-center py-16">
-            <Loader2 size={20} className="animate-spin text-text-muted" />
+            <Loader2 size={20} className="animate-spin text-[#8A857D]" />
           </div>
         )}
 
         {/* Error state */}
         {domainSummary.error && (
           <div className="flex items-center justify-center py-16">
-            <p className="text-sm text-critical">
+            <p className="text-sm text-[#E85A6B]">
               Failed to load {DOMAIN_LABELS[activeDomain]} data
             </p>
           </div>

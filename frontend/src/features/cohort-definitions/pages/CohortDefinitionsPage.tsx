@@ -1,21 +1,21 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Wand2, Upload, X, Search, Stethoscope, LayoutGrid, List } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CohortDefinitionList } from "../components/CohortDefinitionList";
 import { CohortStatsBar } from "../components/CohortStatsBar";
 import { ImportCohortModal } from "../components/ImportCohortModal";
 import { CreateFromBundleModal } from "../components/CreateFromBundleModal";
-import { CohortWizardModal } from "../components/wizard/CohortWizardModal";
 import { useCohortDefinitions } from "../hooks/useCohortDefinitions";
 import { getCohortTags } from "../api/cohortApi";
 import { HelpButton } from "@/features/help";
 import TagFilterBar from "@/components/ui/TagFilterBar";
 
 export default function CohortDefinitionsPage() {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showImport, setShowImport] = useState(false);
   const [showFromBundle, setShowFromBundle] = useState(false);
-  const [wizardOpen, setWizardOpen] = useState(false);
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const [searchInput, setSearchInput] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -44,7 +44,7 @@ export default function CohortDefinitionsPage() {
   const facets = listData?.facets;
 
   const handleCreate = () => {
-    setWizardOpen(true);
+    navigate("/cohort-definitions/new");
   };
 
   const toggleTag = (tag: string) => {
@@ -69,10 +69,10 @@ export default function CohortDefinitionsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">
+          <h1 className="text-2xl font-bold text-[#F0EDE8]">
             Cohort Definitions
           </h1>
-          <p className="mt-1 text-sm text-text-muted">
+          <p className="mt-1 text-sm text-[#8A857D]">
             Define and manage cohort definitions for population-level studies
           </p>
         </div>
@@ -81,7 +81,7 @@ export default function CohortDefinitionsPage() {
           <button
             type="button"
             onClick={() => setShowImport(true)}
-            className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-4 py-2.5 text-sm font-medium text-text-muted hover:text-text-secondary hover:border-surface-highlight transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg border border-[#2A2A30] bg-[#151518] px-4 py-2.5 text-sm font-medium text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#3A3A42] transition-colors"
           >
             <Upload size={16} />
             Import
@@ -89,7 +89,7 @@ export default function CohortDefinitionsPage() {
           <button
             type="button"
             onClick={() => setShowFromBundle(true)}
-            className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-4 py-2.5 text-sm font-medium text-text-muted hover:text-text-secondary hover:border-surface-highlight transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg border border-[#2A2A30] bg-[#151518] px-4 py-2.5 text-sm font-medium text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#3A3A42] transition-colors"
           >
             <Stethoscope size={16} />
             From Bundle
@@ -97,7 +97,7 @@ export default function CohortDefinitionsPage() {
           <button
             type="button"
             onClick={handleCreate}
-            className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2.5 text-sm font-medium text-surface-base hover:bg-success transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2.5 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors"
           >
             <Wand2 size={16} />
             Cohort Wizard
@@ -114,20 +114,20 @@ export default function CohortDefinitionsPage() {
         <div className="relative w-64 mr-auto">
           <Search
             size={16}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
           />
           <input
             type="text"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder="Search cohort definitions..."
-            className="w-full rounded-lg pl-10 pr-8 py-2 text-sm bg-surface-raised border border-border-default text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/15 transition-colors"
+            className="w-full rounded-lg pl-10 pr-8 py-2 text-sm bg-[#151518] border border-[#232328] text-[#F0EDE8] placeholder:text-[#5A5650] focus:outline-none focus:border-[#2DD4BF] focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors"
           />
           {searchInput && (
             <button
               type="button"
               onClick={() => setSearchInput("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-text-ghost hover:text-text-muted"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5A5650] hover:text-[#8A857D]"
             >
               <X size={14} />
             </button>
@@ -135,14 +135,14 @@ export default function CohortDefinitionsPage() {
         </div>
 
         {/* View toggle */}
-        <div className="flex items-center gap-1 rounded-lg bg-surface-overlay p-0.5">
+        <div className="flex items-center gap-1 rounded-lg bg-[#1C1C20] p-0.5">
           <button
             type="button"
             onClick={() => setViewMode("domain")}
             className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
               viewMode === "domain"
-                ? "bg-surface-elevated text-text-primary shadow-sm"
-                : "text-text-muted hover:text-text-secondary"
+                ? "bg-[#232328] text-[#F0EDE8] shadow-sm"
+                : "text-[#8A857D] hover:text-[#C5C0B8]"
             }`}
           >
             <LayoutGrid size={12} />
@@ -153,8 +153,8 @@ export default function CohortDefinitionsPage() {
             onClick={() => setViewMode("flat")}
             className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
               viewMode === "flat"
-                ? "bg-surface-elevated text-text-primary shadow-sm"
-                : "text-text-muted hover:text-text-secondary"
+                ? "bg-[#232328] text-[#F0EDE8] shadow-sm"
+                : "text-[#8A857D] hover:text-[#C5C0B8]"
             }`}
           >
             <List size={12} />
@@ -164,7 +164,7 @@ export default function CohortDefinitionsPage() {
 
         {/* Tier filter pills */}
         <div className="flex items-center gap-2">
-          <span className="text-xs text-text-ghost">Tier:</span>
+          <span className="text-xs text-[#5A5650]">Tier:</span>
           {[
             { value: null, label: "All" },
             { value: "study-ready", label: "Study-Ready" },
@@ -179,8 +179,8 @@ export default function CohortDefinitionsPage() {
                 onClick={() => setTierFilter(opt.value)}
                 className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
                   isActive
-                    ? "border-success bg-success/10 text-success"
-                    : "border-border-default bg-surface-overlay text-text-muted hover:border-surface-highlight"
+                    ? "border-[#2DD4BF] bg-[#2DD4BF]/10 text-[#2DD4BF]"
+                    : "border-[#2A2A30] bg-[#1A1A1F] text-[#8A857D] hover:border-[#3A3A42]"
                 }`}
               >
                 {opt.label}
@@ -205,11 +205,11 @@ export default function CohortDefinitionsPage() {
       {/* Solr facet chips: status */}
       {facets?.status && Object.keys(facets.status).length > 0 && (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs text-text-ghost">Status:</span>
+          <span className="text-xs text-[#5A5650]">Status:</span>
           {Object.entries(facets.status).map(([value, count]) => (
             <span
               key={value}
-              className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs bg-surface-overlay text-text-muted border border-border-default"
+              className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs bg-[#1A1A1F] text-[#8A857D] border border-[#2A2A30]"
             >
               {value}
               <span className="text-[10px] opacity-60">({count})</span>
@@ -221,11 +221,11 @@ export default function CohortDefinitionsPage() {
       {/* Solr facet chips: author */}
       {facets?.author_name && Object.keys(facets.author_name).length > 0 && (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs text-text-ghost">Author:</span>
+          <span className="text-xs text-[#5A5650]">Author:</span>
           {Object.entries(facets.author_name).map(([value, count]) => (
             <span
               key={value}
-              className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs bg-surface-overlay text-text-muted border border-border-default"
+              className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs bg-[#1A1A1F] text-[#8A857D] border border-[#2A2A30]"
             >
               {value}
               <span className="text-[10px] opacity-60">({count})</span>
@@ -261,9 +261,6 @@ export default function CohortDefinitionsPage() {
         open={showFromBundle}
         onClose={() => setShowFromBundle(false)}
       />
-
-      {/* Cohort Wizard modal */}
-      {wizardOpen && <CohortWizardModal onClose={() => setWizardOpen(false)} />}
     </div>
   );
 }

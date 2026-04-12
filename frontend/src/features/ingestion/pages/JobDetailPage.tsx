@@ -77,7 +77,7 @@ export default function JobDetailPage() {
   if (jobLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 size={24} className="animate-spin text-text-muted" />
+        <Loader2 size={24} className="animate-spin text-[#8A857D]" />
       </div>
     );
   }
@@ -85,11 +85,11 @@ export default function JobDetailPage() {
   if (jobError || !job) {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-3">
-        <AlertCircle size={32} className="text-critical" />
-        <p className="text-critical">Failed to load job details</p>
+        <AlertCircle size={32} className="text-[#E85A6B]" />
+        <p className="text-[#E85A6B]">Failed to load job details</p>
         <Link
           to="/ingestion"
-          className="text-sm text-text-muted hover:text-text-primary underline"
+          className="text-sm text-[#8A857D] hover:text-[#F0EDE8] underline"
         >
           Back to jobs
         </Link>
@@ -106,25 +106,25 @@ export default function JobDetailPage() {
         <div className="flex items-center gap-3">
           <Link
             to="/ingestion"
-            className="inline-flex items-center justify-center w-8 h-8 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-overlay transition-colors"
+            className="inline-flex items-center justify-center w-8 h-8 rounded-md text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#1C1C20] transition-colors"
           >
             <ArrowLeft size={18} />
           </Link>
           <div>
             <div className="flex items-center gap-2">
-              <FileText size={18} className="text-accent" />
-              <h1 className="text-xl font-bold text-text-primary">{fileName}</h1>
+              <FileText size={18} className="text-[#C9A227]" />
+              <h1 className="text-xl font-bold text-[#F0EDE8]">{fileName}</h1>
             </div>
             <div className="flex items-center gap-4 mt-1">
               {job.source && (
-                <span className="text-sm text-text-muted">
+                <span className="text-sm text-[#8A857D]">
                   Source:{" "}
-                  <span className="text-text-secondary">
+                  <span className="text-[#C5C0B8]">
                     {job.source.source_name}
                   </span>
                 </span>
               )}
-              <span className="flex items-center gap-1 text-sm text-text-muted">
+              <span className="flex items-center gap-1 text-sm text-[#8A857D]">
                 <Clock size={12} />
                 {formatDateTime(job.created_at)}
               </span>
@@ -134,21 +134,21 @@ export default function JobDetailPage() {
       </div>
 
       {/* Pipeline Stepper */}
-      <div className="rounded-lg border border-border-default bg-surface-raised" style={{ background: "rgba(255,255,255,0.03)" }}>
+      <div className="rounded-lg border border-[#232328] bg-[#151518]" style={{ background: "rgba(255,255,255,0.03)" }}>
         <PipelineStepper currentStep={job.current_step} status={job.status} />
       </div>
 
       {/* Error Banner */}
       {job.status === "failed" && (
-        <div className="flex items-center justify-between rounded-lg border border-critical/30 bg-critical/10 px-5 py-4">
+        <div className="flex items-center justify-between rounded-lg border border-[#E85A6B]/30 bg-[#E85A6B]/10 px-5 py-4">
           <div className="flex items-center gap-3">
-            <AlertCircle size={18} className="text-critical shrink-0" />
+            <AlertCircle size={18} className="text-[#E85A6B] shrink-0" />
             <div>
-              <p className="text-sm font-medium text-critical">
+              <p className="text-sm font-medium text-[#E85A6B]">
                 Pipeline failed
               </p>
               {job.error_message && (
-                <p className="mt-1 text-sm text-critical/80">
+                <p className="mt-1 text-sm text-[#E85A6B]/80">
                   {job.error_message}
                 </p>
               )}
@@ -158,7 +158,7 @@ export default function JobDetailPage() {
             type="button"
             onClick={() => retryMutation.mutate()}
             disabled={retryMutation.isPending}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-text-primary hover:bg-primary-light transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-[#9B1B30] px-4 py-2 text-sm font-medium text-[#F0EDE8] hover:bg-[#B82D42] transition-colors disabled:opacity-50"
           >
             {retryMutation.isPending ? (
               <Loader2 size={14} className="animate-spin" />
@@ -182,22 +182,22 @@ export default function JobDetailPage() {
     // If profiling is currently running
     if (job.current_step === "profiling" && job.status === "running") {
       return (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-border-default bg-surface-raised py-16">
-          <Loader2 size={32} className="animate-spin text-primary mb-4" />
-          <p className="text-sm font-medium text-text-primary">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-[#232328] bg-[#151518] py-16">
+          <Loader2 size={32} className="animate-spin text-[#9B1B30] mb-4" />
+          <p className="text-sm font-medium text-[#F0EDE8]">
             Profiling in progress...
           </p>
-          <p className="mt-1 text-xs text-text-muted">
+          <p className="mt-1 text-xs text-[#8A857D]">
             Analyzing file structure and field characteristics
           </p>
           <div className="mt-4 flex items-center gap-2">
-            <div className="h-1.5 w-32 rounded-full bg-surface-elevated overflow-hidden">
+            <div className="h-1.5 w-32 rounded-full bg-[#232328] overflow-hidden">
               <div
-                className="h-full rounded-full bg-primary animate-pulse transition-all duration-300"
+                className="h-full rounded-full bg-[#9B1B30] animate-pulse transition-all duration-300"
                 style={{ width: `${job.progress_percentage}%` }}
               />
             </div>
-            <span className="text-xs tabular-nums text-text-muted">
+            <span className="text-xs tabular-nums text-[#8A857D]">
               {job.progress_percentage}%
             </span>
           </div>
@@ -212,7 +212,7 @@ export default function JobDetailPage() {
       if (profileLoading) {
         return (
           <div className="flex items-center justify-center py-12">
-            <Loader2 size={20} className="animate-spin text-text-muted" />
+            <Loader2 size={20} className="animate-spin text-[#8A857D]" />
           </div>
         );
       }
@@ -220,15 +220,15 @@ export default function JobDetailPage() {
       return (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-text-primary">
+            <h2 className="text-lg font-semibold text-[#F0EDE8]">
               Field Profiles
             </h2>
             {profile && (
-              <div className="flex items-center gap-4 text-xs text-text-muted">
+              <div className="flex items-center gap-4 text-xs text-[#8A857D]">
                 {profile.row_count !== null && (
                   <span>
                     Rows:{" "}
-                    <span className="text-text-secondary tabular-nums">
+                    <span className="text-[#C5C0B8] tabular-nums">
                       {profile.row_count.toLocaleString()}
                     </span>
                   </span>
@@ -236,14 +236,14 @@ export default function JobDetailPage() {
                 {profile.column_count !== null && (
                   <span>
                     Columns:{" "}
-                    <span className="text-text-secondary tabular-nums">
+                    <span className="text-[#C5C0B8] tabular-nums">
                       {profile.column_count}
                     </span>
                   </span>
                 )}
                 <span>
                   Format:{" "}
-                  <span className="text-text-secondary uppercase">
+                  <span className="text-[#C5C0B8] uppercase">
                     {profile.file_format}
                   </span>
                 </span>
@@ -254,7 +254,7 @@ export default function JobDetailPage() {
           {fields && fields.length > 0 ? (
             <ScanReport fields={fields} />
           ) : (
-            <div className="flex items-center justify-center rounded-lg border border-border-default bg-surface-raised py-12 text-sm text-text-muted">
+            <div className="flex items-center justify-center rounded-lg border border-[#232328] bg-[#151518] py-12 text-sm text-[#8A857D]">
               No field data available
             </div>
           )}
@@ -272,12 +272,12 @@ export default function JobDetailPage() {
     // Pending / queued state
     if (job.status === "pending" || job.status === "queued") {
       return (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-border-default bg-surface-raised py-16">
-          <Clock size={32} className="text-text-muted mb-4" />
-          <p className="text-sm font-medium text-text-primary">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-[#232328] bg-[#151518] py-16">
+          <Clock size={32} className="text-[#8A857D] mb-4" />
+          <p className="text-sm font-medium text-[#F0EDE8]">
             Waiting to start...
           </p>
-          <p className="mt-1 text-xs text-text-muted">
+          <p className="mt-1 text-xs text-[#8A857D]">
             This job is queued and will begin shortly
           </p>
         </div>
@@ -293,10 +293,10 @@ function StepPlaceholder({ step }: { step: IngestionStep }) {
 
   return (
     <div
-      className="rounded-lg border border-dashed border-surface-highlight bg-surface-raised px-6 py-10 text-center"
+      className="rounded-lg border border-dashed border-[#323238] bg-[#151518] px-6 py-10 text-center"
       style={{ background: "rgba(255,255,255,0.03)" }}
     >
-      <p className="text-sm font-medium text-text-muted">
+      <p className="text-sm font-medium text-[#8A857D]">
         {label} will be available in a future update
       </p>
     </div>

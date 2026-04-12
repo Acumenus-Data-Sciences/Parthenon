@@ -128,12 +128,12 @@ export function HeatmapChart({
 
       {/* Tooltip */}
       {hovered && hoveredVal !== null && (
-        <div className="mt-2 inline-flex items-center gap-2 rounded-lg border border-surface-highlight bg-surface-overlay px-3 py-1.5">
-          <span className="text-xs text-text-muted">
+        <div className="mt-2 inline-flex items-center gap-2 rounded-lg border border-[#323238] bg-[#1A1A1E] px-3 py-1.5">
+          <span className="text-xs text-[#8A857D]">
             {hovered.row.charAt(0).toUpperCase() + hovered.row.slice(1)} &middot;{" "}
             {hovered.col}
           </span>
-          <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-primary">
+          <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#F0EDE8]">
             {formatCompact(hoveredVal)} records
           </span>
         </div>
@@ -141,7 +141,7 @@ export function HeatmapChart({
 
       {/* Color legend bar */}
       <div className="mt-3 flex items-center gap-2">
-        <span className="text-xs text-text-ghost">0</span>
+        <span className="text-xs text-[#5A5650]">0</span>
         <div
           className="h-3 flex-1 rounded"
           style={{
@@ -149,7 +149,7 @@ export function HeatmapChart({
             maxWidth: 200,
           }}
         />
-        <span className="text-xs text-text-ghost">{formatCompact(maxVal)}</span>
+        <span className="text-xs text-[#5A5650]">{formatCompact(maxVal)}</span>
       </div>
     </div>
   );

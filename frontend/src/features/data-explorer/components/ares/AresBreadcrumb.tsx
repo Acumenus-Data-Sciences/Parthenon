@@ -23,16 +23,16 @@ export function AresBreadcrumb({ activeSection, onBack }: AresBreadcrumbProps) {
   if (activeSection === "hub") return null;
 
   return (
-    <div className="sticky top-0 z-10 flex items-center gap-2 rounded-lg border border-border-subtle bg-surface-raised px-4 py-2 text-sm">
+    <div className="sticky top-0 z-10 flex items-center gap-2 rounded-lg border border-[#252530] bg-[#151518] px-4 py-2 text-sm">
       <button
         type="button"
         onClick={onBack}
-        className="text-accent hover:text-warning transition-colors"
+        className="text-[#C9A227] hover:text-[#e0b82e] transition-colors"
       >
         Ares
       </button>
-      <span className="text-text-muted">&rsaquo;</span>
-      <span className="text-text-primary">{SECTION_LABELS[activeSection]}</span>
+      <span className="text-[#8A857D]">&rsaquo;</span>
+      <span className="text-[#F0EDE8]">{SECTION_LABELS[activeSection]}</span>
     </div>
   );
 }

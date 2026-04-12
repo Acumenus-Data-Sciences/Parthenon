@@ -128,8 +128,8 @@ export function NaturalLanguageTab() {
           {/* Input card */}
           <div
             style={{
-              background: "var(--surface-raised)",
-              border: "1px solid var(--surface-elevated)",
+              background: "#151518",
+              border: "1px solid #232328",
               borderRadius: "10px",
               padding: "20px",
             }}
@@ -140,7 +140,7 @@ export function NaturalLanguageTab() {
                 display: "block",
                 fontSize: "13px",
                 fontWeight: 600,
-                color: "var(--text-secondary)",
+                color: "#C5C0B8",
                 marginBottom: "10px",
                 letterSpacing: "0.2px",
               }}
@@ -157,11 +157,11 @@ export function NaturalLanguageTab() {
               rows={4}
               style={{
                 width: "100%",
-                background: "var(--surface-base)",
-                border: "1px solid var(--surface-elevated)",
+                background: "#0E0E11",
+                border: "1px solid #232328",
                 borderRadius: "8px",
                 padding: "12px 14px",
-                color: "var(--text-primary)",
+                color: "#F0EDE8",
                 fontSize: "14px",
                 lineHeight: "1.6",
                 resize: "vertical",
@@ -171,10 +171,10 @@ export function NaturalLanguageTab() {
                 transition: "border-color 150ms",
               }}
               onFocus={(e) => {
-                e.currentTarget.style.borderColor = "var(--primary)";
+                e.currentTarget.style.borderColor = "#9B1B30";
               }}
               onBlur={(e) => {
-                e.currentTarget.style.borderColor = "var(--surface-elevated)";
+                e.currentTarget.style.borderColor = "#232328";
               }}
             />
 
@@ -186,7 +186,7 @@ export function NaturalLanguageTab() {
                 marginTop: "4px",
               }}
             >
-              <span style={{ fontSize: "11px", color: "var(--text-muted)" }}>
+              <span style={{ fontSize: "11px", color: "#8A857D" }}>
                 Ctrl+Enter to generate
               </span>
             </div>
@@ -197,7 +197,7 @@ export function NaturalLanguageTab() {
                 style={{
                   fontSize: "11px",
                   fontWeight: 600,
-                  color: "var(--text-muted)",
+                  color: "#8A857D",
                   textTransform: "uppercase",
                   letterSpacing: "0.5px",
                   marginBottom: "8px",
@@ -215,9 +215,9 @@ export function NaturalLanguageTab() {
                     style={{
                       padding: "5px 10px",
                       borderRadius: "20px",
-                      border: "1px solid var(--success)30",
-                      background: "color-mix(in srgb, var(--success) 4%, transparent)",
-                      color: "var(--success)",
+                      border: "1px solid #2DD4BF30",
+                      background: "#2DD4BF0A",
+                      color: "#2DD4BF",
                       fontSize: "11px",
                       cursor: "pointer",
                       transition: "all 150ms",
@@ -225,12 +225,12 @@ export function NaturalLanguageTab() {
                       fontFamily: "inherit",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.background = "color-mix(in srgb, var(--success) 9%, transparent)";
-                      e.currentTarget.style.borderColor = "color-mix(in srgb, var(--success) 38%, transparent)";
+                      e.currentTarget.style.background = "#2DD4BF18";
+                      e.currentTarget.style.borderColor = "#2DD4BF60";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.background = "color-mix(in srgb, var(--success) 4%, transparent)";
-                      e.currentTarget.style.borderColor = "color-mix(in srgb, var(--success) 19%, transparent)";
+                      e.currentTarget.style.background = "#2DD4BF0A";
+                      e.currentTarget.style.borderColor = "#2DD4BF30";
                     }}
                   >
                     {q}
@@ -252,9 +252,9 @@ export function NaturalLanguageTab() {
                 borderRadius: "8px",
                 border: "none",
                 background:
-                  isLoading || !question.trim() ? "#4A1020" : "var(--primary)",
+                  isLoading || !question.trim() ? "#4A1020" : "#9B1B30",
                 color:
-                  isLoading || !question.trim() ? "color-mix(in srgb, var(--text-secondary) 33%, transparent)" : "var(--text-primary)",
+                  isLoading || !question.trim() ? "#C5C0B855" : "#F0EDE8",
                 fontSize: "14px",
                 fontWeight: 600,
                 cursor:
@@ -269,7 +269,7 @@ export function NaturalLanguageTab() {
               }}
               onMouseLeave={(e) => {
                 if (!isLoading && question.trim()) {
-                  e.currentTarget.style.background = "var(--primary)";
+                  e.currentTarget.style.background = "#9B1B30";
                 }
               }}
             >
@@ -290,9 +290,9 @@ export function NaturalLanguageTab() {
                   marginTop: "12px",
                   padding: "10px 14px",
                   borderRadius: "6px",
-                  border: "1px solid color-mix(in srgb, var(--primary) 25%, transparent)",
-                  background: "color-mix(in srgb, var(--primary) 8%, transparent)",
-                  color: 'var(--critical)',
+                  border: "1px solid #9B1B3040",
+                  background: "#9B1B3015",
+                  color: "#F87171",
                   fontSize: "13px",
                 }}
               >
@@ -308,8 +308,8 @@ export function NaturalLanguageTab() {
           {history.length > 0 && (
             <div
               style={{
-                background: "var(--surface-raised)",
-                border: "1px solid var(--surface-elevated)",
+                background: "#151518",
+                border: "1px solid #232328",
                 borderRadius: "10px",
                 overflow: "hidden",
               }}
@@ -320,7 +320,7 @@ export function NaturalLanguageTab() {
                   alignItems: "center",
                   justifyContent: "space-between",
                   padding: "12px 16px",
-                  borderBottom: "1px solid var(--surface-elevated)",
+                  borderBottom: "1px solid #232328",
                 }}
               >
                 <div
@@ -330,10 +330,10 @@ export function NaturalLanguageTab() {
                     gap: "7px",
                     fontSize: "13px",
                     fontWeight: 600,
-                    color: "var(--text-secondary)",
+                    color: "#C5C0B8",
                   }}
                 >
-                  <Clock size={14} style={{ color: "var(--text-muted)" }} />
+                  <Clock size={14} style={{ color: "#8A857D" }} />
                   Query History
                 </div>
                 <button
@@ -344,9 +344,9 @@ export function NaturalLanguageTab() {
                     gap: "5px",
                     padding: "3px 8px",
                     borderRadius: "5px",
-                    border: "1px solid var(--surface-elevated)",
+                    border: "1px solid #232328",
                     background: "none",
-                    color: "var(--text-muted)",
+                    color: "#8A857D",
                     fontSize: "11px",
                     cursor: "pointer",
                     fontFamily: "inherit",
@@ -354,11 +354,11 @@ export function NaturalLanguageTab() {
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.color = "#F87171";
-                    e.currentTarget.style.borderColor = "color-mix(in srgb, var(--primary) 25%, transparent)";
+                    e.currentTarget.style.borderColor = "#9B1B3040";
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.color = "var(--text-muted)";
-                    e.currentTarget.style.borderColor = "var(--surface-elevated)";
+                    e.currentTarget.style.color = "#8A857D";
+                    e.currentTarget.style.borderColor = "#232328";
                   }}
                 >
                   <Trash2 size={11} />
@@ -379,14 +379,14 @@ export function NaturalLanguageTab() {
                       padding: "10px 16px",
                       background: "none",
                       border: "none",
-                      borderBottom: "1px solid var(--surface-elevated)",
+                      borderBottom: "1px solid #232328",
                       cursor: "pointer",
                       textAlign: "left",
                       fontFamily: "inherit",
                       transition: "background 150ms",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.background = "var(--surface-overlay)";
+                      e.currentTarget.style.background = "#1C1C20";
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.background = "none";
@@ -395,7 +395,7 @@ export function NaturalLanguageTab() {
                     <span
                       style={{
                         fontSize: "13px",
-                        color: "var(--text-secondary)",
+                        color: "#C5C0B8",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
@@ -405,7 +405,7 @@ export function NaturalLanguageTab() {
                     >
                       {entry.question}
                     </span>
-                    <span style={{ fontSize: "11px", color: "var(--text-muted)" }}>
+                    <span style={{ fontSize: "11px", color: "#8A857D" }}>
                       {new Date(entry.timestamp).toLocaleString()}
                     </span>
                   </button>
@@ -442,9 +442,9 @@ export function NaturalLanguageTab() {
                 justifyContent: "center",
                 gap: "14px",
                 padding: "60px 24px",
-                border: "1px dashed var(--surface-elevated)",
+                border: "1px dashed #232328",
                 borderRadius: "10px",
-                background: "var(--surface-raised)",
+                background: "#151518",
                 textAlign: "center",
               }}
             >
@@ -461,7 +461,7 @@ export function NaturalLanguageTab() {
               >
                 <MessageSquareCode
                   size={24}
-                  style={{ color: "var(--primary)" }}
+                  style={{ color: "#9B1B30" }}
                 />
               </div>
               <div>
@@ -469,7 +469,7 @@ export function NaturalLanguageTab() {
                   style={{
                     fontSize: "15px",
                     fontWeight: 600,
-                    color: "var(--text-secondary)",
+                    color: "#C5C0B8",
                     marginBottom: "6px",
                   }}
                 >
@@ -478,7 +478,7 @@ export function NaturalLanguageTab() {
                 <p
                   style={{
                     fontSize: "13px",
-                    color: "var(--text-muted)",
+                    color: "#8A857D",
                     margin: 0,
                     maxWidth: "320px",
                   }}

@@ -1,0 +1,70 @@
+{
+    "id": 220,
+    "name": "S8: Drug Dependence — First Occurrence",
+    "description": "First diagnosis of dependent drug abuse. Secondary outcome for the Opioid Trajectory study.",
+    "expression_json": {
+        "ConceptSets": [
+            {
+                "id": 0,
+                "name": "Drug Dependence",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 4275756,
+                                "CONCEPT_NAME": "Dependent drug abuse",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            }
+        ],
+        "InclusionRules": [],
+        "QualifiedLimit": {
+            "Type": "First"
+        },
+        "ExpressionLimit": {
+            "Type": "First"
+        },
+        "PrimaryCriteria": {
+            "CriteriaList": [
+                {
+                    "ConditionOccurrence": {
+                        "First": true,
+                        "CodesetId": 0
+                    }
+                }
+            ],
+            "ObservationWindow": {
+                "PostDays": 0,
+                "PriorDays": 0
+            }
+        },
+        "CollapseSettings": {
+            "EraPad": 0,
+            "CollapseType": "ERA"
+        },
+        "CensoringCriteria": []
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-03-19T21:00:00.000000Z",
+    "updated_at": "2026-03-19T21:00:00.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "opioid",
+        "drug-dependence",
+        "outcome",
+        "s8"
+    ],
+    "share_token": null,
+    "share_expires_at": null
+}

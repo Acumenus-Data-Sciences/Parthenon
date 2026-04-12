@@ -262,7 +262,7 @@ export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
   return (
     <div className="flex flex-col h-full">
       {/* Sub-tab bar */}
-      <div className="flex items-center justify-between border-b border-zinc-700/50 px-4 pt-3 pb-0 shrink-0">
+      <div className="flex items-center justify-between border-b border-border-default/50 px-4 pt-3 pb-0 shrink-0">
         <div className="flex items-center gap-1" role="tablist">
           {SUB_TABS.map((tab) => (
             <button
@@ -275,7 +275,7 @@ export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
                 tab.disabled
                   ? "text-zinc-600 cursor-not-allowed"
                   : activeTab === tab.id
-                    ? "text-success"
+                    ? "text-[#2DD4BF]"
                     : "text-zinc-400 hover:text-zinc-200"
               }`}
             >
@@ -286,7 +286,7 @@ export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
                 </span>
               )}
               {activeTab === tab.id && !tab.disabled && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-success rounded-full" />
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2DD4BF] rounded-full" />
               )}
             </button>
           ))}
@@ -299,8 +299,8 @@ export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
               status === "saving"
                 ? "text-amber-400 bg-amber-900/20 border-amber-600/30"
                 : status === "saved"
-                  ? "text-success bg-teal-900/20 border-teal-600/30"
-                  : "text-primary bg-red-900/20 border-red-700/30"
+                  ? "text-[#2DD4BF] bg-teal-900/20 border-teal-600/30"
+                  : "text-[#9B1B30] bg-red-900/20 border-red-700/30"
             }`}
           >
             {status === "saving"
@@ -322,7 +322,7 @@ export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
             </div>
 
             {/* Right: Concept Set Builder + Domain heatmap (narrower) */}
-            <div className="flex-[2] min-w-0 overflow-hidden flex flex-col gap-3 border-l border-zinc-700/50 pl-4">
+            <div className="flex-[2] min-w-0 overflow-hidden flex flex-col gap-3 border-l border-border-default/50 pl-4">
               <div className="flex-1 min-h-0 overflow-hidden">
                 <ConceptSetBuilder
                   entries={activeSet.entries}

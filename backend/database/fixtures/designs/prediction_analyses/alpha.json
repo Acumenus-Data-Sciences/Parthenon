@@ -1,0 +1,52 @@
+{
+    "id": 22,
+    "name": "alpha",
+    "description": null,
+    "design_json": {
+        "model": {
+            "type": "lasso_logistic_regression",
+            "hyperParameters": []
+        },
+        "timeAtRisk": {
+            "end": 365,
+            "start": 1,
+            "endAnchor": "cohort start"
+        },
+        "splitSettings": {
+            "splitSeed": 42,
+            "testFraction": 0.25
+        },
+        "targetCohortId": 226,
+        "outcomeCohortId": 227,
+        "covariateSettings": {
+            "useDcsi": true,
+            "useChads2": true,
+            "timeWindows": [
+                {
+                    "end": 0,
+                    "start": -365
+                }
+            ],
+            "useChads2Vasc": true,
+            "useVisitCount": true,
+            "useMeasurement": true,
+            "useObservation": true,
+            "useDemographics": true,
+            "useDrugExposure": true,
+            "useCharlsonIndex": true,
+            "useDeviceExposure": true,
+            "useConditionOccurrence": true,
+            "useProcedureOccurrence": true
+        },
+        "populationSettings": {
+            "minTimeAtRisk": 365,
+            "washoutPeriod": 365,
+            "requireTimeAtRisk": true,
+            "removeSubjectsWithPriorOutcome": true
+        }
+    },
+    "author_id": 154,
+    "created_at": "2026-03-29T04:18:46.000000Z",
+    "updated_at": "2026-03-29T04:19:15.000000Z",
+    "deleted_at": null
+}

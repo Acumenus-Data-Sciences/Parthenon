@@ -54,13 +54,13 @@ export function ImportConceptSetModal({
     <Modal open={open} onClose={onClose} title="Import Concept Set" size="md">
       <div className="space-y-4">
         <div>
-          <label className="block text-xs font-medium text-text-muted mb-1.5">
+          <label className="block text-xs font-medium text-[#8A857D] mb-1.5">
             Upload JSON file
           </label>
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
-            className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-muted hover:text-text-secondary hover:border-surface-highlight transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg border border-[#2A2A30] bg-[#151518] px-3 py-2 text-sm text-[#8A857D] hover:text-[#C5C0B8] hover:border-[#3A3A42] transition-colors"
           >
             <Upload size={14} />
             Choose file
@@ -75,7 +75,7 @@ export function ImportConceptSetModal({
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-text-muted mb-1.5">
+          <label className="block text-xs font-medium text-[#8A857D] mb-1.5">
             Or paste JSON (Atlas format)
           </label>
           <textarea
@@ -83,25 +83,25 @@ export function ImportConceptSetModal({
             onChange={(e) => setJsonText(e.target.value)}
             rows={8}
             placeholder={'{\n  "name": "My Concept Set",\n  "expression": { "items": [...] }\n}'}
-            className="w-full rounded-lg bg-surface-base border border-border-default px-3 py-2 text-xs font-mono text-text-secondary placeholder:text-surface-highlight focus:outline-none focus:border-success/50 resize-none"
+            className="w-full rounded-lg bg-[#0E0E11] border border-[#2A2A30] px-3 py-2 text-xs font-mono text-[#C5C0B8] placeholder:text-[#3A3A42] focus:outline-none focus:border-[#2DD4BF]/50 resize-none"
           />
         </div>
 
-        {error && <p className="text-xs text-critical">{error}</p>}
+        {error && <p className="text-xs text-[#E85A6B]">{error}</p>}
 
         {result && (
-          <div className="rounded-lg bg-surface-base border border-border-default p-3 space-y-2">
+          <div className="rounded-lg bg-[#0E0E11] border border-[#2A2A30] p-3 space-y-2">
             <div className="flex items-center gap-4 text-xs">
-              <span className="flex items-center gap-1 text-success">
+              <span className="flex items-center gap-1 text-[#2DD4BF]">
                 <CheckCircle size={12} />
                 {result.imported} imported
               </span>
-              <span className="flex items-center gap-1 text-accent">
+              <span className="flex items-center gap-1 text-[#C9A227]">
                 <SkipForward size={12} />
                 {result.skipped} skipped
               </span>
               {result.failed > 0 && (
-                <span className="flex items-center gap-1 text-critical">
+                <span className="flex items-center gap-1 text-[#E85A6B]">
                   <AlertCircle size={12} />
                   {result.failed} failed
                 </span>
@@ -110,12 +110,12 @@ export function ImportConceptSetModal({
             {result.results
               .filter((r) => r.status !== "imported")
               .map((r, i) => (
-                <p key={i} className="text-[10px] text-text-muted">
+                <p key={i} className="text-[10px] text-[#8A857D]">
                   <span
                     className={
                       r.status === "skipped"
-                        ? "text-accent"
-                        : "text-critical"
+                        ? "text-[#C9A227]"
+                        : "text-[#E85A6B]"
                     }
                   >
                     {r.status === "skipped" ? "\u21B7" : "\u2717"}
@@ -130,7 +130,7 @@ export function ImportConceptSetModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-border-default bg-surface-raised px-4 py-2 text-sm text-text-muted hover:text-text-secondary transition-colors"
+            className="rounded-lg border border-[#2A2A30] bg-[#151518] px-4 py-2 text-sm text-[#8A857D] hover:text-[#C5C0B8] transition-colors"
           >
             {result ? "Close" : "Cancel"}
           </button>
@@ -139,7 +139,7 @@ export function ImportConceptSetModal({
               type="button"
               onClick={handleSubmit}
               disabled={loading || !jsonText.trim()}
-              className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base hover:bg-success transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-medium text-[#0E0E11] hover:bg-[#26B8A5] transition-colors disabled:opacity-50"
             >
               {loading && <Loader2 size={14} className="animate-spin" />}
               Import

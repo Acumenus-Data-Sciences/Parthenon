@@ -35,10 +35,10 @@ function InfoField({
 }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="text-[10px] uppercase tracking-wider text-text-ghost font-semibold">
+      <span className="text-[10px] uppercase tracking-wider text-[#5A5650] font-semibold">
         {label}
       </span>
-      <span className="text-sm text-text-primary">
+      <span className="text-sm text-[#F0EDE8]">
         {value ?? "--"}
       </span>
     </div>
@@ -79,9 +79,9 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
   if (!conceptId) {
     return (
       <div className="flex flex-col items-center justify-center h-full px-8">
-        <ExternalLink size={32} className="text-surface-highlight mb-4" />
-        <p className="text-sm text-text-muted">Select a concept to view details</p>
-        <p className="mt-1 text-xs text-text-ghost">
+        <ExternalLink size={32} className="text-[#323238] mb-4" />
+        <p className="text-sm text-[#8A857D]">Select a concept to view details</p>
+        <p className="mt-1 text-xs text-[#5A5650]">
           Search and click a concept from the left panel
         </p>
       </div>
@@ -91,7 +91,7 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <Loader2 size={24} className="animate-spin text-text-muted" />
+        <Loader2 size={24} className="animate-spin text-[#8A857D]" />
       </div>
     );
   }
@@ -99,7 +99,7 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
   if (!concept) {
     return (
       <div className="flex items-center justify-center h-full">
-        <p className="text-sm text-critical">Failed to load concept</p>
+        <p className="text-sm text-[#E85A6B]">Failed to load concept</p>
       </div>
     );
   }
@@ -109,9 +109,9 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
   return (
     <div className="flex flex-col h-full">
       {/* Concept Header */}
-      <div className="px-6 py-5 border-b border-border-default bg-surface-raised">
+      <div className="px-6 py-5 border-b border-[#232328] bg-[#151518]">
         <div className="flex items-center gap-3 mb-2">
-          <span className="font-['IBM_Plex_Mono',monospace] text-sm tabular-nums text-accent">
+          <span className="font-['IBM_Plex_Mono',monospace] text-sm tabular-nums text-[#C9A227]">
             {concept.concept_id}
           </span>
           <button
@@ -120,34 +120,34 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
               navigator.clipboard.writeText(String(concept.concept_id));
               toast.success("Concept ID copied");
             }}
-            className="p-0.5 rounded text-text-ghost hover:text-accent transition-colors"
+            className="p-0.5 rounded text-[#5A5650] hover:text-[#C9A227] transition-colors"
             title="Copy concept ID"
           >
             <Copy size={12} />
           </button>
           {isStandard && (
-            <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-success/15 text-success">
+            <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#2DD4BF]/15 text-[#2DD4BF]">
               Standard
             </span>
           )}
         </div>
-        <h2 className="text-xl font-semibold text-text-primary leading-snug">
+        <h2 className="text-xl font-semibold text-[#F0EDE8] leading-snug">
           {concept.concept_name}
         </h2>
         <div className="flex flex-wrap items-center gap-2 mt-3">
-          <span className="inline-flex items-center rounded px-2 py-1 text-xs font-medium bg-info/15 text-info">
+          <span className="inline-flex items-center rounded px-2 py-1 text-xs font-medium bg-[#60A5FA]/15 text-[#60A5FA]">
             {concept.domain_id}
           </span>
-          <span className="inline-flex items-center rounded px-2 py-1 text-xs font-medium bg-accent/15 text-accent">
+          <span className="inline-flex items-center rounded px-2 py-1 text-xs font-medium bg-[#C9A227]/15 text-[#C9A227]">
             {concept.vocabulary_id}
           </span>
-          <span className="inline-flex items-center rounded px-2 py-1 text-xs font-medium bg-text-muted/15 text-text-muted">
+          <span className="inline-flex items-center rounded px-2 py-1 text-xs font-medium bg-[#8A857D]/15 text-[#8A857D]">
             {concept.concept_class_id}
           </span>
           <button
             type="button"
             onClick={() => setShowAddToSet(true)}
-            className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-medium bg-success/15 text-success hover:bg-success/25 transition-colors ml-auto"
+            className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-medium bg-[#2DD4BF]/15 text-[#2DD4BF] hover:bg-[#2DD4BF]/25 transition-colors ml-auto"
           >
             <Plus size={12} />
             Add to Set
@@ -156,7 +156,7 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 px-6 border-b border-border-default">
+      <div className="flex items-center gap-1 px-6 border-b border-[#232328]">
         {TABS.map((tab) => (
           <button
             key={tab.id}
@@ -165,13 +165,13 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
             className={cn(
               "relative px-3 py-2.5 text-xs uppercase tracking-wide transition-colors",
               activeTab === tab.id
-                ? "text-text-primary font-medium"
-                : "text-text-muted hover:text-text-secondary",
+                ? "text-[#F0EDE8] font-medium"
+                : "text-[#8A857D] hover:text-[#C5C0B8]",
             )}
           >
             {tab.label}
             {activeTab === tab.id && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent" />
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#C9A227]" />
             )}
           </button>
         ))}
@@ -183,10 +183,10 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
           <div className="space-y-6">
             {/* Basic Info */}
             <section>
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-3">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-[#8A857D] mb-3">
                 Basic Information
               </h3>
-              <div className="grid grid-cols-2 gap-4 rounded-lg border border-border-default bg-surface-overlay p-4">
+              <div className="grid grid-cols-2 gap-4 rounded-lg border border-[#232328] bg-[#1A1A1E] p-4">
                 <InfoField label="Concept Code" value={concept.concept_code} />
                 <InfoField label="Domain" value={concept.domain_id} />
                 <InfoField label="Vocabulary" value={concept.vocabulary_id} />
@@ -222,13 +222,13 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
             {/* Synonyms */}
             {concept.synonyms && concept.synonyms.length > 0 && (
               <section>
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-3">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-[#8A857D] mb-3">
                   Synonyms
                 </h3>
-                <div className="rounded-lg border border-border-default bg-surface-overlay p-4">
+                <div className="rounded-lg border border-[#232328] bg-[#1A1A1E] p-4">
                   <ul className="space-y-1">
                     {concept.synonyms.map((syn: { concept_synonym_name: string }, i: number) => (
-                      <li key={i} className="text-sm text-text-primary">
+                      <li key={i} className="text-sm text-[#F0EDE8]">
                         {syn.concept_synonym_name}
                       </li>
                     ))}
@@ -239,33 +239,33 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
 
             {/* Ancestors */}
             <section>
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-3">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-[#8A857D] mb-3">
                 Ancestors
               </h3>
               {isLoadingAnc ? (
                 <div className="flex items-center justify-center py-6">
                   <Loader2
                     size={16}
-                    className="animate-spin text-text-muted"
+                    className="animate-spin text-[#8A857D]"
                   />
                 </div>
               ) : !ancestors || ancestors.length === 0 ? (
-                <p className="text-xs text-text-ghost">No ancestors found</p>
+                <p className="text-xs text-[#5A5650]">No ancestors found</p>
               ) : (
-                <div className="rounded-lg border border-border-default bg-surface-overlay overflow-hidden">
+                <div className="rounded-lg border border-[#232328] bg-[#1A1A1E] overflow-hidden">
                   <table className="w-full">
                     <thead>
-                      <tr className="bg-surface-overlay">
-                        <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+                      <tr className="bg-[#1C1C20]">
+                        <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
                           ID
                         </th>
-                        <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+                        <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
                           Name
                         </th>
-                        <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+                        <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
                           Domain
                         </th>
-                        <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+                        <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
                           Vocabulary
                         </th>
                       </tr>
@@ -276,24 +276,24 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
                           key={anc.concept_id}
                           onClick={() => onSelectConcept?.(anc.concept_id)}
                           className={cn(
-                            "border-t border-border-default transition-colors",
-                            i % 2 === 0 ? "bg-surface-overlay" : "bg-surface-raised",
-                            onSelectConcept && "cursor-pointer hover:bg-surface-elevated",
+                            "border-t border-[#232328] transition-colors",
+                            i % 2 === 0 ? "bg-[#1A1A1E]" : "bg-[#151518]",
+                            onSelectConcept && "cursor-pointer hover:bg-[#232328]",
                           )}
                         >
-                          <td className="px-3 py-2 text-xs font-['IBM_Plex_Mono',monospace] tabular-nums text-accent">
+                          <td className="px-3 py-2 text-xs font-['IBM_Plex_Mono',monospace] tabular-nums text-[#C9A227]">
                             {anc.concept_id}
                           </td>
-                          <td className="px-3 py-2 text-xs text-text-primary">
+                          <td className="px-3 py-2 text-xs text-[#F0EDE8]">
                             {anc.concept_name}
                           </td>
                           <td className="px-3 py-2">
-                            <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-info/15 text-info">
+                            <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-[#60A5FA]/15 text-[#60A5FA]">
                               {anc.domain_id}
                             </span>
                           </td>
                           <td className="px-3 py-2">
-                            <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-accent/15 text-accent">
+                            <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-[#C9A227]/15 text-[#C9A227]">
                               {anc.vocabulary_id}
                             </span>
                           </td>
@@ -311,38 +311,38 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
           const totalPages = relationships ? Math.max(1, Math.ceil(relationships.total / relationships.limit)) : 1;
           return (
             <div>
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-3">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-[#8A857D] mb-3">
                 Relationships
               </h3>
               {isLoadingRels ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2
                     size={18}
-                    className="animate-spin text-text-muted"
+                    className="animate-spin text-[#8A857D]"
                   />
                 </div>
               ) : !relationships?.items || relationships.items.length === 0 ? (
-                <p className="text-xs text-text-ghost">
+                <p className="text-xs text-[#5A5650]">
                   No relationships found
                 </p>
               ) : (
-                <div className="rounded-lg border border-border-default bg-surface-overlay overflow-hidden">
+                <div className="rounded-lg border border-[#232328] bg-[#1A1A1E] overflow-hidden">
                   <table className="w-full">
                     <thead>
-                      <tr className="bg-surface-overlay">
-                        <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+                      <tr className="bg-[#1C1C20]">
+                        <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
                           Relationship
                         </th>
-                        <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+                        <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
                           Related ID
                         </th>
-                        <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+                        <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
                           Related Name
                         </th>
-                        <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+                        <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
                           Domain
                         </th>
-                        <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+                        <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
                           Vocabulary
                         </th>
                       </tr>
@@ -353,29 +353,29 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
                           key={`${rel.relationship_id}-${rel.concept_id_2}`}
                           onClick={() => onSelectConcept?.(rel.related_concept.concept_id)}
                           className={cn(
-                            "border-t border-border-default transition-colors",
-                            i % 2 === 0 ? "bg-surface-overlay" : "bg-surface-raised",
-                            onSelectConcept && "cursor-pointer hover:bg-surface-elevated",
+                            "border-t border-[#232328] transition-colors",
+                            i % 2 === 0 ? "bg-[#1A1A1E]" : "bg-[#151518]",
+                            onSelectConcept && "cursor-pointer hover:bg-[#232328]",
                           )}
                         >
                           <td className="px-3 py-2">
-                            <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[var(--domain-observation)]/15 text-[var(--domain-observation)]">
+                            <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#A78BFA]/15 text-[#A78BFA]">
                               {rel.relationship_id}
                             </span>
                           </td>
-                          <td className="px-3 py-2 text-xs font-['IBM_Plex_Mono',monospace] tabular-nums text-accent">
+                          <td className="px-3 py-2 text-xs font-['IBM_Plex_Mono',monospace] tabular-nums text-[#C9A227]">
                             {rel.related_concept.concept_id}
                           </td>
-                          <td className="px-3 py-2 text-xs text-text-primary">
+                          <td className="px-3 py-2 text-xs text-[#F0EDE8]">
                             {rel.related_concept.concept_name}
                           </td>
                           <td className="px-3 py-2">
-                            <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-info/15 text-info">
+                            <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-[#60A5FA]/15 text-[#60A5FA]">
                               {rel.related_concept.domain_id}
                             </span>
                           </td>
                           <td className="px-3 py-2">
-                            <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-accent/15 text-accent">
+                            <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-[#C9A227]/15 text-[#C9A227]">
                               {rel.related_concept.vocabulary_id}
                             </span>
                           </td>
@@ -384,8 +384,8 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
                     </tbody>
                   </table>
                   {/* Pagination */}
-                  <div className="flex items-center justify-between px-3 py-2 border-t border-border-default">
-                    <p className="text-[10px] text-text-ghost">
+                  <div className="flex items-center justify-between px-3 py-2 border-t border-[#232328]">
+                    <p className="text-[10px] text-[#5A5650]">
                       Showing {(relPage - 1) * relationships.limit + 1}–{Math.min(relPage * relationships.limit, relationships.total)} of{" "}
                       {relationships.total}
                     </p>
@@ -395,18 +395,18 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
                           type="button"
                           onClick={() => setRelPage((p) => Math.max(1, p - 1))}
                           disabled={relPage <= 1}
-                          className="p-1 rounded text-text-muted hover:text-text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                          className="p-1 rounded text-[#8A857D] hover:text-[#F0EDE8] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                         >
                           <ChevronLeft size={14} />
                         </button>
-                        <span className="text-[10px] text-text-secondary px-1">
+                        <span className="text-[10px] text-[#C5C0B8] px-1">
                           {relPage} / {totalPages}
                         </span>
                         <button
                           type="button"
                           onClick={() => setRelPage((p) => Math.min(totalPages, p + 1))}
                           disabled={relPage >= totalPages}
-                          className="p-1 rounded text-text-muted hover:text-text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                          className="p-1 rounded text-[#8A857D] hover:text-[#F0EDE8] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                         >
                           <ChevronRight size={14} />
                         </button>
@@ -421,40 +421,40 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
 
         {activeTab === "maps-from" && (
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-[#8A857D] mb-1">
               Source Codes Mapping To This Concept
             </h3>
-            <p className="text-[10px] text-text-ghost mb-3">
+            <p className="text-[10px] text-[#5A5650] mb-3">
               Source vocabulary codes (ICD-10, SNOMED, RxNorm, etc.) that map to this standard concept
             </p>
             {isLoadingMapsFrom ? (
               <div className="flex items-center justify-center py-8">
                 <Loader2
                   size={18}
-                  className="animate-spin text-text-muted"
+                  className="animate-spin text-[#8A857D]"
                 />
               </div>
             ) : !mapsFrom?.data || mapsFrom.data.length === 0 ? (
-              <div className="rounded-lg border border-border-default bg-surface-overlay p-6 text-center">
-                <p className="text-xs text-text-ghost">
+              <div className="rounded-lg border border-[#232328] bg-[#1A1A1E] p-6 text-center">
+                <p className="text-xs text-[#5A5650]">
                   No source codes map to this concept
                 </p>
               </div>
             ) : (
-              <div className="rounded-lg border border-border-default bg-surface-overlay overflow-hidden">
+              <div className="rounded-lg border border-[#232328] bg-[#1A1A1E] overflow-hidden">
                 <table className="w-full">
                   <thead>
-                    <tr className="bg-surface-overlay">
-                      <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+                    <tr className="bg-[#1C1C20]">
+                      <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
                         Code
                       </th>
-                      <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+                      <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
                         Name
                       </th>
-                      <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+                      <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
                         Vocabulary
                       </th>
-                      <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">
+                      <th className="px-3 py-2 text-left text-[10px] font-semibold uppercase tracking-wider text-[#8A857D]">
                         Class
                       </th>
                     </tr>
@@ -464,23 +464,23 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
                       <tr
                         key={entry.concept_id}
                         className={cn(
-                          "border-t border-border-default",
-                          i % 2 === 0 ? "bg-surface-overlay" : "bg-surface-raised",
+                          "border-t border-[#232328]",
+                          i % 2 === 0 ? "bg-[#1A1A1E]" : "bg-[#151518]",
                         )}
                       >
-                        <td className="px-3 py-2 text-xs font-['IBM_Plex_Mono',monospace] tabular-nums text-accent">
+                        <td className="px-3 py-2 text-xs font-['IBM_Plex_Mono',monospace] tabular-nums text-[#C9A227]">
                           {entry.concept_code}
                         </td>
-                        <td className="px-3 py-2 text-xs text-text-primary">
+                        <td className="px-3 py-2 text-xs text-[#F0EDE8]">
                           {entry.concept_name}
                         </td>
                         <td className="px-3 py-2">
-                          <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-accent/15 text-accent">
+                          <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-[#C9A227]/15 text-[#C9A227]">
                             {entry.vocabulary_id}
                           </span>
                         </td>
                         <td className="px-3 py-2">
-                          <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-text-muted/15 text-text-muted">
+                          <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-[#8A857D]/15 text-[#8A857D]">
                             {entry.concept_class_id}
                           </span>
                         </td>
@@ -489,8 +489,8 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
                   </tbody>
                 </table>
                 {mapsFrom.total > mapsFrom.data.length && (
-                  <div className="px-3 py-2 border-t border-border-default text-center">
-                    <p className="text-[10px] text-text-ghost">
+                  <div className="px-3 py-2 border-t border-[#232328] text-center">
+                    <p className="text-[10px] text-[#5A5650]">
                       Showing {mapsFrom.data.length} of {mapsFrom.total} source codes
                     </p>
                   </div>
@@ -502,7 +502,7 @@ export function ConceptDetailPanel({ conceptId, onSelectConcept }: ConceptDetail
 
         {activeTab === "hierarchy" && (
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-3">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-[#8A857D] mb-3">
               Concept Hierarchy
             </h3>
             <HierarchyTree

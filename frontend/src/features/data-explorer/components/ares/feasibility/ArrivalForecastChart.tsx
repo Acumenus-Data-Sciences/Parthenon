@@ -23,7 +23,7 @@ export default function ArrivalForecastChart({
 }: ArrivalForecastChartProps) {
   if (forecast.historical.length === 0 && forecast.projected.length === 0) {
     return (
-      <div className="flex h-48 items-center justify-center text-text-ghost">
+      <div className="flex h-48 items-center justify-center text-[#555]">
         Insufficient historical data for forecast (minimum 6 months required).
       </div>
     );
@@ -62,21 +62,21 @@ export default function ArrivalForecastChart({
   const effectiveTarget = targetCount ?? null;
 
   return (
-    <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
+    <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
       <div className="mb-3 flex items-center justify-between">
         <div>
           <h4 className="text-sm font-medium text-white">
             Patient Arrival Forecast: {forecast.source_name}
           </h4>
-          <p className="text-[11px] text-text-ghost">
+          <p className="text-[11px] text-[#666]">
             Monthly rate: {forecast.monthly_rate > 0 ? `+${forecast.monthly_rate}` : forecast.monthly_rate} patients/month
             {forecast.months_to_target !== null && forecast.months_to_target > 0 && (
-              <span className="ml-2 text-accent">
+              <span className="ml-2 text-[#C9A227]">
                 Target reached in ~{forecast.months_to_target} months
               </span>
             )}
             {forecast.months_to_target === 0 && (
-              <span className="ml-2 text-success">Target already reached</span>
+              <span className="ml-2 text-[#2DD4BF]">Target already reached</span>
             )}
           </p>
         </div>
@@ -91,23 +91,23 @@ export default function ArrivalForecastChart({
             <CartesianGrid strokeDasharray="3 3" stroke="#252530" />
             <XAxis
               dataKey="month"
-              tick={{ fill: 'var(--text-muted)', fontSize: 10 }}
-              axisLine={{ stroke: 'var(--border-default)' }}
+              tick={{ fill: "#888", fontSize: 10 }}
+              axisLine={{ stroke: "#333" }}
               angle={-45}
               textAnchor="end"
               interval="preserveStartEnd"
             />
             <YAxis
-              tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
-              axisLine={{ stroke: 'var(--border-default)' }}
+              tick={{ fill: "#888", fontSize: 11 }}
+              axisLine={{ stroke: "#333" }}
               tickFormatter={(v: number) => v.toLocaleString()}
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: 'var(--surface-overlay)',
+                backgroundColor: "#1a1a22",
                 border: "1px solid #333",
                 borderRadius: "8px",
-                color: 'var(--text-secondary)',
+                color: "#ccc",
                 fontSize: 12,
               }}
               formatter={((value: number | null, name: string) => {
@@ -122,7 +122,7 @@ export default function ArrivalForecastChart({
               }) as never}
             />
             <Legend
-              wrapperStyle={{ fontSize: 11, color: 'var(--text-muted)' }}
+              wrapperStyle={{ fontSize: 11, color: "#888" }}
               formatter={(value: string) => {
                 if (value === "historical") return "Actual";
                 if (value === "projected") return "Projected";
@@ -135,7 +135,7 @@ export default function ArrivalForecastChart({
             <Area
               dataKey="upper"
               stroke="none"
-              fill="var(--accent)"
+              fill="#C9A227"
               fillOpacity={0.1}
               name="confidenceBand"
               connectNulls={false}
@@ -143,7 +143,7 @@ export default function ArrivalForecastChart({
             <Area
               dataKey="lower"
               stroke="none"
-              fill="var(--surface-raised)"
+              fill="#151518"
               fillOpacity={1}
               legendType="none"
               connectNulls={false}
@@ -153,9 +153,9 @@ export default function ArrivalForecastChart({
             <Line
               dataKey="historical"
               type="monotone"
-              stroke="var(--success)"
+              stroke="#2DD4BF"
               strokeWidth={2}
-              dot={{ fill: "var(--success)", r: 2 }}
+              dot={{ fill: "#2DD4BF", r: 2 }}
               connectNulls={false}
               name="historical"
             />
@@ -164,7 +164,7 @@ export default function ArrivalForecastChart({
             <Line
               dataKey="projected"
               type="monotone"
-              stroke="var(--accent)"
+              stroke="#C9A227"
               strokeWidth={2}
               strokeDasharray="6 3"
               dot={false}
@@ -180,7 +180,7 @@ export default function ArrivalForecastChart({
                 strokeDasharray="4 4"
                 label={{
                   value: `Target: ${effectiveTarget.toLocaleString()}`,
-                  fill: "var(--critical)",
+                  fill: "#e85d75",
                   fontSize: 11,
                   position: "insideTopRight",
                 }}
@@ -190,7 +190,7 @@ export default function ArrivalForecastChart({
         </ResponsiveContainer>
       </div>
 
-      <p className="mt-2 text-[10px] text-text-ghost">
+      <p className="mt-2 text-[10px] text-[#555]">
         Projection based on linear regression of last 12 months. Confidence band widens with projection distance.
       </p>
     </div>

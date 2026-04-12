@@ -35,20 +35,20 @@ function InlineTablePreview({ data }: { data: TableData }) {
   if (data.rows.length === 0) return null;
 
   return (
-    <div className="rounded-lg border border-border-default overflow-hidden">
-      <div className="px-3 py-1.5 bg-surface-overlay border-b border-border-default">
-        <span className="text-[10px] font-medium text-text-ghost uppercase tracking-wide">
+    <div className="rounded-lg border border-[#232328] overflow-hidden">
+      <div className="px-3 py-1.5 bg-[#1A1A1F] border-b border-[#232328]">
+        <span className="text-[10px] font-medium text-[#5A5650] uppercase tracking-wide">
           Table: {data.caption}
         </span>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
-            <tr className="border-b border-border-default">
+            <tr className="border-b border-[#232328]">
               {data.headers.map((h) => (
                 <th
                   key={h}
-                  className="px-3 py-1.5 text-left font-medium text-text-muted whitespace-nowrap"
+                  className="px-3 py-1.5 text-left font-medium text-[#8A857D] whitespace-nowrap"
                   style={{ textAlign: h === data.headers[0] ? "left" : "right" }}
                 >
                   {h}
@@ -58,11 +58,11 @@ function InlineTablePreview({ data }: { data: TableData }) {
           </thead>
           <tbody>
             {data.rows.map((row, i) => (
-              <tr key={i} className="border-b border-border-default/50">
+              <tr key={i} className="border-b border-[#232328]/50">
                 {data.headers.map((h, ci) => (
                   <td
                     key={h}
-                    className="px-3 py-1 text-text-primary whitespace-nowrap"
+                    className="px-3 py-1 text-[#F0EDE8] whitespace-nowrap"
                     style={{ textAlign: ci === 0 ? "left" : "right" }}
                   >
                     {row[h] ?? "—"}
@@ -111,16 +111,16 @@ export default function SectionEditor({
     <div
       ref={setNodeRef}
       style={style}
-      className={`bg-surface-raised border rounded-lg ${
-        section.included ? "border-border-default" : "border-border-default/50"
+      className={`bg-[#151518] border rounded-lg ${
+        section.included ? "border-[#232328]" : "border-[#232328]/50"
       }`}
     >
       {/* Header */}
-      <div className="flex items-center gap-2 px-3 py-2 border-b border-border-default">
+      <div className="flex items-center gap-2 px-3 py-2 border-b border-[#232328]">
         {/* Drag handle */}
         <button
           type="button"
-          className="cursor-grab text-text-ghost hover:text-text-primary touch-none"
+          className="cursor-grab text-[#5A5650] hover:text-[#F0EDE8] touch-none"
           {...attributes}
           {...listeners}
         >
@@ -128,20 +128,20 @@ export default function SectionEditor({
         </button>
 
         {/* Title */}
-        <span className="flex-1 text-sm font-medium text-text-primary truncate">
+        <span className="flex-1 text-sm font-medium text-[#F0EDE8] truncate">
           {section.title}
         </span>
 
         {/* AI / Structured toggle (non-diagram only) */}
         {!isDiagram && (
-          <div className="flex items-center border border-border-default rounded-lg overflow-hidden">
+          <div className="flex items-center border border-[#232328] rounded-lg overflow-hidden">
             <button
               type="button"
               onClick={() => setViewMode("ai")}
               className={`p-1.5 transition-colors ${
                 viewMode === "ai"
-                  ? "bg-accent text-surface-base"
-                  : "text-text-ghost hover:text-text-primary"
+                  ? "bg-[#C9A227] text-[#0E0E11]"
+                  : "text-[#5A5650] hover:text-[#F0EDE8]"
               }`}
               title="AI Narrative"
             >
@@ -152,8 +152,8 @@ export default function SectionEditor({
               onClick={() => setViewMode("structured")}
               className={`p-1.5 transition-colors ${
                 viewMode === "structured"
-                  ? "bg-accent text-surface-base"
-                  : "text-text-ghost hover:text-text-primary"
+                  ? "bg-[#C9A227] text-[#0E0E11]"
+                  : "text-[#5A5650] hover:text-[#F0EDE8]"
               }`}
               title="Structured Data"
             >
@@ -164,15 +164,15 @@ export default function SectionEditor({
 
         {/* Element toggles (table / narrative / diagram) */}
         {onToggleElement && section.type === "results" && (
-          <div className="flex items-center gap-0.5 border border-border-default rounded-lg overflow-hidden">
+          <div className="flex items-center gap-0.5 border border-[#232328] rounded-lg overflow-hidden">
             {section.tableData && (
               <button
                 type="button"
                 onClick={() => onToggleElement(section.id, "tableIncluded")}
                 className={`p-1.5 transition-colors ${
                   section.tableIncluded !== false
-                    ? "bg-success/20 text-success"
-                    : "text-text-ghost hover:text-text-primary"
+                    ? "bg-[#2DD4BF]/20 text-[#2DD4BF]"
+                    : "text-[#5A5650] hover:text-[#F0EDE8]"
                 }`}
                 title={section.tableIncluded !== false ? "Hide table" : "Show table"}
               >
@@ -184,8 +184,8 @@ export default function SectionEditor({
               onClick={() => onToggleElement(section.id, "narrativeIncluded")}
               className={`p-1.5 transition-colors ${
                 section.narrativeIncluded !== false
-                  ? "bg-success/20 text-success"
-                  : "text-text-ghost hover:text-text-primary"
+                  ? "bg-[#2DD4BF]/20 text-[#2DD4BF]"
+                  : "text-[#5A5650] hover:text-[#F0EDE8]"
               }`}
               title={section.narrativeIncluded !== false ? "Hide narrative" : "Show narrative"}
             >
@@ -197,8 +197,8 @@ export default function SectionEditor({
                 onClick={() => onToggleElement(section.id, "diagramIncluded")}
                 className={`p-1.5 transition-colors ${
                   section.diagramIncluded !== false
-                    ? "bg-success/20 text-success"
-                    : "text-text-ghost hover:text-text-primary"
+                    ? "bg-[#2DD4BF]/20 text-[#2DD4BF]"
+                    : "text-[#5A5650] hover:text-[#F0EDE8]"
                 }`}
                 title={section.diagramIncluded !== false ? "Hide diagram" : "Show diagram"}
               >
@@ -214,8 +214,8 @@ export default function SectionEditor({
           onClick={() => onToggle(section.id)}
           className={`p-1.5 rounded transition-colors ${
             section.included
-              ? "text-success hover:text-success/80"
-              : "text-text-ghost hover:text-text-primary"
+              ? "text-[#2DD4BF] hover:text-[#2DD4BF]/80"
+              : "text-[#5A5650] hover:text-[#F0EDE8]"
           }`}
           title={section.included ? "Exclude section" : "Include section"}
         >
@@ -231,7 +231,7 @@ export default function SectionEditor({
           type="button"
           onClick={() => onMove(section.id, "up")}
           disabled={index === 0}
-          className="p-1 text-text-ghost hover:text-text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          className="p-1 text-[#5A5650] hover:text-[#F0EDE8] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           title="Move up"
         >
           <ChevronUp className="w-4 h-4" />
@@ -240,7 +240,7 @@ export default function SectionEditor({
           type="button"
           onClick={() => onMove(section.id, "down")}
           disabled={index === totalSections - 1}
-          className="p-1 text-text-ghost hover:text-text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          className="p-1 text-[#5A5650] hover:text-[#F0EDE8] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           title="Move down"
         >
           <ChevronDown className="w-4 h-4" />
@@ -261,7 +261,7 @@ export default function SectionEditor({
               dangerouslySetInnerHTML={{ __html: section.svgMarkup }}
             />
           ) : (
-            <p className="text-sm text-text-ghost italic">
+            <p className="text-sm text-[#5A5650] italic">
               No diagram generated yet
             </p>
           )

@@ -1,0 +1,51 @@
+{
+    "id": 20,
+    "name": "Study 5: Baseline Characterization — Post-MI Clopidogrel vs Aspirin Initiators",
+    "description": "Baseline covariate profile of post-MI clopidogrel vs aspirin new-users for Study 5.",
+    "design_json": {
+        "topN": 100,
+        "ageBreaks": [
+            18,
+            45,
+            55,
+            65,
+            75
+        ],
+        "description": "Baseline characterization of post-MI clopidogrel vs aspirin initiators. Key covariates: MI type (STEMI vs NSTEMI), cardiac procedures (PCI, CABG), comorbidities (CHF, hypertension, diabetes, CKD), concurrent medications (statins, antihypertensives), Charlson index. Validates active comparator assumption.",
+        "timeWindows": [
+            {
+                "id": 1,
+                "label": "365 days prior",
+                "endDays": 0,
+                "startDays": -365
+            },
+            {
+                "id": 2,
+                "label": "30 days prior",
+                "endDays": 0,
+                "startDays": -30
+            }
+        ],
+        "analysisType": "Characterization",
+        "featureTypes": [
+            "demographics",
+            "conditions",
+            "drugs",
+            "procedures",
+            "measurements"
+        ],
+        "minCellCount": 5,
+        "stratifyByAge": true,
+        "targetCohortIds": [
+            82
+        ],
+        "stratifyByGender": true,
+        "comparatorCohortIds": [
+            83
+        ]
+    },
+    "author_id": 117,
+    "created_at": null,
+    "updated_at": "2026-03-19T04:00:15.000000Z",
+    "deleted_at": null
+}

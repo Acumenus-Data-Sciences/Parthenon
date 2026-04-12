@@ -26,28 +26,28 @@ export function ConfidenceBadge({ score }: ConfidenceBadgeProps) {
 function getScoreStyle(score: number) {
   if (score >= 0.95) {
     return {
-      bg: "bg-success/20",
-      text: "text-success",
+      bg: "bg-[#2DD4BF]/20",
+      text: "text-[#2DD4BF]",
       label: "High",
     };
   }
   if (score >= 0.7) {
     return {
-      bg: "bg-warning/20",
-      text: "text-warning",
+      bg: "bg-[#E5A84B]/20",
+      text: "text-[#E5A84B]",
       label: "Medium",
     };
   }
   if (score > 0) {
     return {
-      bg: "bg-critical/20",
-      text: "text-critical",
+      bg: "bg-[#E85A6B]/20",
+      text: "text-[#E85A6B]",
       label: "Low",
     };
   }
   return {
-    bg: "bg-surface-highlight",
-    text: "text-text-ghost",
+    bg: "bg-[#323238]",
+    text: "text-[#5A5650]",
     label: "None",
   };
 }

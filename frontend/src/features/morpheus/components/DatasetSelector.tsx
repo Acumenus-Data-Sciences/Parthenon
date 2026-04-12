@@ -12,7 +12,7 @@ export default function DatasetSelector({ selectedSchema, onSelect }: DatasetSel
 
   if (datasets.length === 1) {
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-zinc-700 bg-zinc-900/50 text-xs text-zinc-300">
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-border-default bg-surface-base/50 text-xs text-zinc-300">
         <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
         {datasets[0].name}
         {datasets[0].patient_count != null && (
@@ -26,7 +26,7 @@ export default function DatasetSelector({ selectedSchema, onSelect }: DatasetSel
     <select
       value={selectedSchema}
       onChange={(e) => onSelect(e.target.value)}
-      className="rounded-lg border border-zinc-700 bg-zinc-900/50 px-3 py-1.5 text-xs text-text-secondary focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors"
+      className="rounded-lg border border-border-default bg-surface-base/50 px-3 py-1.5 text-xs text-[#C5C0B8] focus:border-[#9B1B30] focus:outline-none focus:ring-1 focus:ring-[#9B1B30]/30 transition-colors"
     >
       {datasets.map((ds) => (
         <option key={ds.schema_name} value={ds.schema_name}>

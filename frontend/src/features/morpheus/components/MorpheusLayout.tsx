@@ -36,11 +36,11 @@ export default function MorpheusLayout() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="shrink-0 border-b border-zinc-800 bg-surface-raised px-6 py-3">
+      <div className="shrink-0 border-b border-border-default bg-[#151518] px-6 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-primary/[0.18]">
-              <BedDouble className="h-4 w-4 text-primary" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-[#9B1B30]/[0.18]">
+              <BedDouble className="h-4 w-4 text-[#9B1B30]" />
             </div>
             <div className="flex items-center gap-2 text-sm">
               <span className="font-semibold text-zinc-100">Morpheus</span>
@@ -57,12 +57,12 @@ export default function MorpheusLayout() {
             </div>
             <DatasetSelector selectedSchema={dataset} onSelect={handleDatasetChange} />
           </div>
-          <div className="flex items-center gap-0.5 border-b border-zinc-800">
+          <div className="flex items-center gap-0.5 border-b border-border-default">
             {TABS.map(({ path, label }) => (
               <button key={path} onClick={() => navigate(dataset !== 'mimiciv' ? `${path}?dataset=${dataset}` : path)}
                 className={`px-5 py-2.5 text-sm font-medium transition-colors ${
                   activeTab === path
-                    ? 'font-semibold text-zinc-100 border-b-2 border-primary'
+                    ? 'font-semibold text-zinc-100 border-b-2 border-[#9B1B30]'
                     : 'text-zinc-500 border-b-2 border-transparent hover:text-zinc-300'
                 }`}>{label}</button>
             ))}

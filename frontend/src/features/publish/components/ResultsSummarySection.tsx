@@ -18,7 +18,7 @@ export function ResultsSummarySection({ section }: ResultsSummarySectionProps) {
 
   if (!content) {
     return (
-      <div data-testid="results-summary-section" className="text-sm text-text-primary/50 italic">
+      <div data-testid="results-summary-section" className="text-sm text-[#F0EDE8]/50 italic">
         No results data available for this execution.
       </div>
     );
@@ -28,7 +28,7 @@ export function ResultsSummarySection({ section }: ResultsSummarySectionProps) {
 
   return (
     <div data-testid="results-summary-section" className="space-y-3">
-      <div className="inline-flex items-center gap-2 rounded-md bg-success/10 px-2 py-1 text-xs font-medium text-success">
+      <div className="inline-flex items-center gap-2 rounded-md bg-[#2DD4BF]/10 px-2 py-1 text-xs font-medium text-[#2DD4BF]">
         {analysisType.charAt(0).toUpperCase() + analysisType.slice(1)}
       </div>
 
@@ -159,8 +159,8 @@ function GenericSummary({ content }: { content: Record<string, unknown> }) {
 function MetricRow({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <span className="text-text-primary/50 text-xs">{label}</span>
-      <p className="text-text-primary font-mono text-sm">{value}</p>
+      <span className="text-[#F0EDE8]/50 text-xs">{label}</span>
+      <p className="text-[#F0EDE8] font-mono text-sm">{value}</p>
     </div>
   );
 }

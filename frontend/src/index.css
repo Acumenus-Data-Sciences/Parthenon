@@ -1,7 +1,6 @@
 @import "tailwindcss";
 @import "./styles/tokens-base.css";
 @import "./styles/tokens-dark.css";
-@import "./styles/tokens-light.css";
 @import "./styles/components/layout.css";
 @import "./styles/components/navigation.css";
 @import "./styles/components/cards.css";
@@ -79,7 +78,6 @@
    ============================================================ */
 html {
   font-size: 16px;
-  transition: background-color 200ms ease, color 200ms ease;
 }
 
 @media (min-width: 2560px) {

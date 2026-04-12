@@ -20,10 +20,10 @@ interface BreadcrumbEntry {
 
 const DOMAIN_COLORS: Record<string, string> = {
   Condition: "#E5A84B",
-  Drug: "var(--info)",
-  Procedure: "var(--success)",
+  Drug: "#60A5FA",
+  Procedure: "#2DD4BF",
   Measurement: "#A855F7",
-  Observation: "var(--domain-procedure)",
+  Observation: "#F472B6",
   Visit: "#34D399",
 };
 
@@ -173,7 +173,6 @@ export function HierarchyBrowserPanel({
         { concept_id: -100 - grouping.id, concept_name: grouping.name },
       ]);
       setGroupingAnchors({ groupingName: grouping.name, anchors: grouping.anchors });
-      setActiveParentGrouping(null);
       setShowGroupings(false);
       setFilterText("");
     } else {
@@ -184,7 +183,6 @@ export function HierarchyBrowserPanel({
         { concept_id: anchorId, concept_name: grouping.name },
       ]);
       setParentId(anchorId);
-      setActiveParentGrouping(null);
       setShowGroupings(false);
       setGroupingAnchors(null);
       setFilterText("");
@@ -214,28 +212,28 @@ export function HierarchyBrowserPanel({
   return (
     <div className="flex h-full flex-col">
       {/* Breadcrumbs */}
-      <div className="flex items-center gap-1 border-b border-border-default bg-surface-base px-4 py-2.5 text-xs shrink-0 flex-wrap min-h-[36px]">
+      <div className="flex items-center gap-1 border-b border-[#232328] bg-[#0E0E11] px-4 py-2.5 text-xs shrink-0 flex-wrap min-h-[36px]">
         <button
           type="button"
           onClick={() => handleBreadcrumbClick(-1)}
           className={cn(
-            "hover:text-text-primary transition-colors",
-            breadcrumbs.length === 0 ? "text-accent font-medium" : "text-text-muted",
+            "hover:text-[#F0EDE8] transition-colors",
+            breadcrumbs.length === 0 ? "text-[#C9A227] font-medium" : "text-[#8A857D]",
           )}
         >
           All Domains
         </button>
         {breadcrumbs.map((bc, i) => (
           <span key={bc.concept_id} className="flex items-center gap-1">
-            <ChevronRight size={10} className="text-text-ghost" />
+            <ChevronRight size={10} className="text-[#5A5650]" />
             <button
               type="button"
               onClick={() => handleBreadcrumbClick(i)}
               className={cn(
-                "hover:text-text-primary transition-colors truncate max-w-[200px]",
+                "hover:text-[#F0EDE8] transition-colors truncate max-w-[200px]",
                 i === breadcrumbs.length - 1
-                  ? "text-accent font-medium"
-                  : "text-text-muted",
+                  ? "text-[#C9A227] font-medium"
+                  : "text-[#8A857D]",
               )}
               title={bc.concept_name}
             >
@@ -247,9 +245,9 @@ export function HierarchyBrowserPanel({
 
       {/* Groupings toggle — shown at domain level for SNOMED domains */}
       {isDomainLevel && SNOMED_DOMAINS.has(activeDomain ?? "") && (
-        <div className="flex items-center justify-between px-4 py-2 border-b border-border-default bg-surface-base/80 shrink-0">
+        <div className="flex items-center justify-between px-4 py-2 border-b border-[#232328] bg-[#0E0E11]/80 shrink-0">
           <div className="flex items-center gap-3">
-            <span className="text-[10px] text-text-ghost">
+            <span className="text-[10px] text-[#5A5650]">
               {shouldShowGroupings
                 ? `${groupings?.length ?? 0} clinical groupings`
                 : `${sortedAndFilteredNodes.length} concepts`}
@@ -259,21 +257,21 @@ export function HierarchyBrowserPanel({
                 <select
                   value={selectedSourceId ?? ""}
                   onChange={(e) => setSelectedSourceId(e.target.value ? Number(e.target.value) : null)}
-                  className="appearance-none rounded border border-border-default bg-surface-overlay px-2 py-0.5 pr-5 text-[10px] text-text-muted focus:border-accent/50 focus:outline-none cursor-pointer"
+                  className="appearance-none rounded border border-[#232328] bg-[#1A1A1E] px-2 py-0.5 pr-5 text-[10px] text-[#8A857D] focus:border-[#C9A227]/50 focus:outline-none cursor-pointer"
                 >
                   <option value="">All Sources</option>
                   {sources.map((s) => (
                     <option key={s.id} value={s.id}>{s.source_name}</option>
                   ))}
                 </select>
-                <ChevronDown size={8} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-text-ghost pointer-events-none" />
+                <ChevronDown size={8} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[#5A5650] pointer-events-none" />
               </div>
             )}
           </div>
           <button
             type="button"
             onClick={() => setShowGroupings((prev) => !prev)}
-            className="flex items-center gap-1 text-[10px] text-accent hover:text-warning transition-colors"
+            className="flex items-center gap-1 text-[10px] text-[#C9A227] hover:text-[#E5C84B] transition-colors"
           >
             {shouldShowGroupings ? (
               <>
@@ -292,21 +290,21 @@ export function HierarchyBrowserPanel({
 
       {/* Inline filter — shown when there are enough items to warrant filtering */}
       {!isLoading && !shouldShowGroupings && groupingAnchors === null && (nodes?.length ?? 0) > 8 && (
-        <div className="px-3 py-2 border-b border-border-default bg-surface-base shrink-0">
+        <div className="px-3 py-2 border-b border-[#232328] bg-[#0E0E11] shrink-0">
           <div className="relative">
-            <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-text-ghost" />
+            <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#5A5650]" />
             <input
               type="text"
               value={filterText}
               onChange={(e) => setFilterText(e.target.value)}
               placeholder={`Filter ${nodes?.length ?? 0} items...`}
-              className="w-full rounded-md border border-border-default bg-surface-overlay py-1.5 pl-7 pr-7 text-xs text-text-primary placeholder:text-text-ghost focus:border-accent/50 focus:outline-none focus:ring-1 focus:ring-accent/25"
+              className="w-full rounded-md border border-[#232328] bg-[#1A1A1E] py-1.5 pl-7 pr-7 text-xs text-[#F0EDE8] placeholder:text-[#5A5650] focus:border-[#C9A227]/50 focus:outline-none focus:ring-1 focus:ring-[#C9A227]/25"
             />
             {filterText && (
               <button
                 type="button"
                 onClick={() => setFilterText("")}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-text-ghost hover:text-text-muted"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-[#5A5650] hover:text-[#8A857D]"
               >
                 <X size={12} />
               </button>
@@ -317,8 +315,8 @@ export function HierarchyBrowserPanel({
 
       {/* Item count badge — hidden when showing groupings or anchors */}
       {!isLoading && !shouldShowGroupings && groupingAnchors === null && sortedAndFilteredNodes.length > 0 && (
-        <div className="px-4 py-1.5 border-b border-border-default bg-surface-base/50 shrink-0">
-          <span className="text-[10px] text-text-ghost">
+        <div className="px-4 py-1.5 border-b border-[#232328] bg-[#0E0E11]/50 shrink-0">
+          <span className="text-[10px] text-[#5A5650]">
             {filterText
               ? `${sortedAndFilteredNodes.length} of ${nodes?.length ?? 0} items`
               : `${sortedAndFilteredNodes.length} items`}
@@ -330,7 +328,7 @@ export function HierarchyBrowserPanel({
       <div className="flex-1 overflow-y-auto p-2">
         {isLoading || (shouldShowGroupings && groupingsLoading) ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 size={18} className="animate-spin text-text-muted" />
+            <Loader2 size={18} className="animate-spin text-[#8A857D]" />
           </div>
         ) : shouldShowGroupings && groupings && groupings.length > 0 ? (
           /* Clinical grouping cards */
@@ -338,7 +336,7 @@ export function HierarchyBrowserPanel({
         ) : activeParentGrouping && activeParentGrouping.children && activeParentGrouping.children.length > 0 ? (
           /* HLGT sub-grouping cards */
           <div className="space-y-2 p-1">
-            <p className="px-2 py-1 text-[10px] text-text-ghost">
+            <p className="px-2 py-1 text-[10px] text-[#5A5650]">
               {activeParentGrouping.name} — {activeParentGrouping.children.length} sub-categories
             </p>
             <GroupingsGrid
@@ -358,14 +356,14 @@ export function HierarchyBrowserPanel({
           />
         ) : sortedAndFilteredNodes.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 gap-2">
-            <p className="text-xs text-text-ghost">
+            <p className="text-xs text-[#5A5650]">
               {filterText ? "No matching concepts" : "No concepts found"}
             </p>
             {filterText && (
               <button
                 type="button"
                 onClick={() => setFilterText("")}
-                className="text-[10px] text-accent hover:text-warning transition-colors"
+                className="text-[10px] text-[#C9A227] hover:text-[#E5C84B] transition-colors"
               >
                 Clear filter
               </button>
@@ -375,14 +373,14 @@ export function HierarchyBrowserPanel({
           /* Domain root cards */
           <div className="grid grid-cols-2 gap-2 p-1">
             {sortedAndFilteredNodes.map((node) => {
-              const color = DOMAIN_COLORS[node.domain_id] ?? "var(--text-muted)";
+              const color = DOMAIN_COLORS[node.domain_id] ?? "#8A857D";
               const icon = DOMAIN_ICONS[node.domain_id] ?? "?";
               return (
                 <button
                   key={node.concept_id}
                   type="button"
                   onClick={() => handleDrillDown(node)}
-                  className="flex flex-col items-start gap-2 rounded-lg border border-border-default bg-surface-overlay p-3 text-left transition-all hover:bg-surface-elevated hover:border-surface-highlight group"
+                  className="flex flex-col items-start gap-2 rounded-lg border border-[#232328] bg-[#1A1A1E] p-3 text-left transition-all hover:bg-[#232328] hover:border-[#323238] group"
                 >
                   <div className="flex items-center gap-2 w-full">
                     <span
@@ -391,15 +389,15 @@ export function HierarchyBrowserPanel({
                     >
                       {icon}
                     </span>
-                    <span className="text-sm font-medium text-text-primary truncate flex-1">
+                    <span className="text-sm font-medium text-[#F0EDE8] truncate flex-1">
                       {node.concept_name}
                     </span>
                   </div>
                   <div className="flex items-center justify-between w-full">
-                    <span className="text-[10px] text-text-ghost">
+                    <span className="text-[10px] text-[#5A5650]">
                       {(node.descendant_count ?? node.child_count).toLocaleString()} concepts
                     </span>
-                    <ChevronRight size={12} className="text-text-ghost group-hover:text-text-muted transition-colors" />
+                    <ChevronRight size={12} className="text-[#5A5650] group-hover:text-[#8A857D] transition-colors" />
                   </div>
                 </button>
               );
@@ -411,7 +409,7 @@ export function HierarchyBrowserPanel({
             {sortedAndFilteredNodes.map((node) => {
               const isSelected = selectedConceptId === node.concept_id && node.concept_id > 0;
               const hasChildren = node.child_count > 0;
-              const color = DOMAIN_COLORS[node.domain_id] ?? "var(--text-muted)";
+              const color = DOMAIN_COLORS[node.domain_id] ?? "#8A857D";
 
               return (
                 <div
@@ -419,8 +417,8 @@ export function HierarchyBrowserPanel({
                   className={cn(
                     "w-full flex items-center gap-1 rounded-md transition-colors group cursor-pointer",
                     isSelected
-                      ? "bg-success/10 border border-success/30"
-                      : "hover:bg-surface-overlay border border-transparent",
+                      ? "bg-[#2DD4BF]/10 border border-[#2DD4BF]/30"
+                      : "hover:bg-[#1C1C20] border border-transparent",
                   )}
                   onClick={() => handleRowClick(node)}
                 >
@@ -433,7 +431,7 @@ export function HierarchyBrowserPanel({
 
                     {/* Folder / leaf icon */}
                     {hasChildren ? (
-                      <FolderTree size={12} className="text-text-muted shrink-0" />
+                      <FolderTree size={12} className="text-[#8A857D] shrink-0" />
                     ) : (
                       <span className="w-3 shrink-0" />
                     )}
@@ -441,28 +439,28 @@ export function HierarchyBrowserPanel({
                     {/* Name */}
                     <span className={cn(
                       "text-xs truncate flex-1",
-                      isSelected ? "text-success font-medium" : "text-text-primary",
+                      isSelected ? "text-[#2DD4BF] font-medium" : "text-[#F0EDE8]",
                     )}>
                       {node.concept_name}
                     </span>
 
                     {/* Metadata badges */}
                     {node.vocabulary_id && (
-                      <span className="text-[9px] px-1 py-0.5 rounded bg-accent/10 text-accent/70 shrink-0 hidden group-hover:inline-flex">
+                      <span className="text-[9px] px-1 py-0.5 rounded bg-[#C9A227]/10 text-[#C9A227]/70 shrink-0 hidden group-hover:inline-flex">
                         {node.vocabulary_id}
                       </span>
                     )}
 
                     {/* Concept ID (only for real concepts) */}
                     {node.concept_id > 0 && (
-                      <span className="text-[9px] text-text-ghost font-['IBM_Plex_Mono',monospace] shrink-0">
+                      <span className="text-[9px] text-[#5A5650] font-['IBM_Plex_Mono',monospace] shrink-0">
                         {node.concept_id}
                       </span>
                     )}
 
                     {/* Child count */}
                     {hasChildren && (
-                      <span className="text-[9px] text-text-muted shrink-0">
+                      <span className="text-[9px] text-[#8A857D] shrink-0">
                         ({node.child_count.toLocaleString()})
                       </span>
                     )}
@@ -474,7 +472,7 @@ export function HierarchyBrowserPanel({
                       type="button"
                       aria-label={`View details for ${node.concept_name}`}
                       onClick={(e) => handleInfoClick(e, node)}
-                      className="shrink-0 px-2 py-2 text-text-ghost transition-colors hover:text-success opacity-0 group-hover:opacity-100"
+                      className="shrink-0 px-2 py-2 text-[#5A5650] transition-colors hover:text-[#2DD4BF] opacity-0 group-hover:opacity-100"
                       title="View concept details"
                     >
                       <Info size={12} />
@@ -485,7 +483,7 @@ export function HierarchyBrowserPanel({
                   {hasChildren && (
                     <ChevronRight
                       size={10}
-                      className="shrink-0 mr-2 text-text-ghost group-hover:text-text-muted transition-colors"
+                      className="shrink-0 mr-2 text-[#5A5650] group-hover:text-[#8A857D] transition-colors"
                     />
                   )}
                 </div>
@@ -519,14 +517,14 @@ function GroupingsGrid({
   return (
     <div className="grid grid-cols-2 gap-2 p-1">
       {groupings.map((g) => {
-        const accentColor = g.color ?? DOMAIN_COLORS[g.domain_id] ?? "var(--text-muted)";
+        const accentColor = g.color ?? DOMAIN_COLORS[g.domain_id] ?? "#8A857D";
         const prev = prevalenceMap?.get(g.id);
         return (
           <button
             key={g.id}
             type="button"
             onClick={() => onGroupingClick(g)}
-            className="flex flex-col items-start rounded-lg border border-border-default bg-surface-overlay text-left transition-all hover:bg-surface-elevated hover:border-surface-highlight group overflow-hidden"
+            className="flex flex-col items-start rounded-lg border border-[#232328] bg-[#1A1A1E] text-left transition-all hover:bg-[#232328] hover:border-[#323238] group overflow-hidden"
           >
             <div className="flex w-full">
               {/* Left accent bar */}
@@ -535,16 +533,16 @@ function GroupingsGrid({
                 style={{ backgroundColor: accentColor }}
               />
               <div className="flex flex-col gap-1 p-3 min-w-0 flex-1">
-                <span className="text-xs font-medium text-text-primary truncate">
+                <span className="text-xs font-medium text-[#F0EDE8] truncate">
                   {g.name}
                 </span>
                 {g.description && (
-                  <span className="text-[10px] text-text-muted line-clamp-2 leading-tight">
+                  <span className="text-[10px] text-[#8A857D] line-clamp-2 leading-tight">
                     {g.description}
                   </span>
                 )}
                 <div className="flex items-center justify-between mt-1">
-                  <span className="text-[9px] text-text-ghost">
+                  <span className="text-[9px] text-[#5A5650]">
                     {g.children && g.children.length > 0
                       ? `${g.children.length} sub-categories`
                       : g.anchors.length > 1
@@ -553,24 +551,24 @@ function GroupingsGrid({
                   </span>
                   <ChevronRight
                     size={10}
-                    className="text-text-ghost group-hover:text-text-muted transition-colors"
+                    className="text-[#5A5650] group-hover:text-[#8A857D] transition-colors"
                   />
                 </div>
                 {/* Prevalence badges */}
                 {prevalenceLoading ? (
                   <div className="flex gap-2 mt-1">
-                    <span className="h-3 w-16 rounded bg-surface-elevated animate-pulse" />
-                    <span className="h-3 w-16 rounded bg-surface-elevated animate-pulse" />
+                    <span className="h-3 w-16 rounded bg-[#232328] animate-pulse" />
+                    <span className="h-3 w-16 rounded bg-[#232328] animate-pulse" />
                   </div>
                 ) : prev && (prev.person_count > 0 || prev.record_count > 0) ? (
                   <div className="flex gap-2 mt-1">
                     {prev.person_count > 0 && (
-                      <span className="text-[9px] text-text-ghost">
+                      <span className="text-[9px] text-[#5A5650]">
                         {formatCount(prev.person_count)} persons
                       </span>
                     )}
                     {prev.record_count > 0 && (
-                      <span className="text-[9px] text-text-ghost">
+                      <span className="text-[9px] text-[#5A5650]">
                         {formatCount(prev.record_count)} records
                       </span>
                     )}
@@ -597,11 +595,11 @@ function AnchorsList({
   domainId: string;
   onAnchorClick: (anchor: AnchorDetail) => void;
 }) {
-  const color = DOMAIN_COLORS[domainId] ?? "var(--text-muted)";
+  const color = DOMAIN_COLORS[domainId] ?? "#8A857D";
 
   return (
     <div className="space-y-1 p-1">
-      <p className="px-2 py-1 text-[10px] text-text-ghost">
+      <p className="px-2 py-1 text-[10px] text-[#5A5650]">
         {groupingName} covers {anchors.length} subcategories
       </p>
       {anchors.map((anchor) => (
@@ -609,27 +607,27 @@ function AnchorsList({
           key={anchor.concept_id}
           type="button"
           onClick={() => onAnchorClick(anchor)}
-          className="w-full flex items-center gap-2 rounded-lg border border-border-default bg-surface-overlay px-4 py-3 text-left transition-all hover:bg-surface-elevated hover:border-surface-highlight group"
+          className="w-full flex items-center gap-2 rounded-lg border border-[#232328] bg-[#1A1A1E] px-4 py-3 text-left transition-all hover:bg-[#232328] hover:border-[#323238] group"
         >
           <span
             className="w-2 h-2 rounded-full shrink-0"
             style={{ backgroundColor: color }}
           />
-          <FolderTree size={12} className="text-text-muted shrink-0" />
+          <FolderTree size={12} className="text-[#8A857D] shrink-0" />
           <div className="flex flex-col gap-0.5 min-w-0 flex-1">
-            <span className="text-xs font-medium text-text-primary truncate">
+            <span className="text-xs font-medium text-[#F0EDE8] truncate">
               {anchor.concept_name}
             </span>
-            <span className="text-[9px] text-text-ghost">
+            <span className="text-[9px] text-[#5A5650]">
               {anchor.vocabulary_id} {anchor.concept_class_id}
             </span>
           </div>
-          <span className="text-[9px] text-text-ghost font-['IBM_Plex_Mono',monospace] shrink-0">
+          <span className="text-[9px] text-[#5A5650] font-['IBM_Plex_Mono',monospace] shrink-0">
             {anchor.concept_id}
           </span>
           <ChevronRight
             size={10}
-            className="shrink-0 text-text-ghost group-hover:text-text-muted transition-colors"
+            className="shrink-0 text-[#5A5650] group-hover:text-[#8A857D] transition-colors"
           />
         </button>
       ))}

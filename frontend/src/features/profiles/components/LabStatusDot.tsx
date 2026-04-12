@@ -12,8 +12,8 @@ type LabStatusDotProps = {
 const STATUS_STYLES: Record<LabStatus, { fill: string; stroke: string; r: number; strokeWidth: number }> = {
   low:      { fill: '#3B82F6', stroke: '#3B82F6', r: 4, strokeWidth: 1 },
   normal:   { fill: '#A1A1AA', stroke: '#A1A1AA', r: 3, strokeWidth: 1 },
-  high:     { fill: 'var(--primary)', stroke: 'var(--primary)', r: 4, strokeWidth: 1 },
-  critical: { fill: 'var(--primary)', stroke: 'var(--accent)', r: 5, strokeWidth: 3 },
+  high:     { fill: '#9B1B30', stroke: '#9B1B30', r: 4, strokeWidth: 1 },
+  critical: { fill: '#9B1B30', stroke: '#C9A227', r: 5, strokeWidth: 3 },
   unknown:  { fill: 'transparent', stroke: '#71717a', r: 3, strokeWidth: 1 },
 };
 

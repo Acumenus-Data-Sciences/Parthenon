@@ -31,18 +31,18 @@ const LEVEL_CONFIG: Record<
   { dot: string; text: string; verdict: string }
 > = {
   green: {
-    dot: "bg-success",
-    text: "text-success",
+    dot: "bg-[#2DD4BF]",
+    text: "text-[#2DD4BF]",
     verdict: "Good",
   },
   amber: {
-    dot: "bg-accent",
-    text: "text-accent",
+    dot: "bg-[#C9A227]",
+    text: "text-[#C9A227]",
     verdict: "Acceptable",
   },
   red: {
-    dot: "bg-critical",
-    text: "text-critical",
+    dot: "bg-[#E85A6B]",
+    text: "text-[#E85A6B]",
     verdict: "Poor",
   },
 };

@@ -87,16 +87,16 @@ export function PhenotypeLibrarySearch({ onSelectPhenotype }: PhenotypeLibrarySe
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search the OHDSI Phenotype Library (1,100+ validated phenotypes)"
-          className="w-full bg-zinc-800/60 border border-zinc-700 rounded pl-8 pr-3 py-2 text-xs text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:border-success/60"
+          className="w-full bg-surface-raised/60 border border-border-default rounded pl-8 pr-3 py-2 text-xs text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:border-[#2DD4BF]/60"
         />
         {loading && (
-          <div className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 border-2 border-success/40 border-t-success rounded-full animate-spin" />
+          <div className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 border-2 border-[#2DD4BF]/40 border-t-[#2DD4BF] rounded-full animate-spin" />
         )}
       </div>
 
       {/* Error state */}
       {error && (
-        <p className="text-[11px] text-primary">{error}</p>
+        <p className="text-[11px] text-[#9B1B30]">{error}</p>
       )}
 
       {/* Empty state */}
@@ -154,8 +154,8 @@ export function PhenotypeLibrarySearch({ onSelectPhenotype }: PhenotypeLibrarySe
                 key={id}
                 className={`rounded border px-3 py-2.5 flex items-start justify-between gap-3 transition-colors ${
                   isSelected
-                    ? "border-success/50 bg-teal-900/10"
-                    : "border-zinc-700/50 bg-zinc-800/40 hover:bg-zinc-800/70"
+                    ? "border-[#2DD4BF]/50 bg-teal-900/10"
+                    : "border-border-default/50 bg-surface-raised/40 hover:bg-surface-raised/70"
                 }`}
               >
                 <div className="flex flex-col gap-0.5 min-w-0">
@@ -168,7 +168,7 @@ export function PhenotypeLibrarySearch({ onSelectPhenotype }: PhenotypeLibrarySe
                       {result.tags.slice(0, 3).map((tag) => (
                         <span
                           key={tag}
-                          className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-700/50 text-zinc-400 border border-zinc-700"
+                          className="text-[10px] px-1.5 py-0.5 rounded bg-surface-accent/50 text-zinc-400 border border-border-default"
                         >
                           {tag}
                         </span>
@@ -180,8 +180,8 @@ export function PhenotypeLibrarySearch({ onSelectPhenotype }: PhenotypeLibrarySe
                   onClick={() => handleSelect(result)}
                   className={`shrink-0 px-2.5 py-1 rounded text-[11px] font-medium border transition-colors ${
                     isSelected
-                      ? "bg-success/20 text-success border-success/40"
-                      : "bg-zinc-700/50 text-zinc-300 border-zinc-600 hover:bg-zinc-700 hover:text-zinc-100"
+                      ? "bg-[#2DD4BF]/20 text-[#2DD4BF] border-[#2DD4BF]/40"
+                      : "bg-surface-accent/50 text-zinc-300 border-border-hover hover:bg-surface-accent hover:text-zinc-100"
                   }`}
                 >
                   {isSelected ? "Selected" : "Select"}

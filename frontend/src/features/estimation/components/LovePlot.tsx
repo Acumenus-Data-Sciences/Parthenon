@@ -129,9 +129,9 @@ export function LovePlot({
   const plotW = width - padding.left - padding.right;
   const plotH = height - padding.top - padding.bottom;
 
-  const BEFORE_COLOR = "var(--critical)";
-  const AFTER_COLOR = "var(--success)";
-  const THRESHOLD_COLOR = "var(--accent)";
+  const BEFORE_COLOR = "#E85A6B";
+  const AFTER_COLOR = "#2DD4BF";
+  const THRESHOLD_COLOR = "#C9A227";
 
   // Limit display and compute bounds
   const displayData = data.slice(0, maxDisplay);
@@ -185,7 +185,7 @@ export function LovePlot({
         width={width}
         height={height}
         viewBox={`0 0 ${width} ${height}`}
-        className="text-text-primary"
+        className="text-[#F0EDE8]"
         role="img"
         aria-label="Love plot showing covariate balance before and after matching"
         style={enableBrush ? { cursor: "crosshair" } : undefined}
@@ -194,7 +194,7 @@ export function LovePlot({
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
       >
-        <rect width={width} height={height} fill="var(--surface-raised)" rx={8} />
+        <rect width={width} height={height} fill="#151518" rx={8} />
 
         {/* Quadrant shading */}
         {/* Green zone: |SMD| < 0.1 */}
@@ -234,14 +234,14 @@ export function LovePlot({
               y1={padding.top}
               x2={toX(v)}
               y2={padding.top + plotH}
-              stroke="var(--border-default)"
+              stroke="#232328"
               strokeWidth={0.5}
             />
             <text
               x={toX(v)}
               y={padding.top + plotH + 16}
               textAnchor="middle"
-              fill="var(--text-ghost)"
+              fill="#5A5650"
               fontSize={10}
             >
               {v.toFixed(1)}
@@ -284,7 +284,7 @@ export function LovePlot({
                 y1={yPos}
                 x2={afterX}
                 y2={yPos}
-                stroke="var(--border-default)"
+                stroke="#323238"
                 strokeWidth={0.5}
               />
               {/* Before matching (open circle) */}
@@ -325,7 +325,7 @@ export function LovePlot({
           width={plotW}
           height={plotH}
           fill="none"
-          stroke="var(--border-default)"
+          stroke="#323238"
           strokeWidth={1}
         />
 
@@ -357,7 +357,7 @@ export function LovePlot({
             width={brushRect.width}
             height={brushRect.height}
             fill="rgba(201,162,39,0.15)"
-            stroke="var(--accent)"
+            stroke="#C9A227"
             strokeWidth={1}
             strokeDasharray="4 2"
             data-testid="brush-rect"
@@ -374,8 +374,8 @@ export function LovePlot({
             width={170}
             height={42}
             rx={4}
-            fill="var(--surface-base)"
-            stroke="var(--border-default)"
+            fill="#0E0E11"
+            stroke="#232328"
             strokeWidth={1}
           />
           <circle
@@ -386,11 +386,11 @@ export function LovePlot({
             stroke={BEFORE_COLOR}
             strokeWidth={1.5}
           />
-          <text x={24} y={18} fill="var(--text-secondary)" fontSize={10}>
+          <text x={24} y={18} fill="#C5C0B8" fontSize={10}>
             Before Matching
           </text>
           <circle cx={14} cy={32} r={3} fill={AFTER_COLOR} />
-          <text x={24} y={36} fill="var(--text-secondary)" fontSize={10}>
+          <text x={24} y={36} fill="#C5C0B8" fontSize={10}>
             After Matching
           </text>
         </g>
@@ -400,7 +400,7 @@ export function LovePlot({
           x={padding.left + plotW / 2}
           y={height - 8}
           textAnchor="middle"
-          fill="var(--text-muted)"
+          fill="#8A857D"
           fontSize={11}
           fontWeight={600}
         >
@@ -410,7 +410,7 @@ export function LovePlot({
           x={14}
           y={padding.top + plotH / 2}
           textAnchor="middle"
-          fill="var(--text-muted)"
+          fill="#8A857D"
           fontSize={11}
           fontWeight={600}
           transform={`rotate(-90 14 ${padding.top + plotH / 2})`}

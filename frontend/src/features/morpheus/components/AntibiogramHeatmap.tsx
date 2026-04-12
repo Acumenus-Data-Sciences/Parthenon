@@ -10,9 +10,9 @@ interface AntibiogramHeatmapProps {
 
 // Parthenon theme colors — accessible for deuteranopia (teal vs crimson has strong luminance contrast)
 const INTERP_STYLE: Record<string, { bg: string; text: string; label: string }> = {
-  S: { bg: 'rgba(45,212,191,0.20)', text: 'var(--success)', label: 'Susceptible' },
-  I: { bg: 'rgba(201,162,39,0.20)', text: 'var(--accent)', label: 'Intermediate' },
-  R: { bg: 'rgba(155,27,48,0.25)', text: 'var(--critical)', label: 'Resistant' },
+  S: { bg: 'rgba(45,212,191,0.20)', text: '#2DD4BF', label: 'Susceptible' },
+  I: { bg: 'rgba(201,162,39,0.20)', text: '#C9A227', label: 'Intermediate' },
+  R: { bg: 'rgba(155,27,48,0.25)', text: '#E85A6B', label: 'Resistant' },
 };
 
 // Common antibiotic abbreviations
@@ -106,8 +106,8 @@ export default function AntibiogramHeatmap({ data, onOrganismClick }: Antibiogra
 
   if (organisms.length === 0) {
     return (
-      <div className="flex items-center justify-center h-32 rounded-lg border border-dashed border-surface-highlight bg-surface-raised">
-        <p className="text-sm text-text-muted">No antibiogram data available</p>
+      <div className="flex items-center justify-center h-32 rounded-lg border border-dashed border-[#323238] bg-[#151518]">
+        <p className="text-sm text-[#8A857D]">No antibiogram data available</p>
       </div>
     );
   }
@@ -134,14 +134,14 @@ export default function AntibiogramHeatmap({ data, onOrganismClick }: Antibiogra
           <select
             value={specimenFilter}
             onChange={(e) => setSpecimenFilter(e.target.value)}
-            className="rounded-lg border border-zinc-700 bg-zinc-900 px-2.5 py-1.5 text-xs text-text-secondary focus:outline-none focus:ring-1 focus:ring-success/30"
+            className="rounded-lg border border-border-default bg-surface-base px-2.5 py-1.5 text-xs text-[#C5C0B8] focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30"
           >
             <option value="">All specimens</option>
             {specimens.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
-          <label className="flex items-center gap-1.5 text-xs text-text-muted cursor-pointer select-none">
+          <label className="flex items-center gap-1.5 text-xs text-[#8A857D] cursor-pointer select-none">
             <input type="checkbox" checked={showTestedOnly} onChange={() => setShowTestedOnly(!showTestedOnly)}
-              className="w-3 h-3 rounded accent-success" />
+              className="w-3 h-3 rounded accent-[#2DD4BF]" />
             Tested only
           </label>
         </div>
@@ -151,37 +151,37 @@ export default function AntibiogramHeatmap({ data, onOrganismClick }: Antibiogra
             <span key={key} className="flex items-center gap-1">
               <span className="w-4 h-4 rounded flex items-center justify-center text-[9px] font-bold"
                 style={{ backgroundColor: style.bg, color: style.text }}>{key}</span>
-              <span className="text-text-muted">{style.label}</span>
+              <span className="text-[#8A857D]">{style.label}</span>
             </span>
           ))}
           <span className="flex items-center gap-1">
-            <span className="w-4 h-4 rounded bg-border-subtle flex items-center justify-center text-[9px] text-surface-highlight">—</span>
-            <span className="text-text-muted">Not tested</span>
+            <span className="w-4 h-4 rounded bg-[#1E1E24] flex items-center justify-center text-[9px] text-[#323238]">—</span>
+            <span className="text-[#8A857D]">Not tested</span>
           </span>
         </div>
       </div>
 
       {/* Antibiogram matrix */}
-      <div className="overflow-x-auto rounded-xl border border-zinc-800/60 bg-surface-base">
+      <div className="overflow-x-auto rounded-xl border border-border-default/60 bg-[#111114]">
         <table className="border-collapse" style={{ minWidth: 'max-content' }}>
           <thead>
             {/* Drug class group header row */}
-            <tr className="sticky top-0 z-30 bg-surface-base">
-              <th className="sticky left-0 z-40 bg-surface-base min-w-[200px]" />
+            <tr className="sticky top-0 z-30 bg-[#111114]">
+              <th className="sticky left-0 z-40 bg-[#111114] min-w-[200px]" />
               {drugClassGroups.map((group) => (
                 <th
                   key={group.name}
                   colSpan={group.antibiotics.length}
-                  className="px-1 pt-2 pb-1 text-center text-[9px] font-semibold uppercase tracking-wider text-text-ghost border-b border-surface-highlight"
-                  style={{ borderLeft: '2px solid var(--border-subtle)' }}
+                  className="px-1 pt-2 pb-1 text-center text-[9px] font-semibold uppercase tracking-wider text-[#5A5650] border-b border-[#323238]"
+                  style={{ borderLeft: '2px solid #1E1E24' }}
                 >
                   {group.name}
                 </th>
               ))}
             </tr>
             {/* Antibiotic name header row */}
-            <tr className="sticky top-[28px] z-30 bg-surface-base">
-              <th className="sticky left-0 z-40 bg-surface-base px-3 py-1 text-left text-[10px] font-semibold text-text-muted min-w-[200px] border-b border-surface-highlight">
+            <tr className="sticky top-[28px] z-30 bg-[#111114]">
+              <th className="sticky left-0 z-40 bg-[#111114] px-3 py-1 text-left text-[10px] font-semibold text-[#8A857D] min-w-[200px] border-b border-[#323238]">
                 Organism
               </th>
               {antibiotics.map((ab, abIdx) => {
@@ -189,17 +189,17 @@ export default function AntibiogramHeatmap({ data, onOrganismClick }: Antibiogra
                 return (
                   <th
                     key={ab}
-                    className={`py-1 text-center border-b border-surface-highlight cursor-default ${hoverCol === ab ? 'bg-surface-overlay' : ''}`}
+                    className={`py-1 text-center border-b border-[#323238] cursor-default ${hoverCol === ab ? 'bg-[#1A1A1E]' : ''}`}
                     style={{
                       width: 36,
                       minWidth: 36,
-                      ...(isFirstInClass ? { borderLeft: '2px solid var(--border-subtle)' } : {}),
+                      ...(isFirstInClass ? { borderLeft: '2px solid #1E1E24' } : {}),
                     }}
                     onMouseEnter={() => setHoverCol(ab)}
                     onMouseLeave={() => setHoverCol(null)}
                     title={ab}
                   >
-                    <span className="text-[10px] font-medium text-text-muted">{abbreviate(ab)}</span>
+                    <span className="text-[10px] font-medium text-[#8A857D]">{abbreviate(ab)}</span>
                   </th>
                 );
               })}
@@ -212,22 +212,22 @@ export default function AntibiogramHeatmap({ data, onOrganismClick }: Antibiogra
               return (
                 <tr
                   key={org}
-                  className={`transition-colors ${hoverRow === org ? 'bg-surface-overlay' : ''}`}
+                  className={`transition-colors ${hoverRow === org ? 'bg-[#1A1A1E]' : ''}`}
                   onMouseEnter={() => setHoverRow(org)}
                   onMouseLeave={() => setHoverRow(null)}
                 >
-                  <td className="sticky left-0 z-10 bg-surface-base px-3 py-1.5 border-b border-border-subtle"
-                    style={hoverRow === org ? { backgroundColor: "var(--surface-overlay)" } : {}}
+                  <td className="sticky left-0 z-10 bg-[#111114] px-3 py-1.5 border-b border-[#1E1E24]"
+                    style={hoverRow === org ? { backgroundColor: '#1A1A1E' } : {}}
                   >
                     <button
                       type="button"
                       onClick={() => onOrganismClick(makeDrawerEvent(org))}
                       className="text-left group max-w-[190px] block"
                     >
-                      <span className="text-[11px] text-text-secondary group-hover:text-success transition-colors italic truncate block">
+                      <span className="text-[11px] text-[#C5C0B8] group-hover:text-[#2DD4BF] transition-colors italic truncate block">
                         {org}
                       </span>
-                      <span className={`text-[9px] ${isLowCount ? 'text-accent' : 'text-text-ghost'}`}>
+                      <span className={`text-[9px] ${isLowCount ? 'text-[#C9A227]' : 'text-[#5A5650]'}`}>
                         n={count}{isLowCount ? '*' : ''}
                       </span>
                     </button>
@@ -241,24 +241,24 @@ export default function AntibiogramHeatmap({ data, onOrganismClick }: Antibiogra
                     if (!cell) {
                       if (showTestedOnly) {
                         return (
-                          <td key={ab} className="border-b border-border-subtle"
+                          <td key={ab} className="border-b border-[#1E1E24]"
                             style={{
                               width: 36, minWidth: 36,
-                              ...(isFirstInClass ? { borderLeft: '2px solid var(--border-subtle)' } : {}),
-                              ...(isColHover ? { backgroundColor: "var(--surface-raised)" } : {}),
+                              ...(isFirstInClass ? { borderLeft: '2px solid #1E1E24' } : {}),
+                              ...(isColHover ? { backgroundColor: '#151518' } : {}),
                             }}
                           />
                         );
                       }
                       return (
-                        <td key={ab} className="text-center border-b border-border-subtle"
+                        <td key={ab} className="text-center border-b border-[#1E1E24]"
                           style={{
                             width: 36, minWidth: 36,
-                            backgroundColor: isColHover ? 'var(--surface-raised)' : 'var(--surface-base)',
-                            ...(isFirstInClass ? { borderLeft: '2px solid var(--border-subtle)' } : {}),
+                            backgroundColor: isColHover ? '#151518' : '#0E0E11',
+                            ...(isFirstInClass ? { borderLeft: '2px solid #1E1E24' } : {}),
                           }}
                         >
-                          <span className="text-[9px] text-border-subtle">&mdash;</span>
+                          <span className="text-[9px] text-[#1E1E24]">&mdash;</span>
                         </td>
                       );
                     }
@@ -267,11 +267,11 @@ export default function AntibiogramHeatmap({ data, onOrganismClick }: Antibiogra
                     return (
                       <td
                         key={ab}
-                        className="text-center border-b border-border-subtle cursor-default"
+                        className="text-center border-b border-[#1E1E24] cursor-default"
                         style={{
                           width: 36, minWidth: 36,
-                          ...(isFirstInClass ? { borderLeft: '2px solid var(--border-subtle)' } : {}),
-                          ...(isColHover ? { backgroundColor: "var(--surface-overlay)" } : {}),
+                          ...(isFirstInClass ? { borderLeft: '2px solid #1E1E24' } : {}),
+                          ...(isColHover ? { backgroundColor: '#1A1A1E' } : {}),
                         }}
                         onMouseEnter={(e) => setTooltip({ x: e.clientX, y: e.clientY, org, ab, cell })}
                         onMouseLeave={() => setTooltip(null)}
@@ -280,7 +280,7 @@ export default function AntibiogramHeatmap({ data, onOrganismClick }: Antibiogra
                           className="inline-flex items-center justify-center w-7 h-6 rounded text-[10px] font-bold"
                           style={{
                             backgroundColor: style?.bg ?? 'transparent',
-                            color: style?.text ?? 'var(--text-ghost)',
+                            color: style?.text ?? '#5A5650',
                           }}
                         >
                           {cell.interpretation}
@@ -297,7 +297,7 @@ export default function AntibiogramHeatmap({ data, onOrganismClick }: Antibiogra
 
       {/* Low isolate count footnote */}
       {organisms.some((org) => (orgCounts.get(org) ?? 0) < 30) && (
-        <p className="text-[10px] text-accent">
+        <p className="text-[10px] text-[#C9A227]">
           * Organisms with &lt;30 isolates — interpret with caution (CLSI M39)
         </p>
       )}
@@ -305,18 +305,18 @@ export default function AntibiogramHeatmap({ data, onOrganismClick }: Antibiogra
       {/* Tooltip */}
       {tooltip && (
         <div
-          className="fixed z-50 rounded-lg border border-surface-highlight bg-surface-overlay px-3 py-2 text-xs text-text-secondary shadow-xl pointer-events-none max-w-[240px]"
+          className="fixed z-50 rounded-lg border border-[#323238] bg-[#1A1A1E] px-3 py-2 text-xs text-[#C5C0B8] shadow-xl pointer-events-none max-w-[240px]"
           style={{ top: tooltip.y - 80, left: tooltip.x + 16 }}
         >
-          <div className="font-medium text-text-primary italic">{tooltip.org}</div>
+          <div className="font-medium text-[#F0EDE8] italic">{tooltip.org}</div>
           <div className="mt-1">
-            <span className="text-text-muted">{tooltip.ab}:</span>{' '}
+            <span className="text-[#8A857D]">{tooltip.ab}:</span>{' '}
             <span className="font-bold" style={{ color: INTERP_STYLE[tooltip.cell.interpretation]?.text }}>
               {INTERP_STYLE[tooltip.cell.interpretation]?.label ?? tooltip.cell.interpretation}
             </span>
           </div>
-          {tooltip.cell.mic && <div className="text-text-muted">MIC: <span className="font-mono text-text-secondary">{tooltip.cell.mic}</span></div>}
-          <div className="text-text-ghost mt-0.5">{tooltip.cell.specimen} &bull; {tooltip.cell.date}</div>
+          {tooltip.cell.mic && <div className="text-[#8A857D]">MIC: <span className="font-mono text-[#C5C0B8]">{tooltip.cell.mic}</span></div>}
+          <div className="text-[#5A5650] mt-0.5">{tooltip.cell.specimen} &bull; {tooltip.cell.date}</div>
         </div>
       )}
     </div>

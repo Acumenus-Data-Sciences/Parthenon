@@ -82,16 +82,16 @@ export function CohortSelectorBar({
     comparatorCohortId > 0;
 
   return (
-    <div className="sticky top-0 z-10 rounded-xl border border-border-default bg-surface-raised px-4 py-3 space-y-2">
+    <div className="sticky top-0 z-10 bg-[#0E0E11] border-b border-[#2A2520] px-4 py-3 space-y-2">
       {/* Row 1 — controls */}
-      <div className="flex items-start gap-3 flex-wrap">
+      <div className="flex items-center gap-3 flex-wrap">
         {/* Data source dropdown */}
         <select
           value={sourceId ?? ""}
           onChange={handleSourceChange}
           className={cn(
-            "rounded-md bg-surface-overlay border border-border-default px-3 py-1.5 text-sm text-text-secondary",
-            "focus:outline-none focus:ring-1 focus:ring-accent/15",
+            "rounded-md bg-[#1A1815] border border-[#2A2520] px-3 py-1.5 text-sm text-[#C5C0B8]",
+            "focus:outline-none focus:ring-1 focus:ring-[#C9A227]/50",
             "min-w-[140px]",
           )}
           aria-label="Data source"
@@ -105,15 +105,15 @@ export function CohortSelectorBar({
         </select>
 
         {/* Mode toggle */}
-        <div className="flex rounded-md overflow-hidden border border-border-default">
+        <div className="flex rounded-md overflow-hidden border border-[#2A2520]">
           <button
             type="button"
             onClick={() => onModeChange("compare")}
             className={cn(
               "px-3 py-1.5 text-xs font-medium transition-colors",
               isCompareMode
-                ? "bg-primary text-white"
-                : "bg-surface-raised text-text-muted hover:text-text-secondary",
+                ? "bg-[#9B1B30] text-white"
+                : "bg-[#1A1815] text-[#8A857D] hover:text-[#C5C0B8]",
             )}
           >
             Compare Cohorts
@@ -124,22 +124,22 @@ export function CohortSelectorBar({
             className={cn(
               "px-3 py-1.5 text-xs font-medium transition-colors",
               !isCompareMode
-                ? "bg-success text-surface-base"
-                : "bg-surface-raised text-text-muted hover:text-text-secondary",
+                ? "bg-[#2DD4BF] text-[#0E0E11]"
+                : "bg-[#1A1815] text-[#8A857D] hover:text-[#C5C0B8]",
             )}
           >
             Expand Cohort
           </button>
         </div>
 
-        {/* Target cohort dropdown + banner */}
+        {/* Target cohort dropdown */}
         <div className="flex-1 min-w-[160px]">
           <select
             value={targetCohortId ?? ""}
             onChange={handleTargetChange}
             className={cn(
-              "w-full rounded-md bg-surface-overlay border border-primary/30 px-3 py-1.5 text-sm text-text-secondary",
-              "focus:outline-none focus:ring-1 focus:ring-primary/15",
+              "w-full rounded-md bg-[#1A1815] border border-[#9B1B30]/40 px-3 py-1.5 text-sm text-[#C5C0B8]",
+              "focus:outline-none focus:ring-1 focus:ring-[#9B1B30]/50",
             )}
             aria-label="Target cohort"
           >
@@ -152,32 +152,17 @@ export function CohortSelectorBar({
               </option>
             ))}
           </select>
-          {showTargetBanner && (
-            <div className="mt-1">
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-medium text-primary">
-                  {isCompareMode ? "Target:" : "Seed:"}
-                </span>
-                <GenerationStatusBanner
-                  cohortDefinitionId={targetCohortId!}
-                  sourceId={sourceId!}
-                  profile={targetProfile}
-                  isLoading={targetProfileLoading}
-                />
-              </div>
-            </div>
-          )}
         </div>
 
-        {/* Comparator cohort dropdown + banner — hidden in expand mode */}
+        {/* Comparator cohort dropdown — hidden in expand mode */}
         {isCompareMode && (
           <div className="flex-1 min-w-[160px]">
             <select
               value={comparatorCohortId ?? ""}
               onChange={handleComparatorChange}
               className={cn(
-                "w-full rounded-md bg-surface-overlay border border-success/30 px-3 py-1.5 text-sm text-text-secondary",
-                "focus:outline-none focus:ring-1 focus:ring-success/15",
+                "w-full rounded-md bg-[#1A1815] border border-[#2DD4BF]/40 px-3 py-1.5 text-sm text-[#C5C0B8]",
+                "focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/50",
               )}
               aria-label="Comparator cohort"
             >
@@ -188,19 +173,6 @@ export function CohortSelectorBar({
                 </option>
               ))}
             </select>
-            {showComparatorBanner && (
-              <div className="mt-1.5 flex items-center gap-1.5">
-                <span className="text-[10px] font-medium text-success">
-                  Comparator:
-                </span>
-                <GenerationStatusBanner
-                  cohortDefinitionId={comparatorCohortId!}
-                  sourceId={sourceId!}
-                  profile={comparatorProfile}
-                  isLoading={comparatorProfileLoading}
-                />
-              </div>
-            )}
           </div>
         )}
 
@@ -213,8 +185,8 @@ export function CohortSelectorBar({
             "px-4 py-1.5 rounded-md text-sm font-medium transition-colors shrink-0",
             "disabled:opacity-40 disabled:cursor-not-allowed",
             isCompareMode
-              ? "bg-primary text-white hover:bg-primary-dark"
-              : "bg-success text-surface-base hover:bg-success",
+              ? "bg-[#9B1B30] text-white hover:bg-[#7A1526]"
+              : "bg-[#2DD4BF] text-[#0E0E11] hover:bg-[#22A89A]",
           )}
         >
           {isCompareMode ? "Compare" : "Find Similar"}
@@ -226,13 +198,44 @@ export function CohortSelectorBar({
           onClick={onOpenSettings}
           title="Analysis settings"
           className={cn(
-            "p-1.5 rounded-md text-text-muted hover:text-text-secondary hover:bg-surface-overlay transition-colors shrink-0",
+            "p-1.5 rounded-md text-[#8A857D] hover:text-[#C5C0B8] hover:bg-[#2A2520] transition-colors shrink-0",
           )}
         >
           <Settings size={16} />
         </button>
       </div>
 
+      {/* Row 2 — generation status banners */}
+      {(showTargetBanner || showComparatorBanner) && (
+        <div className="flex gap-6 flex-wrap">
+          {showTargetBanner && (
+            <div className="flex-1 min-w-[200px]">
+              <span className="text-xs font-medium text-[#9B1B30] mr-2">
+                {isCompareMode ? "Target:" : "Seed:"}
+              </span>
+              <GenerationStatusBanner
+                cohortDefinitionId={targetCohortId!}
+                sourceId={sourceId!}
+                profile={targetProfile}
+                isLoading={targetProfileLoading}
+              />
+            </div>
+          )}
+          {showComparatorBanner && (
+            <div className="flex-1 min-w-[200px]">
+              <span className="text-xs font-medium text-[#2DD4BF] mr-2">
+                Comparator:
+              </span>
+              <GenerationStatusBanner
+                cohortDefinitionId={comparatorCohortId!}
+                sourceId={sourceId!}
+                profile={comparatorProfile}
+                isLoading={comparatorProfileLoading}
+              />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

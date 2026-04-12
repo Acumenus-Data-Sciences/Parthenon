@@ -34,8 +34,8 @@ function CustomTooltip({
   const d = payload[0].payload;
   return (
     <div className={TOOLTIP_CLS}>
-      <p className="text-xs text-text-secondary">{formatTableName(d.table)}</p>
-      <p className="mt-0.5 font-['IBM_Plex_Mono',monospace] text-xs text-text-primary">
+      <p className="text-xs text-[#C5C0B8]">{formatTableName(d.table)}</p>
+      <p className="mt-0.5 font-['IBM_Plex_Mono',monospace] text-xs text-[#F0EDE8]">
         {d.count.toLocaleString()} records
       </p>
     </div>

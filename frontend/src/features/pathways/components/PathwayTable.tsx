@@ -5,16 +5,16 @@ import type { PathwayResult, PathwayEntry } from "../types/pathway";
 
 // Matching color palette from SankeyDiagram
 const COHORT_COLORS = [
-  "var(--success)",
-  "var(--accent)",
-  "var(--critical)",
+  "#2DD4BF",
+  "#C9A227",
+  "#E85A6B",
   "#818CF8",
   "#F59E0B",
   "#94A3B8",
-  "var(--domain-observation)",
+  "#A78BFA",
   "#34D399",
   "#FB923C",
-  "var(--domain-procedure)",
+  "#F472B6",
 ];
 
 function getCohortColor(index: number): string {
@@ -88,41 +88,41 @@ export function PathwayTable({
 
   const SortIcon = ({ field }: { field: SortField }) => {
     if (sortField !== field)
-      return <ChevronDown size={10} className="text-text-ghost" />;
+      return <ChevronDown size={10} className="text-[#5A5650]" />;
     return sortDir === "asc" ? (
-      <ChevronUp size={10} className="text-success" />
+      <ChevronUp size={10} className="text-[#2DD4BF]" />
     ) : (
-      <ChevronDown size={10} className="text-success" />
+      <ChevronDown size={10} className="text-[#2DD4BF]" />
     );
   };
 
   if (result.pathways.length === 0) {
     return (
-      <div className="flex items-center justify-center h-32 rounded-lg border border-dashed border-surface-highlight bg-surface-raised">
-        <p className="text-sm text-text-muted">No pathway data</p>
+      <div className="flex items-center justify-center h-32 rounded-lg border border-dashed border-[#323238] bg-[#151518]">
+        <p className="text-sm text-[#8A857D]">No pathway data</p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-lg border border-border-default bg-surface-raised overflow-hidden">
+    <div className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden">
       <table className="w-full">
         <thead>
-          <tr className="bg-surface-overlay">
+          <tr className="bg-[#1C1C20]">
             <th
               onClick={() => toggleSort("rank")}
-              className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted cursor-pointer hover:text-text-secondary w-16"
+              className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D] cursor-pointer hover:text-[#C5C0B8] w-16"
             >
               <span className="inline-flex items-center gap-1">
                 Rank <SortIcon field="rank" />
               </span>
             </th>
-            <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+            <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#8A857D]">
               Pathway
             </th>
             <th
               onClick={() => toggleSort("count")}
-              className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted cursor-pointer hover:text-text-secondary w-24"
+              className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-[#8A857D] cursor-pointer hover:text-[#C5C0B8] w-24"
             >
               <span className="inline-flex items-center gap-1 justify-end">
                 Count <SortIcon field="count" />
@@ -130,7 +130,7 @@ export function PathwayTable({
             </th>
             <th
               onClick={() => toggleSort("percent")}
-              className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted cursor-pointer hover:text-text-secondary w-36"
+              className="px-4 py-2.5 text-right text-[11px] font-semibold uppercase tracking-wider text-[#8A857D] cursor-pointer hover:text-[#C5C0B8] w-36"
             >
               <span className="inline-flex items-center gap-1 justify-end">
                 Percent <SortIcon field="percent" />
@@ -149,22 +149,22 @@ export function PathwayTable({
                 key={entry.path.join("->")}
                 onClick={() => onPathwaySelect?.(entry)}
                 className={cn(
-                  "border-t border-surface-overlay transition-colors cursor-pointer hover:bg-surface-overlay",
-                  i % 2 === 0 ? "bg-surface-raised" : "bg-surface-overlay",
-                  isSelected && "ring-1 ring-inset ring-success/30",
+                  "border-t border-[#1C1C20] transition-colors cursor-pointer hover:bg-[#1C1C20]",
+                  i % 2 === 0 ? "bg-[#151518]" : "bg-[#1A1A1E]",
+                  isSelected && "ring-1 ring-inset ring-[#2DD4BF]/30",
                 )}
               >
-                <td className="px-4 py-2.5 text-xs text-text-ghost font-mono">
+                <td className="px-4 py-2.5 text-xs text-[#5A5650] font-mono">
                   {entry.rank}
                 </td>
                 <td className="px-4 py-2.5">
                   <div className="flex flex-wrap items-center gap-1">
                     {entry.path.map((step, stepIdx) => {
-                      const color = colorMap[step] ?? "var(--text-ghost)";
+                      const color = colorMap[step] ?? "#5A5650";
                       return (
                         <span key={stepIdx} className="flex items-center gap-1">
                           {stepIdx > 0 && (
-                            <span className="text-[10px] text-text-ghost">
+                            <span className="text-[10px] text-[#5A5650]">
                               &rarr;
                             </span>
                           )}
@@ -183,20 +183,20 @@ export function PathwayTable({
                     })}
                   </div>
                 </td>
-                <td className="px-4 py-2.5 text-xs text-text-secondary text-right font-mono">
+                <td className="px-4 py-2.5 text-xs text-[#C5C0B8] text-right font-mono">
                   {entry.count.toLocaleString()}
                 </td>
                 <td className="px-4 py-2.5 text-right">
                   <div className="flex items-center justify-end gap-2">
-                    <div className="w-16 h-1.5 rounded-full bg-surface-elevated overflow-hidden">
+                    <div className="w-16 h-1.5 rounded-full bg-[#232328] overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-success transition-all"
+                        className="h-full rounded-full bg-[#2DD4BF] transition-all"
                         style={{
                           width: `${Math.min(entry.percent, 100)}%`,
                         }}
                       />
                     </div>
-                    <span className="text-xs text-text-muted font-mono w-12 text-right">
+                    <span className="text-xs text-[#8A857D] font-mono w-12 text-right">
                       {entry.percent.toFixed(1)}%
                     </span>
                   </div>

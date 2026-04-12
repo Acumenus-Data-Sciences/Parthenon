@@ -116,7 +116,7 @@ function inferMapping(
 }
 
 const TYPE_BADGE_STYLES: Record<string, string> = {
-  direct: "bg-gray-800 text-gray-400",
+  direct: "bg-surface-raised text-gray-400",
   transform: "bg-sky-950 text-sky-400",
   lookup: "bg-amber-950 text-amber-400",
   constant: "bg-purple-950 text-purple-400",
@@ -178,7 +178,7 @@ function SourceColumnSelect({
       <div className="flex items-center gap-1.5">
         <button
           onClick={(e) => { e.stopPropagation(); setIsOpen(true); }}
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-accent/10 text-accent text-sm font-medium hover:bg-accent/20 transition-colors max-w-[200px]"
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#C9A227]/10 text-[#C9A227] text-sm font-medium hover:bg-[#C9A227]/20 transition-colors max-w-[200px]"
         >
           <span className="truncate">{selected}</span>
         </button>
@@ -208,7 +208,7 @@ function SourceColumnSelect({
     <div ref={containerRef} className="relative">
       <button
         onClick={(e) => { e.stopPropagation(); setIsOpen(!isOpen); }}
-        className="flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-dashed border-border-default text-sm text-gray-500 hover:border-accent/50 hover:text-gray-400 transition-colors"
+        className="flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-dashed border-[#2A2A30] text-sm text-gray-500 hover:border-[#C9A227]/50 hover:text-gray-400 transition-colors"
       >
         <Search className="w-3.5 h-3.5" />
         <span>Select source...</span>
@@ -248,10 +248,10 @@ function SourceDropdown({
   return (
     <div
       ref={containerRef}
-      className="absolute left-0 top-full mt-1 z-50 w-[300px] bg-surface-raised border border-border-default rounded-lg shadow-[0_8px_24px_rgba(0,0,0,0.70)] overflow-hidden"
+      className="absolute left-0 top-full mt-1 z-50 w-[300px] bg-[#151518] border border-[#2A2A30] rounded-lg shadow-[0_8px_24px_rgba(0,0,0,0.70)] overflow-hidden"
     >
-      <div className="p-2 border-b border-border-default">
-        <div className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-surface-base border border-border-default">
+      <div className="p-2 border-b border-[#2A2A30]">
+        <div className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-[#0E0E11] border border-[#2A2A30]">
           <Search className="w-3.5 h-3.5 text-gray-500" />
           <input
             ref={inputRef}
@@ -274,14 +274,14 @@ function SourceDropdown({
                 key={col.name}
                 type="button"
                 onClick={() => onSelect(col.name)}
-                className="w-full text-left px-3 py-2 hover:bg-surface-elevated transition-colors flex items-center gap-2 group"
+                className="w-full text-left px-3 py-2 hover:bg-[#232328] transition-colors flex items-center gap-2 group"
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-white font-medium truncate">{col.name}</span>
-                    <span className="text-[10px] px-1 py-0.5 rounded bg-gray-800 text-gray-500">{col.type}</span>
+                    <span className="text-[10px] px-1 py-0.5 rounded bg-surface-raised text-gray-500">{col.type}</span>
                     {isMappedElsewhere && (
-                      <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-success/10 text-success/60">mapped</span>
+                      <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[#2DD4BF]/10 text-[#2DD4BF]/60">mapped</span>
                     )}
                   </div>
                   <div className="text-[10px] text-gray-600 mt-0.5">
@@ -606,15 +606,15 @@ export function FieldMappingDetail({
     <>
       <div className="fixed inset-0 z-40 bg-black/50" onClick={onBack} />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
-        <div className="w-full max-w-5xl rounded-xl border border-border-default bg-surface-raised shadow-2xl max-h-[85vh] flex flex-col">
+        <div className="w-full max-w-5xl rounded-xl border border-[#232328] bg-[#151518] shadow-2xl max-h-[85vh] flex flex-col">
       {/* Modal header */}
-      <div className="flex items-center justify-between px-5 py-3 border-b border-border-default bg-surface-base rounded-t-xl">
+      <div className="flex items-center justify-between px-5 py-3 border-b border-[#2A2A30] bg-[#0E0E11] rounded-t-xl">
         <div className="flex items-center gap-2 text-sm">
-          <span className="text-accent font-medium">{tableMapping.source_table}</span>
-          <span className="text-text-ghost">→</span>
-          <span className="text-success font-medium">{tableMapping.target_table}</span>
-          <span className="text-surface-highlight ml-2">│</span>
-          <span className="text-xs text-text-muted">
+          <span className="text-[#C9A227] font-medium">{tableMapping.source_table}</span>
+          <span className="text-[#5A5650]">→</span>
+          <span className="text-[#2DD4BF] font-medium">{tableMapping.target_table}</span>
+          <span className="text-[#323238] ml-2">│</span>
+          <span className="text-xs text-[#8A857D]">
             <span className={requiredUnmappedCount > 0 ? "text-red-400 font-medium" : "text-emerald-400"}>
               {mappedCount}/{totalCdm}
             </span>
@@ -625,20 +625,20 @@ export function FieldMappingDetail({
         <div className="flex items-center gap-3">
           <button
             onClick={() => setAiPanelOpen(true)}
-            className="flex items-center gap-1.5 px-2.5 py-1 text-[10px] rounded-md bg-accent/10 text-accent hover:bg-accent/20 transition-colors font-medium"
+            className="flex items-center gap-1.5 px-2.5 py-1 text-[10px] rounded-md bg-[#C9A227]/10 text-[#C9A227] hover:bg-[#C9A227]/20 transition-colors font-medium"
           >
             <Sparkles className="w-3 h-3" />
             AI Assist
           </button>
           <div className="flex items-center gap-1 text-xs">
-            <button onClick={navigatePrev} disabled={!hasPrev} className="text-text-muted hover:text-text-primary disabled:opacity-30 transition-colors px-1">
+            <button onClick={navigatePrev} disabled={!hasPrev} className="text-[#8A857D] hover:text-[#F0EDE8] disabled:opacity-30 transition-colors px-1">
               ◀ Prev
             </button>
-            <button onClick={navigateNext} disabled={!hasNext} className="text-text-muted hover:text-text-primary disabled:opacity-30 transition-colors px-1">
+            <button onClick={navigateNext} disabled={!hasNext} className="text-[#8A857D] hover:text-[#F0EDE8] disabled:opacity-30 transition-colors px-1">
               Next ▶
             </button>
           </div>
-          <span className="text-surface-elevated">│</span>
+          <span className="text-[#232328]">│</span>
           {confirmDelete ? (
             <div className="flex items-center gap-1.5">
               <span className="text-xs text-red-400">Delete this mapping?</span>
@@ -661,7 +661,7 @@ export function FieldMappingDetail({
               <button
                 type="button"
                 onClick={() => setConfirmDelete(false)}
-                className="px-2 py-0.5 text-xs rounded border border-border-default text-text-muted hover:text-text-primary transition-colors"
+                className="px-2 py-0.5 text-xs rounded border border-[#2A2A30] text-[#8A857D] hover:text-[#F0EDE8] transition-colors"
               >
                 No
               </button>
@@ -670,13 +670,13 @@ export function FieldMappingDetail({
             <button
               type="button"
               onClick={() => setConfirmDelete(true)}
-              className="p-1 text-text-ghost hover:text-red-400 transition-colors"
+              className="p-1 text-[#5A5650] hover:text-red-400 transition-colors"
               title="Delete this table mapping"
             >
               <Trash2 size={16} />
             </button>
           )}
-          <button type="button" onClick={onBack} className="p-1 text-text-ghost hover:text-text-primary transition-colors">
+          <button type="button" onClick={onBack} className="p-1 text-[#5A5650] hover:text-[#F0EDE8] transition-colors">
             <X size={18} />
           </button>
         </div>
@@ -693,7 +693,7 @@ export function FieldMappingDetail({
       )}
 
       {/* Column header */}
-      <div className="flex items-center px-5 py-2 border-b border-border-default bg-surface-base text-[10px] uppercase tracking-wider text-gray-500 font-semibold sticky top-0 z-10">
+      <div className="flex items-center px-5 py-2 border-b border-[#2A2A30] bg-[#0E0E11] text-[10px] uppercase tracking-wider text-gray-500 font-semibold sticky top-0 z-10">
         <div className="w-[220px]">CDM Column</div>
         <div className="w-[240px]">Source Column</div>
         <div className="w-[80px]">Type</div>
@@ -721,12 +721,12 @@ export function FieldMappingDetail({
             <div key={col.name}>
               {/* Section divider */}
               {sectionBreak && (
-                <div className="flex items-center gap-2 px-5 py-1.5 bg-surface-overlay">
-                  <div className="flex-1 h-px bg-surface-accent" />
+                <div className="flex items-center gap-2 px-5 py-1.5 bg-[#1C1C20]">
+                  <div className="flex-1 h-px bg-[#2A2A30]" />
                   <span className="text-[10px] uppercase tracking-wider text-gray-500 font-medium">
                     {sectionBreak.label} ({sectionBreak.count})
                   </span>
-                  <div className="flex-1 h-px bg-surface-accent" />
+                  <div className="flex-1 h-px bg-[#2A2A30]" />
                 </div>
               )}
 
@@ -737,8 +737,8 @@ export function FieldMappingDetail({
                   "flex items-center px-5 py-2 border-b transition-colors",
                   mapping ? "cursor-pointer" : "",
                   isExpanded
-                    ? "bg-surface-overlay border-border-default"
-                    : "border-border-default/40 hover:bg-surface-overlay/40",
+                    ? "bg-[#1C1C20] border-[#2A2A30]"
+                    : "border-[#2A2A30]/40 hover:bg-[#1C1C20]/40",
                   !mapping && col.required && "bg-red-950/10",
                 )}
               >
@@ -746,14 +746,14 @@ export function FieldMappingDetail({
                 <div className="w-[220px] flex items-center gap-2 min-w-0">
                   <span className={cn(
                     "text-sm font-medium truncate",
-                    mapping ? "text-success" : "text-gray-300",
+                    mapping ? "text-[#2DD4BF]" : "text-gray-300",
                   )}>
                     {col.name}
                   </span>
                   {col.required && !mapping && (
                     <span className="text-red-400 text-xs flex-shrink-0">*</span>
                   )}
-                  <span className="text-[10px] px-1 py-0.5 rounded bg-gray-800 text-gray-500 flex-shrink-0">
+                  <span className="text-[10px] px-1 py-0.5 rounded bg-surface-raised text-gray-500 flex-shrink-0">
                     {col.type}
                   </span>
                 </div>
@@ -804,14 +804,14 @@ export function FieldMappingDetail({
                       <span className="w-2.5 h-2.5 rounded-full bg-amber-500/60" title="Needs review" />
                     )
                   ) : (
-                    <span className="w-2.5 h-2.5 rounded-full bg-surface-accent" title="Unmapped" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#2A2A30]" title="Unmapped" />
                   )}
                 </div>
               </div>
 
               {/* Expanded editor */}
               {isExpanded && mapping && (
-                <div className="bg-surface-raised border-b border-border-default px-5 py-4">
+                <div className="bg-[#151518] border-b border-[#2A2A30] px-5 py-4">
                   <div className="max-w-[800px]">
                     {/* Type + Logic row */}
                     <div className="flex items-start gap-4">
@@ -821,7 +821,7 @@ export function FieldMappingDetail({
                           value={mapping.mapping_type}
                           onChange={(e) => handleMappingChange(col.name, { mapping_type: e.target.value })}
                           onClick={(e) => e.stopPropagation()}
-                          className="bg-surface-base border border-border-default rounded-md px-2 py-1.5 text-sm text-white focus:outline-none focus:border-success"
+                          className="bg-[#0E0E11] border border-[#2A2A30] rounded-md px-2 py-1.5 text-sm text-white focus:outline-none focus:border-[#2DD4BF]"
                         >
                           {MAPPING_TYPES.map((t) => (
                             <option key={t} value={t}>{t}</option>
@@ -837,7 +837,7 @@ export function FieldMappingDetail({
                           onChange={(e) => handleMappingChange(col.name, { logic: e.target.value })}
                           onClick={(e) => e.stopPropagation()}
                           placeholder="Transformation logic or SQL expression"
-                          className="bg-surface-base border border-border-default rounded-md px-2 py-1.5 text-sm text-white font-mono resize-none focus:outline-none focus:border-success placeholder:text-gray-600"
+                          className="bg-[#0E0E11] border border-[#2A2A30] rounded-md px-2 py-1.5 text-sm text-white font-mono resize-none focus:outline-none focus:border-[#2DD4BF] placeholder:text-gray-600"
                         />
                       </div>
 
@@ -850,7 +850,7 @@ export function FieldMappingDetail({
                             type="checkbox"
                             checked={mapping.is_reviewed}
                             onChange={(e) => handleMappingChange(col.name, { is_reviewed: e.target.checked })}
-                            className="rounded border-border-default bg-surface-base text-success focus:ring-success"
+                            className="rounded border-[#2A2A30] bg-[#0E0E11] text-[#2DD4BF] focus:ring-[#2DD4BF]"
                           />
                           Reviewed
                         </label>
@@ -874,7 +874,7 @@ export function FieldMappingDetail({
 
                     {/* CDM Documentation */}
                     {hasDocs && (
-                      <div className="mt-3 border-t border-border-default pt-3">
+                      <div className="mt-3 border-t border-[#2A2A30] pt-3">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -897,7 +897,7 @@ export function FieldMappingDetail({
                             {col.etl_conventions && (
                               <div>
                                 <span className="text-[10px] uppercase tracking-wide text-gray-500 block mb-0.5">ETL Conventions</span>
-                                <p className="text-accent/80 leading-relaxed">{col.etl_conventions}</p>
+                                <p className="text-[#C9A227]/80 leading-relaxed">{col.etl_conventions}</p>
                               </div>
                             )}
                             {(col.fk_table || col.fk_domain) && (
@@ -905,13 +905,13 @@ export function FieldMappingDetail({
                                 {col.fk_table && (
                                   <span>
                                     <span className="text-[10px] uppercase tracking-wide text-gray-500">FK Table: </span>
-                                    <span className="text-success">{col.fk_table}</span>
+                                    <span className="text-[#2DD4BF]">{col.fk_table}</span>
                                   </span>
                                 )}
                                 {col.fk_domain && (
                                   <span>
                                     <span className="text-[10px] uppercase tracking-wide text-gray-500">FK Domain: </span>
-                                    <span className="text-success">{col.fk_domain}</span>
+                                    <span className="text-[#2DD4BF]">{col.fk_domain}</span>
                                   </span>
                                 )}
                               </div>

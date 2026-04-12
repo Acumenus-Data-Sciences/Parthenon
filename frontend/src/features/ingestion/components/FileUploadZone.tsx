@@ -73,17 +73,17 @@ export function FileUploadZone({
 
   if (selectedFile) {
     return (
-      <div className="rounded-lg border border-border-default bg-surface-raised p-6">
+      <div className="rounded-lg border border-[#232328] bg-[#151518] p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-surface-overlay">
-              <FileText size={20} className="text-accent" />
+            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-[#1C1C20]">
+              <FileText size={20} className="text-[#C9A227]" />
             </div>
             <div>
-              <p className="text-sm font-medium text-text-primary">
+              <p className="text-sm font-medium text-[#F0EDE8]">
                 {selectedFile.name}
               </p>
-              <p className="text-xs text-text-muted">
+              <p className="text-xs text-[#8A857D]">
                 {formatFileSize(selectedFile.size)}
               </p>
             </div>
@@ -91,7 +91,7 @@ export function FileUploadZone({
           <button
             type="button"
             onClick={onRemove}
-            className="flex items-center justify-center w-8 h-8 rounded-md text-text-muted hover:text-critical hover:bg-surface-overlay transition-colors"
+            className="flex items-center justify-center w-8 h-8 rounded-md text-[#8A857D] hover:text-[#E85A6B] hover:bg-[#1C1C20] transition-colors"
             aria-label="Remove file"
           >
             <X size={16} />
@@ -109,10 +109,10 @@ export function FileUploadZone({
       onDrop={handleDrop}
       onClick={handleClick}
       className={cn(
-        "relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed bg-surface-raised px-6 py-16 cursor-pointer transition-all",
+        "relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed bg-[#151518] px-6 py-16 cursor-pointer transition-all",
         isDragOver
-          ? "border-accent bg-surface-overlay"
-          : "border-surface-highlight hover:border-accent hover:bg-surface-overlay",
+          ? "border-[#C9A227] bg-[#1C1C20]"
+          : "border-[#323238] hover:border-[#C9A227] hover:bg-[#1A1A1E]",
       )}
     >
       <input
@@ -123,26 +123,26 @@ export function FileUploadZone({
         onChange={handleInputChange}
       />
 
-      <div className="flex items-center justify-center w-14 h-14 rounded-full bg-surface-overlay mb-4">
+      <div className="flex items-center justify-center w-14 h-14 rounded-full bg-[#1C1C20] mb-4">
         <Upload
           size={24}
           className={cn(
             "transition-colors",
-            isDragOver ? "text-accent" : "text-text-muted",
+            isDragOver ? "text-[#C9A227]" : "text-[#8A857D]",
           )}
         />
       </div>
 
-      <p className="text-sm font-medium text-text-primary">
+      <p className="text-sm font-medium text-[#F0EDE8]">
         Drag & drop your file here
       </p>
-      <p className="mt-1 text-xs text-text-muted">or click to browse</p>
+      <p className="mt-1 text-xs text-[#8A857D]">or click to browse</p>
 
       <div className="flex items-center gap-2 mt-5">
         {["CSV", "JSON", "HL7", "TSV", "XLSX"].map((fmt) => (
           <span
             key={fmt}
-            className="px-2 py-0.5 rounded text-[10px] font-medium tracking-wider uppercase bg-surface-overlay text-text-ghost border border-border-default"
+            className="px-2 py-0.5 rounded text-[10px] font-medium tracking-wider uppercase bg-[#1C1C20] text-[#5A5650] border border-[#2A2A30]"
           >
             {fmt}
           </span>

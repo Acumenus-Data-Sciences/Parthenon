@@ -1,0 +1,52 @@
+{
+    "id": 17,
+    "name": "Study 2: Baseline Characterization — Lisinopril vs Amlodipine Initiators",
+    "description": "Baseline covariate profile comparison for Study 2 target and comparator cohorts.",
+    "design_json": {
+        "topN": 100,
+        "ageBreaks": [
+            18,
+            40,
+            55,
+            65,
+            75
+        ],
+        "description": "Baseline characterization comparing demographic, clinical, and pharmacological profiles of hypertensive CKD 1-3 patients initiating lisinopril vs amlodipine. Evaluates covariate balance to validate active comparator design assumptions.",
+        "timeWindows": [
+            {
+                "id": 1,
+                "label": "365 days prior to index",
+                "endDays": 0,
+                "startDays": -365
+            },
+            {
+                "id": 2,
+                "label": "30 days prior to index",
+                "endDays": 0,
+                "startDays": -30
+            }
+        ],
+        "analysisType": "Characterization",
+        "featureTypes": [
+            "demographics",
+            "conditions",
+            "drugs",
+            "procedures",
+            "measurements",
+            "visits"
+        ],
+        "minCellCount": 5,
+        "stratifyByAge": true,
+        "targetCohortIds": [
+            73
+        ],
+        "stratifyByGender": true,
+        "comparatorCohortIds": [
+            74
+        ]
+    },
+    "author_id": 117,
+    "created_at": null,
+    "updated_at": "2026-03-19T04:00:15.000000Z",
+    "deleted_at": null
+}

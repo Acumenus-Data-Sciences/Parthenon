@@ -30,10 +30,10 @@ function InfoField({
 }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="text-[10px] uppercase tracking-wider text-text-ghost font-semibold">
+      <span className="text-[10px] uppercase tracking-wider text-[#5A5650] font-semibold">
         {label}
       </span>
-      <span className="text-xs text-text-primary">{value ?? "--"}</span>
+      <span className="text-xs text-[#F0EDE8]">{value ?? "--"}</span>
     </div>
   );
 }
@@ -41,7 +41,7 @@ function InfoField({
 function LoadingSpinner() {
   return (
     <div className="flex items-center justify-center py-6">
-      <Loader2 size={16} className="animate-spin text-success" />
+      <Loader2 size={16} className="animate-spin text-[#2DD4BF]" />
     </div>
   );
 }
@@ -65,9 +65,9 @@ export function ConceptSetItemDetailExpander({
   );
 
   return (
-    <div className="border-t border-teal-400/20 bg-surface-base px-4 py-3">
+    <div className="border-t border-teal-400/20 bg-[#0E0E11] px-4 py-3">
       {/* Tab Bar */}
-      <div className="flex items-center gap-0.5 mb-3 border-b border-border-default">
+      <div className="flex items-center gap-0.5 mb-3 border-b border-[#232328]">
         {TABS.map((tab) => (
           <button
             key={tab.id}
@@ -76,13 +76,13 @@ export function ConceptSetItemDetailExpander({
             className={cn(
               "relative px-3 py-2 text-xs uppercase tracking-wide transition-colors",
               activeTab === tab.id
-                ? "text-success font-medium"
-                : "text-text-muted hover:text-text-secondary",
+                ? "text-[#2DD4BF] font-medium"
+                : "text-[#8A857D] hover:text-[#C5C0B8]",
             )}
           >
             {tab.label}
             {activeTab === tab.id && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-success" />
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#2DD4BF]" />
             )}
           </button>
         ))}
@@ -96,25 +96,25 @@ export function ConceptSetItemDetailExpander({
             {isLoadingConcept ? (
               <LoadingSpinner />
             ) : !concept ? (
-              <p className="text-xs text-critical">Failed to load concept</p>
+              <p className="text-xs text-[#E85A6B]">Failed to load concept</p>
             ) : (
               <>
                 {/* 2-column info grid */}
-                <div className="grid grid-cols-2 gap-3 rounded border border-border-default bg-surface-raised p-3">
+                <div className="grid grid-cols-2 gap-3 rounded border border-[#232328] bg-[#151518] p-3">
                   <InfoField label="Full Name" value={concept.concept_name} />
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-[10px] uppercase tracking-wider text-text-ghost font-semibold">
+                    <span className="text-[10px] uppercase tracking-wider text-[#5A5650] font-semibold">
                       Vocabulary
                     </span>
                     <div className="flex items-center gap-1.5">
-                      <span className="text-xs text-text-primary">
+                      <span className="text-xs text-[#F0EDE8]">
                         {concept.vocabulary_id}
                       </span>
-                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tabular-nums text-accent">
+                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tabular-nums text-[#C9A227]">
                         {concept.concept_code}
                       </span>
                       {concept.standard_concept === "S" && (
-                        <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-success/15 text-success">
+                        <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-[#2DD4BF]/15 text-[#2DD4BF]">
                           Standard
                         </span>
                       )}
@@ -126,14 +126,14 @@ export function ConceptSetItemDetailExpander({
 
                 {/* Synonyms — full width if present */}
                 {concept.synonyms && concept.synonyms.length > 0 && (
-                  <div className="rounded border border-border-default bg-surface-raised p-3">
-                    <span className="text-[10px] uppercase tracking-wider text-text-ghost font-semibold block mb-2">
+                  <div className="rounded border border-[#232328] bg-[#151518] p-3">
+                    <span className="text-[10px] uppercase tracking-wider text-[#5A5650] font-semibold block mb-2">
                       Synonyms
                     </span>
                     <ul className="space-y-0.5">
                       {concept.synonyms.map(
                         (syn: { concept_synonym_name: string }, i: number) => (
-                          <li key={i} className="text-xs text-text-secondary">
+                          <li key={i} className="text-xs text-[#C5C0B8]">
                             {syn.concept_synonym_name}
                           </li>
                         ),
@@ -152,7 +152,7 @@ export function ConceptSetItemDetailExpander({
             {isLoadingAncestors ? (
               <LoadingSpinner />
             ) : !ancestors || ancestors.length === 0 ? (
-              <p className="text-xs text-text-ghost">No ancestors found</p>
+              <p className="text-xs text-[#5A5650]">No ancestors found</p>
             ) : (
               <div className="space-y-0.5">
                 {ancestors.map(
@@ -173,7 +173,7 @@ export function ConceptSetItemDetailExpander({
                         style={{ paddingLeft: `${depth * 12}px` }}
                       >
                         {depth > 0 && (
-                          <span className="text-text-ghost text-xs select-none">
+                          <span className="text-[#5A5650] text-xs select-none">
                             →
                           </span>
                         )}
@@ -182,12 +182,12 @@ export function ConceptSetItemDetailExpander({
                             "text-xs",
                             isCurrent
                               ? "font-semibold text-white"
-                              : "text-text-secondary",
+                              : "text-[#C5C0B8]",
                           )}
                         >
                           {anc.concept_name}
                         </span>
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tabular-nums text-accent ml-1">
+                        <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tabular-nums text-[#C9A227] ml-1">
                           {anc.concept_id}
                         </span>
                       </div>
@@ -200,11 +200,11 @@ export function ConceptSetItemDetailExpander({
                     className="flex items-center gap-1"
                     style={{ paddingLeft: `${(ancestors.length) * 12}px` }}
                   >
-                    <span className="text-text-ghost text-xs select-none">→</span>
+                    <span className="text-[#5A5650] text-xs select-none">→</span>
                     <span className="text-xs font-semibold text-white">
                       {concept?.concept_name}
                     </span>
-                    <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tabular-nums text-accent ml-1">
+                    <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tabular-nums text-[#C9A227] ml-1">
                       {conceptId}
                     </span>
                   </div>
@@ -224,10 +224,10 @@ export function ConceptSetItemDetailExpander({
               {isLoadingRels ? (
                 <LoadingSpinner />
               ) : !relationships?.items || relationships.items.length === 0 ? (
-                <p className="text-xs text-text-ghost">No relationships found</p>
+                <p className="text-xs text-[#5A5650]">No relationships found</p>
               ) : (
-                <div className="rounded border border-border-default bg-surface-raised overflow-hidden">
-                  <div className="divide-y divide-border-default">
+                <div className="rounded border border-[#232328] bg-[#151518] overflow-hidden">
+                  <div className="divide-y divide-[#232328]">
                     {relationships.items.map(
                       (rel: {
                         relationship_id: string;
@@ -243,13 +243,13 @@ export function ConceptSetItemDetailExpander({
                           key={`${rel.relationship_id}-${rel.concept_id_2}`}
                           className="flex items-center gap-2 px-3 py-1.5"
                         >
-                          <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-medium bg-[var(--domain-observation)]/15 text-[var(--domain-observation)] shrink-0">
+                          <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-medium bg-[#A78BFA]/15 text-[#A78BFA] shrink-0">
                             {rel.relationship_id}
                           </span>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tabular-nums text-accent shrink-0">
+                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tabular-nums text-[#C9A227] shrink-0">
                             {rel.related_concept.concept_id}
                           </span>
-                          <span className="text-xs text-text-primary truncate flex-1">
+                          <span className="text-xs text-[#F0EDE8] truncate flex-1">
                             {rel.related_concept.concept_name}
                           </span>
                         </div>
@@ -258,8 +258,8 @@ export function ConceptSetItemDetailExpander({
                   </div>
                   {/* Pagination */}
                   {totalPages > 1 && (
-                    <div className="flex items-center justify-between px-3 py-1.5 border-t border-border-default">
-                      <p className="text-[10px] text-text-ghost">
+                    <div className="flex items-center justify-between px-3 py-1.5 border-t border-[#232328]">
+                      <p className="text-[10px] text-[#5A5650]">
                         Page {relationshipsPage} of {totalPages} &mdash;{" "}
                         {relationships.total} total
                       </p>
@@ -270,11 +270,11 @@ export function ConceptSetItemDetailExpander({
                             setRelationshipsPage((p) => Math.max(1, p - 1))
                           }
                           disabled={relationshipsPage <= 1}
-                          className="p-1 rounded text-text-muted hover:text-text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                          className="p-1 rounded text-[#8A857D] hover:text-[#F0EDE8] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                         >
                           <ChevronLeft size={12} />
                         </button>
-                        <span className="text-[10px] text-text-secondary px-1">
+                        <span className="text-[10px] text-[#C5C0B8] px-1">
                           {relationshipsPage} / {totalPages}
                         </span>
                         <button
@@ -285,7 +285,7 @@ export function ConceptSetItemDetailExpander({
                             )
                           }
                           disabled={relationshipsPage >= totalPages}
-                          className="p-1 rounded text-text-muted hover:text-text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                          className="p-1 rounded text-[#8A857D] hover:text-[#F0EDE8] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                         >
                           <ChevronRight size={12} />
                         </button>
@@ -304,12 +304,12 @@ export function ConceptSetItemDetailExpander({
             {isLoadingMaps ? (
               <LoadingSpinner />
             ) : !mapsFrom?.data || mapsFrom.data.length === 0 ? (
-              <p className="text-xs text-text-ghost">
+              <p className="text-xs text-[#5A5650]">
                 No source codes map to this concept
               </p>
             ) : (
-              <div className="rounded border border-border-default bg-surface-raised overflow-hidden">
-                <div className="divide-y divide-border-default">
+              <div className="rounded border border-[#232328] bg-[#151518] overflow-hidden">
+                <div className="divide-y divide-[#232328]">
                   {mapsFrom.data.map(
                     (
                       entry: {
@@ -324,13 +324,13 @@ export function ConceptSetItemDetailExpander({
                         key={entry.concept_id}
                         className="flex items-center gap-2 px-3 py-1.5"
                       >
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tabular-nums text-accent shrink-0">
+                        <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tabular-nums text-[#C9A227] shrink-0">
                           {entry.concept_code}
                         </span>
-                        <span className="text-xs text-text-primary truncate flex-1">
+                        <span className="text-xs text-[#F0EDE8] truncate flex-1">
                           {entry.concept_name}
                         </span>
-                        <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-accent/15 text-accent shrink-0">
+                        <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-[#C9A227]/15 text-[#C9A227] shrink-0">
                           {entry.vocabulary_id}
                         </span>
                       </div>
@@ -338,8 +338,8 @@ export function ConceptSetItemDetailExpander({
                   )}
                 </div>
                 {mapsFrom.total > mapsFrom.data.length && (
-                  <div className="px-3 py-1.5 border-t border-border-default text-center">
-                    <p className="text-[10px] text-text-ghost">
+                  <div className="px-3 py-1.5 border-t border-[#232328] text-center">
+                    <p className="text-[10px] text-[#5A5650]">
                       Showing {mapsFrom.data.length} of {mapsFrom.total} source
                       codes
                     </p>

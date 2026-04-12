@@ -267,14 +267,14 @@ export default function SourceProfilerPage() {
       {/* Page header */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Source Profiler</h1>
-          <p className="mt-1 text-sm text-text-muted">
+          <h1 className="text-2xl font-bold text-[#F0EDE8]">Source Profiler</h1>
+          <p className="mt-1 text-sm text-[#8A857D]">
             Profile source databases with BlackRabbit to assess data completeness,
             cardinality, and quality before ETL
           </p>
         </div>
         <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[rgba(155,27,48,0.12)]">
-          <ScanSearch size={20} className="text-primary" />
+          <ScanSearch size={20} className="text-[#9B1B30]" />
         </div>
       </div>
 
@@ -284,8 +284,8 @@ export default function SourceProfilerPage() {
           className={cn(
             "flex items-center gap-2 px-3 py-2 rounded-lg text-xs",
             health.available
-              ? "bg-[rgba(45,212,191,0.08)] text-success"
-              : "bg-[rgba(232,90,107,0.08)] text-critical",
+              ? "bg-[rgba(45,212,191,0.08)] text-[#2DD4BF]"
+              : "bg-[rgba(232,90,107,0.08)] text-[#E85A6B]",
           )}
         >
           {health.available ? (
@@ -303,15 +303,15 @@ export default function SourceProfilerPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left: scan config */}
         <div className="lg:col-span-2 space-y-4">
-          <div className="rounded-lg border border-border-default bg-surface-raised p-5 space-y-4">
-            <h3 className="text-sm font-medium text-text-primary flex items-center gap-2">
-              <Database size={15} className="text-text-muted" />
+          <div className="rounded-lg border border-[#232328] bg-[#151518] p-5 space-y-4">
+            <h3 className="text-sm font-medium text-[#F0EDE8] flex items-center gap-2">
+              <Database size={15} className="text-[#8A857D]" />
               Scan Configuration
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="block text-xs font-medium text-text-muted uppercase tracking-wider">
+                <label className="block text-xs font-medium text-[#8A857D] uppercase tracking-wider">
                   Database
                 </label>
                 <select
@@ -321,7 +321,7 @@ export default function SourceProfilerPage() {
                       e.target.value ? Number(e.target.value) : "",
                     )
                   }
-                  className="w-full rounded-lg bg-surface-overlay border border-border-default px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-primary"
+                  className="w-full rounded-lg bg-[#1C1C20] border border-[#2E2E35] px-3 py-2 text-sm text-[#F0EDE8] focus:outline-none focus:border-[#9B1B30]"
                 >
                   <option value="">Select a database...</option>
                   {dbProjects.map((p) => (
@@ -332,16 +332,16 @@ export default function SourceProfilerPage() {
                   ))}
                 </select>
                 {dbProjects.length === 0 && (
-                  <p className="text-[11px] text-text-ghost">
+                  <p className="text-[11px] text-[#5A5650]">
                     No database connections found. Use the Ingestion tab to connect a database first.
                   </p>
                 )}
               </div>
 
               <div className="space-y-1.5">
-                <label className="block text-xs font-medium text-text-muted uppercase tracking-wider">
+                <label className="block text-xs font-medium text-[#8A857D] uppercase tracking-wider">
                   Table Filter{" "}
-                  <span className="normal-case font-normal text-text-ghost">
+                  <span className="normal-case font-normal text-[#5A5650]">
                     (comma-separated)
                   </span>
                 </label>
@@ -350,7 +350,7 @@ export default function SourceProfilerPage() {
                   value={tableFilter}
                   onChange={(e) => setTableFilter(e.target.value)}
                   placeholder="e.g. person, visit_occurrence, condition_occurrence"
-                  className="w-full rounded-lg bg-surface-overlay border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-primary"
+                  className="w-full rounded-lg bg-[#1C1C20] border border-[#2E2E35] px-3 py-2 text-sm text-[#F0EDE8] placeholder:text-[#5A5650] focus:outline-none focus:border-[#9B1B30]"
                 />
               </div>
             </div>
@@ -359,16 +359,16 @@ export default function SourceProfilerPage() {
             <button
               type="button"
               onClick={() => setShowAdvanced((p) => !p)}
-              className="flex items-center gap-1.5 text-xs text-text-ghost hover:text-text-muted transition-colors"
+              className="flex items-center gap-1.5 text-xs text-[#5A5650] hover:text-[#8A857D] transition-colors"
             >
               {showAdvanced ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
               Advanced options
             </button>
 
             {showAdvanced && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-4 border-l-2 border-border-default">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-4 border-l-2 border-[#232328]">
                 <div className="space-y-1.5">
-                  <label className="block text-xs font-medium text-text-muted uppercase tracking-wider">
+                  <label className="block text-xs font-medium text-[#8A857D] uppercase tracking-wider">
                     Sample Rows per Table
                   </label>
                   <input
@@ -381,9 +381,9 @@ export default function SourceProfilerPage() {
                     }
                     min={100}
                     max={1_000_000}
-                    className="w-full rounded-lg bg-surface-overlay border border-border-default px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-primary"
+                    className="w-full rounded-lg bg-[#1C1C20] border border-[#2E2E35] px-3 py-2 text-sm text-[#F0EDE8] focus:outline-none focus:border-[#9B1B30]"
                   />
-                  <p className="text-[11px] text-text-ghost">
+                  <p className="text-[11px] text-[#5A5650]">
                     Limits row sampling for large tables. Default: 10,000.
                   </p>
                 </div>
@@ -395,7 +395,7 @@ export default function SourceProfilerPage() {
                 type="button"
                 onClick={handleScan}
                 disabled={!selectedProjectId || scanProgress.isScanning}
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-text-primary hover:bg-primary-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-2 rounded-lg bg-[#9B1B30] px-5 py-2.5 text-sm font-medium text-[#F0EDE8] hover:bg-[#B82D42] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {scanProgress.isScanning ? (
                   <>
@@ -415,7 +415,7 @@ export default function SourceProfilerPage() {
                   <button
                     type="button"
                     onClick={() => exportJson(result, resultSourceName)}
-                    className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-overlay px-3 py-2.5 text-xs text-text-secondary hover:bg-surface-elevated transition-colors"
+                    className="inline-flex items-center gap-2 rounded-lg border border-[#2E2E35] bg-[#1C1C20] px-3 py-2.5 text-xs text-[#C5C0B8] hover:bg-[#232328] transition-colors"
                   >
                     <Download size={13} />
                     JSON
@@ -423,7 +423,7 @@ export default function SourceProfilerPage() {
                   <button
                     type="button"
                     onClick={() => exportCsv(result, resultSourceName)}
-                    className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-surface-overlay px-3 py-2.5 text-xs text-text-secondary hover:bg-surface-elevated transition-colors"
+                    className="inline-flex items-center gap-2 rounded-lg border border-[#2E2E35] bg-[#1C1C20] px-3 py-2.5 text-xs text-[#C5C0B8] hover:bg-[#232328] transition-colors"
                   >
                     <Download size={13} />
                     CSV
@@ -455,10 +455,10 @@ export default function SourceProfilerPage() {
       {/* -- Error state -- */}
       {scanError && (
         <div className="flex items-start gap-3 rounded-lg bg-[rgba(232,90,107,0.08)] border border-[rgba(232,90,107,0.2)] px-4 py-3">
-          <AlertTriangle size={16} className="text-critical shrink-0 mt-0.5" />
+          <AlertTriangle size={16} className="text-[#E85A6B] shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-medium text-critical">Scan failed</p>
-            <p className="text-xs text-text-muted mt-0.5">
+            <p className="text-sm font-medium text-[#E85A6B]">Scan failed</p>
+            <p className="text-xs text-[#8A857D] mt-0.5">
               {scanError}
             </p>
           </div>
@@ -473,11 +473,11 @@ export default function SourceProfilerPage() {
           {/* Source name + timestamp header */}
           {resultSourceName && (
             <div className="flex items-center gap-3">
-              <h2 className="text-lg font-semibold text-text-primary">
+              <h2 className="text-lg font-semibold text-[#F0EDE8]">
                 {resultSourceName}
               </h2>
               {selectedHistoryId && (
-                <span className="text-xs text-text-ghost flex items-center gap-1">
+                <span className="text-xs text-[#5A5650] flex items-center gap-1">
                   <Clock size={11} />
                   {new Date(
                     profileHistory.find((h) => h.id === selectedHistoryId)?.created_at ?? "",
@@ -493,22 +493,22 @@ export default function SourceProfilerPage() {
               {
                 label: "Tables",
                 value: fmtNumberFull(result.tables.length),
-                color: "var(--success)",
+                color: "#2DD4BF",
               },
               {
                 label: "Columns",
                 value: fmtNumberFull(totalCols),
-                color: "var(--info)",
+                color: "#60A5FA",
               },
               {
                 label: "Total Rows",
                 value: fmtNumber(totalRows),
-                color: "var(--accent)",
+                color: "#C9A227",
               },
               {
                 label: "Scan Time",
                 value: `${result.scan_time_seconds.toFixed(1)}s`,
-                color: "var(--domain-observation)",
+                color: "#A78BFA",
               },
               {
                 label: "Grade",
@@ -518,9 +518,9 @@ export default function SourceProfilerPage() {
             ].map((stat) => (
               <div
                 key={stat.label}
-                className="rounded-lg border border-border-default bg-surface-raised px-4 py-3"
+                className="rounded-lg border border-[#232328] bg-[#151518] px-4 py-3"
               >
-                <p className="text-[11px] uppercase tracking-wider text-text-muted">
+                <p className="text-[11px] uppercase tracking-wider text-[#8A857D]">
                   {stat.label}
                 </p>
                 <p
@@ -561,20 +561,20 @@ export default function SourceProfilerPage() {
               <div className="relative flex-1 min-w-[200px] max-w-md">
                 <Search
                   size={14}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-text-ghost"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5A5650]"
                 />
                 <input
                   type="text"
                   value={tableSearch}
                   onChange={(e) => setTableSearch(e.target.value)}
                   placeholder="Search tables..."
-                  className="w-full rounded-lg bg-surface-overlay border border-border-default pl-9 pr-8 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-primary"
+                  className="w-full rounded-lg bg-[#1C1C20] border border-[#2E2E35] pl-9 pr-8 py-2 text-sm text-[#F0EDE8] placeholder:text-[#5A5650] focus:outline-none focus:border-[#9B1B30]"
                 />
                 {tableSearch && (
                   <button
                     type="button"
                     onClick={() => setTableSearch("")}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-ghost hover:text-text-secondary"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#5A5650] hover:text-[#C5C0B8]"
                   >
                     <X size={14} />
                   </button>
@@ -582,7 +582,7 @@ export default function SourceProfilerPage() {
               </div>
 
               {/* Sort controls */}
-              <div className="flex items-center gap-1.5 text-xs text-text-muted">
+              <div className="flex items-center gap-1.5 text-xs text-[#8A857D]">
                 <ArrowUpDown size={13} />
                 {(
                   [
@@ -599,8 +599,8 @@ export default function SourceProfilerPage() {
                     className={cn(
                       "px-2 py-1 rounded text-[11px] transition-colors",
                       sortField === field
-                        ? "bg-primary/20 text-text-primary"
-                        : "bg-surface-overlay text-text-ghost hover:text-text-muted",
+                        ? "bg-[#9B1B30]/20 text-[#F0EDE8]"
+                        : "bg-[#1C1C20] text-[#5A5650] hover:text-[#8A857D]",
                     )}
                   >
                     {label}
@@ -610,15 +610,15 @@ export default function SourceProfilerPage() {
               </div>
 
               {/* View mode toggle */}
-              <div className="flex items-center gap-1 bg-surface-overlay rounded-lg p-0.5">
+              <div className="flex items-center gap-1 bg-[#1C1C20] rounded-lg p-0.5">
                 <button
                   type="button"
                   onClick={() => setViewMode("list")}
                   className={cn(
                     "p-1.5 rounded transition-colors",
                     viewMode === "list"
-                      ? "bg-primary/20 text-text-primary"
-                      : "text-text-ghost hover:text-text-muted",
+                      ? "bg-[#9B1B30]/20 text-[#F0EDE8]"
+                      : "text-[#5A5650] hover:text-[#8A857D]",
                   )}
                   title="List view"
                 >
@@ -630,8 +630,8 @@ export default function SourceProfilerPage() {
                   className={cn(
                     "p-1.5 rounded transition-colors",
                     viewMode === "heatmap"
-                      ? "bg-primary/20 text-text-primary"
-                      : "text-text-ghost hover:text-text-muted",
+                      ? "bg-[#9B1B30]/20 text-[#F0EDE8]"
+                      : "text-[#5A5650] hover:text-[#8A857D]",
                   )}
                   title="Compact view"
                 >
@@ -639,7 +639,7 @@ export default function SourceProfilerPage() {
                 </button>
               </div>
 
-              <span className="text-[11px] text-text-ghost">
+              <span className="text-[11px] text-[#5A5650]">
                 {filteredTables.length}
                 {tableSearch ? ` / ${result.tables.length}` : ""} tables
               </span>
@@ -664,25 +664,25 @@ export default function SourceProfilerPage() {
                   return (
                     <div
                       key={table.table_name}
-                      className="rounded-lg border border-border-default bg-surface-raised p-3 hover:bg-surface-overlay transition-colors"
+                      className="rounded-lg border border-[#232328] bg-[#151518] p-3 hover:bg-[#1C1C20] transition-colors"
                     >
                       <div className="flex items-center gap-2 mb-2">
                         <GradeBadge score={score} />
-                        <span className="font-mono text-xs text-text-primary truncate flex-1">
+                        <span className="font-mono text-xs text-[#F0EDE8] truncate flex-1">
                           {table.table_name}
                         </span>
                       </div>
-                      <div className="flex items-center gap-4 text-[11px] text-text-muted">
+                      <div className="flex items-center gap-4 text-[11px] text-[#8A857D]">
                         <span>{fmtNumber(table.row_count)} rows</span>
                         <span>{table.column_count} cols</span>
                         {highNullCount > 0 && (
-                          <span className="text-accent">
+                          <span className="text-[#C9A227]">
                             {highNullCount} high-null
                           </span>
                         )}
                       </div>
                       {/* Mini completeness bar */}
-                      <div className="mt-2 h-1 rounded-full bg-surface-elevated overflow-hidden">
+                      <div className="mt-2 h-1 rounded-full bg-[#232328] overflow-hidden">
                         <div
                           className="h-full rounded-full"
                           style={{
@@ -699,7 +699,7 @@ export default function SourceProfilerPage() {
 
             {/* No results from search */}
             {filteredTables.length === 0 && tableSearch && (
-              <div className="text-center py-8 text-sm text-text-muted">
+              <div className="text-center py-8 text-sm text-[#8A857D]">
                 No tables matching &quot;{tableSearch}&quot;
               </div>
             )}
@@ -709,20 +709,20 @@ export default function SourceProfilerPage() {
 
       {/* -- Empty state -- */}
       {!result && !scanProgress.isScanning && !scanError && (
-        <div className="flex flex-col items-center justify-center py-20 rounded-lg border border-dashed border-border-default bg-surface-raised">
-          <div className="w-16 h-16 rounded-full bg-surface-overlay flex items-center justify-center mb-4">
-            <ScanSearch size={28} className="text-text-muted" />
+        <div className="flex flex-col items-center justify-center py-20 rounded-lg border border-dashed border-[#2E2E35] bg-[#151518]">
+          <div className="w-16 h-16 rounded-full bg-[#1C1C20] flex items-center justify-center mb-4">
+            <ScanSearch size={28} className="text-[#8A857D]" />
           </div>
-          <h3 className="text-text-primary font-semibold text-lg">
+          <h3 className="text-[#F0EDE8] font-semibold text-lg">
             No scan results yet
           </h3>
-          <p className="text-sm text-text-muted mt-1 text-center max-w-md">
+          <p className="text-sm text-[#8A857D] mt-1 text-center max-w-md">
             Select a data source and click &quot;Scan Database&quot; to profile your
             source data. Results include column completeness, cardinality, value
             distributions, and data quality grades.
           </p>
           {profileHistory.length > 0 && (
-            <p className="text-xs text-text-ghost mt-3">
+            <p className="text-xs text-[#5A5650] mt-3">
               Or select a previous scan from the history panel.
             </p>
           )}

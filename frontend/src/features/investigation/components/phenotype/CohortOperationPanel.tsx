@@ -21,7 +21,7 @@ const OPERATION_OPTIONS: OperationOption[] = [
   { id: "subtract", label: "Subtract", description: "Patients in primary only" },
 ];
 
-const CIRCLE_COLORS = ["var(--success)", "var(--primary)", "var(--accent)"];
+const CIRCLE_COLORS = ["#2DD4BF", "#9B1B30", "#C9A227"];
 
 export interface CohortOperationPanelProps {
   selectedCohorts: Array<{ id: number; name: string; count: number }>;
@@ -126,7 +126,7 @@ export function CohortOperationPanel({
     : [];
 
   return (
-    <div className="flex flex-col gap-5 rounded-xl border border-zinc-700/50 bg-surface-base p-4">
+    <div className="flex flex-col gap-5 rounded-xl border border-border-default/50 bg-[#0E0E11] p-4">
       {/* Header */}
       <div>
         <h3 className="text-sm font-semibold text-zinc-100">Cohort Set Operations</h3>
@@ -150,8 +150,8 @@ export function CohortOperationPanel({
               onClick={() => setOperationType(opt.id)}
               className={`flex flex-col items-start rounded-full border px-4 py-1.5 text-left transition-colors ${
                 operationType === opt.id
-                  ? "border-success/60 bg-teal-900/20 text-success"
-                  : "border-zinc-700 bg-zinc-800/50 text-zinc-400 hover:border-zinc-600 hover:text-zinc-300"
+                  ? "border-[#2DD4BF]/60 bg-teal-900/20 text-[#2DD4BF]"
+                  : "border-border-default bg-surface-raised/50 text-zinc-400 hover:border-border-hover hover:text-zinc-300"
               }`}
             >
               <span className="text-xs font-semibold">{opt.label}</span>
@@ -165,7 +165,7 @@ export function CohortOperationPanel({
 
       {/* 3. Venn diagram */}
       {vennCircles.length >= 2 && (
-        <div className="flex justify-center rounded-lg border border-zinc-800 bg-surface-raised py-4">
+        <div className="flex justify-center rounded-lg border border-border-default bg-[#151518] py-4">
           <VennDiagram
             circles={vennCircles}
             operation={operationType}
@@ -185,7 +185,7 @@ export function CohortOperationPanel({
             setSelectedSourceId(e.target.value ? Number(e.target.value) : null)
           }
           disabled={sourcesLoading}
-          className="w-full rounded border border-zinc-700 bg-zinc-800/60 px-3 py-1.5 text-xs text-zinc-200 focus:border-success/60 focus:outline-none disabled:opacity-50"
+          className="w-full rounded border border-border-default bg-surface-raised/60 px-3 py-1.5 text-xs text-zinc-200 focus:border-[#2DD4BF]/60 focus:outline-none disabled:opacity-50"
         >
           <option value="">
             {sourcesLoading ? "Loading sources…" : "Select a CDM source…"}
@@ -204,7 +204,7 @@ export function CohortOperationPanel({
           onClick={() => void handleExecute()}
           disabled={isRunning || !selectedSourceId}
           className="flex items-center gap-2 rounded px-5 py-2 text-sm font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-          style={{ backgroundColor: "var(--primary)" }}
+          style={{ backgroundColor: "#9B1B30" }}
         >
           {isRunning ? (
             <>
@@ -233,7 +233,7 @@ export function CohortOperationPanel({
 
       {/* Error */}
       {error && (
-        <div className="rounded border border-primary/40 bg-red-900/10 px-3 py-2.5 text-xs text-red-400">
+        <div className="rounded border border-[#9B1B30]/40 bg-red-900/10 px-3 py-2.5 text-xs text-red-400">
           {error}
         </div>
       )}
@@ -242,15 +242,15 @@ export function CohortOperationPanel({
       {result && (
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-2">
-            <div className="h-px flex-1 bg-zinc-700/50" />
+            <div className="h-px flex-1 bg-surface-accent/50" />
             <span className="text-[10px] uppercase tracking-wide text-zinc-500">Results</span>
-            <div className="h-px flex-1 bg-zinc-700/50" />
+            <div className="h-px flex-1 bg-surface-accent/50" />
           </div>
 
           {/* Result count badge */}
           <div className="flex items-center gap-3">
-            <div className="flex flex-col items-center justify-center rounded-xl border border-success/30 bg-teal-900/10 px-6 py-3">
-              <span className="text-3xl font-bold tabular-nums text-success">
+            <div className="flex flex-col items-center justify-center rounded-xl border border-[#2DD4BF]/30 bg-teal-900/10 px-6 py-3">
+              <span className="text-3xl font-bold tabular-nums text-[#2DD4BF]">
                 {result.result_count.toLocaleString()}
               </span>
               <span className="mt-0.5 text-[11px] text-zinc-400">
@@ -262,7 +262,7 @@ export function CohortOperationPanel({
               </span>
             </div>
             {result.handoff_ready && (
-              <span className="rounded border border-success/30 bg-teal-900/10 px-2 py-1 text-[11px] text-success">
+              <span className="rounded border border-[#2DD4BF]/30 bg-teal-900/10 px-2 py-1 text-[11px] text-[#2DD4BF]">
                 Handoff ready
               </span>
             )}
@@ -270,8 +270,8 @@ export function CohortOperationPanel({
 
           {/* Attrition funnel */}
           {result.attrition.length > 0 && (
-            <div className="rounded-lg border border-zinc-800 bg-surface-raised p-4">
-              <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-muted">
+            <div className="rounded-lg border border-border-default bg-[#151518] p-4">
+              <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
                 Attrition
               </h4>
               <AttritionFunnel steps={result.attrition} totalLabel="Input Population" />
@@ -288,7 +288,7 @@ export function CohortOperationPanel({
                 {compileSummaryEntries.map(([key, value]) => (
                   <div
                     key={key}
-                    className="rounded border border-zinc-800 bg-zinc-900/60 px-3 py-2"
+                    className="rounded border border-border-default bg-surface-base/60 px-3 py-2"
                   >
                     <p className="text-[10px] text-zinc-500 capitalize">
                       {key.replace(/_/g, " ")}
@@ -321,7 +321,7 @@ export function CohortOperationPanel({
                   });
                 }
               }}
-              className="rounded border border-zinc-700 bg-zinc-800/40 px-4 py-2 text-xs text-zinc-300 transition-colors hover:border-accent/50 hover:bg-accent/10 hover:text-accent disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-zinc-700 disabled:hover:bg-zinc-800/40 disabled:hover:text-zinc-500"
+              className="rounded border border-border-default bg-surface-raised/40 px-4 py-2 text-xs text-zinc-300 transition-colors hover:border-[#C9A227]/50 hover:bg-[#C9A227]/10 hover:text-[#C9A227] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-border-default disabled:hover:bg-surface-raised/40 disabled:hover:text-zinc-500"
               title={!onPinFinding ? "Pin not available" : !result ? "Run an operation first" : "Pin this result to the dossier"}
             >
               Pin to Dossier

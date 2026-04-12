@@ -1,0 +1,134 @@
+{
+    "id": 204,
+    "name": "IRSF T3-01: CDKL5 Deficiency Disorder",
+    "description": "Patients with CDKL5 mutations. N~71. Separate orphan drug indication with distinct pipeline (ganaxolone, soticlestat).",
+    "expression_json": {
+        "ConceptSets": [
+            {
+                "id": 0,
+                "name": "CDKL5",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Observation",
+                                "CONCEPT_ID": 2000003041,
+                                "CONCEPT_NAME": "IRSF CDKL5 Other Mutation",
+                                "VOCABULARY_ID": "IRSF-NHS",
+                                "CONCEPT_CLASS_ID": "Observable Entity",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Observation",
+                                "CONCEPT_ID": 2000003038,
+                                "CONCEPT_NAME": "IRSF CDKL5 Mutation R59X",
+                                "VOCABULARY_ID": "IRSF-NHS",
+                                "CONCEPT_CLASS_ID": "Observable Entity",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Observation",
+                                "CONCEPT_ID": 2000003037,
+                                "CONCEPT_NAME": "IRSF CDKL5 Mutation A40V",
+                                "VOCABULARY_ID": "IRSF-NHS",
+                                "CONCEPT_CLASS_ID": "Observable Entity",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Observation",
+                                "CONCEPT_ID": 2000003046,
+                                "CONCEPT_NAME": "IRSF CDKL5 Other Mutation (no underscore variant)",
+                                "VOCABULARY_ID": "IRSF-NHS",
+                                "CONCEPT_CLASS_ID": "Observable Entity",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Observation",
+                                "CONCEPT_ID": 2000003039,
+                                "CONCEPT_NAME": "IRSF CDKL5 Polymorphism Q791P",
+                                "VOCABULARY_ID": "IRSF-NHS",
+                                "CONCEPT_CLASS_ID": "Observable Entity",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Observation",
+                                "CONCEPT_ID": 2000003040,
+                                "CONCEPT_NAME": "IRSF CDKL5 Polymorphism R952X",
+                                "VOCABULARY_ID": "IRSF-NHS",
+                                "CONCEPT_CLASS_ID": "Observable Entity",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        }
+                    ]
+                }
+            }
+        ],
+        "InclusionRules": [],
+        "QualifiedLimit": {
+            "Type": "First"
+        },
+        "ExpressionLimit": {
+            "Type": "First"
+        },
+        "PrimaryCriteria": {
+            "CriteriaList": [
+                {
+                    "Observation": {
+                        "CodesetId": 0
+                    }
+                }
+            ],
+            "ObservationWindow": {
+                "PostDays": 0,
+                "PriorDays": 0
+            }
+        },
+        "CollapseSettings": {
+            "EraPad": 0,
+            "CollapseType": "ERA"
+        },
+        "CensoringCriteria": []
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-03-26T20:46:04.000000Z",
+    "updated_at": "2026-03-26T20:46:04.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "IRSF-NHS",
+        "Tier 3",
+        "Genotype",
+        "CDKL5"
+    ],
+    "share_token": null,
+    "share_expires_at": null
+}

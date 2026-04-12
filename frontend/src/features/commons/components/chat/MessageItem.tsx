@@ -54,7 +54,7 @@ export function MessageItem({
           {/* Floating action bar — appears on hover */}
           {!isDeleted && (
             <div className="absolute right-4 top-0 z-10 -translate-y-1/2 opacity-0 transition-opacity duration-150 group-hover:opacity-100">
-              <div className="flex items-center gap-0.5 rounded-lg border border-white/[0.08] bg-surface-overlay px-1 py-0.5 shadow-[0_4px_20px_rgba(0,0,0,0.4)] backdrop-blur-xl">
+              <div className="flex items-center gap-0.5 rounded-lg border border-white/[0.08] bg-[#1a1a24] px-1 py-0.5 shadow-[0_4px_20px_rgba(0,0,0,0.4)] backdrop-blur-xl">
                 <ActionBarButton icon={SmilePlus} label="React" onClick={() => {}} />
                 <ActionBarButton icon={Reply} label="Reply" onClick={() => setShowThread(true)} />
                 <ActionBarButton icon={Pin} label="Pin" onClick={() => pinMessage.mutate({ slug, messageId: message.id })} />
@@ -96,7 +96,7 @@ export function MessageItem({
               onSaved={() => setEditing(false)}
             />
           ) : (
-            <div className="prose prose-sm prose-invert mt-1 max-w-none text-text-secondary leading-7 [&_p]:my-1.5 [&_pre]:bg-surface-raised [&_pre]:border [&_pre]:border-white/[0.06] [&_pre]:rounded-xl [&_pre]:p-3 [&_code]:text-teal-400 [&_code.mention]:rounded [&_code.mention]:border-0 [&_code.mention]:bg-teal-500/10 [&_code.mention]:text-teal-300 [&_code.mention]:px-1 [&_code.mention]:py-0.5">
+            <div className="prose prose-sm prose-invert mt-1 max-w-none text-[#c5c5cf] leading-7 [&_p]:my-1.5 [&_pre]:bg-[#13131a] [&_pre]:border [&_pre]:border-white/[0.06] [&_pre]:rounded-xl [&_pre]:p-3 [&_code]:text-teal-400 [&_code.mention]:rounded [&_code.mention]:border-0 [&_code.mention]:bg-teal-500/10 [&_code.mention]:text-teal-300 [&_code.mention]:px-1 [&_code.mention]:py-0.5">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 rehypePlugins={[rehypeSanitize]}
@@ -156,7 +156,7 @@ export function MessageItem({
               className="group/thread mt-3 flex items-center gap-2 rounded-xl border border-white/[0.05] bg-white/[0.02] px-3 py-2 text-xs text-primary transition-all duration-150 hover:border-white/[0.08] hover:bg-white/[0.04]"
             >
               <div className="flex -space-x-1.5">
-                <div className="h-5 w-5 rounded-full bg-primary/20 border border-surface-base flex items-center justify-center text-[7px] font-semibold text-primary">
+                <div className="h-5 w-5 rounded-full bg-primary/20 border border-[#0e0e11] flex items-center justify-center text-[7px] font-semibold text-primary">
                   {message.reply_count}
                 </div>
               </div>

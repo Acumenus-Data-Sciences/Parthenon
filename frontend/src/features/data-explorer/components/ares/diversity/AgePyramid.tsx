@@ -22,7 +22,7 @@ export default function AgePyramid({ data, sourceName }: AgePyramidProps) {
   }));
 
   return (
-    <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
+    <div className="rounded-lg border border-[#252530] bg-[#151518] p-4">
       <h4 className="mb-3 text-sm font-medium text-white">{sourceName} -- Age Distribution</h4>
       <div className="h-72">
         <ResponsiveContainer width="100%" height="100%">
@@ -33,20 +33,20 @@ export default function AgePyramid({ data, sourceName }: AgePyramidProps) {
           >
             <XAxis
               type="number"
-              tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+              tick={{ fill: "#888", fontSize: 11 }}
               tickFormatter={(v: number) => Math.abs(v).toLocaleString()}
             />
             <YAxis
               type="category"
               dataKey="group"
-              tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+              tick={{ fill: "#888", fontSize: 11 }}
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: 'var(--surface-overlay)',
+                backgroundColor: "#1a1a22",
                 border: "1px solid #333",
                 borderRadius: "8px",
-                color: 'var(--text-secondary)',
+                color: "#ccc",
                 fontSize: 12,
               }}
               formatter={((value: number) => [Math.abs(value).toLocaleString(), ""]) as never}
@@ -57,12 +57,12 @@ export default function AgePyramid({ data, sourceName }: AgePyramidProps) {
           </BarChart>
         </ResponsiveContainer>
       </div>
-      <div className="mt-2 flex justify-center gap-4 text-xs text-text-muted">
+      <div className="mt-2 flex justify-center gap-4 text-xs text-[#888]">
         <span className="flex items-center gap-1">
-          <span className="inline-block h-2 w-2 rounded-full bg-domain-observation" /> Male
+          <span className="inline-block h-2 w-2 rounded-full bg-[#7c8aed]" /> Male
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block h-2 w-2 rounded-full bg-critical" /> Female
+          <span className="inline-block h-2 w-2 rounded-full bg-[#e85d75]" /> Female
         </span>
       </div>
     </div>

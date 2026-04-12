@@ -55,10 +55,10 @@ export default function VocabularyPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">
+          <h1 className="text-2xl font-bold text-[#F0EDE8]">
             Vocabulary Browser
           </h1>
-          <p className="mt-1 text-sm text-text-muted">
+          <p className="mt-1 text-sm text-[#8A857D]">
             Search, explore, and navigate the OMOP standardized vocabulary
           </p>
         </div>
@@ -67,14 +67,14 @@ export default function VocabularyPage() {
 
       {/* Split Pane Layout */}
       <div
-        className="rounded-lg border border-border-default bg-surface-raised overflow-hidden"
+        className="rounded-lg border border-[#232328] bg-[#151518] overflow-hidden"
         style={{ height: "calc(100vh - 200px)" }}
       >
         <div className="flex h-full">
           {/* Left pane: tab switcher + search panel (40%) */}
-          <div className="w-[40%] shrink-0 h-full overflow-hidden flex flex-col border-r border-border-default">
+          <div className="w-[40%] shrink-0 h-full overflow-hidden flex flex-col border-r border-[#232328]">
             {/* Tab switcher */}
-            <div className="flex border-b border-border-default bg-surface-base shrink-0">
+            <div className="flex border-b border-[#232328] bg-[#0E0E11] shrink-0">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
@@ -84,9 +84,9 @@ export default function VocabularyPage() {
                     "flex items-center gap-1.5 px-4 py-3 text-xs font-medium transition-colors flex-1 justify-center",
                     activeTab === tab.id
                       ? tab.id === "keyword"
-                        ? "border-b-2 border-accent text-accent bg-accent/5"
-                        : "border-b-2 border-success text-success bg-success/5"
-                      : "text-text-muted hover:text-text-secondary hover:bg-surface-overlay",
+                        ? "border-b-2 border-[#C9A227] text-[#C9A227] bg-[#C9A227]/5"
+                        : "border-b-2 border-[#2DD4BF] text-[#2DD4BF] bg-[#2DD4BF]/5"
+                      : "text-[#8A857D] hover:text-[#C5C0B8] hover:bg-[#1C1C20]",
                   )}
                 >
                   {tab.icon}

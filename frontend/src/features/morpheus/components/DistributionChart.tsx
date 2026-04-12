@@ -11,7 +11,7 @@ interface DistributionChartProps {
   title?: string;
 }
 
-export default function DistributionChart({ data, barColor = 'var(--success)', title }: DistributionChartProps) {
+export default function DistributionChart({ data, barColor = '#2DD4BF', title }: DistributionChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(300);
   const [tooltip, setTooltip] = useState<{ x: number; y: number; item: DistItem } | null>(null);
@@ -23,7 +23,7 @@ export default function DistributionChart({ data, barColor = 'var(--success)', t
     return () => ro.disconnect();
   }, []);
 
-  if (!data.length) return <div className="text-text-ghost text-sm py-8 text-center">No data</div>;
+  if (!data.length) return <div className="text-[#5A5650] text-sm py-8 text-center">No data</div>;
 
   const maxVal = Math.max(...data.map(d => d.value), 1);
   const padL = 8;
@@ -39,7 +39,7 @@ export default function DistributionChart({ data, barColor = 'var(--success)', t
 
   return (
     <div ref={containerRef} className="relative">
-      {title && <h3 className="text-xs font-semibold text-text-secondary mb-3">{title}</h3>}
+      {title && <h3 className="text-xs font-semibold text-[#C5C0B8] mb-3">{title}</h3>}
       <svg width={width} height={svgH}>
         {/* Grid lines */}
         {[0.25, 0.5, 0.75].map((pct) => (
@@ -60,27 +60,27 @@ export default function DistributionChart({ data, barColor = 'var(--success)', t
               <rect x={x} y={y} width={barW} height={barH} rx={2} fill={barColor}
                 opacity={0.8} className="transition-opacity hover:opacity-100" />
               {/* Value above bar */}
-              <text x={x + barW / 2} y={y - 4} textAnchor="middle" fill="var(--text-muted)" fontSize={9} fontWeight={500}>
+              <text x={x + barW / 2} y={y - 4} textAnchor="middle" fill="#8A857D" fontSize={9} fontWeight={500}>
                 {d.value >= 1000 ? `${(d.value / 1000).toFixed(1)}k` : d.value}
               </text>
               {/* X label */}
-              <text x={x + barW / 2} y={padT + chartH + 14} textAnchor="middle" fill="var(--text-ghost)" fontSize={8}>
+              <text x={x + barW / 2} y={padT + chartH + 14} textAnchor="middle" fill="#5A5650" fontSize={8}>
                 {d.label}
               </text>
             </g>
           );
         })}
 
-        <line x1={padL} y1={padT + chartH} x2={width - padR} y2={padT + chartH} stroke="var(--border-default)" strokeWidth={1} />
+        <line x1={padL} y1={padT + chartH} x2={width - padR} y2={padT + chartH} stroke="#323238" strokeWidth={1} />
       </svg>
 
       {/* Tooltip */}
       {tooltip && (
         <div
-          className="fixed z-50 rounded-lg border border-surface-highlight bg-surface-overlay px-3 py-2 text-xs text-text-secondary shadow-xl pointer-events-none"
+          className="fixed z-50 rounded-lg border border-[#323238] bg-[#1A1A1E] px-3 py-2 text-xs text-[#C5C0B8] shadow-xl pointer-events-none"
           style={{ top: tooltip.y - 50, left: tooltip.x + 12 }}
         >
-          <div className="font-medium text-text-primary">{tooltip.item.label}</div>
+          <div className="font-medium text-[#F0EDE8]">{tooltip.item.label}</div>
           <div>Count: {tooltip.item.value.toLocaleString()}</div>
         </div>
       )}

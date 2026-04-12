@@ -36,8 +36,8 @@ export function ScoreCatalogueCard({
       type="button"
       onClick={onClick}
       className={cn(
-        "w-full text-left rounded-lg border bg-surface-raised p-4 transition-all group",
-        "border-border-default hover:border-success/30 hover:bg-surface-overlay",
+        "w-full text-left rounded-lg border bg-[#151518] p-4 transition-all group",
+        "border-[#232328] hover:border-[#2DD4BF]/30 hover:bg-[#1C1C20]",
       )}
     >
       <div className="flex items-center gap-2 mb-1.5">
@@ -47,11 +47,11 @@ export function ScoreCatalogueCard({
         >
           {score.score_id}
         </span>
-        <h3 className="text-sm font-medium text-text-primary truncate group-hover:text-success transition-colors">
+        <h3 className="text-sm font-medium text-[#F0EDE8] truncate group-hover:text-[#2DD4BF] transition-colors">
           {score.score_name}
         </h3>
       </div>
-      <p className="text-xs text-text-muted line-clamp-2 mb-2">
+      <p className="text-xs text-[#8A857D] line-clamp-2 mb-2">
         {score.description}
       </p>
 
@@ -61,8 +61,8 @@ export function ScoreCatalogueCard({
             className={cn(
               "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium",
               isEligible
-                ? "bg-success/10 text-success"
-                : "bg-text-ghost/10 text-text-ghost",
+                ? "bg-[#2DD4BF]/10 text-[#2DD4BF]"
+                : "bg-[#5A5650]/10 text-[#5A5650]",
             )}
           >
             {isEligible ? (
@@ -80,7 +80,7 @@ export function ScoreCatalogueCard({
         )}
 
         {sourceSelected && hasCompletedResult && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-info/10 px-2 py-0.5 text-[10px] font-medium text-info">
+          <span className="inline-flex items-center gap-1 rounded-full bg-[#60A5FA]/10 px-2 py-0.5 text-[10px] font-medium text-[#60A5FA]">
             <Clock3 size={10} />
             Completed
           </span>

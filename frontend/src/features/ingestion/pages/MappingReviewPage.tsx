@@ -233,7 +233,7 @@ export default function MappingReviewPage() {
   if (mappingsLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 size={24} className="animate-spin text-text-muted" />
+        <Loader2 size={24} className="animate-spin text-[#8A857D]" />
       </div>
     );
   }
@@ -242,11 +242,11 @@ export default function MappingReviewPage() {
   if (mappingsError) {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-3">
-        <AlertCircle size={32} className="text-critical" />
-        <p className="text-critical">Failed to load mappings</p>
+        <AlertCircle size={32} className="text-[#E85A6B]" />
+        <p className="text-[#E85A6B]">Failed to load mappings</p>
         <Link
           to={`/ingestion/jobs/${jobId}`}
-          className="text-sm text-text-muted hover:text-text-primary underline"
+          className="text-sm text-[#8A857D] hover:text-[#F0EDE8] underline"
         >
           Back to job
         </Link>
@@ -267,8 +267,8 @@ export default function MappingReviewPage() {
               "flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-medium shadow-lg",
               "animate-in slide-in-from-right",
               toast.type === "success"
-                ? "bg-success/15 text-success border border-success/30"
-                : "bg-critical/15 text-critical border border-critical/30",
+                ? "bg-[#2DD4BF]/15 text-[#2DD4BF] border border-[#2DD4BF]/30"
+                : "bg-[#E85A6B]/15 text-[#E85A6B] border border-[#E85A6B]/30",
             )}
           >
             {toast.type === "success" ? (
@@ -285,15 +285,15 @@ export default function MappingReviewPage() {
       <div className="flex items-center gap-3 mb-6">
         <Link
           to={`/ingestion/jobs/${jobId}`}
-          className="inline-flex items-center justify-center w-8 h-8 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-overlay transition-colors"
+          className="inline-flex items-center justify-center w-8 h-8 rounded-md text-[#8A857D] hover:text-[#F0EDE8] hover:bg-[#1C1C20] transition-colors"
         >
           <ArrowLeft size={18} />
         </Link>
         <div>
-          <h1 className="text-xl font-bold text-text-primary">
+          <h1 className="text-xl font-bold text-[#F0EDE8]">
             Mapping Review
           </h1>
-          <p className="text-sm text-text-muted">
+          <p className="text-sm text-[#8A857D]">
             Job #{jobId} &mdash; Review and approve concept mappings
           </p>
         </div>
@@ -311,7 +311,7 @@ export default function MappingReviewPage() {
           {/* Stats bar */}
           {stats && (
             <div
-              className="rounded-lg border border-border-default p-4"
+              className="rounded-lg border border-[#232328] p-4"
               style={{ background: "rgba(255,255,255,0.03)" }}
             >
               <ReviewStatsBar stats={stats} />
@@ -319,7 +319,7 @@ export default function MappingReviewPage() {
           )}
 
           {/* Filter tabs */}
-          <div className="flex items-center gap-0 border-b border-border-default">
+          <div className="flex items-center gap-0 border-b border-[#232328]">
             {FILTER_TABS.map((tab) => (
               <button
                 key={tab.key}
@@ -331,8 +331,8 @@ export default function MappingReviewPage() {
                 className={cn(
                   "relative px-4 py-2.5 text-sm font-medium transition-colors",
                   activeTab === tab.key
-                    ? "text-text-primary"
-                    : "text-text-muted hover:text-text-secondary",
+                    ? "text-[#F0EDE8]"
+                    : "text-[#8A857D] hover:text-[#C5C0B8]",
                 )}
               >
                 {tab.label}
@@ -340,12 +340,12 @@ export default function MappingReviewPage() {
                   tab.key !== "all" &&
                   tab.key !== "reviewed" &&
                   solrFacets.facets.review_tier[tab.key] != null && (
-                    <span className="ml-1.5 text-xs text-text-ghost">
+                    <span className="ml-1.5 text-xs text-[#5A5650]">
                       {solrFacets.facets.review_tier[tab.key]}
                     </span>
                   )}
                 {activeTab === tab.key && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t" />
+                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#9B1B30] rounded-t" />
                 )}
               </button>
             ))}
@@ -364,8 +364,8 @@ export default function MappingReviewPage() {
           {/* Mapping list */}
           <div className="space-y-2">
             {!mappings || mappings.length === 0 ? (
-              <div className="flex flex-col items-center justify-center rounded-lg border border-border-default bg-surface-raised py-16">
-                <p className="text-sm text-text-ghost">
+              <div className="flex flex-col items-center justify-center rounded-lg border border-[#232328] bg-[#151518] py-16">
+                <p className="text-sm text-[#5A5650]">
                   No mappings found for this filter
                 </p>
               </div>
@@ -390,19 +390,19 @@ export default function MappingReviewPage() {
         {showBrowser && (
           <div
             className={cn(
-              "w-[40%] shrink-0 rounded-lg border border-border-default bg-surface-raised",
+              "w-[40%] shrink-0 rounded-lg border border-[#232328] bg-[#151518]",
               "sticky top-4 self-start max-h-[calc(100vh-6rem)] overflow-hidden flex flex-col",
             )}
           >
             {/* Close bar */}
-            <div className="flex items-center justify-between px-4 py-2 border-b border-border-default bg-surface-base">
-              <span className="text-xs text-text-muted">
+            <div className="flex items-center justify-between px-4 py-2 border-b border-[#232328] bg-[#0E0E11]">
+              <span className="text-xs text-[#8A857D]">
                 Remap for mapping #{browserMappingId}
               </span>
               <button
                 type="button"
                 onClick={() => setBrowserMappingId(null)}
-                className="text-xs text-text-ghost hover:text-text-primary transition-colors"
+                className="text-xs text-[#5A5650] hover:text-[#F0EDE8] transition-colors"
               >
                 Close
               </button>

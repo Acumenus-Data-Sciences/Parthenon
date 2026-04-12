@@ -48,7 +48,7 @@ export function ReactionPills({ messageId, reactions }: ReactionPillsProps) {
               className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs transition-colors ${
                 entry.reacted
                   ? "border-primary/50 bg-primary/20 text-primary-foreground shadow-[0_0_0_1px_rgba(155,27,48,0.12)]"
-                  : "border-border-default bg-surface-overlay text-muted-foreground hover:border-surface-highlight hover:bg-surface-overlay"
+                  : "border-[#2a2a31] bg-[#17171c] text-muted-foreground hover:border-[#3a3a44] hover:bg-[#1b1b22]"
               }`}
             >
               <span className="text-sm">{display.emoji}</span>
@@ -64,7 +64,7 @@ export function ReactionPills({ messageId, reactions }: ReactionPillsProps) {
         <button
           onClick={() => setShowPicker(!showPicker)}
           aria-label="Add reaction"
-          className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-dashed border-surface-highlight bg-surface-raised text-muted-foreground opacity-0 transition-all group-hover:opacity-100 hover:border-surface-highlight hover:bg-surface-overlay hover:text-foreground"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-dashed border-[#35353d] bg-[#121216] text-muted-foreground opacity-0 transition-all group-hover:opacity-100 hover:border-[#454550] hover:bg-[#1a1a20] hover:text-foreground"
         >
           <Plus className="h-3 w-3" />
         </button>

@@ -12,14 +12,14 @@ const dimensions: Array<2 | 3> = [2, 3];
 export default function DimensionToggle({
   value,
   onChange,
-  accentColor = "var(--accent)",
+  accentColor = "#C9A227",
   accentBg = "rgba(201, 162, 39, 0.20)",
   disabled,
   disabledTooltip,
 }: DimensionToggleProps) {
   return (
-    <div className="flex items-center gap-1 rounded border border-border-default bg-surface-base p-0.5">
-      <span className="px-1 text-xs text-text-ghost">Projection</span>
+    <div className="flex items-center gap-1 rounded border border-[#232328] bg-[#0E0E11] p-0.5">
+      <span className="px-1 text-xs text-[#5A5650]">Projection</span>
       {dimensions.map((dimension) => (
         <button
           key={dimension}
@@ -30,8 +30,8 @@ export default function DimensionToggle({
             value === dimension
               ? ""
               : disabled
-                ? "cursor-not-allowed text-text-ghost/50"
-                : "text-text-ghost hover:text-text-muted"
+                ? "cursor-not-allowed text-[#5A5650]/50"
+                : "text-[#5A5650] hover:text-[#8A857D]"
           }`}
           style={value === dimension ? { background: accentBg, color: accentColor } : undefined}
         >

@@ -39,7 +39,7 @@ function MappingEdgeComponent({
 
   // Color by status
   const color = d.isComplete
-    ? "var(--success)" // teal
+    ? "#2DD4BF" // teal
     : d.hasUnmappedRequired
       ? "#EF4444" // red
       : "#F59E0B"; // amber

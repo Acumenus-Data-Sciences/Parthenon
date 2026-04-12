@@ -28,8 +28,8 @@ function TreeNode({ node, currentConceptId, depth = 0 }: TreeNodeProps) {
         className={cn(
           "flex items-center gap-1.5 py-1.5 px-2 rounded-md transition-colors cursor-pointer",
           isCurrent
-            ? "bg-success/10 border border-success/30"
-            : "hover:bg-surface-overlay",
+            ? "bg-[#2DD4BF]/10 border border-[#2DD4BF]/30"
+            : "hover:bg-[#1C1C20]",
         )}
         style={{ paddingLeft: `${depth * 16 + 8}px` }}
         onClick={() => hasChildren && setExpanded(!expanded)}
@@ -38,7 +38,7 @@ function TreeNode({ node, currentConceptId, depth = 0 }: TreeNodeProps) {
         {hasChildren ? (
           <button
             type="button"
-            className="shrink-0 w-4 h-4 flex items-center justify-center text-text-muted"
+            className="shrink-0 w-4 h-4 flex items-center justify-center text-[#8A857D]"
           >
             {expanded ? (
               <ChevronDown size={12} />
@@ -48,7 +48,7 @@ function TreeNode({ node, currentConceptId, depth = 0 }: TreeNodeProps) {
           </button>
         ) : (
           <span className="shrink-0 w-4 h-4 flex items-center justify-center">
-            <span className="w-1.5 h-1.5 rounded-full bg-surface-highlight" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#323238]" />
           </span>
         )}
 
@@ -57,7 +57,7 @@ function TreeNode({ node, currentConceptId, depth = 0 }: TreeNodeProps) {
           <span
             className={cn(
               "font-['IBM_Plex_Mono',monospace] text-[10px] tabular-nums shrink-0",
-              isCurrent ? "text-success" : "text-text-muted",
+              isCurrent ? "text-[#2DD4BF]" : "text-[#8A857D]",
             )}
           >
             {node.concept_id}
@@ -66,13 +66,13 @@ function TreeNode({ node, currentConceptId, depth = 0 }: TreeNodeProps) {
             className={cn(
               "text-xs truncate",
               isCurrent
-                ? "text-success font-medium"
-                : "text-text-primary",
+                ? "text-[#2DD4BF] font-medium"
+                : "text-[#F0EDE8]",
             )}
           >
             {node.concept_name}
           </span>
-          <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-info/15 text-info shrink-0">
+          <span className="inline-flex items-center rounded px-1 py-0.5 text-[9px] font-medium bg-[#60A5FA]/15 text-[#60A5FA] shrink-0">
             {node.domain_id}
           </span>
         </div>
@@ -103,7 +103,7 @@ export function HierarchyTree({
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <Loader2 size={18} className="animate-spin text-text-muted" />
+        <Loader2 size={18} className="animate-spin text-[#8A857D]" />
       </div>
     );
   }
@@ -111,13 +111,13 @@ export function HierarchyTree({
   if (!tree) {
     return (
       <div className="flex items-center justify-center py-8">
-        <p className="text-xs text-text-ghost">No hierarchy data available</p>
+        <p className="text-xs text-[#5A5650]">No hierarchy data available</p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-lg border border-border-default bg-surface-base p-2 overflow-x-auto">
+    <div className="rounded-lg border border-[#232328] bg-[#0E0E11] p-2 overflow-x-auto">
       <TreeNode node={tree} currentConceptId={currentConceptId} />
     </div>
   );

@@ -145,7 +145,7 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
     <div className="flex flex-col gap-4">
       {/* Header */}
       <div className="flex items-center gap-2">
-        <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--success)" }}>
+        <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: "#2DD4BF" }}>
           Upload GWAS Summary Statistics
         </span>
       </div>
@@ -159,7 +159,7 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
         className={`relative flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-6 py-10 cursor-pointer transition-colors ${
           isDragOver
             ? "border-teal-400 bg-teal-950/20"
-            : "border-zinc-700 bg-zinc-950 hover:border-teal-600 hover:bg-zinc-900/60"
+            : "border-border-default bg-surface-darkest hover:border-teal-600 hover:bg-surface-base/60"
         }`}
       >
         <input
@@ -193,10 +193,10 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
         </p>
 
         {isPending && (
-          <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-zinc-950/70">
+          <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-surface-darkest/70">
             <div
-              className="w-6 h-6 border-2 border-zinc-600 rounded-full animate-spin"
-              style={{ borderTopColor: "var(--success)" }}
+              className="w-6 h-6 border-2 border-border-hover rounded-full animate-spin"
+              style={{ borderTopColor: "#2DD4BF" }}
             />
           </div>
         )}
@@ -204,14 +204,14 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
 
       {/* Upload error */}
       {isError && (
-        <p className="text-xs px-1" style={{ color: "var(--primary)" }}>
+        <p className="text-xs px-1" style={{ color: "#9B1B30" }}>
           {error instanceof Error ? error.message : "Upload failed. Please try again."}
         </p>
       )}
 
       {/* Upload result summary */}
       {uploadResult && (
-        <div className="flex flex-col gap-4 rounded-xl bg-zinc-900/60 border border-zinc-800 p-4">
+        <div className="flex flex-col gap-4 rounded-xl bg-surface-base/60 border border-border-default p-4">
           {/* File meta */}
           <div className="flex items-start justify-between gap-4">
             <div className="flex flex-col gap-0.5">
@@ -224,7 +224,7 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
               {uploadResult.columns.map((col) => (
                 <span
                   key={col}
-                  className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400 font-mono"
+                  className="text-[10px] px-1.5 py-0.5 rounded bg-surface-raised text-zinc-400 font-mono"
                 >
                   {col}
                 </span>
@@ -234,10 +234,10 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
 
           {/* Preview table */}
           {uploadResult.sample_rows.length > 0 && (
-            <div className="overflow-x-auto rounded-lg border border-zinc-800">
+            <div className="overflow-x-auto rounded-lg border border-border-default">
               <table className="text-[11px] min-w-full">
                 <thead>
-                  <tr className="bg-zinc-800/60">
+                  <tr className="bg-surface-raised/60">
                     {uploadResult.columns.map((col) => (
                       <th
                         key={col}
@@ -250,7 +250,7 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
                 </thead>
                 <tbody>
                   {uploadResult.sample_rows.slice(0, 5).map((row, rIdx) => (
-                    <tr key={rIdx} className="border-t border-zinc-800/50 hover:bg-zinc-800/20">
+                    <tr key={rIdx} className="border-t border-border-default/50 hover:bg-surface-raised/20">
                       {row.map((cell, cIdx) => (
                         <td key={cIdx} className="px-2 py-1 text-zinc-400 font-mono whitespace-nowrap">
                           {cell}
@@ -288,8 +288,8 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
                       onChange={(e) =>
                         setMapping((prev) => ({ ...prev, [req]: e.target.value }))
                       }
-                      className={`text-xs rounded-lg px-2 py-1 bg-zinc-800/80 border focus:outline-none focus:border-zinc-500 transition-colors text-zinc-200 ${
-                        isMapped ? "border-zinc-700" : "border-amber-700/50"
+                      className={`text-xs rounded-lg px-2 py-1 bg-surface-raised/80 border focus:outline-none focus:border-border-hover transition-colors text-zinc-200 ${
+                        isMapped ? "border-border-default" : "border-amber-700/50"
                       }`}
                     >
                       <option value="">— select —</option>
@@ -307,7 +307,7 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
 
           {/* Mapping error */}
           {mappingError && (
-            <p className="text-xs px-1" style={{ color: "var(--primary)" }}>
+            <p className="text-xs px-1" style={{ color: "#9B1B30" }}>
               {mappingError}
             </p>
           )}
@@ -319,14 +319,14 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
             className={`self-start flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
               allMapped && !isParsing
                 ? "bg-teal-600 hover:bg-teal-500 text-white cursor-pointer"
-                : "bg-zinc-800 text-zinc-600 cursor-not-allowed"
+                : "bg-surface-raised text-zinc-600 cursor-not-allowed"
             }`}
           >
             {isParsing ? (
               <>
                 <div
-                  className="w-3.5 h-3.5 border-2 border-zinc-600 rounded-full animate-spin"
-                  style={{ borderTopColor: "var(--success)" }}
+                  className="w-3.5 h-3.5 border-2 border-border-hover rounded-full animate-spin"
+                  style={{ borderTopColor: "#2DD4BF" }}
                 />
                 Parsing…
               </>

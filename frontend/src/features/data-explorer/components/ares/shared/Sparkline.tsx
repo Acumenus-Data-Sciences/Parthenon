@@ -9,9 +9,9 @@ export default function Sparkline({
   data,
   width = 60,
   height = 20,
-  color = "var(--success)",
+  color = "#2DD4BF",
 }: SparklineProps) {
-  if (data.length < 2) return <span className="text-text-ghost">--</span>;
+  if (data.length < 2) return <span className="text-[#555]">--</span>;
 
   const min = Math.min(...data);
   const max = Math.max(...data);

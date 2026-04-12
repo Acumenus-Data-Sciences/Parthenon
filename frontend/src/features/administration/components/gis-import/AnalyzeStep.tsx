@@ -28,7 +28,7 @@ export function AnalyzeStep({ importId, onComplete }: Props) {
         <p className="mt-1 text-xs">{analyze.error instanceof Error ? analyze.error.message : "Unknown error"}</p>
         <button
           onClick={() => analyze.mutate(importId, { onSuccess: (d) => onComplete(d.suggestions || []) })}
-          className="mt-2 rounded bg-surface-elevated px-3 py-1 text-xs text-text-primary hover:bg-surface-highlight"
+          className="mt-2 rounded bg-[#232328] px-3 py-1 text-xs text-[#E8E4DC] hover:bg-[#323238]"
         >
           Retry
         </button>
@@ -38,15 +38,15 @@ export function AnalyzeStep({ importId, onComplete }: Props) {
 
   return (
     <div className="flex flex-col items-center justify-center py-12">
-      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-accent/10">
+      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#C9A227]/10">
         {analyze.isPending ? (
-          <Loader2 className="h-8 w-8 animate-spin text-accent" />
+          <Loader2 className="h-8 w-8 animate-spin text-[#C9A227]" />
         ) : (
-          <Brain className="h-8 w-8 text-accent" />
+          <Brain className="h-8 w-8 text-[#C9A227]" />
         )}
       </div>
-      <p className="text-sm text-text-primary">Abby is analyzing your data...</p>
-      <p className="mt-1 text-xs text-text-ghost">Detecting column types, geography codes, and value semantics</p>
+      <p className="text-sm text-[#E8E4DC]">Abby is analyzing your data...</p>
+      <p className="mt-1 text-xs text-[#5A5650]">Detecting column types, geography codes, and value semantics</p>
     </div>
   );
 }

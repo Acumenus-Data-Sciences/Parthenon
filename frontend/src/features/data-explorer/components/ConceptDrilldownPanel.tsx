@@ -27,14 +27,14 @@ function formatCompact(n: number): string {
 }
 
 const GENDER_COLORS: Record<string, string> = {
-  Male: "var(--info)",
-  MALE: "var(--info)",
-  male: "var(--info)",
-  Female: "var(--critical)",
-  FEMALE: "var(--critical)",
-  female: "var(--critical)",
+  Male: "#60A5FA",
+  MALE: "#60A5FA",
+  male: "#60A5FA",
+  Female: "#E85A6B",
+  FEMALE: "#E85A6B",
+  female: "#E85A6B",
 };
-const DEFAULT_COLOR = "var(--text-muted)";
+const DEFAULT_COLOR = "#8A857D";
 
 function MiniTooltip({
   active,
@@ -46,9 +46,9 @@ function MiniTooltip({
   if (!active || !payload?.length) return null;
   const item = payload[0].payload;
   return (
-    <div className="rounded-lg border border-surface-highlight bg-surface-overlay px-3 py-2 shadow-lg">
-      <p className="text-xs text-text-primary">{item.concept_name}</p>
-      <p className="font-['IBM_Plex_Mono',monospace] text-xs text-success">
+    <div className="rounded-lg border border-[#323238] bg-[#1A1A1E] px-3 py-2 shadow-lg">
+      <p className="text-xs text-[#F0EDE8]">{item.concept_name}</p>
+      <p className="font-['IBM_Plex_Mono',monospace] text-xs text-[#2DD4BF]">
         {item.count.toLocaleString()}
       </p>
     </div>
@@ -68,24 +68,24 @@ export function ConceptDrilldownPanel({
   );
 
   return (
-    <div className="flex h-full flex-col border-l border-border-default bg-surface-base">
+    <div className="flex h-full flex-col border-l border-[#232328] bg-[#0E0E11]">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-border-default bg-surface-raised px-5 py-3">
+      <div className="flex items-center justify-between border-b border-[#232328] bg-[#151518] px-5 py-3">
         <div className="min-w-0 flex-1">
           {data ? (
             <>
-              <h3 className="truncate text-sm font-semibold text-text-primary">
+              <h3 className="truncate text-sm font-semibold text-[#F0EDE8]">
                 {data.concept_name}
               </h3>
               <div className="mt-0.5 flex items-center gap-1.5">
-                <Hash size={11} className="text-text-muted" />
-                <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-muted">
+                <Hash size={11} className="text-[#8A857D]" />
+                <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#8A857D]">
                   {data.concept_id}
                 </span>
               </div>
             </>
           ) : (
-            <h3 className="text-sm font-semibold text-text-primary">
+            <h3 className="text-sm font-semibold text-[#F0EDE8]">
               Concept Details
             </h3>
           )}
@@ -94,7 +94,7 @@ export function ConceptDrilldownPanel({
           <button
             type="button"
             onClick={onClose}
-            className="ml-2 rounded-md p-1.5 text-text-muted hover:bg-surface-elevated hover:text-text-primary transition-colors"
+            className="ml-2 rounded-md p-1.5 text-[#8A857D] hover:bg-[#232328] hover:text-[#F0EDE8] transition-colors"
           >
             <X size={16} />
           </button>
@@ -105,13 +105,13 @@ export function ConceptDrilldownPanel({
       <div className="flex-1 overflow-y-auto p-5 space-y-5">
         {isLoading && (
           <div className="flex items-center justify-center py-16">
-            <Loader2 size={20} className="animate-spin text-text-muted" />
+            <Loader2 size={20} className="animate-spin text-[#8A857D]" />
           </div>
         )}
 
         {error && (
           <div className="flex items-center justify-center py-16">
-            <p className="text-sm text-critical">Failed to load concept details</p>
+            <p className="text-sm text-[#E85A6B]">Failed to load concept details</p>
           </div>
         )}
 
@@ -120,10 +120,10 @@ export function ConceptDrilldownPanel({
             {/* Gender split */}
             {data.genderSplit.length > 0 && (
               <div>
-                <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-text-muted">
+                <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
                   Gender Distribution
                 </h4>
-                <div className="flex h-5 overflow-hidden rounded-full bg-surface-elevated">
+                <div className="flex h-5 overflow-hidden rounded-full bg-[#232328]">
                   {(() => {
                     const total = data.genderSplit.reduce(
                       (s, d) => s + d.count,
@@ -153,10 +153,10 @@ export function ConceptDrilldownPanel({
                             GENDER_COLORS[g.concept_name] ?? DEFAULT_COLOR,
                         }}
                       />
-                      <span className="text-xs text-text-secondary">
+                      <span className="text-xs text-[#C5C0B8]">
                         {g.concept_name}
                       </span>
-                      <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-muted">
+                      <span className="font-['IBM_Plex_Mono',monospace] text-xs text-[#8A857D]">
                         {formatCompact(g.count)}
                       </span>
                     </div>
@@ -175,8 +175,8 @@ export function ConceptDrilldownPanel({
 
             {/* Type distribution */}
             {data.typeDistribution.length > 0 && (
-              <div className="rounded-xl border border-border-default bg-surface-raised p-4">
-                <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-muted">
+              <div className="rounded-xl border border-[#232328] bg-[#151518] p-4">
+                <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
                   Type Distribution
                 </h4>
                 <ResponsiveContainer width="100%" height={data.typeDistribution.length * 30 + 20}>
@@ -188,22 +188,22 @@ export function ConceptDrilldownPanel({
                     <XAxis
                       type="number"
                       tickFormatter={formatCompact}
-                      tick={{ fill: "var(--text-primary)", fontSize: 10 }}
-                      axisLine={{ stroke: "var(--border-default)" }}
-                      tickLine={{ stroke: "var(--border-default)" }}
+                      tick={{ fill: "#F0EDE8", fontSize: 10 }}
+                      axisLine={{ stroke: "#323238" }}
+                      tickLine={{ stroke: "#323238" }}
                     />
                     <YAxis
                       type="category"
                       dataKey="concept_name"
                       width={160}
-                      tick={{ fill: "var(--text-secondary)", fontSize: 10 }}
+                      tick={{ fill: "#C5C0B8", fontSize: 10 }}
                       axisLine={false}
                       tickLine={false}
                     />
                     <Tooltip content={<MiniTooltip />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
                     <Bar dataKey="count" radius={[0, 3, 3, 0]} maxBarSize={18}>
                       {data.typeDistribution.map((_, idx) => (
-                        <Cell key={idx} fill="var(--accent)" fillOpacity={0.8} />
+                        <Cell key={idx} fill="#C9A227" fillOpacity={0.8} />
                       ))}
                     </Bar>
                   </BarChart>

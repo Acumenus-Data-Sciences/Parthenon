@@ -39,15 +39,15 @@ function CustomTooltip({
   if (!active || !payload?.length) return null;
   const item = payload[0].payload;
   return (
-    <div className="rounded-lg border border-surface-highlight bg-surface-overlay px-3 py-2 shadow-lg">
-      <p className="text-sm font-medium text-text-primary">
+    <div className="rounded-lg border border-[#323238] bg-[#1A1A1E] px-3 py-2 shadow-lg">
+      <p className="text-sm font-medium text-[#F0EDE8]">
         Age {item.age_decile}
       </p>
       <div className="mt-1 space-y-0.5">
-        <p className="font-['IBM_Plex_Mono',monospace] text-xs text-info">
+        <p className="font-['IBM_Plex_Mono',monospace] text-xs text-[#60A5FA]">
           Male: {Math.abs(item.male).toLocaleString()}
         </p>
-        <p className="font-['IBM_Plex_Mono',monospace] text-xs text-critical">
+        <p className="font-['IBM_Plex_Mono',monospace] text-xs text-[#E85A6B]">
           Female: {item.female.toLocaleString()}
         </p>
       </div>
@@ -61,8 +61,8 @@ export function DemographicsPyramid({
 }: DemographicsPyramidProps) {
   if (!age.length) {
     return (
-      <div className="flex items-center justify-center rounded-xl border border-border-default bg-surface-raised py-16">
-        <p className="text-sm text-text-muted">No age distribution data</p>
+      <div className="flex items-center justify-center rounded-xl border border-[#232328] bg-[#151518] py-16">
+        <p className="text-sm text-[#8A857D]">No age distribution data</p>
       </div>
     );
   }
@@ -80,15 +80,15 @@ export function DemographicsPyramid({
 
   if (pyramidData.length === 0) {
     return (
-      <div className="flex items-center justify-center rounded-xl border border-border-default bg-surface-raised py-16">
-        <p className="text-sm text-text-muted">No age distribution data</p>
+      <div className="flex items-center justify-center rounded-xl border border-[#232328] bg-[#151518] py-16">
+        <p className="text-sm text-[#8A857D]">No age distribution data</p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl border border-border-default bg-surface-raised p-6">
-      <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-text-muted">
+    <div className="rounded-xl border border-[#232328] bg-[#151518] p-6">
+      <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[#8A857D]">
         Age Distribution
       </h3>
       <ResponsiveContainer width="100%" height={height}>
@@ -102,15 +102,15 @@ export function DemographicsPyramid({
           <XAxis
             type="number"
             tickFormatter={formatCompact}
-            tick={{ fill: "var(--text-primary)", fontSize: 11 }}
-            axisLine={{ stroke: "var(--border-default)" }}
-            tickLine={{ stroke: "var(--border-default)" }}
+            tick={{ fill: "#F0EDE8", fontSize: 11 }}
+            axisLine={{ stroke: "#323238" }}
+            tickLine={{ stroke: "#323238" }}
           />
           <YAxis
             type="category"
             dataKey="age_decile"
             width={60}
-            tick={{ fill: "var(--text-secondary)", fontSize: 12 }}
+            tick={{ fill: "#C5C0B8", fontSize: 12 }}
             axisLine={false}
             tickLine={false}
           />
@@ -118,27 +118,27 @@ export function DemographicsPyramid({
             content={<CustomTooltip />}
             cursor={{ fill: "rgba(255,255,255,0.03)" }}
           />
-          <ReferenceLine x={0} stroke="var(--border-default)" strokeWidth={1} />
+          <ReferenceLine x={0} stroke="#323238" strokeWidth={1} />
           <Bar dataKey="male" stackId="stack" maxBarSize={22} radius={[4, 0, 0, 4]}>
             {pyramidData.map((_, idx) => (
-              <Cell key={`male-${idx}`} fill="var(--info)" />
+              <Cell key={`male-${idx}`} fill="#60A5FA" />
             ))}
           </Bar>
           <Bar dataKey="female" stackId="stack" maxBarSize={22} radius={[0, 4, 4, 0]}>
             {pyramidData.map((_, idx) => (
-              <Cell key={`female-${idx}`} fill="var(--critical)" />
+              <Cell key={`female-${idx}`} fill="#E85A6B" />
             ))}
           </Bar>
         </BarChart>
       </ResponsiveContainer>
       <div className="mt-3 flex items-center justify-center gap-6">
         <div className="flex items-center gap-1.5">
-          <div className="h-2.5 w-2.5 rounded-sm bg-info" />
-          <span className="text-xs text-text-secondary">Male</span>
+          <div className="h-2.5 w-2.5 rounded-sm bg-[#60A5FA]" />
+          <span className="text-xs text-[#C5C0B8]">Male</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="h-2.5 w-2.5 rounded-sm bg-critical" />
-          <span className="text-xs text-text-secondary">Female</span>
+          <div className="h-2.5 w-2.5 rounded-sm bg-[#E85A6B]" />
+          <span className="text-xs text-[#C5C0B8]">Female</span>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
-import { Lightbulb, Search, Sparkles, GitBranch } from "lucide-react";
+import { Search, Sparkles, GitBranch } from "lucide-react";
 import { VocabularySearchPanel } from "@/features/vocabulary/components/VocabularySearchPanel";
 import { SemanticSearchPanel } from "@/features/vocabulary/components/SemanticSearchPanel";
 import { HierarchyBrowserPanel } from "@/features/vocabulary/components/HierarchyBrowserPanel";
@@ -93,7 +93,7 @@ export function WizardConceptPicker({
   ];
 
   return (
-    <div className="rounded-lg border border-border-default bg-surface-base p-4">
+    <div className="rounded-lg border border-[#2a2a3a] bg-[#0E0E11] p-4">
       {/* Tab selector */}
       <div className="mb-3 flex gap-2">
         {tabs.map((tab) => (
@@ -104,7 +104,7 @@ export function WizardConceptPicker({
             className={`flex items-center gap-1.5 rounded px-2.5 py-1 text-[11px] transition-colors ${
               activeTab === tab.key
                 ? "border border-current bg-opacity-15 font-medium"
-                : "text-text-ghost hover:text-text-muted"
+                : "text-[#555] hover:text-[#888]"
             }`}
             style={
               activeTab === tab.key
@@ -158,9 +158,9 @@ export function WizardConceptPicker({
       {/* Tip */}
       {concepts.length > 0 && (
         <div className="mt-3 rounded-lg border border-[rgba(201,162,39,0.15)] bg-[rgba(201,162,39,0.05)] px-3 py-2">
-          <Lightbulb size={14} className="inline text-accent" />{" "}
-          <span className="text-[11px] text-text-muted">
-            <strong className="text-accent">Tip:</strong> &ldquo;Include descendants&rdquo;
+          <span className="text-[#C9A227]">💡</span>{" "}
+          <span className="text-[11px] text-[#999]">
+            <strong className="text-[#C9A227]">Tip:</strong> &ldquo;Include descendants&rdquo;
             automatically captures all sub-types. For example, selecting &ldquo;Type 2 diabetes
             mellitus&rdquo; with descendants includes all specific complications.
           </span>

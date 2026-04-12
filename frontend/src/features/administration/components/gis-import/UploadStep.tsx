@@ -56,20 +56,20 @@ export function UploadStep({ onComplete }: Props) {
         onClick={() => inputRef.current?.click()}
         className={`flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 transition ${
           isDragOver
-            ? "border-accent bg-accent/5"
-            : "border-surface-highlight hover:border-text-ghost"
+            ? "border-[#C9A227] bg-[#C9A227]/5"
+            : "border-[#323238] hover:border-[#5A5650]"
         }`}
       >
         {upload.isPending ? (
           <>
-            <FileUp className="mb-2 h-8 w-8 animate-pulse text-accent" />
-            <p className="text-sm text-text-muted">Uploading...</p>
+            <FileUp className="mb-2 h-8 w-8 animate-pulse text-[#C9A227]" />
+            <p className="text-sm text-[#8A857D]">Uploading...</p>
           </>
         ) : (
           <>
-            <Upload className="mb-2 h-8 w-8 text-text-ghost" />
-            <p className="text-sm text-text-primary">Drop a file here or click to browse</p>
-            <p className="mt-1 text-xs text-text-ghost">
+            <Upload className="mb-2 h-8 w-8 text-[#5A5650]" />
+            <p className="text-sm text-[#E8E4DC]">Drop a file here or click to browse</p>
+            <p className="mt-1 text-xs text-[#5A5650]">
               CSV, TSV, Excel, Shapefile (.zip), GeoJSON, KML, GeoPackage — max {MAX_SIZE_MB}MB
             </p>
           </>
@@ -92,12 +92,12 @@ export function UploadStep({ onComplete }: Props) {
         </div>
       )}
 
-      <div className="rounded border border-border-default bg-surface-base p-4">
-        <h4 className="mb-2 flex items-center gap-2 text-xs font-medium text-text-muted">
+      <div className="rounded border border-[#232328] bg-[#0E0E11] p-4">
+        <h4 className="mb-2 flex items-center gap-2 text-xs font-medium text-[#8A857D]">
           <FileText className="h-3.5 w-3.5" />
           For large files (&gt;{MAX_SIZE_MB}MB)
         </h4>
-        <code className="block rounded bg-surface-overlay px-3 py-2 text-xs text-text-primary">
+        <code className="block rounded bg-[#1C1C20] px-3 py-2 text-xs text-[#E8E4DC]">
           php artisan gis:import &lt;path-to-file&gt;
         </code>
       </div>

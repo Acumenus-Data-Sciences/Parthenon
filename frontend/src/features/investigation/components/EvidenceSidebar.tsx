@@ -41,12 +41,12 @@ export function EvidenceSidebar({ investigationId }: EvidenceSidebarProps) {
   return (
     <div
       className={[
-        "flex flex-col border-l border-zinc-800 transition-all duration-200 overflow-hidden shrink-0",
+        "flex flex-col border-l border-border-default transition-all duration-200 overflow-hidden shrink-0",
         sidebarOpen ? "w-72" : "w-8",
       ].join(" ")}
-      style={{ backgroundColor: "var(--surface-base)" }}
+      style={{ backgroundColor: "#0E0E11" }}
     >
-      <div className="flex items-center justify-between px-3 py-3 border-b border-zinc-800">
+      <div className="flex items-center justify-between px-3 py-3 border-b border-border-default">
         {sidebarOpen && (
           <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
             Evidence
@@ -79,7 +79,7 @@ export function EvidenceSidebar({ investigationId }: EvidenceSidebarProps) {
           {isLoading && (
             <div className="flex flex-col gap-3 mt-2" aria-label="Loading pins">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="animate-pulse rounded bg-zinc-800/60 h-12 w-full" />
+                <div key={i} className="animate-pulse rounded bg-surface-raised/60 h-12 w-full" />
               ))}
             </div>
           )}
@@ -91,7 +91,7 @@ export function EvidenceSidebar({ investigationId }: EvidenceSidebarProps) {
               <button
                 type="button"
                 onClick={() => void refetch()}
-                className="text-xs text-success hover:underline transition-colors"
+                className="text-xs text-[#2DD4BF] hover:underline transition-colors"
               >
                 Retry
               </button>

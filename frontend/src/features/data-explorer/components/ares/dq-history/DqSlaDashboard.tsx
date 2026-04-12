@@ -54,14 +54,14 @@ function SlaForm({
   };
 
   return (
-    <div className="mb-4 rounded-lg border border-border-subtle bg-surface-base p-4">
-      <h4 className="mb-3 text-xs font-medium uppercase tracking-wider text-text-muted">
+    <div className="mb-4 rounded-lg border border-[#252530] bg-[#0E0E11] p-4">
+      <h4 className="mb-3 text-xs font-medium uppercase tracking-wider text-[#888]">
         SLA Targets (min pass rate %)
       </h4>
       <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
         {targets.map((t, i) => (
           <div key={t.category} className="flex items-center gap-2">
-            <label className="w-32 text-xs text-text-muted capitalize">
+            <label className="w-32 text-xs text-[#888] capitalize">
               {t.category.replace(/_/g, " ")}
             </label>
             <input
@@ -71,9 +71,9 @@ function SlaForm({
               step={1}
               value={t.min_pass_rate}
               onChange={(e) => updateTarget(i, Number(e.target.value))}
-              className="w-16 rounded border border-border-default bg-surface-overlay px-2 py-1 text-xs text-white"
+              className="w-16 rounded border border-[#333] bg-[#1a1a22] px-2 py-1 text-xs text-white"
             />
-            <span className="text-xs text-text-ghost">%</span>
+            <span className="text-xs text-[#555]">%</span>
           </div>
         ))}
       </div>
@@ -81,12 +81,12 @@ function SlaForm({
         type="button"
         onClick={handleSave}
         disabled={storeMutation.isPending}
-        className="mt-3 rounded bg-success px-4 py-1.5 text-xs font-medium text-black transition-colors hover:bg-success/80 disabled:opacity-50"
+        className="mt-3 rounded bg-[#2DD4BF] px-4 py-1.5 text-xs font-medium text-black transition-colors hover:bg-[#2DD4BF]/80 disabled:opacity-50"
       >
         {storeMutation.isPending ? "Saving..." : "Save SLA Targets"}
       </button>
       {storeMutation.isSuccess && (
-        <span className="ml-3 text-xs text-success">Saved</span>
+        <span className="ml-3 text-xs text-[#2DD4BF]">Saved</span>
       )}
     </div>
   );
@@ -95,7 +95,7 @@ function SlaForm({
 function ComplianceChart({ compliance }: { compliance: DqSlaCompliance[] }) {
   if (compliance.length === 0) {
     return (
-      <p className="py-8 text-center text-sm text-text-ghost">
+      <p className="py-8 text-center text-sm text-[#555]">
         No SLA targets defined. Set targets above to see compliance.
       </p>
     );
@@ -111,22 +111,22 @@ function ComplianceChart({ compliance }: { compliance: DqSlaCompliance[] }) {
 
   return (
     <div>
-      <h4 className="mb-3 text-xs font-medium uppercase tracking-wider text-text-muted">
+      <h4 className="mb-3 text-xs font-medium uppercase tracking-wider text-[#888]">
         Current Compliance
       </h4>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} layout="vertical" margin={{ left: 100, right: 20 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#252530" horizontal={false} />
-            <XAxis type="number" domain={[0, 100]} tick={{ fill: 'var(--text-muted)', fontSize: 11 }} tickFormatter={(v: number) => `${v}%`} />
-            <YAxis type="category" dataKey="category" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} width={90} />
+            <XAxis type="number" domain={[0, 100]} tick={{ fill: "#888", fontSize: 11 }} tickFormatter={(v: number) => `${v}%`} />
+            <YAxis type="category" dataKey="category" tick={{ fill: "#888", fontSize: 11 }} width={90} />
             <Tooltip
               contentStyle={{
-                backgroundColor: 'var(--surface-overlay)',
+                backgroundColor: "#1a1a22",
                 border: "1px solid #333",
                 borderRadius: "8px",
               }}
-              labelStyle={{ color: 'var(--text-primary)' }}
+              labelStyle={{ color: "#fff" }}
               formatter={((value: number, name: string) => [
                 `${value}%`,
                 name === "actual" ? "Actual" : "Target",
@@ -136,12 +136,12 @@ function ComplianceChart({ compliance }: { compliance: DqSlaCompliance[] }) {
               {chartData.map((entry, idx) => (
                 <Cell
                   key={idx}
-                  fill={entry.compliant ? "var(--success)" : "var(--primary)"}
+                  fill={entry.compliant ? "#2DD4BF" : "#9B1B30"}
                 />
               ))}
             </Bar>
             {chartData.length > 0 && (
-              <ReferenceLine x={chartData[0].target} stroke="var(--accent)" strokeDasharray="3 3" label={{ value: "Target", fill: "var(--accent)", fontSize: 10 }} />
+              <ReferenceLine x={chartData[0].target} stroke="#C9A227" strokeDasharray="3 3" label={{ value: "Target", fill: "#C9A227", fontSize: 10 }} />
             )}
           </BarChart>
         </ResponsiveContainer>
@@ -149,7 +149,7 @@ function ComplianceChart({ compliance }: { compliance: DqSlaCompliance[] }) {
 
       {/* Error budget sparkline table */}
       <div className="mt-4">
-        <h4 className="mb-2 text-xs font-medium uppercase tracking-wider text-text-muted">
+        <h4 className="mb-2 text-xs font-medium uppercase tracking-wider text-[#888]">
           Error Budget
         </h4>
         <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
@@ -158,16 +158,16 @@ function ComplianceChart({ compliance }: { compliance: DqSlaCompliance[] }) {
               key={c.category}
               className={`rounded border px-3 py-2 ${
                 c.compliant
-                  ? "border-success/30 bg-success/5"
-                  : "border-primary/30 bg-primary/5"
+                  ? "border-[#2DD4BF]/30 bg-[#2DD4BF]/5"
+                  : "border-[#9B1B30]/30 bg-[#9B1B30]/5"
               }`}
             >
-              <p className="text-xs capitalize text-text-muted">{c.category.replace(/_/g, " ")}</p>
-              <p className={`text-sm font-semibold ${c.compliant ? "text-success" : "text-critical"}`}>
+              <p className="text-xs capitalize text-[#888]">{c.category.replace(/_/g, " ")}</p>
+              <p className={`text-sm font-semibold ${c.compliant ? "text-[#2DD4BF]" : "text-[#e85d75]"}`}>
                 {c.error_budget_remaining >= 0 ? "+" : ""}
                 {c.error_budget_remaining.toFixed(1)}%
               </p>
-              <p className="text-[10px] text-text-ghost">
+              <p className="text-[10px] text-[#555]">
                 {c.actual.toFixed(1)}% / {c.target}% target
               </p>
             </div>

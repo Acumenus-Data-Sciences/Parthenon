@@ -60,8 +60,8 @@ export function EraTimeline({ conditionEras, drugEras }: EraTimelineProps) {
 
   if (allDates.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-surface-highlight bg-surface-raised p-6 text-center">
-        <p className="text-xs text-text-muted">No era data available</p>
+      <div className="rounded-lg border border-dashed border-[#323238] bg-[#151518] p-6 text-center">
+        <p className="text-xs text-[#8A857D]">No era data available</p>
       </div>
     );
   }
@@ -74,7 +74,7 @@ export function EraTimeline({ conditionEras, drugEras }: EraTimelineProps) {
       {/* Condition Eras */}
       {conditionEras.length > 0 && (
         <div>
-          <h4 className="text-xs font-semibold text-critical mb-2 uppercase tracking-wider">
+          <h4 className="text-xs font-semibold text-[#E85A6B] mb-2 uppercase tracking-wider">
             Condition Eras ({conditionEras.length})
           </h4>
           <div className="space-y-1">
@@ -86,28 +86,28 @@ export function EraTimeline({ conditionEras, drugEras }: EraTimelineProps) {
                 <div className="w-48 shrink-0 truncate">
                   <Link
                     to={`/vocabulary?concept=${era.condition_concept_id}`}
-                    className="text-xs text-text-primary hover:text-accent transition-colors"
+                    className="text-xs text-[#F0EDE8] hover:text-[#C9A227] transition-colors"
                   >
                     {era.condition_name}
                   </Link>
                 </div>
-                <div className="flex-1 relative h-4 rounded bg-surface-overlay border border-border-default">
+                <div className="flex-1 relative h-4 rounded bg-[#1A1A1E] border border-[#232328]">
                   <EraBar
                     startDate={era.condition_era_start_date}
                     endDate={era.condition_era_end_date}
                     minDate={minDate}
                     maxDate={maxDate}
-                    color="var(--critical)"
+                    color="#E85A6B"
                   />
                 </div>
                 <div className="w-28 shrink-0 text-right">
-                  <span className="text-[10px] text-text-muted">
+                  <span className="text-[10px] text-[#8A857D]">
                     {formatDate(era.condition_era_start_date)} -{" "}
                     {formatDate(era.condition_era_end_date)}
                   </span>
                 </div>
                 <div className="w-12 shrink-0 text-right">
-                  <span className="text-[10px] font-['IBM_Plex_Mono',monospace] text-text-ghost">
+                  <span className="text-[10px] font-['IBM_Plex_Mono',monospace] text-[#5A5650]">
                     x{era.condition_occurrence_count}
                   </span>
                 </div>
@@ -120,7 +120,7 @@ export function EraTimeline({ conditionEras, drugEras }: EraTimelineProps) {
       {/* Drug Eras */}
       {drugEras.length > 0 && (
         <div>
-          <h4 className="text-xs font-semibold text-success mb-2 uppercase tracking-wider">
+          <h4 className="text-xs font-semibold text-[#2DD4BF] mb-2 uppercase tracking-wider">
             Drug Eras ({drugEras.length})
           </h4>
           <div className="space-y-1">
@@ -132,28 +132,28 @@ export function EraTimeline({ conditionEras, drugEras }: EraTimelineProps) {
                 <div className="w-48 shrink-0 truncate">
                   <Link
                     to={`/vocabulary?concept=${era.drug_concept_id}`}
-                    className="text-xs text-text-primary hover:text-accent transition-colors"
+                    className="text-xs text-[#F0EDE8] hover:text-[#C9A227] transition-colors"
                   >
                     {era.drug_name}
                   </Link>
                 </div>
-                <div className="flex-1 relative h-4 rounded bg-surface-overlay border border-border-default">
+                <div className="flex-1 relative h-4 rounded bg-[#1A1A1E] border border-[#232328]">
                   <EraBar
                     startDate={era.drug_era_start_date}
                     endDate={era.drug_era_end_date}
                     minDate={minDate}
                     maxDate={maxDate}
-                    color="var(--success)"
+                    color="#2DD4BF"
                   />
                 </div>
                 <div className="w-28 shrink-0 text-right">
-                  <span className="text-[10px] text-text-muted">
+                  <span className="text-[10px] text-[#8A857D]">
                     {formatDate(era.drug_era_start_date)} -{" "}
                     {formatDate(era.drug_era_end_date)}
                   </span>
                 </div>
                 <div className="w-12 shrink-0 text-right">
-                  <span className="text-[10px] font-['IBM_Plex_Mono',monospace] text-text-ghost">
+                  <span className="text-[10px] font-['IBM_Plex_Mono',monospace] text-[#5A5650]">
                     x{era.drug_exposure_count}
                   </span>
                 </div>

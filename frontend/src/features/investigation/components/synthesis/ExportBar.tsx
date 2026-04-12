@@ -69,7 +69,7 @@ export function ExportBar({ investigationId, investigationTitle }: ExportBarProp
         <button
           onClick={() => { void handlePdf(); }}
           disabled={exportPdfMutation.isPending}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium transition-colors"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#9B1B30] hover:bg-[#b52038] disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium transition-colors"
         >
           {exportPdfMutation.isPending ? (
             <Loader2 size={14} className="animate-spin" />
@@ -80,7 +80,7 @@ export function ExportBar({ investigationId, investigationTitle }: ExportBarProp
         <button
           onClick={() => { void handleJson(); }}
           disabled={exportJsonMutation.isPending}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-success hover:bg-success/10 disabled:opacity-50 disabled:cursor-not-allowed text-success text-sm font-medium transition-colors"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-[#2DD4BF] hover:bg-[#2DD4BF]/10 disabled:opacity-50 disabled:cursor-not-allowed text-[#2DD4BF] text-sm font-medium transition-colors"
         >
           {exportJsonMutation.isPending ? (
             <Loader2 size={14} className="animate-spin" />
@@ -90,7 +90,7 @@ export function ExportBar({ investigationId, investigationTitle }: ExportBarProp
       </div>
 
       {successMsg && (
-        <p className="text-xs text-success transition-opacity">{successMsg}</p>
+        <p className="text-xs text-[#2DD4BF] transition-opacity">{successMsg}</p>
       )}
 
       {(exportPdfMutation.isError || exportJsonMutation.isError) && (

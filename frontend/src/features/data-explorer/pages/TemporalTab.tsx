@@ -30,12 +30,12 @@ const DOMAINS: Domain[] = [
 ];
 
 const DOMAIN_COLORS: Record<Domain, string> = {
-  condition: "var(--success)",
-  drug: "var(--accent)",
-  procedure: "var(--info)",
+  condition: "#2DD4BF",
+  drug: "#C9A227",
+  procedure: "#60A5FA",
   measurement: "#A855F7",
   observation: "#E5A84B",
-  visit: "var(--critical)",
+  visit: "#E85A6B",
 };
 
 function MultiLineTooltip({
@@ -49,8 +49,8 @@ function MultiLineTooltip({
 }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-lg border border-surface-highlight bg-surface-overlay px-3 py-2 shadow-lg">
-      <p className="text-xs text-text-muted mb-1">
+    <div className="rounded-lg border border-[#323238] bg-[#1A1A1E] px-3 py-2 shadow-lg">
+      <p className="text-xs text-[#8A857D] mb-1">
         {label ? formatYearMonth(label) : ""}
       </p>
       {payload.map((p, idx) => (
@@ -130,7 +130,7 @@ export default function TemporalTab({ sourceId }: TemporalTabProps) {
     <div className="space-y-6">
       {/* Domain checkboxes */}
       <div className="flex flex-wrap items-center gap-3">
-        <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+        <span className="text-xs font-semibold uppercase tracking-wider text-[#8A857D]">
           Domains:
         </span>
         {DOMAINS.map((domain) => (
@@ -149,7 +149,7 @@ export default function TemporalTab({ sourceId }: TemporalTabProps) {
                 "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
                 enabledDomains.has(domain)
                   ? "border border-transparent"
-                  : "border border-surface-highlight text-text-ghost",
+                  : "border border-[#323238] text-[#5A5650]",
               )}
               style={
                 enabledDomains.has(domain)
@@ -166,7 +166,7 @@ export default function TemporalTab({ sourceId }: TemporalTabProps) {
                 style={{
                   backgroundColor: enabledDomains.has(domain)
                     ? DOMAIN_COLORS[domain]
-                    : "var(--text-ghost)",
+                    : "#5A5650",
                 }}
               />
               {DOMAIN_LABELS[domain]}
@@ -178,14 +178,14 @@ export default function TemporalTab({ sourceId }: TemporalTabProps) {
       {/* Loading */}
       {isAnyLoading && (
         <div className="flex items-center justify-center py-8">
-          <Loader2 size={20} className="animate-spin text-text-muted" />
+          <Loader2 size={20} className="animate-spin text-[#8A857D]" />
         </div>
       )}
 
       {/* Chart */}
       {mergedData.length > 0 && (
-        <div className="rounded-xl border border-border-default bg-surface-raised p-6">
-          <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-text-muted">
+        <div className="rounded-xl border border-[#232328] bg-[#151518] p-6">
+          <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[#8A857D]">
             Multi-Domain Temporal Overlay
           </h3>
           <ResponsiveContainer width="100%" height={360}>
@@ -195,20 +195,20 @@ export default function TemporalTab({ sourceId }: TemporalTabProps) {
             >
               <CartesianGrid
                 strokeDasharray="3 3"
-                stroke="var(--border-default)"
+                stroke="#323238"
                 vertical={false}
               />
               <XAxis
                 dataKey="year_month"
                 tickFormatter={formatYearMonth}
                 interval={tickInterval}
-                tick={{ fill: "var(--text-primary)", fontSize: 10 }}
-                axisLine={{ stroke: "var(--border-default)" }}
-                tickLine={{ stroke: "var(--border-default)" }}
+                tick={{ fill: "#F0EDE8", fontSize: 10 }}
+                axisLine={{ stroke: "#323238" }}
+                tickLine={{ stroke: "#323238" }}
               />
               <YAxis
                 tickFormatter={formatCompact}
-                tick={{ fill: "var(--text-primary)", fontSize: 11 }}
+                tick={{ fill: "#F0EDE8", fontSize: 11 }}
                 axisLine={false}
                 tickLine={false}
                 width={60}
@@ -217,7 +217,7 @@ export default function TemporalTab({ sourceId }: TemporalTabProps) {
               <Legend
                 wrapperStyle={{ paddingTop: 12 }}
                 formatter={(value: string) => (
-                  <span className="text-xs text-text-secondary">{value}</span>
+                  <span className="text-xs text-[#C5C0B8]">{value}</span>
                 )}
               />
               {DOMAINS.filter((d) => enabledDomains.has(d)).map((domain) => (
@@ -232,7 +232,7 @@ export default function TemporalTab({ sourceId }: TemporalTabProps) {
                   activeDot={{
                     r: 4,
                     fill: DOMAIN_COLORS[domain],
-                    stroke: "var(--surface-raised)",
+                    stroke: "#151518",
                     strokeWidth: 2,
                   }}
                   connectNulls
@@ -245,9 +245,9 @@ export default function TemporalTab({ sourceId }: TemporalTabProps) {
 
       {/* Empty state */}
       {!isAnyLoading && mergedData.length === 0 && (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-surface-highlight bg-surface-raised py-16">
-          <p className="text-sm text-text-muted">No temporal data available</p>
-          <p className="mt-1 text-xs text-text-ghost">
+        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[#323238] bg-[#151518] py-16">
+          <p className="text-sm text-[#8A857D]">No temporal data available</p>
+          <p className="mt-1 text-xs text-[#5A5650]">
             Select domains above and ensure Achilles has been run
           </p>
         </div>

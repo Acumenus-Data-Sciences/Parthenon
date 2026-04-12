@@ -110,11 +110,11 @@ export function GenomicPanel({ investigation }: GenomicPanelProps) {
   }
 
   return (
-    <div className="flex flex-col gap-0 min-h-full" style={{ backgroundColor: "var(--surface-base)" }}>
+    <div className="flex flex-col gap-0 min-h-full" style={{ backgroundColor: "#0E0E11" }}>
       {/* Panel header */}
       <div
-        className="flex items-center justify-between px-6 py-4 border-b border-zinc-800"
-        style={{ backgroundColor: 'var(--surface-darkest)' }}
+        className="flex items-center justify-between px-6 py-4 border-b border-border-default"
+        style={{ backgroundColor: "#09090b" }}
       >
         <div className="flex flex-col gap-0.5">
           <h2 className="text-base font-semibold text-zinc-100">
@@ -129,7 +129,7 @@ export function GenomicPanel({ investigation }: GenomicPanelProps) {
       </div>
 
       {/* Sub-tabs */}
-      <div className="flex gap-0 border-b border-zinc-800 px-6" role="tablist">
+      <div className="flex gap-0 border-b border-border-default px-6" role="tablist">
         {TABS.map((tab) => (
           <button
             key={tab.id}
@@ -146,7 +146,7 @@ export function GenomicPanel({ investigation }: GenomicPanelProps) {
             {activeTab === tab.id && (
               <span
                 className="absolute bottom-0 left-0 right-0 h-0.5 rounded-t-full"
-                style={{ backgroundColor: "var(--success)" }}
+                style={{ backgroundColor: "#2DD4BF" }}
               />
             )}
           </button>
@@ -179,13 +179,13 @@ export function GenomicPanel({ investigation }: GenomicPanelProps) {
             {gwasData && gwasData.length > 0 && (
               <div className="flex flex-col gap-6">
                 {/* Divider */}
-                <div className="border-t border-zinc-800" />
+                <div className="border-t border-border-default" />
 
                 {/* Manhattan Plot */}
                 <div className="flex flex-col gap-2">
                   <span
                     className="text-xs font-semibold uppercase tracking-wide"
-                    style={{ color: "var(--success)" }}
+                    style={{ color: "#2DD4BF" }}
                   >
                     Manhattan Plot
                   </span>
@@ -202,7 +202,7 @@ export function GenomicPanel({ investigation }: GenomicPanelProps) {
                 <div className="flex flex-col gap-2">
                   <span
                     className="text-xs font-semibold uppercase tracking-wide"
-                    style={{ color: "var(--success)" }}
+                    style={{ color: "#2DD4BF" }}
                   >
                     QQ Plot
                   </span>

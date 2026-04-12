@@ -5,10 +5,10 @@ import { TOOLSET_REGISTRY } from "../toolsets";
 import { ToolsetCard } from "../components/ToolsetCard";
 
 const STATUS_BADGE: Record<string, string> = {
-  draft: "bg-zinc-800 text-zinc-400",
+  draft: "bg-surface-raised text-zinc-400",
   active: "bg-teal-900 text-teal-300",
   complete: "bg-emerald-900 text-emerald-300",
-  archived: "bg-zinc-800 text-zinc-600",
+  archived: "bg-surface-raised text-zinc-600",
 };
 
 function formatDate(iso: string) {
@@ -37,7 +37,7 @@ export default function WorkbenchLauncherPage() {
       {/* Header */}
       <div className="mb-10">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-800">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-surface-raised">
             <PanelsTopLeft className="h-5 w-5 text-zinc-300" />
           </div>
           <div>
@@ -65,7 +65,7 @@ export default function WorkbenchLauncherPage() {
           <Link
             to="/workbench/investigation/new"
             className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-white transition-colors hover:opacity-90"
-            style={{ backgroundColor: "var(--primary)" }}
+            style={{ backgroundColor: "#9B1B30" }}
           >
             New Investigation
           </Link>
@@ -77,14 +77,14 @@ export default function WorkbenchLauncherPage() {
             <span>Loading investigations...</span>
           </div>
         ) : recentInvestigations.length === 0 ? (
-          <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6 text-center">
+          <div className="bg-surface-base/50 border border-border-default rounded-xl p-6 text-center">
             <p className="text-sm text-zinc-500 mb-3">
               Start your first Evidence Investigation
             </p>
             <Link
               to="/workbench/investigation/new"
               className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors hover:opacity-90"
-              style={{ backgroundColor: "var(--primary)" }}
+              style={{ backgroundColor: "#9B1B30" }}
             >
               Create Investigation
             </Link>
@@ -95,14 +95,14 @@ export default function WorkbenchLauncherPage() {
               <Link
                 key={inv.id}
                 to={`/workbench/investigation/${inv.id}`}
-                className="flex items-center justify-between bg-zinc-900/50 border border-zinc-800 rounded-xl px-4 py-3 hover:border-zinc-700 transition-colors group"
+                className="flex items-center justify-between bg-surface-base/50 border border-border-default rounded-xl px-4 py-3 hover:border-border-default transition-colors group"
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <span className="text-sm text-zinc-200 truncate group-hover:text-zinc-100 transition-colors">
                     {inv.title}
                   </span>
                   <span
-                    className={`shrink-0 inline-block px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_BADGE[inv.status] ?? "bg-zinc-800 text-zinc-400"}`}
+                    className={`shrink-0 inline-block px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_BADGE[inv.status] ?? "bg-surface-raised text-zinc-400"}`}
                   >
                     {inv.status}
                   </span>
@@ -122,7 +122,7 @@ export default function WorkbenchLauncherPage() {
           Want to build a custom toolset?{" "}
           <a
             href="/workbench/community-sdk-demo"
-            className="text-accent hover:underline"
+            className="text-[#C9A227] hover:underline"
           >
             View the Community SDK reference
           </a>

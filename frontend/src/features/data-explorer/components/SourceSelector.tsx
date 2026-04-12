@@ -29,9 +29,9 @@ export function SourceSelector({ value, onChange }: SourceSelectorProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center gap-2 rounded-lg border border-border-default bg-surface-raised px-4 py-2">
-        <Loader2 size={14} className="animate-spin text-text-muted" />
-        <span className="text-sm text-text-muted">Loading sources...</span>
+      <div className="flex items-center gap-2 rounded-lg border border-[#232328] bg-[#151518] px-4 py-2">
+        <Loader2 size={14} className="animate-spin text-[#8A857D]" />
+        <span className="text-sm text-[#8A857D]">Loading sources...</span>
       </div>
     );
   }
@@ -42,16 +42,16 @@ export function SourceSelector({ value, onChange }: SourceSelectorProps) {
     <div className="relative">
       <div className="flex items-center gap-2">
         {selectedSource && selectedSource.id === defaultSourceId ? (
-          <Star size={14} className="text-accent fill-accent" />
+          <Star size={14} className="text-[#C9A227] fill-[#C9A227]" />
         ) : (
-          <Database size={14} className="text-text-muted" />
+          <Database size={14} className="text-[#8A857D]" />
         )}
         <select
           value={value ?? ""}
           onChange={(e) => onChange(Number(e.target.value))}
           className={cn(
-            "appearance-none rounded-lg border border-border-default bg-surface-raised pl-3 pr-8 py-2 text-sm",
-            "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
+            "appearance-none rounded-lg border border-[#232328] bg-[#151518] pl-3 pr-8 py-2 text-sm",
+            "text-[#F0EDE8] focus:border-[#C9A227] focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
             "cursor-pointer min-w-[200px]",
           )}
         >
@@ -66,7 +66,7 @@ export function SourceSelector({ value, onChange }: SourceSelectorProps) {
         </select>
         <ChevronDown
           size={14}
-          className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-text-muted"
+          className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[#8A857D]"
         />
       </div>
     </div>

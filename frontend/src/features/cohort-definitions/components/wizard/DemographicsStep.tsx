@@ -42,20 +42,20 @@ export function DemographicsStep() {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <div className="mb-1 text-[13px] font-medium text-text-secondary">
-          Demographics{" "}
-          <span className="text-[11px] text-text-ghost">(optional)</span>
+        <div className="mb-1 text-[13px] font-medium text-[#ccc]">
+          Step 2 of 3 — Demographics{" "}
+          <span className="text-[11px] text-[#555]">(optional)</span>
         </div>
-        <p className="text-[13px] text-text-muted">
+        <p className="text-[13px] text-[#888]">
           Any age, gender, race, or ethnicity restrictions?
         </p>
       </div>
 
-      <div className="rounded-lg border border-border-default bg-surface-base p-4">
+      <div className="rounded-lg border border-[#2a2a3a] bg-[#0E0E11] p-4">
         <div className="flex flex-col gap-5">
           {/* Age */}
           <div>
-            <label className="mb-2 block text-[12px] font-medium text-text-secondary">
+            <label className="mb-2 block text-[12px] font-medium text-[#ccc]">
               Age Range
             </label>
             <div className="flex items-center gap-3">
@@ -75,9 +75,9 @@ export function DemographicsStep() {
                     updateField("Age", undefined);
                   }
                 }}
-                className="w-[80px] rounded-md border border-surface-highlight bg-surface-overlay px-3 py-2 text-center text-[13px] text-accent outline-none focus:border-accent"
+                className="w-[80px] rounded-md border border-[#444] bg-[#1a1a2e] px-3 py-2 text-center text-[13px] text-[#C9A227] outline-none focus:border-[#C9A227]"
               />
-              <span className="text-[13px] text-text-muted">to</span>
+              <span className="text-[13px] text-[#888]">to</span>
               <input
                 type="number"
                 min={0}
@@ -92,15 +92,15 @@ export function DemographicsStep() {
                     updateField("Age", undefined);
                   }
                 }}
-                className="w-[80px] rounded-md border border-surface-highlight bg-surface-overlay px-3 py-2 text-center text-[13px] text-accent outline-none focus:border-accent"
+                className="w-[80px] rounded-md border border-[#444] bg-[#1a1a2e] px-3 py-2 text-center text-[13px] text-[#C9A227] outline-none focus:border-[#C9A227]"
               />
-              <span className="text-[13px] text-text-muted">years</span>
+              <span className="text-[13px] text-[#888]">years</span>
             </div>
           </div>
 
           {/* Gender */}
           <div>
-            <label className="mb-2 block text-[12px] font-medium text-text-secondary">
+            <label className="mb-2 block text-[12px] font-medium text-[#ccc]">
               Gender
             </label>
             <div className="flex gap-2">
@@ -111,8 +111,8 @@ export function DemographicsStep() {
                   onClick={() => updateField("Gender", toggleInArray(genders, g.conceptId))}
                   className={`rounded-md px-4 py-1.5 text-[12px] transition-colors ${
                     genders.includes(g.conceptId)
-                      ? "bg-success font-medium text-surface-base"
-                      : "border border-border-default text-text-muted hover:border-surface-highlight"
+                      ? "bg-[#2DD4BF] font-medium text-[#0E0E11]"
+                      : "border border-[#333] text-[#888] hover:border-[#555]"
                   }`}
                 >
                   {g.label}
@@ -123,20 +123,20 @@ export function DemographicsStep() {
 
           {/* Race */}
           <div>
-            <label className="mb-2 block text-[12px] font-medium text-text-secondary">
+            <label className="mb-2 block text-[12px] font-medium text-[#ccc]">
               Race
             </label>
             <div className="flex flex-wrap gap-2">
               {RACE_OPTIONS.map((r) => (
                 <label
                   key={r.conceptId}
-                  className="flex items-center gap-1.5 text-[12px] text-text-muted"
+                  className="flex items-center gap-1.5 text-[12px] text-[#888]"
                 >
                   <input
                     type="checkbox"
                     checked={races.includes(r.conceptId)}
                     onChange={() => updateField("Race", toggleInArray(races, r.conceptId))}
-                    className="accent-success"
+                    className="accent-[#2DD4BF]"
                   />
                   {r.label}
                 </label>
@@ -146,20 +146,20 @@ export function DemographicsStep() {
 
           {/* Ethnicity */}
           <div>
-            <label className="mb-2 block text-[12px] font-medium text-text-secondary">
+            <label className="mb-2 block text-[12px] font-medium text-[#ccc]">
               Ethnicity
             </label>
             <div className="flex flex-wrap gap-2">
               {ETHNICITY_OPTIONS.map((e) => (
                 <label
                   key={e.conceptId}
-                  className="flex items-center gap-1.5 text-[12px] text-text-muted"
+                  className="flex items-center gap-1.5 text-[12px] text-[#888]"
                 >
                   <input
                     type="checkbox"
                     checked={ethnicities.includes(e.conceptId)}
                     onChange={() => updateField("Ethnicity", toggleInArray(ethnicities, e.conceptId))}
-                    className="accent-success"
+                    className="accent-[#2DD4BF]"
                   />
                   {e.label}
                 </label>

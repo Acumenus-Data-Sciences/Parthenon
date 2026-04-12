@@ -948,30 +948,17 @@ class PatientSimilarityController extends Controller
             $sourceCohortDef = CohortDefinition::find($validated['source_cohort_id']);
             $targetCohortDef = CohortDefinition::find($validated['target_cohort_id']);
 
-            // Load individual feature vectors for covariate balance + distributional divergence.
-            // Sample large cohorts to stay within PG's 65535 bind-parameter limit and avoid OOM.
-            $maxVectors = 5000;
-            $sourceSample = count($sourceMemberIds) > $maxVectors
-                ? collect($sourceMemberIds)->shuffle()->take($maxVectors)->values()->all()
-                : $sourceMemberIds;
-            $targetSample = count($targetMemberIds) > $maxVectors
-                ? collect($targetMemberIds)->shuffle()->take($maxVectors)->values()->all()
-                : $targetMemberIds;
-
-            $sourceVectors = collect($sourceSample)
-                ->chunk($maxVectors)
-                ->flatMap(fn ($chunk) => PatientFeatureVector::where('source_id', $source->id)
-                    ->whereIn('person_id', $chunk->all())
-                    ->get()
-                    ->map(fn ($v) => $v->toArray()))
+            // Load individual feature vectors for covariate balance + distributional divergence
+            $sourceVectors = PatientFeatureVector::where('source_id', $source->id)
+                ->whereIn('person_id', $sourceMemberIds)
+                ->get()
+                ->map(fn ($v) => $v->features)
                 ->all();
 
-            $targetVectors = collect($targetSample)
-                ->chunk($maxVectors)
-                ->flatMap(fn ($chunk) => PatientFeatureVector::where('source_id', $source->id)
-                    ->whereIn('person_id', $chunk->all())
-                    ->get()
-                    ->map(fn ($v) => $v->toArray()))
+            $targetVectors = PatientFeatureVector::where('source_id', $source->id)
+                ->whereIn('person_id', $targetMemberIds)
+                ->get()
+                ->map(fn ($v) => $v->features)
                 ->all();
 
             $covariates = $this->comparisonService->computeCovariateBalance($sourceVectors, $targetVectors);
@@ -1207,89 +1194,11 @@ class PatientSimilarityController extends Controller
                 return response()->json(['error' => $detail], $response->status());
             }
 
-            $result = $response->json();
-
-            // Resolve concept IDs to names in balance covariates
-            $this->resolveBalanceConceptNames($result);
-
-            return response()->json(['data' => $result]);
+            return response()->json(['data' => $response->json()]);
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Propensity score matching failed: '.$e->getMessage(),
             ], 500);
-        }
-    }
-
-    /**
-     * Resolve concept ID placeholders in PSM balance covariates to human-readable names.
-     *
-     * AI service formats: condition_NNN, drug_NNN, procedure_NNN, demographics_gender_NNN,
-     * demographics_age_norm, concept:NNN. Resolves NNN via vocab.concept where applicable.
-     *
-     * @param  array<string, mixed>  $result
-     */
-    private function resolveBalanceConceptNames(array &$result): void
-    {
-        // Collect all concept IDs from any format: condition_NNN, drug_NNN, procedure_NNN,
-        // demographics_gender_NNN, concept:NNN
-        $conceptIds = [];
-        $pattern = '/^(?:condition|drug|procedure|demographics_gender|concept:|demographics_race)_?:?(\d+)$/';
-
-        foreach (['before', 'after'] as $phase) {
-            foreach ($result['balance'][$phase] ?? [] as $row) {
-                $cov = $row['covariate'] ?? '';
-                if (preg_match($pattern, $cov, $m)) {
-                    $conceptIds[(int) $m[1]] = true;
-                }
-            }
-        }
-
-        if ($conceptIds === []) {
-            return;
-        }
-
-        $names = $this->vocab()
-            ->table('concept')
-            ->whereIn('concept_id', array_keys($conceptIds))
-            ->pluck('concept_name', 'concept_id')
-            ->all();
-
-        $genderLabels = [8507 => 'Male', 8532 => 'Female', 8551 => 'Unknown'];
-
-        foreach (['before', 'after'] as $phase) {
-            if (! isset($result['balance'][$phase])) {
-                continue;
-            }
-            foreach ($result['balance'][$phase] as $i => $row) {
-                $cov = $row['covariate'] ?? '';
-                $resolved = null;
-
-                if ($cov === 'demographics_age_norm') {
-                    $resolved = 'Age (normalized)';
-                } elseif (preg_match('/^demographics_gender_(\d+)$/', $cov, $m)) {
-                    $cid = (int) $m[1];
-                    $resolved = 'Gender: '.($genderLabels[$cid] ?? ($names[$cid] ?? "Concept {$cid}"));
-                } elseif (preg_match('/^demographics_race_(\d+)$/', $cov, $m)) {
-                    $cid = (int) $m[1];
-                    $resolved = 'Race: '.($names[$cid] ?? "Concept {$cid}");
-                } elseif (preg_match('/^condition_(\d+)$/', $cov, $m)) {
-                    $cid = (int) $m[1];
-                    $resolved = $names[$cid] ?? "Condition {$cid}";
-                } elseif (preg_match('/^drug_(\d+)$/', $cov, $m)) {
-                    $cid = (int) $m[1];
-                    $resolved = $names[$cid] ?? "Drug {$cid}";
-                } elseif (preg_match('/^procedure_(\d+)$/', $cov, $m)) {
-                    $cid = (int) $m[1];
-                    $resolved = $names[$cid] ?? "Procedure {$cid}";
-                } elseif (preg_match('/^concept:(\d+)$/', $cov, $m)) {
-                    $cid = (int) $m[1];
-                    $resolved = $names[$cid] ?? "Concept {$cid}";
-                }
-
-                if ($resolved !== null) {
-                    $result['balance'][$phase][$i]['covariate'] = $resolved;
-                }
-            }
         }
     }
 
@@ -1366,131 +1275,6 @@ class PatientSimilarityController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Network fusion failed: '.$e->getMessage(),
-            ], 500);
-        }
-    }
-
-    // ── Phenotype Discovery (Consensus Clustering) ─────────────────
-
-    /**
-     * POST /v1/patient-similarity/phenotype-discovery
-     *
-     * Discover latent patient subphenotypes via consensus clustering.
-     * Resolves cohort members, proxies to Python AI service.
-     */
-    public function phenotypeDiscovery(Request $request): JsonResponse
-    {
-        $validated = $request->validate([
-            'source_id' => ['required', 'integer', 'exists:sources,id'],
-            'cohort_definition_id' => ['required', 'integer'],
-            'method' => ['sometimes', 'string', 'in:consensus,kmeans,spectral'],
-            'k' => ['sometimes', 'integer', 'min:2', 'max:20'],
-        ]);
-
-        try {
-            $source = Source::with('daimons')->findOrFail($validated['source_id']);
-            SourceContext::forSource($source);
-
-            // Resolve cohort members
-            $personIds = $this->results()
-                ->table('cohort')
-                ->where('cohort_definition_id', $validated['cohort_definition_id'])
-                ->pluck('subject_id')
-                ->map(fn ($id) => (int) $id)
-                ->unique()
-                ->values()
-                ->all();
-
-            if (count($personIds) < 10) {
-                return response()->json([
-                    'error' => 'Cohort has fewer than 10 members ('.count($personIds).'). Generate it first or choose a larger cohort.',
-                ], 422);
-            }
-
-            $aiUrl = rtrim((string) config('services.ai.url', 'http://python-ai:8000'), '/');
-
-            $payload = [
-                'source_id' => $source->id,
-                'cohort_person_ids' => $personIds,
-            ];
-
-            if (isset($validated['method'])) {
-                $payload['method'] = $validated['method'];
-            }
-            if (isset($validated['k'])) {
-                $payload['k'] = $validated['k'];
-            }
-
-            /** @var Response $response */
-            $response = Http::timeout(300)->post("{$aiUrl}/patient-similarity/discover-phenotypes", $payload);
-
-            if ($response->failed()) {
-                $body = $response->json();
-                $detail = $body['detail'] ?? 'Phenotype discovery failed in AI service.';
-
-                return response()->json(['error' => $detail], $response->status());
-            }
-
-            return response()->json(['data' => $response->json()]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Phenotype discovery failed: '.$e->getMessage(),
-            ], 500);
-        }
-    }
-
-    // ── UMAP Patient Landscape Projection ──────────────────────────
-
-    /**
-     * Project patient feature vectors into a 2D/3D scatter plot via PCA + UMAP.
-     *
-     * Proxies to the AI service's /patient-similarity/project endpoint.
-     */
-    public function landscape(Request $request): JsonResponse
-    {
-        $validated = $request->validate([
-            'source_id' => ['required', 'integer', 'exists:sources,id'],
-            'cohort_person_ids' => ['sometimes', 'array'],
-            'cohort_person_ids.*' => ['integer'],
-            'dimensions' => ['sometimes', 'integer', 'in:2,3'],
-            'max_patients' => ['sometimes', 'integer', 'min:100', 'max:10000'],
-        ]);
-
-        try {
-            $source = Source::with('daimons')->findOrFail($validated['source_id']);
-            SourceContext::forSource($source);
-
-            $payload = [
-                'source_id' => $source->id,
-                'dimensions' => $validated['dimensions'] ?? 3,
-                'max_patients' => $validated['max_patients'] ?? 5000,
-            ];
-
-            // If cohort_person_ids provided, cap at 5000 to avoid OOM in AI service
-            if (! empty($validated['cohort_person_ids'])) {
-                $personIds = array_values(array_unique($validated['cohort_person_ids']));
-                if (count($personIds) > 5000) {
-                    $personIds = collect($personIds)->shuffle()->take(5000)->values()->all();
-                }
-                $payload['person_ids'] = $personIds;
-            }
-
-            $aiUrl = rtrim((string) config('services.ai.url', 'http://python-ai:8000'), '/');
-
-            /** @var Response $response */
-            $response = Http::timeout(300)->post("{$aiUrl}/patient-similarity/project", $payload);
-
-            if ($response->failed()) {
-                $body = $response->json();
-                $detail = $body['detail'] ?? 'Patient landscape projection failed in AI service.';
-
-                return response()->json(['error' => $detail], $response->status());
-            }
-
-            return response()->json(['data' => $response->json()]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Patient landscape projection failed: '.$e->getMessage(),
             ], 500);
         }
     }

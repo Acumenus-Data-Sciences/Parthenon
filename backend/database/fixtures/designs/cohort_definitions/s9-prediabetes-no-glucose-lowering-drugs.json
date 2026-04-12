@@ -1,0 +1,126 @@
+{
+    "id": 197,
+    "name": "S9: Prediabetes — No Glucose-Lowering Drugs",
+    "description": "Patients with first prediabetes diagnosis and 365-day prior observation who never receive metformin or any glucose-lowering drug. Comparator for the Metformin Repurposing study redesign.",
+    "expression_json": {
+        "ConceptSets": [
+            {
+                "id": 0,
+                "name": "Prediabetes",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 37018196,
+                                "CONCEPT_NAME": "Prediabetes",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 1,
+                "name": "Metformin",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1503297,
+                                "CONCEPT_NAME": "metformin",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            }
+        ],
+        "EndStrategy": {
+            "DateOffset": {
+                "Offset": 0,
+                "DateField": "ObservationPeriodEnd"
+            }
+        },
+        "InclusionRules": [],
+        "QualifiedLimit": {
+            "Type": "First"
+        },
+        "ExpressionLimit": {
+            "Type": "First"
+        },
+        "PrimaryCriteria": {
+            "CriteriaList": [
+                {
+                    "ConditionOccurrence": {
+                        "First": true,
+                        "CodesetId": 0
+                    }
+                }
+            ],
+            "ObservationWindow": {
+                "PostDays": 0,
+                "PriorDays": 365
+            }
+        },
+        "CollapseSettings": {
+            "EraPad": 0,
+            "CollapseType": "ERA"
+        },
+        "CensoringCriteria": [],
+        "AdditionalCriteria": {
+            "Type": "ALL",
+            "Groups": [],
+            "CriteriaList": [
+                {
+                    "Criteria": {
+                        "DrugExposure": {
+                            "CodesetId": 1
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 0,
+                        "Count": 0
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 99999,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 99999,
+                            "Coeff": -1
+                        }
+                    },
+                    "RestrictVisit": false,
+                    "IgnoreObservationPeriod": false
+                }
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": true,
+    "version": 1,
+    "created_at": "2026-03-20T20:58:27.000000Z",
+    "updated_at": "2026-03-20T21:13:56.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "prediabetes",
+        "no-treatment",
+        "comparator",
+        "s9r"
+    ],
+    "share_token": null,
+    "share_expires_at": null
+}

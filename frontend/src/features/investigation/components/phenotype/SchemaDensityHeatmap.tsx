@@ -19,11 +19,11 @@ interface SchemaDensityHeatmapProps {
 }
 
 const DOMAIN_COLORS: Record<string, string> = {
-  Condition: "var(--primary)",
-  Drug: "var(--success)",
-  Measurement: "var(--accent)",
-  Procedure: "var(--info)",
-  Observation: "var(--domain-observation)",
+  Condition: "#9B1B30",
+  Drug: "#2DD4BF",
+  Measurement: "#C9A227",
+  Procedure: "#60a5fa",
+  Observation: "#a78bfa",
   Device: "#71717a",
 };
 
@@ -53,7 +53,7 @@ interface CustomTooltipProps {
 function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
   if (!active || !payload || payload.length === 0) return null;
   return (
-    <div className="rounded border border-zinc-700 bg-zinc-900 px-2.5 py-1.5 text-xs shadow-lg">
+    <div className="rounded border border-border-default bg-surface-base px-2.5 py-1.5 text-xs shadow-lg">
       <span className="text-zinc-300 font-medium">{label}</span>
       <span className="ml-2 text-zinc-400">
         {payload[0].value} concept{payload[0].value !== 1 ? "s" : ""}
@@ -65,7 +65,7 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
 export function SchemaDensityHeatmap({ domains }: SchemaDensityHeatmapProps) {
   if (domains.length === 0) {
     return (
-      <div className="flex items-center justify-center rounded border border-zinc-700/40 bg-zinc-800/20 px-4 py-5">
+      <div className="flex items-center justify-center rounded border border-border-default/40 bg-surface-raised/20 px-4 py-5">
         <p className="text-xs text-zinc-600">
           Add concepts to see domain coverage
         </p>
@@ -77,7 +77,7 @@ export function SchemaDensityHeatmap({ domains }: SchemaDensityHeatmapProps) {
   const chartHeight = Math.max(80, domains.length * 36);
 
   return (
-    <div className="rounded border border-zinc-700/40 bg-zinc-800/20 px-3 py-3">
+    <div className="rounded border border-border-default/40 bg-surface-raised/20 px-3 py-3">
       <div className="mb-2 flex items-center justify-between">
         <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
           Domain Coverage
@@ -94,7 +94,7 @@ export function SchemaDensityHeatmap({ domains }: SchemaDensityHeatmapProps) {
         >
           <XAxis
             type="number"
-            tick={{ fontSize: 10, fill: "var(--text-muted)" }}
+            tick={{ fontSize: 10, fill: "#71717a" }}
             tickLine={false}
             axisLine={false}
             allowDecimals={false}
@@ -103,7 +103,7 @@ export function SchemaDensityHeatmap({ domains }: SchemaDensityHeatmapProps) {
             type="category"
             dataKey="name"
             width={88}
-            tick={{ fontSize: 10, fill: "var(--text-muted)" }}
+            tick={{ fontSize: 10, fill: "#a1a1aa" }}
             tickLine={false}
             axisLine={false}
           />

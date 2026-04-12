@@ -1,0 +1,19 @@
+{
+    "id": 340,
+    "name": "S9: Metformin — Multi-Outcome Repurposing Signal Profile",
+    "description": "Random effects meta-analysis combining metformin effect estimates across colorectal neoplasm, Alzheimer's disease, composite MACE, and all-cause mortality. Generates a unified repurposing signal forest plot following the OHDSI LEGEND framework.",
+    "design_json": {
+        "method": "random_effects",
+        "description": "Multi-outcome evidence synthesis combining 4 CohortMethod results into a repurposing signal profile",
+        "estimates": [],
+        "settings": {
+            "chainLength": 1100000,
+            "burnIn": 100000,
+            "subSample": 100
+        }
+    },
+    "author_id": 117,
+    "created_at": "2026-03-19T21:00:00.000000Z",
+    "updated_at": "2026-03-19T21:00:00.000000Z",
+    "deleted_at": null
+}

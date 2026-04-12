@@ -1,0 +1,77 @@
+{
+    "id": 210,
+    "name": "IRSF O-01: First Seizure Onset",
+    "description": "Outcome cohort: First documented seizure activity defined by CSS Epilepsy\/Seizures subscale score > 0. The CSS Epilepsy subscale (concept 2000001013) ranges 0-5 where 0 indicates no seizure activity. Index date is the first measurement date with score > 0, representing seizure onset. Used as outcome in incidence rate and estimation analyses.",
+    "expression_json": {
+        "ConceptSets": [
+            {
+                "id": 0,
+                "name": "CSS Epilepsy\/Seizures Subscale",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 2000001013,
+                                "CONCEPT_NAME": "CSS Epilepsy\/Seizures",
+                                "VOCABULARY_ID": "IRSF-NHS",
+                                "CONCEPT_CLASS_ID": "Clinical Observation",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": false
+                        }
+                    ]
+                }
+            }
+        ],
+        "InclusionRules": [],
+        "QualifiedLimit": {
+            "Type": "First"
+        },
+        "ExpressionLimit": {
+            "Type": "First"
+        },
+        "PrimaryCriteria": {
+            "CriteriaList": [
+                {
+                    "Measurement": {
+                        "CodesetId": 0,
+                        "ValueAsNumber": {
+                            "Op": "gt",
+                            "Value": 0
+                        }
+                    }
+                }
+            ],
+            "ObservationWindow": {
+                "PostDays": 0,
+                "PriorDays": 0
+            }
+        },
+        "CollapseSettings": {
+            "EraPad": 0,
+            "CollapseType": "ERA"
+        },
+        "CensoringCriteria": [],
+        "AdditionalCriteria": {
+            "Type": "ALL",
+            "Groups": [],
+            "CriteriaList": []
+        }
+    },
+    "author_id": 117,
+    "is_public": false,
+    "version": 1,
+    "created_at": "2026-03-27T00:01:20.000000Z",
+    "updated_at": "2026-03-27T00:01:20.000000Z",
+    "deleted_at": null,
+    "tags": [
+        "irsf",
+        "outcome",
+        "seizure"
+    ],
+    "share_token": null,
+    "share_expires_at": null
+}

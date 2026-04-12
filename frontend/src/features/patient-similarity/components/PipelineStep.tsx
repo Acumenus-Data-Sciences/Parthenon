@@ -1,6 +1,4 @@
 import { type ReactNode } from 'react';
-import { ChevronDown, ChevronRight, Loader2, CheckCircle2, XCircle } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import type { StepStatus } from '../types/pipeline';
 
 interface PipelineStepProps {
@@ -30,22 +28,21 @@ export function PipelineStep({
 }: PipelineStepProps) {
   if (status === 'future') {
     return (
-      <div className="mb-3 rounded-xl border border-dashed border-border-default bg-surface-raised px-5 py-3 opacity-50">
+      <div className="mb-2 rounded-lg border border-dashed border-[#333] bg-[#131316] px-4 py-3 opacity-50">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full border border-border-default">
-              <span className="text-[10px] text-text-ghost tabular-nums">{stepNumber}</span>
+            <div className="flex h-5 w-5 items-center justify-center rounded-full border border-[#444]">
+              <span className="text-[8px] text-[#555]">{stepNumber}</span>
             </div>
-            <span className="text-sm text-text-muted">{name}</span>
-            <span className="text-xs text-text-ghost">{description}</span>
+            <span className="text-xs text-[#777]">{name}</span>
+            <span className="text-[10px] text-[#555]">— {description}</span>
           </div>
           {onRun && (
             <button
               onClick={onRun}
-              className="rounded-md border border-border-default bg-surface-raised px-2.5 py-1 text-xs font-medium text-text-muted hover:text-text-secondary hover:border-surface-highlight transition-colors"
-              type="button"
+              className="rounded border border-[#444] bg-transparent px-2.5 py-1 text-[10px] text-[#555] transition-colors hover:border-[#666] hover:text-[#888]"
             >
-              Run
+              Run ▸
             </button>
           )}
         </div>
@@ -55,11 +52,11 @@ export function PipelineStep({
 
   if (status === 'loading') {
     return (
-      <div className="mb-3 rounded-xl border border-border-default bg-surface-raised px-5 py-3">
+      <div className="mb-2 rounded-lg border border-[#333] bg-[#131316] px-4 py-3">
         <div className="flex items-center gap-2.5">
-          <Loader2 size={20} className="animate-spin text-success" />
-          <span className="text-sm font-medium text-text-primary">{name}</span>
-          <span className="text-xs text-text-muted">Running...</span>
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#333] border-t-[#2DD4BF]" />
+          <span className="text-xs text-[#ddd]">{name}</span>
+          <span className="text-[10px] text-[#555]">Running...</span>
         </div>
       </div>
     );
@@ -67,50 +64,51 @@ export function PipelineStep({
 
   if (status === 'error') {
     return (
-      <div className="mb-3 rounded-xl border border-critical/40 bg-surface-raised px-5 py-3">
+      <div className="mb-2 rounded-lg border border-[#9B1B30] bg-[#131316] px-4 py-3">
         <div className="flex items-center gap-2.5">
-          <XCircle size={20} className="text-critical" />
-          <span className="text-sm font-medium text-text-primary">{name}</span>
-          <span className="text-xs text-critical">Failed</span>
+          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#9B1B3020]">
+            <span className="text-[11px] text-[#9B1B30]">✕</span>
+          </div>
+          <span className="text-xs text-[#ddd]">{name}</span>
+          <span className="text-[10px] text-[#9B1B30]">Failed</span>
         </div>
       </div>
     );
   }
 
   // status === 'completed'
+  const borderColor = isExpanded ? 'border-[#9B1B30]' : 'border-[#2DD4BF40]';
+
   return (
-    <div className={cn(
-      'mb-3 overflow-hidden rounded-xl border bg-surface-raised',
-      isExpanded ? 'border-primary' : 'border-success/25',
-    )}>
+    <div className={`mb-2 overflow-hidden rounded-lg border ${borderColor} bg-[#131316]`}>
+      {/* Clickable header */}
       <button
         onClick={onToggle}
-        className="flex w-full items-center justify-between px-5 py-3 text-left"
+        className="flex w-full items-center justify-between px-4 py-3 text-left"
         type="button"
       >
         <div className="flex items-center gap-2.5">
-          <CheckCircle2 size={20} className="text-success" />
-          <span className="text-sm font-medium text-text-primary">{name}</span>
+          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-[#2DD4BF20]">
+            <span className="text-[11px] text-[#2DD4BF]">✓</span>
+          </div>
+          <span className="text-xs font-medium text-[#ddd]">{name}</span>
           {!isExpanded && summary && (
-            <span className="ml-1 text-xs text-text-muted">{summary}</span>
+            <span className="ml-2 text-[11px] text-[#555]">{summary}</span>
           )}
         </div>
         <div className="flex items-center gap-2">
           {executionTimeMs !== undefined && (
-            <span className="text-xs text-text-ghost tabular-nums">
+            <span className="text-[10px] text-[#555]">
               {(executionTimeMs / 1000).toFixed(1)}s
             </span>
           )}
-          {isExpanded ? (
-            <ChevronDown size={16} className="text-text-ghost" />
-          ) : (
-            <ChevronRight size={16} className="text-text-ghost" />
-          )}
+          <span className="text-xs text-[#555]">{isExpanded ? '▾' : '▸'}</span>
         </div>
       </button>
 
+      {/* Expanded content */}
       {isExpanded && (
-        <div className="border-t border-border-default px-5 py-4">{children}</div>
+        <div className="border-t border-[#222] p-4">{children}</div>
       )}
     </div>
   );

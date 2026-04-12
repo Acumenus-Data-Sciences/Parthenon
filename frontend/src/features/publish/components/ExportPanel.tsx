@@ -173,7 +173,7 @@ export default function ExportPanel({
 
       {/* Format grid */}
       <div>
-        <h3 className="mb-3 text-sm font-medium text-text-primary">
+        <h3 className="mb-3 text-sm font-medium text-[#F0EDE8]">
           Choose Export Format
         </h3>
         <div className="grid grid-cols-3 gap-4">
@@ -186,24 +186,24 @@ export default function ExportPanel({
                 onClick={() => setSelectedFormat(format)}
                 className={`flex flex-col items-center gap-3 rounded-xl border-2 p-6 text-center transition-colors ${
                   isSelected
-                    ? "border-accent bg-accent/5"
-                    : "border-border-default bg-surface-raised hover:border-text-ghost"
+                    ? "border-[#C9A227] bg-[#C9A227]/5"
+                    : "border-[#232328] bg-[#151518] hover:border-[#5A5650]"
                 }`}
               >
                 <Icon
                   className={`h-8 w-8 ${
-                    isSelected ? "text-accent" : "text-text-ghost"
+                    isSelected ? "text-[#C9A227]" : "text-[#5A5650]"
                   }`}
                 />
                 <div>
                   <p
                     className={`text-sm font-semibold ${
-                      isSelected ? "text-accent" : "text-text-primary"
+                      isSelected ? "text-[#C9A227]" : "text-[#F0EDE8]"
                     }`}
                   >
                     {label}
                   </p>
-                  <p className="mt-1 text-xs text-text-ghost">{description}</p>
+                  <p className="mt-1 text-xs text-[#5A5650]">{description}</p>
                 </div>
               </button>
             );
@@ -216,7 +216,7 @@ export default function ExportPanel({
         type="button"
         onClick={handleExport}
         disabled={hasDraftNarratives || exportMutation.isPending}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-surface-base transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40"
+        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#C9A227] px-5 py-3 text-sm font-semibold text-[#0E0E11] transition-colors hover:bg-[#d4ad2f] disabled:cursor-not-allowed disabled:opacity-40"
       >
         {exportMutation.isPending ? (
           <>
@@ -233,7 +233,7 @@ export default function ExportPanel({
         <button
           type="button"
           onClick={onBack}
-          className="flex items-center gap-1.5 rounded-lg border border-border-default px-4 py-2 text-sm text-text-primary transition-colors hover:bg-surface-elevated"
+          className="flex items-center gap-1.5 rounded-lg border border-[#232328] px-4 py-2 text-sm text-[#F0EDE8] transition-colors hover:bg-[#232328]"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Preview

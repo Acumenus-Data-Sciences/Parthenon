@@ -65,7 +65,7 @@ export function ExportControls({ onExport, isExporting }: ExportControlsProps) {
     <div data-testid="export-controls" className="space-y-6">
       {/* Format selector */}
       <div>
-        <h3 className="text-sm font-semibold text-text-primary mb-3">
+        <h3 className="text-sm font-semibold text-[#F0EDE8] mb-3">
           Export Format
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -80,30 +80,30 @@ export function ExportControls({ onExport, isExporting }: ExportControlsProps) {
                 onClick={() => setSelected(opt.value)}
                 className={`flex items-start gap-3 rounded-lg border p-3 text-left transition-colors ${
                   isSelected
-                    ? "border-success bg-success/10"
-                    : "border-border-default bg-surface-raised hover:border-success/40"
+                    ? "border-[#2DD4BF] bg-[#2DD4BF]/10"
+                    : "border-[#232328] bg-[#151518] hover:border-[#2DD4BF]/40"
                 }`}
               >
                 <Icon
                   size={18}
-                  className={isSelected ? "text-success" : "text-text-primary/40"}
+                  className={isSelected ? "text-[#2DD4BF]" : "text-[#F0EDE8]/40"}
                 />
                 <div>
                   <div className="flex items-center gap-2">
                     <span
                       className={`text-sm font-medium ${
-                        isSelected ? "text-success" : "text-text-primary"
+                        isSelected ? "text-[#2DD4BF]" : "text-[#F0EDE8]"
                       }`}
                     >
                       {opt.label}
                     </span>
                     {!opt.available && (
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent/20 text-accent">
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#C9A227]/20 text-[#C9A227]">
                         Coming soon
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-text-primary/40 mt-0.5">
+                  <p className="text-xs text-[#F0EDE8]/40 mt-0.5">
                     {opt.description}
                   </p>
                 </div>
@@ -118,7 +118,7 @@ export function ExportControls({ onExport, isExporting }: ExportControlsProps) {
         type="button"
         onClick={() => onExport(selected)}
         disabled={isExporting}
-        className="flex items-center gap-2 rounded-lg bg-success px-5 py-2.5 text-sm font-semibold text-surface-base hover:bg-success/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="flex items-center gap-2 rounded-lg bg-[#2DD4BF] px-5 py-2.5 text-sm font-semibold text-[#0E0E11] hover:bg-[#2DD4BF]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         <Download size={16} />
         {isExporting ? "Exporting..." : `Export as ${selected.toUpperCase()}`}

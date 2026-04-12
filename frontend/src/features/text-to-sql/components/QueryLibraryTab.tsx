@@ -31,8 +31,8 @@ function QueryLibraryCard({
         gap: "8px",
         padding: "12px 14px",
         borderRadius: "8px",
-        border: `1px solid ${active ? "color-mix(in srgb, var(--success) 31%, transparent)" : "var(--surface-elevated)"}`,
-        background: active ? "color-mix(in srgb, var(--success) 6%, transparent)" : "var(--surface-raised)",
+        border: `1px solid ${active ? "#2DD4BF50" : "#232328"}`,
+        background: active ? "#2DD4BF10" : "#151518",
         cursor: "pointer",
         textAlign: "left",
         transition: "all 150ms",
@@ -51,7 +51,7 @@ function QueryLibraryCard({
           style={{
             fontSize: "13px",
             fontWeight: 600,
-            color: "var(--text-primary)",
+            color: "#F0EDE8",
             flex: 1,
           }}
         >
@@ -60,7 +60,7 @@ function QueryLibraryCard({
         <span
           style={{
             fontSize: "10px",
-            color: "var(--text-muted)",
+            color: "#8A857D",
             textTransform: "uppercase",
             letterSpacing: "0.5px",
           }}
@@ -72,7 +72,7 @@ function QueryLibraryCard({
         style={{
           margin: 0,
           fontSize: "12px",
-          color: "var(--text-muted)",
+          color: "#8A857D",
           lineHeight: "1.5",
         }}
       >
@@ -85,9 +85,9 @@ function QueryLibraryCard({
             style={{
               padding: "2px 8px",
               borderRadius: "999px",
-              background: "var(--surface-overlay)",
-              border: "1px solid var(--surface-elevated)",
-              color: "var(--accent)",
+              background: "#1C1C20",
+              border: "1px solid #232328",
+              color: "#C9A227",
               fontSize: "11px",
             }}
           >
@@ -167,8 +167,8 @@ export function QueryLibraryTab({ dialect = "postgresql" }: { dialect?: string }
       {/* Search + filters */}
       <div
         style={{
-          background: "var(--surface-raised)",
-          border: "1px solid var(--surface-elevated)",
+          background: "#151518",
+          border: "1px solid #232328",
           borderRadius: "10px",
           padding: "16px",
           display: "flex",
@@ -185,7 +185,7 @@ export function QueryLibraryTab({ dialect = "postgresql" }: { dialect?: string }
               left: "12px",
               top: "50%",
               transform: "translateY(-50%)",
-              color: "var(--text-muted)",
+              color: "#8A857D",
             }}
           />
           <input
@@ -195,21 +195,21 @@ export function QueryLibraryTab({ dialect = "postgresql" }: { dialect?: string }
             placeholder="Search queries by keyword\u2026"
             style={{
               width: "100%",
-              background: "var(--surface-base)",
-              border: "1px solid var(--surface-elevated)",
+              background: "#0E0E11",
+              border: "1px solid #232328",
               borderRadius: "8px",
               padding: "10px 14px 10px 36px",
-              color: "var(--text-primary)",
+              color: "#F0EDE8",
               fontSize: "14px",
               boxSizing: "border-box",
               outline: "none",
               transition: "border-color 150ms",
             }}
             onFocus={(e) => {
-              e.currentTarget.style.borderColor = "var(--primary)";
+              e.currentTarget.style.borderColor = "#9B1B30";
             }}
             onBlur={(e) => {
-              e.currentTarget.style.borderColor = "var(--surface-elevated)";
+              e.currentTarget.style.borderColor = "#232328";
             }}
           />
         </div>
@@ -236,16 +236,16 @@ export function QueryLibraryTab({ dialect = "postgresql" }: { dialect?: string }
               style={{
                 padding: "4px 9px",
                 borderRadius: "999px",
-                background: "color-mix(in srgb, var(--success) 6%, transparent)",
-                border: "1px solid var(--success)30",
-                color: "var(--success)",
+                background: "#2DD4BF10",
+                border: "1px solid #2DD4BF30",
+                color: "#2DD4BF",
                 fontSize: "11px",
                 fontWeight: 600,
               }}
             >
               {meta?.indexed_total ?? 0} indexed queries
             </span>
-            <span style={{ fontSize: "11px", color: "var(--text-muted)" }}>
+            <span style={{ fontSize: "11px", color: "#8A857D" }}>
               {search.trim()
                 ? `${meta?.total ?? 0} matches`
                 : `${meta?.count ?? 0} featured templates`}
@@ -258,7 +258,7 @@ export function QueryLibraryTab({ dialect = "postgresql" }: { dialect?: string }
                 alignItems: "center",
                 gap: "6px",
                 fontSize: "11px",
-                color: "var(--text-muted)",
+                color: "#8A857D",
               }}
             >
               <Loader2
@@ -278,9 +278,9 @@ export function QueryLibraryTab({ dialect = "postgresql" }: { dialect?: string }
               style={{
                 padding: "5px 10px",
                 borderRadius: "999px",
-                border: `1px solid ${domain === "all" ? "color-mix(in srgb, var(--accent) 33%, transparent)" : "var(--surface-elevated)"}`,
-                background: domain === "all" ? "color-mix(in srgb, var(--accent) 9%, transparent)" : "var(--surface-overlay)",
-                color: domain === "all" ? "var(--accent)" : "var(--text-muted)",
+                border: `1px solid ${domain === "all" ? "#C9A22755" : "#232328"}`,
+                background: domain === "all" ? "#C9A22718" : "#1C1C20",
+                color: domain === "all" ? "#C9A227" : "#8A857D",
                 fontSize: "11px",
                 cursor: "pointer",
                 fontFamily: "inherit",
@@ -295,10 +295,10 @@ export function QueryLibraryTab({ dialect = "postgresql" }: { dialect?: string }
                 style={{
                   padding: "5px 10px",
                   borderRadius: "999px",
-                  border: `1px solid ${domain === item.domain ? "color-mix(in srgb, var(--accent) 33%, transparent)" : "var(--surface-elevated)"}`,
+                  border: `1px solid ${domain === item.domain ? "#C9A22755" : "#232328"}`,
                   background:
-                    domain === item.domain ? "color-mix(in srgb, var(--accent) 9%, transparent)" : "var(--surface-overlay)",
-                  color: domain === item.domain ? "var(--accent)" : "var(--text-muted)",
+                    domain === item.domain ? "#C9A22718" : "#1C1C20",
+                  color: domain === item.domain ? "#C9A227" : "#8A857D",
                   fontSize: "11px",
                   cursor: "pointer",
                   fontFamily: "inherit",
@@ -318,9 +318,9 @@ export function QueryLibraryTab({ dialect = "postgresql" }: { dialect?: string }
           style={{
             padding: "10px 12px",
             borderRadius: "6px",
-            border: "1px solid color-mix(in srgb, var(--primary) 25%, transparent)",
-            background: "color-mix(in srgb, var(--primary) 8%, transparent)",
-            color: 'var(--critical)',
+            border: "1px solid #9B1B3040",
+            background: "#9B1B3015",
+            color: "#F87171",
             fontSize: "12px",
           }}
         >
@@ -365,9 +365,9 @@ export function QueryLibraryTab({ dialect = "postgresql" }: { dialect?: string }
                 gridColumn: "1 / -1",
                 padding: "24px",
                 borderRadius: "8px",
-                border: "1px dashed var(--surface-elevated)",
-                background: "var(--surface-base)",
-                color: "var(--text-muted)",
+                border: "1px dashed #232328",
+                background: "#111115",
+                color: "#8A857D",
                 fontSize: "13px",
                 lineHeight: "1.5",
                 textAlign: "center",
@@ -375,13 +375,13 @@ export function QueryLibraryTab({ dialect = "postgresql" }: { dialect?: string }
             >
               <Database
                 size={20}
-                style={{ color: "var(--text-muted)", marginBottom: "8px" }}
+                style={{ color: "#8A857D", marginBottom: "8px" }}
               />
               <div>No queries found matching your search.</div>
               <div style={{ fontSize: "12px", marginTop: "4px" }}>
                 Try a different keyword or clear your filters.
               </div>
-              <div style={{ fontSize: "11px", marginTop: "8px", color: "var(--text-ghost)" }}>
+              <div style={{ fontSize: "11px", marginTop: "8px", color: "#5A5650" }}>
                 If the library is empty, ask your admin to run: php artisan query-library:import-ohdsi
               </div>
             </div>
@@ -394,9 +394,9 @@ export function QueryLibraryTab({ dialect = "postgresql" }: { dialect?: string }
                 gridColumn: "1 / -1",
                 padding: "9px 12px",
                 borderRadius: "8px",
-                border: "1px solid var(--surface-elevated)",
-                background: "var(--surface-overlay)",
-                color: "var(--text-secondary)",
+                border: "1px solid #232328",
+                background: "#1C1C20",
+                color: "#C5C0B8",
                 fontSize: "12px",
                 fontWeight: 600,
                 cursor: "pointer",

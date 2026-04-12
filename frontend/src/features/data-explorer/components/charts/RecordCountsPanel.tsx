@@ -38,9 +38,9 @@ function CustomTooltip({
   if (!active || !payload?.length) return null;
   const item = payload[0].payload;
   return (
-    <div className="rounded-lg border border-surface-highlight bg-surface-overlay px-3 py-2 shadow-lg">
-      <p className="text-sm font-medium text-text-primary">{item.displayName}</p>
-      <p className="mt-0.5 font-['IBM_Plex_Mono',monospace] text-xs text-success">
+    <div className="rounded-lg border border-[#323238] bg-[#1A1A1E] px-3 py-2 shadow-lg">
+      <p className="text-sm font-medium text-[#F0EDE8]">{item.displayName}</p>
+      <p className="mt-0.5 font-['IBM_Plex_Mono',monospace] text-xs text-[#2DD4BF]">
         {item.count.toLocaleString()} records
       </p>
     </div>
@@ -50,8 +50,8 @@ function CustomTooltip({
 export function RecordCountsPanel({ data }: RecordCountsPanelProps) {
   if (!data.length) {
     return (
-      <div className="flex items-center justify-center rounded-xl border border-border-default bg-surface-raised py-16">
-        <p className="text-sm text-text-muted">No record count data available</p>
+      <div className="flex items-center justify-center rounded-xl border border-[#232328] bg-[#151518] py-16">
+        <p className="text-sm text-[#8A857D]">No record count data available</p>
       </div>
     );
   }
@@ -67,8 +67,8 @@ export function RecordCountsPanel({ data }: RecordCountsPanelProps) {
   const chartHeight = Math.max(sorted.length * barHeight + 40, 200);
 
   return (
-    <div className="rounded-xl border border-border-default bg-surface-raised p-6">
-      <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-text-muted">
+    <div className="rounded-xl border border-[#232328] bg-[#151518] p-6">
+      <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[#8A857D]">
         Record Counts by CDM Table
       </h3>
       <ResponsiveContainer width="100%" height={chartHeight}>
@@ -81,15 +81,15 @@ export function RecordCountsPanel({ data }: RecordCountsPanelProps) {
           <XAxis
             type="number"
             tickFormatter={formatCompact}
-            tick={{ fill: "var(--text-primary)", fontSize: 11 }}
-            axisLine={{ stroke: "var(--border-default)" }}
-            tickLine={{ stroke: "var(--border-default)" }}
+            tick={{ fill: "#F0EDE8", fontSize: 11 }}
+            axisLine={{ stroke: "#323238" }}
+            tickLine={{ stroke: "#323238" }}
           />
           <YAxis
             type="category"
             dataKey="displayName"
             width={180}
-            tick={{ fill: "var(--text-secondary)", fontSize: 12 }}
+            tick={{ fill: "#C5C0B8", fontSize: 12 }}
             axisLine={false}
             tickLine={false}
           />
@@ -101,7 +101,7 @@ export function RecordCountsPanel({ data }: RecordCountsPanelProps) {
             {sorted.map((_, idx) => (
               <Cell
                 key={`cell-${idx}`}
-                fill="var(--success)"
+                fill="#2DD4BF"
                 fillOpacity={1 - idx * 0.04 > 0.3 ? 1 - idx * 0.04 : 0.3}
               />
             ))}

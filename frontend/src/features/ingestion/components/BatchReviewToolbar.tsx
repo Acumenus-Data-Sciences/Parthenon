@@ -22,7 +22,7 @@ export function BatchReviewToolbar({
     <div
       className={cn(
         "flex items-center gap-4 rounded-lg border px-4 py-2.5",
-        "border-border-default bg-surface-raised",
+        "border-[#232328] bg-[#151518]",
       )}
     >
       {/* Select all checkbox */}
@@ -31,19 +31,19 @@ export function BatchReviewToolbar({
           type="checkbox"
           checked={isAllSelected}
           onChange={isAllSelected ? onDeselectAll : onSelectAll}
-          className="h-4 w-4 rounded border-surface-highlight bg-surface-base text-primary focus:ring-primary focus:ring-offset-0 accent-primary"
+          className="h-4 w-4 rounded border-[#323238] bg-[#0E0E11] text-[#9B1B30] focus:ring-[#9B1B30] focus:ring-offset-0 accent-[#9B1B30]"
         />
-        <span className="text-xs font-medium text-text-secondary">
+        <span className="text-xs font-medium text-[#C5C0B8]">
           Select All in View
         </span>
       </label>
 
       {/* Divider */}
-      <div className="h-5 w-px bg-surface-elevated" />
+      <div className="h-5 w-px bg-[#232328]" />
 
       {/* Selected count */}
-      <span className="text-xs text-text-muted">
-        <span className="font-medium text-text-primary tabular-nums font-['IBM_Plex_Mono',monospace]">
+      <span className="text-xs text-[#8A857D]">
+        <span className="font-medium text-[#F0EDE8] tabular-nums font-['IBM_Plex_Mono',monospace]">
           {selectedCount}
         </span>{" "}
         selected
@@ -59,7 +59,7 @@ export function BatchReviewToolbar({
         disabled={selectedCount === 0}
         className={cn(
           "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
-          "bg-success/15 text-success hover:bg-success/25",
+          "bg-[#2DD4BF]/15 text-[#2DD4BF] hover:bg-[#2DD4BF]/25",
           "disabled:opacity-40 disabled:cursor-not-allowed",
         )}
       >
@@ -73,7 +73,7 @@ export function BatchReviewToolbar({
         disabled={selectedCount === 0}
         className={cn(
           "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
-          "bg-critical/15 text-critical hover:bg-critical/25",
+          "bg-[#E85A6B]/15 text-[#E85A6B] hover:bg-[#E85A6B]/25",
           "disabled:opacity-40 disabled:cursor-not-allowed",
         )}
       >

@@ -70,13 +70,13 @@ function MiniStat({ icon, label, value, color, onClick }: MiniStatProps) {
       disabled={!onClick}
       onClick={onClick}
       className={cn(
-        "inline-flex items-center gap-2 rounded-md border border-border-default bg-surface-base px-2.5 py-1.5 shrink-0 transition-colors",
-        onClick && "cursor-pointer hover:border-surface-highlight hover:bg-surface-overlay",
+        "inline-flex items-center gap-2 rounded-md border border-[#232328] bg-[#0E0E11] px-2.5 py-1.5 shrink-0 transition-colors",
+        onClick && "cursor-pointer hover:border-[#3A3A40] hover:bg-[#1A1A1E]",
         !onClick && "cursor-default",
       )}
     >
       <span style={{ color }}>{icon}</span>
-      <span className="text-[10px] font-medium uppercase tracking-wider text-text-ghost">
+      <span className="text-[10px] font-medium uppercase tracking-wider text-[#5A5650]">
         {label}
       </span>
       <span className="text-sm font-bold leading-none" style={{ color }}>
@@ -88,7 +88,7 @@ function MiniStat({ icon, label, value, color, onClick }: MiniStatProps) {
 
 function DemoBadge({ icon, text }: { icon: React.ReactNode; text: string }) {
   return (
-    <span className="inline-flex items-center gap-1 text-xs text-text-muted">
+    <span className="inline-flex items-center gap-1 text-xs text-[#8A857D]">
       {icon}
       {text}
     </span>
@@ -160,28 +160,28 @@ export function PatientProfileHeader({
   }, [profile, domainStats]);
 
   return (
-    <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
+    <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-3">
       {/* Row 1: Identity + demographics */}
       <div className="flex items-center gap-3 flex-wrap">
         {/* Avatar */}
-        <div className="flex items-center justify-center w-9 h-9 rounded-full bg-success/10 shrink-0">
-          <User size={16} className="text-success" />
+        <div className="flex items-center justify-center w-9 h-9 rounded-full bg-[#2DD4BF]/10 shrink-0">
+          <User size={16} className="text-[#2DD4BF]" />
         </div>
 
         {/* Name + ID */}
         <div className="shrink-0">
-          <h2 className="text-base font-bold text-text-primary leading-tight">
+          <h2 className="text-base font-bold text-[#F0EDE8] leading-tight">
             {demographics.patient_name || `Person #${demographics.person_id}`}
           </h2>
           {demographics.patient_name && (
-            <span className="text-[10px] text-text-ghost">
+            <span className="text-[10px] text-[#5A5650]">
               Person #{demographics.person_id}
             </span>
           )}
         </div>
 
         {/* Separator */}
-        <div className="h-6 w-px bg-surface-elevated shrink-0 hidden sm:block" />
+        <div className="h-6 w-px bg-[#232328] shrink-0 hidden sm:block" />
 
         {/* Demographic badges */}
         <div className="flex items-center gap-3 flex-wrap">
@@ -213,10 +213,10 @@ export function PatientProfileHeader({
 
         {/* Death badge (right-aligned) */}
         {demographics.death_date && (
-          <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-critical/10 px-2.5 py-0.5 text-[10px] font-semibold text-critical border border-critical/20 shrink-0">
+          <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-[#E85A6B]/10 px-2.5 py-0.5 text-[10px] font-semibold text-[#E85A6B] border border-[#E85A6B]/20 shrink-0">
             Deceased {formatDate(demographics.death_date)}
             {demographics.cause_of_death && (
-              <span className="font-normal text-critical/70"> \u00B7 {demographics.cause_of_death}</span>
+              <span className="font-normal text-[#E85A6B]/70"> \u00B7 {demographics.cause_of_death}</span>
             )}
           </span>
         )}
@@ -228,7 +228,7 @@ export function PatientProfileHeader({
           icon={<Activity size={12} />}
           label="Events"
           value={stats.totalEvents}
-          color="var(--success)"
+          color="#2DD4BF"
           onClick={onDrillDown ? () => onDrillDown("list", "all") : undefined}
         />
         <MiniStat
@@ -241,14 +241,14 @@ export function PatientProfileHeader({
           icon={<Stethoscope size={12} />}
           label="Conditions"
           value={stats.uniqueConditions}
-          color="var(--critical)"
+          color="#E85A6B"
           onClick={onDrillDown ? () => onDrillDown("list", "condition") : undefined}
         />
         <MiniStat
           icon={<Pill size={12} />}
           label="Drugs"
           value={stats.uniqueDrugs}
-          color="var(--success)"
+          color="#2DD4BF"
           onClick={onDrillDown ? () => onDrillDown("list", "drug") : undefined}
         />
         <MiniStat
@@ -280,7 +280,7 @@ export function PatientProfileHeader({
               month: "short",
               year: "numeric",
             })}
-            color="var(--accent)"
+            color="#C9A227"
           />
         )}
       </div>
