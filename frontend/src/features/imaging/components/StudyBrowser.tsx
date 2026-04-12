@@ -51,7 +51,7 @@ function StudyCard({ study, onCompare, compareSelected }: {
     )}>
       {/* Thumbnail placeholder */}
       <div className="relative aspect-[4/3] bg-surface-base flex items-center justify-center">
-        <ScanLine size={28} className="text-[#1E1E23]" />
+        <ScanLine size={28} className="text-text-disabled" />
 
         {/* Modality badge */}
         <div

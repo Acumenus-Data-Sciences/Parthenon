@@ -102,12 +102,12 @@ export function JobProgressModal({
       />
 
       {/* Card */}
-      <div className="relative z-10 w-full max-w-lg rounded-xl border border-border-default bg-[#141418] shadow-2xl">
+      <div className="relative z-10 w-full max-w-lg rounded-xl border border-border-default bg-surface-raised shadow-2xl">
         {/* Header */}
         <div className="flex items-start justify-between border-b border-border-default px-5 py-4">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2.5">
-              <h2 className="truncate text-base font-semibold text-[#E8E4DC]">
+              <h2 className="truncate text-base font-semibold text-text-primary">
                 {title}
               </h2>
               <span
@@ -124,7 +124,7 @@ export function JobProgressModal({
           <button
             onClick={onClose}
             disabled={!isTerminal}
-            className="ml-3 rounded p-1 text-text-ghost transition-colors hover:text-[#E8E4DC] disabled:cursor-not-allowed disabled:opacity-30"
+            className="ml-3 rounded p-1 text-text-ghost transition-colors hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-30"
             aria-label="Close"
           >
             <X className="h-4 w-4" />
@@ -137,7 +137,7 @@ export function JobProgressModal({
           <div className="space-y-1.5">
             <div className="flex items-center justify-between text-xs">
               <span className="text-text-muted">Progress</span>
-              <span className="font-mono font-medium text-[#E8E4DC]">
+              <span className="font-mono font-medium text-text-primary">
                 {Math.round(progress)}%
               </span>
             </div>
@@ -155,7 +155,7 @@ export function JobProgressModal({
               <Clock className="h-3 w-3" />
               <span>
                 {isTerminal ? "Duration" : "Elapsed"}:{" "}
-                <span className="font-mono text-[#E8E4DC]">
+                <span className="font-mono text-text-primary">
                   {formatElapsed(elapsed)}
                 </span>
               </span>
@@ -194,7 +194,7 @@ export function JobProgressModal({
           <div className="flex justify-end border-t border-border-default px-5 py-3">
             <button
               onClick={onClose}
-              className="rounded-lg bg-surface-elevated px-4 py-1.5 text-sm font-medium text-[#E8E4DC] transition-colors hover:bg-surface-accent"
+              className="rounded-lg bg-surface-elevated px-4 py-1.5 text-sm font-medium text-text-primary transition-colors hover:bg-surface-accent"
             >
               Close
             </button>

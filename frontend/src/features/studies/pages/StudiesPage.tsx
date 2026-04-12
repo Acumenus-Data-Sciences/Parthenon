@@ -41,9 +41,9 @@ const STUDY_TYPE_OPTIONS = [
   { value: "characterization", label: "Characterization", color: "var(--success)" },
   { value: "population_level_estimation", label: "PLE", color: "var(--info)" },
   { value: "patient_level_prediction", label: "PLP", color: "var(--domain-observation)" },
-  { value: "comparative_effectiveness", label: "Comparative", color: "#F59E0B" },
+  { value: "comparative_effectiveness", label: "Comparative", color: 'var(--warning)' },
   { value: "safety_surveillance", label: "Safety", color: "var(--critical)" },
-  { value: "drug_utilization", label: "Drug Util", color: "#34D399" },
+  { value: "drug_utilization", label: "Drug Util", color: 'var(--success)' },
   { value: "quality_improvement", label: "QI", color: "#FB923C" },
   { value: "custom", label: "Custom", color: "var(--text-muted)" },
 ];
@@ -52,16 +52,16 @@ const STATUS_OPTIONS = [
   { value: "draft", label: "Draft", color: "var(--text-muted)" },
   { value: "protocol_development", label: "Protocol Dev", color: "var(--info)" },
   { value: "feasibility", label: "Feasibility", color: "var(--domain-observation)" },
-  { value: "irb_review", label: "IRB Review", color: "#F59E0B" },
+  { value: "irb_review", label: "IRB Review", color: 'var(--warning)' },
   { value: "execution", label: "Execution", color: "var(--success)" },
-  { value: "analysis", label: "Analysis", color: "#34D399" },
+  { value: "analysis", label: "Analysis", color: 'var(--success)' },
   { value: "published", label: "Published", color: "#22D3EE" },
   { value: "archived", label: "Archived", color: "#6B7280" },
 ];
 
 const PRIORITY_OPTIONS = [
   { value: "critical", label: "Critical", color: "var(--critical)" },
-  { value: "high", label: "High", color: "#F59E0B" },
+  { value: "high", label: "High", color: 'var(--warning)' },
   { value: "medium", label: "Medium", color: "var(--info)" },
   { value: "low", label: "Low", color: "var(--text-muted)" },
 ];
@@ -315,7 +315,7 @@ export default function StudiesPage() {
               { label: "Total", value: stats.total, icon: Briefcase, color: "var(--text-secondary)", phase: null as string | null },
               { label: "Active", value: stats.active_count, icon: Activity, color: "var(--success)", phase: "__active__" },
               { label: "Pre-Study", value: stats.by_phase?.pre_study ?? 0, icon: FlaskConical, color: "var(--info)", phase: "pre_study" },
-              { label: "In Progress", value: stats.by_phase?.active ?? 0, icon: Loader2, color: "#F59E0B", phase: "active" },
+              { label: "In Progress", value: stats.by_phase?.active ?? 0, icon: Loader2, color: 'var(--warning)', phase: "active" },
               { label: "Post-Study", value: stats.by_phase?.post_study ?? 0, icon: Shield, color: "var(--domain-observation)", phase: "post_study" },
             ].map((metric) => {
               const Icon = metric.icon;

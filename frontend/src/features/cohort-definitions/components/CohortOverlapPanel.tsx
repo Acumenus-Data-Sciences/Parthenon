@@ -274,7 +274,7 @@ export function CohortOverlapPanel({
                       <td className="px-4 py-2 text-right font-['IBM_Plex_Mono',monospace] text-accent font-semibold">
                         {pair.overlap_count.toLocaleString()}
                       </td>
-                      <td className="px-4 py-2 text-right font-['IBM_Plex_Mono',monospace] text-[#818CF8]">
+                      <td className="px-4 py-2 text-right font-['IBM_Plex_Mono',monospace] text-info">
                         {pair.only_b.toLocaleString()}
                       </td>
                       <td className="px-4 py-2 text-right font-['IBM_Plex_Mono',monospace] text-text-muted">

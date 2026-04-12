@@ -40,7 +40,7 @@ export default function DqTrendChart({ data, sourceId, onReleaseClick, overlayDa
 
   if (data.length === 0) {
     return (
-      <div className="flex h-64 items-center justify-center text-[#555]">
+      <div className="flex h-64 items-center justify-center text-text-ghost">
         No DQ history data available. Run DQD on at least two releases to see trends.
       </div>
     );
@@ -88,7 +88,7 @@ export default function DqTrendChart({ data, sourceId, onReleaseClick, overlayDa
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: "#1a1a22",
+                backgroundColor: 'var(--surface-overlay)',
                 border: "1px solid #333",
                 borderRadius: "8px",
                 color: "#ccc",
@@ -117,7 +117,7 @@ export default function DqTrendChart({ data, sourceId, onReleaseClick, overlayDa
             />
           </LineChart>
         </ResponsiveContainer>
-        <p className="mt-1 text-center text-[10px] text-[#555]">
+        <p className="mt-1 text-center text-[10px] text-text-ghost">
           Click a release point to view delta details. Green &gt;90%, amber 80-90%, red &lt;80%.
         </p>
       </div>
@@ -162,7 +162,7 @@ function OverlayChart({ overlayData }: { overlayData: OverlaySource[] }) {
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: "#1a1a22",
+              backgroundColor: 'var(--surface-overlay)',
               border: "1px solid #333",
               borderRadius: "8px",
               color: "#ccc",
@@ -189,7 +189,7 @@ function OverlayChart({ overlayData }: { overlayData: OverlaySource[] }) {
           ))}
         </LineChart>
       </ResponsiveContainer>
-      <p className="mt-1 text-center text-[10px] text-[#555]">
+      <p className="mt-1 text-center text-[10px] text-text-ghost">
         DQ pass rates overlaid across all sources on a unified timeline.
       </p>
     </div>

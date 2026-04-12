@@ -29,7 +29,7 @@ export function LayerPanel({ selectedConceptId, onDiseaseSelect }: LayerPanelPro
       />
 
       {/* Layer toggles */}
-      <div className="rounded-lg border border-border-default bg-[#141418] p-3">
+      <div className="rounded-lg border border-border-default bg-surface-raised p-3">
         <div className="mb-2 flex items-center gap-2">
           <Layers className="h-3.5 w-3.5 text-text-ghost" />
           <h3 className="text-xs font-semibold uppercase tracking-wider text-text-ghost">
@@ -72,7 +72,7 @@ export function LayerPanel({ selectedConceptId, onDiseaseSelect }: LayerPanelPro
 
       {/* Suppression threshold (collapsed by default) */}
       {layers.length > 0 && (
-        <div className="rounded-lg border border-border-default bg-[#141418] p-3">
+        <div className="rounded-lg border border-border-default bg-surface-raised p-3">
           <h3 className="mb-1 text-xs font-semibold uppercase tracking-wider text-text-ghost">
             Privacy
           </h3>

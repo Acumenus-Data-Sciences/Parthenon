@@ -171,7 +171,7 @@ export default function OhifViewer({
   const ohifMprUrl = `/ohif/viewer?StudyInstanceUIDs=${encodeURIComponent(studyInstanceUid)}&hangingProtocolId=${encodeURIComponent("@ohif/mnGrid")}`;
 
   return (
-    <div ref={containerRef} className={`relative rounded-lg border border-[#1E1E23] overflow-hidden ${className}`}>
+    <div ref={containerRef} className={`relative rounded-lg border border-border-subtle overflow-hidden ${className}`}>
       {loading && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-surface-base">
           <div className="flex flex-col items-center gap-3 text-text-muted">

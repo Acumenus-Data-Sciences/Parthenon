@@ -12,7 +12,7 @@ export function CountyDetail({ gadmGid, conceptId, onClose }: CountyDetailProps)
 
   if (isLoading) {
     return (
-      <div className="space-y-3 rounded-lg border border-border-default bg-[#18181B] p-4">
+      <div className="space-y-3 rounded-lg border border-border-default bg-surface-raised p-4">
         <div className="h-4 w-32 animate-pulse rounded bg-surface-elevated" />
         <div className="h-20 animate-pulse rounded bg-surface-elevated" />
       </div>
@@ -24,16 +24,16 @@ export function CountyDetail({ gadmGid, conceptId, onClose }: CountyDetailProps)
   const m = data.metrics;
 
   return (
-    <div className="space-y-3 rounded-lg border border-border-default bg-[#18181B] p-4">
+    <div className="space-y-3 rounded-lg border border-border-default bg-surface-raised p-4">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h3 className="text-sm font-semibold text-[#E8E4DC]">{data.name} County</h3>
+          <h3 className="text-sm font-semibold text-text-primary">{data.name} County</h3>
           {data.area_km2 && (
             <p className="text-xs text-text-ghost">{data.area_km2.toLocaleString()} km²</p>
           )}
         </div>
-        <button onClick={onClose} className="text-text-ghost hover:text-[#E8E4DC]">
+        <button onClick={onClose} className="text-text-ghost hover:text-text-primary">
           <X className="h-4 w-4" />
         </button>
       </div>
@@ -89,7 +89,7 @@ export function CountyDetail({ gadmGid, conceptId, onClose }: CountyDetailProps)
         <div className="flex gap-3">
           {data.demographics.gender.map((g) => (
             <span key={g.gender} className="text-xs text-text-muted">
-              {g.gender}: <span className="font-medium text-[#E8E4DC]">{g.count.toLocaleString()}</span>
+              {g.gender}: <span className="font-medium text-text-primary">{g.count.toLocaleString()}</span>
             </span>
           ))}
         </div>
@@ -143,7 +143,7 @@ function MetricCard({
         <Icon className="h-3 w-3" style={{ color }} />
         <span className="text-[10px] uppercase text-text-ghost">{label}</span>
       </div>
-      <p className="mt-0.5 text-lg font-semibold text-[#E8E4DC]">{display}</p>
+      <p className="mt-0.5 text-lg font-semibold text-text-primary">{display}</p>
     </div>
   );
 }

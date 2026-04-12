@@ -194,7 +194,7 @@ export function CohortExportDialog({
                 }
                 className={cn(
                   "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
-                  "bg-primary text-white hover:bg-[#B22040]",
+                  "bg-primary text-white hover:bg-primary-dark",
                   "disabled:opacity-50 disabled:cursor-not-allowed",
                 )}
               >

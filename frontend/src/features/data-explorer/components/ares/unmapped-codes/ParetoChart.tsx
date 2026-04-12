@@ -53,7 +53,7 @@ export default function ParetoChart({ data, top20Coverage }: ParetoChartProps) {
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: "#1a1a22",
+                backgroundColor: 'var(--surface-overlay)',
                 border: "1px solid #333",
                 borderRadius: "8px",
                 color: "#ccc",

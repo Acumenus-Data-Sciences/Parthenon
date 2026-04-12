@@ -20,7 +20,7 @@ function EntryCard({ entry }: { entry: ChangelogEntry }) {
   const sectionKeys = Object.keys(entry.sections);
 
   return (
-    <div className="rounded-lg border border-border-subtle bg-[#131316] overflow-hidden">
+    <div className="rounded-lg border border-border-subtle bg-sidebar-bg overflow-hidden">
       <button
         type="button"
         onClick={() => setExpanded((p) => !p)}

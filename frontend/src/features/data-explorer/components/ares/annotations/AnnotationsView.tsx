@@ -7,11 +7,11 @@ import AnnotationTimeline from "./AnnotationTimeline";
 import type { ChartAnnotation } from "../../../types/ares";
 
 const TAG_OPTIONS = [
-  { value: undefined, label: "All", color: "border-[#333] text-[#888]", activeBg: "border-accent bg-accent/10 text-accent" },
-  { value: "data_event", label: "Data Event", color: "border-[#333] text-[#888]", activeBg: "border-success bg-success/10 text-success" },
-  { value: "research_note", label: "Research Note", color: "border-[#333] text-[#888]", activeBg: "border-accent bg-accent/10 text-accent" },
-  { value: "action_item", label: "Action Item", color: "border-[#333] text-[#888]", activeBg: "border-primary bg-primary/10 text-primary" },
-  { value: "system", label: "System", color: "border-[#333] text-[#888]", activeBg: "border-[#6366F1] bg-[#6366F1]/10 text-[#6366F1]" },
+  { value: undefined, label: "All", color: "border-border-default text-text-muted", activeBg: "border-accent bg-accent/10 text-accent" },
+  { value: "data_event", label: "Data Event", color: "border-border-default text-text-muted", activeBg: "border-success bg-success/10 text-success" },
+  { value: "research_note", label: "Research Note", color: "border-border-default text-text-muted", activeBg: "border-accent bg-accent/10 text-accent" },
+  { value: "action_item", label: "Action Item", color: "border-border-default text-text-muted", activeBg: "border-primary bg-primary/10 text-primary" },
+  { value: "system", label: "System", color: "border-border-default text-text-muted", activeBg: "border-domain-observation bg-[#6366F1]/10 text-[#6366F1]" },
 ] as const;
 
 const TAG_BADGE_COLORS: Record<string, string> = {
@@ -32,7 +32,7 @@ type ViewMode = "list" | "timeline";
 
 function ReplyCard({ reply, onDelete }: { reply: ChartAnnotation; onDelete: (id: number) => void }) {
   return (
-    <div className="ml-6 flex items-start justify-between border-l-2 border-[#252530] pl-3 py-2">
+    <div className="ml-6 flex items-start justify-between border-l-2 border-border-subtle pl-3 py-2">
       <div className="space-y-0.5">
         <p className="text-xs text-text-primary">{reply.annotation_text}</p>
         <div className="flex gap-2 text-[10px] text-text-muted">
@@ -85,7 +85,7 @@ function ReplyForm({
   };
 
   return (
-    <div className="ml-6 mt-2 flex gap-2 border-l-2 border-[#252530] pl-3">
+    <div className="ml-6 mt-2 flex gap-2 border-l-2 border-border-subtle pl-3">
       <input
         type="text"
         value={text}
@@ -97,7 +97,7 @@ function ReplyForm({
             handleSubmit();
           }
         }}
-        className="flex-1 rounded-lg border border-[#252530] bg-surface-base px-2.5 py-1.5 text-xs text-text-primary
+        className="flex-1 rounded-lg border border-border-subtle bg-surface-base px-2.5 py-1.5 text-xs text-text-primary
                    placeholder-[#555] focus:border-accent focus:outline-none"
       />
       <button
@@ -148,7 +148,7 @@ export function AnnotationsView() {
         <select
           value={selectedSourceId ?? ""}
           onChange={(e) => setSelectedSourceId(e.target.value ? Number(e.target.value) : null)}
-          className="rounded-lg border border-[#252530] bg-surface-raised px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none"
+          className="rounded-lg border border-border-subtle bg-surface-raised px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none"
         >
           <option value="">All sources</option>
           {sources?.map((s) => (
@@ -157,14 +157,14 @@ export function AnnotationsView() {
         </select>
 
         {/* View mode toggle */}
-        <div className="flex rounded-lg border border-[#252530] bg-surface-raised">
+        <div className="flex rounded-lg border border-border-subtle bg-surface-raised">
           <button
             type="button"
             onClick={() => setViewMode("list")}
             className={`flex items-center gap-1.5 px-3 py-1.5 text-xs transition-colors ${
               viewMode === "list"
                 ? "bg-accent/10 text-accent"
-                : "text-[#666] hover:text-[#888]"
+                : "text-text-ghost hover:text-text-muted"
             }`}
           >
             <List size={13} />
@@ -176,7 +176,7 @@ export function AnnotationsView() {
             className={`flex items-center gap-1.5 px-3 py-1.5 text-xs transition-colors ${
               viewMode === "timeline"
                 ? "bg-accent/10 text-accent"
-                : "text-[#666] hover:text-[#888]"
+                : "text-text-ghost hover:text-text-muted"
             }`}
           >
             <Clock size={13} />
@@ -197,7 +197,7 @@ export function AnnotationsView() {
                   type="button"
                   onClick={() => setTagFilter(opt.value)}
                   className={`rounded-full border px-3 py-1 text-xs transition-colors ${
-                    isActive ? opt.activeBg : opt.color + " hover:border-[#555]"
+                    isActive ? opt.activeBg : opt.color + " hover:border-border-hover"
                   }`}
                 >
                   {opt.label}
@@ -206,13 +206,13 @@ export function AnnotationsView() {
             })}
           </div>
           <div className="relative">
-            <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#555]" />
+            <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-text-ghost" />
             <input
               type="text"
               placeholder="Search annotations..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="rounded-lg border border-[#252530] bg-surface-raised py-1.5 pl-8 pr-3 text-sm text-text-primary
+              className="rounded-lg border border-border-subtle bg-surface-raised py-1.5 pl-8 pr-3 text-sm text-text-primary
                          placeholder-[#555] focus:border-success focus:outline-none"
             />
           </div>
@@ -251,7 +251,7 @@ export function AnnotationsView() {
           {annotations.map((ann) => (
             <div
               key={ann.id}
-              className="rounded-xl border border-[#252530] bg-surface-raised p-4"
+              className="rounded-xl border border-border-subtle bg-surface-raised p-4"
             >
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
@@ -260,7 +260,7 @@ export function AnnotationsView() {
                       {ann.chart_type}
                     </span>
                     {ann.tag && (
-                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${TAG_BADGE_COLORS[ann.tag] ?? "bg-[#333]/20 text-[#888]"}`}>
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${TAG_BADGE_COLORS[ann.tag] ?? "bg-[#333]/20 text-text-muted"}`}>
                         {TAG_LABELS[ann.tag] ?? ann.tag}
                       </span>
                     )}

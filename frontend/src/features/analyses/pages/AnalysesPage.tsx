@@ -170,7 +170,7 @@ const tabDefs: TabDef[] = [
   { key: "estimations", label: "Estimations", icon: Scale, color: "var(--domain-observation)", statsKey: "estimations" },
   { key: "predictions", label: "Predictions", icon: Brain, color: "var(--domain-procedure)", statsKey: "predictions" },
   { key: "sccs", label: "SCCS", icon: Clock, color: "#FB923C", statsKey: "sccs" },
-  { key: "evidence-synthesis", label: "Evidence Synthesis", icon: Layers, color: "#34D399", statsKey: "evidence_synthesis" },
+  { key: "evidence-synthesis", label: "Evidence Synthesis", icon: Layers, color: 'var(--success)', statsKey: "evidence_synthesis" },
 ];
 
 const createMenuItems: { key: Tab; label: string; icon: typeof BarChart3; color: string }[] = [
@@ -180,7 +180,7 @@ const createMenuItems: { key: Tab; label: string; icon: typeof BarChart3; color:
   { key: "estimations", label: "Estimation", icon: Scale, color: "var(--domain-observation)" },
   { key: "predictions", label: "Prediction", icon: Brain, color: "var(--domain-procedure)" },
   { key: "sccs", label: "SCCS", icon: Clock, color: "#FB923C" },
-  { key: "evidence-synthesis", label: "Evidence Synthesis", icon: Layers, color: "#34D399" },
+  { key: "evidence-synthesis", label: "Evidence Synthesis", icon: Layers, color: 'var(--success)' },
 ];
 
 export default function AnalysesPage() {
@@ -422,7 +422,7 @@ export default function AnalysesPage() {
               className={cn(
                 "flex items-center gap-2 shrink-0 rounded-lg px-3 py-2 text-sm font-medium transition-all",
                 isActive
-                  ? "bg-border-subtle border border-[#2A2A32] text-text-primary"
+                  ? "bg-border-subtle border border-border-default text-text-primary"
                   : "border border-transparent text-text-ghost hover:text-text-muted hover:bg-surface-raised",
               )}
             >

@@ -106,7 +106,7 @@ function AnalyticsTab() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Achilles 900-series */}
-        <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-5">
+        <div className="rounded-xl border border-border-default bg-surface-raised p-5">
           <h3 className="text-sm font-medium text-text-primary mb-4">
             Achilles 900-Series Analyses
           </h3>
@@ -114,7 +114,7 @@ function AnalyticsTab() {
             {analyses.map((a) => (
               <div
                 key={a.id}
-                className="flex items-start gap-3 rounded-lg bg-surface-base border border-[#2A2A2F]/50 px-3 py-2"
+                className="flex items-start gap-3 rounded-lg bg-surface-base border border-border-default/50 px-3 py-2"
               >
                 <span className="text-[10px] font-['IBM_Plex_Mono',monospace] font-bold text-success shrink-0 pt-0.5">
                   {a.id}
@@ -129,7 +129,7 @@ function AnalyticsTab() {
         </div>
 
         {/* DQ checks */}
-        <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-5">
+        <div className="rounded-xl border border-border-default bg-surface-raised p-5">
           <h3 className="text-sm font-medium text-text-primary mb-4">
             Data Quality Checks
           </h3>
@@ -137,7 +137,7 @@ function AnalyticsTab() {
             {dqChecks.map((dq) => (
               <div
                 key={dq.id}
-                className="flex items-start gap-3 rounded-lg bg-surface-base border border-[#2A2A2F]/50 px-3 py-2.5"
+                className="flex items-start gap-3 rounded-lg bg-surface-base border border-border-default/50 px-3 py-2.5"
               >
                 <span className="text-[10px] font-['IBM_Plex_Mono',monospace] font-bold text-accent shrink-0 pt-0.5">
                   {dq.id}
@@ -205,7 +205,7 @@ export default function StandardProsPage() {
         <button
           type="button"
           onClick={() => setShowAbout(true)}
-          className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-[#B42240] transition-colors shrink-0"
+          className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-dark transition-colors shrink-0"
         >
           <Info size={14} />
           About PROs+

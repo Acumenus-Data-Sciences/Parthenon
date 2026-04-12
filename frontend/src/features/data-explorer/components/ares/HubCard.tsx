@@ -14,7 +14,7 @@ export function HubCard({ section, title, accentColor, children, onClick }: HubC
     <button
       type="button"
       onClick={() => onClick(section)}
-      className="group flex flex-col items-start gap-3 rounded-xl border border-[#252530] bg-surface-raised p-5 text-left transition-colors hover:border-[var(--accent)] hover:bg-[#1a1a22]"
+      className="group flex flex-col items-start gap-3 rounded-xl border border-border-subtle bg-surface-raised p-5 text-left transition-colors hover:border-[var(--accent)] hover:bg-surface-overlay"
       style={{ "--accent": accentColor } as React.CSSProperties}
     >
       <div className="flex items-center gap-2">

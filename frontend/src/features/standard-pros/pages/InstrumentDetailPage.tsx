@@ -41,7 +41,7 @@ function ItemCard({ item }: { item: SurveyItemApi }) {
   const hasAnswers = item.answer_options.length > 0;
 
   return (
-    <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-5">
+    <div className="rounded-xl border border-border-default bg-surface-raised p-5">
       {/* Item header */}
       <div className="flex items-start gap-3 mb-3">
         <div className="flex items-center justify-center w-7 h-7 rounded-md bg-success/10 shrink-0">
@@ -61,7 +61,7 @@ function ItemCard({ item }: { item: SurveyItemApi }) {
               </span>
             )}
             {item.snomed_code && (
-              <span className="inline-flex items-center gap-1 rounded-md bg-[#F59E0B]/10 px-2 py-0.5 text-[10px] font-medium text-[#F59E0B]">
+              <span className="inline-flex items-center gap-1 rounded-md bg-warning/10 px-2 py-0.5 text-[10px] font-medium text-warning">
                 <Hash size={10} />
                 SNOMED {item.snomed_code}
               </span>
@@ -90,7 +90,7 @@ function ItemCard({ item }: { item: SurveyItemApi }) {
           {item.answer_options.map((opt) => (
             <div
               key={opt.id}
-              className="flex items-center justify-between rounded-lg bg-surface-base border border-[#2A2A2F]/40 px-3 py-1.5"
+              className="flex items-center justify-between rounded-lg bg-surface-base border border-border-default/40 px-3 py-1.5"
             >
               <div className="flex items-center gap-2">
                 {opt.option_value !== null && (
@@ -109,7 +109,7 @@ function ItemCard({ item }: { item: SurveyItemApi }) {
                   </span>
                 )}
                 {opt.snomed_code && (
-                  <span className="text-[10px] font-['IBM_Plex_Mono',monospace] text-[#F59E0B]">
+                  <span className="text-[10px] font-['IBM_Plex_Mono',monospace] text-warning">
                     {opt.snomed_code}
                   </span>
                 )}
@@ -158,7 +158,7 @@ export default function InstrumentDetailPage() {
         </Link>
         <div className={cn(
           "flex flex-col items-center justify-center py-16 rounded-xl",
-          "border border-dashed border-[#2A2A2F] bg-[#141418]",
+          "border border-dashed border-border-default bg-surface-raised",
         )}>
           <ClipboardList size={32} className="text-text-ghost mb-3" />
           <p className="text-sm text-text-muted">Instrument not found.</p>
@@ -251,13 +251,13 @@ export default function InstrumentDetailPage() {
 
       {/* Scoring method */}
       {instrument.scoring_method && (
-        <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-5">
+        <div className="rounded-xl border border-border-default bg-surface-raised p-5">
           <h2 className="text-sm font-medium text-text-primary mb-3">
             Scoring Method
           </h2>
           <div className="flex flex-wrap gap-3">
             {!!instrument.scoring_method.type && (
-              <span className="inline-flex items-center gap-1.5 rounded-lg bg-surface-base border border-[#2A2A2F]/50 px-3 py-1.5 text-xs text-text-secondary">
+              <span className="inline-flex items-center gap-1.5 rounded-lg bg-surface-base border border-border-default/50 px-3 py-1.5 text-xs text-text-secondary">
                 <span className="text-[10px] text-text-ghost uppercase">Type</span>
                 <span className="font-['IBM_Plex_Mono',monospace] font-medium">
                   {String(instrument.scoring_method.type)}
@@ -265,7 +265,7 @@ export default function InstrumentDetailPage() {
               </span>
             )}
             {!!instrument.scoring_method.range && Array.isArray(instrument.scoring_method.range) && (
-              <span className="inline-flex items-center gap-1.5 rounded-lg bg-surface-base border border-[#2A2A2F]/50 px-3 py-1.5 text-xs text-text-secondary">
+              <span className="inline-flex items-center gap-1.5 rounded-lg bg-surface-base border border-border-default/50 px-3 py-1.5 text-xs text-text-secondary">
                 <span className="text-[10px] text-text-ghost uppercase">Range</span>
                 <span className="font-['IBM_Plex_Mono',monospace] font-medium">
                   {(instrument.scoring_method.range as number[]).join("\u2013")}
@@ -273,7 +273,7 @@ export default function InstrumentDetailPage() {
               </span>
             )}
             {!!instrument.scoring_method.subscales && Array.isArray(instrument.scoring_method.subscales) && (instrument.scoring_method.subscales as string[]).length > 0 && (
-              <span className="inline-flex items-center gap-1.5 rounded-lg bg-surface-base border border-[#2A2A2F]/50 px-3 py-1.5 text-xs text-text-secondary">
+              <span className="inline-flex items-center gap-1.5 rounded-lg bg-surface-base border border-border-default/50 px-3 py-1.5 text-xs text-text-secondary">
                 <span className="text-[10px] text-text-ghost uppercase">Subscales</span>
                 <span className="font-['IBM_Plex_Mono',monospace] font-medium">
                   {(instrument.scoring_method.subscales as string[]).join(", ")}
@@ -299,7 +299,7 @@ export default function InstrumentDetailPage() {
       ) : (
         <div className={cn(
           "flex flex-col items-center justify-center py-12 rounded-xl",
-          "border border-dashed border-[#2A2A2F] bg-[#141418]",
+          "border border-dashed border-border-default bg-surface-raised",
         )}>
           <FileText size={28} className="text-text-ghost mb-2" />
           <p className="text-sm text-text-muted mb-1">
@@ -330,7 +330,7 @@ function MetaCard({
   color: string;
 }) {
   return (
-    <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-3.5">
+    <div className="rounded-xl border border-border-default bg-surface-raised p-3.5">
       <div className="flex items-center gap-1.5 mb-1">
         <Icon size={12} style={{ color }} />
         <p className="text-[10px] text-text-ghost uppercase tracking-wider">

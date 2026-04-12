@@ -20,7 +20,7 @@ interface TemporalPrevalenceChartProps {
 export default function TemporalPrevalenceChart({ sources, title }: TemporalPrevalenceChartProps) {
   if (sources.length === 0) {
     return (
-      <div className="flex h-48 items-center justify-center text-[#555]">
+      <div className="flex h-48 items-center justify-center text-text-ghost">
         No temporal prevalence data available.
       </div>
     );
@@ -42,7 +42,7 @@ export default function TemporalPrevalenceChart({ sources, title }: TemporalPrev
 
   return (
     <div>
-      {title && <h4 className="mb-2 text-xs font-medium text-[#888]">{title}</h4>}
+      {title && <h4 className="mb-2 text-xs font-medium text-text-muted">{title}</h4>}
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 30, left: 20 }}>
@@ -61,7 +61,7 @@ export default function TemporalPrevalenceChart({ sources, title }: TemporalPrev
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: "#1a1a22",
+                backgroundColor: 'var(--surface-overlay)',
                 border: "1px solid #333",
                 borderRadius: "8px",
                 color: "#ccc",
@@ -91,7 +91,7 @@ export default function TemporalPrevalenceChart({ sources, title }: TemporalPrev
           </LineChart>
         </ResponsiveContainer>
       </div>
-      <p className="mt-1 text-center text-[10px] text-[#555]">
+      <p className="mt-1 text-center text-[10px] text-text-ghost">
         Prevalence rate per 1,000 across releases by source.
       </p>
     </div>

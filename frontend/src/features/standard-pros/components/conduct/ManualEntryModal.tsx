@@ -82,7 +82,7 @@ export function ManualEntryModal({
           <button
             type="button"
             onClick={handleClose}
-            className="rounded-lg border border-[#2A2A2F] px-4 py-2 text-sm text-text-muted hover:text-text-primary"
+            className="rounded-lg border border-border-default px-4 py-2 text-sm text-text-muted hover:text-text-primary"
           >
             Cancel
           </button>
@@ -109,12 +109,12 @@ export function ManualEntryModal({
               onChange={(event) => setRecordQuery(event.target.value)}
               placeholder="Filter by person_id"
               inputMode="numeric"
-              className="w-full rounded-lg border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
+              className="w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
             />
             <select
               value={conductId}
               onChange={(event) => setConductId(event.target.value)}
-              className="w-full rounded-lg border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
+              className="w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
             >
               <option value="">Select a person</option>
               {pendingRecords.map((record) => (
@@ -128,7 +128,7 @@ export function ManualEntryModal({
 
         <div className="max-h-[55vh] space-y-4 overflow-y-auto pr-1">
           {instrument?.items.map((item) => (
-            <div key={item.id} className="rounded-lg border border-[#2A2A2F] bg-[#141418] p-4">
+            <div key={item.id} className="rounded-lg border border-border-default bg-surface-raised p-4">
               <label className="mb-2 block text-sm text-text-primary">
                 {item.item_number}. {item.item_text}
               </label>
@@ -164,7 +164,7 @@ export function ManualEntryModal({
                   <select
                     value={typeof values[item.id] === "string" ? values[item.id] : ""}
                     onChange={(event) => setValues((existing) => ({ ...existing, [item.id]: event.target.value }))}
-                    className="w-full rounded-lg border border-[#2A2A2F] bg-surface-base px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
+                    className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
                   >
                     <option value="">Select a response</option>
                     {item.answer_options.map((option) => (
@@ -181,7 +181,7 @@ export function ManualEntryModal({
                   type={item.response_type === "date" ? "date" : "number"}
                   value={typeof values[item.id] === "string" ? values[item.id] : ""}
                   onChange={(event) => setValues((existing) => ({ ...existing, [item.id]: event.target.value }))}
-                  className="w-full rounded-lg border border-[#2A2A2F] bg-surface-base px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
+                  className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
                 />
               )}
 
@@ -190,7 +190,7 @@ export function ManualEntryModal({
                   rows={3}
                   value={typeof values[item.id] === "string" ? values[item.id] : ""}
                   onChange={(event) => setValues((existing) => ({ ...existing, [item.id]: event.target.value }))}
-                  className="w-full rounded-lg border border-[#2A2A2F] bg-surface-base px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
+                  className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary outline-none focus:border-success"
                 />
               )}
             </div>

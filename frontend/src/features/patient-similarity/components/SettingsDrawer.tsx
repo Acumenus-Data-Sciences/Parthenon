@@ -127,7 +127,7 @@ function SettingsForm({
                     step={0.5}
                     value={val}
                     onChange={(e) => handleWeightChange(dim.key, parseFloat(e.target.value))}
-                    className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-[#2A2A2F] accent-accent"
+                    className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-surface-accent accent-accent"
                   />
                 </div>
               );
@@ -159,7 +159,7 @@ function SettingsForm({
                     onChange={(e) =>
                       onAgeMinChange(Math.max(0, parseInt(e.target.value, 10) || 0))
                     }
-                    className="w-full rounded border border-[#2A2A2F] bg-[#16161A] px-3 py-1.5 text-sm text-[#E8E3DC] focus:border-accent focus:outline-none"
+                    className="w-full rounded border border-border-default bg-[#16161A] px-3 py-1.5 text-sm text-[#E8E3DC] focus:border-accent focus:outline-none"
                   />
                 </div>
                 <span className="mt-4 text-text-ghost">—</span>
@@ -176,7 +176,7 @@ function SettingsForm({
                     onChange={(e) =>
                       onAgeMaxChange(Math.min(150, parseInt(e.target.value, 10) || 150))
                     }
-                    className="w-full rounded border border-[#2A2A2F] bg-[#16161A] px-3 py-1.5 text-sm text-[#E8E3DC] focus:border-accent focus:outline-none"
+                    className="w-full rounded border border-border-default bg-[#16161A] px-3 py-1.5 text-sm text-[#E8E3DC] focus:border-accent focus:outline-none"
                   />
                 </div>
               </div>
@@ -191,7 +191,7 @@ function SettingsForm({
                 id="gender-select"
                 value={gender}
                 onChange={(e) => onGenderChange(e.target.value)}
-                className="w-full rounded border border-[#2A2A2F] bg-[#16161A] px-3 py-1.5 text-sm text-[#E8E3DC] focus:border-accent focus:outline-none"
+                className="w-full rounded border border-border-default bg-[#16161A] px-3 py-1.5 text-sm text-[#E8E3DC] focus:border-accent focus:outline-none"
               >
                 <option value="">All</option>
                 <option value="8507">Male</option>

@@ -16,7 +16,7 @@ interface OverviewTabProps {
 
 function StatCard({ label, value, sub }: { label: string; value: string; sub: string }) {
   return (
-    <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-4">
+    <div className="rounded-xl border border-border-default bg-surface-raised p-4">
       <p className="text-[10px] text-text-ghost uppercase tracking-wider mb-1">{label}</p>
       <p className="text-lg font-semibold font-['IBM_Plex_Mono',monospace] text-text-primary">{value}</p>
       <p className="text-[10px] text-text-muted">{sub}</p>
@@ -137,7 +137,7 @@ export function OverviewTab({
       {/* Left column */}
       <div className="lg:col-span-2 space-y-6">
         {/* About section */}
-        <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-6">
+        <div className="rounded-xl border border-border-default bg-surface-raised p-6">
           <h3 className="text-sm font-medium text-text-primary mb-3">About</h3>
           {analysis.description ? (
             <p className="text-sm text-text-secondary mb-4">{analysis.description}</p>
@@ -155,7 +155,7 @@ export function OverviewTab({
         </div>
 
         {/* Smart Results Summary */}
-        <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-6">
+        <div className="rounded-xl border border-border-default bg-surface-raised p-6">
           <h3 className="text-sm font-medium text-text-primary mb-4">Results Summary</h3>
 
           {isCompleted && stats ? (
@@ -198,7 +198,7 @@ export function OverviewTab({
                     key={scoreId}
                     type="button"
                     onClick={() => onTabChange("results")}
-                    className="w-full rounded-lg border border-[#2A2A2F] bg-surface-overlay p-3 text-left hover:border-[#3A3A3F] transition-colors"
+                    className="w-full rounded-lg border border-border-default bg-surface-overlay p-3 text-left hover:border-border-hover transition-colors"
                   >
                     <p className="text-xs font-medium text-text-primary mb-2">{scoreId}</p>
                     <MiniTierBar summaries={tiers} />
@@ -237,7 +237,7 @@ export function OverviewTab({
               <button
                 type="button"
                 onClick={onRunClick}
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-[#B22040] transition-colors"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-dark transition-colors"
               >
                 <Play className="h-4 w-4" />
                 Run Analysis
@@ -257,7 +257,7 @@ export function OverviewTab({
               <button
                 type="button"
                 onClick={onRunClick}
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-[#B22040] transition-colors"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-dark transition-colors"
               >
                 <Play className="h-4 w-4" />
                 Retry Analysis
@@ -267,14 +267,14 @@ export function OverviewTab({
         </div>
 
         {/* Execution Timeline */}
-        <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-6">
+        <div className="rounded-xl border border-border-default bg-surface-raised p-6">
           <h3 className="text-sm font-medium text-text-primary mb-4">Execution History</h3>
           {analysis.executions && analysis.executions.length > 0 ? (
             <div className="space-y-3">
               {analysis.executions.map((exec) => (
                 <div
                   key={exec.id}
-                  className="flex items-center justify-between rounded-lg border border-[#2A2A2F] bg-surface-overlay px-4 py-3"
+                  className="flex items-center justify-between rounded-lg border border-border-default bg-surface-overlay px-4 py-3"
                 >
                   <div className="flex items-center gap-3">
                     <StatusBadge status={exec.status} />
@@ -300,7 +300,7 @@ export function OverviewTab({
       {/* Right column */}
       <div className="lg:col-span-1 space-y-6">
         {/* Selected Scores */}
-        <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-6">
+        <div className="rounded-xl border border-border-default bg-surface-raised p-6">
           <h3 className="text-sm font-medium text-text-primary mb-3">Selected Scores</h3>
           <p className="text-xs text-text-ghost mb-3">
             {analysis.design_json.scoreIds.length} scores
@@ -309,7 +309,7 @@ export function OverviewTab({
             {analysis.design_json.scoreIds.map((scoreId) => (
               <span
                 key={scoreId}
-                className="inline-block rounded-md border border-[#2A2A2F] bg-surface-overlay px-2 py-1 text-xs text-text-secondary"
+                className="inline-block rounded-md border border-border-default bg-surface-overlay px-2 py-1 text-xs text-text-secondary"
               >
                 {scoreId}
               </span>
@@ -318,13 +318,13 @@ export function OverviewTab({
         </div>
 
         {/* Cohort */}
-        <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-6">
+        <div className="rounded-xl border border-border-default bg-surface-raised p-6">
           <h3 className="text-sm font-medium text-text-primary mb-3">Target Cohort</h3>
           <div className="space-y-2">
             {analysis.design_json.targetCohortIds.map((cohortId) => (
               <div
                 key={cohortId}
-                className="rounded-md border border-[#2A2A2F] bg-surface-overlay px-3 py-2 text-xs text-text-secondary"
+                className="rounded-md border border-border-default bg-surface-overlay px-3 py-2 text-xs text-text-secondary"
               >
                 Cohort ID: {cohortId}
               </div>
@@ -333,7 +333,7 @@ export function OverviewTab({
         </div>
 
         {/* Author */}
-        <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-6">
+        <div className="rounded-xl border border-border-default bg-surface-raised p-6">
           <h3 className="text-sm font-medium text-text-primary mb-3">Author</h3>
           <p className="text-sm text-text-secondary">
             {analysis.author?.name ?? "Unknown"}

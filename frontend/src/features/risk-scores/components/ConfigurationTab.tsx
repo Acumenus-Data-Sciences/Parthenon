@@ -38,8 +38,8 @@ export function ConfigurationTab({
   return (
     <div className="space-y-6">
       {/* Design Panel */}
-      <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-6">
-        <h3 className="mb-4 text-sm font-medium text-[#E8E4DE]">
+      <div className="rounded-xl border border-border-default bg-surface-raised p-6">
+        <h3 className="mb-4 text-sm font-medium text-text-primary">
           Analysis Design
         </h3>
 
@@ -111,8 +111,8 @@ export function ConfigurationTab({
       </div>
 
       {/* Execution History Panel */}
-      <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-6">
-        <h3 className="mb-4 text-sm font-medium text-[#E8E4DE]">
+      <div className="rounded-xl border border-border-default bg-surface-raised p-6">
+        <h3 className="mb-4 text-sm font-medium text-text-primary">
           Execution History
         </h3>
 
@@ -122,7 +122,7 @@ export function ConfigurationTab({
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-[#2A2A2F] text-xs text-text-muted">
+                <tr className="border-b border-border-default text-xs text-text-muted">
                   <th className="pb-2 pr-4 font-medium">#</th>
                   <th className="pb-2 pr-4 font-medium">Status</th>
                   <th className="pb-2 pr-4 font-medium">Started</th>
@@ -145,7 +145,7 @@ export function ConfigurationTab({
                   return (
                     <tr
                       key={execution.id}
-                      className="border-b border-[#2A2A2F]/50 last:border-b-0"
+                      className="border-b border-border-default/50 last:border-b-0"
                     >
                       <td className="py-2.5 pr-4 font-['IBM_Plex_Mono',monospace] text-xs text-text-ghost">
                         {index + 1}
@@ -185,7 +185,7 @@ export function ConfigurationTab({
       <button
         type="button"
         onClick={onReRun}
-        className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-[#B42240] transition-colors"
+        className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-dark transition-colors"
       >
         <RefreshCw className="h-4 w-4" />
         Re-run Analysis

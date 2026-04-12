@@ -176,7 +176,7 @@ export function EvidenceSynthesisDesigner({
           <button
             type="button"
             onClick={addEstimate}
-            className="inline-flex items-center gap-1 text-xs text-success hover:text-[#26B8A5] transition-colors"
+            className="inline-flex items-center gap-1 text-xs text-success hover:text-success transition-colors"
           >
             <Plus size={12} /> Add Site
           </button>

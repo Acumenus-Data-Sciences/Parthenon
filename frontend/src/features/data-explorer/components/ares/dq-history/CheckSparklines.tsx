@@ -35,7 +35,7 @@ export function SparklineCell({
   checkId: string;
 }) {
   if (!sparklines) {
-    return <span className="text-[10px] text-[#555]">--</span>;
+    return <span className="text-[10px] text-text-ghost">--</span>;
   }
 
   return <CheckSparklines sparklines={sparklines} checkId={checkId} />;

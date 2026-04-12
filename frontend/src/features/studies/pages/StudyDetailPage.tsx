@@ -320,7 +320,7 @@ export default function StudyDetailPage() {
                 <span className={cn(
                   "px-2 py-0.5 rounded-md text-xs",
                   study.priority === "critical" && "bg-critical/10 text-critical",
-                  study.priority === "high" && "bg-[#F59E0B]/10 text-[#F59E0B]",
+                  study.priority === "high" && "bg-warning/10 text-warning",
                   study.priority === "low" && "bg-text-muted/10 text-text-muted",
                 )}>
                   {study.priority}
@@ -520,10 +520,10 @@ function StudyOverview({
             <div className="progress-bar mb-2">
               <div className="flex h-full">
                 {progress.completed > 0 && (
-                  <div style={{ width: `${(progress.completed / progress.total) * 100}%`, background: "#34D399", transition: "width 300ms" }} />
+                  <div style={{ width: `${(progress.completed / progress.total) * 100}%`, background: 'var(--success)', transition: "width 300ms" }} />
                 )}
                 {progress.running > 0 && (
-                  <div style={{ width: `${(progress.running / progress.total) * 100}%`, background: "#F59E0B", transition: "width 300ms" }} />
+                  <div style={{ width: `${(progress.running / progress.total) * 100}%`, background: 'var(--warning)', transition: "width 300ms" }} />
                 )}
                 {progress.failed > 0 && (
                   <div style={{ width: `${(progress.failed / progress.total) * 100}%`, background: "var(--critical)", transition: "width 300ms" }} />

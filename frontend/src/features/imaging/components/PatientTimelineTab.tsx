@@ -171,7 +171,7 @@ export default function PatientTimelineTab() {
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#1E1E23]">
+                  <tbody className="divide-y divide-border-subtle">
                     {patients.data.map((p) => (
                       <tr key={p.person_id} className="hover:bg-surface-overlay transition-colors cursor-pointer" onClick={() => handleSelectPatient(p.person_id)}>
                         <td className="px-4 py-3 text-text-primary text-xs font-mono font-semibold">{p.person_id}</td>
@@ -189,7 +189,7 @@ export default function PatientTimelineTab() {
                         <td className="px-4 py-3">
                           <button
                             type="button"
-                            className="inline-flex items-center gap-1 text-xs text-success hover:text-[#26B8A5] transition-colors"
+                            className="inline-flex items-center gap-1 text-xs text-success hover:text-success transition-colors"
                           >
                             Timeline <ChevronRight size={12} />
                           </button>

@@ -13,7 +13,7 @@ export default function BenchmarkOverlay({ label, benchmarks, actual }: Benchmar
   if (allLabels.length === 0) return null;
 
   return (
-    <div className="rounded-lg border border-[#252530] bg-surface-raised p-4">
+    <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
       <h4 className="mb-3 text-sm font-medium text-white">Benchmark: {label}</h4>
       <div className="space-y-2">
         {allLabels.map((dim) => {
@@ -23,7 +23,7 @@ export default function BenchmarkOverlay({ label, benchmarks, actual }: Benchmar
 
           return (
             <div key={dim} className="flex items-center gap-3">
-              <span className="w-28 truncate text-xs text-[#888]" title={dim}>
+              <span className="w-28 truncate text-xs text-text-muted" title={dim}>
                 {dim}
               </span>
               <div className="relative flex-1 h-5">
@@ -41,7 +41,7 @@ export default function BenchmarkOverlay({ label, benchmarks, actual }: Benchmar
                   />
                 )}
               </div>
-              <span className="w-16 text-right text-xs text-[#888]">
+              <span className="w-16 text-right text-xs text-text-muted">
                 {actualVal.toFixed(1)}%
               </span>
               <span
@@ -55,7 +55,7 @@ export default function BenchmarkOverlay({ label, benchmarks, actual }: Benchmar
           );
         })}
       </div>
-      <div className="mt-3 flex gap-4 text-[10px] text-[#666]">
+      <div className="mt-3 flex gap-4 text-[10px] text-text-ghost">
         <span className="flex items-center gap-1">
           <span className="inline-block h-3 w-3 rounded bg-success/30" /> Actual
         </span>

@@ -576,7 +576,7 @@ export function SqlRunnerModal({
                   borderRadius: "6px",
                   border: "1px solid color-mix(in srgb, var(--primary) 25%, transparent)",
                   background: "color-mix(in srgb, var(--primary) 8%, transparent)",
-                  color: "#F87171",
+                  color: 'var(--critical)',
                   fontSize: "12px",
                 }}
               >
@@ -736,13 +736,13 @@ export function SqlRunnerModal({
 
           {isError && !isComplete && (
             <>
-              <XCircle size={18} style={{ color: "#F87171", flexShrink: 0 }} />
+              <XCircle size={18} style={{ color: 'var(--critical)', flexShrink: 0 }} />
               <div style={{ flex: 1 }}>
                 <div
                   style={{
                     fontSize: "13px",
                     fontWeight: 600,
-                    color: "#F87171",
+                    color: 'var(--critical)',
                   }}
                 >
                   Query failed
@@ -750,7 +750,7 @@ export function SqlRunnerModal({
                 <div
                   style={{
                     fontSize: "12px",
-                    color: "#F87171",
+                    color: 'var(--critical)',
                     marginTop: "4px",
                     lineHeight: "1.5",
                     opacity: 0.85,

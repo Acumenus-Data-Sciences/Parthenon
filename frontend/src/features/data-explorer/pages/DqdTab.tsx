@@ -180,7 +180,7 @@ function ProgressPanel({ progress }: { progress: DqdProgress }) {
           {progress.latest_check.passed ? (
             <CheckCircle2 size={10} className="text-success ml-auto" />
           ) : (
-            <AlertTriangle size={10} className="text-[#E5A84B] ml-auto" />
+            <AlertTriangle size={10} className="text-warning ml-auto" />
           )}
         </div>
       )}

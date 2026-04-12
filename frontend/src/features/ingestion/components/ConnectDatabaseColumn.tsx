@@ -48,7 +48,7 @@ export default function ConnectDatabaseColumn({ project }: ConnectDatabaseColumn
           </span>
         </div>
 
-        <div className="rounded-lg border border-border-default divide-y divide-[#1E1E23] max-h-48 overflow-y-auto">
+        <div className="rounded-lg border border-border-default divide-y divide-border-subtle max-h-48 overflow-y-auto">
           {tables.map((t) => (
             <div key={t} className="flex items-center gap-2 px-3 py-1.5 text-sm text-text-secondary">
               <Database size={12} className="text-text-ghost" />

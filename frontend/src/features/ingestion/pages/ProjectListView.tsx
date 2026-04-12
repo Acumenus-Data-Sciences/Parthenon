@@ -79,7 +79,7 @@ export function ProjectListView({ onSelectProject }: ProjectListViewProps) {
         <button
           type="button"
           onClick={() => setShowForm((v) => !v)}
-          className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#B22040]"
+          className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
         >
           <Plus size={16} />
           New Project

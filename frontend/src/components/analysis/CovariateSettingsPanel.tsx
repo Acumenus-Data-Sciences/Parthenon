@@ -207,7 +207,7 @@ export function CovariateSettingsPanel({
           <button
             type="button"
             onClick={addWindow}
-            className="text-xs text-success hover:text-[#26B8A5] transition-colors"
+            className="text-xs text-success hover:text-success transition-colors"
           >
             + Add time window
           </button>

@@ -336,7 +336,7 @@ function StudiesTab() {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1E1E23]">
+            <tbody className="divide-y divide-border-subtle">
               {isLoading && (
                 <tr>
                   <td colSpan={9} className="text-center py-10">
@@ -379,7 +379,7 @@ function StudiesTab() {
                         pathname: `/imaging/studies/${study.id}`,
                         search: searchParams.toString() ? `?${searchParams.toString()}` : "",
                       }}
-                      className="inline-flex items-center gap-1 text-xs text-success hover:text-[#26B8A5] transition-colors"
+                      className="inline-flex items-center gap-1 text-xs text-success hover:text-success transition-colors"
                     >
                       Details <ChevronRight size={12} />
                     </Link>
@@ -476,7 +476,7 @@ function FeaturesTab() {
                 )}
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1E1E23]">
+            <tbody className="divide-y divide-border-subtle">
               {isLoading && (
                 <tr>
                   <td colSpan={7} className="text-center py-10">

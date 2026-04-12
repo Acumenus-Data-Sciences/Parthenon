@@ -31,10 +31,10 @@ export default function CostBoxPlot({ distributions }: CostBoxPlotProps) {
   return (
     <div className="space-y-3">
       {distributions.map((dist) => (
-        <div key={dist.domain} className="rounded-lg border border-[#252530] bg-surface-raised p-3">
+        <div key={dist.domain} className="rounded-lg border border-border-subtle bg-surface-raised p-3">
           <div className="mb-2 flex items-center justify-between">
             <span className="text-sm font-medium text-white">{formatDomain(dist.domain)}</span>
-            <span className="text-xs text-[#666]">{dist.count.toLocaleString()} records</span>
+            <span className="text-xs text-text-ghost">{dist.count.toLocaleString()} records</span>
           </div>
 
           {/* Box plot visualization */}
@@ -72,13 +72,13 @@ export default function CostBoxPlot({ distributions }: CostBoxPlotProps) {
           </div>
 
           {/* Legend */}
-          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-[#666]">
+          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-text-ghost">
             <span>P10: {formatCurrency(dist.p10)}</span>
             <span>P25: {formatCurrency(dist.p25)}</span>
             <span className="text-accent">Median: {formatCurrency(dist.median)}</span>
             <span>P75: {formatCurrency(dist.p75)}</span>
             <span>P90: {formatCurrency(dist.p90)}</span>
-            <span className="text-[#e85d75]">Mean: {formatCurrency(dist.mean)}</span>
+            <span className="text-critical">Mean: {formatCurrency(dist.mean)}</span>
           </div>
         </div>
       ))}

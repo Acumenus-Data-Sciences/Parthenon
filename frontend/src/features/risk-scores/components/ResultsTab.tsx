@@ -130,14 +130,14 @@ export function ResultsTab({
         return (
           <div
             key={scoreId}
-            className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-6"
+            className="rounded-xl border border-border-default bg-surface-raised p-6"
           >
             {/* Header */}
             <div className="mb-4 flex items-center gap-3">
               <h3 className="text-base font-semibold text-text-primary">
                 {scoreNames[scoreId] ?? scoreId}
               </h3>
-              <span className="rounded-md bg-surface-overlay px-2 py-0.5 text-[10px] font-medium text-text-muted border border-[#2A2A2F]">
+              <span className="rounded-md bg-surface-overlay px-2 py-0.5 text-[10px] font-medium text-text-muted border border-border-default">
                 {scoreId}
               </span>
             </div>
@@ -146,10 +146,10 @@ export function ResultsTab({
             <TierBreakdownChart tiers={tierData} />
 
             {/* Tier table with actions */}
-            <div className="mt-4 overflow-hidden rounded-xl border border-[#2A2A2F]">
+            <div className="mt-4 overflow-hidden rounded-xl border border-border-default">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="border-b border-[#2A2A2F] bg-surface-base">
+                  <tr className="border-b border-border-default bg-surface-base">
                     <th className="px-3 py-2 text-left text-text-muted font-medium">
                       Tier
                     </th>
@@ -179,7 +179,7 @@ export function ResultsTab({
                     return (
                       <tr
                         key={s.risk_tier}
-                        className="border-b border-[#2A2A2F]/50 last:border-b-0 hover:bg-surface-overlay transition-colors"
+                        className="border-b border-border-default/50 last:border-b-0 hover:bg-surface-overlay transition-colors"
                       >
                         <td className="px-3 py-2 text-text-primary">
                           <div className="flex items-center gap-2">

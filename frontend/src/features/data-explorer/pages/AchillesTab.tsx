@@ -55,8 +55,8 @@ const SEVERITY_CONFIG: Record<
     label: "Notifications",
     icon: AlertCircle,
     rowClass: "border-[#3B82F6]/20 bg-[#3B82F6]/5",
-    badgeClass: "bg-[#3B82F6]/15 text-[#3B82F6] border border-[#3B82F6]/30",
-    iconClass: "text-[#3B82F6]",
+    badgeClass: "bg-[#3B82F6]/15 text-info border border-[#3B82F6]/30",
+    iconClass: "text-info",
     barColor: "#3B82F6",
   },
 };

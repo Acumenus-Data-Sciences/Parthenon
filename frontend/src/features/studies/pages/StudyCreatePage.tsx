@@ -41,9 +41,9 @@ const STUDY_TYPES = [
   { value: "characterization", label: "Characterization", icon: BarChart3, color: "var(--success)", desc: "Describe patient populations and treatment patterns" },
   { value: "population_level_estimation", label: "Population-Level Estimation", icon: Scale, color: "var(--info)", desc: "Estimate causal effects using observational data" },
   { value: "patient_level_prediction", label: "Patient-Level Prediction", icon: Brain, color: "var(--domain-observation)", desc: "Predict individual patient outcomes" },
-  { value: "comparative_effectiveness", label: "Comparative Effectiveness", icon: FlaskConical, color: "#F59E0B", desc: "Compare treatments in real-world settings" },
+  { value: "comparative_effectiveness", label: "Comparative Effectiveness", icon: FlaskConical, color: 'var(--warning)', desc: "Compare treatments in real-world settings" },
   { value: "safety_surveillance", label: "Safety Surveillance", icon: Shield, color: "var(--critical)", desc: "Monitor drug safety signals post-market" },
-  { value: "drug_utilization", label: "Drug Utilization", icon: Pill, color: "#34D399", desc: "Analyze medication use patterns and trends" },
+  { value: "drug_utilization", label: "Drug Utilization", icon: Pill, color: 'var(--success)', desc: "Analyze medication use patterns and trends" },
   { value: "quality_improvement", label: "Quality Improvement", icon: Activity, color: "#FB923C", desc: "Assess care quality and guideline adherence" },
   { value: "custom", label: "Custom", icon: Wrench, color: "var(--text-muted)", desc: "Define a custom study type" },
 ];
@@ -73,7 +73,7 @@ const PHASES = [
 const PRIORITIES = [
   { value: "low", label: "Low", color: "var(--text-muted)" },
   { value: "medium", label: "Medium", color: "var(--info)" },
-  { value: "high", label: "High", color: "#F59E0B" },
+  { value: "high", label: "High", color: 'var(--warning)' },
   { value: "critical", label: "Critical", color: "var(--critical)" },
 ];
 

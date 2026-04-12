@@ -33,7 +33,7 @@ export function CrossLinkBadge({ pinId, crossLinks }: CrossLinkBadgeProps) {
           className="absolute bottom-full left-1/2 mb-2 z-50 min-w-[180px] max-w-xs rounded-xl border border-zinc-700 shadow-xl text-xs"
           style={{
             transform: "translateX(-50%)",
-            backgroundColor: "#18181b",
+            backgroundColor: 'var(--surface-raised)',
           }}
         >
           <div className="px-3 py-2 border-b border-zinc-700">

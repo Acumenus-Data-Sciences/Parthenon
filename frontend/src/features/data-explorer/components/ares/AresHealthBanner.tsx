@@ -21,7 +21,7 @@ export function AresHealthBanner({
   annotationCount,
 }: AresHealthBannerProps) {
   return (
-    <div className="rounded-xl border border-[#252530] bg-gradient-to-r from-surface-raised via-[#1a1a22] to-surface-raised p-6">
+    <div className="rounded-xl border border-border-subtle bg-gradient-to-r from-surface-raised via-[#1a1a22] to-surface-raised p-6">
       <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
         <Stat label="Sources" value={String(sourceCount)} />
         <Stat label="Avg DQ Score" value={avgDqScore != null ? `${avgDqScore}%` : "--"} />

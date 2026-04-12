@@ -16,7 +16,7 @@ import type { GenomicCriterion, GenomicCriteriaType } from "../../cohort-definit
 const CRITERIA_TYPES: { value: GenomicCriteriaType; label: string; icon: LucideIcon; color: string; desc: string }[] = [
   { value: "gene_mutation", label: "Gene Mutation", icon: Dna, color: "var(--domain-observation)", desc: "e.g. EGFR L858R, KRAS G12D" },
   { value: "tmb", label: "Tumor Mutational Burden", icon: FlaskConical, color: "var(--success)", desc: "TMB-High / TMB-Low threshold" },
-  { value: "msi", label: "Microsatellite Instability", icon: Zap, color: "#F59E0B", desc: "MSI-H, MSI-L, or MSS" },
+  { value: "msi", label: "Microsatellite Instability", icon: Zap, color: 'var(--warning)', desc: "MSI-H, MSI-L, or MSS" },
   { value: "fusion", label: "Gene Fusion", icon: Blend, color: "var(--info)", desc: "e.g. ALK rearrangement, BCR-ABL1" },
   { value: "pathogenicity", label: "Pathogenicity Class", icon: ShieldAlert, color: "var(--critical)", desc: "ClinVar classification" },
   { value: "treatment_episode", label: "Treatment Episode", icon: Pill, color: "#FB923C", desc: "HemOnc chemotherapy regimen" },

@@ -30,7 +30,7 @@ export function AnalysisStatsBar({ onStatClick }: { onStatClick?: (key: string) 
     { label: "Estimations", key: "estimations", value: stats.estimations.total, icon: Scale, color: "var(--domain-observation)" },
     { label: "Predictions", key: "predictions", value: stats.predictions.total, icon: Brain, color: "var(--domain-procedure)" },
     { label: "SCCS", key: "sccs", value: stats.sccs.total, icon: Clock, color: "#FB923C" },
-    { label: "Evidence Synth", key: "evidence-synthesis", value: stats.evidence_synthesis.total, icon: Layers, color: "#34D399" },
+    { label: "Evidence Synth", key: "evidence-synthesis", value: stats.evidence_synthesis.total, icon: Layers, color: 'var(--success)' },
     { label: "Total", key: "total", value: stats.grand_total, icon: Sigma, color: "var(--text-secondary)" },
   ];
 

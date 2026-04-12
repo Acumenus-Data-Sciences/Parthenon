@@ -22,7 +22,7 @@ export default function AgePyramid({ data, sourceName }: AgePyramidProps) {
   }));
 
   return (
-    <div className="rounded-lg border border-[#252530] bg-surface-raised p-4">
+    <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
       <h4 className="mb-3 text-sm font-medium text-white">{sourceName} -- Age Distribution</h4>
       <div className="h-72">
         <ResponsiveContainer width="100%" height="100%">
@@ -43,7 +43,7 @@ export default function AgePyramid({ data, sourceName }: AgePyramidProps) {
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: "#1a1a22",
+                backgroundColor: 'var(--surface-overlay)',
                 border: "1px solid #333",
                 borderRadius: "8px",
                 color: "#ccc",
@@ -57,7 +57,7 @@ export default function AgePyramid({ data, sourceName }: AgePyramidProps) {
           </BarChart>
         </ResponsiveContainer>
       </div>
-      <div className="mt-2 flex justify-center gap-4 text-xs text-[#888]">
+      <div className="mt-2 flex justify-center gap-4 text-xs text-text-muted">
         <span className="flex items-center gap-1">
           <span className="inline-block h-2 w-2 rounded-full bg-[#7c8aed]" /> Male
         </span>

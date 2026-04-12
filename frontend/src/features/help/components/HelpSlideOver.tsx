@@ -62,7 +62,7 @@ export function HelpSlideOver({ helpKey, onClose }: HelpSlideOverProps) {
               <button
                 type="button"
                 onClick={() => window.open(data.docs_url ?? undefined, "_blank", "noopener,noreferrer")}
-                className="inline-flex items-center gap-2 text-sm text-success hover:text-[#26B8A5] transition-colors cursor-pointer"
+                className="inline-flex items-center gap-2 text-sm text-success hover:text-success transition-colors cursor-pointer"
               >
                 <BookOpen size={14} />
                 Read full documentation
@@ -74,7 +74,7 @@ export function HelpSlideOver({ helpKey, onClose }: HelpSlideOverProps) {
                 href={data.video_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-success hover:text-[#26B8A5] transition-colors"
+                className="inline-flex items-center gap-2 text-sm text-success hover:text-success transition-colors"
               >
                 <ExternalLink size={14} />
                 Watch video tutorial

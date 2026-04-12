@@ -233,7 +233,7 @@ export function StudyTeamTab({ slug }: StudyTeamTabProps) {
                       )}
                     </td>
                     <td>
-                      <span className={`text-xs ${m.is_active ? "text-[#34D399]" : "text-text-ghost"}`}>
+                      <span className={`text-xs ${m.is_active ? "text-success" : "text-text-ghost"}`}>
                         {m.is_active ? "Active" : "Inactive"}
                       </span>
                     </td>

@@ -28,7 +28,7 @@ export function AnalyzeStep({ importId, onComplete }: Props) {
         <p className="mt-1 text-xs">{analyze.error instanceof Error ? analyze.error.message : "Unknown error"}</p>
         <button
           onClick={() => analyze.mutate(importId, { onSuccess: (d) => onComplete(d.suggestions || []) })}
-          className="mt-2 rounded bg-surface-elevated px-3 py-1 text-xs text-[#E8E4DC] hover:bg-surface-highlight"
+          className="mt-2 rounded bg-surface-elevated px-3 py-1 text-xs text-text-primary hover:bg-surface-highlight"
         >
           Retry
         </button>
@@ -45,7 +45,7 @@ export function AnalyzeStep({ importId, onComplete }: Props) {
           <Brain className="h-8 w-8 text-accent" />
         )}
       </div>
-      <p className="text-sm text-[#E8E4DC]">Abby is analyzing your data...</p>
+      <p className="text-sm text-text-primary">Abby is analyzing your data...</p>
       <p className="mt-1 text-xs text-text-ghost">Detecting column types, geography codes, and value semantics</p>
     </div>
   );

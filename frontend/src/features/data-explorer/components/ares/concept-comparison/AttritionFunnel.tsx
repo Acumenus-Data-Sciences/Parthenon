@@ -22,7 +22,7 @@ export default function AttritionFunnel({ data }: AttritionFunnelProps) {
   return (
     <div className="space-y-4">
       {data.map((source) => (
-        <div key={source.source_id} className="rounded-lg border border-[#252530] bg-surface-raised p-4">
+        <div key={source.source_id} className="rounded-lg border border-border-subtle bg-surface-raised p-4">
           <h4 className="mb-3 text-sm font-medium text-white">{source.source_name}</h4>
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
@@ -40,7 +40,7 @@ export default function AttritionFunnel({ data }: AttritionFunnelProps) {
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "#1a1a22",
+                    backgroundColor: 'var(--surface-overlay)',
                     border: "1px solid #333",
                     borderRadius: "8px",
                     color: "#ccc",

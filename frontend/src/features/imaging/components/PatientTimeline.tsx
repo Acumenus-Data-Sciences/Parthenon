@@ -115,10 +115,10 @@ function SummaryCards({ data }: { data: TimelineData }) {
       {/* Drug exposures */}
       <div className="rounded-lg border border-border-default bg-surface-raised p-4">
         <div className="flex items-center gap-2 mb-2">
-          <Pill size={14} className="text-[#F59E0B]" />
+          <Pill size={14} className="text-warning" />
           <span className="text-[10px] text-text-ghost uppercase tracking-wider">Treatments</span>
         </div>
-        <p className="text-lg text-[#F59E0B] font-semibold font-mono">
+        <p className="text-lg text-warning font-semibold font-mono">
           {summary.total_drugs}
         </p>
         <p className="text-xs text-text-muted mt-1">
@@ -290,7 +290,7 @@ function StudyListTable({ studies }: { studies: TimelineStudy[] }) {
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#1E1E23]">
+          <tbody className="divide-y divide-border-subtle">
             {studies.map(study => (
               <tr key={study.id} className="hover:bg-surface-overlay transition-colors">
                 <td className="px-4 py-3 text-text-secondary text-xs">{formatDate(study.study_date)}</td>
@@ -321,7 +321,7 @@ function StudyListTable({ studies }: { studies: TimelineStudy[] }) {
                 <td className="px-4 py-3">
                   <Link
                     to={`/imaging/studies/${study.id}`}
-                    className="inline-flex items-center gap-1 text-xs text-success hover:text-[#26B8A5] transition-colors"
+                    className="inline-flex items-center gap-1 text-xs text-success hover:text-success transition-colors"
                   >
                     View <ChevronRight size={12} />
                   </Link>
@@ -350,7 +350,7 @@ function DrugExposureTable({ drugs }: { drugs: DrugExposure[] }) {
     <div className="rounded-lg border border-border-default bg-surface-raised">
       <div className="px-4 py-3 border-b border-border-default">
         <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
-          <Pill size={14} className="text-[#F59E0B]" />
+          <Pill size={14} className="text-warning" />
           Treatment Context ({drugs.length} drugs)
         </h3>
       </div>
@@ -365,7 +365,7 @@ function DrugExposureTable({ drugs }: { drugs: DrugExposure[] }) {
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#1E1E23]">
+          <tbody className="divide-y divide-border-subtle">
             {drugs.map((drug, i) => (
               <tr key={`${drug.drug_concept_id}-${i}`} className="hover:bg-surface-overlay transition-colors">
                 <td className="px-4 py-3 text-text-primary text-xs font-medium max-w-xs truncate">{drug.drug_name}</td>

@@ -112,7 +112,7 @@ export function TopLociTable({
         <div className="overflow-x-auto rounded-xl border border-zinc-800">
           <table className="w-full text-sm">
             <thead>
-              <tr style={{ backgroundColor: "#18181b" }}>
+              <tr style={{ backgroundColor: 'var(--surface-raised)' }}>
                 <th
                   className="px-3 py-2 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wide cursor-pointer select-none whitespace-nowrap hover:text-zinc-200 transition-colors"
                   onClick={() => handleSort("chr")}

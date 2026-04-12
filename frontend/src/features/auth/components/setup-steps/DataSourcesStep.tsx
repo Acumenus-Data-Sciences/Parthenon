@@ -25,9 +25,9 @@ type Source = {
 
 function EunomiaCallout() {
   return (
-    <div className="flex items-start gap-3 rounded-lg border border-[#818CF8]/30 bg-[#818CF8]/10 px-4 py-3">
-      <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[#818CF8]/20">
-        <FlaskConical size={13} className="text-[#818CF8]" />
+    <div className="flex items-start gap-3 rounded-lg border border-[#818CF8]/30 bg-info/10 px-4 py-3">
+      <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-info/20">
+        <FlaskConical size={13} className="text-info" />
       </div>
       <div className="text-base">
         <p className="font-semibold text-text-secondary">
@@ -115,7 +115,7 @@ export function DataSourcesStep({ onConfigured }: Props) {
               className="flex items-center gap-3 rounded-lg border border-border-default bg-surface-overlay px-4 py-3"
             >
               <div className="flex h-8 w-8 items-center justify-center rounded-md bg-surface-elevated">
-                <Database size={14} className="text-[#818CF8]" />
+                <Database size={14} className="text-info" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-base font-medium text-text-primary">
@@ -214,7 +214,7 @@ export function DataSourcesStep({ onConfigured }: Props) {
               type="button"
               onClick={handleImport}
               disabled={!webApiUrl.trim() || importMutation.isPending}
-              className="flex items-center gap-1.5 rounded-md bg-accent px-4 py-2 text-sm font-medium text-surface-base hover:bg-[#D4AE3A] disabled:opacity-50"
+              className="flex items-center gap-1.5 rounded-md bg-accent px-4 py-2 text-sm font-medium text-surface-base hover:bg-accent disabled:opacity-50"
             >
               {importMutation.isPending && <Loader2 size={14} className="animate-spin" />}
               Import Sources

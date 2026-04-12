@@ -13,11 +13,11 @@ export function AirQualityDetailPanel({ fips }: LayerDetailProps) {
     <div className="space-y-1.5 text-xs">
       <div className="flex justify-between">
         <span className="text-text-muted">PM2.5</span>
-        <span className="font-medium text-[#E8E4DC]">{data.pm25_value?.toFixed(1) ?? "—"} µg/m³</span>
+        <span className="font-medium text-text-primary">{data.pm25_value?.toFixed(1) ?? "—"} µg/m³</span>
       </div>
       <div className="flex justify-between">
         <span className="text-text-muted">Ozone</span>
-        <span className="font-medium text-[#E8E4DC]">{data.ozone_value?.toFixed(1) ?? "—"} ppb</span>
+        <span className="font-medium text-text-primary">{data.ozone_value?.toFixed(1) ?? "—"} ppb</span>
       </div>
     </div>
   );

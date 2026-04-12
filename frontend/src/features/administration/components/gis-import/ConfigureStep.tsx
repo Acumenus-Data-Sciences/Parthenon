@@ -34,7 +34,7 @@ export function ConfigureStep({ importId, suggestions, onComplete }: Props) {
     </div>
   );
 
-  const inputClass = "w-full rounded border border-surface-highlight bg-surface-overlay px-3 py-1.5 text-sm text-[#E8E4DC]";
+  const inputClass = "w-full rounded border border-surface-highlight bg-surface-overlay px-3 py-1.5 text-sm text-text-primary";
 
   return (
     <div className="space-y-4">

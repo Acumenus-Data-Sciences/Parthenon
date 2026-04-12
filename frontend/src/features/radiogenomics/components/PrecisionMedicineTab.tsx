@@ -229,7 +229,7 @@ function CorrelationsTable({ correlations }: { correlations: VariantDrugCorrelat
       <div className="overflow-x-auto">
         <table className="w-full text-left">
           <thead>
-            <tr className="border-b border-[#1E1E23] text-[10px] uppercase tracking-wider text-text-ghost">
+            <tr className="border-b border-border-subtle text-[10px] uppercase tracking-wider text-text-ghost">
               <th className="px-4 py-2 font-medium">Gene</th>
               <th className="px-4 py-2 font-medium">Variant</th>
               <th className="px-4 py-2 font-medium">Drug</th>
@@ -240,7 +240,7 @@ function CorrelationsTable({ correlations }: { correlations: VariantDrugCorrelat
               <th className="px-4 py-2 font-medium w-6"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#1E1E23]">
+          <tbody className="divide-y divide-border-subtle">
             {correlations.map((c, i) => {
               const relStyle = RELATIONSHIP_STYLES[c.relationship] ?? RELATIONSHIP_STYLES.sensitive;
               const RelIcon = relStyle.icon;
@@ -357,7 +357,7 @@ function VariantsSection({ variants }: { variants: VariantSummary }) {
       <div className="overflow-x-auto">
         <table className="w-full text-left">
           <thead>
-            <tr className="border-b border-[#1E1E23] text-[10px] uppercase tracking-wider text-text-ghost">
+            <tr className="border-b border-border-subtle text-[10px] uppercase tracking-wider text-text-ghost">
               <th className="px-4 py-2 font-medium">Gene</th>
               <th className="px-4 py-2 font-medium">Variant</th>
               <th className="px-4 py-2 font-medium">Class</th>
@@ -366,7 +366,7 @@ function VariantsSection({ variants }: { variants: VariantSummary }) {
               <th className="px-4 py-2 font-medium">Status</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#1E1E23]">
+          <tbody className="divide-y divide-border-subtle">
             {displayVariants.map((v) => {
               const isActionable = v.id in variants.actionable;
               const isVus = v.id in variants.vus;
@@ -418,7 +418,7 @@ function VariantsSection({ variants }: { variants: VariantSummary }) {
       </div>
 
       {variants.all.length > 10 && (
-        <div className="px-4 py-2 border-t border-[#1E1E23]">
+        <div className="px-4 py-2 border-t border-border-subtle">
           <button
             type="button"
             onClick={() => setShowAll(!showAll)}
@@ -444,7 +444,7 @@ function TreatmentHistory({ drugs }: { drugs: DrugExposure[] }) {
         </h3>
       </div>
 
-      <div className="divide-y divide-[#1E1E23]">
+      <div className="divide-y divide-border-subtle">
         {drugs.map((d, i) => (
           <div key={i} className="flex items-center justify-between px-4 py-2.5">
             <div className="flex items-center gap-3">

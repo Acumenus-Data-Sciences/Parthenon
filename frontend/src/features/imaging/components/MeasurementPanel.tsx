@@ -346,7 +346,7 @@ export default function MeasurementPanel({ studyId, personId }: MeasurementPanel
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#1E1E23]">
+              <tbody className="divide-y divide-border-subtle">
                 {measurements.map((m: ImagingMeasurement) => (
                   <tr key={m.id} className="hover:bg-surface-overlay transition-colors">
                     <td className="px-4 py-3">

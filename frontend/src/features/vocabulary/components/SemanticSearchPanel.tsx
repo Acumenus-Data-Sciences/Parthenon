@@ -194,7 +194,7 @@ function ResultRow({
                 e.stopPropagation();
                 onAddToSet(result.concept_id, result.concept_name);
               }}
-              className="ml-auto inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[9px] text-primary hover:text-[#C5384C] hover:bg-primary/10 transition-colors"
+              className="ml-auto inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[9px] text-primary hover:text-critical hover:bg-primary/10 transition-colors"
             >
               <PlusCircle size={10} />
               Add to Set
@@ -624,7 +624,7 @@ export function SemanticSearchPanel({
                     setVocabFilter("");
                     setStandardFilter("all");
                   }}
-                  className="text-xs text-success hover:text-[#26B8A5] transition-colors"
+                  className="text-xs text-success hover:text-success transition-colors"
                 >
                   Try clearing filters
                 </button>

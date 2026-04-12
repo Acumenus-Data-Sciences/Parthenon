@@ -64,12 +64,12 @@ export function OverlapRulesPanel() {
               )}
 
               {/* Rule code */}
-              <span className="text-xs font-medium font-['IBM_Plex_Mono',monospace] text-[#8B5CF6]">
+              <span className="text-xs font-medium font-['IBM_Plex_Mono',monospace] text-domain-observation">
                 {rule.rule_code}
               </span>
 
               {/* Shared domain */}
-              <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#818CF8]/10 text-[#818CF8]">
+              <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-info/10 text-info">
                 {rule.shared_domain}
               </span>
 

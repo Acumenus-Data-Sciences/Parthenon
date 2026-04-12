@@ -96,7 +96,7 @@ export default function LocationTrack({ transfers, icuStays }: LocationTrackProp
   }
 
   return (
-    <div className="rounded-xl border border-zinc-800/60 bg-[#111114] p-4">
+    <div className="rounded-xl border border-zinc-800/60 bg-surface-base p-4">
       <h3 className="text-xs font-semibold text-text-secondary mb-3">Location Track</h3>
 
       {/* Timeline bar */}
@@ -146,7 +146,7 @@ export default function LocationTrack({ transfers, icuStays }: LocationTrackProp
         <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-primary" /> ICU</span>
         <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-accent" /> Step-down</span>
         <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-success" /> Floor</span>
-        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#818CF8]" /> PACU</span>
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-info" /> PACU</span>
       </div>
 
       {/* Tooltip */}

@@ -246,7 +246,7 @@ function ImbalancedCovariateBar({
             absSmd > 0.2
               ? "text-critical"
               : absSmd > 0.1
-                ? "text-[#F59E0B]"
+                ? "text-warning"
                 : "text-text-secondary",
           )}
         >

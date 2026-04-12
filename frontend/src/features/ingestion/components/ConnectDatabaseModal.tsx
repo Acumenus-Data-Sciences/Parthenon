@@ -199,7 +199,7 @@ export default function ConnectDatabaseModal({
                     {selectedTables.size === tables.length ? "Deselect All" : "Select All"}
                   </button>
                 </div>
-                <div className="max-h-60 overflow-y-auto rounded-lg border border-border-default divide-y divide-[#1E1E23]">
+                <div className="max-h-60 overflow-y-auto rounded-lg border border-border-default divide-y divide-border-subtle">
                   {tables.map((t) => (
                     <label key={t.name} className="flex items-center gap-3 px-3 py-2 hover:bg-surface-overlay cursor-pointer transition-colors">
                       <input

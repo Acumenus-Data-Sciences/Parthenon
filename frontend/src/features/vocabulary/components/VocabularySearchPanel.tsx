@@ -370,7 +370,7 @@ export function VocabularySearchPanel({
               <button
                 type="button"
                 onClick={clearFilters}
-                className="mt-2 text-xs text-success hover:text-[#26B8A5] transition-colors"
+                className="mt-2 text-xs text-success hover:text-success transition-colors"
               >
                 Try clearing filters
               </button>

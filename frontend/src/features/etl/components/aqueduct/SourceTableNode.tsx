@@ -12,7 +12,7 @@ function SourceTableNodeComponent({ data }: NodeProps) {
   const d = data as unknown as SourceTableNodeData;
   return (
     <div
-      className={`rounded-lg border-2 border-accent bg-[#1e1a14] px-4 py-3 min-w-[160px] transition-opacity ${
+      className={`rounded-lg border-2 border-accent bg-surface-overlay px-4 py-3 min-w-[160px] transition-opacity ${
         d.dimmed ? "opacity-50" : "opacity-100"
       }`}
     >

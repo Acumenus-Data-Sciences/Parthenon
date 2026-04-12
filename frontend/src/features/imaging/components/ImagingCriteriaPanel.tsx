@@ -22,7 +22,7 @@ const CRITERIA_TYPES: {
   { value: "modality", label: "Modality", icon: ScanLine, color: "var(--info)", desc: "CT, MR, PT, US, CR…" },
   { value: "anatomy", label: "Anatomy / Body Part", icon: MapPin, color: "var(--success)", desc: "Chest, Abdomen, Brain…" },
   { value: "quantitative", label: "Quantitative Feature", icon: BarChart2, color: "var(--domain-observation)", desc: "Radiomic or AI numeric measurement" },
-  { value: "ai_classification", label: "AI Classification", icon: Brain, color: "#F59E0B", desc: "AI-derived label with confidence" },
+  { value: "ai_classification", label: "AI Classification", icon: Brain, color: 'var(--warning)', desc: "AI-derived label with confidence" },
   { value: "dose", label: "Radiation Dose", icon: Zap, color: "var(--critical)", desc: "Maximum cumulative dose (Gy)" },
 ];
 

@@ -133,7 +133,7 @@ export default function VectorExplorer({
 
   if (isExpanded) {
     return createPortal(
-      <div className="fixed inset-0 flex bg-[#0A0A0F]" style={{ zIndex: 200 }}>
+      <div className="fixed inset-0 flex bg-surface-darkest" style={{ zIndex: 200 }}>
         <div className="flex flex-1 flex-col">
           <div className="flex items-center justify-between border-b border-border-default bg-surface-base px-4 py-2">
             <div className="flex items-center gap-4">
@@ -143,7 +143,7 @@ export default function VectorExplorer({
                   value={collectionName ?? ""}
                   onChange={(event) => onCollectionChange(event.target.value)}
                   disabled={loadingCollections}
-                  className="rounded border border-border-default bg-surface-raised px-2.5 py-1.5 text-sm text-[#E8E4DC] outline-none transition focus:border-accent/50 disabled:opacity-50"
+                  className="rounded border border-border-default bg-surface-raised px-2.5 py-1.5 text-sm text-text-primary outline-none transition focus:border-accent/50 disabled:opacity-50"
                 >
                   {loadingCollections ? <option value="">Loading...</option> : null}
                   {collections.map((collection) => (
@@ -315,7 +315,7 @@ export default function VectorExplorer({
                   </div>
                   <div
                     className={`relative h-5 w-9 rounded-full border transition-colors ${
-                      active ? "border-transparent" : "border-[#3A3630] bg-surface-raised"
+                      active ? "border-transparent" : "border-border-default bg-surface-raised"
                     }`}
                     style={
                       active

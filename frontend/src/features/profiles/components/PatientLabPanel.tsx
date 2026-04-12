@@ -91,7 +91,7 @@ function RangeIndicator({
   }
   if (value < rangeLow) {
     return (
-      <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-[#818CF8]">
+      <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-info">
         <TrendingDown size={11} />
         Low
       </span>
@@ -106,7 +106,7 @@ function RangeIndicator({
     );
   }
   return (
-    <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-[#22C55E]">
+    <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-success">
       <Minus size={11} />
       Normal
     </span>
@@ -184,7 +184,7 @@ function LabRow({ group }: { group: LabGroup }) {
           {trend === "up" ? (
             <TrendingUp size={14} className="text-critical" />
           ) : trend === "down" ? (
-            <TrendingDown size={14} className="text-[#818CF8]" />
+            <TrendingDown size={14} className="text-info" />
           ) : (
             <Minus size={14} className="text-text-ghost" />
           )}
@@ -258,7 +258,7 @@ export function PatientLabPanel({ labGroups }: PatientLabPanelProps) {
       {/* Header */}
       <div className="flex items-center justify-between gap-3 px-4 py-2.5 bg-surface-overlay border-b border-border-default">
         <div className="flex items-center gap-2">
-          <FlaskConical size={14} className="text-[#818CF8]" />
+          <FlaskConical size={14} className="text-info" />
           <span className="text-xs font-semibold text-text-primary">
             Lab Panel
           </span>
@@ -274,7 +274,7 @@ export function PatientLabPanel({ labGroups }: PatientLabPanelProps) {
           className={cn(
             "w-48 rounded-md border border-surface-highlight bg-surface-base px-3 py-1 text-xs",
             "text-text-primary placeholder:text-text-ghost",
-            "focus:border-[#818CF8] focus:outline-none focus:ring-1 focus:ring-[#818CF8]/20",
+            "focus:border-[#818CF8] focus:outline-none focus:ring-1 focus:ring-info/20",
           )}
         />
       </div>

@@ -14,9 +14,9 @@ const ruccLayer: GisLayer = {
   icon: MapPin,
   mapOverlay: RuccMapOverlay as unknown as GisLayer["mapOverlay"],
   legendItems: [
-    { label: "Metro", color: "#3B82F6", type: "category" },
+    { label: "Metro", color: 'var(--info)', type: "category" },
     { label: "Micropolitan", color: "#8B5CF6", type: "category" },
-    { label: "Rural", color: "#F59E0B", type: "category" },
+    { label: "Rural", color: 'var(--warning)', type: "category" },
   ],
   getTooltipData: (feature): TooltipEntry[] => [
     {

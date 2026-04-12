@@ -172,7 +172,7 @@ export function WebApiRegistryPage() {
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2">
-                  <Globe size={14} className="text-[#818CF8]" />
+                  <Globe size={14} className="text-info" />
                   <div>
                     <h3 className="text-sm font-semibold text-text-primary">{reg.name}</h3>
                     <p className="text-xs font-mono text-text-muted">{reg.base_url}</p>

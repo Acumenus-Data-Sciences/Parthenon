@@ -83,7 +83,7 @@ export default function ScenarioComparisonChart({ results }: Props) {
                       <div className="space-y-0.5 text-xs text-text-secondary">
                         <p>
                           Total Cost:{" "}
-                          <span className="font-mono text-[#F59E0B]">${d.totalCost.toLocaleString()}</span>
+                          <span className="font-mono text-warning">${d.totalCost.toLocaleString()}</span>
                         </p>
                         {d.icer !== null && (
                           <p>
@@ -199,7 +199,7 @@ export default function ScenarioComparisonChart({ results }: Props) {
                 Base
               </span>
             )}
-            <span className="font-mono text-[#F59E0B]">${formatCompact(d.totalCost)}</span>
+            <span className="font-mono text-warning">${formatCompact(d.totalCost)}</span>
             <span className="text-text-ghost">|</span>
             <span className="font-mono text-success">{d.totalQalys.toFixed(2)} QALYs</span>
           </div>

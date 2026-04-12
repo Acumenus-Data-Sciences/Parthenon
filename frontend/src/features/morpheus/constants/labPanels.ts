@@ -9,7 +9,7 @@ export interface LabPanelConfig {
 export const LAB_PANELS: LabPanelConfig[] = [
   {
     name: 'Renal',
-    color: '#3B82F6',
+    color: 'var(--info)',
     tests: [
       'creatinine', 'urea nitrogen', 'potassium', 'sodium', 'chloride',
       'bicarbonate', 'calcium, total', 'phosphate', 'magnesium',
@@ -17,7 +17,7 @@ export const LAB_PANELS: LabPanelConfig[] = [
   },
   {
     name: 'Hepatic',
-    color: '#F59E0B',
+    color: 'var(--warning)',
     tests: [
       'alanine aminotransferase', 'asparate aminotransferase',
       'alkaline phosphatase', 'bilirubin, total', 'bilirubin, direct',
@@ -34,7 +34,7 @@ export const LAB_PANELS: LabPanelConfig[] = [
   },
   {
     name: 'Metabolic',
-    color: '#22C55E',
+    color: 'var(--success)',
     tests: [
       'glucose', 'lactate', 'anion gap',
     ],

@@ -47,7 +47,7 @@ function StatsCards({ stats }: { stats: Record<string, ClaimStats> }) {
   if (!charge) return null;
 
   const cards = [
-    { label: "Total Charges", value: fmtCompact(charge.sum), sub: `${charge.count.toLocaleString()} claims`, color: "#F59E0B" },
+    { label: "Total Charges", value: fmtCompact(charge.sum), sub: `${charge.count.toLocaleString()} claims`, color: 'var(--warning)' },
     { label: "Avg Charge", value: fmtCompact(charge.mean), sub: `${fmtCompact(charge.min)} – ${fmtCompact(charge.max)}`, color: "var(--accent)" },
     { label: "Total Payments", value: fmtCompact(payment?.sum ?? 0), sub: `Avg: ${fmtCompact(payment?.mean ?? 0)}`, color: "var(--success)" },
     { label: "Outstanding", value: fmtCompact(outstanding?.sum ?? 0), sub: `Avg: ${fmtCompact(outstanding?.mean ?? 0)}`, color: outstanding?.sum > 0 ? "var(--critical)" : "var(--success)" },
@@ -102,7 +102,7 @@ function FacetPanel({
                 <button
                   type="button"
                   onClick={() => onFilter(filterKey, undefined)}
-                  className="text-[10px] text-critical hover:text-[#F87171] transition-colors"
+                  className="text-[10px] text-critical hover:text-critical transition-colors"
                 >
                   Clear
                 </button>
@@ -181,7 +181,7 @@ function ClaimsTable({ items }: { items: ClaimItem[] }) {
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-[#1E1E23]">
+        <tbody className="divide-y divide-border-subtle">
           {items.map((item) => (
             <tr key={item.claim_id} className="hover:bg-surface-overlay transition-colors">
               <td className="px-3 py-2">
@@ -221,7 +221,7 @@ function ClaimsTable({ items }: { items: ClaimItem[] }) {
                   )}
                 </div>
               </td>
-              <td className="px-3 py-2 text-right font-mono text-[#F59E0B] whitespace-nowrap">
+              <td className="px-3 py-2 text-right font-mono text-warning whitespace-nowrap">
                 {fmt(item.total_charge)}
               </td>
               <td className="px-3 py-2 text-right font-mono text-success whitespace-nowrap">

@@ -28,7 +28,7 @@ function StatusBadge({ status }: { status: SurveyCampaignApi["status"] }) {
 
 function Stat({ label, value, accent }: { label: string; value: string; accent: string }) {
   return (
-    <div className="rounded-lg border border-[#2A2A2F]/60 bg-surface-base px-3 py-2">
+    <div className="rounded-lg border border-border-default/60 bg-surface-base px-3 py-2">
       <div className="text-xs font-semibold" style={{ color: accent }}>
         {value}
       </div>
@@ -59,7 +59,7 @@ export function CampaignCard({
   const link = campaign.publish_token ? `${window.location.origin}/survey/${campaign.publish_token}` : null;
 
   return (
-    <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-5">
+    <div className="rounded-xl border border-border-default bg-surface-raised p-5">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
@@ -99,7 +99,7 @@ export function CampaignCard({
               href={link}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[#2A2A2F] px-3 py-2 text-xs font-medium text-text-muted hover:text-text-primary"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border-default px-3 py-2 text-xs font-medium text-text-muted hover:text-text-primary"
             >
               Open Link
             </a>
@@ -110,7 +110,7 @@ export function CampaignCard({
                 type="button"
                 disabled={isMutating}
                 onClick={() => onImport(campaign.id)}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-[#2A2A2F] px-3 py-2 text-xs font-medium text-text-muted hover:text-text-primary disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border-default px-3 py-2 text-xs font-medium text-text-muted hover:text-text-primary disabled:opacity-50"
               >
                 <FileUp size={12} />
                 Import
@@ -119,7 +119,7 @@ export function CampaignCard({
                 type="button"
                 disabled={isMutating}
                 onClick={() => onManualEntry(campaign.id)}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-[#2A2A2F] px-3 py-2 text-xs font-medium text-text-muted hover:text-text-primary disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border-default px-3 py-2 text-xs font-medium text-text-muted hover:text-text-primary disabled:opacity-50"
               >
                 <SquarePen size={12} />
                 Proxy Entry
@@ -132,7 +132,7 @@ export function CampaignCard({
                 type="button"
                 disabled={isMutating}
                 onClick={() => onEdit(campaign.id)}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-[#2A2A2F] px-3 py-2 text-xs font-medium text-text-muted hover:text-text-primary disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border-default px-3 py-2 text-xs font-medium text-text-muted hover:text-text-primary disabled:opacity-50"
               >
                 <Pencil size={12} />
                 Edit
@@ -163,7 +163,7 @@ export function CampaignCard({
             type="button"
             disabled={isMutating}
             onClick={() => onDelete(campaign.id)}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[#2A2A2F] px-3 py-2 text-xs font-medium text-text-muted hover:text-text-primary disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border-default px-3 py-2 text-xs font-medium text-text-muted hover:text-text-primary disabled:opacity-50"
           >
             <Trash2 size={12} />
             Delete
@@ -176,7 +176,7 @@ export function CampaignCard({
         <Stat label="Pending" value={String(stats.pending)} accent="var(--accent)" />
         <Stat label="Anonymous" value={String(stats.anonymous)} accent="var(--domain-observation)" />
         <Stat label="Completion" value={`${stats.completion_rate}%`} accent="var(--info)" />
-        <div className="rounded-lg border border-[#2A2A2F]/60 bg-surface-base px-3 py-2">
+        <div className="rounded-lg border border-border-default/60 bg-surface-base px-3 py-2">
           <div className="truncate text-[11px] text-text-secondary">
             {link ?? "Link available after activation"}
           </div>

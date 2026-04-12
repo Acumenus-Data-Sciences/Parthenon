@@ -11,9 +11,9 @@ export const DOMAIN_CONFIG: Record<
   condition: { label: "Conditions", color: "var(--critical)", order: 0 },
   drug: { label: "Drugs", color: "var(--success)", order: 1 },
   procedure: { label: "Procedures", color: "var(--accent)", order: 2 },
-  measurement: { label: "Measurements", color: "#818CF8", order: 3 },
-  observation: { label: "Observations", color: "#94A3B8", order: 4 },
-  visit: { label: "Visits", color: "#F59E0B", order: 5 },
+  measurement: { label: "Measurements", color: 'var(--info)', order: 3 },
+  observation: { label: "Observations", color: 'var(--text-muted)', order: 4 },
+  visit: { label: "Visits", color: 'var(--warning)', order: 5 },
 };
 
 export const ALL_DOMAINS: ClinicalDomain[] = [

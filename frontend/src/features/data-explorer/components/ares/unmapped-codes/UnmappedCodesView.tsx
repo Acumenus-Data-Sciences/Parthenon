@@ -76,7 +76,7 @@ export default function UnmappedCodesView() {
       {/* Filters row */}
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2">
-          <label className="text-sm text-[#888]">Source:</label>
+          <label className="text-sm text-text-muted">Source:</label>
           <select
             value={selectedSourceId ?? ""}
             onChange={(e) => {
@@ -84,7 +84,7 @@ export default function UnmappedCodesView() {
               setReleaseId(null);
               setPage(1);
             }}
-            className="rounded border border-[#333] bg-[#1a1a22] px-3 py-1.5 text-sm text-white"
+            className="rounded border border-border-default bg-surface-overlay px-3 py-1.5 text-sm text-white"
           >
             <option value="">Select source...</option>
             {sources?.map((s) => (
@@ -95,14 +95,14 @@ export default function UnmappedCodesView() {
 
         {selectedSourceId && releases && releases.length > 0 && (
           <div className="flex items-center gap-2">
-            <label className="text-sm text-[#888]">Release:</label>
+            <label className="text-sm text-text-muted">Release:</label>
             <select
               value={activeReleaseId ?? ""}
               onChange={(e) => {
                 setReleaseId(Number(e.target.value) || null);
                 setPage(1);
               }}
-              className="rounded border border-[#333] bg-[#1a1a22] px-3 py-1.5 text-sm text-white"
+              className="rounded border border-border-default bg-surface-overlay px-3 py-1.5 text-sm text-white"
             >
               {releases.map((r: SourceRelease) => (
                 <option key={r.id} value={r.id}>{r.release_name}</option>
@@ -113,7 +113,7 @@ export default function UnmappedCodesView() {
 
         {/* View mode toggle */}
         {selectedSourceId && activeReleaseId && (
-          <div className="ml-auto flex items-center gap-1 rounded-lg border border-[#252530] bg-surface-base p-0.5">
+          <div className="ml-auto flex items-center gap-1 rounded-lg border border-border-subtle bg-surface-base p-0.5">
             {(["table", "pareto", "vocabulary"] as const).map((mode) => (
               <button
                 key={mode}
@@ -121,8 +121,8 @@ export default function UnmappedCodesView() {
                 onClick={() => setViewMode(mode)}
                 className={`rounded-md px-3 py-1 text-xs transition-colors ${
                   viewMode === mode
-                    ? "bg-[#252530] text-white"
-                    : "text-[#666] hover:text-white"
+                    ? "bg-surface-accent text-white"
+                    : "text-text-ghost hover:text-white"
                 }`}
               >
                 {mode === "table" ? "Table" : mode === "pareto" ? "Pareto" : "Vocabulary"}
@@ -137,7 +137,7 @@ export default function UnmappedCodesView() {
             type="button"
             onClick={() => handleExport("usagi")}
             disabled={exporting}
-            className="rounded border border-[#333] px-3 py-1.5 text-xs text-[#888] hover:border-[#555] hover:text-white disabled:opacity-50"
+            className="rounded border border-border-default px-3 py-1.5 text-xs text-text-muted hover:border-border-hover hover:text-white disabled:opacity-50"
           >
             {exporting ? "Exporting..." : "Export Usagi CSV"}
           </button>
@@ -157,14 +157,14 @@ export default function UnmappedCodesView() {
           {availableTables.length > 0 && (
             <div className="mb-4 flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-2">
-                <label className="text-sm text-[#888]">Table:</label>
+                <label className="text-sm text-text-muted">Table:</label>
                 <select
                   value={tableFilter}
                   onChange={(e) => {
                     setTableFilter(e.target.value);
                     setPage(1);
                   }}
-                  className="rounded border border-[#333] bg-[#1a1a22] px-3 py-1.5 text-sm text-white"
+                  className="rounded border border-border-default bg-surface-overlay px-3 py-1.5 text-sm text-white"
                 >
                   <option value="">All tables</option>
                   {availableTables.map((t) => (
@@ -181,7 +181,7 @@ export default function UnmappedCodesView() {
                   setSearchFilter(e.target.value);
                   setPage(1);
                 }}
-                className="rounded border border-[#333] bg-[#1a1a22] px-3 py-1.5 text-sm text-white
+                className="rounded border border-border-default bg-surface-overlay px-3 py-1.5 text-sm text-white
                            placeholder-[#555] focus:border-success focus:outline-none"
               />
             </div>
@@ -201,7 +201,7 @@ export default function UnmappedCodesView() {
                   className={`rounded-full border px-3 py-1 text-xs transition-colors ${
                     tableFilter === s.cdm_table
                       ? "border-accent bg-accent/10 text-accent"
-                      : "border-[#333] text-[#888] hover:border-[#555]"
+                      : "border-border-default text-text-muted hover:border-border-hover"
                   }`}
                 >
                   {s.cdm_table} ({s.code_count} codes, {Number(s.total_records).toLocaleString()} records)
@@ -214,68 +214,68 @@ export default function UnmappedCodesView() {
 
       {/* Content area */}
       {!selectedSourceId && (
-        <p className="py-10 text-center text-[#555]">Select a source to view unmapped codes.</p>
+        <p className="py-10 text-center text-text-ghost">Select a source to view unmapped codes.</p>
       )}
 
-      {isLoading && viewMode === "table" && <p className="text-[#555]">Loading unmapped codes...</p>}
+      {isLoading && viewMode === "table" && <p className="text-text-ghost">Loading unmapped codes...</p>}
 
       {/* Pareto view */}
       {viewMode === "pareto" && paretoData && paretoData.codes.length > 0 && (
-        <div className="rounded-lg border border-[#252530] bg-surface-raised p-4">
+        <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
           <h3 className="mb-3 text-sm font-medium text-white">Unmapped Codes Pareto Analysis</h3>
           <ParetoChart data={paretoData.codes} top20Coverage={paretoData.top_20_coverage} />
         </div>
       )}
 
       {viewMode === "pareto" && paretoData && paretoData.codes.length === 0 && (
-        <p className="py-10 text-center text-[#555]">No unmapped codes found for Pareto analysis.</p>
+        <p className="py-10 text-center text-text-ghost">No unmapped codes found for Pareto analysis.</p>
       )}
 
       {/* Vocabulary view */}
       {viewMode === "vocabulary" && treemapData && treemapData.length > 0 && (
-        <div className="rounded-lg border border-[#252530] bg-surface-raised p-4">
+        <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
           <h3 className="mb-3 text-sm font-medium text-white">Unmapped Codes by Vocabulary</h3>
           <VocabularyBarChart data={treemapData} />
         </div>
       )}
 
       {viewMode === "vocabulary" && treemapData && treemapData.length === 0 && (
-        <p className="py-10 text-center text-[#555]">No vocabulary data available.</p>
+        <p className="py-10 text-center text-text-ghost">No vocabulary data available.</p>
       )}
 
       {/* Table view */}
       {viewMode === "table" && codesData && codesData.data.length === 0 && (
-        <p className="py-10 text-center text-[#555]">
+        <p className="py-10 text-center text-text-ghost">
           No unmapped source codes found. All codes are mapped to standard OMOP concepts.
         </p>
       )}
 
       {viewMode === "table" && codesData && codesData.data.length > 0 && (
         <>
-          <p className="mb-3 text-xs text-[#555]">
+          <p className="mb-3 text-xs text-text-ghost">
             Sorted by impact score (record count x domain weight)
           </p>
 
-          <div className="overflow-hidden rounded-lg border border-[#252530]">
+          <div className="overflow-hidden rounded-lg border border-border-subtle">
             <table className="w-full text-sm">
-              <thead className="bg-[#1a1a22]">
-                <tr className="border-b border-[#252530]">
-                  <th className="px-3 py-2 text-left text-[11px] font-medium uppercase text-[#888]">Source Code</th>
-                  <th className="px-3 py-2 text-left text-[11px] font-medium uppercase text-[#888]">Vocabulary</th>
-                  <th className="px-3 py-2 text-left text-[11px] font-medium uppercase text-[#888]">CDM Table</th>
-                  <th className="px-3 py-2 text-left text-[11px] font-medium uppercase text-[#888]">CDM Field</th>
-                  <th className="px-3 py-2 text-right text-[11px] font-medium uppercase text-[#888]">Records</th>
-                  <th className="px-3 py-2 text-right text-[11px] font-medium uppercase text-[#888]">Impact Score</th>
+              <thead className="bg-surface-overlay">
+                <tr className="border-b border-border-subtle">
+                  <th className="px-3 py-2 text-left text-[11px] font-medium uppercase text-text-muted">Source Code</th>
+                  <th className="px-3 py-2 text-left text-[11px] font-medium uppercase text-text-muted">Vocabulary</th>
+                  <th className="px-3 py-2 text-left text-[11px] font-medium uppercase text-text-muted">CDM Table</th>
+                  <th className="px-3 py-2 text-left text-[11px] font-medium uppercase text-text-muted">CDM Field</th>
+                  <th className="px-3 py-2 text-right text-[11px] font-medium uppercase text-text-muted">Records</th>
+                  <th className="px-3 py-2 text-right text-[11px] font-medium uppercase text-text-muted">Impact Score</th>
                 </tr>
               </thead>
               <tbody>
                 {codesData.data.map((code: UnmappedCode, idx: number) => (
-                  <tr key={code.id} className="border-b border-[#1a1a22] hover:bg-surface-raised">
-                    <td className="px-3 py-2 font-mono text-xs text-[#ccc]">{code.source_code}</td>
-                    <td className="px-3 py-2 text-xs text-[#888]">{code.source_vocabulary_id}</td>
-                    <td className="px-3 py-2 text-xs text-[#888]">{code.cdm_table}</td>
-                    <td className="px-3 py-2 text-xs text-[#888]">{code.cdm_field}</td>
-                    <td className="px-3 py-2 text-right text-xs text-[#ccc]">
+                  <tr key={code.id} className="border-b border-border-subtle hover:bg-surface-raised">
+                    <td className="px-3 py-2 font-mono text-xs text-text-secondary">{code.source_code}</td>
+                    <td className="px-3 py-2 text-xs text-text-muted">{code.source_vocabulary_id}</td>
+                    <td className="px-3 py-2 text-xs text-text-muted">{code.cdm_table}</td>
+                    <td className="px-3 py-2 text-xs text-text-muted">{code.cdm_field}</td>
+                    <td className="px-3 py-2 text-right text-xs text-text-secondary">
                       {code.record_count.toLocaleString()}
                     </td>
                     <td className="px-3 py-2 text-right text-xs">
@@ -285,7 +285,7 @@ export default function UnmappedCodesView() {
                             #{idx + 1}
                           </span>
                         )}
-                        <span className="text-[#ccc]">{Number(code.impact_score).toFixed(1)}</span>
+                        <span className="text-text-secondary">{Number(code.impact_score).toFixed(1)}</span>
                       </span>
                     </td>
                   </tr>
@@ -297,12 +297,12 @@ export default function UnmappedCodesView() {
           {/* AI Mapping Suggestion Panels */}
           {selectedSourceId && (
             <div className="mt-3 space-y-1">
-              <p className="mb-2 text-[11px] uppercase text-[#666]">AI Mapping Suggestions</p>
+              <p className="mb-2 text-[11px] uppercase text-text-ghost">AI Mapping Suggestions</p>
               {codesData.data.map((code: UnmappedCode) => (
-                <div key={`suggest-${code.id}`} className="rounded-lg border border-[#252530] bg-surface-raised">
-                  <div className="px-3 py-1.5 text-xs text-[#ccc]">
+                <div key={`suggest-${code.id}`} className="rounded-lg border border-border-subtle bg-surface-raised">
+                  <div className="px-3 py-1.5 text-xs text-text-secondary">
                     <span className="font-mono">{code.source_code}</span>
-                    <span className="ml-2 text-[#666]">({code.source_vocabulary_id})</span>
+                    <span className="ml-2 text-text-ghost">({code.source_vocabulary_id})</span>
                   </div>
                   <MappingSuggestionPanel code={code} sourceId={selectedSourceId} />
                 </div>
@@ -311,7 +311,7 @@ export default function UnmappedCodesView() {
           )}
 
           {/* Pagination */}
-          <div className="mt-3 flex items-center justify-between text-xs text-[#888]">
+          <div className="mt-3 flex items-center justify-between text-xs text-text-muted">
             <span>
               Showing {(codesData.meta.page - 1) * codesData.meta.per_page + 1}–
               {Math.min(codesData.meta.page * codesData.meta.per_page, codesData.meta.total)} of{" "}
@@ -322,7 +322,7 @@ export default function UnmappedCodesView() {
                 type="button"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1}
-                className="rounded border border-[#333] px-3 py-1 disabled:opacity-30"
+                className="rounded border border-border-default px-3 py-1 disabled:opacity-30"
               >
                 Prev
               </button>
@@ -330,7 +330,7 @@ export default function UnmappedCodesView() {
                 type="button"
                 onClick={() => setPage((p) => Math.min(codesData.meta.last_page, p + 1))}
                 disabled={page >= codesData.meta.last_page}
-                className="rounded border border-[#333] px-3 py-1 disabled:opacity-30"
+                className="rounded border border-border-default px-3 py-1 disabled:opacity-30"
               >
                 Next
               </button>

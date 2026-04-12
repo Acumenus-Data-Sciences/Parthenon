@@ -133,7 +133,7 @@ export function FederatedExecutionTab({ studySlug }: { studySlug: string }) {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-semibold text-text-secondary">Available Data Nodes</h3>
-            <span className="inline-flex items-center gap-1 rounded-full border border-[#8B5CF6]/40 bg-[#8B5CF6]/10 px-2.5 py-0.5 text-[10px] font-semibold tracking-wide text-[var(--domain-observation)]">
+            <span className="inline-flex items-center gap-1 rounded-full border border-domain-observation/40 bg-[#8B5CF6]/10 px-2.5 py-0.5 text-[10px] font-semibold tracking-wide text-[var(--domain-observation)]">
               <Sparkles className="h-3 w-3" />
               Powered by Arachne
             </span>
@@ -145,7 +145,7 @@ export function FederatedExecutionTab({ studySlug }: { studySlug: string }) {
             className={cn(
               "btn btn-sm flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all",
               selectedNodes.size > 0
-                ? "bg-primary text-white hover:bg-[#B52240]"
+                ? "bg-primary text-white hover:bg-primary-dark"
                 : "bg-surface-elevated text-text-ghost cursor-not-allowed",
             )}
           >
@@ -242,7 +242,7 @@ export function FederatedExecutionTab({ studySlug }: { studySlug: string }) {
         )}
 
         {distributeMutation.isSuccess && (
-          <div className="mt-3 rounded-lg bg-[#34D399]/10 border border-[#34D399]/20 px-4 py-3 text-xs text-[#34D399]">
+          <div className="mt-3 rounded-lg bg-[#34D399]/10 border border-[#34D399]/20 px-4 py-3 text-xs text-success">
             Study distributed successfully. Monitoring status below.
           </div>
         )}

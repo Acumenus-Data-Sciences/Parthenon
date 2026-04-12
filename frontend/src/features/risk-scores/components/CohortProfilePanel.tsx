@@ -63,9 +63,9 @@ export function CohortProfilePanel({
       .join(", ");
 
     return (
-      <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] px-4 py-3">
+      <div className="rounded-xl border border-border-default bg-surface-raised px-4 py-3">
         <p className="text-sm text-text-secondary">
-          <span className="font-['IBM_Plex_Mono',monospace] text-[#E8E4DE]">
+          <span className="font-['IBM_Plex_Mono',monospace] text-text-primary">
             {profile.patient_count.toLocaleString()}
           </span>{" "}
           patients &bull; Age {profile.min_age}&ndash;{profile.max_age} &bull;{" "}
@@ -82,13 +82,13 @@ export function CohortProfilePanel({
   const measurementEntries = Object.entries(profile.measurement_coverage);
 
   return (
-    <div className="space-y-6 rounded-xl border border-[#2A2A2F] bg-[#141418] p-6">
+    <div className="space-y-6 rounded-xl border border-border-default bg-surface-raised p-6">
       {/* Demographics */}
       <div>
         <SectionHeader>Demographics</SectionHeader>
         <div className="flex flex-wrap items-center gap-6">
           <div>
-            <span className="font-['IBM_Plex_Mono',monospace] text-2xl text-[#E8E4DE]">
+            <span className="font-['IBM_Plex_Mono',monospace] text-2xl text-text-primary">
               {profile.patient_count.toLocaleString()}
             </span>
             <span className="ml-2 text-xs text-text-ghost">patients</span>

@@ -26,7 +26,7 @@ const TIER_STYLES: Record<string, { bg: string; text: string; label: string }> =
   },
   quick_review: {
     bg: "bg-[#E5A84B]/15",
-    text: "text-[#E5A84B]",
+    text: "text-warning",
     label: "Quick Review",
   },
   full_review: {

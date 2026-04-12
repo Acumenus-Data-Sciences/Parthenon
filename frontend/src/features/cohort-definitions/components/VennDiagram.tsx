@@ -129,7 +129,7 @@ export function VennDiagram({
         x={cxB + rB * 0.4}
         y={cy + 4}
         textAnchor="middle"
-        className="fill-[#818CF8] text-[10px] font-['IBM_Plex_Mono',monospace]"
+        className="fill-info text-[10px] font-['IBM_Plex_Mono',monospace]"
       >
         {fmt(pair.only_b)}
       </text>

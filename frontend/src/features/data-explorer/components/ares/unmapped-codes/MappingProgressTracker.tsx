@@ -24,7 +24,7 @@ export default function MappingProgressTracker({
 
   if (total === 0) {
     return (
-      <div className="rounded-lg border border-[#252530] bg-surface-raised p-4 text-center text-sm text-[#555]">
+      <div className="rounded-lg border border-border-subtle bg-surface-raised p-4 text-center text-sm text-text-ghost">
         No unmapped codes to track.
       </div>
     );
@@ -33,14 +33,14 @@ export default function MappingProgressTracker({
   const completionPct = total > 0 ? ((mapped + deferred + excluded) / total) * 100 : 0;
 
   return (
-    <div className="rounded-lg border border-[#252530] bg-surface-raised p-4">
+    <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
       <div className="mb-2 flex items-center justify-between">
         <h4 className="text-sm font-medium text-white">Mapping Progress</h4>
-        <span className="text-xs text-[#888]">{completionPct.toFixed(1)}% reviewed</span>
+        <span className="text-xs text-text-muted">{completionPct.toFixed(1)}% reviewed</span>
       </div>
 
       {/* Stacked progress bar */}
-      <div className="mb-3 flex h-4 w-full overflow-hidden rounded-full bg-[#1a1a22]">
+      <div className="mb-3 flex h-4 w-full overflow-hidden rounded-full bg-surface-overlay">
         {SEGMENTS.map((seg) => {
           const pct = total > 0 ? (values[seg.key] / total) * 100 : 0;
           if (pct <= 0) return null;
@@ -60,7 +60,7 @@ export default function MappingProgressTracker({
         {SEGMENTS.map((seg) => (
           <div key={seg.key} className="flex items-center gap-1.5 text-xs">
             <div className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: seg.color }} />
-            <span className="text-[#888]">{seg.label}:</span>
+            <span className="text-text-muted">{seg.label}:</span>
             <span className="font-medium text-white">{values[seg.key].toLocaleString()}</span>
           </div>
         ))}

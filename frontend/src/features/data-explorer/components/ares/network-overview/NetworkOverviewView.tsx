@@ -27,7 +27,7 @@ function DomainRing({ count }: { count: number }) {
           transform="rotate(-90 10 10)"
         />
       </svg>
-      <span className="text-xs text-[#888]">{count}/12</span>
+      <span className="text-xs text-text-muted">{count}/12</span>
     </div>
   );
 }
@@ -40,11 +40,11 @@ export default function NetworkOverviewView() {
   const navigate = useNavigate();
 
   if (isLoading) {
-    return <div className="p-4 text-[#555]">Loading network overview...</div>;
+    return <div className="p-4 text-text-ghost">Loading network overview...</div>;
   }
 
   if (!overview) {
-    return <div className="p-4 text-center text-[#555]">No network data available.</div>;
+    return <div className="p-4 text-center text-text-ghost">No network data available.</div>;
   }
 
   return (
@@ -57,7 +57,7 @@ export default function NetworkOverviewView() {
           className={`rounded-md border px-3 py-1 text-xs transition-colors ${
             showRadar
               ? "border-success bg-success/10 text-success"
-              : "border-[#333] text-[#888] hover:border-[#555]"
+              : "border-border-default text-text-muted hover:border-border-hover"
           }`}
         >
           {showRadar ? "Hide Radar" : "DQ Radar"}
@@ -76,44 +76,44 @@ export default function NetworkOverviewView() {
 
       {/* Summary stats */}
       <div className="mb-6 grid grid-cols-5 gap-3">
-        <div className="rounded-lg border border-[#252530] bg-surface-raised p-3 text-center">
+        <div className="rounded-lg border border-border-subtle bg-surface-raised p-3 text-center">
           <p className="text-2xl font-semibold text-success">{overview.source_count}</p>
-          <p className="text-[11px] text-[#666]">Data Sources</p>
+          <p className="text-[11px] text-text-ghost">Data Sources</p>
         </div>
-        <div className="rounded-lg border border-[#252530] bg-surface-raised p-3 text-center">
+        <div className="rounded-lg border border-border-subtle bg-surface-raised p-3 text-center">
           <p className="text-2xl font-semibold text-accent">
             {overview.avg_dq_score !== null ? `${overview.avg_dq_score.toFixed(1)}%` : "--"}
           </p>
-          <p className="text-[11px] text-[#666]">Avg DQ Score</p>
+          <p className="text-[11px] text-text-ghost">Avg DQ Score</p>
         </div>
-        <div className="rounded-lg border border-[#252530] bg-surface-raised p-3 text-center">
+        <div className="rounded-lg border border-border-subtle bg-surface-raised p-3 text-center">
           <p className="text-2xl font-semibold text-primary">{overview.total_unmapped_codes.toLocaleString()}</p>
-          <p className="text-[11px] text-[#666]">Unmapped Codes</p>
+          <p className="text-[11px] text-text-ghost">Unmapped Codes</p>
         </div>
-        <div className="rounded-lg border border-[#252530] bg-surface-raised p-3 text-center">
+        <div className="rounded-lg border border-border-subtle bg-surface-raised p-3 text-center">
           <p className="text-2xl font-semibold text-white">{overview.sources_needing_attention}</p>
-          <p className="text-[11px] text-[#666]">Need Attention</p>
+          <p className="text-[11px] text-text-ghost">Need Attention</p>
         </div>
-        <div className="rounded-lg border border-[#252530] bg-surface-raised p-3 text-center">
+        <div className="rounded-lg border border-border-subtle bg-surface-raised p-3 text-center">
           <p className="text-2xl font-semibold text-success">
             {overview.network_person_count?.toLocaleString() ?? "--"}
           </p>
-          <p className="text-[11px] text-[#666]">Total Persons</p>
+          <p className="text-[11px] text-text-ghost">Total Persons</p>
         </div>
       </div>
 
       {/* Source health table */}
-      <div className="overflow-hidden rounded-lg border border-[#252530]">
+      <div className="overflow-hidden rounded-lg border border-border-subtle">
         <table className="w-full text-sm">
-          <thead className="bg-[#1a1a22]">
-            <tr className="border-b border-[#252530]">
-              <th className="px-4 py-2 text-left text-[11px] font-medium uppercase text-[#888]">Source</th>
-              <th className="px-4 py-2 text-center text-[11px] font-medium uppercase text-[#888]">DQ Score</th>
-              <th className="px-4 py-2 text-center text-[11px] font-medium uppercase text-[#888]">DQ Trend</th>
-              <th className="px-4 py-2 text-center text-[11px] font-medium uppercase text-[#888]">Freshness</th>
-              <th className="px-4 py-2 text-center text-[11px] font-medium uppercase text-[#888]">Domains</th>
-              <th className="px-4 py-2 text-right text-[11px] font-medium uppercase text-[#888]">Persons</th>
-              <th className="px-4 py-2 text-left text-[11px] font-medium uppercase text-[#888]">Latest Release</th>
+          <thead className="bg-surface-overlay">
+            <tr className="border-b border-border-subtle">
+              <th className="px-4 py-2 text-left text-[11px] font-medium uppercase text-text-muted">Source</th>
+              <th className="px-4 py-2 text-center text-[11px] font-medium uppercase text-text-muted">DQ Score</th>
+              <th className="px-4 py-2 text-center text-[11px] font-medium uppercase text-text-muted">DQ Trend</th>
+              <th className="px-4 py-2 text-center text-[11px] font-medium uppercase text-text-muted">Freshness</th>
+              <th className="px-4 py-2 text-center text-[11px] font-medium uppercase text-text-muted">Domains</th>
+              <th className="px-4 py-2 text-right text-[11px] font-medium uppercase text-text-muted">Persons</th>
+              <th className="px-4 py-2 text-left text-[11px] font-medium uppercase text-text-muted">Latest Release</th>
             </tr>
           </thead>
           <tbody>
@@ -121,7 +121,7 @@ export default function NetworkOverviewView() {
               <tr
                 key={source.source_id}
                 onClick={() => navigate(`/data-explorer/${source.source_id}`)}
-                className="cursor-pointer border-b border-[#1a1a22] hover:bg-surface-raised"
+                className="cursor-pointer border-b border-border-subtle hover:bg-surface-raised"
               >
                 <td className="px-4 py-2 text-white">{source.source_name}</td>
                 <td className="px-4 py-2 text-center">
@@ -131,7 +131,7 @@ export default function NetworkOverviewView() {
                         ? "bg-success/20 text-success"
                         : source.pass_rate >= 80
                           ? "bg-accent/20 text-accent"
-                          : "bg-primary/20 text-[#e85d75]"
+                          : "bg-primary/20 text-critical"
                     }`}
                   >
                     {source.pass_rate > 0 ? `${source.pass_rate.toFixed(1)}%` : "--"}
@@ -146,15 +146,15 @@ export default function NetworkOverviewView() {
                 <td className="px-4 py-2 text-center">
                   <DomainRing count={source.domain_count} />
                 </td>
-                <td className="px-4 py-2 text-right text-xs text-[#ccc]">
+                <td className="px-4 py-2 text-right text-xs text-text-secondary">
                   {source.person_count.toLocaleString()}
                 </td>
-                <td className="px-4 py-2 text-xs text-[#888]">{source.release_name ?? "No releases"}</td>
+                <td className="px-4 py-2 text-xs text-text-muted">{source.release_name ?? "No releases"}</td>
               </tr>
             ))}
 
             {/* Network aggregate row */}
-            <tr className="border-t-2 border-[#333] bg-[#1a1a22] font-medium">
+            <tr className="border-t-2 border-border-default bg-surface-overlay font-medium">
               <td className="px-4 py-2 text-accent">Network Total</td>
               <td className="px-4 py-2 text-center">
                 <span className="text-xs text-accent">

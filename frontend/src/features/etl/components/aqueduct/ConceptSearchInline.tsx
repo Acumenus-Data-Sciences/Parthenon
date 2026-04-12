@@ -94,7 +94,7 @@ export function ConceptSearchInline({ onSelect }: ConceptSearchInlineProps) {
           if (results.length > 0) setIsOpen(true);
         }}
         placeholder="Search OMOP concepts..."
-        className="w-full bg-surface-overlay border border-[#2E2E35] rounded px-3 py-1.5 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-success"
+        className="w-full bg-surface-overlay border border-border-default rounded px-3 py-1.5 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-success"
       />
       {isLoading && (
         <div className="absolute right-3 top-[28px]">
@@ -110,7 +110,7 @@ export function ConceptSearchInline({ onSelect }: ConceptSearchInlineProps) {
         </div>
       )}
       {isOpen && results.length > 0 && (
-        <ul className="absolute z-50 w-full mt-1 max-h-60 overflow-auto bg-surface-overlay border border-[#2E2E35] rounded-lg shadow-lg">
+        <ul className="absolute z-50 w-full mt-1 max-h-60 overflow-auto bg-surface-overlay border border-border-default rounded-lg shadow-lg">
           {results.map((concept) => (
             <li key={concept.concept_id}>
               <button

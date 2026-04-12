@@ -434,7 +434,7 @@ function DomainGroupRows({
                   group.meanAbsSmd > 0.2
                     ? "text-critical"
                     : group.meanAbsSmd > 0.1
-                      ? "text-[#F59E0B]"
+                      ? "text-warning"
                       : "text-text-secondary",
                 )}
               >
@@ -504,7 +504,7 @@ function DomainGroupRows({
                         row.smd > 0.2
                           ? "text-critical"
                           : row.smd > 0.1
-                            ? "text-[#F59E0B]"
+                            ? "text-warning"
                             : "text-text-secondary",
                       )}
                     >

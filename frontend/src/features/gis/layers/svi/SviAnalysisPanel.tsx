@@ -40,7 +40,7 @@ export function SviAnalysisPanel({ conceptId, metric }: LayerAnalysisProps) {
         <YAxis tick={{ fill: "var(--text-muted)", fontSize: 10 }} />
         <Tooltip
           contentStyle={{
-            backgroundColor: "#141418",
+            backgroundColor: 'var(--surface-raised)',
             border: "1px solid var(--surface-elevated)",
             borderRadius: 8,
             fontSize: 11,

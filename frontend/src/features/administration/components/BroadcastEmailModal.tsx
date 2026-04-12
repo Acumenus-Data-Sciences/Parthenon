@@ -114,7 +114,7 @@ export function BroadcastEmailModal({ userCount, onClose }: BroadcastEmailModalP
               type="button"
               disabled={broadcast.isPending || !subject.trim() || !body.trim()}
               onClick={handleSend}
-              className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-surface-base transition-colors hover:bg-[#B5911F] disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-surface-base transition-colors hover:bg-accent-dark disabled:opacity-50"
             >
               {broadcast.isPending ? (
                 <>

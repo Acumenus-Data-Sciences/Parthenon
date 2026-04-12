@@ -266,7 +266,7 @@ export function StudyArtifactsTab({ slug }: StudyArtifactsTabProps) {
                   <div className="flex items-center gap-2">
                     <p className="text-sm text-text-primary font-medium truncate">{a.title}</p>
                     {a.is_current && (
-                      <span className="px-1.5 py-0.5 rounded text-[9px] font-medium bg-[#34D399]/10 text-[#34D399]">CURRENT</span>
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-medium bg-[#34D399]/10 text-success">CURRENT</span>
                     )}
                   </div>
                   <div className="flex items-center gap-3 mt-1 text-xs text-text-ghost">

@@ -42,7 +42,7 @@ export default function ComparisonChart(props: ComparisonChartProps) {
 
   if (!data || data.length === 0) {
     return (
-      <div className="flex h-48 items-center justify-center text-[#555]">
+      <div className="flex h-48 items-center justify-center text-text-ghost">
         No comparison data available.
       </div>
     );
@@ -81,7 +81,7 @@ export default function ComparisonChart(props: ComparisonChartProps) {
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: "#1a1a22",
+              backgroundColor: 'var(--surface-overlay)',
               border: "1px solid #333",
               borderRadius: "8px",
               color: "#ccc",
@@ -130,7 +130,7 @@ function GroupedBars({
 }) {
   if (multiData.sources.length === 0) {
     return (
-      <div className="flex h-48 items-center justify-center text-[#555]">
+      <div className="flex h-48 items-center justify-center text-text-ghost">
         No comparison data available.
       </div>
     );
@@ -171,7 +171,7 @@ function GroupedBars({
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: "#1a1a22",
+              backgroundColor: 'var(--surface-overlay)',
               border: "1px solid #333",
               borderRadius: "8px",
               color: "#ccc",

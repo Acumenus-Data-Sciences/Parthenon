@@ -102,7 +102,7 @@ function SafetyBadge({ safety }: { safety: "safe" | "unsafe" | "unknown" }) {
         borderRadius: "20px",
         border: "1px solid color-mix(in srgb, var(--primary) 31%, transparent)",
         background: "color-mix(in srgb, var(--primary) 9%, transparent)",
-        color: "#F87171",
+        color: 'var(--critical)',
         fontSize: "12px",
         fontWeight: 600,
       }}
@@ -342,7 +342,7 @@ export function ResultsPanel({
                 borderRadius: "6px",
                 border: "1px solid color-mix(in srgb, var(--primary) 25%, transparent)",
                 background: "color-mix(in srgb, var(--primary) 8%, transparent)",
-                color: "#F87171",
+                color: 'var(--critical)',
                 fontSize: "12px",
               }}
             >
@@ -532,7 +532,7 @@ export function ResultsPanel({
               {validation.valid ? (
                 <ShieldCheck size={15} style={{ color: "var(--success)" }} />
               ) : (
-                <ShieldAlert size={15} style={{ color: "#F87171" }} />
+                <ShieldAlert size={15} style={{ color: 'var(--critical)' }} />
               )}
               <span
                 style={{
@@ -620,7 +620,7 @@ export function ResultsPanel({
               borderRadius: "6px",
               border: "1px solid color-mix(in srgb, var(--primary) 25%, transparent)",
               background: "color-mix(in srgb, var(--primary) 8%, transparent)",
-              color: "#F87171",
+              color: 'var(--critical)',
               fontSize: "13px",
             }}
           >

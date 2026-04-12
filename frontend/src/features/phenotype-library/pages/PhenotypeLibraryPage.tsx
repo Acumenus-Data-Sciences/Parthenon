@@ -33,7 +33,7 @@ const DOMAIN_COLORS: Record<string, string> = {
   Measurement: "bg-primary/15 text-critical border-primary/30",
   Procedure: "bg-[var(--domain-observation)]/15 text-[var(--domain-observation)] border-[var(--domain-observation)]/30",
   Observation: "bg-info/15 text-info border-info/30",
-  Device: "bg-[#34D399]/15 text-[#34D399] border-[#34D399]/30",
+  Device: "bg-[#34D399]/15 text-success border-[#34D399]/30",
 };
 
 function domainColor(domain: string | null): string {

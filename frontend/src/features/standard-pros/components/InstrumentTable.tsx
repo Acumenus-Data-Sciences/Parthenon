@@ -173,7 +173,7 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
           placeholder="Search instruments by name, abbreviation, or domain..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-lg border border-[#2A2A2F] bg-surface-base py-2 pl-9 pr-3 text-sm text-text-primary placeholder-text-ghost outline-none focus:border-accent/40 transition-colors"
+          className="w-full rounded-lg border border-border-default bg-surface-base py-2 pl-9 pr-3 text-sm text-text-primary placeholder-text-ghost outline-none focus:border-accent/40 transition-colors"
         />
       </div>
 
@@ -336,11 +336,11 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
       </p>
 
       {/* ── Table ──────────────────────────────────────────────────────── */}
-      <div className="overflow-hidden rounded-xl border border-[#2A2A2F]">
+      <div className="overflow-hidden rounded-xl border border-border-default">
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-[#2A2A2F] bg-surface-base">
+              <tr className="border-b border-border-default bg-surface-base">
                 {(
                   [
                     ["abbreviation", "Abbrev."],
@@ -375,7 +375,7 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
                 <tr
                   key={inst.abbreviation}
                   className={cn(
-                    "border-b border-[#2A2A2F]/50 last:border-b-0 hover:bg-surface-overlay transition-colors",
+                    "border-b border-border-default/50 last:border-b-0 hover:bg-surface-overlay transition-colors",
                     inst.id && "cursor-pointer",
                   )}
                   onClick={() => {
@@ -427,7 +427,7 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
                   </td>
                   <td className="px-3 py-2.5">
                     {inst.hasSnomed ? (
-                      <span className="inline-flex items-center gap-1 rounded-md bg-[#F59E0B]/10 px-2 py-0.5 text-[10px] font-medium text-[#F59E0B]">
+                      <span className="inline-flex items-center gap-1 rounded-md bg-warning/10 px-2 py-0.5 text-[10px] font-medium text-warning">
                         <Check size={10} />
                         {inst.snomedCode ?? "Yes"}
                       </span>

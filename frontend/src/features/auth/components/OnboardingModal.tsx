@@ -182,7 +182,7 @@ export function OnboardingModal() {
                     onClick={() => handleCardClick(card.href)}
                     className={cn(
                       "group flex flex-col items-start rounded-xl border border-border-default bg-surface-overlay p-4",
-                      "hover:border-surface-highlight hover:bg-[#1F1F24] transition-colors text-left",
+                      "hover:border-surface-highlight hover:bg-surface-overlay transition-colors text-left",
                     )}
                   >
                     <div className={cn("mb-3 rounded-lg p-2", card.bg)}>
@@ -203,7 +203,7 @@ export function OnboardingModal() {
                 disabled={completing}
                 className={cn(
                   "inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-surface-base",
-                  "hover:bg-[#D4AE3A] transition-colors disabled:opacity-50",
+                  "hover:bg-accent transition-colors disabled:opacity-50",
                 )}
               >
                 {completing ? (

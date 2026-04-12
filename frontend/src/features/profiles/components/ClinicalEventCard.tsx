@@ -42,7 +42,7 @@ function RangeStatus({
   if (rangeLow == null || rangeHigh == null) return null;
   if (value < rangeLow) {
     return (
-      <span className="inline-flex items-center gap-0.5 text-[10px] text-[#818CF8]">
+      <span className="inline-flex items-center gap-0.5 text-[10px] text-info">
         <TrendingDown size={10} /> Below range ({rangeLow})
       </span>
     );
@@ -55,7 +55,7 @@ function RangeStatus({
     );
   }
   return (
-    <span className="inline-flex items-center gap-0.5 text-[10px] text-[#22C55E]">
+    <span className="inline-flex items-center gap-0.5 text-[10px] text-success">
       <Minus size={10} /> Normal ({rangeLow}–{rangeHigh})
     </span>
   );

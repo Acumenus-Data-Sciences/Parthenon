@@ -320,7 +320,7 @@ export function QueryLibraryTab({ dialect = "postgresql" }: { dialect?: string }
             borderRadius: "6px",
             border: "1px solid color-mix(in srgb, var(--primary) 25%, transparent)",
             background: "color-mix(in srgb, var(--primary) 8%, transparent)",
-            color: "#F87171",
+            color: 'var(--critical)',
             fontSize: "12px",
           }}
         >

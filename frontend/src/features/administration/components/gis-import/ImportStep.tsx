@@ -46,7 +46,7 @@ export function ImportStep({ importId, mapping, onReset }: Props) {
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Loader2 className="h-4 w-4 animate-spin text-accent" />
-            <span className="text-sm text-[#E8E4DC]">Importing... {status?.progress_percentage ?? 0}%</span>
+            <span className="text-sm text-text-primary">Importing... {status?.progress_percentage ?? 0}%</span>
           </div>
           <div className="h-2 rounded-full bg-surface-elevated">
             <div
@@ -59,7 +59,7 @@ export function ImportStep({ importId, mapping, onReset }: Props) {
 
       {/* Log output */}
       {status?.log_output && (
-        <div className="rounded border border-border-default bg-[#0A0A0F] p-3">
+        <div className="rounded border border-border-default bg-surface-darkest p-3">
           <pre className="max-h-48 overflow-y-auto font-mono text-xs text-text-muted whitespace-pre-wrap">
             {status.log_output}
           </pre>
@@ -79,7 +79,7 @@ export function ImportStep({ importId, mapping, onReset }: Props) {
 
           {/* Learn prompt */}
           <div className="rounded border border-border-default bg-surface-base p-3">
-            <label className="flex items-center gap-2 text-sm text-[#E8E4DC]">
+            <label className="flex items-center gap-2 text-sm text-text-primary">
               <input
                 type="checkbox"
                 checked={saveLearning}

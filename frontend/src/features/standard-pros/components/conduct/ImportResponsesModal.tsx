@@ -43,7 +43,7 @@ export function ImportResponsesModal({
           <button
             type="button"
             onClick={handleClose}
-            className="rounded-lg border border-[#2A2A2F] px-4 py-2 text-sm text-text-muted hover:text-text-primary"
+            className="rounded-lg border border-border-default px-4 py-2 text-sm text-text-muted hover:text-text-primary"
           >
             Cancel
           </button>
@@ -60,7 +60,7 @@ export function ImportResponsesModal({
       )}
     >
       <div className="space-y-4">
-        <div className="rounded-lg border border-[#2A2A2F] bg-[#141418] px-4 py-3">
+        <div className="rounded-lg border border-border-default bg-surface-raised px-4 py-3">
           <p className="text-xs text-text-secondary">
             Paste CSV with a required <code>person_id</code> column and item columns matching
             <code>item_#</code>, raw item ids, or exact item text.
@@ -84,7 +84,7 @@ export function ImportResponsesModal({
 
               setCsv(await file.text());
             }}
-            className="block w-full rounded-lg border border-[#2A2A2F] bg-[#141418] px-3 py-2 text-sm text-text-secondary file:mr-3 file:rounded-md file:border-0 file:bg-surface-base file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-text-primary"
+            className="block w-full rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-secondary file:mr-3 file:rounded-md file:border-0 file:bg-surface-base file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-text-primary"
           />
         </div>
         <textarea
@@ -92,7 +92,7 @@ export function ImportResponsesModal({
           onChange={(event) => setCsv(event.target.value)}
           rows={16}
           placeholder={`${sampleHeader}\n101,1,2,3`}
-          className="w-full rounded-lg border border-[#2A2A2F] bg-[#141418] px-3 py-3 font-['IBM_Plex_Mono',monospace] text-xs text-text-primary outline-none focus:border-success"
+          className="w-full rounded-lg border border-border-default bg-surface-raised px-3 py-3 font-['IBM_Plex_Mono',monospace] text-xs text-text-primary outline-none focus:border-success"
         />
       </div>
     </Modal>

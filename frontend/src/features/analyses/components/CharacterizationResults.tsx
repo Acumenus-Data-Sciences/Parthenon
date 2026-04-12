@@ -425,7 +425,7 @@ function Table1View({
         {" · "}
         SMD color: <span style={{ color: "var(--success)" }}>green &lt; 0.1</span>
         {", "}
-        <span style={{ color: "#F59E0B" }}>yellow 0.1–0.2</span>
+        <span style={{ color: 'var(--warning)' }}>yellow 0.1–0.2</span>
         {", "}
         <span style={{ color: "var(--critical)" }}>red ≥ 0.2</span>
       </p>

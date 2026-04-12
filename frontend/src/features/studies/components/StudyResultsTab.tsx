@@ -200,12 +200,12 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
                             </span>
                           )}
                           {r.is_primary && (
-                            <span className="px-1.5 py-0.5 rounded text-[9px] font-medium bg-[#F59E0B]/10 text-[#F59E0B]">
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-medium bg-warning/10 text-warning">
                               PRIMARY
                             </span>
                           )}
                           {r.is_publishable && (
-                            <span className="px-1.5 py-0.5 rounded text-[9px] font-medium bg-[#34D399]/10 text-[#34D399]">
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-medium bg-[#34D399]/10 text-success">
                               PUBLISHABLE
                             </span>
                           )}
@@ -221,7 +221,7 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
                         <button
                           type="button"
                           onClick={() => handleTogglePrimary(r)}
-                          className="p-1.5 text-text-ghost hover:text-[#F59E0B]"
+                          className="p-1.5 text-text-ghost hover:text-warning"
                           title={r.is_primary ? "Unmark primary" : "Mark as primary"}
                         >
                           {r.is_primary ? <Star size={14} /> : <StarOff size={14} />}
@@ -229,7 +229,7 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
                         <button
                           type="button"
                           onClick={() => handleTogglePublishable(r)}
-                          className="p-1.5 text-text-ghost hover:text-[#34D399]"
+                          className="p-1.5 text-text-ghost hover:text-success"
                           title={r.is_publishable ? "Unmark publishable" : "Mark as publishable"}
                         >
                           {r.is_publishable ? <Shield size={14} /> : <ShieldOff size={14} />}

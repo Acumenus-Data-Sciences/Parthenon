@@ -121,7 +121,7 @@ function ProjectPicker({ onSelect }: { onSelect: (id: number) => void }) {
               key={project.id}
               type="button"
               onClick={() => onSelect(project.id)}
-              className="flex items-center justify-between rounded-lg border border-border-default bg-[#101014] px-4 py-3 text-left transition-colors hover:border-success/40 hover:bg-[#17171B]"
+              className="flex items-center justify-between rounded-lg border border-border-default bg-surface-base px-4 py-3 text-left transition-colors hover:border-success/40 hover:bg-surface-raised"
             >
               <div>
                 <div className="text-sm font-medium text-text-primary">

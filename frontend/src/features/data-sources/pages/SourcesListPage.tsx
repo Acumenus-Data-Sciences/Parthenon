@@ -113,7 +113,7 @@ export function SourcesListPage() {
                           {source.source_name}
                         </span>
                         {source.imported_from_webapi && (
-                          <span className="inline-flex items-center rounded-full bg-[#818CF8]/10 px-1.5 py-0.5 text-[9px] font-medium text-[#818CF8]">
+                          <span className="inline-flex items-center rounded-full bg-info/10 px-1.5 py-0.5 text-[9px] font-medium text-info">
                             WebAPI
                           </span>
                         )}
@@ -135,7 +135,7 @@ export function SourcesListPage() {
                           {source.daimons?.length ?? 0} daimons
                         </span>
                         {isRestricted && (
-                          <Shield size={12} className="text-[#818CF8]" />
+                          <Shield size={12} className="text-info" />
                         )}
                       </div>
                     </div>
@@ -216,7 +216,7 @@ export function SourcesListPage() {
                         <h4 className="text-xs font-semibold text-text-muted mb-1">
                           Imported From
                         </h4>
-                        <p className="text-xs font-mono text-[#818CF8]">
+                        <p className="text-xs font-mono text-info">
                           {source.imported_from_webapi}
                         </p>
                       </div>

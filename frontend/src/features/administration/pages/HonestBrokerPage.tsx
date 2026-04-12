@@ -54,7 +54,7 @@ function MetricTile({
   accent: string;
 }) {
   return (
-    <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-4">
+    <div className="rounded-xl border border-border-default bg-surface-raised p-4">
       <div className="text-lg font-semibold" style={{ color: accent }}>
         {value}
       </div>
@@ -99,7 +99,7 @@ function RegisterParticipantModal({
       <button
         type="button"
         onClick={onClose}
-        className="rounded-lg border border-[#2A2A2F] px-4 py-2 text-sm text-text-muted hover:text-text-primary"
+        className="rounded-lg border border-border-default px-4 py-2 text-sm text-text-muted hover:text-text-primary"
       >
         Cancel
       </button>
@@ -223,7 +223,7 @@ function SendInvitationModal({
       <button
         type="button"
         onClick={onClose}
-        className="rounded-lg border border-[#2A2A2F] px-4 py-2 text-sm text-text-muted hover:text-text-primary"
+        className="rounded-lg border border-border-default px-4 py-2 text-sm text-text-muted hover:text-text-primary"
       >
         Cancel
       </button>
@@ -293,7 +293,7 @@ function SendInvitationModal({
         </label>
 
         {selectedLink?.latest_invitation && (
-          <div className="rounded-lg border border-[#2A2A2F] bg-[#101014] px-4 py-3 text-xs text-text-muted">
+          <div className="rounded-lg border border-border-default bg-surface-base px-4 py-3 text-xs text-text-muted">
             Last invitation: <span className="text-text-primary">{selectedLink.latest_invitation.delivery_status}</span>
             {" · "}token ending {selectedLink.latest_invitation.token_last_four}
           </div>
@@ -410,7 +410,7 @@ export default function HonestBrokerPage() {
             <button
               type="button"
               onClick={() => campaignsQuery.refetch()}
-              className="rounded-lg border border-[#2A2A2F] px-3 py-2 text-sm text-text-muted hover:text-text-primary"
+              className="rounded-lg border border-border-default px-3 py-2 text-sm text-text-muted hover:text-text-primary"
             >
               Refresh
             </button>
@@ -427,7 +427,7 @@ export default function HonestBrokerPage() {
               type="button"
               disabled={selectedCampaign == null || currentLinks.length === 0}
               onClick={() => setShowInviteModal(true)}
-              className="inline-flex items-center gap-2 rounded-lg border border-[#2A2A2F] px-4 py-2 text-sm font-medium text-text-secondary hover:text-text-primary disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg border border-border-default px-4 py-2 text-sm font-medium text-text-secondary hover:text-text-primary disabled:opacity-50"
             >
               <Send size={15} />
               Send Invite
@@ -443,7 +443,7 @@ export default function HonestBrokerPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-[360px,minmax(0,1fr)]">
-          <section className="rounded-xl border border-[#2A2A2F] bg-[#141418]">
+          <section className="rounded-xl border border-border-default bg-surface-raised">
             <div className="border-b border-border-default px-5 py-4">
               <div className="flex items-center gap-2">
                 <Users size={16} className="text-success" />
@@ -463,7 +463,7 @@ export default function HonestBrokerPage() {
               )}
 
               {!campaignsQuery.isLoading && brokerCampaigns.length === 0 && (
-                <div className="rounded-lg border border-dashed border-[#2A2A2F] bg-[#101014] p-4 text-sm text-text-muted">
+                <div className="rounded-lg border border-dashed border-border-default bg-surface-base p-4 text-sm text-text-muted">
                   No honest-broker campaigns yet. Enable <span className="text-text-primary">Require Honest Broker</span> on a survey campaign first.
                 </div>
               )}
@@ -479,7 +479,7 @@ export default function HonestBrokerPage() {
                     className={`w-full rounded-xl border p-4 text-left transition-colors ${
                       isSelected
                         ? "border-success/50 bg-success/5"
-                        : "border-border-default bg-[#101014] hover:border-surface-highlight"
+                        : "border-border-default bg-surface-base hover:border-surface-highlight"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-3">
@@ -513,7 +513,7 @@ export default function HonestBrokerPage() {
           </section>
 
           <section className="space-y-4">
-            <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-5">
+            <div className="rounded-xl border border-border-default bg-surface-raised p-5">
               {selectedCampaign == null ? (
                 <div className="text-sm text-text-muted">Select a campaign to manage broker registrations.</div>
               ) : (
@@ -548,7 +548,7 @@ export default function HonestBrokerPage() {
                                 toast.error("Failed to copy publish link");
                               }
                             }}
-                            className="inline-flex items-center gap-2 rounded-lg border border-[#2A2A2F] px-3 py-2 text-xs font-medium text-text-muted hover:text-text-primary"
+                            className="inline-flex items-center gap-2 rounded-lg border border-border-default px-3 py-2 text-xs font-medium text-text-muted hover:text-text-primary"
                           >
                             <Copy size={12} />
                             Copy Link
@@ -557,7 +557,7 @@ export default function HonestBrokerPage() {
                             href={publishLink}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-center gap-2 rounded-lg border border-[#2A2A2F] px-3 py-2 text-xs font-medium text-text-muted hover:text-text-primary"
+                            className="inline-flex items-center gap-2 rounded-lg border border-border-default px-3 py-2 text-xs font-medium text-text-muted hover:text-text-primary"
                           >
                             <ExternalLink size={12} />
                             Open Survey
@@ -568,19 +568,19 @@ export default function HonestBrokerPage() {
                   </div>
 
                     <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-4">
-                      <div className="rounded-lg border border-[#2A2A2F] bg-[#101014] px-4 py-3">
+                      <div className="rounded-lg border border-border-default bg-surface-base px-4 py-3">
                         <div className="text-xs font-semibold text-success">{registeredCount}</div>
                         <div className="mt-1 text-[10px] uppercase tracking-wider text-text-ghost">Registered</div>
                       </div>
-                      <div className="rounded-lg border border-[#2A2A2F] bg-[#101014] px-4 py-3">
+                      <div className="rounded-lg border border-border-default bg-surface-base px-4 py-3">
                       <div className="text-xs font-semibold text-[var(--domain-observation)]">{submittedCount}</div>
                       <div className="mt-1 text-[10px] uppercase tracking-wider text-text-ghost">Submitted</div>
                       </div>
-                      <div className="rounded-lg border border-[#2A2A2F] bg-[#101014] px-4 py-3">
+                      <div className="rounded-lg border border-border-default bg-surface-base px-4 py-3">
                       <div className="text-xs font-semibold text-info">{sentInvitationCount}</div>
                       <div className="mt-1 text-[10px] uppercase tracking-wider text-text-ghost">Invitations Sent</div>
                       </div>
-                    <div className="rounded-lg border border-[#2A2A2F] bg-[#101014] px-4 py-3">
+                    <div className="rounded-lg border border-border-default bg-surface-base px-4 py-3">
                       <div className="text-xs font-semibold text-accent">
                         {selectedCampaign.stats?.completion_rate ?? 0}%
                       </div>
@@ -591,7 +591,7 @@ export default function HonestBrokerPage() {
               )}
             </div>
 
-            <div className="rounded-xl border border-[#2A2A2F] bg-[#141418]">
+            <div className="rounded-xl border border-border-default bg-surface-raised">
               <div className="flex flex-col gap-4 border-b border-border-default px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
                   <h3 className="text-sm font-semibold text-text-primary">Registered Participants</h3>
@@ -626,7 +626,7 @@ export default function HonestBrokerPage() {
                   </div>
                 ) : (
                   <table className="w-full min-w-[980px]">
-                    <thead className="bg-[#101014]">
+                    <thead className="bg-surface-base">
                       <tr>
                         <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">
                           Blinded Participant
@@ -658,7 +658,7 @@ export default function HonestBrokerPage() {
                       {filteredLinks.map((link: HonestBrokerLinkApi) => (
                         <tr key={link.id} className="border-t border-border-default">
                           <td className="px-5 py-3">
-                            <div className="inline-flex items-center gap-2 rounded-lg bg-[#101014] px-3 py-1.5 text-xs font-medium text-text-primary">
+                            <div className="inline-flex items-center gap-2 rounded-lg bg-surface-base px-3 py-1.5 text-xs font-medium text-text-primary">
                               <CheckCircle2 size={12} className="text-success" />
                               {link.blinded_participant_id}
                             </div>
@@ -688,7 +688,7 @@ export default function HonestBrokerPage() {
               </div>
             </div>
 
-            <div className="rounded-xl border border-[#2A2A2F] bg-[#141418]">
+            <div className="rounded-xl border border-border-default bg-surface-raised">
               <div className="border-b border-border-default px-5 py-4">
                 <div className="flex items-center gap-2">
                   <Mail size={16} className="text-accent" />
@@ -711,7 +711,7 @@ export default function HonestBrokerPage() {
                   </div>
                 ) : (
                   <table className="w-full min-w-[980px]">
-                    <thead className="bg-[#101014]">
+                    <thead className="bg-surface-base">
                       <tr>
                         <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">Blinded Participant</th>
                         <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">Destination</th>
@@ -748,7 +748,7 @@ export default function HonestBrokerPage() {
                                     },
                                   );
                                 }}
-                                className="inline-flex items-center gap-1 rounded-lg border border-[#2A2A2F] px-2.5 py-1.5 text-xs text-text-secondary hover:text-text-primary disabled:opacity-50"
+                                className="inline-flex items-center gap-1 rounded-lg border border-border-default px-2.5 py-1.5 text-xs text-text-secondary hover:text-text-primary disabled:opacity-50"
                               >
                                 <RotateCw size={12} />
                                 Resend
@@ -783,7 +783,7 @@ export default function HonestBrokerPage() {
               </div>
             </div>
 
-            <div className="rounded-xl border border-[#2A2A2F] bg-[#141418]">
+            <div className="rounded-xl border border-border-default bg-surface-raised">
               <div className="border-b border-border-default px-5 py-4">
                 <div className="flex items-center gap-2">
                   <ShieldCheck size={16} className="text-info" />
@@ -806,7 +806,7 @@ export default function HonestBrokerPage() {
                   </div>
                 ) : (
                   <table className="w-full min-w-[980px]">
-                    <thead className="bg-[#101014]">
+                    <thead className="bg-surface-base">
                       <tr>
                         <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">Time</th>
                         <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-text-ghost">Action</th>
@@ -836,24 +836,24 @@ export default function HonestBrokerPage() {
             </div>
 
             {selectedLink && (
-              <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-5">
+              <div className="rounded-xl border border-border-default bg-surface-raised p-5">
                 <h3 className="text-sm font-semibold text-text-primary">Latest Matching Record</h3>
                 <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-3">
-                  <div className="rounded-lg bg-[#101014] px-4 py-3">
+                  <div className="rounded-lg bg-surface-base px-4 py-3">
                     <div className="text-[10px] uppercase tracking-wider text-text-ghost">Blinded ID</div>
                     <div className="mt-1 text-sm font-medium text-text-primary">{selectedLink.blinded_participant_id}</div>
                   </div>
-                  <div className="rounded-lg bg-[#101014] px-4 py-3">
+                  <div className="rounded-lg bg-surface-base px-4 py-3">
                     <div className="text-[10px] uppercase tracking-wider text-text-ghost">Person ID</div>
                     <div className="mt-1 text-sm font-medium text-text-primary">{selectedLink.person_id ?? "—"}</div>
                   </div>
-                  <div className="rounded-lg bg-[#101014] px-4 py-3">
+                  <div className="rounded-lg bg-surface-base px-4 py-3">
                     <div className="text-[10px] uppercase tracking-wider text-text-ghost">Created</div>
                     <div className="mt-1 text-sm font-medium text-text-primary">
                       {new Date(selectedLink.created_at).toLocaleString()}
                     </div>
                   </div>
-                  <div className="rounded-lg bg-[#101014] px-4 py-3">
+                  <div className="rounded-lg bg-surface-base px-4 py-3">
                     <div className="text-[10px] uppercase tracking-wider text-text-ghost">Delivery Email</div>
                     <div className="mt-1 text-sm font-medium text-text-primary">
                       {selectedLink.contact?.delivery_email ?? "Not recorded"}

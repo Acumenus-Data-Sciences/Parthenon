@@ -18,11 +18,11 @@ export default function CrossSourceCostChart({
   const { data, isLoading } = useCrossSourceCost(domain, costTypeId);
 
   if (isLoading) {
-    return <div className="p-4 text-[#555]">Loading cross-source comparison...</div>;
+    return <div className="p-4 text-text-ghost">Loading cross-source comparison...</div>;
   }
 
   if (!data || data.sources.length === 0) {
-    return <div className="p-4 text-center text-[#555]">No sources available for comparison.</div>;
+    return <div className="p-4 text-center text-text-ghost">No sources available for comparison.</div>;
   }
 
   const sourcesWithData = data.sources.filter((s) => s.has_cost_data && s.distribution);
@@ -31,7 +31,7 @@ export default function CrossSourceCostChart({
     return (
       <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-surface-highlight bg-surface-raised py-12">
         <div className="mb-2 text-3xl text-[#333]">$</div>
-        <p className="text-sm text-[#666]">No sources have cost data for comparison.</p>
+        <p className="text-sm text-text-ghost">No sources have cost data for comparison.</p>
       </div>
     );
   }
@@ -43,7 +43,7 @@ export default function CrossSourceCostChart({
 
   return (
     <div className="space-y-3">
-      <p className="text-xs text-[#555]">
+      <p className="text-xs text-text-ghost">
         Box-and-whisker per source. Box = IQR (P25-P75), whiskers = P10-P90, gold line = median.
       </p>
       {sourcesWithData.map((source) => {
@@ -55,11 +55,11 @@ export default function CrossSourceCostChart({
         return (
           <div
             key={source.source_id}
-            className="rounded-lg border border-[#252530] bg-surface-raised p-3"
+            className="rounded-lg border border-border-subtle bg-surface-raised p-3"
           >
             <div className="mb-2 flex items-center justify-between">
               <span className="text-sm font-medium text-white">{source.source_name}</span>
-              <span className="text-xs text-[#666]">
+              <span className="text-xs text-text-ghost">
                 Range: {formatCurrency(dist.min)} - {formatCurrency(dist.max)}
               </span>
             </div>
@@ -102,7 +102,7 @@ export default function CrossSourceCostChart({
             </div>
 
             {/* Legend */}
-            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-[#666]">
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-text-ghost">
               <span>P10: {formatCurrency(dist.p10)}</span>
               <span>P25: {formatCurrency(dist.p25)}</span>
               <span className="text-accent">Median: {formatCurrency(dist.median)}</span>

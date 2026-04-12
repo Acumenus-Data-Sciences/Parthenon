@@ -26,17 +26,17 @@ export default function CostDriversView({ sourceId }: CostDriversViewProps) {
   const { data, isLoading } = useCostDrivers(sourceId);
 
   if (!sourceId) {
-    return <div className="py-8 text-center text-[#555]">Select a source to view cost drivers.</div>;
+    return <div className="py-8 text-center text-text-ghost">Select a source to view cost drivers.</div>;
   }
 
   if (isLoading) {
-    return <div className="p-4 text-[#555]">Loading cost drivers...</div>;
+    return <div className="p-4 text-text-ghost">Loading cost drivers...</div>;
   }
 
   if (!data || !data.has_cost_data || data.drivers.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-surface-highlight bg-surface-raised py-12">
-        <p className="text-sm text-[#666]">No cost driver data available for this source.</p>
+        <p className="text-sm text-text-ghost">No cost driver data available for this source.</p>
       </div>
     );
   }
@@ -45,7 +45,7 @@ export default function CostDriversView({ sourceId }: CostDriversViewProps) {
 
   return (
     <div className="space-y-2">
-      <p className="mb-3 text-xs text-[#555]">
+      <p className="mb-3 text-xs text-text-ghost">
         Top 10 concepts by total cost. Click a bar for concept detail.
       </p>
       {data.drivers.map((driver, idx) => {
@@ -55,12 +55,12 @@ export default function CostDriversView({ sourceId }: CostDriversViewProps) {
         return (
           <div
             key={driver.concept_id}
-            className="group cursor-pointer rounded-lg border border-[#252530] bg-surface-raised p-3 transition-colors hover:border-accent/30"
+            className="group cursor-pointer rounded-lg border border-border-subtle bg-surface-raised p-3 transition-colors hover:border-accent/30"
           >
             <div className="mb-1 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-white">{driver.concept_name}</span>
-                <span className="rounded bg-[#252530] px-1.5 py-0.5 text-[10px] text-[#888]">
+                <span className="rounded bg-surface-accent px-1.5 py-0.5 text-[10px] text-text-muted">
                   {formatDomain(driver.domain)}
                 </span>
               </div>
@@ -89,7 +89,7 @@ export default function CostDriversView({ sourceId }: CostDriversViewProps) {
             </div>
 
             {/* Stats row */}
-            <div className="flex gap-4 text-[10px] text-[#666]">
+            <div className="flex gap-4 text-[10px] text-text-ghost">
               <span>{driver.record_count.toLocaleString()} records</span>
               <span>{driver.patient_count.toLocaleString()} patients</span>
               <span>

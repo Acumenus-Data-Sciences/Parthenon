@@ -55,7 +55,7 @@ export default function ScanProgressIndicator({
       {/* Completed tables list */}
       {progress.tableResults.length > 0 && (
         <div className="max-h-40 overflow-y-auto rounded-lg bg-surface-raised border border-border-default mb-4">
-          <div className="divide-y divide-[#1E1E23]">
+          <div className="divide-y divide-border-subtle">
             {progress.tableResults.map((t) => (
               <div key={t.table} className="flex items-center justify-between px-3 py-1.5 text-xs">
                 <span className="text-text-secondary truncate">{t.table}</span>

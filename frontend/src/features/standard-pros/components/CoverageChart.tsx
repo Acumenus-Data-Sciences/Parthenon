@@ -61,7 +61,7 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
     const withSnomed = instruments.filter((i) => i.hasSnomed).length;
     const without = instruments.length - withSnomed;
     return [
-      { name: "Has SNOMED", value: withSnomed, fill: "#F59E0B" },
+      { name: "Has SNOMED", value: withSnomed, fill: 'var(--warning)' },
       { name: "No SNOMED", value: without, fill: "var(--text-ghost)" },
     ];
   }, [instruments]);
@@ -78,7 +78,7 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Domain distribution */}
-      <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-5">
+      <div className="rounded-xl border border-border-default bg-surface-raised p-5">
         <h3 className="text-sm font-medium text-text-primary mb-4">
           Instruments by Clinical Domain
         </h3>
@@ -91,7 +91,7 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
             <XAxis
               type="number"
               tick={{ fill: "var(--text-muted)", fontSize: 11 }}
-              axisLine={{ stroke: "#2A2A2F" }}
+              axisLine={{ stroke: 'var(--border-default)' }}
               tickLine={false}
             />
             <YAxis
@@ -104,8 +104,8 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: "#141418",
-                border: "1px solid #2A2A2F",
+                backgroundColor: 'var(--surface-raised)',
+                border: '1px solid var(--border-default)',
                 borderRadius: 8,
                 fontSize: 12,
               }}
@@ -129,7 +129,7 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
       {/* Right column: 3 pie/donut charts */}
       <div className="space-y-4">
         {/* OMOP Coverage */}
-        <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-5">
+        <div className="rounded-xl border border-border-default bg-surface-raised p-5">
           <h3 className="text-sm font-medium text-text-primary mb-3">
             OMOP Concept Coverage
           </h3>
@@ -173,7 +173,7 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
         </div>
 
         {/* LOINC Coverage */}
-        <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-5">
+        <div className="rounded-xl border border-border-default bg-surface-raised p-5">
           <h3 className="text-sm font-medium text-text-primary mb-3">
             LOINC Code Availability
           </h3>
@@ -217,7 +217,7 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
         </div>
 
         {/* SNOMED Coverage */}
-        <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-5">
+        <div className="rounded-xl border border-border-default bg-surface-raised p-5">
           <h3 className="text-sm font-medium text-text-primary mb-3">
             SNOMED CT Coverage
           </h3>
@@ -261,7 +261,7 @@ export function CoverageChart({ instruments }: CoverageChartProps) {
         </div>
 
         {/* License breakdown */}
-        <div className="rounded-xl border border-[#2A2A2F] bg-[#141418] p-5">
+        <div className="rounded-xl border border-border-default bg-surface-raised p-5">
           <h3 className="text-sm font-medium text-text-primary mb-3">
             License Distribution
           </h3>

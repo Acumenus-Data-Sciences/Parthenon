@@ -136,7 +136,7 @@ export default function ResponseAssessmentPanel({ personId, studies }: ResponseA
         )}
 
         {assessments && assessments.length > 0 && (
-          <div className="divide-y divide-[#1E1E23]">
+          <div className="divide-y divide-border-subtle">
             {assessments.map((a) => (
               <div key={a.id} className="px-4 py-3">
                 <button

@@ -107,7 +107,7 @@ export function DatabaseStep({ dialect, onChange }: Props) {
                 className={`relative flex flex-col items-center gap-2.5 rounded-xl border p-4 text-center transition-all ${
                   isSelected
                     ? "border-accent bg-accent/5 shadow-[0_0_0_1px_var(--accent)]"
-                    : "border-border-default bg-surface-base hover:border-surface-highlight hover:bg-[#111114]"
+                    : "border-border-default bg-surface-base hover:border-surface-highlight hover:bg-surface-base"
                 }`}
               >
                 <div
@@ -151,7 +151,7 @@ export function DatabaseStep({ dialect, onChange }: Props) {
           {comingSoon.map((db) => (
             <div
               key={db.id}
-              className="flex flex-col items-center gap-2 rounded-xl border border-[#1E1E22] bg-[#0A0A0C] p-3 text-center opacity-40 cursor-not-allowed select-none"
+              className="flex flex-col items-center gap-2 rounded-xl border border-border-subtle bg-surface-darkest p-3 text-center opacity-40 cursor-not-allowed select-none"
             >
               <div
                 className="flex h-8 w-8 items-center justify-center rounded-md"

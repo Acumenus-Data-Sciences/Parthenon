@@ -69,7 +69,7 @@ export function MappingStep({ importId, headers, suggestions, mapping: initialMa
     <div className="space-y-4">
       <div className="rounded border border-border-default bg-surface-base">
         <div className="border-b border-border-default px-4 py-2">
-          <h3 className="text-sm font-medium text-[#E8E4DC]">Column Mapping</h3>
+          <h3 className="text-sm font-medium text-text-primary">Column Mapping</h3>
           <p className="text-xs text-text-ghost">Map each source column to its purpose</p>
         </div>
 
@@ -82,7 +82,7 @@ export function MappingStep({ importId, headers, suggestions, mapping: initialMa
               <div key={col} className="flex items-center gap-4 px-4 py-3">
                 {/* Column name */}
                 <div className="w-48 shrink-0">
-                  <span className="font-mono text-sm text-[#E8E4DC]">{col}</span>
+                  <span className="font-mono text-sm text-text-primary">{col}</span>
                   {suggestion && (
                     <div className="mt-0.5 flex items-center gap-1">
                       {confidenceBadge(suggestion.confidence)}
@@ -94,7 +94,7 @@ export function MappingStep({ importId, headers, suggestions, mapping: initialMa
                 <select
                   value={current?.purpose ?? "skip"}
                   onChange={(e) => handlePurposeChange(col, e.target.value as ColumnPurpose)}
-                  className="rounded border border-surface-highlight bg-surface-overlay px-2 py-1 text-sm text-[#E8E4DC]"
+                  className="rounded border border-surface-highlight bg-surface-overlay px-2 py-1 text-sm text-text-primary"
                 >
                   {PURPOSE_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -129,7 +129,7 @@ export function MappingStep({ importId, headers, suggestions, mapping: initialMa
           {askMutation.isPending ? (
             <p className="mt-1 text-xs text-text-muted">Thinking...</p>
           ) : abbyAnswer ? (
-            <p className="mt-1 text-xs text-[#E8E4DC]">{abbyAnswer}</p>
+            <p className="mt-1 text-xs text-text-primary">{abbyAnswer}</p>
           ) : null}
         </div>
       )}

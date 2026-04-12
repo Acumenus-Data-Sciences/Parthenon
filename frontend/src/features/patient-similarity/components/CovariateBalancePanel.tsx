@@ -32,7 +32,7 @@ export function CovariateBalancePanel({
   return (
     <div className="space-y-4">
       {/* Summary metrics row */}
-      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border-default bg-[#131316] p-4">
+      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border-default bg-sidebar-bg p-4">
         <MetricBadge label="Total Covariates" value={total} color="var(--text-primary)" />
         <MetricBadge label="Balanced" value={balanced} color="var(--success)" />
         <MetricBadge label="Imbalanced" value={imbalanced} color="var(--primary)" />

@@ -313,7 +313,7 @@ export function SetupWizard({ mustChangePassword, onClose }: Props) {
                   disabled={step.key === "change-password" && !wizardState.passwordChanged}
                   className={cn(
                     "inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2 text-sm font-semibold text-surface-base",
-                    "hover:bg-[#D4AE3A] transition-colors disabled:opacity-40 disabled:cursor-not-allowed",
+                    "hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed",
                   )}
                 >
                   Next

@@ -30,7 +30,7 @@ export default function DqRadarChart({ profiles, maxSources = 5 }: DqRadarChartP
 
   if (displayProfiles.length === 0) {
     return (
-      <div className="flex items-center justify-center py-12 text-sm text-[#555]">
+      <div className="flex items-center justify-center py-12 text-sm text-text-ghost">
         No DQ radar data available.
       </div>
     );
@@ -49,9 +49,9 @@ export default function DqRadarChart({ profiles, maxSources = 5 }: DqRadarChartP
   });
 
   return (
-    <div className="rounded-lg border border-[#252530] bg-surface-raised p-4">
+    <div className="rounded-lg border border-border-subtle bg-surface-raised p-4">
       <h3 className="mb-3 text-sm font-medium text-white">DQ Radar Profile (Kahn Dimensions)</h3>
-      <p className="mb-4 text-xs text-[#555]">
+      <p className="mb-4 text-xs text-text-ghost">
         Pass rates across the five Kahn data quality dimensions. Higher values indicate better quality.
       </p>
       <div className="h-80">
@@ -70,7 +70,7 @@ export default function DqRadarChart({ profiles, maxSources = 5 }: DqRadarChartP
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: "#1a1a22",
+                backgroundColor: 'var(--surface-overlay)',
                 border: "1px solid #333",
                 borderRadius: "8px",
               }}
