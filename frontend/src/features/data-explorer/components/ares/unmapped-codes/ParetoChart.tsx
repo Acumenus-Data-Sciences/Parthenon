@@ -34,20 +34,20 @@ export default function ParetoChart({ data, top20Coverage }: ParetoChartProps) {
             <CartesianGrid strokeDasharray="3 3" stroke="#252530" />
             <XAxis
               dataKey="source_code"
-              tick={{ fill: "#888", fontSize: 9 }}
+              tick={{ fill: 'var(--text-muted)', fontSize: 9 }}
               angle={-45}
               textAnchor="end"
               interval={0}
             />
             <YAxis
               yAxisId="count"
-              tick={{ fill: "#888", fontSize: 11 }}
+              tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
               tickFormatter={(v: number) => v.toLocaleString()}
             />
             <YAxis
               yAxisId="pct"
               orientation="right"
-              tick={{ fill: "#888", fontSize: 11 }}
+              tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
               tickFormatter={(v: number) => `${v}%`}
               domain={[0, 100]}
             />
@@ -56,7 +56,7 @@ export default function ParetoChart({ data, top20Coverage }: ParetoChartProps) {
                 backgroundColor: 'var(--surface-overlay)',
                 border: "1px solid #333",
                 borderRadius: "8px",
-                color: "#ccc",
+                color: 'var(--text-secondary)',
                 fontSize: 12,
               }}
             />

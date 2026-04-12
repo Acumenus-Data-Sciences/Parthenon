@@ -91,7 +91,7 @@ export function ReleaseEditForm({ release, onSave, onCancel, isSaving }: Release
           type="button"
           onClick={handleSubmit}
           disabled={isSaving}
-          className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-surface-base hover:bg-[#e0b82e] disabled:opacity-50 transition-colors"
+          className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-surface-base hover:bg-warning disabled:opacity-50 transition-colors"
         >
           {isSaving ? "Saving..." : "Save"}
         </button>

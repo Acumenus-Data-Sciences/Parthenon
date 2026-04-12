@@ -169,7 +169,7 @@ const tabDefs: TabDef[] = [
   { key: "pathways", label: "Pathways", icon: GitBranch, color: "var(--accent)", statsKey: "pathways" },
   { key: "estimations", label: "Estimations", icon: Scale, color: "var(--domain-observation)", statsKey: "estimations" },
   { key: "predictions", label: "Predictions", icon: Brain, color: "var(--domain-procedure)", statsKey: "predictions" },
-  { key: "sccs", label: "SCCS", icon: Clock, color: "#FB923C", statsKey: "sccs" },
+  { key: "sccs", label: "SCCS", icon: Clock, color: 'var(--domain-device)', statsKey: "sccs" },
   { key: "evidence-synthesis", label: "Evidence Synthesis", icon: Layers, color: 'var(--success)', statsKey: "evidence_synthesis" },
 ];
 
@@ -179,7 +179,7 @@ const createMenuItems: { key: Tab; label: string; icon: typeof BarChart3; color:
   { key: "pathways", label: "Pathway", icon: GitBranch, color: "var(--accent)" },
   { key: "estimations", label: "Estimation", icon: Scale, color: "var(--domain-observation)" },
   { key: "predictions", label: "Prediction", icon: Brain, color: "var(--domain-procedure)" },
-  { key: "sccs", label: "SCCS", icon: Clock, color: "#FB923C" },
+  { key: "sccs", label: "SCCS", icon: Clock, color: 'var(--domain-device)' },
   { key: "evidence-synthesis", label: "Evidence Synthesis", icon: Layers, color: 'var(--success)' },
 ];
 

@@ -441,7 +441,7 @@ export function SemanticSearchPanel({
             query.length >= 2 && (
               <div
                 ref={suggestionsRef}
-                className="absolute z-50 top-full mt-1 w-full rounded-lg border border-border-default bg-[#16161A] shadow-xl overflow-hidden"
+                className="absolute z-50 top-full mt-1 w-full rounded-lg border border-border-default bg-surface-raised shadow-xl overflow-hidden"
               >
                 {suggestionItems.slice(0, 10).map((s: HecateAutocompleteResult, i: number) => (
                   <button
@@ -553,7 +553,7 @@ export function SemanticSearchPanel({
               setVocabFilter("");
               setStandardFilter("all");
             }}
-            className="text-[10px] text-critical hover:text-[#F06B7F] transition-colors"
+            className="text-[10px] text-critical hover:text-critical-light transition-colors"
           >
             Clear filters
           </button>

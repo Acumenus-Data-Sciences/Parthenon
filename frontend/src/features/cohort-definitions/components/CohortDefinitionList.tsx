@@ -110,7 +110,7 @@ function TierBadge({ tier }: { tier?: string | null }) {
   const config: Record<string, { color: string; label: string; Icon: typeof Shield }> = {
     "study-ready": { color: "var(--success)", label: "Study-Ready", Icon: Shield },
     validated: { color: "var(--accent)", label: "Validated", Icon: Award },
-    draft: { color: "#6B7280", label: "Draft", Icon: FileText },
+    draft: { color: 'var(--text-ghost)', label: "Draft", Icon: FileText },
   };
   const c = config[tier];
   if (!c) return <span className="text-xs text-text-ghost">{tier}</span>;

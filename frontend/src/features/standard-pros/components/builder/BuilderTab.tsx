@@ -369,7 +369,7 @@ function WorkspacePanel({
               <Wrench size={16} className="text-accent" />
               <h2 className="text-sm font-semibold text-text-primary">Survey Builder</h2>
               {instrument && (
-                <span className="rounded-md bg-[#1B1B20] px-2 py-1 text-[10px] uppercase tracking-wider text-success">
+                <span className="rounded-md bg-surface-overlay px-2 py-1 text-[10px] uppercase tracking-wider text-success">
                   {instrument.abbreviation}
                 </span>
               )}
@@ -493,7 +493,7 @@ function SortableItemRow({
         "w-full rounded-xl border px-3 py-3 text-left transition-colors",
         selected
           ? "border-accent bg-accent/10"
-          : "border-border-default bg-surface-base hover:border-[#3C3C44]",
+          : "border-border-default bg-surface-base hover:border-border-hover",
         isDragging && "opacity-70 shadow-lg",
       )}
       style={{
@@ -512,7 +512,7 @@ function SortableItemRow({
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="rounded-md bg-[#1B1B20] px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-text-muted">
+            <span className="rounded-md bg-surface-overlay px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-text-muted">
               {item.response_type.replace("_", " ")}
             </span>
             {item.subscale_name && (
@@ -1031,7 +1031,7 @@ function CloneInstrumentModal({
                       "w-full rounded-xl border px-3 py-3 text-left transition-colors",
                       form.sourceId === instrument.id
                         ? "border-success bg-success/10"
-                        : "border-border-default bg-surface-raised hover:border-[#3C3C44]",
+                        : "border-border-default bg-surface-raised hover:border-border-hover",
                     )}
                   >
                     <div className="text-xs font-semibold text-text-primary">{instrument.abbreviation}</div>
@@ -1059,7 +1059,7 @@ function CloneInstrumentModal({
                       "w-full rounded-xl border px-3 py-3 text-left transition-colors",
                       form.sourceId === instrument.id
                         ? "border-accent bg-accent/10"
-                        : "border-border-default bg-surface-raised hover:border-[#3C3C44]",
+                        : "border-border-default bg-surface-raised hover:border-border-hover",
                     )}
                   >
                     <div className="text-xs font-semibold text-text-primary">{instrument.abbreviation}</div>

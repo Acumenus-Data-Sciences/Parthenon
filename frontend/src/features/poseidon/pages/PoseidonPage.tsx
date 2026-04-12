@@ -329,7 +329,7 @@ function SchedulesPanel({
                         })
                       }
                       disabled={triggerMutation.isPending || activeRuns > 0}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-success px-3 py-1.5 text-xs font-medium text-surface-base transition-colors hover:bg-[#26BCA8] disabled:cursor-not-allowed disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-success px-3 py-1.5 text-xs font-medium text-surface-base transition-colors hover:bg-success disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {triggerMutation.isPending ? (
                         <Loader2 size={12} className="animate-spin" />
@@ -630,7 +630,7 @@ function FreshnessPanel({
                     className={cn(
                       "flex items-center justify-between rounded-lg border px-3 py-2",
                       isStale
-                        ? "border-accent/30 bg-[#1A1710]"
+                        ? "border-accent/30 bg-surface-overlay"
                         : "border-border-default bg-surface-base",
                     )}
                   >

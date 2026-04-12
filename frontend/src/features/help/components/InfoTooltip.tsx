@@ -52,7 +52,7 @@ export function InfoTooltip({ text, size = 13, className }: InfoTooltipProps) {
               transform: "translateX(-50%)",
               zIndex: 9999,
             }}
-            className="max-w-xs rounded-lg border border-border-default bg-[#1A1A20] px-3 py-2 text-xs text-text-secondary shadow-xl"
+            className="max-w-xs rounded-lg border border-border-default bg-surface-overlay px-3 py-2 text-xs text-text-secondary shadow-xl"
           >
             {text}
           </div>,

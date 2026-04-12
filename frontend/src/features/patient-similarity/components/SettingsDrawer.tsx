@@ -112,7 +112,7 @@ function SettingsForm({
               return (
                 <div key={dim.key}>
                   <div className="mb-1 flex items-center justify-between">
-                    <label htmlFor={`weight-${dim.key}`} className="text-sm text-[#B0A898]">
+                    <label htmlFor={`weight-${dim.key}`} className="text-sm text-text-secondary">
                       {dim.name}
                     </label>
                     <span className={`font-mono text-sm font-semibold ${weightColor(val)}`}>
@@ -144,7 +144,7 @@ function SettingsForm({
           <div className="space-y-4">
             {/* Age range */}
             <div>
-              <p className="mb-2 text-sm text-[#B0A898]">Age Range</p>
+              <p className="mb-2 text-sm text-text-secondary">Age Range</p>
               <div className="flex items-center gap-3">
                 <div className="flex-1">
                   <label htmlFor="age-min" className="mb-1 block text-xs text-text-ghost">
@@ -159,7 +159,7 @@ function SettingsForm({
                     onChange={(e) =>
                       onAgeMinChange(Math.max(0, parseInt(e.target.value, 10) || 0))
                     }
-                    className="w-full rounded border border-border-default bg-[#16161A] px-3 py-1.5 text-sm text-[#E8E3DC] focus:border-accent focus:outline-none"
+                    className="w-full rounded border border-border-default bg-surface-raised px-3 py-1.5 text-sm text-text-primary focus:border-accent focus:outline-none"
                   />
                 </div>
                 <span className="mt-4 text-text-ghost">—</span>
@@ -176,7 +176,7 @@ function SettingsForm({
                     onChange={(e) =>
                       onAgeMaxChange(Math.min(150, parseInt(e.target.value, 10) || 150))
                     }
-                    className="w-full rounded border border-border-default bg-[#16161A] px-3 py-1.5 text-sm text-[#E8E3DC] focus:border-accent focus:outline-none"
+                    className="w-full rounded border border-border-default bg-surface-raised px-3 py-1.5 text-sm text-text-primary focus:border-accent focus:outline-none"
                   />
                 </div>
               </div>
@@ -184,14 +184,14 @@ function SettingsForm({
 
             {/* Gender */}
             <div>
-              <label htmlFor="gender-select" className="mb-1 block text-sm text-[#B0A898]">
+              <label htmlFor="gender-select" className="mb-1 block text-sm text-text-secondary">
                 Gender
               </label>
               <select
                 id="gender-select"
                 value={gender}
                 onChange={(e) => onGenderChange(e.target.value)}
-                className="w-full rounded border border-border-default bg-[#16161A] px-3 py-1.5 text-sm text-[#E8E3DC] focus:border-accent focus:outline-none"
+                className="w-full rounded border border-border-default bg-surface-raised px-3 py-1.5 text-sm text-text-primary focus:border-accent focus:outline-none"
               >
                 <option value="">All</option>
                 <option value="8507">Male</option>

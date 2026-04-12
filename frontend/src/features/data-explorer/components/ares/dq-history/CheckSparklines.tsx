@@ -15,7 +15,7 @@ export default function CheckSparklines({ sparklines, checkId }: CheckSparklines
           key={i}
           className={`inline-block h-3 w-1.5 rounded-sm ${
             passed === null
-              ? "bg-[#333]"
+              ? "bg-surface-accent"
               : passed
                 ? "bg-success"
                 : "bg-primary"

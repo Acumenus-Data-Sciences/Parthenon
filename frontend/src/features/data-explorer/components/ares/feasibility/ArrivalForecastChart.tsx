@@ -91,15 +91,15 @@ export default function ArrivalForecastChart({
             <CartesianGrid strokeDasharray="3 3" stroke="#252530" />
             <XAxis
               dataKey="month"
-              tick={{ fill: "#888", fontSize: 10 }}
-              axisLine={{ stroke: "#333" }}
+              tick={{ fill: 'var(--text-muted)', fontSize: 10 }}
+              axisLine={{ stroke: 'var(--border-default)' }}
               angle={-45}
               textAnchor="end"
               interval="preserveStartEnd"
             />
             <YAxis
-              tick={{ fill: "#888", fontSize: 11 }}
-              axisLine={{ stroke: "#333" }}
+              tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+              axisLine={{ stroke: 'var(--border-default)' }}
               tickFormatter={(v: number) => v.toLocaleString()}
             />
             <Tooltip
@@ -107,7 +107,7 @@ export default function ArrivalForecastChart({
                 backgroundColor: 'var(--surface-overlay)',
                 border: "1px solid #333",
                 borderRadius: "8px",
-                color: "#ccc",
+                color: 'var(--text-secondary)',
                 fontSize: 12,
               }}
               formatter={((value: number | null, name: string) => {
@@ -122,7 +122,7 @@ export default function ArrivalForecastChart({
               }) as never}
             />
             <Legend
-              wrapperStyle={{ fontSize: 11, color: "#888" }}
+              wrapperStyle={{ fontSize: 11, color: 'var(--text-muted)' }}
               formatter={(value: string) => {
                 if (value === "historical") return "Actual";
                 if (value === "projected") return "Projected";
@@ -180,7 +180,7 @@ export default function ArrivalForecastChart({
                 strokeDasharray="4 4"
                 label={{
                   value: `Target: ${effectiveTarget.toLocaleString()}`,
-                  fill: "#e85d75",
+                  fill: "var(--critical)",
                   fontSize: 11,
                   position: "insideTopRight",
                 }}

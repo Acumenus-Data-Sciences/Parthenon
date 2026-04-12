@@ -56,7 +56,7 @@ const DOMAIN_OPTIONS: {
     value: "VisitOccurrence",
     label: "Visit",
     icon: Building2,
-    color: "#FB923C",
+    color: 'var(--domain-device)',
   },
   {
     value: "Death",

@@ -34,7 +34,7 @@ export function StalenessIndicator({ sourceId }: StalenessIndicatorProps) {
           type="button"
           onClick={() => computeMutation.mutate({ sourceId, force: true })}
           disabled={computeMutation.isPending}
-          className="text-xs text-accent hover:text-[#D4AF37] font-medium transition-colors disabled:opacity-50"
+          className="text-xs text-accent hover:text-accent font-medium transition-colors disabled:opacity-50"
         >
           {computeMutation.isPending ? (
             <RefreshCw size={12} className="animate-spin" />

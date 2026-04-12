@@ -20,7 +20,7 @@ export default function ScanProgressIndicator({
   const totalCols = progress.tableResults.reduce((sum, t) => sum + t.columns, 0);
 
   return (
-    <div className="bg-surface-base/90 backdrop-blur-sm rounded-xl border border-[#2a2a3e] p-6">
+    <div className="bg-surface-base/90 backdrop-blur-sm rounded-xl border border-border-default p-6">
       {/* Progress bar */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-1.5">

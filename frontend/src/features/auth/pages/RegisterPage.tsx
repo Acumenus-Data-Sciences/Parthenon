@@ -201,7 +201,7 @@ export function RegisterPage() {
                   margin: "0 auto var(--space-5)",
                 }}
               >
-                <CheckCircle size={24} style={{ color: "#22c55e" }} />
+                <CheckCircle size={24} style={{ color: "var(--success)" }} />
               </div>
               <h2
                 style={{
@@ -234,7 +234,7 @@ export function RegisterPage() {
                   fontFamily: "var(--font-body)",
                   fontSize: "var(--text-base)",
                   fontWeight: 600,
-                  color: "#fff",
+                  color: 'var(--text-primary)',
                   background: "var(--gradient-crimson)",
                   border: "1px solid var(--primary-light)",
                   borderRadius: "var(--radius-md)",
@@ -349,7 +349,7 @@ export function RegisterPage() {
                     fontFamily: "var(--font-body)",
                     fontSize: "var(--text-base)",
                     fontWeight: 600,
-                    color: "#fff",
+                    color: 'var(--text-primary)',
                     background: "var(--gradient-crimson)",
                     border: "1px solid var(--primary-light)",
                     borderRadius: "var(--radius-md)",

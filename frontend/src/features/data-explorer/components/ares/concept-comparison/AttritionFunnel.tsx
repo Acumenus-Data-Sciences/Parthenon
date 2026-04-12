@@ -31,11 +31,11 @@ export default function AttritionFunnel({ data }: AttritionFunnelProps) {
                 layout="vertical"
                 margin={{ top: 5, right: 40, bottom: 5, left: 120 }}
               >
-                <XAxis type="number" tick={{ fill: "#888", fontSize: 11 }} />
+                <XAxis type="number" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} />
                 <YAxis
                   type="category"
                   dataKey="concept_name"
-                  tick={{ fill: "#888", fontSize: 11 }}
+                  tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
                   width={110}
                 />
                 <Tooltip
@@ -43,7 +43,7 @@ export default function AttritionFunnel({ data }: AttritionFunnelProps) {
                     backgroundColor: 'var(--surface-overlay)',
                     border: "1px solid #333",
                     borderRadius: "8px",
-                    color: "#ccc",
+                    color: 'var(--text-secondary)',
                     fontSize: 12,
                   }}
                   formatter={((value: number) => [

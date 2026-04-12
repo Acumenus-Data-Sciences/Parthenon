@@ -118,15 +118,15 @@ function ComplianceChart({ compliance }: { compliance: DqSlaCompliance[] }) {
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData} layout="vertical" margin={{ left: 100, right: 20 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#252530" horizontal={false} />
-            <XAxis type="number" domain={[0, 100]} tick={{ fill: "#888", fontSize: 11 }} tickFormatter={(v: number) => `${v}%`} />
-            <YAxis type="category" dataKey="category" tick={{ fill: "#888", fontSize: 11 }} width={90} />
+            <XAxis type="number" domain={[0, 100]} tick={{ fill: 'var(--text-muted)', fontSize: 11 }} tickFormatter={(v: number) => `${v}%`} />
+            <YAxis type="category" dataKey="category" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} width={90} />
             <Tooltip
               contentStyle={{
                 backgroundColor: 'var(--surface-overlay)',
                 border: "1px solid #333",
                 borderRadius: "8px",
               }}
-              labelStyle={{ color: "#fff" }}
+              labelStyle={{ color: 'var(--text-primary)' }}
               formatter={((value: number, name: string) => [
                 `${value}%`,
                 name === "actual" ? "Actual" : "Target",

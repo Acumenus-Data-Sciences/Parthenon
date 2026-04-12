@@ -244,7 +244,7 @@ export function PermissionMatrix({ roles, permissionsByDomain }: Props) {
                             title={`${on ? "Revoke" : "Grant"} ${perm.name} from ${r.name}`}
                           >
                             {on ? (
-                              <span className="mx-auto flex h-4 w-4 items-center justify-center rounded bg-[#22C55E]/15">
+                              <span className="mx-auto flex h-4 w-4 items-center justify-center rounded bg-success/15">
                                 <Check className="h-3 w-3 text-success" />
                               </span>
                             ) : (

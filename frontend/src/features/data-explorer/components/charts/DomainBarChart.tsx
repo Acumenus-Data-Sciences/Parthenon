@@ -48,7 +48,7 @@ export function DomainBarChart({ data, onDomainClick }: DomainBarChartProps) {
 
             {/* Bar */}
             <div className="relative flex-1">
-              <div className="h-6 w-full rounded bg-[#1E1E22]">
+              <div className="h-6 w-full rounded bg-surface-overlay">
                 <div
                   className="h-6 rounded transition-all duration-300"
                   style={{

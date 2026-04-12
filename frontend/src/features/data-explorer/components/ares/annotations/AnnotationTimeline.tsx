@@ -7,8 +7,8 @@ interface AnnotationTimelineProps {
 const TAG_COLORS: Record<string, string> = {
   data_event: "border-success bg-success/10 text-success",
   research_note: "border-accent bg-accent/10 text-accent",
-  action_item: "border-critical bg-[#e85d75]/10 text-critical",
-  system: "border-domain-observation bg-[#7c8aed]/10 text-domain-observation",
+  action_item: "border-critical bg-critical/10 text-critical",
+  system: "border-domain-observation bg-domain-observation/10 text-domain-observation",
 };
 
 export default function AnnotationTimeline({ annotations }: AnnotationTimelineProps) {

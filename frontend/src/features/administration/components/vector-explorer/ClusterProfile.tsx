@@ -38,7 +38,7 @@ export default function ClusterProfile({
           </div>
           <div className="space-y-1.5">
             {cluster.summary.dominant_metadata.map((item) => (
-              <div key={`${cluster.id}:${item.key}`} className="rounded bg-[#111216] px-2 py-1.5">
+              <div key={`${cluster.id}:${item.key}`} className="rounded bg-surface-base px-2 py-1.5">
                 <div className="flex items-center justify-between gap-2 text-xs">
                   <span className="text-text-muted">{item.label}</span>
                   <span className="font-['IBM_Plex_Mono',monospace] text-text-ghost">
@@ -59,7 +59,7 @@ export default function ClusterProfile({
           </div>
           <div className="space-y-1">
             {cluster.summary.representative_titles.map((title) => (
-              <div key={`${cluster.id}:${title}`} className="rounded bg-[#111216] px-2 py-1.5 text-sm text-text-secondary">
+              <div key={`${cluster.id}:${title}`} className="rounded bg-surface-base px-2 py-1.5 text-sm text-text-secondary">
                 {title}
               </div>
             ))}

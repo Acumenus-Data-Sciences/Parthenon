@@ -77,13 +77,13 @@ export default function DqTrendChart({ data, sourceId, onReleaseClick, overlayDa
             <CartesianGrid strokeDasharray="3 3" stroke="#252530" />
             <XAxis
               dataKey="label"
-              tick={{ fill: "#888", fontSize: 11 }}
-              axisLine={{ stroke: "#333" }}
+              tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+              axisLine={{ stroke: 'var(--border-default)' }}
             />
             <YAxis
               domain={[0, 100]}
-              tick={{ fill: "#888", fontSize: 11 }}
-              axisLine={{ stroke: "#333" }}
+              tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+              axisLine={{ stroke: 'var(--border-default)' }}
               tickFormatter={(v: number) => `${v}%`}
             />
             <Tooltip
@@ -91,7 +91,7 @@ export default function DqTrendChart({ data, sourceId, onReleaseClick, overlayDa
                 backgroundColor: 'var(--surface-overlay)',
                 border: "1px solid #333",
                 borderRadius: "8px",
-                color: "#ccc",
+                color: 'var(--text-secondary)',
                 fontSize: 12,
               }}
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -149,15 +149,15 @@ function OverlayChart({ overlayData }: { overlayData: OverlaySource[] }) {
           <CartesianGrid strokeDasharray="3 3" stroke="#252530" />
           <XAxis
             dataKey="date"
-            tick={{ fill: "#888", fontSize: 10 }}
-            axisLine={{ stroke: "#333" }}
+            tick={{ fill: 'var(--text-muted)', fontSize: 10 }}
+            axisLine={{ stroke: 'var(--border-default)' }}
             angle={-30}
             textAnchor="end"
           />
           <YAxis
             domain={[0, 100]}
-            tick={{ fill: "#888", fontSize: 11 }}
-            axisLine={{ stroke: "#333" }}
+            tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+            axisLine={{ stroke: 'var(--border-default)' }}
             tickFormatter={(v: number) => `${v}%`}
           />
           <Tooltip
@@ -165,11 +165,11 @@ function OverlayChart({ overlayData }: { overlayData: OverlaySource[] }) {
               backgroundColor: 'var(--surface-overlay)',
               border: "1px solid #333",
               borderRadius: "8px",
-              color: "#ccc",
+              color: 'var(--text-secondary)',
               fontSize: 12,
             }}
           />
-          <Legend wrapperStyle={{ fontSize: 11, color: "#888" }} />
+          <Legend wrapperStyle={{ fontSize: 11, color: 'var(--text-muted)' }} />
           <ReferenceArea y1={90} y2={100} fill="var(--success)" fillOpacity={0.05} ifOverflow="extendDomain" />
           <ReferenceArea y1={80} y2={90} fill="var(--accent)" fillOpacity={0.05} ifOverflow="extendDomain" />
           <ReferenceArea y1={0} y2={80} fill="var(--primary)" fillOpacity={0.05} ifOverflow="extendDomain" />

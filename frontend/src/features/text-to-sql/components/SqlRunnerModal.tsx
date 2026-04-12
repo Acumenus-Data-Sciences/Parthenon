@@ -434,7 +434,7 @@ export function SqlRunnerModal({
             gap: "10px",
             padding: "16px 20px",
             borderBottom: "1px solid var(--surface-elevated)",
-            background: "#111115",
+            background: "var(--surface-base)",
           }}
         >
           <Database size={18} style={{ color: "var(--success)" }} />
@@ -784,7 +784,7 @@ export function SqlRunnerModal({
                 fontWeight: 600,
                 letterSpacing: "0.5px",
                 textTransform: "uppercase",
-                background: "#111115",
+                background: "var(--surface-base)",
                 borderBottom: "1px solid var(--surface-elevated)",
                 position: "sticky",
                 top: 0,
@@ -852,7 +852,7 @@ export function SqlRunnerModal({
                           }}
                         >
                           {cell === null ? (
-                            <span style={{ color: "#555", fontStyle: "italic" }}>
+                            <span style={{ color: 'var(--text-ghost)', fontStyle: "italic" }}>
                               null
                             </span>
                           ) : (
@@ -877,7 +877,7 @@ export function SqlRunnerModal({
             gap: "10px",
             padding: "14px 20px",
             borderTop: "1px solid var(--surface-elevated)",
-            background: "#111115",
+            background: "var(--surface-base)",
           }}
         >
           {isComplete && (

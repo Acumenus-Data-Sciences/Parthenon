@@ -49,14 +49,14 @@ export default function TemporalPrevalenceChart({ sources, title }: TemporalPrev
             <CartesianGrid strokeDasharray="3 3" stroke="#252530" />
             <XAxis
               dataKey="release"
-              tick={{ fill: "#888", fontSize: 10 }}
-              axisLine={{ stroke: "#333" }}
+              tick={{ fill: 'var(--text-muted)', fontSize: 10 }}
+              axisLine={{ stroke: 'var(--border-default)' }}
               angle={-30}
               textAnchor="end"
             />
             <YAxis
-              tick={{ fill: "#888", fontSize: 11 }}
-              axisLine={{ stroke: "#333" }}
+              tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+              axisLine={{ stroke: 'var(--border-default)' }}
               tickFormatter={(v: number) => `${v}/1k`}
             />
             <Tooltip
@@ -64,7 +64,7 @@ export default function TemporalPrevalenceChart({ sources, title }: TemporalPrev
                 backgroundColor: 'var(--surface-overlay)',
                 border: "1px solid #333",
                 borderRadius: "8px",
-                color: "#ccc",
+                color: 'var(--text-secondary)',
                 fontSize: 12,
               }}
               /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -74,7 +74,7 @@ export default function TemporalPrevalenceChart({ sources, title }: TemporalPrev
               ]) as any}
               /* eslint-enable @typescript-eslint/no-explicit-any */
             />
-            <Legend wrapperStyle={{ fontSize: 11, color: "#888" }} />
+            <Legend wrapperStyle={{ fontSize: 11, color: 'var(--text-muted)' }} />
 
             {sources.map((source, i) => (
               <Line

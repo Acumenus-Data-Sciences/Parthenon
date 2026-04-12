@@ -30,7 +30,7 @@ type CostTab = "overview" | "distribution" | "care-setting" | "trends" | "cross-
 function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-surface-highlight bg-surface-raised py-16">
-      <div className="mb-3 text-4xl text-[#333]">$</div>
+      <div className="mb-3 text-4xl text-text-disabled">$</div>
       <h3 className="mb-2 text-sm font-medium text-white">No Cost Data Available</h3>
       <p className="max-w-md text-center text-xs text-text-ghost">
         Cost data requires claims-based datasets (e.g., MarketScan, Optum, PharMetrics).
@@ -184,12 +184,12 @@ export default function CostView() {
                       <CartesianGrid strokeDasharray="3 3" stroke="#252530" />
                       <XAxis
                         dataKey="label"
-                        tick={{ fill: "#888", fontSize: 11 }}
+                        tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
                         angle={-30}
                         textAnchor="end"
                       />
                       <YAxis
-                        tick={{ fill: "#888", fontSize: 11 }}
+                        tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
                         tickFormatter={(v: number) => formatCurrency(v)}
                       />
                       <Tooltip
@@ -198,7 +198,7 @@ export default function CostView() {
                           border: "1px solid #333",
                           borderRadius: "8px",
                         }}
-                        labelStyle={{ color: "#fff" }}
+                        labelStyle={{ color: 'var(--text-primary)' }}
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         formatter={((value: number | string) => [formatCurrency(Number(value)), "Total Cost"]) as any}
                       />
@@ -262,12 +262,12 @@ export default function CostView() {
                     <CartesianGrid strokeDasharray="3 3" stroke="#252530" />
                     <XAxis
                       dataKey="month"
-                      tick={{ fill: "#888", fontSize: 10 }}
+                      tick={{ fill: 'var(--text-muted)', fontSize: 10 }}
                       angle={-45}
                       textAnchor="end"
                     />
                     <YAxis
-                      tick={{ fill: "#888", fontSize: 11 }}
+                      tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
                       tickFormatter={(v: number) => formatCurrency(v)}
                     />
                     <Tooltip
@@ -276,7 +276,7 @@ export default function CostView() {
                         border: "1px solid #333",
                         borderRadius: "8px",
                       }}
-                      labelStyle={{ color: "#fff" }}
+                      labelStyle={{ color: 'var(--text-primary)' }}
                       // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       formatter={((value: number | string) => [formatCurrency(Number(value)), "Total Cost"]) as any}
                     />

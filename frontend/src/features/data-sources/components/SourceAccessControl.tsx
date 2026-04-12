@@ -95,7 +95,7 @@ export function SourceAccessControl({ source }: SourceAccessControlProps) {
               className={cn(
                 "inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-xs font-medium transition-colors",
                 active
-                  ? "border-[#818CF8]/40 bg-info/10 text-info"
+                  ? "border-info/40 bg-info/10 text-info"
                   : "border-border-default bg-surface-base text-text-muted hover:text-text-secondary",
               )}
             >
@@ -111,7 +111,7 @@ export function SourceAccessControl({ source }: SourceAccessControlProps) {
           type="button"
           onClick={handleSave}
           disabled={updateMutation.isPending}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-info px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#6366F1] disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-info px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-domain-observation disabled:opacity-50"
         >
           {updateMutation.isPending ? (
             <Loader2 size={12} className="animate-spin" />

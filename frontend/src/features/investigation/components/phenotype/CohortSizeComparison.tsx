@@ -71,7 +71,7 @@ export function CohortSizeComparison({
           <XAxis
             type="number"
             tickFormatter={formatCompact}
-            tick={{ fill: "#d4d4d8", fontSize: 10 }}
+            tick={{ fill: "var(--text-secondary)", fontSize: 10 }}
             axisLine={{ stroke: "var(--border-default)" }}
             tickLine={{ stroke: "var(--border-default)" }}
           />
@@ -79,7 +79,7 @@ export function CohortSizeComparison({
             type="category"
             dataKey="displayName"
             width={180}
-            tick={{ fill: "#d4d4d8", fontSize: 11 }}
+            tick={{ fill: "var(--text-secondary)", fontSize: 11 }}
             axisLine={false}
             tickLine={false}
           />

@@ -60,7 +60,7 @@ export default function ColorLegend({
                   <button
                     type="button"
                     onClick={() => onToggleCluster(c.id)}
-                    className="rounded border border-border-default px-2 py-0.5 text-[11px] text-text-muted hover:bg-[#111216] hover:text-text-secondary"
+                    className="rounded border border-border-default px-2 py-0.5 text-[11px] text-text-muted hover:bg-surface-base hover:text-text-secondary"
                   >
                     {visible ? "Hide" : "Show"}
                   </button>

@@ -11,14 +11,14 @@ const TAG_OPTIONS = [
   { value: "data_event", label: "Data Event", color: "border-border-default text-text-muted", activeBg: "border-success bg-success/10 text-success" },
   { value: "research_note", label: "Research Note", color: "border-border-default text-text-muted", activeBg: "border-accent bg-accent/10 text-accent" },
   { value: "action_item", label: "Action Item", color: "border-border-default text-text-muted", activeBg: "border-primary bg-primary/10 text-primary" },
-  { value: "system", label: "System", color: "border-border-default text-text-muted", activeBg: "border-domain-observation bg-[#6366F1]/10 text-[#6366F1]" },
+  { value: "system", label: "System", color: "border-border-default text-text-muted", activeBg: "border-domain-observation bg-domain-observation/10 text-domain-observation" },
 ] as const;
 
 const TAG_BADGE_COLORS: Record<string, string> = {
   data_event: "bg-success/10 text-success",
   research_note: "bg-accent/10 text-accent",
   action_item: "bg-primary/10 text-primary",
-  system: "bg-[#6366F1]/10 text-[#6366F1]",
+  system: "bg-domain-observation/10 text-domain-observation",
 };
 
 const TAG_LABELS: Record<string, string> = {
@@ -104,7 +104,7 @@ function ReplyForm({
         type="button"
         onClick={handleSubmit}
         disabled={!text.trim() || createMutation.isPending}
-        className="rounded-lg bg-accent px-2.5 py-1.5 text-xs font-medium text-surface-base hover:bg-[#e0b82e] disabled:opacity-50 transition-colors"
+        className="rounded-lg bg-accent px-2.5 py-1.5 text-xs font-medium text-surface-base hover:bg-warning disabled:opacity-50 transition-colors"
       >
         <Send size={12} />
       </button>
@@ -260,7 +260,7 @@ export function AnnotationsView() {
                       {ann.chart_type}
                     </span>
                     {ann.tag && (
-                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${TAG_BADGE_COLORS[ann.tag] ?? "bg-[#333]/20 text-text-muted"}`}>
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${TAG_BADGE_COLORS[ann.tag] ?? "bg-surface-accent/20 text-text-muted"}`}>
                         {TAG_LABELS[ann.tag] ?? ann.tag}
                       </span>
                     )}

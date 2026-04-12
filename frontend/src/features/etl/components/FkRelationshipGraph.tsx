@@ -199,7 +199,7 @@ export function FkRelationshipGraph({ fields, onTableClick }: FkRelationshipGrap
   }
 
   return (
-    <div className="rounded-xl border border-[#2a2a3e] bg-surface-base p-4 space-y-3">
+    <div className="rounded-xl border border-border-default bg-surface-base p-4 space-y-3">
       <button
         type="button"
         onClick={() => setExpanded((p) => !p)}

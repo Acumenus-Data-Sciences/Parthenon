@@ -134,7 +134,7 @@ export function CirceSqlPanel({ definitionId }: CirceSqlPanelProps) {
       </div>
 
       {/* Section tabs */}
-      <div className="flex gap-1 border-b border-border-default px-3 py-1.5 bg-[#18181C]">
+      <div className="flex gap-1 border-b border-border-default px-3 py-1.5 bg-surface-raised">
         {sections.map((sec) => (
           <button
             key={sec.id}

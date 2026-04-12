@@ -9,7 +9,7 @@ interface MappingProgressProps {
 const SEGMENTS = [
   { key: "mapped" as const, label: "Mapped", color: "var(--success)" },
   { key: "deferred" as const, label: "Deferred", color: "var(--accent)" },
-  { key: "excluded" as const, label: "Excluded", color: "#666" },
+  { key: "excluded" as const, label: "Excluded", color: 'var(--text-ghost)' },
   { key: "pending" as const, label: "Pending", color: "var(--primary)" },
 ];
 

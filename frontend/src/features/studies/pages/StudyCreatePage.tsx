@@ -44,7 +44,7 @@ const STUDY_TYPES = [
   { value: "comparative_effectiveness", label: "Comparative Effectiveness", icon: FlaskConical, color: 'var(--warning)', desc: "Compare treatments in real-world settings" },
   { value: "safety_surveillance", label: "Safety Surveillance", icon: Shield, color: "var(--critical)", desc: "Monitor drug safety signals post-market" },
   { value: "drug_utilization", label: "Drug Utilization", icon: Pill, color: 'var(--success)', desc: "Analyze medication use patterns and trends" },
-  { value: "quality_improvement", label: "Quality Improvement", icon: Activity, color: "#FB923C", desc: "Assess care quality and guideline adherence" },
+  { value: "quality_improvement", label: "Quality Improvement", icon: Activity, color: 'var(--domain-device)', desc: "Assess care quality and guideline adherence" },
   { value: "custom", label: "Custom", icon: Wrench, color: "var(--text-muted)", desc: "Define a custom study type" },
 ];
 

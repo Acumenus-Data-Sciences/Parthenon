@@ -88,13 +88,13 @@ export default function DiversityTrendsChart({ data, sourceName }: DiversityTren
             <CartesianGrid strokeDasharray="3 3" stroke="#252530" />
             <XAxis
               dataKey="release_name"
-              tick={{ fill: "#888", fontSize: 10 }}
+              tick={{ fill: 'var(--text-muted)', fontSize: 10 }}
               angle={-30}
               textAnchor="end"
             />
             <YAxis
               domain={[0, 1]}
-              tick={{ fill: "#888", fontSize: 11 }}
+              tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
               tickFormatter={(v: number) => v.toFixed(2)}
             />
             <Tooltip
@@ -103,7 +103,7 @@ export default function DiversityTrendsChart({ data, sourceName }: DiversityTren
                 border: "1px solid #333",
                 borderRadius: "8px",
               }}
-              labelStyle={{ color: "#fff" }}
+              labelStyle={{ color: 'var(--text-primary)' }}
             />
             <Legend verticalAlign="top" height={0} />
             {activeDimensions.map((dim) => {

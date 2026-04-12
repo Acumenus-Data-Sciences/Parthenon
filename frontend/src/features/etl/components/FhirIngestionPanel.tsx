@@ -483,7 +483,7 @@ export default function FhirIngestionPanel() {
                   </>
                 ) : (
                   <>
-                    <Upload size={28} className="text-[#5A5660]" />
+                    <Upload size={28} className="text-text-ghost" />
                     <div className="text-center">
                       <p className="text-sm font-medium text-text-secondary">
                         Drop a FHIR file here
@@ -638,7 +638,7 @@ export default function FhirIngestionPanel() {
       )}
 
       {/* ── Footer link ──────────────────────────────────────────────── */}
-      <div className="flex items-center gap-2 text-xs text-[#5A5660]">
+      <div className="flex items-center gap-2 text-xs text-text-ghost">
         <Activity size={11} />
         <span>Configure FHIR Server connections in</span>
         <Link

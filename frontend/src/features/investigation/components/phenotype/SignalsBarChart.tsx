@@ -72,15 +72,15 @@ export function SignalsBarChart({
         <XAxis
           type="number"
           tickFormatter={formatCompact}
-          tick={{ fill: "#d4d4d8", fontSize: 10 }}
-          axisLine={{ stroke: "#52525b" }}
-          tickLine={{ stroke: "#52525b" }}
+          tick={{ fill: "var(--text-secondary)", fontSize: 10 }}
+          axisLine={{ stroke: "var(--text-ghost)" }}
+          tickLine={{ stroke: "var(--text-ghost)" }}
         />
         <YAxis
           type="category"
           dataKey="displayLabel"
           width={200}
-          tick={{ fill: "#d4d4d8", fontSize: 10 }}
+          tick={{ fill: "var(--text-secondary)", fontSize: 10 }}
           axisLine={false}
           tickLine={false}
         />

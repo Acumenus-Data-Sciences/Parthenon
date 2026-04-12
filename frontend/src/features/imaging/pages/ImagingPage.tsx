@@ -753,7 +753,7 @@ export default function ImagingPage() {
         <button
           type="button"
           onClick={() => setUploadOpen(true)}
-          className="ml-auto inline-flex items-center gap-2 rounded-lg bg-info px-4 py-2 text-sm font-medium text-surface-base hover:bg-[#4E94E8] transition-colors"
+          className="ml-auto inline-flex items-center gap-2 rounded-lg bg-info px-4 py-2 text-sm font-medium text-surface-base hover:bg-info transition-colors"
         >
           <Upload size={14} />
           Import DICOM

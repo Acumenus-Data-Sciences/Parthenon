@@ -114,7 +114,7 @@ export default function CoverageMatrixView() {
             {mode === "records" ? "Records" : mode === "per_person" ? "Per Person" : "Date Range"}
           </button>
         ))}
-        <span className="mx-2 text-[#333]">|</span>
+        <span className="mx-2 text-text-disabled">|</span>
         <button
           type="button"
           onClick={() => setShowExpected(!showExpected)}

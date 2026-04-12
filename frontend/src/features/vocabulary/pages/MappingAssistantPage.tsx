@@ -1044,7 +1044,7 @@ export default function MappingAssistantPage() {
                 type="button"
                 disabled={parsedTerms.length === 0 || mapMutation.isPending}
                 onClick={handleMap}
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#B22234] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {mapMutation.isPending ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -1225,7 +1225,7 @@ export default function MappingAssistantPage() {
                 const entries = buildSaveMappingEntries(results, decisions, overrides);
                 if (entries.length > 0) saveMappingsMutation.mutate(entries);
               }}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-[#B22234] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {saveMappingsMutation.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -1266,7 +1266,7 @@ export default function MappingAssistantPage() {
                   type="button"
                   disabled={!projectNameInput.trim() || saveProjectMutation.isPending}
                   onClick={() => saveProjectMutation.mutate({ name: projectNameInput.trim() })}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm text-white hover:bg-[#B22234] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm text-white hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   {saveProjectMutation.isPending ? (
                     <Loader2 className="h-3.5 w-3.5 animate-spin" />

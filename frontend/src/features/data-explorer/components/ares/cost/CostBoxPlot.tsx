@@ -45,7 +45,7 @@ export default function CostBoxPlot({ distributions }: CostBoxPlotProps) {
                 <div className="absolute inset-0 flex items-center">
                   {/* Whisker line */}
                   <div
-                    className="absolute h-0.5 bg-[#555]"
+                    className="absolute h-0.5 bg-surface-highlight"
                     style={{ left: scale(dist.p10), width: `calc(${scale(dist.p90)} - ${scale(dist.p10)})` }}
                   />
                   {/* IQR box */}
@@ -63,7 +63,7 @@ export default function CostBoxPlot({ distributions }: CostBoxPlotProps) {
                   />
                   {/* Mean dot */}
                   <div
-                    className="absolute h-2 w-2 -translate-x-1/2 rounded-full bg-[#e85d75]"
+                    className="absolute h-2 w-2 -translate-x-1/2 rounded-full bg-critical"
                     style={{ left: scale(dist.mean) }}
                   />
                 </div>

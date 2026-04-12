@@ -46,7 +46,7 @@ const SEVERITY_META: Record<
   error: { label: "Error", bg: "bg-critical/15", text: "text-critical" },
   warning: {
     label: "Warning",
-    bg: "bg-[#E5A84B]/15",
+    bg: "bg-warning/15",
     text: "text-warning",
   },
   info: { label: "Info", bg: "bg-info/15", text: "text-info" },

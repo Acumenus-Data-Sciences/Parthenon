@@ -60,12 +60,12 @@ export default function CareSettingBreakdown({ settings }: CareSettingBreakdownP
             <CartesianGrid strokeDasharray="3 3" stroke="#252530" />
             <XAxis
               dataKey="name"
-              tick={{ fill: "#888", fontSize: 11 }}
+              tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
               angle={-20}
               textAnchor="end"
             />
             <YAxis
-              tick={{ fill: "#888", fontSize: 11 }}
+              tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
               tickFormatter={(v: number) => formatCurrency(v)}
             />
             <Tooltip
@@ -74,7 +74,7 @@ export default function CareSettingBreakdown({ settings }: CareSettingBreakdownP
                 border: "1px solid #333",
                 borderRadius: "8px",
               }}
-              labelStyle={{ color: "#fff" }}
+              labelStyle={{ color: 'var(--text-primary)' }}
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               formatter={((value: number | string) => [formatCurrency(Number(value)), "Total Cost"]) as any}
             />

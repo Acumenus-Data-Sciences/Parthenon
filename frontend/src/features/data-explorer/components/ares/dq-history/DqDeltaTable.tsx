@@ -12,7 +12,7 @@ const STATUS_CONFIG: Record<
   new: { label: "NEW", bg: "bg-primary/20", text: "text-critical" },
   existing: { label: "EXISTING", bg: "bg-accent/20", text: "text-accent" },
   resolved: { label: "RESOLVED", bg: "bg-success/20", text: "text-success" },
-  stable: { label: "STABLE", bg: "bg-[#333]/30", text: "text-text-muted" },
+  stable: { label: "STABLE", bg: "bg-surface-accent/30", text: "text-text-muted" },
 };
 
 export default function DqDeltaTable({ deltas, releaseName }: DqDeltaTableProps) {

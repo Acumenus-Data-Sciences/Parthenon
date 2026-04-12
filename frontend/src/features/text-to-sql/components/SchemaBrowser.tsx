@@ -86,7 +86,7 @@ function SchemaTableRow({ table }: { table: SchemaTable }) {
                   fontSize: "12px",
                   padding: "4px 8px",
                   borderRadius: "4px",
-                  background: "#0A0A0D",
+                  background: "var(--surface-darkest)",
                 }}
               >
                 <span
@@ -193,7 +193,7 @@ export function SchemaBrowser() {
               <div
                 style={{
                   padding: "6px 14px",
-                  background: "#111115",
+                  background: "var(--surface-base)",
                   fontSize: "11px",
                   color: "var(--text-muted)",
                   fontWeight: 600,
@@ -210,7 +210,7 @@ export function SchemaBrowser() {
               <div
                 style={{
                   padding: "6px 14px",
-                  background: "#111115",
+                  background: "var(--surface-base)",
                   fontSize: "11px",
                   color: "var(--text-muted)",
                   fontWeight: 600,
@@ -258,7 +258,7 @@ export function SchemaBrowser() {
                           fontFamily: "'IBM Plex Mono', monospace",
                           fontSize: "11px",
                           color: "var(--text-secondary)",
-                          background: "#0A0A0D",
+                          background: "var(--surface-darkest)",
                           padding: "6px 10px",
                           borderRadius: "4px",
                           border: "1px solid var(--surface-elevated)",

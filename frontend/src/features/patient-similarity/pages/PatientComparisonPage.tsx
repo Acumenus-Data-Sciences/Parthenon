@@ -162,7 +162,7 @@ const DIMENSIONS: DimensionInfo[] = [
     key: "procedures",
     label: "Procedures",
     icon: <FlaskConical size={14} />,
-    color: "#7C6CDB",
+    color: "var(--domain-observation)",
   },
   {
     key: "genomics",
@@ -399,7 +399,7 @@ function UniqueFeaturesSummary({
       shared: shared_features.procedure_count,
       uniqueA: null,
       uniqueB: null,
-      color: "#7C6CDB",
+      color: "var(--domain-observation)",
     },
   ];
 

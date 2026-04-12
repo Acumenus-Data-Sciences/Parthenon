@@ -95,7 +95,7 @@ export function IngestionHistory({
                     e.stopPropagation();
                     onDelete(entry.id);
                   }}
-                  className="p-1 rounded hover:bg-[#2E2E35] text-text-ghost hover:text-critical transition-colors"
+                  className="p-1 rounded hover:bg-surface-accent text-text-ghost hover:text-critical transition-colors"
                 >
                   <Trash2 size={12} />
                 </button>

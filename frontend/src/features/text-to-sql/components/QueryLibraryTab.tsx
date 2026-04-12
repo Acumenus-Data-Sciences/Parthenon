@@ -366,7 +366,7 @@ export function QueryLibraryTab({ dialect = "postgresql" }: { dialect?: string }
                 padding: "24px",
                 borderRadius: "8px",
                 border: "1px dashed var(--surface-elevated)",
-                background: "#111115",
+                background: "var(--surface-base)",
                 color: "var(--text-muted)",
                 fontSize: "13px",
                 lineHeight: "1.5",

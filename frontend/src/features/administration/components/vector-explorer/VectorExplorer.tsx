@@ -305,7 +305,7 @@ export default function VectorExplorer({
                   disabled={!item.enabled}
                   className={`flex w-full items-center justify-between rounded border px-2 py-2 text-left transition-colors ${
                     item.enabled
-                      ? "border-border-default bg-[#111216] hover:bg-surface-raised"
+                      ? "border-border-default bg-surface-base hover:bg-surface-raised"
                       : "cursor-not-allowed border-border-default/60 bg-surface-base opacity-50"
                   }`}
                 >

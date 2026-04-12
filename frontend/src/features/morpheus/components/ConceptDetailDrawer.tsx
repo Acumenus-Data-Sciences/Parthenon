@@ -163,7 +163,7 @@ export default function ConceptDetailDrawer({ event, onClose, dataset }: Concept
                 <>
                   <div className="font-mono text-sm text-success">{event.concept_id}</div>
                   <div className="text-[10px] text-text-ghost">{event.standard_concept_name}</div>
-                  <span className="inline-block mt-1 rounded px-1.5 py-0.5 text-[10px] font-medium bg-[#22C55E]/10 text-success">Mapped</span>
+                  <span className="inline-block mt-1 rounded px-1.5 py-0.5 text-[10px] font-medium bg-success/10 text-success">Mapped</span>
                 </>
               ) : (
                 <span className="inline-block rounded px-1.5 py-0.5 text-[10px] font-medium bg-yellow-500/10 text-yellow-400">Unmapped</span>

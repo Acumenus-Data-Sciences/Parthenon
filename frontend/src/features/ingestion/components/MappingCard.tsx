@@ -25,7 +25,7 @@ const TIER_STYLES: Record<string, { bg: string; text: string; label: string }> =
     label: "Auto-Accepted",
   },
   quick_review: {
-    bg: "bg-[#E5A84B]/15",
+    bg: "bg-warning/15",
     text: "text-warning",
     label: "Quick Review",
   },

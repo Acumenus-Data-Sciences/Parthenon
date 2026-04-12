@@ -33,20 +33,20 @@ export default function AgePyramid({ data, sourceName }: AgePyramidProps) {
           >
             <XAxis
               type="number"
-              tick={{ fill: "#888", fontSize: 11 }}
+              tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
               tickFormatter={(v: number) => Math.abs(v).toLocaleString()}
             />
             <YAxis
               type="category"
               dataKey="group"
-              tick={{ fill: "#888", fontSize: 11 }}
+              tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
             />
             <Tooltip
               contentStyle={{
                 backgroundColor: 'var(--surface-overlay)',
                 border: "1px solid #333",
                 borderRadius: "8px",
-                color: "#ccc",
+                color: 'var(--text-secondary)',
                 fontSize: 12,
               }}
               formatter={((value: number) => [Math.abs(value).toLocaleString(), ""]) as never}
@@ -59,10 +59,10 @@ export default function AgePyramid({ data, sourceName }: AgePyramidProps) {
       </div>
       <div className="mt-2 flex justify-center gap-4 text-xs text-text-muted">
         <span className="flex items-center gap-1">
-          <span className="inline-block h-2 w-2 rounded-full bg-[#7c8aed]" /> Male
+          <span className="inline-block h-2 w-2 rounded-full bg-domain-observation" /> Male
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block h-2 w-2 rounded-full bg-[#e85d75]" /> Female
+          <span className="inline-block h-2 w-2 rounded-full bg-critical" /> Female
         </span>
       </div>
     </div>

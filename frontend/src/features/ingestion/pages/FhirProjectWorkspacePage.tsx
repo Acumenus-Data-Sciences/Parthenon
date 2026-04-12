@@ -352,7 +352,7 @@ function ConnectedView({
             type="button"
             onClick={() => onSync(false)}
             disabled={syncInProgress}
-            className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base transition-colors hover:bg-[#26BCA8] disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base transition-colors hover:bg-success disabled:cursor-not-allowed disabled:opacity-50"
           >
             {syncInProgress ? (
               <Loader2 size={14} className="animate-spin" />
@@ -373,7 +373,7 @@ function ConnectedView({
         </div>
 
         {activeRun && (
-          <div className="mt-3 flex items-center gap-2 rounded-md bg-[#1A1710] px-3 py-2 text-xs text-accent">
+          <div className="mt-3 flex items-center gap-2 rounded-md bg-surface-overlay px-3 py-2 text-xs text-accent">
             <Loader2 size={12} className="animate-spin" />
             Sync in progress — auto-refreshing every 10 seconds
           </div>
@@ -432,7 +432,7 @@ function AttachConnectionView({
             type="button"
             onClick={() => onAttach(Number(selectedId))}
             disabled={!selectedId || isPending}
-            className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base transition-colors hover:bg-[#26BCA8] disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-medium text-surface-base transition-colors hover:bg-success disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isPending ? (
               <Loader2 size={14} className="animate-spin" />

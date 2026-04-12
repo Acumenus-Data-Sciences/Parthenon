@@ -24,7 +24,7 @@ function EntryCard({ entry }: { entry: ChangelogEntry }) {
       <button
         type="button"
         onClick={() => setExpanded((p) => !p)}
-        className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-[#1A1A20] transition-colors"
+        className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-surface-overlay transition-colors"
       >
         <div className="flex items-center gap-3">
           <span className="rounded bg-success/15 px-2 py-0.5 text-xs font-mono font-semibold text-success">

@@ -26,7 +26,7 @@ export function SqlBlock({ sql, safety, libraryEntry, libraryParams, dialect }: 
       <div className="relative">
         <div
           style={{
-            background: "#0A0A0D",
+            background: "var(--surface-darkest)",
             border: "1px solid var(--surface-elevated)",
             borderRadius: "8px",
             overflow: "hidden",
@@ -39,7 +39,7 @@ export function SqlBlock({ sql, safety, libraryEntry, libraryParams, dialect }: 
               justifyContent: "space-between",
               padding: "8px 14px",
               borderBottom: "1px solid var(--surface-elevated)",
-              background: "#111115",
+              background: "var(--surface-base)",
             }}
           >
             <span

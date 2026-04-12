@@ -205,7 +205,7 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
                             </span>
                           )}
                           {r.is_publishable && (
-                            <span className="px-1.5 py-0.5 rounded text-[9px] font-medium bg-[#34D399]/10 text-success">
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-medium bg-success/10 text-success">
                               PUBLISHABLE
                             </span>
                           )}
@@ -251,7 +251,7 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
                             <h4 className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-2">Summary</h4>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                               {Object.entries(r.summary_data).map(([key, val]) => (
-                                <div key={key} className="bg-[#0D0D10] rounded p-2">
+                                <div key={key} className="bg-surface-darkest rounded p-2">
                                   <p className="text-[9px] text-text-ghost uppercase">{key.replace(/_/g, " ")}</p>
                                   <p className="text-sm text-text-primary font-mono">
                                     {typeof val === "number" ? val.toLocaleString() : String(val)}
@@ -267,7 +267,7 @@ export function StudyResultsTab({ slug }: StudyResultsTabProps) {
                         {r.diagnostics && Object.keys(r.diagnostics).length > 0 && (
                           <div>
                             <h4 className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-2">Diagnostics</h4>
-                            <pre className="text-[10px] text-text-muted bg-[#0D0D10] rounded p-3 overflow-x-auto">
+                            <pre className="text-[10px] text-text-muted bg-surface-darkest rounded p-3 overflow-x-auto">
                               {JSON.stringify(r.diagnostics, null, 2)}
                             </pre>
                           </div>
@@ -442,7 +442,7 @@ function SynthesisCard({
           {s.method_settings && Object.keys(s.method_settings).length > 0 && (
             <div>
               <h4 className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-2">Method Settings</h4>
-              <pre className="text-[10px] text-text-muted bg-[#0D0D10] rounded p-3 overflow-x-auto">
+              <pre className="text-[10px] text-text-muted bg-surface-darkest rounded p-3 overflow-x-auto">
                 {JSON.stringify(s.method_settings, null, 2)}
               </pre>
             </div>
@@ -450,7 +450,7 @@ function SynthesisCard({
           {s.output && Object.keys(s.output).length > 0 ? (
             <div>
               <h4 className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-2">Output</h4>
-              <pre className="text-[10px] text-text-muted bg-[#0D0D10] rounded p-3 overflow-x-auto">
+              <pre className="text-[10px] text-text-muted bg-surface-darkest rounded p-3 overflow-x-auto">
                 {JSON.stringify(s.output, null, 2)}
               </pre>
             </div>

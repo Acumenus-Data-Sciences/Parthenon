@@ -192,7 +192,7 @@ export function VocabularySearchPanel({
           {showSuggestions && suggestions && suggestions.length > 0 && query.length >= 2 && (
             <div
               ref={suggestionsRef}
-              className="absolute z-50 top-full mt-1 w-full rounded-lg border border-border-default bg-[#16161A] shadow-xl overflow-hidden"
+              className="absolute z-50 top-full mt-1 w-full rounded-lg border border-border-default bg-surface-raised shadow-xl overflow-hidden"
             >
               {suggestions.slice(0, 8).map((s, i) => (
                 <button
@@ -338,7 +338,7 @@ export function VocabularySearchPanel({
               <button
                 type="button"
                 onClick={clearFilters}
-                className="text-xs text-critical hover:text-[#F06B7F] transition-colors"
+                className="text-xs text-critical hover:text-critical-light transition-colors"
               >
                 Clear all filters
               </button>

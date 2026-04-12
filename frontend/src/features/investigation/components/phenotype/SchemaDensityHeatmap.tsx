@@ -94,7 +94,7 @@ export function SchemaDensityHeatmap({ domains }: SchemaDensityHeatmapProps) {
         >
           <XAxis
             type="number"
-            tick={{ fontSize: 10, fill: "#71717a" }}
+            tick={{ fontSize: 10, fill: "var(--text-muted)" }}
             tickLine={false}
             axisLine={false}
             allowDecimals={false}
@@ -103,7 +103,7 @@ export function SchemaDensityHeatmap({ domains }: SchemaDensityHeatmapProps) {
             type="category"
             dataKey="name"
             width={88}
-            tick={{ fontSize: 10, fill: "#a1a1aa" }}
+            tick={{ fontSize: 10, fill: "var(--text-muted)" }}
             tickLine={false}
             axisLine={false}
           />

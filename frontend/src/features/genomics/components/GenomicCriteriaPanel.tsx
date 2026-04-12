@@ -19,7 +19,7 @@ const CRITERIA_TYPES: { value: GenomicCriteriaType; label: string; icon: LucideI
   { value: "msi", label: "Microsatellite Instability", icon: Zap, color: 'var(--warning)', desc: "MSI-H, MSI-L, or MSS" },
   { value: "fusion", label: "Gene Fusion", icon: Blend, color: "var(--info)", desc: "e.g. ALK rearrangement, BCR-ABL1" },
   { value: "pathogenicity", label: "Pathogenicity Class", icon: ShieldAlert, color: "var(--critical)", desc: "ClinVar classification" },
-  { value: "treatment_episode", label: "Treatment Episode", icon: Pill, color: "#FB923C", desc: "HemOnc chemotherapy regimen" },
+  { value: "treatment_episode", label: "Treatment Episode", icon: Pill, color: 'var(--domain-device)', desc: "HemOnc chemotherapy regimen" },
 ];
 
 const MSI_OPTIONS = [

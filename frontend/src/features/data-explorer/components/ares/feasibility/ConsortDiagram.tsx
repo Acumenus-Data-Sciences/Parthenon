@@ -79,7 +79,7 @@ export default function ConsortDiagram({ results, criteriaLabels }: ConsortDiagr
             {/* Arrow + exclusion label */}
             {idx < steps.length - 1 && (
               <div className="flex items-center gap-2 py-1">
-                <div className="h-6 w-px bg-[#333]" />
+                <div className="h-6 w-px bg-surface-accent" />
                 {steps[idx + 1].excluded > 0 && (
                   <span className="rounded bg-primary/15 px-2 py-0.5 text-[10px] text-critical">
                     -{steps[idx + 1].excluded} excluded

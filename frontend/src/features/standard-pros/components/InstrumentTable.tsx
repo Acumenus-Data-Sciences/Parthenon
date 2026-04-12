@@ -219,7 +219,7 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
             ))}
           </div>
 
-          <span className="text-[#2A2A2F]">|</span>
+          <span className="text-text-disabled">|</span>
 
           {/* License */}
           <div className="flex items-center gap-1.5">
@@ -238,7 +238,7 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
             />
           </div>
 
-          <span className="text-[#2A2A2F]">|</span>
+          <span className="text-text-disabled">|</span>
 
           {/* LOINC */}
           <div className="flex items-center gap-1.5">
@@ -257,7 +257,7 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
             />
           </div>
 
-          <span className="text-[#2A2A2F]">|</span>
+          <span className="text-text-disabled">|</span>
 
           {/* SNOMED */}
           <div className="flex items-center gap-1.5">
@@ -276,7 +276,7 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
             />
           </div>
 
-          <span className="text-[#2A2A2F]">|</span>
+          <span className="text-text-disabled">|</span>
 
           {/* Sort */}
           <div className="flex items-center gap-1.5">
@@ -307,7 +307,7 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
           {/* Clear all */}
           {activeFilterCount > 0 && (
             <>
-              <span className="text-[#2A2A2F]">|</span>
+              <span className="text-text-disabled">|</span>
               <button
                 type="button"
                 onClick={() => {

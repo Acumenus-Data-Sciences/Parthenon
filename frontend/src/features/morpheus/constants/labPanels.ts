@@ -41,14 +41,14 @@ export const LAB_PANELS: LabPanelConfig[] = [
   },
   {
     name: 'Coagulation',
-    color: '#A855F7',
+    color: 'var(--domain-observation)',
     tests: [
       'pt', 'inr(pt)', 'ptt', 'fibrinogen', 'd-dimer',
     ],
   },
   {
     name: 'Cardiac',
-    color: '#EC4899',
+    color: 'var(--domain-procedure)',
     tests: [
       'troponin t', 'troponin i', 'ck (cpk)', 'ck-mb', 'ldh',
       'ntprobnp', 'bnp',
@@ -56,7 +56,7 @@ export const LAB_PANELS: LabPanelConfig[] = [
   },
   {
     name: 'Inflammatory',
-    color: '#F97316',
+    color: 'var(--domain-device)',
     tests: [
       'c-reactive protein', 'procalcitonin', 'ferritin',
     ],

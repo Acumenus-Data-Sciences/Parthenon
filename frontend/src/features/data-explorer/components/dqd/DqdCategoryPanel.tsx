@@ -15,7 +15,7 @@ interface DqdCategoryPanelProps {
 
 const SEVERITY_STYLES: Record<string, { bg: string; text: string; label: string }> = {
   error: { bg: "bg-critical/15", text: "text-critical", label: "Error" },
-  warning: { bg: "bg-[#E5A84B]/15", text: "text-warning", label: "Warning" },
+  warning: { bg: "bg-warning/15", text: "text-warning", label: "Warning" },
   info: { bg: "bg-info/15", text: "text-info", label: "Info" },
 };
 
@@ -43,7 +43,7 @@ export function DqdCategoryPanel({ category, checks }: DqdCategoryPanelProps) {
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}
-        className="flex w-full items-center gap-3 border-b border-border-default bg-surface-overlay px-6 py-3 text-left hover:bg-[#1E1E22] transition-colors"
+        className="flex w-full items-center gap-3 border-b border-border-default bg-surface-overlay px-6 py-3 text-left hover:bg-surface-overlay transition-colors"
       >
         {expanded ? (
           <ChevronDown size={16} className="text-text-muted" />

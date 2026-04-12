@@ -159,7 +159,7 @@ export function TopLociTable({
                   <tr
                     key={`${row.chr}-${row.pos}-${idx}`}
                     className="border-t border-zinc-800 hover:bg-zinc-800/30 transition-colors"
-                    style={{ backgroundColor: "#09090b" }}
+                    style={{ backgroundColor: 'var(--surface-darkest)' }}
                   >
                     <td className="px-3 py-2 text-zinc-300 font-mono text-xs whitespace-nowrap">
                       {row.chr}

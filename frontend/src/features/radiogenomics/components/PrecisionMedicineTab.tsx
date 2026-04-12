@@ -422,7 +422,7 @@ function VariantsSection({ variants }: { variants: VariantSummary }) {
           <button
             type="button"
             onClick={() => setShowAll(!showAll)}
-            className="text-xs text-[var(--domain-observation)] hover:text-[#C4B5FD] transition-colors"
+            className="text-xs text-[var(--domain-observation)] hover:text-domain-observation transition-colors"
           >
             {showAll ? "Show less" : `Show all ${variants.total} variants`}
           </button>

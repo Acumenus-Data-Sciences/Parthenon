@@ -186,7 +186,7 @@ export default function UsersPage() {
           <button
             type="button"
             onClick={() => setModalState({ open: true, user: null })}
-            className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-semibold text-surface-base transition-colors hover:bg-[#25B8A5]"
+            className="inline-flex items-center gap-2 rounded-lg bg-success px-4 py-2 text-sm font-semibold text-surface-base transition-colors hover:bg-success"
           >
             <Plus size={16} />
             New User

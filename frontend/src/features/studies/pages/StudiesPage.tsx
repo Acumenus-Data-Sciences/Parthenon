@@ -44,7 +44,7 @@ const STUDY_TYPE_OPTIONS = [
   { value: "comparative_effectiveness", label: "Comparative", color: 'var(--warning)' },
   { value: "safety_surveillance", label: "Safety", color: "var(--critical)" },
   { value: "drug_utilization", label: "Drug Util", color: 'var(--success)' },
-  { value: "quality_improvement", label: "QI", color: "#FB923C" },
+  { value: "quality_improvement", label: "QI", color: 'var(--domain-device)' },
   { value: "custom", label: "Custom", color: "var(--text-muted)" },
 ];
 
@@ -56,7 +56,7 @@ const STATUS_OPTIONS = [
   { value: "execution", label: "Execution", color: "var(--success)" },
   { value: "analysis", label: "Analysis", color: 'var(--success)' },
   { value: "published", label: "Published", color: "#22D3EE" },
-  { value: "archived", label: "Archived", color: "#6B7280" },
+  { value: "archived", label: "Archived", color: 'var(--text-ghost)' },
 ];
 
 const PRIORITY_OPTIONS = [

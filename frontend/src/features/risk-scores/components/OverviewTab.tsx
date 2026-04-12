@@ -224,7 +224,7 @@ export function OverviewTab({
               <button
                 type="button"
                 onClick={() => onTabChange("results")}
-                className="inline-flex items-center gap-1 text-xs text-success hover:text-[#5EEAD4] transition-colors"
+                className="inline-flex items-center gap-1 text-xs text-success hover:text-success-light transition-colors"
               >
                 View Full Results <ArrowRight className="h-3 w-3" />
               </button>

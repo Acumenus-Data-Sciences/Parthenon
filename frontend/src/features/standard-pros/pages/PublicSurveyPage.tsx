@@ -82,7 +82,7 @@ function SurveyField({
       <select
         value={typeof value === "string" ? value : ""}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full rounded-xl border border-border-default bg-white px-4 py-3 text-sm text-text-primary outline-none focus:border-[#C66B3D]"
+        className="w-full rounded-xl border border-border-default bg-white px-4 py-3 text-sm text-text-primary outline-none focus:border-warning"
       >
         <option value="">Select a response</option>
         {item.answer_options.map((option) => (
@@ -102,7 +102,7 @@ function SurveyField({
         max={item.max_value ?? undefined}
         value={typeof value === "string" ? value : ""}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full rounded-xl border border-border-default bg-white px-4 py-3 text-sm text-text-primary outline-none focus:border-[#C66B3D]"
+        className="w-full rounded-xl border border-border-default bg-white px-4 py-3 text-sm text-text-primary outline-none focus:border-warning"
       />
     );
   }
@@ -113,7 +113,7 @@ function SurveyField({
         rows={4}
         value={typeof value === "string" ? value : ""}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full rounded-xl border border-border-default bg-white px-4 py-3 text-sm text-text-primary outline-none focus:border-[#C66B3D]"
+        className="w-full rounded-xl border border-border-default bg-white px-4 py-3 text-sm text-text-primary outline-none focus:border-warning"
       />
     );
   }
@@ -123,8 +123,8 @@ function SurveyField({
 
 function SurveyHeader({ campaign }: { campaign: PublicSurveyCampaignApi }) {
   return (
-    <div className="rounded-[28px] border border-border-default bg-[#F7F1E8] p-6 shadow-[0_24px_80px_rgba(83,58,33,0.08)]">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#9A6B47]">
+    <div className="rounded-[28px] border border-border-default bg-surface-raised p-6 shadow-[0_24px_80px_rgba(83,58,33,0.08)]">
+      <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-warning-dark">
         Parthenon Standard PROs
       </div>
       <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -139,7 +139,7 @@ function SurveyHeader({ campaign }: { campaign: PublicSurveyCampaignApi }) {
           </p>
         </div>
         <div className="rounded-2xl bg-white px-4 py-3 text-right shadow-[0_16px_40px_rgba(83,58,33,0.08)]">
-          <div className="text-[10px] uppercase tracking-[0.24em] text-[#9B9488]">
+          <div className="text-[10px] uppercase tracking-[0.24em] text-text-muted">
             Instrument
           </div>
           <div className="mt-1 text-sm font-medium text-text-primary">
@@ -218,16 +218,16 @@ export default function PublicSurveyPage() {
 
   if (surveyQuery.isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#F4E8D8]">
-        <Loader2 size={28} className="animate-spin text-[#9A6B47]" />
+      <div className="flex min-h-screen items-center justify-center bg-surface-raised">
+        <Loader2 size={28} className="animate-spin text-warning-dark" />
       </div>
     );
   }
 
   if (surveyQuery.isError || !surveyQuery.data) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#F4E8D8] px-6">
-        <div className="max-w-md rounded-[28px] border border-border-default bg-[#FFF8F2] p-8 text-center shadow-[0_24px_80px_rgba(83,58,33,0.08)]">
+      <div className="flex min-h-screen items-center justify-center bg-surface-raised px-6">
+        <div className="max-w-md rounded-[28px] border border-border-default bg-surface-base p-8 text-center shadow-[0_24px_80px_rgba(83,58,33,0.08)]">
           <AlertTriangle size={36} className="mx-auto text-critical" />
           <h1 className="mt-4 text-xl font-semibold text-text-primary">
             Survey unavailable
@@ -242,8 +242,8 @@ export default function PublicSurveyPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-[#F4E8D8] px-4 py-10">
-        <div className="mx-auto max-w-2xl rounded-[32px] border border-border-default bg-[#FFF8F2] p-8 text-center shadow-[0_24px_80px_rgba(83,58,33,0.08)]">
+      <div className="min-h-screen bg-surface-raised px-4 py-10">
+        <div className="mx-auto max-w-2xl rounded-[32px] border border-border-default bg-surface-base p-8 text-center shadow-[0_24px_80px_rgba(83,58,33,0.08)]">
           <CheckCircle2 size={40} className="mx-auto text-success-dark" />
           <h1 className="mt-4 text-2xl font-semibold text-text-primary">
             Response submitted
@@ -252,7 +252,7 @@ export default function PublicSurveyPage() {
             Thank you. Your survey response has been recorded.
           </p>
           {submitted.totalScore !== null && (
-            <p className="mt-4 inline-flex rounded-full bg-[#F7F1E8] px-4 py-2 text-sm font-medium text-warning-dark">
+            <p className="mt-4 inline-flex rounded-full bg-surface-raised px-4 py-2 text-sm font-medium text-warning-dark">
               Calculated total score: {submitted.totalScore}
             </p>
           )}
@@ -266,7 +266,7 @@ export default function PublicSurveyPage() {
       <div className="mx-auto max-w-4xl space-y-6">
         <SurveyHeader campaign={surveyQuery.data} />
 
-        <div className="rounded-[28px] border border-border-default bg-[#FFF8F2] p-6 shadow-[0_24px_80px_rgba(83,58,33,0.08)]">
+        <div className="rounded-[28px] border border-border-default bg-surface-base p-6 shadow-[0_24px_80px_rgba(83,58,33,0.08)]">
           {surveyQuery.data.requires_respondent_identifier === false ? (
             <div className="rounded-2xl border border-border-default bg-white px-4 py-4">
               <div className="text-sm font-medium text-text-primary">Secure broker invitation</div>
@@ -294,7 +294,7 @@ export default function PublicSurveyPage() {
                 value={respondentIdentifier}
                 onChange={(event) => setRespondentIdentifier(event.target.value)}
                 placeholder="Study ID or external reference"
-                className="w-full rounded-xl border border-border-default bg-white px-4 py-3 text-sm text-text-primary outline-none focus:border-[#C66B3D]"
+                className="w-full rounded-xl border border-border-default bg-white px-4 py-3 text-sm text-text-primary outline-none focus:border-warning"
               />
             </div>
           )}
@@ -304,7 +304,7 @@ export default function PublicSurveyPage() {
           {orderedItems.map((item) => (
             <div
               key={item.id}
-              className="rounded-[28px] border border-border-default bg-[#FFF8F2] p-6 shadow-[0_24px_80px_rgba(83,58,33,0.06)]"
+              className="rounded-[28px] border border-border-default bg-surface-base p-6 shadow-[0_24px_80px_rgba(83,58,33,0.06)]"
             >
               <div className="flex items-start gap-4">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-warning text-sm font-semibold text-white">
@@ -314,7 +314,7 @@ export default function PublicSurveyPage() {
                   <div className="text-base font-medium leading-relaxed text-text-primary">
                     {item.item_text}
                   </div>
-                  <div className="mt-1 text-[11px] uppercase tracking-[0.2em] text-[#9B9488]">
+                  <div className="mt-1 text-[11px] uppercase tracking-[0.2em] text-text-muted">
                     {item.response_type.replace(/_/g, " ")}
                   </div>
                 </div>

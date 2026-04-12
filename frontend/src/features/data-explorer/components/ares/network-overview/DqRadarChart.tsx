@@ -60,12 +60,12 @@ export default function DqRadarChart({ profiles, maxSources = 5 }: DqRadarChartP
             <PolarGrid stroke="#333" />
             <PolarAngleAxis
               dataKey="dimension"
-              tick={{ fill: "#888", fontSize: 11 }}
+              tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
             />
             <PolarRadiusAxis
               angle={90}
               domain={[0, 100]}
-              tick={{ fill: "#666", fontSize: 10 }}
+              tick={{ fill: "var(--text-ghost)", fontSize: 10 }}
               tickFormatter={(v: number) => `${v}%`}
             />
             <Tooltip
@@ -74,7 +74,7 @@ export default function DqRadarChart({ profiles, maxSources = 5 }: DqRadarChartP
                 border: "1px solid #333",
                 borderRadius: "8px",
               }}
-              labelStyle={{ color: "#fff" }}
+              labelStyle={{ color: 'var(--text-primary)' }}
               formatter={((value: number) => [`${value}%`, undefined]) as never}
             />
             {displayProfiles.map((profile, idx) => (
@@ -89,7 +89,7 @@ export default function DqRadarChart({ profiles, maxSources = 5 }: DqRadarChartP
               />
             ))}
             <Legend
-              wrapperStyle={{ fontSize: 11, color: "#888" }}
+              wrapperStyle={{ fontSize: 11, color: 'var(--text-muted)' }}
             />
           </RadarChart>
         </ResponsiveContainer>

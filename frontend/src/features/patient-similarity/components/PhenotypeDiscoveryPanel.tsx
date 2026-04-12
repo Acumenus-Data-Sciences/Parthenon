@@ -16,7 +16,7 @@ function clusterColor(id: number): string {
 
 function silhouetteLabel(score: number): { text: string; color: string } {
   if (score >= 0.7) return { text: "Strong", color: "var(--success)" };
-  if (score >= 0.5) return { text: "Good", color: "#34D399" };
+  if (score >= 0.5) return { text: "Good", color: "var(--success)" };
   if (score >= 0.25) return { text: "Fair", color: "var(--accent)" };
   return { text: "Weak", color: "var(--primary)" };
 }

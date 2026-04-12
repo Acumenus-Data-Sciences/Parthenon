@@ -329,7 +329,7 @@ export function ReleasesView() {
                   type="button"
                   onClick={handleCreate}
                   disabled={createMutation.isPending || !formData.release_name.trim()}
-                  className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-surface-base hover:bg-[#e0b82e] disabled:opacity-50 transition-colors"
+                  className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-surface-base hover:bg-warning disabled:opacity-50 transition-colors"
                 >
                   {createMutation.isPending ? "Creating..." : "Create"}
                 </button>

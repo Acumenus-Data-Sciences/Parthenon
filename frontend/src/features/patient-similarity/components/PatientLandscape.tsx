@@ -143,7 +143,7 @@ function PointTooltip({ point, clusters, is2D }: TooltipProps) {
       center
       style={{ pointerEvents: "none" }}
     >
-      <div className="rounded-lg border border-[#2A2A2E] bg-surface-raised/95 px-3 py-2 text-xs text-gray-300 shadow-xl backdrop-blur-sm whitespace-nowrap">
+      <div className="rounded-lg border border-border-default bg-surface-raised/95 px-3 py-2 text-xs text-gray-300 shadow-xl backdrop-blur-sm whitespace-nowrap">
         <div className="font-semibold text-text-primary">
           Person {point.person_id}
         </div>
@@ -200,12 +200,12 @@ export function PatientLandscape({
   );
 
   return (
-    <div className="flex flex-col rounded-lg border border-[#2A2A2E] bg-surface-raised overflow-hidden">
+    <div className="flex flex-col rounded-lg border border-border-default bg-surface-raised overflow-hidden">
       {/* Top bar */}
       <div className="flex items-center justify-between border-b border-border-default px-4 py-2">
         <div className="flex items-center gap-4">
           {/* 2D / 3D toggle */}
-          <div className="flex rounded border border-[#2A2A2E] overflow-hidden">
+          <div className="flex rounded border border-border-default overflow-hidden">
             <button
               type="button"
               onClick={() => setIs2D(false)}
@@ -242,7 +242,7 @@ export function PatientLandscape({
               "px-2.5 py-1 text-xs font-medium rounded border transition-colors",
               colorByCluster
                 ? "border-accent/30 text-accent bg-accent/10"
-                : "border-[#2A2A2E] text-text-ghost hover:text-text-secondary",
+                : "border-border-default text-text-ghost hover:text-text-secondary",
             )}
           >
             {colorByCluster ? "Cluster colors" : "Cohort colors"}

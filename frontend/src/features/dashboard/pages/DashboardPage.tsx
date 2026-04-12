@@ -38,7 +38,7 @@ const DOMAIN_CONFIG: Record<string, { label: string; icon: React.ReactNode; colo
   procedure_occurrence: { label: "Procedures", icon: <Syringe size={14} />, color: "var(--accent)" },
   measurement: { label: "Measurements", icon: <Microscope size={14} />, color: "var(--success)" },
   observation: { label: "Observations", icon: <Eye size={14} />, color: "var(--domain-observation)" },
-  visit_occurrence: { label: "Visits", icon: <CalendarDays size={14} />, color: "#F97316" },
+  visit_occurrence: { label: "Visits", icon: <CalendarDays size={14} />, color: 'var(--domain-device)' },
   drug_era: { label: "Drug Eras", icon: <Pill size={14} />, color: "#38BDF8" },
   condition_era: { label: "Condition Eras", icon: <HeartPulse size={14} />, color: "#FB7185" },
   device_exposure: { label: "Devices", icon: <Stethoscope size={14} />, color: "#4ADE80" },

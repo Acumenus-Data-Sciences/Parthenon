@@ -429,7 +429,7 @@ export default function PatientTimeline({ data, isLoading, error }: PatientTimel
         <button
           type="button"
           onClick={() => setShowAssessments(!showAssessments)}
-          className="text-xs text-[var(--domain-observation)] hover:text-[#C4B5FD] transition-colors"
+          className="text-xs text-[var(--domain-observation)] hover:text-domain-observation transition-colors"
         >
           {showAssessments ? "Hide" : "Show"} response assessments
         </button>

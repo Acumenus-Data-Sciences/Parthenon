@@ -30,7 +30,7 @@ export default function CrossSourceCostChart({
   if (sourcesWithData.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-surface-highlight bg-surface-raised py-12">
-        <div className="mb-2 text-3xl text-[#333]">$</div>
+        <div className="mb-2 text-3xl text-text-disabled">$</div>
         <p className="text-sm text-text-ghost">No sources have cost data for comparison.</p>
       </div>
     );
@@ -69,7 +69,7 @@ export default function CrossSourceCostChart({
               <div className="absolute inset-0 flex items-center">
                 {/* Whisker line (P10 to P90) */}
                 <div
-                  className="absolute h-0.5 bg-[#555]"
+                  className="absolute h-0.5 bg-surface-highlight"
                   style={{
                     left: scale(dist.p10),
                     width: `calc(${scale(dist.p90)} - ${scale(dist.p10)})`,
@@ -77,12 +77,12 @@ export default function CrossSourceCostChart({
                 />
                 {/* Left whisker cap */}
                 <div
-                  className="absolute h-3 w-0.5 bg-[#555]"
+                  className="absolute h-3 w-0.5 bg-surface-highlight"
                   style={{ left: scale(dist.p10) }}
                 />
                 {/* Right whisker cap */}
                 <div
-                  className="absolute h-3 w-0.5 bg-[#555]"
+                  className="absolute h-3 w-0.5 bg-surface-highlight"
                   style={{ left: scale(dist.p90) }}
                 />
                 {/* IQR box */}

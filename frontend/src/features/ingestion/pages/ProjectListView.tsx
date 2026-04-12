@@ -105,7 +105,7 @@ export function ProjectListView({ onSelectProject }: ProjectListViewProps) {
             type="button"
             onClick={handleCreate}
             disabled={!newName.trim() || createMutation.isPending}
-            className="rounded-md bg-success px-4 py-2 text-sm font-medium text-surface-base transition-colors hover:bg-[#26BCA8] disabled:opacity-50"
+            className="rounded-md bg-success px-4 py-2 text-sm font-medium text-surface-base transition-colors hover:bg-success disabled:opacity-50"
           >
             {createMutation.isPending ? (
               <Loader2 size={16} className="animate-spin" />
