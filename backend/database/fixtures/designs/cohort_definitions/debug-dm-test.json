@@ -1,0 +1,574 @@
+{
+    "id": 242,
+    "name": "DEBUG-DM-Test",
+    "description": "Auto-generated from Type 2 Diabetes Mellitus care bundle. Includes primary condition criteria and quality measure inclusion rules.",
+    "expression_json": {
+        "ConceptSets": [
+            {
+                "id": 0,
+                "name": "Type 2 Diabetes Mellitus Conditions",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 201826,
+                                "CONCEPT_CODE": "44054006",
+                                "CONCEPT_NAME": "Type 2 diabetes mellitus",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Disorder",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 1,
+                "name": "HbA1c Testing",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 3004410,
+                                "CONCEPT_CODE": "4548-4",
+                                "CONCEPT_NAME": "Hemoglobin A1c\/Hemoglobin.total in Blood",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 3034639,
+                                "CONCEPT_CODE": "41995-2",
+                                "CONCEPT_NAME": "Hemoglobin A1c [Mass\/volume] in Blood",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 2,
+                "name": "HbA1c Poor Control (>9%)",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 3004410,
+                                "CONCEPT_CODE": "4548-4",
+                                "CONCEPT_NAME": "Hemoglobin A1c\/Hemoglobin.total in Blood",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 3,
+                "name": "Dilated Retinal Eye Exam",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Procedure",
+                                "CONCEPT_ID": 4213297,
+                                "CONCEPT_CODE": "39228008",
+                                "CONCEPT_NAME": "Surgical pathology procedure",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Procedure",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 4,
+                "name": "Nephropathy Screening",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 3006923,
+                                "CONCEPT_CODE": "1742-6",
+                                "CONCEPT_NAME": "Alanine aminotransferase [Enzymatic activity\/volume] in Serum or Plasma",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 3013682,
+                                "CONCEPT_CODE": "3094-0",
+                                "CONCEPT_NAME": "Urea nitrogen [Mass\/volume] in Serum or Plasma",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 5,
+                "name": "Blood Pressure Control (<140\/90)",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 3004249,
+                                "CONCEPT_CODE": "8480-6",
+                                "CONCEPT_NAME": "Systolic blood pressure",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Clinical Observation",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 3012888,
+                                "CONCEPT_CODE": "8462-4",
+                                "CONCEPT_NAME": "Diastolic blood pressure",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Clinical Observation",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 6,
+                "name": "Statin Therapy",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1510813,
+                                "CONCEPT_CODE": "301542",
+                                "CONCEPT_NAME": "rosuvastatin",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1549686,
+                                "CONCEPT_CODE": "41127",
+                                "CONCEPT_NAME": "fluvastatin",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1551860,
+                                "CONCEPT_CODE": "42463",
+                                "CONCEPT_NAME": "pravastatin",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1545958,
+                                "CONCEPT_CODE": "83367",
+                                "CONCEPT_NAME": "atorvastatin",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1592085,
+                                "CONCEPT_CODE": "6472",
+                                "CONCEPT_NAME": "lovastatin",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1583722,
+                                "CONCEPT_CODE": "60548",
+                                "CONCEPT_NAME": "exenatide",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 7,
+                "name": "Foot Examination",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Procedure",
+                                "CONCEPT_ID": 4220299,
+                                "CONCEPT_CODE": "416930009",
+                                "CONCEPT_NAME": "Facilitated oscillatory release technique",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Procedure",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 8,
+                "name": "Diabetes Self-Management Education",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Observation",
+                                "CONCEPT_ID": 4219681,
+                                "CONCEPT_CODE": "416524004",
+                                "CONCEPT_NAME": "Time of illness onset",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Observable Entity",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            }
+        ],
+        "QualifiedLimit": {
+            "Type": "First"
+        },
+        "ExpressionLimit": {
+            "Type": "First"
+        },
+        "PrimaryCriteria": {
+            "CriteriaList": [
+                {
+                    "ConditionOccurrence": {
+                        "First": true,
+                        "CodesetId": 0
+                    }
+                }
+            ],
+            "ObservationWindow": {
+                "PostDays": 0,
+                "PriorDays": 365
+            }
+        },
+        "CollapseSettings": {
+            "EraPad": 0,
+            "CollapseType": "ERA"
+        },
+        "AdditionalCriteria": {
+            "Type": "ALL",
+            "Groups": [],
+            "CriteriaList": [
+                {
+                    "Criteria": {
+                        "Measurement": {
+                            "CodesetId": 1
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 1,
+                        "IsDistinct": false
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 0,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 183,
+                            "Coeff": -1
+                        },
+                        "UseEventEnd": false,
+                        "UseIndexEnd": false
+                    },
+                    "RestrictVisit": false,
+                    "IgnoreObservationPeriod": false
+                },
+                {
+                    "Criteria": {
+                        "Measurement": {
+                            "CodesetId": 2
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 1,
+                        "IsDistinct": false
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 0,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 365,
+                            "Coeff": -1
+                        },
+                        "UseEventEnd": false,
+                        "UseIndexEnd": false
+                    },
+                    "RestrictVisit": false,
+                    "IgnoreObservationPeriod": false
+                },
+                {
+                    "Criteria": {
+                        "ProcedureOccurrence": {
+                            "CodesetId": 3
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 1,
+                        "IsDistinct": false
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 0,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 365,
+                            "Coeff": -1
+                        },
+                        "UseEventEnd": false,
+                        "UseIndexEnd": false
+                    },
+                    "RestrictVisit": false,
+                    "IgnoreObservationPeriod": false
+                },
+                {
+                    "Criteria": {
+                        "Measurement": {
+                            "CodesetId": 4
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 1,
+                        "IsDistinct": false
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 0,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 365,
+                            "Coeff": -1
+                        },
+                        "UseEventEnd": false,
+                        "UseIndexEnd": false
+                    },
+                    "RestrictVisit": false,
+                    "IgnoreObservationPeriod": false
+                },
+                {
+                    "Criteria": {
+                        "Measurement": {
+                            "CodesetId": 5
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 1,
+                        "IsDistinct": false
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 0,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 365,
+                            "Coeff": -1
+                        },
+                        "UseEventEnd": false,
+                        "UseIndexEnd": false
+                    },
+                    "RestrictVisit": false,
+                    "IgnoreObservationPeriod": false
+                },
+                {
+                    "Criteria": {
+                        "DrugExposure": {
+                            "CodesetId": 6
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 1,
+                        "IsDistinct": false
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 0,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 365,
+                            "Coeff": -1
+                        },
+                        "UseEventEnd": false,
+                        "UseIndexEnd": false
+                    },
+                    "RestrictVisit": false,
+                    "IgnoreObservationPeriod": false
+                },
+                {
+                    "Criteria": {
+                        "ProcedureOccurrence": {
+                            "CodesetId": 7
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 1,
+                        "IsDistinct": false
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 0,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 365,
+                            "Coeff": -1
+                        },
+                        "UseEventEnd": false,
+                        "UseIndexEnd": false
+                    },
+                    "RestrictVisit": false,
+                    "IgnoreObservationPeriod": false
+                },
+                {
+                    "Criteria": {
+                        "Observation": {
+                            "CodesetId": 8
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 1,
+                        "IsDistinct": false
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 0,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 365,
+                            "Coeff": -1
+                        },
+                        "UseEventEnd": false,
+                        "UseIndexEnd": false
+                    },
+                    "RestrictVisit": false,
+                    "IgnoreObservationPeriod": false
+                }
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": false,
+    "version": 1,
+    "created_at": "2026-04-12T05:07:17.000000Z",
+    "updated_at": "2026-04-12T16:49:28.000000Z",
+    "deleted_at": "2026-04-12T16:49:28.000000Z",
+    "tags": [
+        "dm",
+        "endocrine",
+        "from-bundle"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "general",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

@@ -161,13 +161,17 @@
     "is_public": true,
     "version": 1,
     "created_at": "2026-03-15T20:43:18.000000Z",
-    "updated_at": "2026-03-15T20:43:18.000000Z",
-    "deleted_at": null,
+    "updated_at": "2026-04-10T21:07:11.000000Z",
+    "deleted_at": "2026-04-10T19:49:55.000000Z",
     "tags": [
         "diabetes",
         "endocrine",
         "sample"
     ],
     "share_token": null,
-    "share_expires_at": null
+    "share_expires_at": null,
+    "domain": "metabolic",
+    "quality_tier": null,
+    "deprecated_at": null,
+    "superseded_by": null
 }

@@ -1,0 +1,81 @@
+{
+    "id": 235,
+    "name": "Wizard Debug Test 2",
+    "description": "Testing generate flow",
+    "expression_json": {
+        "ConceptSets": [
+            {
+                "id": 0,
+                "name": "Hypertension",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 316866,
+                                "CONCEPT_CODE": "38341003",
+                                "CONCEPT_NAME": "Hypertensive disorder",
+                                "VOCABULARY_ID": "SNOMED",
+                                "INVALID_REASON": "V",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S",
+                                "INVALID_REASON_CAPTION": "Valid",
+                                "STANDARD_CONCEPT_CAPTION": "Standard"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            }
+        ],
+        "EndStrategy": {
+            "DateOffset": {
+                "Offset": 0,
+                "DateField": "EndDate"
+            }
+        },
+        "InclusionRules": [],
+        "QualifiedLimit": {
+            "Type": "First"
+        },
+        "ExpressionLimit": {
+            "Type": "First"
+        },
+        "PrimaryCriteria": {
+            "CriteriaList": [
+                {
+                    "ConditionOccurrence": {
+                        "CodesetId": 0
+                    }
+                }
+            ],
+            "ObservationWindow": {
+                "PostDays": 0,
+                "PriorDays": 0
+            },
+            "PrimaryCriteriaLimit": {
+                "Type": "First"
+            }
+        },
+        "CollapseSettings": {
+            "EraPad": 0,
+            "CollapseType": "ERA"
+        },
+        "CensoringCriteria": []
+    },
+    "author_id": 117,
+    "is_public": false,
+    "version": 1,
+    "created_at": "2026-04-11T19:05:21.000000Z",
+    "updated_at": "2026-04-11T19:18:26.000000Z",
+    "deleted_at": "2026-04-11T19:18:26.000000Z",
+    "tags": null,
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "cardiovascular",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

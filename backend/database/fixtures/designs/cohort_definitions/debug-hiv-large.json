@@ -1,0 +1,1300 @@
+{
+    "id": 245,
+    "name": "DEBUG-HIV-Large",
+    "description": "Auto-generated from HIV \/ AIDS (Chronic Management) care bundle. Includes primary condition criteria and quality measure inclusion rules.",
+    "expression_json": {
+        "ConceptSets": [
+            {
+                "id": 0,
+                "name": "HIV \/ AIDS (Chronic Management) Conditions",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 439727,
+                                "CONCEPT_CODE": "86406008",
+                                "CONCEPT_NAME": "Human immunodeficiency virus infection",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Disorder",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 1,
+                "name": "Viral Load Monitoring",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 1091089,
+                                "CONCEPT_CODE": "104781-0",
+                                "CONCEPT_NAME": "HIV 1 RNA [#\/volume] in Serum or Plasma by Molecular genetics method",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 1092109,
+                                "CONCEPT_CODE": "104762-0",
+                                "CONCEPT_NAME": "HIV 1 RNA [Log #\/volume] in Serum or Plasma by Molecular genetics method",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 1175139,
+                                "CONCEPT_CODE": "90901-0",
+                                "CONCEPT_NAME": "HIV 1 RNA reverse transcriptase and protease and integrase gene [Nucleotide sequence] in Serum, Plasma or Blood by Sequencing",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 4201046,
+                                "CONCEPT_CODE": "315124004",
+                                "CONCEPT_NAME": "HIV viral load",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Procedure",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 2,
+                "name": "CD4 Count Monitoring",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 1260019,
+                                "CONCEPT_CODE": "103665-6",
+                                "CONCEPT_NAME": "CD4+ CD26- Cells\/CD4 cells in Blood by Flow cytometry (FC)",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 1761400,
+                                "CONCEPT_CODE": "100860-6",
+                                "CONCEPT_NAME": "Cells.CD4.Tumor necrosis factor alfa-expressing\/CD4 cells in Blood --after stimulation with SARS-CoV-2 Spike peptide",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 1761625,
+                                "CONCEPT_CODE": "100863-0",
+                                "CONCEPT_NAME": "Cells.CD4.Tumor necrosis factor alfa-expressing\/CD4 cells in Blood --after stimulation with SARS-CoV-2 Nucleocapsid peptide",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 4209260,
+                                "CONCEPT_CODE": "313660005",
+                                "CONCEPT_NAME": "Absolute CD4 count procedure",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Procedure",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 44807691,
+                                "CONCEPT_CODE": "797821000000103",
+                                "CONCEPT_NAME": "Cytoplasmic CD4 count",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Procedure",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 3,
+                "name": "ART Adherence Assessment",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Observation",
+                                "CONCEPT_ID": 36684846,
+                                "CONCEPT_CODE": "457611000124104",
+                                "CONCEPT_NAME": "Patient understands importance of medication adherence",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Observation",
+                                "CONCEPT_ID": 36684866,
+                                "CONCEPT_CODE": "457831000124109",
+                                "CONCEPT_NAME": "Medication adherence variable",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Observation",
+                                "CONCEPT_ID": 36684964,
+                                "CONCEPT_CODE": "459561000124108",
+                                "CONCEPT_NAME": "Education on medication adherence device",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Procedure",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 4,
+                "name": "ART Resistance & Regimen Review",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 964008,
+                                "CONCEPT_CODE": "1999660",
+                                "CONCEPT_NAME": "bictegravir",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1253431,
+                                "CONCEPT_CODE": "OMOP5555446",
+                                "CONCEPT_NAME": "EMTRICITABINE 5'-TRIPHOSPHATE",
+                                "VOCABULARY_ID": "RxNorm Extension",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1254090,
+                                "CONCEPT_CODE": "OMOP5556324",
+                                "CONCEPT_NAME": "TENOFOVIR DIPHOSPHATE",
+                                "VOCABULARY_ID": "RxNorm Extension",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1703069,
+                                "CONCEPT_CODE": "276237",
+                                "CONCEPT_NAME": "emtricitabine",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1710281,
+                                "CONCEPT_CODE": "300195",
+                                "CONCEPT_NAME": "tenofovir disoproxil",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1756831,
+                                "CONCEPT_CODE": "460132",
+                                "CONCEPT_NAME": "darunavir",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 19011093,
+                                "CONCEPT_CODE": "117466",
+                                "CONCEPT_NAME": "tenofovir",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 40238930,
+                                "CONCEPT_CODE": "1102270",
+                                "CONCEPT_NAME": "rilpivirine",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 43560385,
+                                "CONCEPT_CODE": "1433868",
+                                "CONCEPT_NAME": "dolutegravir",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 5,
+                "name": "STI Screening Panel",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 1091522,
+                                "CONCEPT_CODE": "104722-4",
+                                "CONCEPT_NAME": "Chlamydia trachomatis rRNA [Presence] in Specimen by Molecular genetics method",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 1091701,
+                                "CONCEPT_CODE": "106058-1",
+                                "CONCEPT_NAME": "Chlamydia trachomatis and Neisseria gonorrhoeae and Trichomonas vaginalis rRNA panel - Vagina by NAA with probe detection",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 1091948,
+                                "CONCEPT_CODE": "105340-4",
+                                "CONCEPT_NAME": "Chlamydia trachomatis L3 DNA [Presence] in Specimen by NAA with probe detection",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 4014117,
+                                "CONCEPT_CODE": "165829005",
+                                "CONCEPT_NAME": "Gonorrhea infection titer test",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Procedure",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 4015294,
+                                "CONCEPT_CODE": "169698000",
+                                "CONCEPT_NAME": "Antenatal syphilis screening",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Procedure",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 4018603,
+                                "CONCEPT_CODE": "104375008",
+                                "CONCEPT_NAME": "Hepatitis C antibody, confirmatory test",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Procedure",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 4154688,
+                                "CONCEPT_CODE": "370988000",
+                                "CONCEPT_NAME": "Hepatitis C antibody detected with elevated alanine transaminase",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 4196134,
+                                "CONCEPT_CODE": "314706002",
+                                "CONCEPT_NAME": "Hepatitis C antibody detected",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 35609812,
+                                "CONCEPT_CODE": "1086341000000103",
+                                "CONCEPT_NAME": "Syphilis screening",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Procedure",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 40765597,
+                                "CONCEPT_CODE": "62865-1",
+                                "CONCEPT_NAME": "PhenX - assay for chlamydia - gonorrhea protocol 160101",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Clinical Observation",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 42868362,
+                                "CONCEPT_CODE": "69865-4",
+                                "CONCEPT_NAME": "Process variables for assays - gonorrhea-chlamydia PhenX",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Clinical Observation",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 44792569,
+                                "CONCEPT_CODE": "355221000000100",
+                                "CONCEPT_NAME": "Syphilis screen 3 months post treatment",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Procedure",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 6,
+                "name": "Cervical\/Anal Cancer Screening",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 2720510,
+                                "CONCEPT_CODE": "P3000",
+                                "CONCEPT_NAME": "Screening papanicolaou smear, cervical or vaginal, up to three smears, by technician under physician supervision",
+                                "VOCABULARY_ID": "HCPCS",
+                                "CONCEPT_CLASS_ID": "HCPCS",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 2720511,
+                                "CONCEPT_CODE": "P3001",
+                                "CONCEPT_NAME": "Screening papanicolaou smear, cervical or vaginal, up to three smears, requiring interpretation by physician",
+                                "VOCABULARY_ID": "HCPCS",
+                                "CONCEPT_CLASS_ID": "HCPCS",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 7,
+                "name": "Metabolic Comorbidity Panel",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 1002230,
+                                "CONCEPT_CODE": "93791-2",
+                                "CONCEPT_NAME": "Glucose [Mass\/volume] mean in Serum or Plasma",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 1002388,
+                                "CONCEPT_CODE": "93794-6",
+                                "CONCEPT_NAME": "Glucose tolerance and insulin sensitivity 2 hour panel - Serum or Plasma",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 1091140,
+                                "CONCEPT_CODE": "104878-4",
+                                "CONCEPT_NAME": "Hematocrit [Volume Fraction] of Blood --2 hours post dose glucose",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 1175225,
+                                "CONCEPT_CODE": "91117-2",
+                                "CONCEPT_NAME": "Cholesterol in LDL 6 [Moles\/volume] in Serum or Plasma",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 1175279,
+                                "CONCEPT_CODE": "91109-9",
+                                "CONCEPT_NAME": "Cholesterol in LDL 5 [Mass\/volume] in Serum or Plasma",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 1175381,
+                                "CONCEPT_CODE": "91110-7",
+                                "CONCEPT_NAME": "Cholesterol in LDL 6 [Mass\/volume] in Serum or Plasma",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 3003309,
+                                "CONCEPT_CODE": "4549-2",
+                                "CONCEPT_NAME": "Hemoglobin A1c\/Hemoglobin.total in Blood by Electrophoresis",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 3004410,
+                                "CONCEPT_CODE": "4548-4",
+                                "CONCEPT_NAME": "Hemoglobin A1c\/Hemoglobin.total in Blood",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 3005673,
+                                "CONCEPT_CODE": "17856-6",
+                                "CONCEPT_NAME": "Hemoglobin A1c\/Hemoglobin.total in Blood by HPLC",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 4017787,
+                                "CONCEPT_CODE": "104784006",
+                                "CONCEPT_NAME": "Lipids, triglycerides measurement",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Procedure",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 4032789,
+                                "CONCEPT_CODE": "14740000",
+                                "CONCEPT_NAME": "Triglycerides measurement",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Procedure",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 4041558,
+                                "CONCEPT_CODE": "166848004",
+                                "CONCEPT_NAME": "Serum triglycerides above reference range",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 8,
+                "name": "Renal & Hepatic Function Monitoring",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 1001495,
+                                "CONCEPT_CODE": "93772-2",
+                                "CONCEPT_NAME": "4-hydroxyglutamate\/Creatinine [Molar ratio] in Urine",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 1001560,
+                                "CONCEPT_CODE": "93774-8",
+                                "CONCEPT_NAME": "Trans-cinnamoylglycine\/Creatinine [Molar ratio] in Urine",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 1001562,
+                                "CONCEPT_CODE": "93736-7",
+                                "CONCEPT_NAME": "Creatinine panel - 5 hour Urine",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 1619025,
+                                "CONCEPT_CODE": "98979-8",
+                                "CONCEPT_NAME": "Glomerular filtration rate [Volume Rate\/Area] in Serum, Plasma or Blood by Creatinine-based formula (CKD-EPI 2021)\/1.73 sq M",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 1619026,
+                                "CONCEPT_CODE": "98980-6",
+                                "CONCEPT_NAME": "Glomerular filtration rate [Volume Rate\/Area] in Serum, Plasma or Blood by Creatinine and Cystatin C-based formula (CKD-EPI 2021)\/1.73 sq M",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 1761617,
+                                "CONCEPT_CODE": "100738-4",
+                                "CONCEPT_NAME": "Alanine aminotransferase.macromolecular [Presence] in Serum or Plasma",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 3000784,
+                                "CONCEPT_CODE": "25302-1",
+                                "CONCEPT_NAME": "Alanine aminotransferase [Enzymatic activity\/volume] in Body fluid",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 3004056,
+                                "CONCEPT_CODE": "1741-8",
+                                "CONCEPT_NAME": "Alanine aminotransferase [Enzymatic activity\/volume] in Amniotic fluid",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 3029829,
+                                "CONCEPT_CODE": "50044-7",
+                                "CONCEPT_NAME": "Glomerular filtration rate [Volume Rate\/Area] in Serum, Plasma or Blood by Creatinine-based formula (MDRD)\/1.73 sq M among female population",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 9,
+                "name": "Bone Density Assessment",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Procedure",
+                                "CONCEPT_ID": 1449021,
+                                "CONCEPT_CODE": "1345102001",
+                                "CONCEPT_NAME": "Dual energy X-ray absorptiometry of bone of wrist region",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Procedure",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Procedure",
+                                "CONCEPT_ID": 1449023,
+                                "CONCEPT_CODE": "1345129006",
+                                "CONCEPT_NAME": "Dual energy X-ray absorptiometry of bone of lumbar vertebra",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Procedure",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Procedure",
+                                "CONCEPT_ID": 3049921,
+                                "CONCEPT_CODE": "38268-9",
+                                "CONCEPT_NAME": "DXA Skeletal system Views for bone density",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Clinical Observation",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Procedure",
+                                "CONCEPT_ID": 4086416,
+                                "CONCEPT_CODE": "241686001",
+                                "CONCEPT_NAME": "Dual energy X-ray absorptiometry",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Procedure",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Procedure",
+                                "CONCEPT_ID": 42529140,
+                                "CONCEPT_CODE": "83012-5",
+                                "CONCEPT_NAME": "DXA Skeletal system.axial Views for bone density",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Clinical Observation",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Procedure",
+                                "CONCEPT_ID": 42529141,
+                                "CONCEPT_CODE": "83013-3",
+                                "CONCEPT_NAME": "DXA Skeletal system.peripheral Views for bone density",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Clinical Observation",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 10,
+                "name": "Immunization Status Review",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 529660,
+                                "CONCEPT_CODE": "798361",
+                                "CONCEPT_NAME": "hepatitis A vaccine (inactivated) strain HM175",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            }
+        ],
+        "QualifiedLimit": {
+            "Type": "First"
+        },
+        "ExpressionLimit": {
+            "Type": "First"
+        },
+        "PrimaryCriteria": {
+            "CriteriaList": [
+                {
+                    "ConditionOccurrence": {
+                        "First": true,
+                        "CodesetId": 0
+                    }
+                }
+            ],
+            "ObservationWindow": {
+                "PostDays": 0,
+                "PriorDays": 365
+            }
+        },
+        "CollapseSettings": {
+            "EraPad": 0,
+            "CollapseType": "ERA"
+        },
+        "AdditionalCriteria": {
+            "Type": "ALL",
+            "Groups": [],
+            "CriteriaList": [
+                {
+                    "Criteria": {
+                        "Measurement": {
+                            "CodesetId": 1
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 1,
+                        "IsDistinct": false
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 0,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 180,
+                            "Coeff": -1
+                        },
+                        "UseEventEnd": false,
+                        "UseIndexEnd": false
+                    },
+                    "RestrictVisit": false,
+                    "IgnoreObservationPeriod": false
+                },
+                {
+                    "Criteria": {
+                        "Measurement": {
+                            "CodesetId": 2
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 1,
+                        "IsDistinct": false
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 0,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 365,
+                            "Coeff": -1
+                        },
+                        "UseEventEnd": false,
+                        "UseIndexEnd": false
+                    },
+                    "RestrictVisit": false,
+                    "IgnoreObservationPeriod": false
+                },
+                {
+                    "Criteria": {
+                        "Observation": {
+                            "CodesetId": 3
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 1,
+                        "IsDistinct": false
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 0,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 365,
+                            "Coeff": -1
+                        },
+                        "UseEventEnd": false,
+                        "UseIndexEnd": false
+                    },
+                    "RestrictVisit": false,
+                    "IgnoreObservationPeriod": false
+                },
+                {
+                    "Criteria": {
+                        "DrugExposure": {
+                            "CodesetId": 4
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 1,
+                        "IsDistinct": false
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 0,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 365,
+                            "Coeff": -1
+                        },
+                        "UseEventEnd": false,
+                        "UseIndexEnd": false
+                    },
+                    "RestrictVisit": false,
+                    "IgnoreObservationPeriod": false
+                },
+                {
+                    "Criteria": {
+                        "Measurement": {
+                            "CodesetId": 5
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 1,
+                        "IsDistinct": false
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 0,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 365,
+                            "Coeff": -1
+                        },
+                        "UseEventEnd": false,
+                        "UseIndexEnd": false
+                    },
+                    "RestrictVisit": false,
+                    "IgnoreObservationPeriod": false
+                },
+                {
+                    "Criteria": {
+                        "Measurement": {
+                            "CodesetId": 6
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 1,
+                        "IsDistinct": false
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 0,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 365,
+                            "Coeff": -1
+                        },
+                        "UseEventEnd": false,
+                        "UseIndexEnd": false
+                    },
+                    "RestrictVisit": false,
+                    "IgnoreObservationPeriod": false
+                },
+                {
+                    "Criteria": {
+                        "Measurement": {
+                            "CodesetId": 7
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 1,
+                        "IsDistinct": false
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 0,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 365,
+                            "Coeff": -1
+                        },
+                        "UseEventEnd": false,
+                        "UseIndexEnd": false
+                    },
+                    "RestrictVisit": false,
+                    "IgnoreObservationPeriod": false
+                },
+                {
+                    "Criteria": {
+                        "Measurement": {
+                            "CodesetId": 8
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 1,
+                        "IsDistinct": false
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 0,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 180,
+                            "Coeff": -1
+                        },
+                        "UseEventEnd": false,
+                        "UseIndexEnd": false
+                    },
+                    "RestrictVisit": false,
+                    "IgnoreObservationPeriod": false
+                },
+                {
+                    "Criteria": {
+                        "ProcedureOccurrence": {
+                            "CodesetId": 9
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 1,
+                        "IsDistinct": false
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 0,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 730,
+                            "Coeff": -1
+                        },
+                        "UseEventEnd": false,
+                        "UseIndexEnd": false
+                    },
+                    "RestrictVisit": false,
+                    "IgnoreObservationPeriod": false
+                },
+                {
+                    "Criteria": {
+                        "DrugExposure": {
+                            "CodesetId": 10
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 1,
+                        "IsDistinct": false
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 0,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 365,
+                            "Coeff": -1
+                        },
+                        "UseEventEnd": false,
+                        "UseIndexEnd": false
+                    },
+                    "RestrictVisit": false,
+                    "IgnoreObservationPeriod": false
+                }
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": false,
+    "version": 1,
+    "created_at": "2026-04-12T16:49:24.000000Z",
+    "updated_at": "2026-04-12T16:49:28.000000Z",
+    "deleted_at": "2026-04-12T16:49:28.000000Z",
+    "tags": [
+        "hiv",
+        "infectious disease",
+        "from-bundle"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "general",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

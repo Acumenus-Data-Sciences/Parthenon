@@ -229,5 +229,9 @@
         "s9"
     ],
     "share_token": null,
-    "share_expires_at": null
+    "share_expires_at": null,
+    "domain": "metabolic",
+    "quality_tier": "validated",
+    "deprecated_at": null,
+    "superseded_by": null
 }

@@ -274,5 +274,9 @@
         "s6"
     ],
     "share_token": null,
-    "share_expires_at": null
+    "share_expires_at": null,
+    "domain": "general",
+    "quality_tier": "study-ready",
+    "deprecated_at": null,
+    "superseded_by": null
 }

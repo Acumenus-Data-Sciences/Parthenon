@@ -143,5 +143,9 @@
         "corpus"
     ],
     "share_token": null,
-    "share_expires_at": null
+    "share_expires_at": null,
+    "domain": "oncology",
+    "quality_tier": "validated",
+    "deprecated_at": null,
+    "superseded_by": null
 }

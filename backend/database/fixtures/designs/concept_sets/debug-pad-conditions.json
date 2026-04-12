@@ -1,0 +1,38 @@
+{
+    "id": 151,
+    "name": "DEBUG-PAD - Conditions",
+    "description": "Condition concepts from Peripheral Artery Disease care bundle.",
+    "expression_json": null,
+    "author_id": 117,
+    "is_public": true,
+    "tags": [
+        "pad",
+        "care-bundle",
+        "conditions"
+    ],
+    "created_at": "2026-04-12T16:45:45.000000Z",
+    "updated_at": "2026-04-12T16:49:28.000000Z",
+    "deleted_at": "2026-04-12T16:49:28.000000Z",
+    "items": [
+        {
+            "id": 1405,
+            "concept_set_id": 151,
+            "concept_id": 318443,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-12T16:45:45.000000Z",
+            "updated_at": "2026-04-12T16:45:45.000000Z"
+        },
+        {
+            "id": 1406,
+            "concept_set_id": 151,
+            "concept_id": 321052,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-12T16:45:45.000000Z",
+            "updated_at": "2026-04-12T16:45:45.000000Z"
+        }
+    ]
+}

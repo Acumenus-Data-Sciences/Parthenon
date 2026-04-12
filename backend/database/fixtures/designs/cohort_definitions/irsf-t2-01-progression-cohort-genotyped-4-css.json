@@ -65,5 +65,9 @@
         "External Control"
     ],
     "share_token": null,
-    "share_expires_at": null
+    "share_expires_at": null,
+    "domain": "rare-disease",
+    "quality_tier": "validated",
+    "deprecated_at": null,
+    "superseded_by": null
 }

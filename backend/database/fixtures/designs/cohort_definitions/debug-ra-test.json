@@ -1,0 +1,952 @@
+{
+    "id": 240,
+    "name": "DEBUG-RA-Test",
+    "description": "Auto-generated from Rheumatoid Arthritis care bundle. Includes primary condition criteria and quality measure inclusion rules.",
+    "expression_json": {
+        "ConceptSets": [
+            {
+                "id": 0,
+                "name": "Rheumatoid Arthritis Conditions",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 80809,
+                                "CONCEPT_CODE": "69896004",
+                                "CONCEPT_NAME": "Rheumatoid arthritis",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Disorder",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Condition",
+                                "CONCEPT_ID": 4035611,
+                                "CONCEPT_CODE": "239791005",
+                                "CONCEPT_NAME": "Seropositive rheumatoid arthritis",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Disorder",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 1,
+                "name": "Disease Activity Assessment (DAS28\/CDAI)",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 40481048,
+                                "CONCEPT_CODE": "443349002",
+                                "CONCEPT_NAME": "Disease activity score in rheumatoid arthritis",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Staging \/ Scales",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 40481959,
+                                "CONCEPT_CODE": "443539004",
+                                "CONCEPT_NAME": "Disease activity score in rheumatoid arthritis using C-reactive protein",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Staging \/ Scales",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 40482839,
+                                "CONCEPT_CODE": "443728000",
+                                "CONCEPT_NAME": "Disease activity score 28 joint in rheumatoid arthritis",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Staging \/ Scales",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 2,
+                "name": "DMARD Therapy Prescribed",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 937368,
+                                "CONCEPT_CODE": "191831",
+                                "CONCEPT_NAME": "infliximab",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 964339,
+                                "CONCEPT_CODE": "9524",
+                                "CONCEPT_NAME": "sulfasalazine",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1101898,
+                                "CONCEPT_CODE": "27169",
+                                "CONCEPT_NAME": "leflunomide",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1119119,
+                                "CONCEPT_CODE": "327361",
+                                "CONCEPT_NAME": "adalimumab",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1151789,
+                                "CONCEPT_CODE": "214555",
+                                "CONCEPT_NAME": "etanercept",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1253505,
+                                "CONCEPT_CODE": "OMOP5555164",
+                                "CONCEPT_NAME": "Methylsulfasalazine",
+                                "VOCABULARY_ID": "RxNorm Extension",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1305058,
+                                "CONCEPT_CODE": "6851",
+                                "CONCEPT_NAME": "methotrexate",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1777087,
+                                "CONCEPT_CODE": "5521",
+                                "CONCEPT_NAME": "hydroxychloroquine",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 36850711,
+                                "CONCEPT_CODE": "OMOP5168327",
+                                "CONCEPT_NAME": "HYDROXYCHLOROQUINE, (S)-",
+                                "VOCABULARY_ID": "RxNorm Extension",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 42904205,
+                                "CONCEPT_CODE": "1357536",
+                                "CONCEPT_NAME": "tofacitinib",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 3,
+                "name": "Cardiovascular Risk Assessment",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Observation",
+                                "CONCEPT_ID": 4323767,
+                                "CONCEPT_CODE": "429284000",
+                                "CONCEPT_NAME": "Cardiovascular disease risk assessment declined",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Context-dependent",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Observation",
+                                "CONCEPT_ID": 35609779,
+                                "CONCEPT_CODE": "1085891000000109",
+                                "CONCEPT_NAME": "QRISK3 cardiovascular disease risk assessment declined",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Context-dependent",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Observation",
+                                "CONCEPT_ID": 35609781,
+                                "CONCEPT_CODE": "1085911000000107",
+                                "CONCEPT_NAME": "Unsuitable for QRISK3 cardiovascular disease risk assessment",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 4,
+                "name": "Bone Density Screening (if on glucocorticoids)",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Procedure",
+                                "CONCEPT_ID": 1449021,
+                                "CONCEPT_CODE": "1345102001",
+                                "CONCEPT_NAME": "Dual energy X-ray absorptiometry of bone of wrist region",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Procedure",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Procedure",
+                                "CONCEPT_ID": 1449023,
+                                "CONCEPT_CODE": "1345129006",
+                                "CONCEPT_NAME": "Dual energy X-ray absorptiometry of bone of lumbar vertebra",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Procedure",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Procedure",
+                                "CONCEPT_ID": 1761911,
+                                "CONCEPT_CODE": "100225-2",
+                                "CONCEPT_NAME": "Bone density quantitative ultrasound study",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Clinical Observation",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Procedure",
+                                "CONCEPT_ID": 2617232,
+                                "CONCEPT_CODE": "G0130",
+                                "CONCEPT_NAME": "Single energy x-ray absorptiometry (sexa) bone density study, one or more sites; appendicular skeleton (peripheral) (e.g., radius, wrist, heel)",
+                                "VOCABULARY_ID": "HCPCS",
+                                "CONCEPT_CLASS_ID": "HCPCS",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Procedure",
+                                "CONCEPT_ID": 3044660,
+                                "CONCEPT_CODE": "43562-8",
+                                "CONCEPT_NAME": "NM Skeletal system.axial Views for bone density",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Clinical Observation",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Procedure",
+                                "CONCEPT_ID": 3049921,
+                                "CONCEPT_CODE": "38268-9",
+                                "CONCEPT_NAME": "DXA Skeletal system Views for bone density",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Clinical Observation",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Procedure",
+                                "CONCEPT_ID": 4086416,
+                                "CONCEPT_CODE": "241686001",
+                                "CONCEPT_NAME": "Dual energy X-ray absorptiometry",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Procedure",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Procedure",
+                                "CONCEPT_ID": 42529140,
+                                "CONCEPT_CODE": "83012-5",
+                                "CONCEPT_NAME": "DXA Skeletal system.axial Views for bone density",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Clinical Observation",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Procedure",
+                                "CONCEPT_ID": 42529141,
+                                "CONCEPT_CODE": "83013-3",
+                                "CONCEPT_NAME": "DXA Skeletal system.peripheral Views for bone density",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Clinical Observation",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 5,
+                "name": "TB Screening (pre-biologic)",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 3014162,
+                                "CONCEPT_CODE": "13956-8",
+                                "CONCEPT_NAME": "Mycobacterium tuberculosis DNA [Presence] in Specimen by NAA with probe detection",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 3027813,
+                                "CONCEPT_CODE": "14556-5",
+                                "CONCEPT_NAME": "Mycobacterium tuberculosis DNA [Presence] in Sputum by NAA with probe detection",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 3028048,
+                                "CONCEPT_CODE": "14557-3",
+                                "CONCEPT_NAME": "Mycobacterium tuberculosis DNA [Presence] in Bronchial specimen by NAA with probe detection",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Lab Test",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 6,
+                "name": "Vaccination Review (pre-biologic)",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1734670,
+                                "CONCEPT_CODE": "2686917",
+                                "CONCEPT_NAME": "Streptococcus pneumoniae serotype 15A capsular antigen diphtheria CRM197 protein conjugate vaccine",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1734671,
+                                "CONCEPT_CODE": "2686918",
+                                "CONCEPT_NAME": "Streptococcus pneumoniae serotype 16F capsular antigen diphtheria CRM197 protein conjugate vaccine",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1734672,
+                                "CONCEPT_CODE": "2686919",
+                                "CONCEPT_NAME": "Streptococcus pneumoniae serotype 17F capsular antigen diphtheria CRM197 protein conjugate vaccine",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Drug",
+                                "CONCEPT_ID": 1734673,
+                                "CONCEPT_CODE": "2686920",
+                                "CONCEPT_NAME": "Streptococcus pneumoniae serotype 20A capsular antigen diphtheria CRM197 protein conjugate vaccine",
+                                "VOCABULARY_ID": "RxNorm",
+                                "CONCEPT_CLASS_ID": "Ingredient",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 7,
+                "name": "Hepatitis B\/C Screening (pre-biologic)",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 4014007,
+                                "CONCEPT_CODE": "165806002",
+                                "CONCEPT_NAME": "Hepatitis B surface antigen detected",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 4018603,
+                                "CONCEPT_CODE": "104375008",
+                                "CONCEPT_NAME": "Hepatitis C antibody, confirmatory test",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Procedure",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 4154688,
+                                "CONCEPT_CODE": "370988000",
+                                "CONCEPT_NAME": "Hepatitis C antibody detected with elevated alanine transaminase",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 4168615,
+                                "CONCEPT_CODE": "47758006",
+                                "CONCEPT_NAME": "Hepatitis B surface antigen measurement",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Procedure",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 4196134,
+                                "CONCEPT_CODE": "314706002",
+                                "CONCEPT_NAME": "Hepatitis C antibody detected",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Measurement",
+                                "CONCEPT_ID": 4230155,
+                                "CONCEPT_CODE": "406118005",
+                                "CONCEPT_NAME": "Hepatitis B surface antigen not detected by enzyme-linked immunosorbent assay",
+                                "VOCABULARY_ID": "SNOMED",
+                                "CONCEPT_CLASS_ID": "Clinical Finding",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            },
+            {
+                "id": 8,
+                "name": "Functional Status Assessment (HAQ-DI)",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Observation",
+                                "CONCEPT_ID": 1175163,
+                                "CONCEPT_CODE": "90033-2",
+                                "CONCEPT_NAME": "Over the past week, are you able to get a good night's sleep [HAQ]",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Survey",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Observation",
+                                "CONCEPT_ID": 1175305,
+                                "CONCEPT_CODE": "90035-7",
+                                "CONCEPT_NAME": "Over the past week, are you able to deal with feelings of depression or feeling blue [HAQ]",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Survey",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Observation",
+                                "CONCEPT_ID": 1175313,
+                                "CONCEPT_CODE": "90034-0",
+                                "CONCEPT_NAME": "Over the past week, are you able to deal with feelings of anxiety or being nervous [HAQ]",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Survey",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "DOMAIN_ID": "Observation",
+                                "CONCEPT_ID": 42869705,
+                                "CONCEPT_CODE": "71950-0",
+                                "CONCEPT_NAME": "Health Assessment Questionnaire [HAQ]",
+                                "VOCABULARY_ID": "LOINC",
+                                "CONCEPT_CLASS_ID": "Survey",
+                                "STANDARD_CONCEPT": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": false,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            }
+        ],
+        "QualifiedLimit": {
+            "Type": "First"
+        },
+        "ExpressionLimit": {
+            "Type": "First"
+        },
+        "PrimaryCriteria": {
+            "CriteriaList": [
+                {
+                    "ConditionOccurrence": {
+                        "First": true,
+                        "CodesetId": 0
+                    }
+                }
+            ],
+            "ObservationWindow": {
+                "PostDays": 0,
+                "PriorDays": 365
+            }
+        },
+        "CollapseSettings": {
+            "EraPad": 0,
+            "CollapseType": "ERA"
+        },
+        "AdditionalCriteria": {
+            "Type": "ALL",
+            "Groups": [],
+            "CriteriaList": [
+                {
+                    "Criteria": {
+                        "Measurement": {
+                            "CodesetId": 1
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 1,
+                        "IsDistinct": false
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 0,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 365,
+                            "Coeff": -1
+                        },
+                        "UseEventEnd": false,
+                        "UseIndexEnd": false
+                    },
+                    "RestrictVisit": false,
+                    "IgnoreObservationPeriod": false
+                },
+                {
+                    "Criteria": {
+                        "DrugExposure": {
+                            "CodesetId": 2
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 1,
+                        "IsDistinct": false
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 0,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 365,
+                            "Coeff": -1
+                        },
+                        "UseEventEnd": false,
+                        "UseIndexEnd": false
+                    },
+                    "RestrictVisit": false,
+                    "IgnoreObservationPeriod": false
+                },
+                {
+                    "Criteria": {
+                        "Observation": {
+                            "CodesetId": 3
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 1,
+                        "IsDistinct": false
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 0,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 1825,
+                            "Coeff": -1
+                        },
+                        "UseEventEnd": false,
+                        "UseIndexEnd": false
+                    },
+                    "RestrictVisit": false,
+                    "IgnoreObservationPeriod": false
+                },
+                {
+                    "Criteria": {
+                        "ProcedureOccurrence": {
+                            "CodesetId": 4
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 1,
+                        "IsDistinct": false
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 0,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 730,
+                            "Coeff": -1
+                        },
+                        "UseEventEnd": false,
+                        "UseIndexEnd": false
+                    },
+                    "RestrictVisit": false,
+                    "IgnoreObservationPeriod": false
+                },
+                {
+                    "Criteria": {
+                        "Measurement": {
+                            "CodesetId": 5
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 1,
+                        "IsDistinct": false
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 0,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 365,
+                            "Coeff": -1
+                        },
+                        "UseEventEnd": false,
+                        "UseIndexEnd": false
+                    },
+                    "RestrictVisit": false,
+                    "IgnoreObservationPeriod": false
+                },
+                {
+                    "Criteria": {
+                        "DrugExposure": {
+                            "CodesetId": 6
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 1,
+                        "IsDistinct": false
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 0,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 365,
+                            "Coeff": -1
+                        },
+                        "UseEventEnd": false,
+                        "UseIndexEnd": false
+                    },
+                    "RestrictVisit": false,
+                    "IgnoreObservationPeriod": false
+                },
+                {
+                    "Criteria": {
+                        "Measurement": {
+                            "CodesetId": 7
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 1,
+                        "IsDistinct": false
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 0,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 365,
+                            "Coeff": -1
+                        },
+                        "UseEventEnd": false,
+                        "UseIndexEnd": false
+                    },
+                    "RestrictVisit": false,
+                    "IgnoreObservationPeriod": false
+                },
+                {
+                    "Criteria": {
+                        "Observation": {
+                            "CodesetId": 8
+                        }
+                    },
+                    "Occurrence": {
+                        "Type": 2,
+                        "Count": 1,
+                        "IsDistinct": false
+                    },
+                    "StartWindow": {
+                        "End": {
+                            "Days": 0,
+                            "Coeff": 1
+                        },
+                        "Start": {
+                            "Days": 365,
+                            "Coeff": -1
+                        },
+                        "UseEventEnd": false,
+                        "UseIndexEnd": false
+                    },
+                    "RestrictVisit": false,
+                    "IgnoreObservationPeriod": false
+                }
+            ]
+        }
+    },
+    "author_id": 117,
+    "is_public": false,
+    "version": 1,
+    "created_at": "2026-04-12T04:56:40.000000Z",
+    "updated_at": "2026-04-12T16:49:28.000000Z",
+    "deleted_at": "2026-04-12T16:49:28.000000Z",
+    "tags": [
+        "ra",
+        "musculoskeletal",
+        "from-bundle"
+    ],
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "general",
+    "quality_tier": "draft",
+    "deprecated_at": null,
+    "superseded_by": null
+}

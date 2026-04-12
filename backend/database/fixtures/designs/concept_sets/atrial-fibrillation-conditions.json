@@ -13,5 +13,26 @@
     "created_at": "2026-04-07T07:59:37.000000Z",
     "updated_at": "2026-04-07T07:59:37.000000Z",
     "deleted_at": null,
-    "items": []
+    "items": [
+        {
+            "id": 1403,
+            "concept_set_id": 150,
+            "concept_id": 313217,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-07T07:59:37.000000Z",
+            "updated_at": "2026-04-07T07:59:37.000000Z"
+        },
+        {
+            "id": 1404,
+            "concept_set_id": 150,
+            "concept_id": 4141360,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-07T07:59:37.000000Z",
+            "updated_at": "2026-04-07T07:59:37.000000Z"
+        }
+    ]
 }

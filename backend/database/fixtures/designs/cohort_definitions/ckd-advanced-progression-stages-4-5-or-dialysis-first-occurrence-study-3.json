@@ -99,8 +99,8 @@
     "is_public": true,
     "version": 1,
     "created_at": null,
-    "updated_at": "2026-03-20T21:27:57.000000Z",
-    "deleted_at": null,
+    "updated_at": "2026-04-10T21:07:11.000000Z",
+    "deleted_at": "2026-04-10T19:49:55.000000Z",
     "tags": [
         "study-3",
         "CKD",
@@ -109,5 +109,9 @@
         "renal-progression"
     ],
     "share_token": null,
-    "share_expires_at": null
+    "share_expires_at": null,
+    "domain": "renal",
+    "quality_tier": null,
+    "deprecated_at": null,
+    "superseded_by": null
 }

@@ -242,5 +242,9 @@
         "s8"
     ],
     "share_token": null,
-    "share_expires_at": null
+    "share_expires_at": null,
+    "domain": "pain-substance-use",
+    "quality_tier": "study-ready",
+    "deprecated_at": null,
+    "superseded_by": null
 }

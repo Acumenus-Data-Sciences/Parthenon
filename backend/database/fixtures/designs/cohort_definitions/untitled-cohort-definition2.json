@@ -1,0 +1,212 @@
+{
+    "id": 227,
+    "name": "Untitled Cohort Definition2",
+    "description": null,
+    "expression_json": {
+        "ConceptSets": [
+            {
+                "id": 0,
+                "name": "pneumonia",
+                "expression": {
+                    "items": [
+                        {
+                            "concept": {
+                                "domain": "Condition",
+                                "concept_id": 255848,
+                                "concept_code": "233604007",
+                                "concept_name": "Pneumonia",
+                                "vocabulary_id": "SNOMED",
+                                "standard_concept": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": true,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "domain": "Condition",
+                                "concept_id": 45768961,
+                                "concept_code": "707508008",
+                                "concept_name": "Pneumonia caused by Schistosoma haematobium",
+                                "vocabulary_id": "SNOMED",
+                                "standard_concept": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": true,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "domain": "Condition",
+                                "concept_id": 4050872,
+                                "concept_code": "233620002",
+                                "concept_name": "Pneumonia due to parasitic infestation",
+                                "vocabulary_id": "SNOMED",
+                                "standard_concept": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": true,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "domain": "Condition",
+                                "concept_id": 37016927,
+                                "concept_code": "713084008",
+                                "concept_name": "Pneumonia caused by Human coronavirus",
+                                "vocabulary_id": "SNOMED",
+                                "standard_concept": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": true,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "domain": "Condition",
+                                "concept_id": 46274035,
+                                "concept_code": "128711000119106",
+                                "concept_name": "Pneumonia caused by methicillin susceptible Staphylococcus aureus",
+                                "vocabulary_id": "SNOMED",
+                                "standard_concept": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": true,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "domain": "Condition",
+                                "concept_id": 45768960,
+                                "concept_code": "707507003",
+                                "concept_name": "Pneumonia caused by Schistosoma japonicum",
+                                "vocabulary_id": "SNOMED",
+                                "standard_concept": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": true,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "domain": "Condition",
+                                "concept_id": 45757206,
+                                "concept_code": "1082721000119101",
+                                "concept_name": "Pneumonia caused by Ascaris",
+                                "vocabulary_id": "SNOMED",
+                                "standard_concept": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": true,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "domain": "Condition",
+                                "concept_id": 254066,
+                                "concept_code": "233609002",
+                                "concept_name": "Pneumonia caused by Chlamydiaceae",
+                                "vocabulary_id": "SNOMED",
+                                "standard_concept": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": true,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "domain": "Condition",
+                                "concept_id": 759816,
+                                "concept_code": "10281000175105",
+                                "concept_name": "Pneumonia caused by Enterococcus faecalis",
+                                "vocabulary_id": "SNOMED",
+                                "standard_concept": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": true,
+                            "includeDescendants": true
+                        },
+                        {
+                            "concept": {
+                                "domain": "Condition",
+                                "concept_id": 4193964,
+                                "concept_code": "39172002",
+                                "concept_name": "Pneumonia caused by Proteus mirabilis",
+                                "vocabulary_id": "SNOMED",
+                                "standard_concept": "S"
+                            },
+                            "isExcluded": false,
+                            "includeMapped": true,
+                            "includeDescendants": true
+                        }
+                    ]
+                }
+            }
+        ],
+        "EndStrategy": {
+            "DateOffset": {
+                "Offset": 0,
+                "DateField": "StartDate"
+            }
+        },
+        "InclusionRules": [],
+        "QualifiedLimit": {
+            "Type": "All"
+        },
+        "ExpressionLimit": {
+            "Type": "First"
+        },
+        "GenomicCriteria": [],
+        "ImagingCriteria": [],
+        "PrimaryCriteria": {
+            "CriteriaList": [
+                {
+                    "ConditionOccurrence": {
+                        "CodesetId": 0
+                    }
+                }
+            ],
+            "ObservationWindow": {
+                "PostDays": 0,
+                "PriorDays": 0
+            }
+        },
+        "CollapseSettings": {
+            "EraPad": 0,
+            "CollapseType": "ERA"
+        },
+        "CensoringCriteria": [],
+        "DemographicCriteria": [
+            {
+                "Race": [
+                    8527,
+                    8516,
+                    8515,
+                    8557,
+                    8657
+                ],
+                "Gender": [
+                    8507,
+                    8532
+                ],
+                "Ethnicity": [
+                    38003564,
+                    38003563
+                ]
+            }
+        ]
+    },
+    "author_id": 154,
+    "is_public": false,
+    "version": 4,
+    "created_at": "2026-03-29T04:15:11.000000Z",
+    "updated_at": "2026-04-10T21:07:11.000000Z",
+    "deleted_at": "2026-04-04T06:37:59.000000Z",
+    "tags": null,
+    "share_token": null,
+    "share_expires_at": null,
+    "domain": "general",
+    "quality_tier": null,
+    "deprecated_at": null,
+    "superseded_by": null
+}

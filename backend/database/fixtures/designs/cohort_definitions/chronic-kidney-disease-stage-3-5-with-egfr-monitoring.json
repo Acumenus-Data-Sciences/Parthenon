@@ -191,5 +191,9 @@
         "sample"
     ],
     "share_token": null,
-    "share_expires_at": null
+    "share_expires_at": null,
+    "domain": "renal",
+    "quality_tier": "study-ready",
+    "deprecated_at": null,
+    "superseded_by": null
 }
