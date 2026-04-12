@@ -18,6 +18,7 @@ use App\Services\Cohort\Schema\CohortExpressionSchema;
 use App\Services\Solr\CohortSearchService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -846,28 +847,43 @@ class CohortDefinitionController extends Controller
 
         try {
             $bundle = ConditionBundle::with('measures')->findOrFail($validated['bundle_id']);
-            $includeMeasures = $validated['include_measures'] ?? true;
+            // Default false: include_measures=true requires patients to satisfy ALL measure
+            // criteria (Circe Type=ALL semantics), which produces empty cohorts for most
+            // bundles since few patients have every quality measure documented in lookback.
+            // Users who want compliant-population cohorts can opt in explicitly.
+            $includeMeasures = $validated['include_measures'] ?? false;
             $name = $validated['name'] ?? "{$bundle->condition_name} Cohort";
 
             // Build concept sets
             $conceptSets = [];
             $conceptSetIndex = 0;
 
+            // Resolve primary condition concept metadata from vocab
+            $primaryMeta = DB::connection('vocab')
+                ->table('vocab.concept')
+                ->whereIn('concept_id', $bundle->omop_concept_ids)
+                ->get(['concept_id', 'concept_name', 'domain_id', 'vocabulary_id', 'concept_class_id', 'standard_concept', 'concept_code'])
+                ->keyBy('concept_id');
+
             // ConceptSet 0: Primary condition concepts from bundle
-            $conditionItems = collect($bundle->omop_concept_ids)->map(fn (int $id) => [
-                'concept' => [
-                    'CONCEPT_ID' => $id,
-                    'CONCEPT_NAME' => $bundle->condition_name,
-                    'DOMAIN_ID' => 'Condition',
-                    'VOCABULARY_ID' => 'SNOMED',
-                    'CONCEPT_CLASS_ID' => 'Clinical Finding',
-                    'STANDARD_CONCEPT' => 'S',
-                    'CONCEPT_CODE' => '',
-                ],
-                'isExcluded' => false,
-                'includeDescendants' => true,
-                'includeMapped' => false,
-            ])->values()->all();
+            $conditionItems = collect($bundle->omop_concept_ids)->map(function (int $id) use ($primaryMeta, $bundle) {
+                $meta = $primaryMeta->get($id);
+
+                return [
+                    'concept' => [
+                        'CONCEPT_ID' => $id,
+                        'CONCEPT_NAME' => $meta->concept_name ?? $bundle->condition_name,
+                        'DOMAIN_ID' => $meta->domain_id ?? 'Condition',
+                        'VOCABULARY_ID' => $meta->vocabulary_id ?? 'SNOMED',
+                        'CONCEPT_CLASS_ID' => $meta->concept_class_id ?? 'Clinical Finding',
+                        'STANDARD_CONCEPT' => $meta->standard_concept ?? 'S',
+                        'CONCEPT_CODE' => $meta->concept_code ?? '',
+                    ],
+                    'isExcluded' => false,
+                    'includeDescendants' => true,
+                    'includeMapped' => false,
+                ];
+            })->values()->all();
 
             $conceptSets[] = [
                 'id' => $conceptSetIndex,
@@ -891,21 +907,32 @@ class CohortDefinitionController extends Controller
                         continue;
                     }
 
-                    // Build concept set for this measure
-                    $measureItems = collect($conceptIds)->map(fn (int $id) => [
-                        'concept' => [
-                            'CONCEPT_ID' => $id,
-                            'CONCEPT_NAME' => $measure->measure_name,
-                            'DOMAIN_ID' => $this->mapDomainToOmop($measure->domain),
-                            'VOCABULARY_ID' => '',
-                            'CONCEPT_CLASS_ID' => '',
-                            'STANDARD_CONCEPT' => 'S',
-                            'CONCEPT_CODE' => '',
-                        ],
-                        'isExcluded' => false,
-                        'includeDescendants' => true,
-                        'includeMapped' => false,
-                    ])->values()->all();
+                    // Resolve concept metadata from vocab for accurate names/vocabs
+                    $conceptMeta = DB::connection('vocab')
+                        ->table('vocab.concept')
+                        ->whereIn('concept_id', $conceptIds)
+                        ->get(['concept_id', 'concept_name', 'domain_id', 'vocabulary_id', 'concept_class_id', 'standard_concept', 'concept_code'])
+                        ->keyBy('concept_id');
+
+                    // Build concept set for this measure (OHDSI Circe ConceptSet format)
+                    $measureItems = collect($conceptIds)->map(function (int $id) use ($conceptMeta, $measure) {
+                        $meta = $conceptMeta->get($id);
+
+                        return [
+                            'concept' => [
+                                'CONCEPT_ID' => $id,
+                                'CONCEPT_NAME' => $meta->concept_name ?? $measure->measure_name,
+                                'DOMAIN_ID' => $meta->domain_id ?? $this->mapDomainToOmop($measure->domain),
+                                'VOCABULARY_ID' => $meta->vocabulary_id ?? null,
+                                'CONCEPT_CLASS_ID' => $meta->concept_class_id ?? null,
+                                'STANDARD_CONCEPT' => $meta->standard_concept ?? 'S',
+                                'CONCEPT_CODE' => $meta->concept_code ?? '',
+                            ],
+                            'isExcluded' => false,
+                            'includeDescendants' => true,
+                            'includeMapped' => false,
+                        ];
+                    })->values()->all();
 
                     $conceptSets[] = [
                         'id' => $conceptSetIndex,
@@ -915,13 +942,20 @@ class CohortDefinitionController extends Controller
 
                     $lookbackDays = $measure->numerator_criteria['lookback_days'] ?? 365;
 
+                    // OHDSI Circe StartWindow: look BACK from index date only.
+                    // Start.Days = lookbackDays before index (Coeff -1 means "before")
+                    // End.Days = 0 at index date (Coeff 1 means "after" by 0 days)
                     $additionalCriteriaList[] = [
                         'Criteria' => [$domainType => ['CodesetId' => $conceptSetIndex]],
                         'StartWindow' => [
                             'Start' => ['Days' => $lookbackDays, 'Coeff' => -1],
-                            'End' => ['Days' => $lookbackDays, 'Coeff' => 1],
+                            'End' => ['Days' => 0, 'Coeff' => 1],
+                            'UseIndexEnd' => false,
+                            'UseEventEnd' => false,
                         ],
-                        'Occurrence' => ['Type' => 2, 'Count' => 1],
+                        'Occurrence' => ['Type' => 2, 'Count' => 1, 'IsDistinct' => false],
+                        'RestrictVisit' => false,
+                        'IgnoreObservationPeriod' => false,
                     ];
 
                     $conceptSetIndex++;
