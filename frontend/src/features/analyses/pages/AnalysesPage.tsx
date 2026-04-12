@@ -357,7 +357,7 @@ export default function AnalysesPage() {
               placeholder="Search across all analyses..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full rounded-lg border border-border-default bg-surface-raised py-2 pl-9 pr-8 text-sm text-text-primary placeholder:text-text-ghost focus:border-success/40 focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40"
+              className="w-full rounded-lg border border-border-default bg-surface-raised py-2 pl-9 pr-8 text-sm text-text-primary placeholder:text-text-ghost focus:border-success/40 focus:outline-none focus:ring-1 focus:ring-success/40"
             />
             {searchInput && (
               <button

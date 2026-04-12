@@ -77,9 +77,6 @@ class FhirR4Controller extends Controller
             ->header('Content-Type', 'application/fhir+json');
     }
 
-    /**
-     * FHIR search-type interaction.
-     */
     public function search(FhirSearchRequest $request): JsonResponse
     {
         $type = $request->route('type', 'Patient');
@@ -96,9 +93,6 @@ class FhirR4Controller extends Controller
             ->header('Content-Type', 'application/fhir+json');
     }
 
-    /**
-     * FHIR read interaction.
-     */
     public function read(Request $request, int $id): JsonResponse
     {
         $type = $request->route('type', 'Patient');

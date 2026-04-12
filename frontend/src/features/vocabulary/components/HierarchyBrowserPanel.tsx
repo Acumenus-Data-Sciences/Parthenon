@@ -298,7 +298,7 @@ export function HierarchyBrowserPanel({
               value={filterText}
               onChange={(e) => setFilterText(e.target.value)}
               placeholder={`Filter ${nodes?.length ?? 0} items...`}
-              className="w-full rounded-md border border-border-default bg-surface-overlay py-1.5 pl-7 pr-7 text-xs text-text-primary placeholder:text-text-ghost focus:border-accent/50 focus:outline-none focus:ring-1 focus:ring-[#C9A227]/25"
+              className="w-full rounded-md border border-border-default bg-surface-overlay py-1.5 pl-7 pr-7 text-xs text-text-primary placeholder:text-text-ghost focus:border-accent/50 focus:outline-none focus:ring-1 focus:ring-accent/25"
             />
             {filterText && (
               <button

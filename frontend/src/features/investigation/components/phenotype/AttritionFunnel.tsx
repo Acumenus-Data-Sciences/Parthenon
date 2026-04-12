@@ -57,7 +57,7 @@ export default function AttritionFunnel({
         .attr("text-anchor", "end")
         .attr("dominant-baseline", "central")
         .attr("font-size", "11px")
-        .attr("fill", "#d4d4d8") // zinc-300
+        .attr("fill", "var(--text-primary)")
         .attr("font-family", "sans-serif")
         .text(i === 0 ? totalLabel : step.label);
 
@@ -68,7 +68,7 @@ export default function AttritionFunnel({
         .attr("width", plotWidth)
         .attr("height", BAR_HEIGHT)
         .attr("rx", 4)
-        .attr("fill", "#27272a") // zinc-800
+        .attr("fill", "var(--surface-overlay)")
         .attr("opacity", 0.6);
 
       // Filled bar (teal)
@@ -89,7 +89,7 @@ export default function AttritionFunnel({
         .attr("dominant-baseline", "central")
         .attr("font-size", "12px")
         .attr("font-weight", "bold")
-        .attr("fill", "#f4f4f5") // zinc-100
+        .attr("fill", "var(--text-primary)")
         .attr("font-family", "sans-serif")
         .text(countLabel);
 
@@ -99,7 +99,7 @@ export default function AttritionFunnel({
         .attr("y", yOffset + BAR_HEIGHT / 2)
         .attr("dominant-baseline", "central")
         .attr("font-size", "10px")
-        .attr("fill", "#a1a1aa") // zinc-400
+        .attr("fill", "var(--text-muted)")
         .attr("font-family", "sans-serif")
         .text(`${step.percent.toFixed(1)}%`);
 
@@ -110,13 +110,12 @@ export default function AttritionFunnel({
         const midY = (connY1 + connY2) / 2;
         const midX = barWidth / 2;
 
-        // Vertical connector line (zinc-600)
         g.append("line")
           .attr("x1", midX)
           .attr("x2", midX)
           .attr("y1", connY1)
           .attr("y2", connY2)
-          .attr("stroke", "#52525b") // zinc-600
+          .attr("stroke", "var(--border-default)")
           .attr("stroke-width", 1.5)
           .attr("stroke-dasharray", "4,3");
 

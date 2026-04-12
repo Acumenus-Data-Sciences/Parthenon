@@ -158,8 +158,8 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
         onClick={() => fileInputRef.current?.click()}
         className={`relative flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-6 py-10 cursor-pointer transition-colors ${
           isDragOver
-            ? "border-teal-400 bg-teal-950/20"
-            : "border-border-default bg-surface-darkest hover:border-teal-600 hover:bg-surface-base/60"
+            ? "border-success bg-success/10"
+            : "border-border-default bg-surface-darkest hover:border-success hover:bg-surface-base/60"
         }`}
       >
         <input
@@ -172,7 +172,7 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
 
         {/* Upload icon */}
         <svg
-          className={`w-8 h-8 transition-colors ${isDragOver ? "text-teal-400" : "text-text-ghost"}`}
+          className={`w-8 h-8 transition-colors ${isDragOver ? "text-success" : "text-text-ghost"}`}
           fill="none"
           stroke="currentColor"
           strokeWidth={1.5}
@@ -274,7 +274,7 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
                     <div className="flex items-center gap-1.5">
                       <span className="text-xs font-mono text-text-secondary">{req}</span>
                       {isMapped ? (
-                        <svg className="w-3.5 h-3.5 text-teal-400" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                        <svg className="w-3.5 h-3.5 text-success" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                         </svg>
                       ) : (
@@ -318,7 +318,7 @@ export function GwasUploader({ investigationId, onUploadComplete }: GwasUploader
             disabled={!allMapped || isParsing}
             className={`self-start flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
               allMapped && !isParsing
-                ? "bg-teal-600 hover:bg-teal-500 text-white cursor-pointer"
+                ? "bg-success hover:bg-success-light text-white cursor-pointer"
                 : "bg-surface-raised text-text-ghost cursor-not-allowed"
             }`}
           >

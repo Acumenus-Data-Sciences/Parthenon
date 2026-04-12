@@ -299,7 +299,7 @@ export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
               status === "saving"
                 ? "text-amber-400 bg-amber-900/20 border-amber-600/30"
                 : status === "saved"
-                  ? "text-success bg-teal-900/20 border-teal-600/30"
+                  ? "text-success bg-success/10 border-success/30"
                   : "text-primary bg-red-900/20 border-red-700/30"
             }`}
           >

@@ -185,7 +185,7 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
               key={opt.id}
               className={`flex items-start gap-2.5 rounded border px-3 py-2.5 cursor-pointer transition-colors ${
                 importMode === opt.id
-                  ? "border-success/50 bg-teal-900/10"
+                  ? "border-success/50 bg-success/10"
                   : "border-border-default/50 bg-surface-raised/40 hover:bg-surface-raised/70"
               }`}
             >
@@ -195,7 +195,7 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
                 value={opt.id}
                 checked={importMode === opt.id}
                 onChange={() => handleModeChange(opt.id)}
-                className="mt-0.5 accent-[#2DD4BF] shrink-0"
+                className="mt-0.5 accent-success shrink-0"
               />
               <div>
                 <span className="text-xs font-medium text-text-primary">{opt.label}</span>

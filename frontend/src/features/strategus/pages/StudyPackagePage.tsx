@@ -128,7 +128,7 @@ function StepStudyInfo({
               value={studyName}
               onChange={(e) => onNameChange(e.target.value)}
               placeholder="e.g., SGLT2i vs DPP4i Heart Failure Risk Study"
-              className="w-full rounded-lg border border-border-default bg-surface-overlay px-4 py-2.5 text-text-primary placeholder-[#5A5650] transition-colors focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/40"
+              className="w-full rounded-lg border border-border-default bg-surface-overlay px-4 py-2.5 text-text-primary placeholder:text-text-ghost transition-colors focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/40"
             />
           </div>
 
@@ -141,7 +141,7 @@ function StepStudyInfo({
               onChange={(e) => onDescChange(e.target.value)}
               placeholder="Briefly describe the study objectives, population, and expected outcomes..."
               rows={4}
-              className="w-full rounded-lg border border-border-default bg-surface-overlay px-4 py-2.5 text-text-primary placeholder-[#5A5650] transition-colors focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/40 resize-none"
+              className="w-full rounded-lg border border-border-default bg-surface-overlay px-4 py-2.5 text-text-primary placeholder:text-text-ghost transition-colors focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/40 resize-none"
             />
           </div>
         </div>
@@ -348,7 +348,7 @@ function StepSharedCohorts({ cohorts, onAdd, onRemove }: StepSharedCohortsProps)
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search cohort definitions..."
-                className="w-full rounded-md border border-border-default bg-surface-overlay px-3 py-2 text-sm text-text-primary placeholder-[#5A5650] focus:border-accent focus:outline-none"
+                className="w-full rounded-md border border-border-default bg-surface-overlay px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-accent focus:outline-none"
                 autoFocus
               />
             </div>

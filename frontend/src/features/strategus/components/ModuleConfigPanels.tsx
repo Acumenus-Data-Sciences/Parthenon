@@ -58,7 +58,7 @@ function NumberInput({
       min={min}
       max={max}
       step={step}
-      className="w-full rounded-lg border border-border-default bg-surface-overlay px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/40"
+      className="w-full rounded-lg border border-border-default bg-surface-overlay px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/40"
     />
   );
 }
@@ -142,7 +142,7 @@ function CohortMultiSelect({
                   type="checkbox"
                   checked={isChecked}
                   onChange={() => toggleId(c.cohortId)}
-                  className="h-3.5 w-3.5 rounded border-text-ghost accent-[#2DD4BF]"
+                  className="h-3.5 w-3.5 rounded border-text-ghost accent-success"
                 />
                 <span className="flex-1 text-sm text-text-primary">
                   {c.cohortName}

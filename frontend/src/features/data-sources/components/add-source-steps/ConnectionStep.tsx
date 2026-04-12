@@ -210,7 +210,7 @@ export function ConnectionStep({ dialect, data, onChange }: Props) {
           value={data.source_name}
           onChange={(e) => handleNameChange(e.target.value)}
           placeholder="e.g. Acumenus Production CDM"
-          className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary placeholder-[#5A5650] focus:border-accent focus:outline-none"
+          className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-accent focus:outline-none"
         />
       </div>
 
@@ -227,7 +227,7 @@ export function ConnectionStep({ dialect, data, onChange }: Props) {
             onChange({ ...data, source_key: e.target.value.toUpperCase().replace(/[^A-Z0-9_-]/g, "") });
           }}
           placeholder="ACUMENUS_PROD"
-          className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 font-mono text-sm text-accent placeholder-[#5A5650] focus:border-accent focus:outline-none"
+          className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 font-mono text-sm text-accent placeholder:text-text-ghost focus:border-accent focus:outline-none"
         />
         <p className="flex items-center gap-1 text-xs text-text-ghost">
           <Info size={10} />
@@ -253,7 +253,7 @@ export function ConnectionStep({ dialect, data, onChange }: Props) {
                   value={getFieldValue(f)}
                   onChange={(e) => setFieldValue(f, e.target.value)}
                   placeholder={f.placeholder}
-                  className={`w-full rounded-md border border-border-default bg-surface-raised px-3 py-1.5 text-sm text-text-primary placeholder-[#5A5650] focus:border-accent focus:outline-none ${f.mono ? "font-mono" : ""}`}
+                  className={`w-full rounded-md border border-border-default bg-surface-raised px-3 py-1.5 text-sm text-text-primary placeholder:text-text-ghost focus:border-accent focus:outline-none ${f.mono ? "font-mono" : ""}`}
                 />
                 {f.helper && (
                   <p className="flex items-start gap-1 text-[10px] text-text-ghost leading-tight">
@@ -301,7 +301,7 @@ export function ConnectionStep({ dialect, data, onChange }: Props) {
             value={data.source_connection}
             onChange={(e) => onChange({ ...data, source_connection: e.target.value })}
             placeholder="cdm"
-            className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 font-mono text-sm text-text-primary placeholder-[#5A5650] focus:border-accent focus:outline-none"
+            className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 font-mono text-sm text-text-primary placeholder:text-text-ghost focus:border-accent focus:outline-none"
           />
         </div>
       )}

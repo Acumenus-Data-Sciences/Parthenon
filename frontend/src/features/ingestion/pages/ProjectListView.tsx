@@ -94,7 +94,7 @@ export function ProjectListView({ onSelectProject }: ProjectListViewProps) {
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             placeholder="Project name..."
-            className="flex-1 rounded-md border border-surface-highlight bg-surface-base px-3 py-2 text-sm text-text-primary placeholder-[#5A5650] focus:border-accent focus:outline-none"
+            className="flex-1 rounded-md border border-surface-highlight bg-surface-base px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-accent focus:outline-none"
             onKeyDown={(e) => {
               if (e.key === "Enter") handleCreate();
               if (e.key === "Escape") setShowForm(false);

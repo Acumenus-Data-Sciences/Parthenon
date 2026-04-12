@@ -13,7 +13,7 @@ export default function AdmissionPicker({ admissions, selectedHadmId, onSelect }
     <div className="flex items-center gap-2 flex-wrap">
       <button
         onClick={() => onSelect(null)}
-        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors focus:outline-none focus:ring-1 focus:ring-[#9B1B30]/30 ${
+        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors focus:outline-none focus:ring-1 focus:ring-primary/30 ${
           selectedHadmId === null
             ? 'bg-primary text-text-primary'
             : 'border border-border-default bg-surface-base/50 text-text-muted hover:text-text-secondary'
@@ -28,7 +28,7 @@ export default function AdmissionPicker({ admissions, selectedHadmId, onSelect }
           <button
             key={adm.hadm_id}
             onClick={() => onSelect(adm.hadm_id)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors focus:outline-none focus:ring-1 focus:ring-[#9B1B30]/30 ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors focus:outline-none focus:ring-1 focus:ring-primary/30 ${
               selectedHadmId === adm.hadm_id
                 ? 'bg-primary text-text-primary'
                 : 'border border-border-default bg-surface-base/50 text-text-muted hover:text-text-secondary'

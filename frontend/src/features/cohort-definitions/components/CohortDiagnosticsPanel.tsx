@@ -754,7 +754,7 @@ export function CohortDiagnosticsPanel({
                         [toggle.key]: e.target.checked,
                       }))
                     }
-                    className="mt-0.5 h-3.5 w-3.5 rounded border-text-ghost bg-surface-base accent-[#2DD4BF]"
+                    className="mt-0.5 h-3.5 w-3.5 rounded border-text-ghost bg-surface-base accent-success"
                   />
                   <div className="min-w-0">
                     <p className="text-xs font-medium text-text-primary flex items-center gap-1.5">

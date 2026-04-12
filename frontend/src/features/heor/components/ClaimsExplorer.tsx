@@ -14,7 +14,7 @@ import type { ClaimsSearchFilters, ClaimItem, ClaimStats } from "../api/claimsAp
 const PAGE_SIZE = 25;
 
 const inputCls =
-  "w-full rounded-lg bg-surface-base border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors";
+  "w-full rounded-lg bg-surface-base border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40 transition-colors";
 
 const STATUS_COLORS: Record<string, string> = {
   paid: "var(--success)",

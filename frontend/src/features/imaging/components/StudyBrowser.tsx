@@ -47,7 +47,7 @@ function StudyCard({ study, onCompare, compareSelected }: {
   return (
     <div className={cn(
       "group rounded-lg border bg-surface-raised overflow-hidden transition-all hover:border-surface-highlight",
-      compareSelected ? "border-accent ring-1 ring-[#C9A227]/30" : "border-border-default",
+      compareSelected ? "border-accent ring-1 ring-accent/30" : "border-border-default",
     )}>
       {/* Thumbnail placeholder */}
       <div className="relative aspect-[4/3] bg-surface-base flex items-center justify-center">

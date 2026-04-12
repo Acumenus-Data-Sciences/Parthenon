@@ -65,7 +65,7 @@ export function ValidationChecklist({ investigation }: ValidationChecklistProps)
         <span
           className={`text-[10px] font-medium px-1.5 py-0.5 rounded border ${
             passed === total
-              ? "text-success bg-teal-900/20 border-teal-600/30"
+              ? "text-success bg-success/10 border-success/30"
               : passed === 0
                 ? "text-primary bg-red-900/10 border-red-700/30"
                 : "text-amber-400 bg-amber-900/20 border-amber-600/30"

@@ -31,7 +31,7 @@ export function BatchReviewToolbar({
           type="checkbox"
           checked={isAllSelected}
           onChange={isAllSelected ? onDeselectAll : onSelectAll}
-          className="h-4 w-4 rounded border-surface-highlight bg-surface-base text-primary focus:ring-[#9B1B30] focus:ring-offset-0 accent-[#9B1B30]"
+          className="h-4 w-4 rounded border-surface-highlight bg-surface-base text-primary focus:ring-primary focus:ring-offset-0 accent-primary"
         />
         <span className="text-xs font-medium text-text-secondary">
           Select All in View

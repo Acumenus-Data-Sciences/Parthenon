@@ -165,7 +165,7 @@ export function ChangePasswordStep({ onPasswordChanged }: Props) {
               required
               autoFocus
               placeholder="Enter temporary password"
-              className="w-full rounded-md border border-border-default bg-surface-base py-2 pl-9 pr-3 text-base text-text-primary placeholder:text-text-ghost focus:outline-none focus:ring-2 focus:ring-[#C9A227]/50"
+              className="w-full rounded-md border border-border-default bg-surface-base py-2 pl-9 pr-3 text-base text-text-primary placeholder:text-text-ghost focus:outline-none focus:ring-2 focus:ring-accent/50"
             />
           </div>
         </div>
@@ -186,7 +186,7 @@ export function ChangePasswordStep({ onPasswordChanged }: Props) {
               onChange={(e) => setNewPw(e.target.value)}
               required
               placeholder="Min 8 characters"
-              className="w-full rounded-md border border-border-default bg-surface-base py-2 pl-9 pr-10 text-base text-text-primary placeholder:text-text-ghost focus:outline-none focus:ring-2 focus:ring-[#C9A227]/50"
+              className="w-full rounded-md border border-border-default bg-surface-base py-2 pl-9 pr-10 text-base text-text-primary placeholder:text-text-ghost focus:outline-none focus:ring-2 focus:ring-accent/50"
             />
             <button
               type="button"
@@ -216,7 +216,7 @@ export function ChangePasswordStep({ onPasswordChanged }: Props) {
               required
               placeholder="Repeat new password"
               className={cn(
-                "w-full rounded-md border bg-surface-base py-2 pl-9 pr-3 text-base text-text-primary placeholder:text-text-ghost focus:outline-none focus:ring-2 focus:ring-[#C9A227]/50",
+                "w-full rounded-md border bg-surface-base py-2 pl-9 pr-3 text-base text-text-primary placeholder:text-text-ghost focus:outline-none focus:ring-2 focus:ring-accent/50",
                 confirmPw && newPw !== confirmPw
                   ? "border-red-500/50"
                   : "border-border-default",

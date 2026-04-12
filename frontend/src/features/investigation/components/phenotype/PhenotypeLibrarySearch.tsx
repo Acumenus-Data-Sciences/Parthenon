@@ -90,7 +90,7 @@ export function PhenotypeLibrarySearch({ onSelectPhenotype }: PhenotypeLibrarySe
           className="w-full bg-surface-raised/60 border border-border-default rounded pl-8 pr-3 py-2 text-xs text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success/60"
         />
         {loading && (
-          <div className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 border-2 border-success/40 border-t-[#2DD4BF] rounded-full animate-spin" />
+          <div className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 border-2 border-success/40 border-t-success rounded-full animate-spin" />
         )}
       </div>
 
@@ -154,7 +154,7 @@ export function PhenotypeLibrarySearch({ onSelectPhenotype }: PhenotypeLibrarySe
                 key={id}
                 className={`rounded border px-3 py-2.5 flex items-start justify-between gap-3 transition-colors ${
                   isSelected
-                    ? "border-success/50 bg-teal-900/10"
+                    ? "border-success/50 bg-success/10"
                     : "border-border-default/50 bg-surface-raised/40 hover:bg-surface-raised/70"
                 }`}
               >

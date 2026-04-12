@@ -195,7 +195,7 @@ export function GisDataPanel() {
                 value={src.id}
                 checked={selectedSource === src.id}
                 onChange={() => setSelectedSource(src.id)}
-                className="mt-0.5 accent-[#C9A227]"
+                className="mt-0.5 accent-accent"
               />
               <div>
                 <p className="text-sm font-medium text-text-primary">{src.name}</p>

@@ -148,7 +148,7 @@ export default function DocumentConfigurator({
             value={title}
             onChange={(e) => onTitleChange(e.target.value)}
             placeholder="Enter document title..."
-            className="w-full bg-surface-raised border border-border-default rounded-lg px-3 py-2 text-sm text-text-primary placeholder-[#5A5650] focus:outline-none focus:border-accent"
+            className="w-full bg-surface-raised border border-border-default rounded-lg px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-accent"
           />
         </div>
 
@@ -166,7 +166,7 @@ export default function DocumentConfigurator({
             value={authors.join(", ")}
             onChange={(e) => handleAuthorsInput(e.target.value)}
             placeholder="Author One, Author Two..."
-            className="w-full bg-surface-raised border border-border-default rounded-lg px-3 py-2 text-sm text-text-primary placeholder-[#5A5650] focus:outline-none focus:border-accent"
+            className="w-full bg-surface-raised border border-border-default rounded-lg px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-accent"
           />
         </div>
 

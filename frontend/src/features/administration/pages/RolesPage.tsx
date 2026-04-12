@@ -70,7 +70,7 @@ function RoleEditor({
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="e.g. site-coordinator"
-          className="mt-1.5 w-full rounded-lg border border-surface-highlight bg-surface-base px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-success focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30"
+          className="mt-1.5 w-full rounded-lg border border-surface-highlight bg-surface-base px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-success focus:outline-none focus:ring-1 focus:ring-success/30"
         />
       </div>
 
@@ -102,7 +102,7 @@ function RoleEditor({
                       ref={(el) => { if (el) el.indeterminate = someChecked && !allChecked; }}
                       onChange={(e) => { e.stopPropagation(); toggleDomain(perms); }}
                       onClick={(e) => e.stopPropagation()}
-                      className="h-3.5 w-3.5 accent-[#2DD4BF]"
+                      className="h-3.5 w-3.5 accent-success"
                     />
                     <span className="text-sm font-medium capitalize text-text-secondary">{domain}</span>
                     <span className="ml-auto text-xs text-text-ghost">
@@ -120,7 +120,7 @@ function RoleEditor({
                             type="checkbox"
                             checked={selected.has(perm.name)}
                             onChange={() => toggle(perm.name)}
-                            className="h-3.5 w-3.5 accent-[#2DD4BF]"
+                            className="h-3.5 w-3.5 accent-success"
                           />
                           <span className="font-mono text-xs text-text-muted">
                             {perm.name.split(".")[1]}

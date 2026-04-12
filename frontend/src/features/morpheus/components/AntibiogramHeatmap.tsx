@@ -134,14 +134,14 @@ export default function AntibiogramHeatmap({ data, onOrganismClick }: Antibiogra
           <select
             value={specimenFilter}
             onChange={(e) => setSpecimenFilter(e.target.value)}
-            className="rounded-lg border border-border-default bg-surface-base px-2.5 py-1.5 text-xs text-text-secondary focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30"
+            className="rounded-lg border border-border-default bg-surface-base px-2.5 py-1.5 text-xs text-text-secondary focus:outline-none focus:ring-1 focus:ring-success/30"
           >
             <option value="">All specimens</option>
             {specimens.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
           <label className="flex items-center gap-1.5 text-xs text-text-muted cursor-pointer select-none">
             <input type="checkbox" checked={showTestedOnly} onChange={() => setShowTestedOnly(!showTestedOnly)}
-              className="w-3 h-3 rounded accent-[#2DD4BF]" />
+              className="w-3 h-3 rounded accent-success" />
             Tested only
           </label>
         </div>

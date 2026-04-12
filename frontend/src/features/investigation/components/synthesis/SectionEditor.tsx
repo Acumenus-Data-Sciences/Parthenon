@@ -36,7 +36,7 @@ export function SectionEditor({
         <span className="text-sm font-semibold text-text-primary">{sectionLabel}</span>
         <span
           className={`inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full text-xs font-medium ${
-            pinCount > 0 ? "bg-teal-900 text-teal-300" : "bg-surface-accent text-text-muted"
+            pinCount > 0 ? "bg-success/10 text-success" : "bg-surface-accent text-text-muted"
           }`}
         >
           {pinCount}

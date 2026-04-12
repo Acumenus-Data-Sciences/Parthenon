@@ -92,7 +92,7 @@ export function OpenTargetsSearch({
         />
         {isLoading && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
-            <div className="w-3.5 h-3.5 border-2 border-border-hover border-t-[#C9A227] rounded-full animate-spin" />
+            <div className="w-3.5 h-3.5 border-2 border-border-hover border-t-accent rounded-full animate-spin" />
           </div>
         )}
       </div>

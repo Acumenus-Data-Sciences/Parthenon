@@ -58,7 +58,7 @@ export function SelectedConceptsList({
                           includeDescendants: e.target.checked,
                         })
                       }
-                      className="accent-[#2DD4BF]"
+                      className="accent-success"
                     />
                     Descendants
                   </label>
@@ -72,7 +72,7 @@ export function SelectedConceptsList({
                             firstOccurrenceOnly: e.target.checked,
                           })
                         }
-                        className="accent-[#2DD4BF]"
+                        className="accent-success"
                       />
                       First only
                     </label>

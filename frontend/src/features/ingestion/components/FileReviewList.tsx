@@ -107,7 +107,7 @@ export function FileReviewList({
                   onChange={(e) => onTableNameChange(index, e.target.value)}
                   disabled={isStaging}
                   className={cn(
-                    "w-full rounded-md border bg-surface-base px-3 py-1.5 text-sm text-text-primary font-mono placeholder-[#5A5650] focus:outline-none transition-colors",
+                    "w-full rounded-md border bg-surface-base px-3 py-1.5 text-sm text-text-primary font-mono placeholder:text-text-ghost focus:outline-none transition-colors",
                     hasError
                       ? "border-red-500 focus:border-red-400"
                       : "border-surface-highlight focus:border-accent",

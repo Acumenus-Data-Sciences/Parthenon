@@ -8,16 +8,15 @@ import type {
   ModalityContribution,
 } from "../types/patientSimilarity";
 
-// Community color palette (8 distinct colors for dark theme)
 const COMMUNITY_COLORS = [
-  "var(--color-primary)", // teal
-  "var(--color-primary)", // gold
-  "var(--color-critical)", // crimson
-  "#6366F1", // indigo
-  "#F97316", // orange
-  "#A78BFA", // violet
-  "#34D399", // emerald
-  "#FB7185", // rose
+  "var(--color-primary)",
+  "var(--color-accent)",
+  "var(--color-critical)",
+  "var(--color-chart-4)",
+  "var(--color-domain-device)",
+  "var(--color-domain-observation)",
+  "var(--color-chart-7)",
+  "var(--color-chart-8)",
 ];
 
 function communityColor(id: number): string {

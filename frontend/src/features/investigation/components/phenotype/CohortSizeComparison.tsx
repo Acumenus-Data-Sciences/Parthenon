@@ -71,7 +71,7 @@ export function CohortSizeComparison({
           <XAxis
             type="number"
             tickFormatter={formatCompact}
-            tick={{ fill: "#d4d4d8", fontSize: 10 }}
+            tick={{ fill: "var(--text-primary)", fontSize: 10 }}
             axisLine={{ stroke: "var(--surface-highlight)" }}
             tickLine={{ stroke: "var(--surface-highlight)" }}
           />
@@ -79,13 +79,13 @@ export function CohortSizeComparison({
             type="category"
             dataKey="displayName"
             width={180}
-            tick={{ fill: "#d4d4d8", fontSize: 11 }}
+            tick={{ fill: "var(--text-primary)", fontSize: 11 }}
             axisLine={false}
             tickLine={false}
           />
           <Tooltip
             content={<CustomTooltip />}
-            cursor={{ fill: "rgba(201,162,39,0.06)" }}
+            cursor={{ fill: "color-mix(in srgb, var(--accent) 8%, transparent)" }}
           />
           <Bar dataKey="count" radius={[0, 4, 4, 0]} maxBarSize={20}>
             {chartData.map((entry) => (

@@ -49,7 +49,7 @@ export function DiseaseSelector({ selectedConceptId, onSelect }: DiseaseSelector
             if (e.target.value.length >= 2) setMode("search");
           }}
           placeholder="Search conditions..."
-          className="w-full rounded border border-border-default bg-surface-base py-1.5 pl-7 pr-2 text-xs text-text-primary placeholder-[#5A5650] focus:border-accent/50 focus:outline-none"
+          className="w-full rounded border border-border-default bg-surface-base py-1.5 pl-7 pr-2 text-xs text-text-primary placeholder:text-text-ghost focus:border-accent/50 focus:outline-none"
         />
       </div>
 

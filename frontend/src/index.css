@@ -44,6 +44,16 @@
   --color-success: var(--success);
   --color-info: var(--info);
 
+  /* Domain */
+  --color-domain-condition: var(--domain-condition);
+  --color-domain-drug: var(--domain-drug);
+  --color-domain-measurement: var(--domain-measurement);
+  --color-domain-visit: var(--domain-visit);
+  --color-domain-observation: var(--domain-observation);
+  --color-domain-procedure: var(--domain-procedure);
+  --color-domain-device: var(--domain-device);
+  --color-domain-death: var(--domain-death);
+
   /* Text */
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
@@ -57,6 +67,25 @@
   --color-border-hover: var(--border-hover);
   --color-border-focus: var(--border-focus);
   --color-border-active: var(--border-active);
+
+  /* Compatibility aliases for shadcn-style utilities used by legacy screens */
+  --color-background: var(--surface-base);
+  --color-foreground: var(--text-primary);
+  --color-muted: var(--surface-overlay);
+  --color-muted-foreground: var(--text-muted);
+  --color-card: var(--surface-raised);
+  --color-card-foreground: var(--text-primary);
+  --color-popover: var(--surface-overlay);
+  --color-popover-foreground: var(--text-primary);
+  --color-input: var(--border-default);
+  --color-border: var(--border-default);
+  --color-ring: var(--border-focus);
+  --color-destructive: var(--critical);
+  --color-destructive-foreground: #FFFFFF;
+  --color-secondary: var(--surface-elevated);
+  --color-secondary-foreground: var(--text-primary);
+  --color-primary-foreground: #FFFFFF;
+  --color-accent-foreground: var(--surface-base);
 
   /* Chart categorical — theme-aware */
   --color-chart-1: var(--chart-1);

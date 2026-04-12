@@ -22,9 +22,9 @@ const DOMAIN_COLORS: Record<string, string> = {
   Condition: "var(--primary)",
   Drug: "var(--success)",
   Measurement: "var(--accent)",
-  Procedure: "#60a5fa",
-  Observation: "#a78bfa",
-  Device: "#71717a",
+  Procedure: "var(--domain-procedure)",
+  Observation: "var(--domain-observation)",
+  Device: "var(--domain-device)",
 };
 
 export function buildDomainCounts(
@@ -39,7 +39,7 @@ export function buildDomainCounts(
     .map(([name, count]) => ({
       name,
       count,
-      color: DOMAIN_COLORS[name] ?? "#52525b",
+      color: DOMAIN_COLORS[name] ?? "var(--text-muted)",
     }))
     .sort((a, b) => b.count - a.count);
 }
@@ -94,7 +94,7 @@ export function SchemaDensityHeatmap({ domains }: SchemaDensityHeatmapProps) {
         >
           <XAxis
             type="number"
-            tick={{ fontSize: 10, fill: "#71717a" }}
+            tick={{ fontSize: 10, fill: "var(--text-muted)" }}
             tickLine={false}
             axisLine={false}
             allowDecimals={false}
@@ -103,11 +103,14 @@ export function SchemaDensityHeatmap({ domains }: SchemaDensityHeatmapProps) {
             type="category"
             dataKey="name"
             width={88}
-            tick={{ fontSize: 10, fill: "#a1a1aa" }}
+            tick={{ fontSize: 10, fill: "var(--text-secondary)" }}
             tickLine={false}
             axisLine={false}
           />
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
+          <Tooltip
+            content={<CustomTooltip />}
+            cursor={{ fill: "color-mix(in srgb, var(--surface-overlay) 45%, transparent)" }}
+          />
           <Bar dataKey="count" radius={[0, 3, 3, 0]} maxBarSize={20}>
             {domains.map((entry) => (
               <Cell key={entry.name} fill={entry.color} fillOpacity={0.8} />

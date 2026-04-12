@@ -151,7 +151,7 @@ export function PathwayTable({
                 className={cn(
                   "border-t border-border-subtle transition-colors cursor-pointer hover:bg-surface-overlay",
                   i % 2 === 0 ? "bg-surface-raised" : "bg-surface-overlay",
-                  isSelected && "ring-1 ring-inset ring-[#2DD4BF]/30",
+                  isSelected && "ring-1 ring-inset ring-success/30",
                 )}
               >
                 <td className="px-4 py-2.5 text-xs text-text-ghost font-mono">

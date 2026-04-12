@@ -251,7 +251,7 @@ export function PredictionVerdictDashboard({ result }: PredictionVerdictDashboar
               step="0.01"
               value={threshold}
               onChange={(e) => setThreshold(parseFloat(e.target.value))}
-              className="flex-1 h-1.5 appearance-none rounded-full bg-surface-elevated accent-[#2DD4BF] cursor-pointer"
+              className="flex-1 h-1.5 appearance-none rounded-full bg-surface-elevated accent-success cursor-pointer"
               data-testid="threshold-slider"
             />
           </div>

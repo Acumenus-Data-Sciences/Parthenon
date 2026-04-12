@@ -93,7 +93,7 @@ export function CohortPicker({
               onClick={() => toggleCohort(cohort.id)}
               className={`relative flex items-start gap-3 rounded px-3 py-2.5 cursor-pointer transition-colors ${
                 isSelected
-                  ? "border border-success/50 bg-teal-900/10"
+                  ? "border border-success/50 bg-success/10"
                   : "border border-border-default/50 bg-surface-raised/40 hover:bg-surface-raised/70"
               }`}
             >

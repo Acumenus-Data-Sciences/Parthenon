@@ -99,7 +99,7 @@ export function ImagingCriteriaPanel({ onAdd, onCancel }: Props) {
   };
 
   const inputCls =
-    "w-full rounded-lg bg-surface-base border border-border-default px-2 py-1.5 text-xs text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors";
+    "w-full rounded-lg bg-surface-base border border-border-default px-2 py-1.5 text-xs text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40 transition-colors";
   const selectCls =
     "rounded-lg bg-surface-base border border-border-default px-2 py-1.5 text-xs text-text-primary focus:outline-none focus:border-success transition-colors";
 
@@ -269,7 +269,7 @@ export function ImagingCriteriaPanel({ onAdd, onCancel }: Props) {
               step={0.05}
               value={minConfidence}
               onChange={(e) => setMinConfidence(Number(e.target.value))}
-              className="flex-1 accent-[#2DD4BF]"
+              className="flex-1 accent-success"
             />
             <span className="text-xs text-text-secondary w-10 text-right font-mono">
               {Math.round(minConfidence * 100)}%
@@ -300,7 +300,7 @@ export function ImagingCriteriaPanel({ onAdd, onCancel }: Props) {
               type="checkbox"
               checked={exclude}
               onChange={(e) => setExclude(e.target.checked)}
-              className="rounded border-border-default bg-surface-base text-critical focus:ring-[#E85A6B]/40"
+              className="rounded border-border-default bg-surface-base text-critical focus:ring-critical/40"
             />
             <span className="text-xs text-text-muted">Exclude patients with this feature</span>
           </label>

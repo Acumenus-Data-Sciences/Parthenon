@@ -32,7 +32,7 @@ export function PrimaryCriteriaPanel() {
 
   const inputClass = cn(
     "w-20 rounded-lg border border-border-default bg-surface-base px-3 py-1.5 text-sm text-center",
-    "text-text-primary focus:border-success focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40",
+    "text-text-primary focus:border-success focus:outline-none focus:ring-1 focus:ring-success/40",
     "font-['IBM_Plex_Mono',monospace] tabular-nums",
   );
 

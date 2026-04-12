@@ -73,7 +73,7 @@ export function PatientsTab({
             setFilterScoreId(e.target.value || undefined);
             setPage(1);
           }}
-          className="rounded-lg border border-border-default bg-surface-raised px-3 py-1.5 text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]"
+          className="rounded-lg border border-border-default bg-surface-raised px-3 py-1.5 text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-success"
         >
           <option value="">All Scores</option>
           {scoreIds.map((sid) => (

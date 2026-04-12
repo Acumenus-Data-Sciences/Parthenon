@@ -292,7 +292,7 @@ export function ReleasesView() {
                   placeholder="Release name"
                   value={formData.release_name}
                   onChange={(e) => setFormData({ ...formData, release_name: e.target.value })}
-                  className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm text-text-primary placeholder-[#8A857D] focus:border-accent focus:outline-none"
+                  className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-accent focus:outline-none"
                 />
                 <select
                   value={formData.release_type}
@@ -312,7 +312,7 @@ export function ReleasesView() {
                   placeholder="CDM version (optional)"
                   value={formData.cdm_version ?? ""}
                   onChange={(e) => setFormData({ ...formData, cdm_version: e.target.value || undefined })}
-                  className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm text-text-primary placeholder-[#8A857D] focus:border-accent focus:outline-none"
+                  className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-accent focus:outline-none"
                 />
                 <input
                   type="text"
@@ -321,7 +321,7 @@ export function ReleasesView() {
                   onChange={(e) =>
                     setFormData({ ...formData, vocabulary_version: e.target.value || undefined })
                   }
-                  className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm text-text-primary placeholder-[#8A857D] focus:border-accent focus:outline-none"
+                  className="rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-accent focus:outline-none"
                 />
               </div>
               <div className="flex gap-2">

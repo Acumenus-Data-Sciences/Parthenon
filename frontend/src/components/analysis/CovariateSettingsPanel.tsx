@@ -177,7 +177,7 @@ export function CovariateSettingsPanel({
                 }
                 className={cn(
                   "w-28 rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                  "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                  "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
                 )}
               />
               <span className="text-xs text-text-ghost">to</span>
@@ -189,7 +189,7 @@ export function CovariateSettingsPanel({
                 }
                 className={cn(
                   "w-28 rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                  "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                  "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
                 )}
               />
               <span className="text-xs text-text-ghost">days</span>

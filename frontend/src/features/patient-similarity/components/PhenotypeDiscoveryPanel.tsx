@@ -6,8 +6,8 @@ import type {
 } from "../types/patientSimilarity";
 
 const CLUSTER_PALETTE = [
-  "var(--success)", "var(--accent)", "var(--primary)", "#6366F1", "#F97316",
-  "var(--domain-observation)", "#34D399", "#FB7185", "#22D3EE", "#84CC16",
+  "var(--success)", "var(--accent)", "var(--primary)", "var(--chart-4)", "var(--domain-device)",
+  "var(--domain-observation)", "var(--chart-7)", "var(--chart-8)", "var(--info)", "var(--chart-5)",
 ];
 
 function clusterColor(id: number): string {

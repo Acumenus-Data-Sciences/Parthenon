@@ -284,7 +284,7 @@ export default function PhenotypeLibraryPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search phenotypes by name or description…"
-            className="w-full rounded-lg border border-border-default bg-surface-raised pl-9 pr-4 py-2.5 text-sm text-text-primary placeholder-[#5A5650] focus:border-success focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30 transition-colors"
+            className="w-full rounded-lg border border-border-default bg-surface-raised pl-9 pr-4 py-2.5 text-sm text-text-primary placeholder:text-text-ghost focus:border-success focus:outline-none focus:ring-1 focus:ring-success/30 transition-colors"
           />
         </div>
 

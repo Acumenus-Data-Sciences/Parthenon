@@ -64,7 +64,7 @@ export default function DqCategoryHeatmap({
                     <button
                       type="button"
                       onClick={() => onCellClick?.(r.id, cat)}
-                      className={`block w-full rounded px-2 py-1.5 text-center text-[10px] font-mono transition-colors hover:ring-1 hover:ring-[#C9A227]/50 ${
+                      className={`block w-full rounded px-2 py-1.5 text-center text-[10px] font-mono transition-colors hover:ring-1 hover:ring-accent/50 ${
                         rate !== undefined ? getCellColor(rate) : "bg-surface-overlay"
                       } text-text-secondary`}
                     >

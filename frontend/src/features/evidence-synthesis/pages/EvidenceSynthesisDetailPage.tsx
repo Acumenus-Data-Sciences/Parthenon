@@ -241,7 +241,7 @@ export default function EvidenceSynthesisDetailPage() {
                             ? "bg-surface-raised"
                             : "bg-surface-overlay",
                           activeExecId === exec.id &&
-                            "ring-1 ring-inset ring-[#2DD4BF]/30",
+                            "ring-1 ring-inset ring-success/30",
                         )}
                       >
                         <td className="px-4 py-3">

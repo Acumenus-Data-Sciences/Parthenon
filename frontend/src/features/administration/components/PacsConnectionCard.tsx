@@ -142,7 +142,7 @@ export default function PacsConnectionCard({
               size={16}
               className={cn(
                 connection.is_default
-                  ? "fill-[#C9A227] text-accent"
+                  ? "fill-accent text-accent"
                   : "text-text-ghost hover:text-accent",
                 "transition-colors",
               )}

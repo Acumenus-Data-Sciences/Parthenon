@@ -173,7 +173,7 @@ export function DataSourcesStep({ onConfigured }: Props) {
                 </label>
                 <input
                   type="text"
-                  className="w-full rounded-md border border-border-default bg-surface-base px-3 py-2 font-mono text-base text-text-primary placeholder:text-text-ghost focus:outline-none focus:ring-2 focus:ring-[#C9A227]/50"
+                  className="w-full rounded-md border border-border-default bg-surface-base px-3 py-2 font-mono text-base text-text-primary placeholder:text-text-ghost focus:outline-none focus:ring-2 focus:ring-accent/50"
                   value={webApiUrl}
                   onChange={(e) => setWebApiUrl(e.target.value)}
                   placeholder="https://atlas.example.com/WebAPI"
@@ -184,7 +184,7 @@ export function DataSourcesStep({ onConfigured }: Props) {
                   Auth Type
                 </label>
                 <select
-                  className="w-full rounded-md border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-[#C9A227]/50"
+                  className="w-full rounded-md border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-accent/50"
                   value={authType}
                   onChange={(e) => setAuthType(e.target.value as "none" | "basic" | "bearer")}
                 >
@@ -202,7 +202,7 @@ export function DataSourcesStep({ onConfigured }: Props) {
                 </label>
                 <input
                   type="password"
-                  className="w-full rounded-md border border-border-default bg-surface-base px-3 py-2 text-base text-text-primary placeholder:text-text-ghost focus:outline-none focus:ring-2 focus:ring-[#C9A227]/50"
+                  className="w-full rounded-md border border-border-default bg-surface-base px-3 py-2 text-base text-text-primary placeholder:text-text-ghost focus:outline-none focus:ring-2 focus:ring-accent/50"
                   value={authCredentials}
                   onChange={(e) => setAuthCredentials(e.target.value)}
                   placeholder={authType === "basic" ? "user:password" : "Bearer token"}

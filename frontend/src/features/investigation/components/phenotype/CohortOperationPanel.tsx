@@ -150,7 +150,7 @@ export function CohortOperationPanel({
               onClick={() => setOperationType(opt.id)}
               className={`flex flex-col items-start rounded-full border px-4 py-1.5 text-left transition-colors ${
                 operationType === opt.id
-                  ? "border-success/60 bg-teal-900/20 text-success"
+                  ? "border-success/60 bg-success/10 text-success"
                   : "border-border-default bg-surface-raised/50 text-text-muted hover:border-border-hover hover:text-text-secondary"
               }`}
             >
@@ -249,7 +249,7 @@ export function CohortOperationPanel({
 
           {/* Result count badge */}
           <div className="flex items-center gap-3">
-            <div className="flex flex-col items-center justify-center rounded-xl border border-success/30 bg-teal-900/10 px-6 py-3">
+            <div className="flex flex-col items-center justify-center rounded-xl border border-success/30 bg-success/10 px-6 py-3">
               <span className="text-3xl font-bold tabular-nums text-success">
                 {result.result_count.toLocaleString()}
               </span>
@@ -262,7 +262,7 @@ export function CohortOperationPanel({
               </span>
             </div>
             {result.handoff_ready && (
-              <span className="rounded border border-success/30 bg-teal-900/10 px-2 py-1 text-[11px] text-success">
+              <span className="rounded border border-success/30 bg-success/10 px-2 py-1 text-[11px] text-success">
                 Handoff ready
               </span>
             )}

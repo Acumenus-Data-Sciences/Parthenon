@@ -126,7 +126,7 @@ export default function TumorBoardPage() {
             onChange={(e) => setPersonId(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             placeholder="Enter person_id..."
-            className="w-48 rounded-lg bg-surface-base border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors"
+            className="w-48 rounded-lg bg-surface-base border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40 transition-colors"
           />
           <button
             type="button"

@@ -81,7 +81,7 @@ export function DaimonsStep({ data, onChange }: Props) {
                   value={data[key]}
                   onChange={(e) => onChange({ ...data, [key]: e.target.value })}
                   placeholder={placeholder}
-                  className="w-full rounded-md border border-border-default bg-surface-raised px-3 py-1.5 font-mono text-sm text-text-primary placeholder-[#5A5650] focus:border-accent focus:outline-none"
+                  className="w-full rounded-md border border-border-default bg-surface-raised px-3 py-1.5 font-mono text-sm text-text-primary placeholder:text-text-ghost focus:border-accent focus:outline-none"
                 />
               </div>
             </div>

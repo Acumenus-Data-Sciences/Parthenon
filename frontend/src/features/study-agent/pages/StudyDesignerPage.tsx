@@ -110,7 +110,7 @@ export default function StudyDesignerPage() {
               value={studyIntent}
               onChange={(e) => setStudyIntent(e.target.value)}
               placeholder="e.g., Compare the risk of heart failure in patients newly prescribed SGLT2 inhibitors vs DPP-4 inhibitors among adults with type 2 diabetes..."
-              className="w-full rounded-lg border border-border-default bg-surface-raised px-4 py-3 text-text-primary placeholder-text-ghost focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]"
+              className="w-full rounded-lg border border-border-default bg-surface-raised px-4 py-3 text-text-primary placeholder-text-ghost focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
               rows={4}
             />
             <button

@@ -136,7 +136,7 @@ export function DemographicsStep() {
                     type="checkbox"
                     checked={races.includes(r.conceptId)}
                     onChange={() => updateField("Race", toggleInArray(races, r.conceptId))}
-                    className="accent-[#2DD4BF]"
+                    className="accent-success"
                   />
                   {r.label}
                 </label>
@@ -159,7 +159,7 @@ export function DemographicsStep() {
                     type="checkbox"
                     checked={ethnicities.includes(e.conceptId)}
                     onChange={() => updateField("Ethnicity", toggleInArray(ethnicities, e.conceptId))}
-                    className="accent-[#2DD4BF]"
+                    className="accent-success"
                   />
                   {e.label}
                 </label>

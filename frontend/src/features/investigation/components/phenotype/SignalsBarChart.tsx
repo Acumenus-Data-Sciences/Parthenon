@@ -72,21 +72,21 @@ export function SignalsBarChart({
         <XAxis
           type="number"
           tickFormatter={formatCompact}
-          tick={{ fill: "#d4d4d8", fontSize: 10 }}
-          axisLine={{ stroke: "#52525b" }}
-          tickLine={{ stroke: "#52525b" }}
+          tick={{ fill: "var(--text-primary)", fontSize: 10 }}
+          axisLine={{ stroke: "var(--border-default)" }}
+          tickLine={{ stroke: "var(--border-default)" }}
         />
         <YAxis
           type="category"
           dataKey="displayLabel"
           width={200}
-          tick={{ fill: "#d4d4d8", fontSize: 10 }}
+          tick={{ fill: "var(--text-primary)", fontSize: 10 }}
           axisLine={false}
           tickLine={false}
         />
         <Tooltip
           content={<CustomTooltip />}
-          cursor={{ fill: "rgba(45,212,191,0.06)" }}
+          cursor={{ fill: "color-mix(in srgb, var(--success) 8%, transparent)" }}
         />
         <Bar
           dataKey="count"

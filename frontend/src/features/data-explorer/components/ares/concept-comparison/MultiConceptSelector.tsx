@@ -73,7 +73,7 @@ export default function MultiConceptSelector({
             }}
             onFocus={() => setShowDropdown(true)}
             className="w-full rounded-lg border border-border-default bg-surface-overlay px-4 py-2 text-sm text-text-primary
-                       placeholder-[#555] focus:border-accent focus:outline-none"
+                       placeholder:text-text-ghost focus:border-accent focus:outline-none"
           />
           {isLoading && (
             <span className="absolute right-3 top-2.5 text-xs text-text-ghost">Searching...</span>

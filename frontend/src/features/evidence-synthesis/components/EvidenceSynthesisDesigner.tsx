@@ -92,7 +92,7 @@ export function EvidenceSynthesisDesigner({
 
   const inputCls = cn(
     "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-    "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+    "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
   );
 
   return (

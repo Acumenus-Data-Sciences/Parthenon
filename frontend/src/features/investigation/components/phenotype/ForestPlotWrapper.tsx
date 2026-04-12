@@ -11,12 +11,11 @@ interface ForestPlotWrapperProps {
 const MARGIN = { top: 24, right: 200, bottom: 44, left: 170 };
 const ROW_HEIGHT = 28;
 
-// Dark theme colors
-const COLOR_TEXT = "#d4d4d8";        // zinc-300
-const COLOR_AXIS = "#52525b";        // zinc-600
-const COLOR_CI = "var(--primary)";          // crimson
-const COLOR_POINT = "var(--success)";       // teal
-const COLOR_NULL = "var(--accent)";        // gold
+const COLOR_TEXT = "var(--text-primary)";
+const COLOR_AXIS = "var(--border-default)";
+const COLOR_CI = "var(--primary)";
+const COLOR_POINT = "var(--success)";
+const COLOR_NULL = "var(--accent)";
 
 function formatHR(hr: number, lower: number, upper: number): string {
   return `${hr.toFixed(2)} [${lower.toFixed(2)}, ${upper.toFixed(2)}]`;

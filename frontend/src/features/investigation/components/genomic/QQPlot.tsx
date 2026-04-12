@@ -8,13 +8,13 @@ export interface QQPlotProps {
   height?: number;
 }
 
-// Dark clinical theme colors
-const COLOR_TEAL = "var(--success)";
-const COLOR_GOLD = "var(--accent)";
-const COLOR_ZINC_300 = "#d4d4d8";
-const COLOR_ZINC_600 = "#52525b";
-const COLOR_ZINC_700 = "var(--surface-highlight)";
-const COLOR_ZINC_800 = "#27272a";
+const COLOR_POINT = "var(--success)";
+const COLOR_REFERENCE = "var(--accent)";
+const COLOR_TEXT = "var(--text-primary)";
+const COLOR_AXIS = "var(--border-default)";
+const COLOR_GRID = "var(--border-subtle)";
+const COLOR_BAND = "var(--surface-highlight)";
+const COLOR_BADGE = "var(--surface-overlay)";
 
 const MARGIN = { top: 20, right: 20, bottom: 50, left: 55 };
 const MAX_POINTS = 5000;
@@ -177,7 +177,7 @@ export default function QQPlot({
       g.append("path")
         .datum(bandData)
         .attr("d", areaPath)
-        .attr("fill", COLOR_ZINC_700)
+        .attr("fill", COLOR_BAND)
         .attr("fill-opacity", 0.5)
         .attr("stroke", "none");
     }
@@ -189,7 +189,7 @@ export default function QQPlot({
       .attr("y1", yScale(0))
       .attr("x2", xScale(diagMax))
       .attr("y2", yScale(diagMax))
-      .attr("stroke", COLOR_GOLD)
+      .attr("stroke", COLOR_REFERENCE)
       .attr("stroke-width", 1.5)
       .attr("stroke-dasharray", "5,4");
 
@@ -206,7 +206,7 @@ export default function QQPlot({
       .attr("x2", (d) => xScale(d))
       .attr("y1", 0)
       .attr("y2", plotHeight)
-      .attr("stroke", COLOR_ZINC_700)
+      .attr("stroke", COLOR_GRID)
       .attr("stroke-width", 0.5);
 
     g.selectAll(".y-grid")
@@ -218,7 +218,7 @@ export default function QQPlot({
       .attr("x2", plotWidth)
       .attr("y1", (d) => yScale(d))
       .attr("y2", (d) => yScale(d))
-      .attr("stroke", COLOR_ZINC_700)
+      .attr("stroke", COLOR_GRID)
       .attr("stroke-width", 0.5);
 
     // --- Data points ---
@@ -229,7 +229,7 @@ export default function QQPlot({
       .attr("cx", (d) => xScale(d.expected))
       .attr("cy", (d) => yScale(d.observed))
       .attr("r", 3)
-      .attr("fill", COLOR_TEAL)
+      .attr("fill", COLOR_POINT)
       .attr("fill-opacity", 0.7)
       .attr("stroke", "none");
 
@@ -239,21 +239,21 @@ export default function QQPlot({
       .append("g")
       .attr("transform", `translate(0,${plotHeight})`)
       .call(xAxis);
-    xAxisG.select(".domain").attr("stroke", COLOR_ZINC_600);
-    xAxisG.selectAll(".tick line").attr("stroke", COLOR_ZINC_600);
+    xAxisG.select(".domain").attr("stroke", COLOR_AXIS);
+    xAxisG.selectAll(".tick line").attr("stroke", COLOR_AXIS);
     xAxisG
       .selectAll(".tick text")
-      .attr("fill", COLOR_ZINC_300)
+      .attr("fill", COLOR_TEXT)
       .attr("font-size", "10px");
 
     // --- Y axis ---
     const yAxis = d3.axisLeft(yScale).ticks(5);
     const yAxisG = g.append("g").call(yAxis);
-    yAxisG.select(".domain").attr("stroke", COLOR_ZINC_600);
-    yAxisG.selectAll(".tick line").attr("stroke", COLOR_ZINC_600);
+    yAxisG.select(".domain").attr("stroke", COLOR_AXIS);
+    yAxisG.selectAll(".tick line").attr("stroke", COLOR_AXIS);
     yAxisG
       .selectAll(".tick text")
-      .attr("fill", COLOR_ZINC_300)
+      .attr("fill", COLOR_TEXT)
       .attr("font-size", "10px");
 
     // --- Axis labels ---
@@ -263,7 +263,7 @@ export default function QQPlot({
       .attr("text-anchor", "middle")
       .attr("font-size", "11px")
       .attr("font-family", "sans-serif")
-      .attr("fill", COLOR_ZINC_300)
+      .attr("fill", COLOR_TEXT)
       .text("Expected \u2212log\u2081\u2080(p)");
 
     g.append("text")
@@ -273,7 +273,7 @@ export default function QQPlot({
       .attr("text-anchor", "middle")
       .attr("font-size", "11px")
       .attr("font-family", "sans-serif")
-      .attr("fill", COLOR_ZINC_300)
+      .attr("fill", COLOR_TEXT)
       .text("Observed \u2212log\u2081\u2080(p)");
 
     // --- Lambda GC badge ---
@@ -288,7 +288,7 @@ export default function QQPlot({
       .attr("width", badgeW)
       .attr("height", badgeH)
       .attr("rx", 4)
-      .attr("fill", COLOR_ZINC_800)
+      .attr("fill", COLOR_BADGE)
       .attr("fill-opacity", 0.9);
 
     g.append("text")
@@ -298,7 +298,7 @@ export default function QQPlot({
       .attr("dominant-baseline", "central")
       .attr("font-size", "11px")
       .attr("font-family", "sans-serif")
-      .attr("fill", COLOR_ZINC_300)
+      .attr("fill", COLOR_TEXT)
       .text(`\u03bb = ${lambda.toFixed(3)}`);
   }, [observedP, lambdaGCProp, width, height]);
 

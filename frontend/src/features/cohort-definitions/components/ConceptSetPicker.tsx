@@ -46,7 +46,7 @@ export function ConceptSetPicker({ value, onChange }: ConceptSetPickerProps) {
             onChange={(e) => onChange(Number(e.target.value))}
             className={cn(
               "w-full appearance-none rounded-lg border border-border-default bg-surface-base pl-9 pr-8 py-2 text-sm",
-              "text-text-primary focus:border-success focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40",
+              "text-text-primary focus:border-success focus:outline-none focus:ring-1 focus:ring-success/40",
               "cursor-pointer",
             )}
           >
@@ -98,7 +98,7 @@ export function ConceptSetPicker({ value, onChange }: ConceptSetPickerProps) {
             className={cn(
               "flex-1 rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
               "text-text-primary placeholder:text-text-ghost",
-              "focus:border-success focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40",
+              "focus:border-success focus:outline-none focus:ring-1 focus:ring-success/40",
             )}
           />
           <button

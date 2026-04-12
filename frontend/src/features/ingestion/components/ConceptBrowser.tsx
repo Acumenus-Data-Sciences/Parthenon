@@ -73,7 +73,7 @@ export function ConceptBrowser({ onSelectConcept }: ConceptBrowserProps) {
               "w-full rounded-lg pl-9 pr-8 py-2 text-sm",
               "bg-surface-base border border-border-default",
               "text-text-primary placeholder:text-text-ghost",
-              "focus:outline-none focus:border-primary focus:ring-1 focus:ring-[#9B1B30]/40",
+              "focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/40",
               "transition-colors",
             )}
           />

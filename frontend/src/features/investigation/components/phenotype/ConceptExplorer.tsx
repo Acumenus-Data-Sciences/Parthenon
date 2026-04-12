@@ -18,7 +18,7 @@ const DOMAIN_OPTIONS = [
 
 const DOMAIN_BADGE_CLASSES: Record<string, string> = {
   Condition: "bg-primary/20 text-primary border border-primary/30",
-  Drug: "bg-teal-900/30 text-teal-400 border border-teal-500/30",
+  Drug: "bg-success/10 text-success border border-success/30",
   Measurement: "bg-yellow-900/30 text-accent border border-yellow-600/30",
   Procedure: "bg-blue-900/30 text-blue-400 border border-blue-500/30",
   Observation: "bg-purple-900/30 text-purple-400 border border-purple-500/30",
@@ -38,7 +38,7 @@ function ConceptCountBadge({ conceptId }: { conceptId: number }) {
   if (isLoading) return <span className="text-[10px] text-text-ghost">...</span>;
   if (!data) return null;
   return (
-    <span className="rounded bg-teal-900/30 px-1.5 py-0.5 text-[10px] text-teal-400">
+    <span className="rounded bg-success/10 px-1.5 py-0.5 text-[10px] text-success">
       {data.patient_count.toLocaleString()} pts
     </span>
   );
@@ -73,7 +73,7 @@ function ConceptCard({
               {concept.concept_name}
             </span>
             {concept.standard_concept === "S" && (
-              <span className="text-[10px] font-semibold text-success bg-teal-900/30 border border-teal-500/30 rounded px-1.5 py-0.5 leading-none">
+              <span className="text-[10px] font-semibold text-success bg-success/10 border border-success/30 rounded px-1.5 py-0.5 leading-none">
                 Standard
               </span>
             )}
@@ -97,7 +97,7 @@ function ConceptCard({
           </div>
         </div>
         <button
-          className="shrink-0 rounded px-2 py-1 text-xs font-medium text-success border border-teal-500/30 bg-teal-900/20 opacity-0 group-hover:opacity-100 hover:bg-teal-900/40 transition-all"
+          className="shrink-0 rounded px-2 py-1 text-xs font-medium text-success border border-success/30 bg-success/10 opacity-0 group-hover:opacity-100 hover:bg-success/15 transition-all"
           onClick={(e) => {
             e.stopPropagation();
             onAdd(concept);
@@ -161,11 +161,11 @@ export function ConceptExplorer({ onAddConcept }: ConceptExplorerProps) {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             placeholder="Search concepts… (min 2 chars)"
-            className="w-full rounded border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary placeholder-text-ghost focus:border-success/50 focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/20"
+            className="w-full rounded border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary placeholder-text-ghost focus:border-success/50 focus:outline-none focus:ring-1 focus:ring-success/20"
           />
           {isFetching && (
             <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
-              <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-border-hover border-t-[#2DD4BF]" />
+              <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-border-hover border-t-success" />
             </div>
           )}
         </div>
@@ -185,7 +185,7 @@ export function ConceptExplorer({ onAddConcept }: ConceptExplorerProps) {
             type="checkbox"
             checked={standardOnly}
             onChange={(e) => setStandardOnly(e.target.checked)}
-            className="h-3.5 w-3.5 rounded border border-border-hover bg-surface-base accent-[#2DD4BF] cursor-pointer"
+            className="h-3.5 w-3.5 rounded border border-border-hover bg-surface-base accent-success cursor-pointer"
           />
           <span className="text-xs text-text-muted whitespace-nowrap">
             Standard only

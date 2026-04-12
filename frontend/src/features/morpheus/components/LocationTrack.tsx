@@ -101,7 +101,7 @@ export default function LocationTrack({ transfers, icuStays }: LocationTrackProp
 
       {/* Timeline bar */}
       <div
-        className="relative h-10 bg-surface-base rounded-md overflow-hidden mb-2 focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30"
+        className="relative h-10 bg-surface-base rounded-md overflow-hidden mb-2 focus:outline-none focus:ring-1 focus:ring-success/30"
         tabIndex={0}
         onKeyDown={handleKeyDown}
         role="img"

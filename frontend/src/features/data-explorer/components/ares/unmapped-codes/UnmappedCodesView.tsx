@@ -182,7 +182,7 @@ export default function UnmappedCodesView() {
                   setPage(1);
                 }}
                 className="rounded border border-border-default bg-surface-overlay px-3 py-1.5 text-sm text-text-primary
-                           placeholder-[#555] focus:border-success focus:outline-none"
+                           placeholder:text-text-ghost focus:border-success focus:outline-none"
               />
             </div>
           )}

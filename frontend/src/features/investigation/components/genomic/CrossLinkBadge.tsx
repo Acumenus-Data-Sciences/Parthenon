@@ -19,8 +19,8 @@ export function CrossLinkBadge({ pinId, crossLinks }: CrossLinkBadgeProps) {
         onMouseLeave={() => setShowTooltip(false)}
         className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium border transition-colors"
         style={{
-          backgroundColor: "rgba(45, 212, 191, 0.1)",
-          borderColor: "rgba(45, 212, 191, 0.3)",
+          backgroundColor: "var(--success-bg)",
+          borderColor: "var(--success-border)",
           color: "var(--success)",
         }}
       >
@@ -45,9 +45,9 @@ export function CrossLinkBadge({ pinId, crossLinks }: CrossLinkBadgeProps) {
                 <span
                   className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded"
                   style={{
-                    backgroundColor: "rgba(155, 27, 48, 0.2)",
+                    backgroundColor: "var(--primary-bg)",
                     color: "var(--primary)",
-                    border: "1px solid rgba(155, 27, 48, 0.3)",
+                    border: "1px solid var(--primary-border)",
                   }}
                 >
                   {link.domain}

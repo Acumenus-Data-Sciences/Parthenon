@@ -59,7 +59,7 @@ export default function SearchDropdown({ dataset, onSelect }: SearchDropdownProp
           onKeyDown={handleKeyDown}
           onFocus={() => { if (debouncedQuery.length >= 1) setIsOpen(true); }}
           placeholder="Search by Subject ID..."
-          className="w-full rounded-lg border border-border-default bg-surface-base pl-9 pr-3 py-2 text-sm text-text-secondary placeholder:text-text-ghost focus:outline-none focus:ring-1 focus:ring-[#9B1B30]/50 focus:border-primary"
+          className="w-full rounded-lg border border-border-default bg-surface-base pl-9 pr-3 py-2 text-sm text-text-secondary placeholder:text-text-ghost focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary"
         />
       </div>
 

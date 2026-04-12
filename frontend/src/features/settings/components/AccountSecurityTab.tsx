@@ -65,7 +65,7 @@ export function AccountSecurityTab() {
   const inputClass = cn(
     "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
     "text-text-primary placeholder:text-text-ghost",
-    "focus:border-success focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40",
+    "focus:border-success focus:outline-none focus:ring-1 focus:ring-success/40",
   );
 
   return (

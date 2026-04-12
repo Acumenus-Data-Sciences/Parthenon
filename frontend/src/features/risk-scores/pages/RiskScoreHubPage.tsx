@@ -264,7 +264,7 @@ export default function RiskScoreHubPage() {
                 "w-full rounded-lg pl-9 pr-8 py-2 text-sm",
                 "bg-surface-base border border-border-default",
                 "text-text-primary placeholder:text-text-ghost",
-                "focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40",
+                "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
                 "transition-colors",
               )}
             />

@@ -244,7 +244,7 @@ function ClinVarPanel({ initialGene }: { initialGene?: string }) {
                 value={searchQ}
                 onChange={(e) => { setSearchQ(e.target.value); setPage(1); }}
                 placeholder="Search gene, HGVS, disease, RS ID…"
-                className="w-full pl-8 pr-3 py-2 text-sm bg-surface-raised border border-border-default rounded-lg text-text-primary placeholder-[#5A5650] focus:outline-none focus:border-success/50 focus:ring-1 focus:ring-[#2DD4BF]/30"
+                className="w-full pl-8 pr-3 py-2 text-sm bg-surface-raised border border-border-default rounded-lg text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success/50 focus:ring-1 focus:ring-success/30"
               />
             </div>
             <input
@@ -252,7 +252,7 @@ function ClinVarPanel({ initialGene }: { initialGene?: string }) {
               value={gene}
               onChange={(e) => { setGene(e.target.value); setPage(1); }}
               placeholder="Gene"
-              className="w-28 px-3 py-2 text-sm bg-surface-raised border border-border-default rounded-lg text-text-primary placeholder-[#5A5650] focus:outline-none focus:border-success/50 focus:ring-1 focus:ring-[#2DD4BF]/30"
+              className="w-28 px-3 py-2 text-sm bg-surface-raised border border-border-default rounded-lg text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success/50 focus:ring-1 focus:ring-success/30"
             />
             <select
               value={sig}

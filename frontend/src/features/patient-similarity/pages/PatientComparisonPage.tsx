@@ -162,7 +162,7 @@ const DIMENSIONS: DimensionInfo[] = [
     key: "procedures",
     label: "Procedures",
     icon: <FlaskConical size={14} />,
-    color: "#7C6CDB",
+    color: "var(--color-domain-procedure)",
   },
   {
     key: "genomics",
@@ -399,7 +399,7 @@ function UniqueFeaturesSummary({
       shared: shared_features.procedure_count,
       uniqueA: null,
       uniqueB: null,
-      color: "#7C6CDB",
+      color: "var(--color-domain-procedure)",
     },
   ];
 
@@ -462,7 +462,7 @@ function UniqueFeaturesSummary({
                       className="h-full"
                       style={{
                         width: `${(row.uniqueB / total) * 100}%`,
-                        backgroundColor: "#3A3A40",
+                        backgroundColor: "var(--color-surface-accent)",
                       }}
                       title={`Patient B only: ${row.uniqueB}`}
                     />
@@ -595,7 +595,7 @@ export default function PatientComparisonPage() {
             <SharedFeatureSection
               title="Procedures"
               icon={<FlaskConical size={14} />}
-              accentColor="#7C6CDB"
+              accentColor="var(--color-domain-procedure)"
               items={comparison.shared_features.procedure_names ?? []}
               totalShared={comparison.shared_features.procedure_count}
             />

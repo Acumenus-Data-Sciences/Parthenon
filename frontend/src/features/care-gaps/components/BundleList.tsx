@@ -67,7 +67,7 @@ export function BundleList({ onCreateClick }: BundleListProps) {
             className={cn(
               "w-full rounded-lg border border-border-default bg-surface-raised pl-9 pr-3 py-2 text-sm",
               "text-text-primary placeholder:text-text-ghost",
-              "focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+              "focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
             )}
           />
         </div>
@@ -79,7 +79,7 @@ export function BundleList({ onCreateClick }: BundleListProps) {
             onChange={(e) => setCategory(e.target.value)}
             className={cn(
               "appearance-none rounded-lg border border-border-default bg-surface-raised pl-3 pr-8 py-2 text-sm",
-              "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+              "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               "cursor-pointer",
             )}
           >

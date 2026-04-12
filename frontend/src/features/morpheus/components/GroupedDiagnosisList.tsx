@@ -62,7 +62,7 @@ export default function GroupedDiagnosisList({ diagnoses, onConceptClick }: Grou
             <div className="flex items-center gap-3 px-4 py-2.5 hover:bg-surface-overlay transition-colors">
               {count > 1 && (
                 <button type="button" onClick={() => setExpandedCode(isExpanded ? null : key)}
-                  className="focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30 rounded">
+                  className="focus:outline-none focus:ring-1 focus:ring-success/30 rounded">
                   <ChevronDown size={12} className={`text-text-ghost transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                 </button>
               )}
@@ -85,7 +85,7 @@ export default function GroupedDiagnosisList({ diagnoses, onConceptClick }: Grou
                   occurrenceCount: count,
                   sparklineValues: [],
                 })}
-                className="font-mono text-xs text-accent hover:text-text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30 rounded"
+                className="font-mono text-xs text-accent hover:text-text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-accent/30 rounded"
               >
                 {g.icd_code}
               </button>

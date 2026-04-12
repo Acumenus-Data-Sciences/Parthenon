@@ -1,11 +1,10 @@
 import { useEffect, useRef } from "react";
 import * as d3 from "d3";
 
-// ── Dark theme constants ───────────────────────────────────────────────────────
-const COLOR_TEXT = "#d4d4d8";    // zinc-300
-const COLOR_AXIS = "#52525b";    // zinc-600
-const COLOR_TARGET = "var(--success)";  // teal
-const COLOR_COMPARATOR = "var(--primary)"; // crimson
+const COLOR_TEXT = "var(--text-primary)";
+const COLOR_AXIS = "var(--border-default)";
+const COLOR_TARGET = "var(--success)";
+const COLOR_COMPARATOR = "var(--primary)";
 
 const MARGIN = { top: 24, right: 24, bottom: 44, left: 48 };
 

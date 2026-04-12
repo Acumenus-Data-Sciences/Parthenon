@@ -42,7 +42,7 @@ export function SourceSelector({ value, onChange }: SourceSelectorProps) {
     <div className="relative">
       <div className="flex items-center gap-2">
         {selectedSource && selectedSource.id === defaultSourceId ? (
-          <Star size={14} className="text-accent fill-[#C9A227]" />
+          <Star size={14} className="text-accent fill-accent" />
         ) : (
           <Database size={14} className="text-text-muted" />
         )}
@@ -51,7 +51,7 @@ export function SourceSelector({ value, onChange }: SourceSelectorProps) {
           onChange={(e) => onChange(Number(e.target.value))}
           className={cn(
             "appearance-none rounded-lg border border-border-default bg-surface-raised pl-3 pr-8 py-2 text-sm",
-            "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+            "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
             "cursor-pointer min-w-[200px]",
           )}
         >

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import * as d3 from "d3";
+import { useThemeStore } from "@/stores/themeStore";
 
 export interface ManhattanPlotProps {
   data: Array<{ chr: string; pos: number; p: number }>;
@@ -10,17 +11,11 @@ export interface ManhattanPlotProps {
   onLocusClick?: (chr: string, pos: number) => void;
 }
 
-// Dark clinical theme colors
-const COLOR_BG = "var(--surface-base)";
-const COLOR_CRIMSON = "var(--primary)";
-const COLOR_GOLD = "var(--accent)";
-const COLOR_TEAL = "var(--success)";
-const COLOR_ZINC_300 = "#d4d4d8";
-const COLOR_ZINC_500 = "#71717a";
-const COLOR_ZINC_600 = "#52525b";
-const COLOR_ZINC_800 = "#27272a";
-
 const MARGIN = { top: 30, right: 30, bottom: 50, left: 60 };
+
+function themeColor(styles: CSSStyleDeclaration, name: string, fallback: string): string {
+  return styles.getPropertyValue(name).trim() || fallback;
+}
 
 // Chromosome order: 1–22, X=23, Y=24
 function chrToNum(chr: string): number {
@@ -110,6 +105,7 @@ export default function ManhattanPlot({
   onLocusClick,
 }: ManhattanPlotProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const theme = useThemeStore((state) => state.theme);
   // Store prepared data for click handling
   const pointsRef = useRef<PreparedPoint[]>([]);
   const xScaleRef = useRef<d3.ScaleLinear<number, number> | null>(null);
@@ -132,6 +128,16 @@ export default function ManhattanPlot({
 
     const plotWidth = width - MARGIN.left - MARGIN.right;
     const plotHeight = height - MARGIN.top - MARGIN.bottom;
+    const styles = getComputedStyle(document.documentElement);
+    const colorBg = themeColor(styles, "--surface-base", "#0E0E11");
+    const colorPrimary = themeColor(styles, "--primary", "#9B1B30");
+    const colorAccent = themeColor(styles, "--accent", "#C9A227");
+    const colorSuccess = themeColor(styles, "--success", "#2DD4BF");
+    const colorText = themeColor(styles, "--text-primary", "#d4d4d8");
+    const colorMuted = themeColor(styles, "--text-muted", "#71717a");
+    const colorAxis = themeColor(styles, "--border-default", "#52525b");
+    const colorSubtle = themeColor(styles, "--border-subtle", "#27272a");
+    const colorBand = themeColor(styles, "--surface-overlay", "#1A1A1F");
 
     // --- Data preparation ---
     const { points: allPoints, chrBoundaries } = prepareData(data);
@@ -157,7 +163,7 @@ export default function ManhattanPlot({
     yScaleRef.current = yScale;
 
     // --- Clear & background ---
-    ctx.fillStyle = COLOR_BG;
+    ctx.fillStyle = colorBg;
     ctx.fillRect(0, 0, width, height);
 
     ctx.save();
@@ -166,7 +172,7 @@ export default function ManhattanPlot({
     // --- Chromosome separators and labels ---
     ctx.font = "10px sans-serif";
     ctx.textAlign = "center";
-    ctx.fillStyle = COLOR_ZINC_500;
+    ctx.fillStyle = colorMuted;
 
     for (const cn of chrNums) {
       const bnd = chrBoundaries.get(cn)!;
@@ -176,15 +182,18 @@ export default function ManhattanPlot({
 
       // Alternate band shading
       if (cn % 2 === 0) {
-        ctx.fillStyle = "rgba(255,255,255,0.02)";
+        ctx.save();
+        ctx.globalAlpha = 0.35;
+        ctx.fillStyle = colorBand;
         ctx.fillRect(xStart, 0, xEnd - xStart, plotHeight);
-        ctx.fillStyle = COLOR_ZINC_500;
+        ctx.restore();
+        ctx.fillStyle = colorMuted;
       }
 
       // Chromosome separator line (right edge of each chr)
       if (cn !== chrNums[chrNums.length - 1]) {
         ctx.beginPath();
-        ctx.strokeStyle = COLOR_ZINC_800;
+        ctx.strokeStyle = colorSubtle;
         ctx.lineWidth = 0.5;
         ctx.moveTo(xEnd, 0);
         ctx.lineTo(xEnd, plotHeight);
@@ -192,14 +201,14 @@ export default function ManhattanPlot({
       }
 
       // Chromosome label below x-axis
-      ctx.fillStyle = COLOR_ZINC_500;
+      ctx.fillStyle = colorMuted;
       ctx.fillText(chrLabel(cn), xMid, plotHeight + 18);
     }
 
     // --- Suggestive threshold line (gold, dashed) ---
     const ySug = yScale(sugLine);
     ctx.beginPath();
-    ctx.strokeStyle = COLOR_GOLD;
+    ctx.strokeStyle = colorAccent;
     ctx.lineWidth = 1;
     ctx.setLineDash([5, 4]);
     ctx.moveTo(0, ySug);
@@ -209,7 +218,7 @@ export default function ManhattanPlot({
     // --- Significance threshold line (crimson, dashed) ---
     const ySig = yScale(sigLine);
     ctx.beginPath();
-    ctx.strokeStyle = COLOR_CRIMSON;
+    ctx.strokeStyle = colorPrimary;
     ctx.lineWidth = 1.5;
     ctx.setLineDash([6, 4]);
     ctx.moveTo(0, ySig);
@@ -228,11 +237,11 @@ export default function ManhattanPlot({
 
       let color: string;
       if (aboveSig) {
-        color = COLOR_CRIMSON;
+        color = colorPrimary;
       } else if (pt.chrNum % 2 === 1) {
-        color = COLOR_TEAL;
+        color = colorSuccess;
       } else {
-        color = COLOR_ZINC_500;
+        color = colorMuted;
       }
 
       const radius = aboveSig ? 3 : aboveSug ? 2.5 : 2;
@@ -251,7 +260,7 @@ export default function ManhattanPlot({
 
     // --- Y-axis ---
     const yTicks = yScale.ticks(6);
-    ctx.strokeStyle = COLOR_ZINC_600;
+    ctx.strokeStyle = colorAxis;
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(0, 0);
@@ -259,18 +268,18 @@ export default function ManhattanPlot({
     ctx.stroke();
 
     ctx.font = "10px sans-serif";
-    ctx.fillStyle = COLOR_ZINC_300;
+    ctx.fillStyle = colorText;
     ctx.textAlign = "right";
     for (const tick of yTicks) {
       const ty = yScale(tick);
       ctx.beginPath();
-      ctx.strokeStyle = COLOR_ZINC_600;
+      ctx.strokeStyle = colorAxis;
       ctx.lineWidth = 0.5;
       ctx.moveTo(-4, ty);
       ctx.lineTo(plotWidth, ty);
       ctx.stroke();
 
-      ctx.fillStyle = COLOR_ZINC_300;
+      ctx.fillStyle = colorText;
       ctx.fillText(String(tick), -8, ty + 3.5);
     }
 
@@ -280,13 +289,13 @@ export default function ManhattanPlot({
     ctx.rotate(-Math.PI / 2);
     ctx.textAlign = "center";
     ctx.font = "11px sans-serif";
-    ctx.fillStyle = COLOR_ZINC_300;
+    ctx.fillStyle = colorText;
     ctx.fillText("-log\u2081\u2080(p-value)", 0, 0);
     ctx.restore();
 
     // --- X-axis baseline ---
     ctx.beginPath();
-    ctx.strokeStyle = COLOR_ZINC_600;
+    ctx.strokeStyle = colorAxis;
     ctx.lineWidth = 1;
     ctx.moveTo(0, plotHeight);
     ctx.lineTo(plotWidth, plotHeight);
@@ -295,11 +304,11 @@ export default function ManhattanPlot({
     // X-axis label
     ctx.textAlign = "center";
     ctx.font = "11px sans-serif";
-    ctx.fillStyle = COLOR_ZINC_300;
+    ctx.fillStyle = colorText;
     ctx.fillText("Chromosome", plotWidth / 2, plotHeight + 36);
 
     ctx.restore();
-  }, [data, significanceThreshold, suggestiveThreshold, width, height]);
+  }, [data, significanceThreshold, suggestiveThreshold, width, height, theme]);
 
   function handleCanvasClick(e: React.MouseEvent<HTMLCanvasElement>) {
     if (!onLocusClick || pointsRef.current.length === 0) return;

@@ -230,7 +230,7 @@ export function NotificationSettings() {
                           },
                         }))
                       }
-                      className="mt-0.5 accent-[#2DD4BF]"
+                      className="mt-0.5 accent-success"
                     />
                     <div>
                       <span className="text-sm text-text-secondary group-hover:text-text-primary transition-colors">
@@ -281,7 +281,7 @@ export function NotificationSettings() {
                 className={cn(
                   "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
                   "text-text-primary placeholder:text-text-ghost",
-                  "focus:border-domain-observation focus:outline-none focus:ring-1 focus:ring-[#A78BFA]/40",
+                  "focus:border-domain-observation focus:outline-none focus:ring-1 focus:ring-domain-observation/40",
                 )}
               />
             </div>

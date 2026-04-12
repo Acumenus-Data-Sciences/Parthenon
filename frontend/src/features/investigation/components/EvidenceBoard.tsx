@@ -25,7 +25,7 @@ const STATUS_BADGE: Record<
   },
   active: {
     label: "Active",
-    className: "bg-teal-900/50 text-teal-300 border border-teal-700",
+    className: "bg-success/15 text-success border border-success/30",
   },
   complete: {
     label: "Complete",

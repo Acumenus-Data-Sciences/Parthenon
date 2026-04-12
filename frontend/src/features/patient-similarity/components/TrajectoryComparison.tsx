@@ -99,7 +99,7 @@ export function TrajectoryComparison({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <TrendingUp size={14} className="text-[#60A5FA]" />
+          <TrendingUp size={14} className="text-[var(--color-info)]" />
           <h3 className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider font-semibold">
             Temporal Trajectory Comparison
           </h3>
@@ -115,10 +115,10 @@ export function TrajectoryComparison({
                   : "var(--color-text-secondary)",
             backgroundColor:
               temporalData.overall_similarity >= 0.7
-                ? "var(--color-primary)15"
+                ? "color-mix(in srgb, var(--color-primary) 12%, transparent)"
                 : temporalData.overall_similarity >= 0.4
-                  ? "var(--color-primary)15"
-                  : "var(--color-text-secondary)15",
+                  ? "color-mix(in srgb, var(--color-primary) 12%, transparent)"
+                  : "color-mix(in srgb, var(--color-text-secondary) 12%, transparent)",
           }}
         >
           DTW Similarity: {temporalData.overall_similarity.toFixed(3)}
@@ -130,7 +130,7 @@ export function TrajectoryComparison({
         <select
           value={activeConceptId ?? ""}
           onChange={(e) => setSelectedConceptId(Number(e.target.value))}
-          className="w-full rounded-md border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] px-3 py-1.5 text-sm text-[var(--color-text-primary)] focus:border-[#60A5FA] focus:outline-none"
+          className="w-full rounded-md border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] px-3 py-1.5 text-sm text-[var(--color-text-primary)] focus:border-[var(--color-info)] focus:outline-none"
         >
           {sortedMeasurements.map((m) => (
             <option key={m.concept_id} value={m.concept_id}>

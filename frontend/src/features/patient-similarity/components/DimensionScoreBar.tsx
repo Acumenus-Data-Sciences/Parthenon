@@ -6,7 +6,7 @@ interface DimensionScoreBarProps {
 function getScoreColor(score: number): string {
   if (score > 0.7) return "var(--color-primary)";
   if (score > 0.4) return "var(--color-primary)";
-  return "#666666";
+  return "var(--color-text-muted)";
 }
 
 export function DimensionScoreBar({ score, label }: DimensionScoreBarProps) {

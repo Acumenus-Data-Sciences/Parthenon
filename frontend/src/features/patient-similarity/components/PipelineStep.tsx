@@ -42,7 +42,7 @@ export function PipelineStep({
           {onRun && (
             <button
               onClick={onRun}
-              className="rounded-md border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] px-2.5 py-1 text-xs font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:border-[#3A3A42] transition-colors"
+              className="rounded-md border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] px-2.5 py-1 text-xs font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:border-[var(--color-surface-highlight)] transition-colors"
               type="button"
             >
               Run

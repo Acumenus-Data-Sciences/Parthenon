@@ -157,7 +157,7 @@ export function SankeyDiagram({
                 "flex items-center border-t border-border-subtle transition-colors cursor-pointer",
                 rowIdx % 2 === 0 ? "bg-surface-raised" : "bg-surface-overlay",
                 isHovered && "bg-surface-overlay",
-                isSelected && "ring-1 ring-inset ring-[#2DD4BF]/30",
+                isSelected && "ring-1 ring-inset ring-success/30",
               )}
             >
               {/* Rank */}

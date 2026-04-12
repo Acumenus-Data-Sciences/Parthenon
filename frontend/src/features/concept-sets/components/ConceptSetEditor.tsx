@@ -238,7 +238,7 @@ export function ConceptSetEditor({ conceptSet }: ConceptSetEditorProps) {
                             someSelected && !allSelected;
                       }}
                       onChange={toggleSelectAll}
-                      className="h-3.5 w-3.5 rounded border-surface-highlight bg-surface-base text-success focus:ring-[#2DD4BF]/40 cursor-pointer"
+                      className="h-3.5 w-3.5 rounded border-surface-highlight bg-surface-base text-success focus:ring-success/40 cursor-pointer"
                     />
                   </th>
                   <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">

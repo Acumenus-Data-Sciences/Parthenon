@@ -60,7 +60,7 @@ export function ScoreRecommendationCard({
             type="checkbox"
             checked={selected}
             onChange={() => onToggle(recommendation.score_id)}
-            className="h-4 w-4 rounded border-surface-highlight bg-surface-overlay text-success focus:ring-[#2DD4BF]/50"
+            className="h-4 w-4 rounded border-surface-highlight bg-surface-overlay text-success focus:ring-success/50"
           />
         )}
         {readOnly && selected && (

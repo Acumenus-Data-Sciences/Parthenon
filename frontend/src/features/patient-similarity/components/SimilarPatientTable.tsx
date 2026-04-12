@@ -89,7 +89,7 @@ function SharedFeaturePills({ category, icon, label }: {
             {recentTopShared.map((concept) => (
               <span
                 key={`recent-${concept.concept_id}`}
-                className="inline-flex items-center rounded-md bg-[#13211E] border border-[var(--color-primary)]/20 px-2 py-0.5 text-xs text-[#A7F3D0]"
+                className="inline-flex items-center rounded-md bg-[var(--color-success)]/10 border border-[var(--color-success)]/25 px-2 py-0.5 text-xs text-[var(--color-success)]"
                 title={`Concept ID: ${concept.concept_id}`}
               >
                 {concept.name}

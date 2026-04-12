@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { Loader2, AlertCircle, Mail, User, CheckCircle } from "lucide-react";
 import apiClient from "@/lib/api-client";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 export function RegisterPage() {
   const [name, setName] = useState("");
@@ -52,6 +53,10 @@ export function RegisterPage() {
 
   return (
     <div style={{ position: "fixed", inset: 0, display: "flex", overflow: "hidden" }}>
+      <div style={{ position: "absolute", top: 16, right: 16, zIndex: 10 }}>
+        <ThemeToggle />
+      </div>
+
       {/* Background */}
       <div
         style={{

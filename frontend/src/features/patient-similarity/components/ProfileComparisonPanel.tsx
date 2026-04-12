@@ -44,7 +44,7 @@ export function ProfileComparisonPanel({
   return (
     <div className="space-y-4">
       {/* Overall divergence banner */}
-      <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[#131316] p-4">
+      <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] p-4">
         <div className="mb-3 flex items-center justify-between">
           <span className="text-xs font-medium uppercase tracking-wider text-[var(--color-text-muted)]">
             Overall Divergence

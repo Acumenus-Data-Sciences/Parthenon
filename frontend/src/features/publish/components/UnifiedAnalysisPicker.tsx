@@ -228,7 +228,7 @@ export default function UnifiedAnalysisPicker({
               placeholder={activeTab === "all" ? "Search analyses..." : "Search studies..."}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 bg-surface-raised border border-border-default rounded-lg text-sm text-text-primary placeholder-[#5A5650] focus:outline-none focus:border-accent"
+              className="w-full pl-9 pr-3 py-2 bg-surface-raised border border-border-default rounded-lg text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-accent"
             />
           </div>
           <select

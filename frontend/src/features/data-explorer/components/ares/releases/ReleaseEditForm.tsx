@@ -30,7 +30,7 @@ export function ReleaseEditForm({ release, onSave, onCancel, isSaving }: Release
   };
 
   const inputClass =
-    "w-full rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm text-text-primary placeholder-[#8A857D] focus:border-accent focus:outline-none";
+    "w-full rounded-lg border border-border-subtle bg-surface-base px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-accent focus:outline-none";
 
   return (
     <div className="mt-3 space-y-3 border-t border-border-subtle pt-3">

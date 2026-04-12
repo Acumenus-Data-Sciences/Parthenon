@@ -170,7 +170,7 @@ export function TopLociTable({
                     <td className="px-3 py-2 font-mono text-xs whitespace-nowrap">
                       <span
                         style={{
-                          color: nlp >= 10 ? "var(--accent)" : nlp >= 8 ? "var(--success)" : "#d4d4d8",
+                          color: nlp >= 10 ? "var(--accent)" : nlp >= 8 ? "var(--success)" : "var(--text-secondary)",
                           fontWeight: nlp >= 10 ? 600 : 400,
                         }}
                       >
@@ -185,7 +185,7 @@ export function TopLociTable({
                         {row.beta !== undefined ? (
                           <span
                             style={{
-                              color: row.beta > 0 ? "var(--success)" : row.beta < 0 ? "var(--primary)" : "#d4d4d8",
+                              color: row.beta > 0 ? "var(--success)" : row.beta < 0 ? "var(--primary)" : "var(--text-secondary)",
                             }}
                           >
                             {row.beta > 0 ? "+" : ""}
@@ -206,7 +206,7 @@ export function TopLociTable({
                             onPinLocus({ chr: row.chr, pos: row.pos, p: row.p })
                           }
                           title="Pin this locus"
-                          className="inline-flex items-center justify-center w-6 h-6 rounded-md border border-border-default bg-surface-raised text-text-muted hover:border-teal-600 hover:text-teal-400 transition-colors text-xs"
+                          className="inline-flex items-center justify-center w-6 h-6 rounded-md border border-border-default bg-surface-raised text-text-muted hover:border-success hover:text-success transition-colors text-xs"
                         >
                           📌
                         </button>

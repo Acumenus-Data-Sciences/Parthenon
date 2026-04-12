@@ -7,8 +7,8 @@ import type {
 import { useState, useMemo, useCallback } from "react";
 
 const COMMUNITY_COLORS = [
-  "var(--success)", "var(--accent)", "var(--primary)", "#6366F1", "#F97316",
-  "var(--domain-observation)", "#34D399", "#FB7185",
+  "var(--success)", "var(--accent)", "var(--primary)", "var(--chart-4)", "var(--domain-device)",
+  "var(--domain-observation)", "var(--chart-7)", "var(--chart-8)",
 ];
 
 function communityColor(id: number): string {

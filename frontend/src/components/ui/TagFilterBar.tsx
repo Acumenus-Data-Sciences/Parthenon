@@ -25,7 +25,7 @@ const COLOR_MAP = {
   },
   gold: {
     activePill:
-      "bg-accent/20 text-accent ring-1 ring-[#C9A227]/40",
+      "bg-accent/20 text-accent ring-1 ring-accent/40",
     inactivePill:
       "bg-surface-overlay text-text-muted hover:text-text-secondary hover:bg-surface-elevated",
   },

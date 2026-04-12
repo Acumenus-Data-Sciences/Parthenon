@@ -9,6 +9,7 @@ import axios from "axios";
 import apiClient from "@/lib/api-client";
 import { queryClient } from "@/lib/query-client";
 import { fetchDashboardStats } from "@/features/dashboard/api/dashboardApi";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import type { AuthResponse } from "@/types/api";
 
 export function LoginPage() {
@@ -68,6 +69,10 @@ export function LoginPage() {
         overflow: "hidden",
       }}
     >
+      <div style={{ position: "absolute", top: 16, right: 16, zIndex: 10 }}>
+        <ThemeToggle />
+      </div>
+
       {/* Dark base — no image here; the hero panel renders its own */}
       <div
         style={{

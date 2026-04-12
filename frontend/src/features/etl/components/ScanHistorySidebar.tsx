@@ -82,7 +82,7 @@ export function ScanHistorySidebar({
                 key={profile.id}
                 className={cn(
                   "flex items-center gap-3 px-4 py-2.5 border-b border-border-subtle cursor-pointer hover:bg-surface-overlay transition-colors",
-                  selectedId === profile.id && "bg-surface-overlay border-l-2 border-l-[#9B1B30]",
+                  selectedId === profile.id && "bg-surface-overlay border-l-2 border-l-primary",
                 )}
                 onClick={() => onSelect(profile)}
               >

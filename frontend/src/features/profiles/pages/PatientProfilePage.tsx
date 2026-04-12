@@ -392,7 +392,7 @@ export default function PatientProfilePage() {
               return selectedSource && selectedSource.id === userDefaultSourceId ? (
                 <Star
                   size={12}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-accent fill-[#C9A227]"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-accent fill-accent"
                 />
               ) : (
                 <Database
@@ -407,7 +407,7 @@ export default function PatientProfilePage() {
               disabled={loadingSources}
               className={cn(
                 "appearance-none rounded-lg border border-border-default bg-surface-base pl-8 pr-8 py-2 text-sm",
-                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               )}
             >
               <option value="">Select source...</option>

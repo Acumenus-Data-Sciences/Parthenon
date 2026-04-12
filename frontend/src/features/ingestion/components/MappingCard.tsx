@@ -62,7 +62,7 @@ export function MappingCard({
         mapping.is_reviewed
           ? "border-success/20 bg-surface-raised"
           : "border-border-default bg-surface-raised",
-        isSelected && "ring-1 ring-[#9B1B30]/50",
+        isSelected && "ring-1 ring-primary/50",
       )}
     >
       {/* Main row */}
@@ -74,7 +74,7 @@ export function MappingCard({
               type="checkbox"
               checked={isSelected ?? false}
               onChange={onToggleSelect}
-              className="h-3.5 w-3.5 rounded border-surface-highlight bg-surface-base accent-[#9B1B30]"
+              className="h-3.5 w-3.5 rounded border-surface-highlight bg-surface-base accent-primary"
             />
           </div>
         )}

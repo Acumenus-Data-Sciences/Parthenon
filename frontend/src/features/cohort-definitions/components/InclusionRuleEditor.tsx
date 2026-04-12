@@ -61,13 +61,13 @@ export function InclusionRuleEditor({
 
   const inputClass = cn(
     "w-16 rounded-lg border border-border-default bg-surface-base px-2 py-1 text-sm text-center",
-    "text-text-primary focus:border-success focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40",
+    "text-text-primary focus:border-success focus:outline-none focus:ring-1 focus:ring-success/40",
     "font-['IBM_Plex_Mono',monospace] tabular-nums",
   );
 
   const selectClass = cn(
     "appearance-none rounded-lg border border-border-default bg-surface-base px-2 py-1 text-sm",
-    "text-text-primary focus:border-success focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40",
+    "text-text-primary focus:border-success focus:outline-none focus:ring-1 focus:ring-success/40",
     "cursor-pointer",
   );
 
@@ -202,7 +202,7 @@ export function InclusionRuleEditor({
               onChange={(e) =>
                 onChange({ ...rule, RestrictVisit: e.target.checked })
               }
-              className="rounded border-border-default bg-surface-base text-success focus:ring-[#2DD4BF]/40"
+              className="rounded border-border-default bg-surface-base text-success focus:ring-success/40"
             />
             <span className="text-xs text-text-muted">
               Restrict to same visit as index event

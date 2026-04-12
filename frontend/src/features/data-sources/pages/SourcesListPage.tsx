@@ -119,7 +119,7 @@ export function SourcesListPage() {
                         )}
                         {userDefaultSourceId === source.id && (
                           <span className="inline-flex items-center gap-0.5 rounded-full bg-accent/10 px-1.5 py-0.5 text-[9px] font-medium text-accent">
-                            <Star size={8} className="fill-[#C9A227]" />
+                            <Star size={8} className="fill-accent" />
                             My Default
                           </span>
                         )}

@@ -49,13 +49,13 @@ export function EndStrategyEditor({
 
   const inputClass = cn(
     "w-24 rounded-lg border border-border-default bg-surface-base px-3 py-1.5 text-sm text-center",
-    "text-text-primary focus:border-success focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40",
+    "text-text-primary focus:border-success focus:outline-none focus:ring-1 focus:ring-success/40",
     "font-['IBM_Plex_Mono',monospace] tabular-nums",
   );
 
   const selectClass = cn(
     "appearance-none rounded-lg border border-border-default bg-surface-base px-3 py-1.5 text-sm",
-    "text-text-primary focus:border-success focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40",
+    "text-text-primary focus:border-success focus:outline-none focus:ring-1 focus:ring-success/40",
     "cursor-pointer",
   );
 
@@ -101,7 +101,7 @@ export function EndStrategyEditor({
                 value={opt.value}
                 checked={strategyType === opt.value}
                 onChange={() => handleTypeChange(opt.value)}
-                className="mt-0.5 border-border-default bg-surface-base text-success focus:ring-[#2DD4BF]/40"
+                className="mt-0.5 border-border-default bg-surface-base text-success focus:ring-success/40"
               />
               <div>
                 <span className="text-sm font-medium text-text-primary">

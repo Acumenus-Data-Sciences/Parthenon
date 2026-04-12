@@ -53,7 +53,7 @@ export default function AiNarrativeBlock({
           value={content}
           onChange={(e) => onContentChange(e.target.value)}
           rows={6}
-          className="w-full bg-surface-raised border border-border-default rounded-lg px-3 py-2 text-sm text-text-primary placeholder-[#5A5650] focus:outline-none focus:border-accent resize-y"
+          className="w-full bg-surface-raised border border-border-default rounded-lg px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-accent resize-y"
         />
         <div className="flex gap-2">
           <button

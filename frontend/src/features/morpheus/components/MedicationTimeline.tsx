@@ -62,7 +62,7 @@ export default function MedicationTimeline({ medications, onDrugClick }: Medicat
 
   return (
     <div
-      className="rounded-xl border border-border-default/60 bg-surface-base p-4 focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30"
+      className="rounded-xl border border-border-default/60 bg-surface-base p-4 focus:outline-none focus:ring-1 focus:ring-success/30"
       tabIndex={0}
       onKeyDown={handleKeyDown}
       role="img"

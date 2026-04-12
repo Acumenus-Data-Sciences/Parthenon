@@ -3,7 +3,7 @@ import type { ConceptSearchResult } from "../../types";
 
 const DOMAIN_BADGE_CLASSES: Record<string, string> = {
   Condition: "bg-primary/20 text-primary border border-primary/30",
-  Drug: "bg-teal-900/30 text-teal-400 border border-teal-500/30",
+  Drug: "bg-success/10 text-success border border-success/30",
   Measurement: "bg-yellow-900/30 text-accent border border-yellow-600/30",
   Procedure: "bg-blue-900/30 text-blue-400 border border-blue-500/30",
   Observation: "bg-purple-900/30 text-purple-400 border border-purple-500/30",
@@ -80,7 +80,7 @@ export function ConceptTree({ conceptId, conceptName }: ConceptTreeProps) {
   if (isLoading) {
     return (
       <div className="flex items-center gap-2 text-xs text-text-ghost py-2">
-        <div className="h-3 w-3 animate-spin rounded-full border-2 border-border-hover border-t-[#2DD4BF]" />
+        <div className="h-3 w-3 animate-spin rounded-full border-2 border-border-hover border-t-success" />
         Loading hierarchy…
       </div>
     );

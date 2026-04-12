@@ -11,7 +11,7 @@ interface ContextCardProps {
 }
 
 const DOMAIN_ACCENT: Record<EvidenceDomain, string> = {
-  phenotype: "border-teal-400",
+  phenotype: "border-success",
   clinical: "border-red-700",
   genomic: "border-yellow-600",
   synthesis: "border-border-hover",

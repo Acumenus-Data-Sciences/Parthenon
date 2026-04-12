@@ -55,8 +55,8 @@ export function EvidenceSidebar({ investigationId }: EvidenceSidebarProps) {
         {/* Collapsed: show pin count badge when there are pins */}
         {!sidebarOpen && pinCount > 0 && (
           <div className="flex flex-col items-center gap-1 w-full mb-1">
-            <Pin size={12} className="text-teal-400" />
-            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-teal-900 text-teal-400 text-[10px] font-semibold">
+            <Pin size={12} className="text-success" />
+            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-success/10 text-success text-[10px] font-semibold">
               {pinCount > 99 ? "99+" : pinCount}
             </span>
           </div>

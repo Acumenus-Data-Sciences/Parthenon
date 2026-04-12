@@ -65,7 +65,7 @@ export default function FeasibilityForm({ onSubmit, isLoading }: FeasibilityForm
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="w-full rounded border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary
-                     placeholder-[#555] focus:border-accent focus:outline-none"
+                     placeholder:text-text-ghost focus:border-accent focus:outline-none"
         />
       </div>
 
@@ -97,7 +97,7 @@ export default function FeasibilityForm({ onSubmit, isLoading }: FeasibilityForm
           value={minPatients}
           onChange={(e) => setMinPatients(e.target.value)}
           className="w-48 rounded border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary
-                     placeholder-[#555] focus:border-accent focus:outline-none"
+                     placeholder:text-text-ghost focus:border-accent focus:outline-none"
         />
       </div>
 

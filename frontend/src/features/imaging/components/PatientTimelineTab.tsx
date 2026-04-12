@@ -45,7 +45,7 @@ export default function PatientTimelineTab() {
           <label className="block text-xs text-text-muted mb-1.5">Patient Person ID</label>
           <div className="flex gap-2">
             <input
-              className="flex-1 rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors font-mono"
+              className="flex-1 rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40 transition-colors font-mono"
               placeholder="Enter OMOP person_id…"
               value={personIdInput}
               onChange={(e) => setPersonIdInput(e.target.value)}

@@ -17,8 +17,10 @@ export interface VennDiagramProps {
 }
 
 const DEFAULT_COLORS = ["var(--success)", "var(--primary)", "var(--accent)"];
-const TEXT_COLOR = "#d4d4d8";
-const STROKE_COLOR = "#52525b";
+const TEXT_COLOR = "var(--text-primary)";
+const MUTED_COLOR = "var(--text-muted)";
+const STROKE_COLOR = "var(--border-default)";
+const INTERSECTION_FILL = "var(--surface-raised)";
 
 function formatCount(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -154,7 +156,7 @@ export default function VennDiagram({
           .attr("cx", layouts[1].cx)
           .attr("cy", layouts[1].cy)
           .attr("r", layouts[1].r)
-          .attr("fill", "#ffffff")
+          .attr("fill", INTERSECTION_FILL)
           .attr("fill-opacity", 0.25)
           .attr("stroke", "none")
           .attr("clip-path", "url(#venn-clip-0)");
@@ -168,7 +170,7 @@ export default function VennDiagram({
           .attr("cx", layouts[2].cx)
           .attr("cy", layouts[2].cy)
           .attr("r", layouts[2].r)
-          .attr("fill", "#ffffff")
+          .attr("fill", INTERSECTION_FILL)
           .attr("fill-opacity", 0.35)
           .attr("stroke", "none");
       }
@@ -243,7 +245,7 @@ export default function VennDiagram({
         .attr("dominant-baseline", "hanging")
         .attr("font-size", "10px")
         .attr("font-family", "sans-serif")
-        .attr("fill", "#a1a1aa")
+        .attr("fill", MUTED_COLOR)
         .text(`n=${formatCount(layout.count)}`);
     });
 
@@ -270,7 +272,7 @@ export default function VennDiagram({
         .attr("font-size", "18px")
         .attr("font-weight", "bold")
         .attr("font-family", "sans-serif")
-        .attr("fill", "#ffffff")
+        .attr("fill", TEXT_COLOR)
         .text(formatCount(resultCount));
 
       svg
@@ -281,7 +283,7 @@ export default function VennDiagram({
         .attr("dominant-baseline", "central")
         .attr("font-size", "9px")
         .attr("font-family", "sans-serif")
-        .attr("fill", "#a1a1aa")
+        .attr("fill", MUTED_COLOR)
         .text("result");
     }
   }, [circles, operation, resultCount, width, height]);

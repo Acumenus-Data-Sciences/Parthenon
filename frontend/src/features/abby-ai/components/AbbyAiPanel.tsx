@@ -194,7 +194,7 @@ export function AbbyAiPanel({ isOpen, onClose, onApply }: AbbyAiPanelProps) {
               {isLoading && (
                 <div className="flex flex-col items-center justify-center py-12 gap-4">
                   <div className="relative">
-                    <div className="w-10 h-10 rounded-full border-2 border-success/20 border-t-[#2DD4BF] animate-spin" />
+                    <div className="w-10 h-10 rounded-full border-2 border-success/20 border-t-success animate-spin" />
                     <div className="absolute inset-0 rounded-full animate-pulse bg-success/5" />
                   </div>
                   <p className="text-sm text-text-muted">

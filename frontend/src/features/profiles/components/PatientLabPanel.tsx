@@ -274,7 +274,7 @@ export function PatientLabPanel({ labGroups }: PatientLabPanelProps) {
           className={cn(
             "w-48 rounded-md border border-surface-highlight bg-surface-base px-3 py-1 text-xs",
             "text-text-primary placeholder:text-text-ghost",
-            "focus:border-info focus:outline-none focus:ring-1 focus:ring-[#818CF8]/20",
+            "focus:border-info focus:outline-none focus:ring-1 focus:ring-info/20",
           )}
         />
       </div>

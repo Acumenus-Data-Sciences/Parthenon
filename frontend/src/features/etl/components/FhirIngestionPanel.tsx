@@ -424,7 +424,7 @@ export default function FhirIngestionPanel() {
                 rows={14}
                 spellCheck={false}
                 className={cn(
-                  "w-full rounded-md border bg-surface-base px-3 py-2.5 font-mono text-xs text-text-secondary placeholder-[#3A3A40] outline-none resize-y transition-colors",
+                  "w-full rounded-md border bg-surface-base px-3 py-2.5 font-mono text-xs text-text-secondary placeholder:text-text-ghost outline-none resize-y transition-colors",
                   jsonError
                     ? "border-critical/60 focus:border-critical"
                     : "border-border-default focus:border-primary",

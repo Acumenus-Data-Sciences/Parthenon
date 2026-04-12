@@ -140,9 +140,6 @@ class SourceProfilerController extends Controller
         }
     }
 
-    /**
-     * GET /sources/{source}/scan-profiles/scan-progress/{scanId}
-     */
     public function scanProgress(Source $source, string $scanId): StreamedResponse
     {
         $url = $this->profilerService->progressUrl($scanId);

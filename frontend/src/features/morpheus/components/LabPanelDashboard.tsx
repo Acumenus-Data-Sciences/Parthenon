@@ -179,7 +179,7 @@ export default function LabPanelDashboard({ labs, onConceptClick }: LabPanelDash
               <button
                 type="button"
                 onClick={() => setExpandedPanel(expandedPanel === panel.name ? null : panel.name)}
-                className="w-full flex items-center justify-between px-3 py-2 hover:bg-surface-overlay transition-colors focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30"
+                className="w-full flex items-center justify-between px-3 py-2 hover:bg-surface-overlay transition-colors focus:outline-none focus:ring-1 focus:ring-success/30"
               >
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full" style={{ backgroundColor: panel.color }} />

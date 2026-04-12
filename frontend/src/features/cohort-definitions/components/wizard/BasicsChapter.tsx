@@ -50,7 +50,7 @@ export function BasicsChapter() {
           onChange={(e) => setName(e.target.value)}
           placeholder="e.g., Type 2 Diabetes on Metformin"
           autoFocus
-          className="w-full rounded-lg border border-border-default bg-surface-base px-4 py-2.5 text-[14px] text-text-secondary placeholder-[#555] outline-none transition-colors focus:border-accent"
+          className="w-full rounded-lg border border-border-default bg-surface-base px-4 py-2.5 text-[14px] text-text-secondary placeholder:text-text-ghost outline-none transition-colors focus:border-accent"
         />
       </div>
 
@@ -64,7 +64,7 @@ export function BasicsChapter() {
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Describe the clinical context and purpose of this cohort..."
           rows={3}
-          className="w-full resize-none rounded-lg border border-border-default bg-surface-base px-4 py-2.5 text-[13px] text-text-secondary placeholder-[#555] outline-none transition-colors focus:border-accent"
+          className="w-full resize-none rounded-lg border border-border-default bg-surface-base px-4 py-2.5 text-[13px] text-text-secondary placeholder:text-text-ghost outline-none transition-colors focus:border-accent"
         />
       </div>
 
@@ -115,7 +115,7 @@ export function BasicsChapter() {
             onKeyDown={handleTagKeyDown}
             onBlur={handleAddTag}
             placeholder="Add tag..."
-            className="rounded-md border border-border-default bg-surface-base px-3 py-1 text-[12px] text-text-secondary placeholder-[#555] outline-none focus:border-accent"
+            className="rounded-md border border-border-default bg-surface-base px-3 py-1 text-[12px] text-text-secondary placeholder:text-text-ghost outline-none focus:border-accent"
           />
         </div>
       </div>

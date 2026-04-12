@@ -49,14 +49,20 @@ export const useThemeStore = create<ThemeState>()((set, get) => ({
   toggleTheme: () =>
     set((state) => {
       const next: Theme = state.theme === "dark" ? "light" : "dark";
+      const auth = useAuthStore.getState();
       writeStoredTheme(next);
       applyThemeClass(next);
-      // Fire-and-forget persist to server; localStorage already covers failure.
-      void apiClient
-        .put("/user/theme", { theme_preference: next })
-        .catch(() => {
-          // User may be unauthenticated or offline — silent fail, theme still applied.
-        });
+      if (auth.user) {
+        auth.updateUser({ ...auth.user, theme_preference: next });
+      }
+      if (auth.token) {
+        // Fire-and-forget persist to server; localStorage already covers failure.
+        void apiClient
+          .put("/user/theme", { theme_preference: next })
+          .catch(() => {
+            // User may be offline — silent fail, theme still applied.
+          });
+      }
       return { theme: next };
     }),
 

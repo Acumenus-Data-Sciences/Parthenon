@@ -15,22 +15,22 @@ const DOMAIN_ITEMS: DomainItem[] = [
     domain: "phenotype",
     label: "Phenotype",
     icon: <Microscope size={16} />,
-    activeColor: "text-teal-400",
-    activeBorder: "border-l-2 border-teal-400",
+    activeColor: "text-success",
+    activeBorder: "border-l-2 border-success",
   },
   {
     domain: "clinical",
     label: "Clinical",
     icon: <Activity size={16} />,
-    activeColor: "text-red-700",
-    activeBorder: "border-l-2 border-red-700",
+    activeColor: "text-primary",
+    activeBorder: "border-l-2 border-primary",
   },
   {
     domain: "genomic",
     label: "Genomic",
     icon: <Dna size={16} />,
-    activeColor: "text-yellow-600",
-    activeBorder: "border-l-2 border-yellow-600",
+    activeColor: "text-accent",
+    activeBorder: "border-l-2 border-accent",
   },
   {
     domain: "synthesis",
@@ -89,7 +89,7 @@ export function LeftRail({ pinCount, runCount }: LeftRailProps) {
           className={[
             "flex items-center gap-2.5 px-2 py-2 w-full text-left rounded transition-colors",
             pinCount > 0
-              ? "text-teal-400 hover:bg-surface-base"
+              ? "text-success hover:bg-surface-base"
               : "text-text-ghost hover:bg-surface-base hover:text-text-secondary",
           ].join(" ")}
           aria-label="Toggle evidence sidebar"
@@ -105,7 +105,7 @@ export function LeftRail({ pinCount, runCount }: LeftRailProps) {
           className={[
             "flex items-center gap-2.5 px-2 py-2 w-full text-left rounded transition-colors",
             runCount > 0
-              ? "text-teal-400 hover:bg-surface-base"
+              ? "text-success hover:bg-surface-base"
               : "text-text-ghost hover:bg-surface-base hover:text-text-secondary",
           ].join(" ")}
           aria-label="Switch to clinical domain run history"

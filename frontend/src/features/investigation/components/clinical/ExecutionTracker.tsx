@@ -105,8 +105,8 @@ export function ExecutionTracker({
     return (
       <div className="flex items-center gap-4 rounded-lg border border-border-default bg-surface-base/60 px-4 py-3">
         {/* Animated icon */}
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal-500/10">
-          <Icon className="h-4 w-4 animate-pulse text-teal-400" />
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-success/10">
+          <Icon className="h-4 w-4 animate-pulse text-success" />
         </div>
 
         <div className="flex flex-col gap-0.5">
@@ -119,7 +119,7 @@ export function ExecutionTracker({
         {/* Spinning indicator */}
         <div className="ml-auto">
           <svg
-            className="h-4 w-4 animate-spin text-teal-500"
+            className="h-4 w-4 animate-spin text-success"
             fill="none"
             viewBox="0 0 24 24"
           >
@@ -150,8 +150,8 @@ export function ExecutionTracker({
       <div className="flex flex-col gap-3">
         {/* Header bar */}
         <div className="flex items-center gap-2 rounded-t-lg border border-border-default bg-surface-base/60 px-4 py-2">
-          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-teal-500/10">
-            <Icon className="h-3 w-3 text-teal-400" />
+          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-success/10">
+            <Icon className="h-3 w-3 text-success" />
           </div>
           <span className="text-xs font-medium text-text-secondary">Results</span>
           <span className="ml-auto font-mono text-[10px] text-text-ghost">

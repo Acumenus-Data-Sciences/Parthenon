@@ -105,7 +105,7 @@ export function JsonSpecEditor({ spec, onSpecChange }: JsonSpecEditorProps) {
           }}
           onBlur={handleApply}
           spellCheck={false}
-          className="w-full rounded-lg border border-border-default bg-surface-base px-4 py-3 font-mono text-sm text-text-secondary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/40"
+          className="w-full rounded-lg border border-border-default bg-surface-base px-4 py-3 font-mono text-sm text-text-secondary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/40"
           style={{ minHeight: "500px", resize: "vertical" }}
         />
 

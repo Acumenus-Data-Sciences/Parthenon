@@ -173,7 +173,7 @@ export function InstrumentTable({ instruments }: InstrumentTableProps) {
           placeholder="Search instruments by name, abbreviation, or domain..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-lg border border-border-default bg-surface-base py-2 pl-9 pr-3 text-sm text-text-primary placeholder-[#5A5650] outline-none focus:border-accent/40 transition-colors"
+          className="w-full rounded-lg border border-border-default bg-surface-base py-2 pl-9 pr-3 text-sm text-text-primary placeholder:text-text-ghost outline-none focus:border-accent/40 transition-colors"
         />
       </div>
 

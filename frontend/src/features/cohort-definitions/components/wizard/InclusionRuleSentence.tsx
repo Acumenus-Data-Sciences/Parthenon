@@ -125,7 +125,7 @@ export function InclusionRuleSentence({
             type="checkbox"
             checked={rule.restrictVisit}
             onChange={(e) => onUpdate(index, { restrictVisit: e.target.checked })}
-            className="accent-[#2DD4BF]"
+            className="accent-success"
           />
           Restrict to same visit
         </label>

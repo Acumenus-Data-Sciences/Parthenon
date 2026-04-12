@@ -145,7 +145,7 @@ export function DomainCriteriaSelector({
               type="checkbox"
               checked={firstOnly}
               onChange={(e) => setFirstOnly(e.target.checked)}
-              className="rounded border-border-default bg-surface-base text-success focus:ring-[#2DD4BF]/40"
+              className="rounded border-border-default bg-surface-base text-success focus:ring-success/40"
             />
             <span className="text-xs text-text-muted">
               First occurrence only

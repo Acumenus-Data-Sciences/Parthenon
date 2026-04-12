@@ -8,9 +8,9 @@ interface PinCardProps {
 }
 
 const DOMAIN_BADGE_STYLE: Record<EvidenceDomain, string> = {
-  phenotype: "bg-teal-900 text-teal-300",
+  phenotype: "bg-success/10 text-success",
   clinical: "bg-red-950 text-red-400",
-  genomic: "bg-yellow-950 text-yellow-500",
+  genomic: "bg-yellow-950 text-accent",
   synthesis: "bg-surface-raised text-text-secondary",
 };
 
@@ -44,14 +44,14 @@ export function PinCard({ pin, onDelete, onToggleKeyFinding }: PinCardProps) {
                 size={11}
                 className={
                   pin.is_key_finding
-                    ? "text-accent fill-[#C9A227]"
+                    ? "text-accent fill-accent"
                     : "text-text-ghost fill-none"
                 }
               />
             </button>
           ) : (
             pin.is_key_finding && (
-              <Star size={11} className="text-yellow-500 fill-yellow-500 shrink-0" />
+              <Star size={11} className="text-accent fill-accent shrink-0" />
             )
           )}
         </div>

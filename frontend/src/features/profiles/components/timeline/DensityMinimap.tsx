@@ -73,7 +73,7 @@ export function DensityMinimap({
         {/* Axis line */}
         <line x1={LABEL_WIDTH} x2={svgWidth} y1={31} y2={31} stroke="var(--surface-overlay)" strokeWidth={1} />
         {/* Label */}
-        <text x={4} y={19} className="fill-[#3A3A40]" style={{ fontSize: 8 }}>
+        <text x={4} y={19} className="fill-text-muted" style={{ fontSize: 8 }}>
           activity
         </text>
       </svg>

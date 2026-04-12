@@ -67,7 +67,7 @@ export default function CultureTable({ data, onOrganismClick }: CultureTableProp
             <button
               type="button"
               onClick={() => setExpandedKey(isExpanded ? null : g.key)}
-              className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-surface-overlay transition-colors text-left focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30"
+              className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-surface-overlay transition-colors text-left focus:outline-none focus:ring-1 focus:ring-success/30"
             >
               <ChevronDown size={12} className={`text-text-ghost transition-transform shrink-0 ${isExpanded ? 'rotate-180' : ''}`} />
               <span className="text-xs text-text-muted shrink-0 w-20">{g.date}</span>

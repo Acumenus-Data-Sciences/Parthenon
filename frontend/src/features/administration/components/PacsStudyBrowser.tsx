@@ -77,7 +77,7 @@ export default function PacsStudyBrowser({
   if (!connection) return null;
 
   const inputCls =
-    "w-full px-2.5 py-1.5 text-xs bg-surface-base border border-border-default rounded-lg text-text-primary placeholder-[#5A5650] focus:outline-none focus:border-success/50 focus:ring-1 focus:ring-[#2DD4BF]/30";
+    "w-full px-2.5 py-1.5 text-xs bg-surface-base border border-border-default rounded-lg text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success/50 focus:ring-1 focus:ring-success/30";
 
   return (
     <>

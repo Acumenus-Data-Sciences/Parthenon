@@ -92,7 +92,7 @@ export function PatientSearchPanel({
               disabled={loadingSources}
               className={cn(
                 "w-full appearance-none rounded-lg border border-border-default bg-surface-base pl-8 pr-8 py-2 text-sm",
-                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               )}
             >
               <option value="">Select a data source...</option>
@@ -137,7 +137,7 @@ export function PatientSearchPanel({
               "bg-surface-base text-text-primary placeholder:text-text-ghost",
               !sourceId
                 ? "border-border-default opacity-50 cursor-not-allowed"
-                : "border-border-default focus:border-success focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30",
+                : "border-border-default focus:border-success focus:outline-none focus:ring-1 focus:ring-success/30",
             )}
           />
           {/* Loading / clear */}

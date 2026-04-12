@@ -361,7 +361,7 @@ function DisambiguationDrawer({ result, onClose, onSelectCandidate }: Disambigua
               value={cleanRawText}
               onChange={(e) => setCleanRawText(e.target.value)}
               placeholder="Edit term and re-map..."
-              className="flex-1 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary placeholder-[#3A3A40] focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30 font-mono transition-colors"
+              className="flex-1 rounded-lg border border-border-default bg-surface-raised px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30 font-mono transition-colors"
               onKeyDown={(e) => {
                 if (e.key === "Enter" && cleanRawText.trim()) handleClean();
               }}
@@ -936,7 +936,7 @@ export default function MappingAssistantPage() {
                 onChange={(e) => setTermsText(e.target.value)}
                 placeholder={"Enter source terms, one per line...\n\ntype 2 diabetes mellitus\nacute myocardial infarction\nHTN\nASA 81mg"}
                 rows={7}
-                className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2.5 text-sm text-text-primary placeholder-[#3A3A40] focus:border-primary focus:outline-none focus:ring-1 focus:ring-[#9B1B30]/30 resize-none font-mono transition-colors"
+                className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2.5 text-sm text-text-primary placeholder:text-text-ghost focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 resize-none font-mono transition-colors"
               />
               <div className="flex items-center gap-2">
                 <button
@@ -1251,7 +1251,7 @@ export default function MappingAssistantPage() {
                   value={projectNameInput}
                   onChange={(e) => setProjectNameInput(e.target.value)}
                   placeholder="Project name..."
-                  className="rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary placeholder-[#3A3A40] focus:border-primary focus:outline-none focus:ring-1 focus:ring-[#9B1B30]/30 w-48 transition-colors"
+                  className="rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 w-48 transition-colors"
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && projectNameInput.trim()) {
                       saveProjectMutation.mutate({ name: projectNameInput.trim() });

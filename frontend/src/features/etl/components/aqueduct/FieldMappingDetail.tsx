@@ -850,7 +850,7 @@ export function FieldMappingDetail({
                             type="checkbox"
                             checked={mapping.is_reviewed}
                             onChange={(e) => handleMappingChange(col.name, { is_reviewed: e.target.checked })}
-                            className="rounded border-border-default bg-surface-base text-success focus:ring-[#2DD4BF]"
+                            className="rounded border-border-default bg-surface-base text-success focus:ring-success"
                           />
                           Reviewed
                         </label>

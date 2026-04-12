@@ -200,7 +200,7 @@ function ConnectionDialog({
   const pending = create.isPending || update.isPending;
 
   const inputCls =
-    "w-full px-3 py-2 text-sm bg-surface-base border border-border-default rounded-lg text-text-primary placeholder-[#5A5650] focus:outline-none focus:border-success/50 focus:ring-1 focus:ring-[#2DD4BF]/30";
+    "w-full px-3 py-2 text-sm bg-surface-base border border-border-default rounded-lg text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success/50 focus:ring-1 focus:ring-success/30";
   const labelCls = "block text-xs font-medium text-text-muted mb-1";
 
   return (
@@ -284,11 +284,11 @@ function ConnectionDialog({
 
             <div className="flex items-center gap-6">
               <label className="flex items-center gap-2 text-sm text-text-muted cursor-pointer">
-                <input type="checkbox" checked={form.is_active} onChange={(e) => set("is_active", e.target.checked)} className="accent-[#2DD4BF]" />
+                <input type="checkbox" checked={form.is_active} onChange={(e) => set("is_active", e.target.checked)} className="accent-success" />
                 Active
               </label>
               <label className="flex items-center gap-2 text-sm text-text-muted cursor-pointer">
-                <input type="checkbox" checked={form.incremental_enabled} onChange={(e) => set("incremental_enabled", e.target.checked)} className="accent-[#2DD4BF]" />
+                <input type="checkbox" checked={form.incremental_enabled} onChange={(e) => set("incremental_enabled", e.target.checked)} className="accent-success" />
                 Incremental sync
               </label>
             </div>

@@ -3,8 +3,8 @@ import type { LandscapeResult } from "../types/patientSimilarity";
 import { PatientLandscape } from "./PatientLandscape";
 
 const CLUSTER_PALETTE = [
-  "var(--color-primary)", "var(--color-primary)", "var(--color-critical)", "#6366F1", "#EC4899",
-  "#22D3EE", "#A78BFA", "#F97316", "#84CC16", "#F43F5E",
+  "var(--color-primary)", "var(--color-accent)", "var(--color-critical)", "var(--color-chart-4)", "var(--color-domain-procedure)",
+  "var(--color-info)", "var(--color-domain-observation)", "var(--color-domain-device)", "var(--color-chart-5)", "var(--color-chart-8)",
 ];
 
 const GENDER_LABELS: Record<number, string> = { 8507: "Male", 8532: "Female" };

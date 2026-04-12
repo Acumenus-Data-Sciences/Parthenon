@@ -4,16 +4,25 @@ import { OrbitControls, Html } from "@react-three/drei";
 import * as THREE from "three";
 import { Layers, Grid3X3 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useThemeStore } from "@/stores/themeStore";
 import type { LandscapePoint, LandscapeCluster, LandscapeResult } from "../types/patientSimilarity";
 
 // ── Constants ────────────────────────────────────────────────────────
 
 const SCENE_BG = "var(--color-surface-base)";
-const TEAL = "var(--color-primary)";
-const GRAY = "#4B5563";
-const CLUSTER_PALETTE = [
-  "var(--color-primary)", "var(--color-primary)", "var(--color-critical)", "#6366F1", "#EC4899",
-  "#22D3EE", "#A78BFA", "#F97316", "#84CC16", "#F43F5E",
+const COHORT_COLOR = "var(--color-primary)";
+const NON_MEMBER_COLOR = "var(--color-text-muted)";
+const CLUSTER_COLOR_VARS = [
+  ["--primary", "#7A1526"],
+  ["--accent", "#8B7018"],
+  ["--critical", "#C93545"],
+  ["--chart-4", "#7C3AED"],
+  ["--domain-procedure", "#DB2777"],
+  ["--info", "#2563EB"],
+  ["--domain-observation", "#7C3AED"],
+  ["--domain-device", "#EA580C"],
+  ["--chart-5", "#8B7018"],
+  ["--chart-8", "#C93545"],
 ];
 
 const GENDER_LABELS: Record<number, string> = {
@@ -23,6 +32,11 @@ const GENDER_LABELS: Record<number, string> = {
 
 const tempObject = new THREE.Object3D();
 const tempColor = new THREE.Color();
+
+function resolveCssColor(name: string, fallback: string): string {
+  if (typeof document === "undefined") return fallback;
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
+}
 
 // ── Props ────────────────────────────────────────────────────────────
 
@@ -45,7 +59,16 @@ interface PointCloudProps {
 
 function PointCloud({ points, colorByCluster, is2D, onHover, onClick }: PointCloudProps) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
+  const theme = useThemeStore((state) => state.theme);
   const count = points.length;
+  const resolvedColors = useMemo(() => {
+    const cohort = resolveCssColor("--primary", "#7A1526");
+    const nonMember = resolveCssColor("--text-muted", "#6D6860");
+    const clusters = CLUSTER_COLOR_VARS.map(([name, fallback]) =>
+      resolveCssColor(name, fallback),
+    );
+    return { cohort, nonMember, clusters };
+  }, [theme]);
 
   const { colorArray } = useMemo(() => {
     const colors = new Float32Array(count * 3);
@@ -53,9 +76,9 @@ function PointCloud({ points, colorByCluster, is2D, onHover, onClick }: PointClo
       const p = points[i];
       let hex: string;
       if (colorByCluster) {
-        hex = CLUSTER_PALETTE[p.cluster_id % CLUSTER_PALETTE.length];
+        hex = resolvedColors.clusters[p.cluster_id % resolvedColors.clusters.length];
       } else {
-        hex = p.is_cohort_member ? TEAL : GRAY;
+        hex = p.is_cohort_member ? resolvedColors.cohort : resolvedColors.nonMember;
       }
       tempColor.set(hex);
       colors[i * 3] = tempColor.r;
@@ -63,7 +86,7 @@ function PointCloud({ points, colorByCluster, is2D, onHover, onClick }: PointClo
       colors[i * 3 + 2] = tempColor.b;
     }
     return { colorArray: colors };
-  }, [points, colorByCluster, count]);
+  }, [points, colorByCluster, count, resolvedColors]);
 
   useEffect(() => {
     if (!meshRef.current) return;
@@ -143,7 +166,7 @@ function PointTooltip({ point, clusters, is2D }: TooltipProps) {
       center
       style={{ pointerEvents: "none" }}
     >
-      <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)]/95 px-3 py-2 text-xs text-gray-300 shadow-xl backdrop-blur-sm whitespace-nowrap">
+      <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)]/95 px-3 py-2 text-xs text-[var(--color-text-secondary)] shadow-xl backdrop-blur-sm whitespace-nowrap">
         <div className="font-semibold text-[var(--color-text-primary)]">
           Person {point.person_id}
         </div>
@@ -316,14 +339,14 @@ export function PatientLandscape({
             <div className="flex items-center gap-1.5">
               <span
                 className="inline-block h-2.5 w-2.5 rounded-full"
-                style={{ background: TEAL }}
+                style={{ background: COHORT_COLOR }}
               />
               Cohort members ({cohortCount.toLocaleString()})
             </div>
             <div className="flex items-center gap-1.5">
               <span
                 className="inline-block h-2.5 w-2.5 rounded-full"
-                style={{ background: GRAY }}
+                style={{ background: NON_MEMBER_COLOR }}
               />
               Non-members ({(points.length - cohortCount).toLocaleString()})
             </div>
@@ -334,7 +357,7 @@ export function PatientLandscape({
               <span
                 className="inline-block h-2.5 w-2.5 rounded-full"
                 style={{
-                  background: CLUSTER_PALETTE[c.id % CLUSTER_PALETTE.length],
+                  background: `var(${CLUSTER_COLOR_VARS[c.id % CLUSTER_COLOR_VARS.length][0]})`,
                 }}
               />
               {c.label ?? `Cluster ${c.id}`} ({c.size})

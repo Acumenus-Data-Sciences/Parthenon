@@ -64,7 +64,7 @@ export function CohortSqlPreview({ definitionId }: CohortSqlPreviewProps) {
               disabled={loadingSources}
               className={cn(
                 "appearance-none rounded-lg border border-border-default bg-surface-base pl-7 pr-7 py-1.5 text-xs",
-                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
                 "cursor-pointer min-w-[160px]",
               )}
             >

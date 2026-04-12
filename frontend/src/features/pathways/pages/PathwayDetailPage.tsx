@@ -168,7 +168,7 @@ export default function PathwayDetailPage() {
                 disabled={loadingSources}
                 className={cn(
                   "appearance-none rounded-lg border border-border-default bg-surface-base pl-8 pr-8 py-2 text-sm",
-                  "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                  "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
                 )}
               >
                 <option value="">Source</option>
@@ -341,7 +341,7 @@ export default function PathwayDetailPage() {
                             ? "bg-surface-raised"
                             : "bg-surface-overlay",
                           activeExecId === exec.id &&
-                            "ring-1 ring-inset ring-[#2DD4BF]/30",
+                            "ring-1 ring-inset ring-success/30",
                         )}
                       >
                         <td className="px-4 py-3">

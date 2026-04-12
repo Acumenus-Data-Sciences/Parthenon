@@ -1,12 +1,17 @@
 import { useEffect, useRef } from "react";
 import * as d3 from "d3";
 
-// ── Dark theme constants ───────────────────────────────────────────────────────
-const COLOR_TEXT = "#d4d4d8";   // zinc-300
-const COLOR_AXIS = "#52525b";   // zinc-600
-const COLOR_GRID = "#52525b";   // zinc-600
+const COLOR_TEXT = "var(--text-primary)";
+const COLOR_AXIS = "var(--border-default)";
+const COLOR_GRID = "var(--border-subtle)";
 
-const DEFAULT_COLORS = ["var(--success)", "var(--primary)", "var(--accent)", "#818cf8", "#fb923c"];
+const DEFAULT_COLORS = [
+  "var(--chart-1)",
+  "var(--chart-2)",
+  "var(--chart-3)",
+  "var(--chart-4)",
+  "var(--chart-5)",
+];
 
 const MARGIN = { top: 24, right: 24, bottom: 52, left: 60 };
 
@@ -58,7 +63,7 @@ export function KaplanMeierChart({
       .attr("height", height)
       .attr("preserveAspectRatio", "xMidYMid meet");
 
-    // Transparent background (inherits dark container)
+    // Transparent background (inherits chart container)
 
     const g = svg
       .append("g")

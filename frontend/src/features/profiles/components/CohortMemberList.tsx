@@ -226,7 +226,7 @@ export function CohortMemberList({ onSelectPerson }: CohortMemberListProps) {
                 disabled={loadingSources}
                 className={cn(
                   "w-full appearance-none rounded-lg border border-border-default bg-surface-base pl-8 pr-8 py-2 text-sm",
-                  "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                  "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
                 )}
               >
                 <option value="">Select a data source...</option>
@@ -262,7 +262,7 @@ export function CohortMemberList({ onSelectPerson }: CohortMemberListProps) {
                 disabled={!sourceId || loadingCohorts}
                 className={cn(
                   "w-full appearance-none rounded-lg border border-border-default bg-surface-base pl-8 pr-8 py-2 text-sm",
-                  "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                  "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
                   "disabled:opacity-50",
                 )}
               >

@@ -40,7 +40,7 @@ function ToggleSwitch({
       onClick={() => onChange(!checked)}
       className={cn(
         "relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2DD4BF]/40",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success/40",
         "disabled:cursor-not-allowed disabled:opacity-50",
         checked ? "bg-success" : "bg-surface-highlight",
       )}
@@ -77,7 +77,7 @@ export function ConceptSetItemRow({
         "border-t border-border-subtle transition-colors hover:bg-surface-overlay cursor-pointer",
         index % 2 === 0 ? "bg-surface-raised" : "bg-surface-overlay",
         isSelected && "bg-success/5",
-        isHighlighted && "border-l-2 border-l-[#2DD4BF]",
+        isHighlighted && "border-l-2 border-l-success",
       )}
     >
       {/* Checkbox */}
@@ -86,7 +86,7 @@ export function ConceptSetItemRow({
           type="checkbox"
           checked={isSelected ?? false}
           onChange={() => onSelectionChange?.(item.id)}
-          className="h-3.5 w-3.5 rounded border-surface-highlight bg-surface-base text-success focus:ring-[#2DD4BF]/40 cursor-pointer"
+          className="h-3.5 w-3.5 rounded border-surface-highlight bg-surface-base text-success focus:ring-success/40 cursor-pointer"
         />
       </td>
 

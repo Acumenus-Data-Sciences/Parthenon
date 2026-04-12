@@ -75,7 +75,7 @@ export function ScanReport({ fields }: ScanReportProps) {
                   className={cn(
                     "border-t border-border-subtle transition-colors hover:bg-surface-overlay",
                     i % 2 === 0 ? "bg-surface-raised" : "bg-surface-overlay",
-                    field.is_potential_pii && "border-l-2 border-l-[#E5A84B]",
+                    field.is_potential_pii && "border-l-2 border-l-warning",
                   )}
                 >
                   <td className="px-4 py-2.5 text-sm font-medium text-text-primary font-['IBM_Plex_Mono',monospace]">

@@ -98,7 +98,7 @@ function ReplyForm({
           }
         }}
         className="flex-1 rounded-lg border border-border-subtle bg-surface-base px-2.5 py-1.5 text-xs text-text-primary
-                   placeholder-[#555] focus:border-accent focus:outline-none"
+                   placeholder:text-text-ghost focus:border-accent focus:outline-none"
       />
       <button
         type="button"
@@ -213,7 +213,7 @@ export function AnnotationsView() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="rounded-lg border border-border-subtle bg-surface-raised py-1.5 pl-8 pr-3 text-sm text-text-primary
-                         placeholder-[#555] focus:border-success focus:outline-none"
+                         placeholder:text-text-ghost focus:border-success focus:outline-none"
             />
           </div>
         </div>
