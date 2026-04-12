@@ -173,6 +173,7 @@ export function HierarchyBrowserPanel({
         { concept_id: -100 - grouping.id, concept_name: grouping.name },
       ]);
       setGroupingAnchors({ groupingName: grouping.name, anchors: grouping.anchors });
+      setActiveParentGrouping(null);
       setShowGroupings(false);
       setFilterText("");
     } else {
@@ -183,6 +184,7 @@ export function HierarchyBrowserPanel({
         { concept_id: anchorId, concept_name: grouping.name },
       ]);
       setParentId(anchorId);
+      setActiveParentGrouping(null);
       setShowGroupings(false);
       setGroupingAnchors(null);
       setFilterText("");
