@@ -150,7 +150,7 @@ function VisitCard({ visitGroup }: { visitGroup: VisitGroup }) {
         {/* Visit type icon */}
         <div
           className="flex items-center justify-center w-8 h-8 rounded-md shrink-0"
-          style={{ backgroundColor: "#F59E0B18" }}
+          style={{ backgroundColor: "color-mix(in srgb, var(--warning) 15%, transparent)" }}
         >
           <Hospital size={15} className="text-warning" />
         </div>

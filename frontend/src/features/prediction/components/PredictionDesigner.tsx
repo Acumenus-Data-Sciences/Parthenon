@@ -71,6 +71,8 @@ export function PredictionDesigner({
 
   const cohorts = cohortData?.items ?? [];
 
+  // Sync form from prediction prop — legitimate external-source sync
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (prediction) {
       setName(prediction.name);
@@ -156,7 +158,7 @@ export function PredictionDesigner({
               className={cn(
                 "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
                 "text-text-primary placeholder:text-text-ghost",
-                "focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                "focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               )}
             />
           </div>
@@ -172,7 +174,7 @@ export function PredictionDesigner({
               className={cn(
                 "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
                 "text-text-primary placeholder:text-text-ghost resize-none",
-                "focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                "focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               )}
             />
           </div>
@@ -200,7 +202,7 @@ export function PredictionDesigner({
             }
             className={cn(
               "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-              "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+              "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
             )}
           >
             <option value="">Select target cohort...</option>
@@ -234,7 +236,7 @@ export function PredictionDesigner({
             }
             className={cn(
               "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-              "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+              "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
             )}
           >
             <option value="">Select outcome cohort...</option>
@@ -269,7 +271,7 @@ export function PredictionDesigner({
             }
             className={cn(
               "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-              "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+              "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
             )}
           >
             {modelTypes.map((mt) => (
@@ -305,7 +307,7 @@ export function PredictionDesigner({
               }
               className={cn(
                 "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               )}
             />
           </div>
@@ -327,7 +329,7 @@ export function PredictionDesigner({
               }
               className={cn(
                 "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               )}
             />
           </div>
@@ -348,7 +350,7 @@ export function PredictionDesigner({
               }
               className={cn(
                 "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               )}
             >
               <option value="cohort start">Cohort Start</option>
@@ -391,7 +393,7 @@ export function PredictionDesigner({
               }
               className={cn(
                 "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               )}
             />
           </div>
@@ -414,7 +416,7 @@ export function PredictionDesigner({
               }
               className={cn(
                 "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               )}
             />
           </div>
@@ -509,7 +511,7 @@ export function PredictionDesigner({
                   },
                 }))
               }
-              className="w-full accent-[#2DD4BF]"
+              className="w-full accent-success"
             />
             <div className="flex items-center justify-between text-[10px] text-text-ghost">
               <span>0.1</span>
@@ -535,7 +537,7 @@ export function PredictionDesigner({
               }
               className={cn(
                 "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               )}
             />
           </div>

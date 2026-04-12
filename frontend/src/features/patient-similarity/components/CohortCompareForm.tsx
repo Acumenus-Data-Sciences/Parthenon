@@ -105,7 +105,7 @@ export function CohortCompareForm({
             "w-full rounded-lg px-3 py-2 text-sm",
             "bg-surface-base border border-border-default",
             "text-text-primary",
-            "focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40",
+            "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
           )}
         >
           <option value={0}>Select source...</option>
@@ -137,7 +137,7 @@ export function CohortCompareForm({
               "w-full rounded-lg px-3 py-2 text-sm",
               "bg-surface-base border border-border-default",
               "text-text-primary",
-              "focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40",
+              "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
             )}
           >
             <option value={0}>Select source cohort...</option>
@@ -178,7 +178,7 @@ export function CohortCompareForm({
               "w-full rounded-lg px-3 py-2 text-sm",
               "bg-surface-base border border-border-default",
               "text-text-primary",
-              "focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40",
+              "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
             )}
           >
             <option value={0}>Select target cohort...</option>

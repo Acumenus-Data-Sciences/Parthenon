@@ -50,6 +50,8 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
   const [newOmopId, setNewOmopId] = useState("");
   const [newEcqm, setNewEcqm] = useState("");
 
+  // Sync form from bundle prop — legitimate external-source sync
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (bundle) {
       setBundleCode(bundle.bundle_code);
@@ -145,7 +147,7 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
               className={cn(
                 "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
                 "text-text-primary placeholder:text-text-ghost",
-                "focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                "focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               )}
             />
           </div>
@@ -163,7 +165,7 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
               className={cn(
                 "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
                 "text-text-primary placeholder:text-text-ghost",
-                "focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                "focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               )}
             />
           </div>
@@ -182,7 +184,7 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
             className={cn(
               "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm resize-y",
               "text-text-primary placeholder:text-text-ghost",
-              "focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+              "focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
             )}
           />
         </div>
@@ -198,7 +200,7 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
             className={cn(
               "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
               "text-text-primary",
-              "focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+              "focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               "cursor-pointer",
             )}
           >
@@ -251,7 +253,7 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
             className={cn(
               "flex-1 rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
               "text-text-primary placeholder:text-text-ghost",
-              "focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+              "focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
             )}
           />
           <button
@@ -304,7 +306,7 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
             className={cn(
               "flex-1 rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
               "text-text-primary placeholder:text-text-ghost",
-              "focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+              "focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
             )}
           />
           <button
@@ -357,7 +359,7 @@ export function BundleDesigner({ bundleId }: BundleDesignerProps) {
             className={cn(
               "flex-1 rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
               "text-text-primary placeholder:text-text-ghost",
-              "focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+              "focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
             )}
           />
           <button

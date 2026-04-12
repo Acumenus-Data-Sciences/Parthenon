@@ -183,7 +183,7 @@ function StudiesTab() {
         <div>
           <label className="block text-xs text-text-muted mb-1.5">Filter by Source ID</label>
           <input
-            className="w-28 rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors"
+            className="w-28 rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40 transition-colors"
             placeholder="e.g. 9"
             value={sourceId}
             onChange={(e) => updateStudyParams({ source_id: e.target.value }, true)}
@@ -192,7 +192,7 @@ function StudiesTab() {
         <div>
           <label className="block text-xs text-text-muted mb-1.5">Modality</label>
           <input
-            className="w-40 rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors"
+            className="w-40 rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40 transition-colors"
             placeholder="CT, MR…"
             value={modality}
             onChange={(e) => updateStudyParams({ modality: e.target.value }, true)}
@@ -201,7 +201,7 @@ function StudiesTab() {
         <div>
           <label className="block text-xs text-text-muted mb-1.5">Status</label>
           <select
-            className="w-36 rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors"
+            className="w-36 rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40 transition-colors"
             value={status}
             onChange={(e) => updateStudyParams({ status: e.target.value }, true)}
           >
@@ -214,7 +214,7 @@ function StudiesTab() {
         <div>
           <label className="block text-xs text-text-muted mb-1.5">Body Part</label>
           <input
-            className="w-40 rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors"
+            className="w-40 rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40 transition-colors"
             placeholder="Chest, Brain…"
             value={bodyPart}
             onChange={(e) => updateStudyParams({ body_part: e.target.value }, true)}
@@ -223,7 +223,7 @@ function StudiesTab() {
         <div className="min-w-[220px] flex-1">
           <label className="block text-xs text-text-muted mb-1.5">Find</label>
           <input
-            className="w-full rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors"
+            className="w-full rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40 transition-colors"
             placeholder="UID, accession, description, patient…"
             value={search}
             onChange={(e) => updateStudyParams({ q: e.target.value }, true)}
@@ -233,7 +233,7 @@ function StudiesTab() {
           <label className="block text-xs text-text-muted mb-1.5">From</label>
           <input
             type="date"
-            className="w-40 rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors"
+            className="w-40 rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40 transition-colors"
             value={dateFrom}
             onChange={(e) => updateStudyParams({ date_from: e.target.value }, true)}
           />
@@ -242,7 +242,7 @@ function StudiesTab() {
           <label className="block text-xs text-text-muted mb-1.5">To</label>
           <input
             type="date"
-            className="w-40 rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors"
+            className="w-40 rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40 transition-colors"
             value={dateTo}
             onChange={(e) => updateStudyParams({ date_to: e.target.value }, true)}
           />
@@ -613,7 +613,7 @@ function AnalyticsTab() {
       <div>
         <label className="block text-xs text-text-muted mb-1.5">Source ID</label>
         <input
-          className="w-36 rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors"
+          className="w-36 rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40 transition-colors"
           placeholder="e.g. 9"
           value={sourceId}
           onChange={(e) => setSourceId(e.target.value)}

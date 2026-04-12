@@ -93,7 +93,7 @@ export function CohortSeedForm({
             "w-full rounded-lg px-3 py-2 text-sm",
             "bg-surface-base border border-border-default",
             "text-text-primary",
-            "focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40",
+            "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
           )}
         >
           <option value={0}>Select source...</option>
@@ -125,7 +125,7 @@ export function CohortSeedForm({
               "w-full rounded-lg px-3 py-2 text-sm",
               "bg-surface-base border border-border-default",
               "text-text-primary",
-              "focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40",
+              "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
             )}
           >
             <option value={0}>Select a cohort...</option>
@@ -179,7 +179,7 @@ export function CohortSeedForm({
                     onChange={(e) =>
                       handleWeightChange(dim.key, parseFloat(e.target.value))
                     }
-                    className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-surface-elevated accent-[#2DD4BF]"
+                    className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-surface-elevated accent-success"
                   />
                 </div>
               ))}
@@ -202,7 +202,7 @@ export function CohortSeedForm({
               "w-1/2 rounded-lg px-3 py-1.5 text-xs",
               "bg-surface-base border border-border-default",
               "text-text-primary placeholder:text-text-ghost",
-              "focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40",
+              "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
             )}
           />
           <span className="text-text-ghost text-xs">-</span>
@@ -215,7 +215,7 @@ export function CohortSeedForm({
               "w-1/2 rounded-lg px-3 py-1.5 text-xs",
               "bg-surface-base border border-border-default",
               "text-text-primary placeholder:text-text-ghost",
-              "focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40",
+              "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
             )}
           />
         </div>
@@ -226,7 +226,7 @@ export function CohortSeedForm({
             "w-full rounded-lg px-3 py-1.5 text-xs",
             "bg-surface-base border border-border-default",
             "text-text-primary",
-            "focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40",
+            "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
           )}
         >
           <option value="">Any gender</option>

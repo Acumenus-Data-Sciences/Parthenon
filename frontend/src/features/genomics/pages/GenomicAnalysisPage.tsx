@@ -287,7 +287,7 @@ export default function GenomicAnalysisPage() {
               <input
                 value={gene}
                 onChange={(e) => setGene(e.target.value.toUpperCase())}
-                className="w-28 rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors"
+                className="w-28 rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40 transition-colors"
                 placeholder="EGFR"
               />
             </div>
@@ -296,7 +296,7 @@ export default function GenomicAnalysisPage() {
               <input
                 value={hgvs}
                 onChange={(e) => setHgvs(e.target.value)}
-                className="w-40 rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors"
+                className="w-40 rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40 transition-colors"
                 placeholder="p.Leu858Arg"
               />
             </div>
@@ -344,7 +344,7 @@ export default function GenomicAnalysisPage() {
             <input
               value={matrixGenes}
               onChange={(e) => setMatrixGenes(e.target.value)}
-              className="w-80 rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors"
+              className="w-80 rounded-lg bg-surface-raised border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40 transition-colors"
               placeholder="EGFR,KRAS,ALK,BRAF"
             />
           </div>

@@ -71,7 +71,7 @@ export function BundleCard({ bundle }: BundleCardProps) {
         "hover:bg-surface-overlay hover:border-surface-highlight",
         "border-l-[3px]",
       )}
-      style={{ borderLeftColor: borderColor, borderColor: `#232328` }}
+      style={{ borderLeftColor: borderColor, borderColor: `var(--border-default)` }}
     >
       <div className="flex items-start justify-between gap-3">
         {/* Left content */}

@@ -49,7 +49,7 @@ export function WebApiImportPanel() {
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="https://legacy-webapi.example.com/WebAPI"
-            className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30"
+            className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30"
           />
         </div>
 
@@ -62,7 +62,7 @@ export function WebApiImportPanel() {
             <select
               value={authType}
               onChange={(e) => setAuthType(e.target.value as "none" | "basic" | "bearer")}
-              className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30"
+              className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30"
             >
               <option value="none">None</option>
               <option value="basic">Basic Auth</option>
@@ -79,7 +79,7 @@ export function WebApiImportPanel() {
                 value={credentials}
                 onChange={(e) => setCredentials(e.target.value)}
                 placeholder={authType === "basic" ? "username:password" : "Bearer token"}
-                className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30"
+                className="w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30"
               />
             </div>
           )}

@@ -55,7 +55,7 @@ function StudyCard({ study, onPinFinding }: StudyCardProps) {
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-col gap-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[10px] px-2 py-0.5 rounded border font-mono" style={{ borderColor: "#2DD4BF40", color: "var(--success)" }}>
+            <span className="text-[10px] px-2 py-0.5 rounded border font-mono" style={{ borderColor: "color-mix(in srgb, var(--success) 25%, transparent)", color: "var(--success)" }}>
               {study.accessionId}
             </span>
             {year && (

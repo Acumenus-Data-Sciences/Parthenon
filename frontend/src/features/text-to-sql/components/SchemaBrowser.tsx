@@ -7,7 +7,7 @@ function SchemaTableRow({ table }: { table: SchemaTable }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div style={{ borderBottom: "1px solid #232328" }}>
+    <div style={{ borderBottom: "1px solid var(--border-default)" }}>
       <button
         onClick={() => setOpen((p) => !p)}
         style={{
@@ -86,7 +86,7 @@ function SchemaTableRow({ table }: { table: SchemaTable }) {
                   fontSize: "12px",
                   padding: "4px 8px",
                   borderRadius: "4px",
-                  background: "#0A0A0D",
+                  background: "var(--surface-base)",
                 }}
               >
                 <span
@@ -141,7 +141,7 @@ export function SchemaBrowser() {
   return (
     <div
       style={{
-        border: "1px solid #232328",
+        border: "1px solid var(--border-default)",
         borderRadius: "8px",
         overflow: "hidden",
         background: "var(--surface-raised)",
@@ -179,7 +179,7 @@ export function SchemaBrowser() {
       </button>
 
       {open && (
-        <div style={{ borderTop: "1px solid #232328" }}>
+        <div style={{ borderTop: "1px solid var(--border-default)" }}>
           {isError && (
             <div
               style={{ padding: "16px", color: "var(--primary)", fontSize: "13px" }}
@@ -216,7 +216,7 @@ export function SchemaBrowser() {
                   fontWeight: 600,
                   letterSpacing: "0.5px",
                   textTransform: "uppercase",
-                  borderTop: "1px solid #232328",
+                  borderTop: "1px solid var(--border-default)",
                 }}
               >
                 Vocabulary Tables ({data.vocabulary_tables.length})
@@ -229,7 +229,7 @@ export function SchemaBrowser() {
                 <div
                   style={{
                     padding: "12px 14px",
-                    borderTop: "1px solid #232328",
+                    borderTop: "1px solid var(--border-default)",
                   }}
                 >
                   <div
@@ -258,10 +258,10 @@ export function SchemaBrowser() {
                           fontFamily: "'IBM Plex Mono', monospace",
                           fontSize: "11px",
                           color: "var(--text-secondary)",
-                          background: "#0A0A0D",
+                          background: "var(--surface-base)",
                           padding: "6px 10px",
                           borderRadius: "4px",
-                          border: "1px solid #232328",
+                          border: "1px solid var(--border-default)",
                         }}
                       >
                         {join}

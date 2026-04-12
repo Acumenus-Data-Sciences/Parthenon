@@ -66,6 +66,8 @@ export function EstimationDesigner({
 
   const cohorts = cohortData?.items ?? [];
 
+  // Sync form from estimation prop — legitimate external-source sync
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (estimation) {
       setName(estimation.name);
@@ -161,7 +163,7 @@ export function EstimationDesigner({
               className={cn(
                 "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
                 "text-text-primary placeholder:text-text-ghost",
-                "focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                "focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               )}
             />
           </div>
@@ -177,7 +179,7 @@ export function EstimationDesigner({
               className={cn(
                 "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
                 "text-text-primary placeholder:text-text-ghost resize-none",
-                "focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                "focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               )}
             />
           </div>
@@ -205,7 +207,7 @@ export function EstimationDesigner({
             }
             className={cn(
               "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-              "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+              "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
             )}
           >
             <option value="">Select target cohort...</option>
@@ -239,7 +241,7 @@ export function EstimationDesigner({
             }
             className={cn(
               "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-              "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+              "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
             )}
           >
             <option value="">Select comparator cohort...</option>
@@ -272,7 +274,7 @@ export function EstimationDesigner({
               }}
               className={cn(
                 "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               )}
               defaultValue=""
             >
@@ -334,7 +336,7 @@ export function EstimationDesigner({
               }
               className={cn(
                 "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               )}
             >
               <option value="cox">Cox Proportional Hazards</option>
@@ -361,7 +363,7 @@ export function EstimationDesigner({
               }
               className={cn(
                 "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               )}
             >
               <option value="cohort start">Cohort Start</option>
@@ -386,7 +388,7 @@ export function EstimationDesigner({
               }
               className={cn(
                 "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               )}
             />
           </div>
@@ -408,7 +410,7 @@ export function EstimationDesigner({
               }
               className={cn(
                 "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               )}
             />
           </div>
@@ -467,7 +469,7 @@ export function EstimationDesigner({
                 }
                 className={cn(
                   "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                  "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                  "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
                 )}
               >
                 {psMethodOptions.map((opt) => (
@@ -496,7 +498,7 @@ export function EstimationDesigner({
                 }
                 className={cn(
                   "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                  "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                  "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
                 )}
               />
             </div>
@@ -523,7 +525,7 @@ export function EstimationDesigner({
                 }
                 className={cn(
                   "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                  "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                  "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
                 )}
               />
             </div>
@@ -551,7 +553,7 @@ export function EstimationDesigner({
                 }
                 className={cn(
                   "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                  "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                  "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
                 )}
               />
             </div>
@@ -577,7 +579,7 @@ export function EstimationDesigner({
                 }
                 className={cn(
                   "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                  "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                  "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
                 )}
               />
             </div>

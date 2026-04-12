@@ -40,6 +40,8 @@ export function PathwayDesigner({
 
   const cohorts = cohortData?.items ?? [];
 
+  // Sync form from pathway prop — legitimate external-source sync
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (pathway) {
       setName(pathway.name);
@@ -47,6 +49,7 @@ export function PathwayDesigner({
       setDesign(pathway.design_json);
     }
   }, [pathway]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const toggleEventCohort = (cohortId: number) => {
     setDesign((prev) => ({
@@ -117,7 +120,7 @@ export function PathwayDesigner({
               className={cn(
                 "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
                 "text-text-primary placeholder:text-text-ghost",
-                "focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                "focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               )}
             />
           </div>
@@ -133,7 +136,7 @@ export function PathwayDesigner({
               className={cn(
                 "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
                 "text-text-primary placeholder:text-text-ghost resize-none",
-                "focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                "focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               )}
             />
           </div>
@@ -161,7 +164,7 @@ export function PathwayDesigner({
             }
             className={cn(
               "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-              "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+              "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
             )}
           >
             <option value="">Select a target cohort...</option>
@@ -204,7 +207,7 @@ export function PathwayDesigner({
               }}
               className={cn(
                 "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+                "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
               )}
               defaultValue=""
             >
@@ -266,7 +269,7 @@ export function PathwayDesigner({
                 maxDepth: Number(e.target.value),
               }))
             }
-            className="w-full accent-[#2DD4BF]"
+            className="w-full accent-success"
           />
           <div className="flex items-center justify-between text-[10px] text-text-ghost">
             <span>1</span>
@@ -291,7 +294,7 @@ export function PathwayDesigner({
                 maxPathLength: Number(e.target.value),
               }))
             }
-            className="w-full accent-[#2DD4BF]"
+            className="w-full accent-success"
           />
           <div className="flex items-center justify-between text-[10px] text-text-ghost">
             <span>1</span>
@@ -317,7 +320,7 @@ export function PathwayDesigner({
             }
             className={cn(
               "w-32 rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-              "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+              "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
             )}
           />
           <p className="mt-1 text-[10px] text-text-ghost">
@@ -343,7 +346,7 @@ export function PathwayDesigner({
             }
             className={cn(
               "w-32 rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
-              "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30",
+              "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
             )}
           />
         </div>

@@ -359,7 +359,7 @@ export default function StudyCreatePage() {
           onClick={handleAiSuggest}
           disabled={aiLoading || !title.trim() || !studyType}
           className="btn btn-sm"
-          style={{ backgroundColor: "#A78BFA20", color: "var(--domain-observation)", borderColor: "#A78BFA40" }}
+          style={{ backgroundColor: "color-mix(in srgb, var(--domain-observation) 12%, transparent)", color: "var(--domain-observation)", borderColor: "color-mix(in srgb, var(--domain-observation) 25%, transparent)" }}
         >
           {aiLoading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
           {aiLoading ? "Generating..." : "Generate with AI"}

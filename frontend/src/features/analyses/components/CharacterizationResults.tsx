@@ -741,7 +741,7 @@ export function CharacterizationResults({
   if (directResult) {
     return (
       <div className="space-y-6">
-        <div className="rounded-lg border px-4 py-2 flex items-center gap-2" style={{ borderColor: "#9B1B3040", background: "#9B1B3010" }}>
+        <div className="rounded-lg border px-4 py-2 flex items-center gap-2" style={{ borderColor: "color-mix(in srgb, var(--primary) 25%, transparent)", background: "color-mix(in srgb, var(--primary) 8%, transparent)" }}>
           <span className="text-xs font-semibold" style={{ color: "var(--primary)" }}>OHDSI Direct Run Result</span>
           <span className="text-xs" style={{ color: "var(--text-muted)" }}>via R Characterization package</span>
         </div>

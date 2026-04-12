@@ -45,6 +45,8 @@ export function SimilaritySearchForm({
   } = usePersonSearch(sourceId > 0 ? sourceId : null, searchQuery);
 
   // Initialize weights from dimensions when they load
+  // Initialize weights from props — legitimate external-source sync
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!dimensions) return;
     const defaults: Record<string, number> = {};
@@ -53,6 +55,7 @@ export function SimilaritySearchForm({
     }
     setWeights(defaults);
   }, [dimensions, initialWeights]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -114,7 +117,7 @@ export function SimilaritySearchForm({
             "w-full rounded-lg px-3 py-2 text-sm",
             "bg-surface-base border border-border-default",
             "text-text-primary",
-            "focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40",
+            "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
           )}
         >
           <option value={0}>Select source...</option>
@@ -161,7 +164,7 @@ export function SimilaritySearchForm({
                 "text-text-primary placeholder:text-text-ghost",
                 sourceId <= 0
                   ? "opacity-50 cursor-not-allowed"
-                  : "focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40",
+                  : "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
               )}
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -283,7 +286,7 @@ export function SimilaritySearchForm({
                   onChange={(e) =>
                     handleWeightChange(dim.key, parseFloat(e.target.value))
                   }
-                  className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-surface-elevated accent-[#2DD4BF]"
+                  className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-surface-elevated accent-success"
                 />
               </div>
             ))}
@@ -308,7 +311,7 @@ export function SimilaritySearchForm({
               "w-1/2 rounded-lg px-3 py-1.5 text-xs",
               "bg-surface-base border border-border-default",
               "text-text-primary placeholder:text-text-ghost",
-              "focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40",
+              "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
             )}
           />
           <span className="text-text-ghost text-xs">-</span>
@@ -321,7 +324,7 @@ export function SimilaritySearchForm({
               "w-1/2 rounded-lg px-3 py-1.5 text-xs",
               "bg-surface-base border border-border-default",
               "text-text-primary placeholder:text-text-ghost",
-              "focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40",
+              "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
             )}
           />
         </div>
@@ -334,7 +337,7 @@ export function SimilaritySearchForm({
             "w-full rounded-lg px-3 py-1.5 text-xs",
             "bg-surface-base border border-border-default",
             "text-text-primary",
-            "focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40",
+            "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
           )}
         >
           <option value="">Any gender</option>

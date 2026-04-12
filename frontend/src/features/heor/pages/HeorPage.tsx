@@ -48,7 +48,7 @@ const STATUS_BADGE: Record<string, string> = {
 };
 
 const inputCls =
-  "w-full rounded-lg bg-surface-base border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors";
+  "w-full rounded-lg bg-surface-base border border-border-default px-3 py-2 text-sm text-text-primary placeholder:text-text-ghost focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40 transition-colors";
 const selectCls =
   "w-full rounded-lg bg-surface-base border border-border-default px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-success transition-colors";
 
@@ -442,7 +442,7 @@ export default function HeorPage() {
       <div className="flex items-center gap-3">
         <div
           className="flex items-center justify-center w-9 h-9 rounded-md flex-shrink-0"
-          style={{ backgroundColor: "#F59E0B18" }}
+          style={{ backgroundColor: "color-mix(in srgb, var(--warning) 15%, transparent)" }}
         >
           <TrendingUp size={18} style={{ color: "var(--warning)" }} />
         </div>

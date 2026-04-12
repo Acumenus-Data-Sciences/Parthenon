@@ -91,7 +91,7 @@ export function CohortSelectorBar({
           onChange={handleSourceChange}
           className={cn(
             "rounded-md bg-surface-overlay border border-border-default px-3 py-1.5 text-sm text-text-secondary",
-            "focus:outline-none focus:ring-1 focus:ring-[#C9A227]/50",
+            "focus:outline-none focus:ring-1 focus:ring-accent/50",
             "min-w-[140px]",
           )}
           aria-label="Data source"
@@ -139,7 +139,7 @@ export function CohortSelectorBar({
             onChange={handleTargetChange}
             className={cn(
               "w-full rounded-md bg-surface-overlay border border-primary/40 px-3 py-1.5 text-sm text-text-secondary",
-              "focus:outline-none focus:ring-1 focus:ring-[#9B1B30]/50",
+              "focus:outline-none focus:ring-1 focus:ring-primary/50",
             )}
             aria-label="Target cohort"
           >
@@ -162,7 +162,7 @@ export function CohortSelectorBar({
               onChange={handleComparatorChange}
               className={cn(
                 "w-full rounded-md bg-surface-overlay border border-success/40 px-3 py-1.5 text-sm text-text-secondary",
-                "focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/50",
+                "focus:outline-none focus:ring-1 focus:ring-success/50",
               )}
               aria-label="Comparator cohort"
             >

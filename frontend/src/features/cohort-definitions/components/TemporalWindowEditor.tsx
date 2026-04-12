@@ -35,13 +35,13 @@ export function TemporalWindowEditor({
 
   const inputClass = cn(
     "w-20 rounded-lg border border-border-default bg-surface-base px-3 py-1.5 text-sm text-center",
-    "text-text-primary focus:border-success focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40",
+    "text-text-primary focus:border-success focus:outline-none focus:ring-1 focus:ring-success/40",
     "font-['IBM_Plex_Mono',monospace] tabular-nums",
   );
 
   const selectClass = cn(
     "appearance-none rounded-lg border border-border-default bg-surface-base px-3 py-1.5 text-sm",
-    "text-text-primary focus:border-success focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40",
+    "text-text-primary focus:border-success focus:outline-none focus:ring-1 focus:ring-success/40",
     "cursor-pointer",
   );
 
@@ -116,7 +116,7 @@ export function TemporalWindowEditor({
             onChange={(e) =>
               onChange({ ...value, UseEventEnd: e.target.checked })
             }
-            className="rounded border-border-default bg-surface-base text-success focus:ring-[#2DD4BF]/40"
+            className="rounded border-border-default bg-surface-base text-success focus:ring-success/40"
           />
           <span className="text-xs text-text-muted">Use event end date</span>
         </label>
@@ -128,7 +128,7 @@ export function TemporalWindowEditor({
             onChange={(e) =>
               onChange({ ...value, UseIndexEnd: e.target.checked })
             }
-            className="rounded border-border-default bg-surface-base text-success focus:ring-[#2DD4BF]/40"
+            className="rounded border-border-default bg-surface-base text-success focus:ring-success/40"
           />
           <span className="text-xs text-text-muted">Use index end date</span>
         </label>

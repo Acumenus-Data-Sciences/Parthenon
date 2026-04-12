@@ -32,7 +32,7 @@ export default function FilterBar({ filters, onChange, totalShown, totalAll }: F
           <span className="text-text-muted mr-1">ICU:</span>
           {(['all', 'yes', 'no'] as const).map(opt => (
             <button key={opt} onClick={() => update({ icu: opt === 'all' ? undefined : opt === 'yes' })}
-              className={`px-2 py-1 rounded text-xs transition-colors focus:outline-none focus:ring-1 focus:ring-[#9B1B30]/30 ${
+              className={`px-2 py-1 rounded text-xs transition-colors focus:outline-none focus:ring-1 focus:ring-primary/30 ${
                 (opt === 'all' && filters.icu === undefined) ||
                 (opt === 'yes' && filters.icu === true) ||
                 (opt === 'no' && filters.icu === false)
@@ -47,7 +47,7 @@ export default function FilterBar({ filters, onChange, totalShown, totalAll }: F
           <span className="text-text-muted mr-1">Mortality:</span>
           {(['all', 'survived', 'deceased'] as const).map(opt => (
             <button key={opt} onClick={() => update({ deceased: opt === 'all' ? undefined : opt === 'deceased' })}
-              className={`px-2 py-1 rounded text-xs transition-colors focus:outline-none focus:ring-1 focus:ring-[#9B1B30]/30 ${
+              className={`px-2 py-1 rounded text-xs transition-colors focus:outline-none focus:ring-1 focus:ring-primary/30 ${
                 (opt === 'all' && filters.deceased === undefined) ||
                 (opt === 'survived' && filters.deceased === false) ||
                 (opt === 'deceased' && filters.deceased === true)
@@ -63,12 +63,12 @@ export default function FilterBar({ filters, onChange, totalShown, totalAll }: F
           <input type="number" placeholder="Min" min={0} step={1}
             value={filters.min_los ?? ''}
             onChange={e => update({ min_los: e.target.value ? Number(e.target.value) : undefined })}
-            className="w-14 px-1.5 py-1 rounded bg-surface-base border border-border-default text-text-secondary text-xs focus:border-primary focus:outline-none focus:ring-1 focus:ring-[#9B1B30]/30 transition-colors" />
+            className="w-14 px-1.5 py-1 rounded bg-surface-base border border-border-default text-text-secondary text-xs focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors" />
           <span className="text-text-ghost">&mdash;</span>
           <input type="number" placeholder="Max" min={0} step={1}
             value={filters.max_los ?? ''}
             onChange={e => update({ max_los: e.target.value ? Number(e.target.value) : undefined })}
-            className="w-14 px-1.5 py-1 rounded bg-surface-base border border-border-default text-text-secondary text-xs focus:border-primary focus:outline-none focus:ring-1 focus:ring-[#9B1B30]/30 transition-colors" />
+            className="w-14 px-1.5 py-1 rounded bg-surface-base border border-border-default text-text-secondary text-xs focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors" />
           <span className="text-text-ghost text-[10px]">days</span>
         </div>
 
@@ -101,7 +101,7 @@ export default function FilterBar({ filters, onChange, totalShown, totalAll }: F
             onChange={e => setDxInput(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') update({ diagnosis: dxInput || undefined }); }}
             onBlur={() => update({ diagnosis: dxInput || undefined })}
-            className="w-64 px-2 py-1 rounded bg-surface-base border border-border-default text-text-secondary text-xs placeholder:text-text-ghost focus:border-primary focus:outline-none focus:ring-1 focus:ring-[#9B1B30]/30 transition-colors" />
+            className="w-64 px-2 py-1 rounded bg-surface-base border border-border-default text-text-secondary text-xs placeholder:text-text-ghost focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors" />
         </div>
       )}
     </div>

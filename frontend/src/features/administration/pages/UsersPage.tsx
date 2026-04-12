@@ -204,7 +204,7 @@ export default function UsersPage() {
             value={search}
             onChange={(e) => { setSearch(e.target.value); setFilters((f) => ({ ...f, page: 1 })); }}
             placeholder="Search name or email…"
-            className="w-full rounded-lg border border-border-default bg-surface-raised py-2 pl-9 pr-8 text-sm text-text-primary placeholder:text-text-ghost focus:border-success focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/40 transition-colors"
+            className="w-full rounded-lg border border-border-default bg-surface-raised py-2 pl-9 pr-8 text-sm text-text-primary placeholder:text-text-ghost focus:border-success focus:outline-none focus:ring-1 focus:ring-success/40 transition-colors"
           />
           {search && (
             <button
@@ -279,7 +279,7 @@ export default function UsersPage() {
                       <div className="flex items-center gap-2.5">
                         <div
                           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold uppercase"
-                          style={{ backgroundColor: "#2DD4BF15", color: "var(--success)" }}
+                          style={{ backgroundColor: "color-mix(in srgb, var(--success) 12%, transparent)", color: "var(--success)" }}
                         >
                           {user.name.charAt(0)}
                         </div>

@@ -93,10 +93,12 @@ export function VocabularySearchPanel({
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // Reset suggestion index when suggestions change
+  // Reset suggestion index when suggestions change — legitimate derived-reset sync
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     setSelectedSuggestionIdx(-1);
   }, [suggestions]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const applySuggestion = useCallback((text: string) => {
     setQuery(text);
@@ -171,7 +173,7 @@ export function VocabularySearchPanel({
               "w-full rounded-lg pl-9 pr-8 py-2.5 text-sm",
               "bg-surface-base border border-border-default",
               "text-text-primary placeholder:text-text-ghost",
-              "focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40",
+              "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
               "transition-colors",
             )}
           />
@@ -278,7 +280,7 @@ export function VocabularySearchPanel({
                 "w-full rounded-lg px-3 py-2 text-sm appearance-none",
                 "bg-surface-base border border-border-default",
                 "text-text-primary",
-                "focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40",
+                "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
               )}
             >
               <option value="">All Domains</option>
@@ -300,7 +302,7 @@ export function VocabularySearchPanel({
                 "w-full rounded-lg px-3 py-2 text-sm appearance-none",
                 "bg-surface-base border border-border-default",
                 "text-text-primary",
-                "focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40",
+                "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
               )}
             >
               <option value="">All Vocabularies</option>
@@ -322,7 +324,7 @@ export function VocabularySearchPanel({
                 "w-full rounded-lg px-3 py-2 text-sm appearance-none",
                 "bg-surface-base border border-border-default",
                 "text-text-primary",
-                "focus:outline-none focus:border-success focus:ring-1 focus:ring-[#2DD4BF]/40",
+                "focus:outline-none focus:border-success focus:ring-1 focus:ring-success/40",
               )}
             >
               <option value="">All Concept Classes</option>

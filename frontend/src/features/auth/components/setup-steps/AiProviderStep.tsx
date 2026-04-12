@@ -142,7 +142,8 @@ export function AiProviderStep({ onConfigured }: Props) {
   const [dirty, setDirty] = useState(false);
   const [showOthers, setShowOthers] = useState(false);
 
-  // Prepopulate from active provider
+  // Prepopulate from active provider — legitimate external-source sync
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (activeProvider) {
       setModel(activeProvider.model || "");
@@ -236,7 +237,7 @@ export function AiProviderStep({ onConfigured }: Props) {
               </label>
               {meta.models.length > 0 ? (
                 <select
-                  className="w-full rounded-md border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-[#C9A227]/50"
+                  className="w-full rounded-md border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-accent/50"
                   value={model}
                   onChange={(e) => {
                     setModel(e.target.value);
@@ -252,7 +253,7 @@ export function AiProviderStep({ onConfigured }: Props) {
               ) : (
                 <input
                   type="text"
-                  className="w-full rounded-md border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-[#C9A227]/50"
+                  className="w-full rounded-md border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-accent/50"
                   value={model}
                   onChange={(e) => {
                     setModel(e.target.value);
@@ -272,7 +273,7 @@ export function AiProviderStep({ onConfigured }: Props) {
                 <div className="relative">
                   <input
                     type={showKey ? "text" : "password"}
-                    className="w-full rounded-md border border-border-default bg-surface-base px-3 py-2 pr-10 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-[#C9A227]/50"
+                    className="w-full rounded-md border border-border-default bg-surface-base px-3 py-2 pr-10 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-accent/50"
                     value={apiKey}
                     onChange={(e) => {
                       setApiKey(e.target.value);
@@ -300,7 +301,7 @@ export function AiProviderStep({ onConfigured }: Props) {
                 </label>
                 <input
                   type="text"
-                  className="w-full rounded-md border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary font-mono focus:outline-none focus:ring-2 focus:ring-[#C9A227]/50"
+                  className="w-full rounded-md border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary font-mono focus:outline-none focus:ring-2 focus:ring-accent/50"
                   value={baseUrl}
                   onChange={(e) => {
                     setBaseUrl(e.target.value);

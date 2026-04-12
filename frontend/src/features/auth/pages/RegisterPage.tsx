@@ -201,7 +201,7 @@ export function RegisterPage() {
                   margin: "0 auto var(--space-5)",
                 }}
               >
-                <CheckCircle size={24} style={{ color: "#22c55e" }} />
+                <CheckCircle size={24} style={{ color: "var(--success)" }} />
               </div>
               <h2
                 style={{

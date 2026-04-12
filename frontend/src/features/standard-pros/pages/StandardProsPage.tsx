@@ -179,7 +179,7 @@ export default function StandardProsPage() {
       <div className="flex items-center gap-3">
         <div
           className="flex items-center justify-center w-9 h-9 rounded-md flex-shrink-0"
-          style={{ backgroundColor: "#2DD4BF18" }}
+          style={{ backgroundColor: "color-mix(in srgb, var(--success) 15%, transparent)" }}
         >
           <ClipboardList size={18} style={{ color: "var(--success)" }} />
         </div>

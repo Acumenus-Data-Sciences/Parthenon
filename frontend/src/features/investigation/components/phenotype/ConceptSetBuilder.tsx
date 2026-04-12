@@ -69,7 +69,7 @@ function ConceptRow({ entry, onChange, onRemove }: ConceptRowProps) {
                 onChange={(e) =>
                   onChange({ ...entry, includeDescendants: e.target.checked })
                 }
-                className="rounded border-border-hover bg-surface-base text-success focus:ring-[#2DD4BF]/30 h-3 w-3"
+                className="rounded border-border-hover bg-surface-base text-success focus:ring-success/30 h-3 w-3"
               />
               <span className="text-[11px] text-text-muted">
                 Include descendants
@@ -82,7 +82,7 @@ function ConceptRow({ entry, onChange, onRemove }: ConceptRowProps) {
                 onChange={(e) =>
                   onChange({ ...entry, isExcluded: e.target.checked })
                 }
-                className="rounded border-border-hover bg-surface-base text-primary focus:ring-[#9B1B30]/30 h-3 w-3"
+                className="rounded border-border-hover bg-surface-base text-primary focus:ring-primary/30 h-3 w-3"
               />
               <span className="text-[11px] text-text-muted">Exclude</span>
             </label>
@@ -160,7 +160,7 @@ export function ConceptSetBuilder({
           value={setName}
           onChange={(e) => onSetNameChange(e.target.value)}
           placeholder="Untitled concept set"
-          className="flex-1 min-w-0 bg-surface-base border border-border-default rounded px-2 py-1 text-xs text-text-primary placeholder-text-ghost focus:outline-none focus:border-success/60 focus:ring-1 focus:ring-[#2DD4BF]/20 transition-colors"
+          className="flex-1 min-w-0 bg-surface-base border border-border-default rounded px-2 py-1 text-xs text-text-primary placeholder-text-ghost focus:outline-none focus:border-success/60 focus:ring-1 focus:ring-success/20 transition-colors"
         />
         <button
           onClick={onNewSet}
@@ -177,7 +177,7 @@ export function ConceptSetBuilder({
           <select
             value={savedSets.find((s) => s.name === setName)?.id ?? ""}
             onChange={(e) => onSwitchSet(e.target.value)}
-            className="w-full bg-surface-base border border-border-default rounded px-2 py-1 text-[11px] text-text-secondary focus:outline-none focus:border-success/60 focus:ring-1 focus:ring-[#2DD4BF]/20 transition-colors cursor-pointer"
+            className="w-full bg-surface-base border border-border-default rounded px-2 py-1 text-[11px] text-text-secondary focus:outline-none focus:border-success/60 focus:ring-1 focus:ring-success/20 transition-colors cursor-pointer"
           >
             {savedSets.map((s) => (
               <option key={s.id} value={s.id}>

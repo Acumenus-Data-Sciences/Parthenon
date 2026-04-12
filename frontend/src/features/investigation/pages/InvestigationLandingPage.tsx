@@ -244,7 +244,7 @@ export default function InvestigationLandingPage() {
                 )}
                 <div
                   className="relative z-10 h-10 w-10 rounded-xl flex items-center justify-center mb-3 shrink-0"
-                  style={{ backgroundColor: "rgba(255,255,255,0.04)", border: "1px solid #27272a" }}
+                  style={{ backgroundColor: "color-mix(in srgb, var(--text-primary) 4%, transparent)", border: "1px solid var(--border-default)" }}
                 >
                   {step.icon}
                 </div>
