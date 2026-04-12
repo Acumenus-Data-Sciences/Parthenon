@@ -777,6 +777,8 @@ Route::prefix('v1')->group(function () {
             ->middleware('throttle:10,1');
         Route::delete('user/avatar', [UserProfileController::class, 'deleteAvatar'])
             ->middleware('throttle:10,1');
+        Route::put('user/theme', [UserProfileController::class, 'updateTheme'])
+            ->middleware('throttle:20,1');
 
         // Help & Changelog (§9.12)
         Route::get('/help/{key}', [HelpController::class, 'help']);

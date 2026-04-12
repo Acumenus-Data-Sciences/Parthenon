@@ -45,6 +45,7 @@ class User extends Authenticatable
         'bio',
         'workbench_mode',
         'default_source_id',
+        'theme_preference',
     ];
 
     /**

@@ -83,4 +83,24 @@ class UserProfileController extends Controller
 
         return response()->json(['message' => 'Avatar removed successfully']);
     }
+
+    /**
+     * PUT /v1/user/theme
+     *
+     * Persist the authenticated user's theme preference.
+     */
+    public function updateTheme(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'theme_preference' => ['required', 'string', 'in:dark,light'],
+        ]);
+
+        /** @var User $user */
+        $user = $request->user();
+        $user->update(['theme_preference' => $validated['theme_preference']]);
+
+        return response()->json([
+            'theme_preference' => $user->theme_preference,
+        ]);
+    }
 }

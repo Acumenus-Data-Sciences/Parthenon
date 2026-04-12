@@ -11,6 +11,7 @@ export interface User {
   must_change_password: boolean;
   onboarding_completed: boolean;
   default_source_id: number | null;
+  theme_preference: "dark" | "light";
   last_login_at: string | null;
   last_active_at: string | null;
   is_active: boolean;
