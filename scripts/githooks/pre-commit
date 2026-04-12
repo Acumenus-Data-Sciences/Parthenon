@@ -24,6 +24,23 @@ HAS_PHP=$(echo "$STAGED" | grep -c '\.php$' || true)
 HAS_TS=$(echo "$STAGED" | grep -c '\.\(ts\|tsx\)$' || true)
 HAS_PY=$(echo "$STAGED" | grep -c '\.py$' || true)
 
+# ── Migration gate: require paired devlog entry ─────────────────────────────
+# Migrations mutate production schema. Every migration commit must include a
+# devlog note so we have an audit trail and a human reviewed the change.
+# Bypass: git commit --no-verify (use sparingly).
+STAGED_MIGRATIONS=$(echo "$STAGED" | grep '^backend/database/migrations/' || true)
+if [ -n "$STAGED_MIGRATIONS" ]; then
+    HAS_DEVLOG=$(echo "$STAGED" | grep -E '^(docs/devlog/|docs/.*DEVLOG|CHANGELOG)' || true)
+    if [ -z "$HAS_DEVLOG" ]; then
+        echo "✗ Pre-commit: migration files staged without a devlog/CHANGELOG entry."
+        echo "  Staged migrations:"
+        echo "$STAGED_MIGRATIONS" | sed 's/^/    /'
+        echo "  Add a note under docs/devlog/ (or CHANGELOG) in the same commit."
+        echo "  Bypass: git commit --no-verify"
+        exit 1
+    fi
+fi
+
 # Skip all checks for docs-only commits
 if [ "$HAS_PHP" -eq 0 ] && [ "$HAS_TS" -eq 0 ] && [ "$HAS_PY" -eq 0 ]; then
     exit 0
