@@ -314,14 +314,6 @@ fi
 # ── Database migrations ───────────────────────────────────────────────────────
 if $DO_DB; then
   echo ""
-  echo "── DB: pre-migration backup ──"
-  if bash "$( cd "$(dirname "${BASH_SOURCE[0]}")" && pwd )/scripts/db-backup.sh"; then
-    ok "Pre-migration backup saved"
-  else
-    warn "Pre-migration backup failed (continuing anyway)"
-  fi
-
-  echo ""
   echo "── DB: exporting design fixtures to git ──"
   if docker compose exec -T php php artisan parthenon:export-designs; then
     # Commit on the host — PHP container cannot see .git
