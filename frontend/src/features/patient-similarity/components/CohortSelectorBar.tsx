@@ -83,8 +83,8 @@ export function CohortSelectorBar({
 
   return (
     <div className="sticky top-0 z-10 bg-surface-base border-b border-border-default px-4 py-3 space-y-2">
-      {/* Row 1 — controls */}
-      <div className="flex items-center gap-3 flex-wrap">
+      {/* Controls row — single-line items align to the dropdown top, banners stack beneath */}
+      <div className="flex items-start gap-3 flex-wrap">
         {/* Data source dropdown */}
         <select
           value={sourceId ?? ""}
@@ -132,8 +132,8 @@ export function CohortSelectorBar({
           </button>
         </div>
 
-        {/* Target cohort dropdown */}
-        <div className="flex-1 min-w-[160px]">
+        {/* Target cohort — dropdown + status banner stacked, aligned under select */}
+        <div className="flex-1 min-w-[160px] flex flex-col gap-1">
           <select
             value={targetCohortId ?? ""}
             onChange={handleTargetChange}
@@ -152,11 +152,24 @@ export function CohortSelectorBar({
               </option>
             ))}
           </select>
+          {showTargetBanner && (
+            <div className="flex items-baseline gap-1.5 pl-0.5">
+              <span className="text-[11px] font-medium text-primary">
+                {isCompareMode ? "Target:" : "Seed:"}
+              </span>
+              <GenerationStatusBanner
+                cohortDefinitionId={targetCohortId!}
+                sourceId={sourceId!}
+                profile={targetProfile}
+                isLoading={targetProfileLoading}
+              />
+            </div>
+          )}
         </div>
 
-        {/* Comparator cohort dropdown — hidden in expand mode */}
+        {/* Comparator cohort — dropdown + status banner stacked, hidden in expand mode */}
         {isCompareMode && (
-          <div className="flex-1 min-w-[160px]">
+          <div className="flex-1 min-w-[160px] flex flex-col gap-1">
             <select
               value={comparatorCohortId ?? ""}
               onChange={handleComparatorChange}
@@ -173,6 +186,19 @@ export function CohortSelectorBar({
                 </option>
               ))}
             </select>
+            {showComparatorBanner && (
+              <div className="flex items-baseline gap-1.5 pl-0.5">
+                <span className="text-[11px] font-medium text-success">
+                  Comparator:
+                </span>
+                <GenerationStatusBanner
+                  cohortDefinitionId={comparatorCohortId!}
+                  sourceId={sourceId!}
+                  profile={comparatorProfile}
+                  isLoading={comparatorProfileLoading}
+                />
+              </div>
+            )}
           </div>
         )}
 
@@ -205,37 +231,6 @@ export function CohortSelectorBar({
         </button>
       </div>
 
-      {/* Row 2 — generation status banners */}
-      {(showTargetBanner || showComparatorBanner) && (
-        <div className="flex gap-6 flex-wrap">
-          {showTargetBanner && (
-            <div className="flex-1 min-w-[200px]">
-              <span className="text-xs font-medium text-primary mr-2">
-                {isCompareMode ? "Target:" : "Seed:"}
-              </span>
-              <GenerationStatusBanner
-                cohortDefinitionId={targetCohortId!}
-                sourceId={sourceId!}
-                profile={targetProfile}
-                isLoading={targetProfileLoading}
-              />
-            </div>
-          )}
-          {showComparatorBanner && (
-            <div className="flex-1 min-w-[200px]">
-              <span className="text-xs font-medium text-success mr-2">
-                Comparator:
-              </span>
-              <GenerationStatusBanner
-                cohortDefinitionId={comparatorCohortId!}
-                sourceId={sourceId!}
-                profile={comparatorProfile}
-                isLoading={comparatorProfileLoading}
-              />
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 }
