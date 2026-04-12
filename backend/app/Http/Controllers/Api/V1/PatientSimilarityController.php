@@ -1219,11 +1219,87 @@ class PatientSimilarityController extends Controller
                 return response()->json(['error' => $detail], $response->status());
             }
 
-            return response()->json(['data' => $response->json()]);
+            $result = $response->json();
+
+            // Resolve concept IDs to names in balance covariates
+            $this->resolveBalanceConceptNames($result);
+
+            return response()->json(['data' => $result]);
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Propensity score matching failed: '.$e->getMessage(),
             ], 500);
+        }
+    }
+
+    /**
+     * Resolve concept ID placeholders in PSM balance covariates to human-readable names.
+     *
+     * AI service formats: condition_NNN, drug_NNN, procedure_NNN, demographics_gender_NNN,
+     * demographics_age_norm, concept:NNN. Resolves NNN via vocab.concept where applicable.
+     *
+     * @param  array<string, mixed>  $result
+     */
+    private function resolveBalanceConceptNames(array &$result): void
+    {
+        $conceptIds = [];
+        $pattern = '/^(?:condition|drug|procedure|demographics_gender|concept:|demographics_race)_?:?(\d+)$/';
+
+        foreach (['before', 'after'] as $phase) {
+            foreach ($result['balance'][$phase] ?? [] as $row) {
+                $cov = $row['covariate'] ?? '';
+                if (preg_match($pattern, $cov, $m)) {
+                    $conceptIds[(int) $m[1]] = true;
+                }
+            }
+        }
+
+        if ($conceptIds === []) {
+            return;
+        }
+
+        $names = $this->vocab()
+            ->table('concept')
+            ->whereIn('concept_id', array_keys($conceptIds))
+            ->pluck('concept_name', 'concept_id')
+            ->all();
+
+        $genderLabels = [8507 => 'Male', 8532 => 'Female', 8551 => 'Unknown'];
+
+        foreach (['before', 'after'] as $phase) {
+            if (! isset($result['balance'][$phase])) {
+                continue;
+            }
+            foreach ($result['balance'][$phase] as $i => $row) {
+                $cov = $row['covariate'] ?? '';
+                $resolved = null;
+
+                if ($cov === 'demographics_age_norm') {
+                    $resolved = 'Age (normalized)';
+                } elseif (preg_match('/^demographics_gender_(\d+)$/', $cov, $m)) {
+                    $cid = (int) $m[1];
+                    $resolved = 'Gender: '.($genderLabels[$cid] ?? ($names[$cid] ?? "Concept {$cid}"));
+                } elseif (preg_match('/^demographics_race_(\d+)$/', $cov, $m)) {
+                    $cid = (int) $m[1];
+                    $resolved = 'Race: '.($names[$cid] ?? "Concept {$cid}");
+                } elseif (preg_match('/^condition_(\d+)$/', $cov, $m)) {
+                    $cid = (int) $m[1];
+                    $resolved = $names[$cid] ?? "Condition {$cid}";
+                } elseif (preg_match('/^drug_(\d+)$/', $cov, $m)) {
+                    $cid = (int) $m[1];
+                    $resolved = $names[$cid] ?? "Drug {$cid}";
+                } elseif (preg_match('/^procedure_(\d+)$/', $cov, $m)) {
+                    $cid = (int) $m[1];
+                    $resolved = $names[$cid] ?? "Procedure {$cid}";
+                } elseif (preg_match('/^concept:(\d+)$/', $cov, $m)) {
+                    $cid = (int) $m[1];
+                    $resolved = $names[$cid] ?? "Concept {$cid}";
+                }
+
+                if ($resolved !== null) {
+                    $result['balance'][$phase][$i]['covariate'] = $resolved;
+                }
+            }
         }
     }
 
