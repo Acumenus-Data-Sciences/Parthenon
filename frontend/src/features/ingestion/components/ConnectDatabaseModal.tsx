@@ -51,6 +51,8 @@ export default function ConnectDatabaseModal({
   const [connected, setConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Sync form with initialConfig when reopening — legitimate external-source sync
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (isOpen && initialConfig) {
       setDbms(initialConfig.dbms);
@@ -63,6 +65,7 @@ export default function ConnectDatabaseModal({
       setSelectedTables(new Set(initialSelectedTables ?? []));
     }
   }, [isOpen, initialConfig, initialSelectedTables]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleDialectChange = (value: string) => {
     setDbms(value);
@@ -112,7 +115,7 @@ export default function ConnectDatabaseModal({
   if (!isOpen) return null;
 
   const inputCls =
-    "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary placeholder-[#5A5650] focus:border-success/50 focus:outline-none focus:ring-1 focus:ring-[#2DD4BF]/30";
+    "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm text-text-primary placeholder-text-ghost focus:border-success/50 focus:outline-none focus:ring-1 focus:ring-success/30";
 
   return (
     <>
@@ -206,7 +209,7 @@ export default function ConnectDatabaseModal({
                         type="checkbox"
                         checked={selectedTables.has(t.name)}
                         onChange={() => handleToggleTable(t.name)}
-                        className="rounded border-surface-highlight bg-surface-base text-success focus:ring-[#2DD4BF]/30"
+                        className="rounded border-surface-highlight bg-surface-base text-success focus:ring-success/30"
                       />
                       <span className="text-sm text-text-primary flex-1">{t.name}</span>
                       <span className="text-xs text-text-ghost font-mono">

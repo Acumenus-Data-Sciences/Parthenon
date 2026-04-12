@@ -131,7 +131,8 @@ export function ConfigDrawer({
   // sccs
   const [naivePeriod, setNaivePeriod] = useState(180);
 
-  // Reset form when analysis type changes
+  // Reset form when analysis type changes — legitimate derived-reset sync
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     setSourceId(null);
     setTargetCohortId(null);
@@ -145,6 +146,7 @@ export function ConfigDrawer({
     setModelType("lasso_logistic_regression");
     setNaivePeriod(180);
   }, [analysisType]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // ---- Build config ----
   function buildConfig(): ClinicalAnalysisConfig {
@@ -307,7 +309,7 @@ export function ConfigDrawer({
                       type="checkbox"
                       checked={outcomeCohortIds.includes(c.id)}
                       onChange={() => toggleOutcomeCohort(c.id)}
-                      className="accent-[#2DD4BF] w-3 h-3"
+                      className="accent-success w-3 h-3"
                     />
                     <span className="text-xs text-text-secondary group-hover:text-text-primary transition-colors flex items-center gap-1.5">
                       {c.name}
@@ -341,7 +343,7 @@ export function ConfigDrawer({
                       value={opt.value}
                       checked={psMethod === opt.value}
                       onChange={() => setPsMethod(opt.value)}
-                      className="accent-[#2DD4BF]"
+                      className="accent-success"
                     />
                     <span className="text-xs text-text-secondary">{opt.label}</span>
                   </label>

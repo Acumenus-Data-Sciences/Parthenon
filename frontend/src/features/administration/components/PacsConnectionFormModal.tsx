@@ -37,7 +37,8 @@ export default function PacsConnectionFormModal({
   const [sourceId, setSourceId] = useState<number | undefined>(undefined);
   const [isActive, setIsActive] = useState(true);
 
-  // Reset form when opening / changing editConnection
+  // Reset form when opening / changing editConnection — external-source sync
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!isOpen) return;
     setError("");
@@ -64,6 +65,7 @@ export default function PacsConnectionFormModal({
       setIsActive(true);
     }
   }, [isOpen, editConnection]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Load sources for the dropdown
   useEffect(() => {
@@ -124,7 +126,7 @@ export default function PacsConnectionFormModal({
   if (!isOpen) return null;
 
   const inputCls =
-    "w-full px-3 py-2 text-sm bg-surface-base border border-border-default rounded-lg text-text-primary placeholder-[#5A5650] focus:outline-none focus:border-success/50 focus:ring-1 focus:ring-[#2DD4BF]/30";
+    "w-full px-3 py-2 text-sm bg-surface-base border border-border-default rounded-lg text-text-primary placeholder-text-ghost focus:outline-none focus:border-success/50 focus:ring-1 focus:ring-success/30";
   const labelCls = "block text-xs font-medium text-text-muted mb-1";
 
   return (
@@ -264,7 +266,7 @@ export default function PacsConnectionFormModal({
                 type="checkbox"
                 checked={isActive}
                 onChange={(e) => setIsActive(e.target.checked)}
-                className="accent-[#2DD4BF]"
+                className="accent-success"
               />
               Active
             </label>

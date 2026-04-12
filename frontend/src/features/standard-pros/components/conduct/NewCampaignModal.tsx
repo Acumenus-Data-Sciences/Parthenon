@@ -37,6 +37,8 @@ export function NewCampaignModal({
 }: NewCampaignModalProps) {
   const [form, setForm] = useState(baseForm);
 
+  // Sync form with prop when opening in edit mode — legitimate external-source sync
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!open) {
       return;
@@ -56,6 +58,7 @@ export function NewCampaignModal({
 
     setForm(baseForm);
   }, [open, mode, initialCampaign]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const filteredCohorts = useMemo(() => {
     const query = form.cohortQuery.trim().toLowerCase();
@@ -69,7 +72,7 @@ export function NewCampaignModal({
     });
   }, [cohorts, form.cohortQuery]);
 
-  const selectedGeneration = useMemo(() => {
+  const selectedGeneration = (() => {
     const generationId = Number(form.cohort_generation_id);
 
     if (!Number.isFinite(generationId) || generationId <= 0) {
@@ -84,7 +87,7 @@ export function NewCampaignModal({
     }
 
     return null;
-  }, [cohorts, form.cohort_generation_id]);
+  })();
 
   const canSubmit = form.name.trim() !== "" && form.survey_instrument_id !== "";
 
@@ -182,7 +185,7 @@ export function NewCampaignModal({
             type="checkbox"
             checked={form.requires_honest_broker}
             onChange={(event) => setForm((current) => ({ ...current, requires_honest_broker: event.target.checked }))}
-            className="mt-1 h-4 w-4 rounded border-border-default bg-surface-base text-success focus:ring-[#2DD4BF]"
+            className="mt-1 h-4 w-4 rounded border-border-default bg-surface-base text-success focus:ring-success"
           />
           <div>
             <div className="text-sm font-medium text-text-primary">Require Honest Broker</div>

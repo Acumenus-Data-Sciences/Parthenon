@@ -42,12 +42,12 @@ export default function JupyterPage() {
     return () => window.removeEventListener("resize", recalcHeight);
   }, [recalcHeight]);
 
+  /* eslint-disable react-hooks/immutability */
   // Auto-authenticate when Hub is available and we're idle
   useEffect(() => {
-    if (data?.available && serverState === "idle") {
-      launchSession();
-    }
+    if (data?.available && serverState === "idle") launchSession();
   }, [data?.available]); // eslint-disable-line react-hooks/exhaustive-deps
+  /* eslint-enable react-hooks/immutability */
 
   const launchSession = useCallback(() => {
     setServerState("authenticating");
@@ -369,7 +369,7 @@ export default function JupyterPage() {
           )}
 
           {/* Quick links */}
-          <section style={{ borderTop: "1px solid #1E1E24", paddingTop: "var(--space-4)" }}>
+          <section style={{ borderTop: "1px solid var(--border-default)", paddingTop: "var(--space-4)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", marginBottom: "var(--space-3)" }}>
               <BookOpenText size={14} style={{ color: "var(--color-gold)" }} />
               <span style={{ fontSize: "var(--text-xs)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--color-text-ghost)" }}>
