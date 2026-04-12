@@ -77,7 +77,7 @@ function SettingsForm({
     <button
       type="button"
       onClick={handleApply}
-      className="w-full rounded-md bg-primary px-4 py-2 text-sm font-semibold text-text-primary transition-colors hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-[#9B1B30] focus:ring-offset-2 focus:ring-offset-[#1A1A1F]"
+      className="w-full rounded-md bg-primary px-4 py-2 text-sm font-semibold text-text-primary transition-colors hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface-base"
     >
       Apply &amp; Re-run Pipeline
     </button>

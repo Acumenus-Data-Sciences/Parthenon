@@ -173,7 +173,7 @@ export default function AntibiogramHeatmap({ data, onOrganismClick }: Antibiogra
                   key={group.name}
                   colSpan={group.antibiotics.length}
                   className="px-1 pt-2 pb-1 text-center text-[9px] font-semibold uppercase tracking-wider text-text-ghost border-b border-surface-highlight"
-                  style={{ borderLeft: '2px solid #1E1E24' }}
+                  style={{ borderLeft: '2px solid var(--border-default)' }}
                 >
                   {group.name}
                 </th>
@@ -193,7 +193,7 @@ export default function AntibiogramHeatmap({ data, onOrganismClick }: Antibiogra
                     style={{
                       width: 36,
                       minWidth: 36,
-                      ...(isFirstInClass ? { borderLeft: '2px solid #1E1E24' } : {}),
+                      ...(isFirstInClass ? { borderLeft: '2px solid var(--border-default)' } : {}),
                     }}
                     onMouseEnter={() => setHoverCol(ab)}
                     onMouseLeave={() => setHoverCol(null)}
@@ -217,7 +217,7 @@ export default function AntibiogramHeatmap({ data, onOrganismClick }: Antibiogra
                   onMouseLeave={() => setHoverRow(null)}
                 >
                   <td className="sticky left-0 z-10 bg-surface-base px-3 py-1.5 border-b border-border-subtle"
-                    style={hoverRow === org ? { backgroundColor: '#1A1A1E' } : {}}
+                    style={hoverRow === org ? { backgroundColor: 'var(--surface-overlay)' } : {}}
                   >
                     <button
                       type="button"
@@ -244,8 +244,8 @@ export default function AntibiogramHeatmap({ data, onOrganismClick }: Antibiogra
                           <td key={ab} className="border-b border-border-subtle"
                             style={{
                               width: 36, minWidth: 36,
-                              ...(isFirstInClass ? { borderLeft: '2px solid #1E1E24' } : {}),
-                              ...(isColHover ? { backgroundColor: '#151518' } : {}),
+                              ...(isFirstInClass ? { borderLeft: '2px solid var(--border-default)' } : {}),
+                              ...(isColHover ? { backgroundColor: 'var(--surface-overlay)' } : {}),
                             }}
                           />
                         );
@@ -254,8 +254,8 @@ export default function AntibiogramHeatmap({ data, onOrganismClick }: Antibiogra
                         <td key={ab} className="text-center border-b border-border-subtle"
                           style={{
                             width: 36, minWidth: 36,
-                            backgroundColor: isColHover ? '#151518' : '#0E0E11',
-                            ...(isFirstInClass ? { borderLeft: '2px solid #1E1E24' } : {}),
+                            backgroundColor: isColHover ? 'var(--surface-overlay)' : 'var(--surface-base)',
+                            ...(isFirstInClass ? { borderLeft: '2px solid var(--border-default)' } : {}),
                           }}
                         >
                           <span className="text-[9px] text-surface-overlay">&mdash;</span>
@@ -270,8 +270,8 @@ export default function AntibiogramHeatmap({ data, onOrganismClick }: Antibiogra
                         className="text-center border-b border-border-subtle cursor-default"
                         style={{
                           width: 36, minWidth: 36,
-                          ...(isFirstInClass ? { borderLeft: '2px solid #1E1E24' } : {}),
-                          ...(isColHover ? { backgroundColor: '#1A1A1E' } : {}),
+                          ...(isFirstInClass ? { borderLeft: '2px solid var(--border-default)' } : {}),
+                          ...(isColHover ? { backgroundColor: 'var(--surface-overlay)' } : {}),
                         }}
                         onMouseEnter={(e) => setTooltip({ x: e.clientX, y: e.clientY, org, ab, cell })}
                         onMouseLeave={() => setTooltip(null)}
