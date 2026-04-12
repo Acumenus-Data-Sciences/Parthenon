@@ -462,7 +462,7 @@ export default function PatientSimilarityWorkspace() {
 
         default:
           return (
-            <div className="flex min-h-[120px] items-center justify-center text-sm text-[#5A5650]">
+            <div className="flex min-h-[120px] items-center justify-center text-sm text-[var(--color-text-muted)]">
               This step will be available in a future update.
             </div>
           );

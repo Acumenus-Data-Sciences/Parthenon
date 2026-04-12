@@ -11,8 +11,8 @@ import {
 } from "recharts";
 import type { CovariateBalanceRow } from "../types/patientSimilarity";
 
-const TEAL = "#2DD4BF";
-const CRIMSON = "#9B1B30";
+const TEAL = "var(--color-primary)";
+const CRIMSON = "var(--color-critical)";
 
 interface LovePlotProps {
   covariates: CovariateBalanceRow[];
@@ -74,11 +74,11 @@ function SingleLovePlot({
   }));
 
   return (
-    <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-      <h3 className="text-sm font-semibold text-[#F0EDE8] mb-1">
+    <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] p-4">
+      <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-1">
         Covariate Balance (|SMD|)
       </h3>
-      <p className="text-xs text-[#5A5650] mb-3">
+      <p className="text-xs text-[var(--color-text-muted)] mb-3">
         Covariates below 0.1 are considered well-balanced
       </p>
       <ResponsiveContainer width="100%" height={Math.max(300, data.length * 22)}>
@@ -86,27 +86,27 @@ function SingleLovePlot({
           layout="vertical"
           margin={{ top: 5, right: 20, bottom: 20, left: 140 }}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#232328" horizontal={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-surface-overlay)" horizontal={false} />
           <XAxis
             type="number"
             dataKey="absSmd"
             domain={[0, "auto"]}
-            tick={{ fill: "#5A5650", fontSize: 10 }}
+            tick={{ fill: "var(--color-text-muted)", fontSize: 10 }}
             name="|SMD|"
-            label={{ value: "|SMD|", position: "bottom", fill: "#5A5650", fontSize: 11, offset: 0 }}
+            label={{ value: "|SMD|", position: "bottom", fill: "var(--color-text-muted)", fontSize: 11, offset: 0 }}
           />
           <YAxis
             type="category"
             dataKey="covariate"
             width={135}
-            tick={{ fill: "#8A857D", fontSize: 10 }}
+            tick={{ fill: "var(--color-text-secondary)", fontSize: 10 }}
             name="Covariate"
           />
-          <ReferenceLine x={0.1} stroke="#C9A227" strokeDasharray="5 5" label={{ value: "0.1", fill: "#C9A227", fontSize: 10 }} />
+          <ReferenceLine x={0.1} stroke="var(--color-primary)" strokeDasharray="5 5" label={{ value: "0.1", fill: "var(--color-primary)", fontSize: 10 }} />
           <Tooltip
             contentStyle={{
-              backgroundColor: "#1A1A1F",
-              border: "1px solid #323238",
+              backgroundColor: "var(--color-surface-raised)",
+              border: "1px solid var(--color-border-default)",
               borderRadius: 6,
               fontSize: 11,
             }}
@@ -156,11 +156,11 @@ function BeforeAfterLovePlot({
   }));
 
   return (
-    <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-      <h3 className="text-sm font-semibold text-[#F0EDE8] mb-1">
+    <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] p-4">
+      <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-1">
         Love Plot: Before vs After Matching
       </h3>
-      <p className="text-xs text-[#5A5650] mb-3">
+      <p className="text-xs text-[var(--color-text-muted)] mb-3">
         After-matching dots (teal) should be closer to zero than before-matching dots (crimson)
       </p>
       <ResponsiveContainer width="100%" height={Math.max(300, displayed.length * 22)}>
@@ -168,27 +168,27 @@ function BeforeAfterLovePlot({
           layout="vertical"
           margin={{ top: 5, right: 20, bottom: 20, left: 140 }}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#232328" horizontal={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-surface-overlay)" horizontal={false} />
           <XAxis
             type="number"
             dataKey="absSmd"
             domain={[0, "auto"]}
-            tick={{ fill: "#5A5650", fontSize: 10 }}
+            tick={{ fill: "var(--color-text-muted)", fontSize: 10 }}
             name="|SMD|"
-            label={{ value: "|SMD|", position: "bottom", fill: "#5A5650", fontSize: 11, offset: 0 }}
+            label={{ value: "|SMD|", position: "bottom", fill: "var(--color-text-muted)", fontSize: 11, offset: 0 }}
           />
           <YAxis
             type="category"
             dataKey="covariate"
             width={135}
-            tick={{ fill: "#8A857D", fontSize: 10 }}
+            tick={{ fill: "var(--color-text-secondary)", fontSize: 10 }}
             name="Covariate"
           />
-          <ReferenceLine x={0.1} stroke="#C9A227" strokeDasharray="5 5" label={{ value: "0.1", fill: "#C9A227", fontSize: 10 }} />
+          <ReferenceLine x={0.1} stroke="var(--color-primary)" strokeDasharray="5 5" label={{ value: "0.1", fill: "var(--color-primary)", fontSize: 10 }} />
           <Tooltip
             contentStyle={{
-              backgroundColor: "#1A1A1F",
-              border: "1px solid #323238",
+              backgroundColor: "var(--color-surface-raised)",
+              border: "1px solid var(--color-border-default)",
               borderRadius: 6,
               fontSize: 11,
             }}
@@ -198,7 +198,7 @@ function BeforeAfterLovePlot({
             ]) as never}
           />
           <Legend
-            wrapperStyle={{ fontSize: 11, color: "#C5C0B8" }}
+            wrapperStyle={{ fontSize: 11, color: "var(--color-text-primary)" }}
           />
           <Scatter
             data={beforeData}

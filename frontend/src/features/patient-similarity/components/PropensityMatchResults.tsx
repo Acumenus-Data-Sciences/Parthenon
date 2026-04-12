@@ -7,9 +7,9 @@ interface PropensityMatchResultsProps {
 }
 
 function aucColor(auc: number): string {
-  if (auc >= 0.7) return "#2DD4BF"; // teal
-  if (auc >= 0.5) return "#C9A227"; // gold
-  return "#E85A6B"; // red
+  if (auc >= 0.7) return "var(--color-primary)"; // teal
+  if (auc >= 0.5) return "var(--color-primary)"; // gold
+  return "var(--color-critical)"; // red
 }
 
 function meanAbsSmd(rows: { smd: number }[]): number {
@@ -32,8 +32,8 @@ export function PropensityMatchResults({ result }: PropensityMatchResultsProps) 
   return (
     <div className="space-y-4">
       {/* Model Metrics Card */}
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-        <h3 className="text-sm font-semibold text-[#F0EDE8] mb-3">
+      <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] p-4">
+        <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-3">
           Propensity Score Matching Results
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -68,21 +68,21 @@ export function PropensityMatchResults({ result }: PropensityMatchResultsProps) 
         {/* SMD Summary */}
         <div className="mt-3 flex items-center gap-6 text-xs">
           <div className="flex items-center gap-2">
-            <span className="text-[#5A5650]">Mean |SMD| Before:</span>
-            <span className={beforeMeanSmd > 0.1 ? "text-[#E85A6B] font-medium" : "text-[#C5C0B8]"}>
+            <span className="text-[var(--color-text-muted)]">Mean |SMD| Before:</span>
+            <span className={beforeMeanSmd > 0.1 ? "text-[var(--color-critical)] font-medium" : "text-[var(--color-text-primary)]"}>
               {beforeMeanSmd.toFixed(4)}
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[#5A5650]">Mean |SMD| After:</span>
-            <span className={afterMeanSmd > 0.1 ? "text-[#C9A227] font-medium" : "text-[#2DD4BF] font-medium"}>
+            <span className="text-[var(--color-text-muted)]">Mean |SMD| After:</span>
+            <span className={afterMeanSmd > 0.1 ? "text-[var(--color-primary)] font-medium" : "text-[var(--color-primary)] font-medium"}>
               {afterMeanSmd.toFixed(4)}
             </span>
           </div>
           {beforeMeanSmd > 0 && (
             <div className="flex items-center gap-2">
-              <span className="text-[#5A5650]">Reduction:</span>
-              <span className="text-[#2DD4BF]">
+              <span className="text-[var(--color-text-muted)]">Reduction:</span>
+              <span className="text-[var(--color-primary)]">
                 {((1 - afterMeanSmd / beforeMeanSmd) * 100).toFixed(1)}%
               </span>
             </div>
@@ -118,17 +118,17 @@ function MetricCell({
 }) {
   return (
     <div className="text-center">
-      <div className="text-[10px] uppercase tracking-wider text-[#5A5650] mb-1">
+      <div className="text-[10px] uppercase tracking-wider text-[var(--color-text-muted)] mb-1">
         {label}
       </div>
       <div
         className="text-lg font-semibold"
-        style={{ color: color ?? "#F0EDE8" }}
+        style={{ color: color ?? "var(--color-text-primary)" }}
       >
         {value}
       </div>
       {sublabel && (
-        <div className="text-[10px] text-[#5A5650] mt-0.5">{sublabel}</div>
+        <div className="text-[10px] text-[var(--color-text-muted)] mt-0.5">{sublabel}</div>
       )}
     </div>
   );

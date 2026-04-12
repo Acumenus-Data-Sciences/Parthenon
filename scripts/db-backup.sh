@@ -47,6 +47,36 @@ if [ -z "$PG_HOST" ] || [ -z "$PG_DB" ] || [ -z "$PG_USER" ] || [ -z "$PG_PASSWO
   exit 1
 fi
 
+# backend/.env uses container-side hostnames (host.docker.internal) so PHP can reach
+# the host Postgres from inside Docker. When this backup script runs on the HOST shell
+# those names don't resolve — rewrite to localhost. Allow override via BACKUP_PG_HOST.
+if [ -n "${BACKUP_PG_HOST:-}" ]; then
+  PG_HOST="$BACKUP_PG_HOST"
+elif ! getent hosts "$PG_HOST" >/dev/null 2>&1; then
+  case "$PG_HOST" in
+    host.docker.internal|postgres|parthenon-postgres)
+      echo "    Note: rewriting DB_HOST '$PG_HOST' -> 'localhost' (host-shell execution)"
+      PG_HOST="localhost"
+      ;;
+  esac
+fi
+
+# The application role (parthenon_app) may lack SELECT on every schema we dump
+# (e.g. app.enterprise_licenses granted only to smudoshi/claude_dev). Prefer a
+# broader role for the backup. Order of preference:
+#   1. BACKUP_PG_USER / BACKUP_PG_PASSWORD env overrides
+#   2. claude_dev via ~/.pgpass (if present)
+#   3. DB_USERNAME from backend/.env (original behavior)
+if [ -n "${BACKUP_PG_USER:-}" ]; then
+  PG_USER="$BACKUP_PG_USER"
+  PG_PASSWORD="${BACKUP_PG_PASSWORD:-$PG_PASSWORD}"
+  echo "    Note: using backup role '$PG_USER' (from BACKUP_PG_USER)"
+elif [ -f "$HOME/.pgpass" ] && grep -qE "^[^#]*:[^:]*:[^:]*:claude_dev:" "$HOME/.pgpass" 2>/dev/null; then
+  PG_USER="claude_dev"
+  PG_PASSWORD=""   # libpq will pick it up from ~/.pgpass
+  echo "    Note: using backup role 'claude_dev' (via ~/.pgpass) for full-schema read access"
+fi
+
 mkdir -p "$BACKUP_DIR"
 
 echo "==> Parthenon DB Backup"

@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v5.4
 milestone_name: milestone
 status: executing
-stopped_at: Completed quick-17 (wiki engine ChromaDB semantic search)
-last_updated: "2026-04-06T23:21:05.344Z"
-last_activity: "2026-04-05 - Fixed cross-domain SNOMED hierarchy propagation (Condition: 839→2 roots, Measurement: 620→5 roots)"
+stopped_at: Completed 260411-qux (automated hex-to-token sweep)
+last_updated: "2026-04-11T23:37:40.489Z"
+last_activity: 2026-04-10 - Added clustering-based phenotype discovery (consensus clustering + feature prevalence heatmap)
 progress:
   total_phases: 12
   completed_phases: 10
   total_plans: 24
   completed_plans: 29
-  percent: 92
+  percent: 100
 ---
 
 # Project State
@@ -28,13 +28,14 @@ See: .planning/PROJECT.md (updated 2026-03-26)
 Phase: 7-10 parallel (Medications, Conditions, Measurements, Observations)
 Plan: 09-01 completed (growth measurements), phases 7-10 in parallel
 Status: Executing Phases 07-10 in parallel
-Last activity: 2026-04-10 - Added clustering-based phenotype discovery (consensus clustering + feature prevalence heatmap)
+Last activity: 2026-04-12 - Final theme compliance sweep: eliminated 16,237 hardcoded hex values in Tailwind arbitrary classes + 766 inline style hex values → CSS variable tokens (0 non-compliant Tailwind arbitrary hex remaining)
 
 Progress: [█████████░] 92%
 
 ## Performance Metrics
 
 **Velocity:**
+
 - Total plans completed: 3
 - Average duration: 4.0min
 - Total execution time: 0.20 hours
@@ -47,6 +48,7 @@ Progress: [█████████░] 92%
 | 02 | 1 | 3min | 3.0min |
 
 **Recent Trend:**
+
 - Last 5 plans: -
 - Trend: -
 
@@ -77,6 +79,7 @@ Progress: [█████████░] 92%
 | Phase 12 P01 | 5min | 4 tasks | 3 files |
 | Phase 12 P02 | 3min | 3 tasks | 3 files |
 | Phase 12 P03 | 4min | 2 tasks | 2 files |
+| Phase 260411-qux P01 | 13min | 2 tasks | 624 files |
 
 ## Accumulated Context
 
@@ -146,6 +149,7 @@ Recent decisions affecting current work:
 - [Phase 12]: MECP2 threshold lowered from 85% to 75% — only 77.8% of registry patients have genotype data
 - [Phase 12]: unmapped_concept and deprecated_remapped classified as warnings (not errors) for rejection rate; error rate = 0% for drug_exposure vs 15.3% total
 - [Phase quick-1]: source_to_concept_map is clinical data (moved to irsf schema), not shared vocab; load-vocab.sh reads from irsf schema
+- [Phase 260411-qux]: Used color-mix(in srgb) for 8-char alpha hex values; kept CSS fallback pattern var(--x, #hex) in AboutAbbyModal
 
 ### Pending Todos
 
@@ -177,6 +181,7 @@ None yet.
 | 14 | OIDC SSO for Grafana via Authentik — OAuth2 provider + Generic OAuth config | 2026-04-03 | 57e098975 | [14-oidc-sso-for-grafana-via-authentik-creat](./quick/14-oidc-sso-for-grafana-via-authentik-creat/) |
 | 15 | Native SSO bootstrap for Acropolis installer (OIDC + SAML for all services) | 2026-04-03 | 052467c97 | [15-update-acropolis-installer-authentik-py-](./quick/15-update-acropolis-installer-authentik-py-/) |
 | 16 | Rebuild cross-domain SNOMED hierarchy + clinical groupings navigation | 2026-04-05 | 4b0f8af45 | [16-rebuild-concept-hierarchy-cross-domain-s](./quick/16-rebuild-concept-hierarchy-cross-domain-s/) |
+| 260411-qux | Replace 12,018 hardcoded hex colors with CSS variable tokens for light/dark theme | 2026-04-11 | 236111c22 | [260411-qux-automated-sweep](./quick/260411-qux-automated-sweep-replace-all-hardcoded-he/) |
 | 17 | Refactor wiki engine to use ChromaDB for semantic search | 2026-04-06 | 8b5341775 | [17-refactor-wiki-engine-to-use-chromadb-for](./quick/17-refactor-wiki-engine-to-use-chromadb-for/) |
 | 19 | Wiki UX cleanup: paginated list, debounced search, chat drawer | 2026-04-07 | pending | [19-wiki-ux-cleanup-paginated-list-keyword-s](./quick/19-wiki-ux-cleanup-paginated-list-keyword-s/) |
 | 260410-4kk | Add hierarchical concept similarity (depth-weighted Jaccard via concept_ancestor) | 2026-04-10 | 407be6241 | [260410-4kk-add-hierarchical-concept-similarity-usin](./quick/260410-4kk-add-hierarchical-concept-similarity-usin/) |
@@ -185,9 +190,11 @@ None yet.
 | 260410-6ep | Add propensity score matching (L1 logistic regression, PS matching) | 2026-04-10 | bad7b4845 | [260410-6ep-add-propensity-score-matching-python-ai-](./quick/260410-6ep-add-propensity-score-matching-python-ai-/) |
 | 260410-73h | Add temporal similarity via DTW on lab trajectories | 2026-04-10 | 9a5194a7b | [260410-73h-add-temporal-similarity-via-dynamic-time](./quick/260410-73h-add-temporal-similarity-via-dynamic-time/) |
 | 260410-7g0 | Add clustering-based phenotype discovery (consensus clustering + heatmap) | 2026-04-10 | 7eab94e24 | [260410-7g0-add-clustering-based-phenotype-discovery](./quick/260410-7g0-add-clustering-based-phenotype-discovery/) |
+| 260411-s3c | Replace 1,150+ remaining hardcoded hex colors with CSS variable tokens | 2026-04-12 | 116c7ee33 | [260411-s3c-hunt-down-and-fix-all-remaining-light-mo](./quick/260411-s3c-hunt-down-and-fix-all-remaining-light-mo/) |
+| 260411-sxo | Replace 1,033 hardcoded Tailwind grayscale utilities with theme-aware token classes | 2026-04-12 | c6587029d | [260411-sxo-replace-all-hardcoded-tailwind-grayscale](./quick/260411-sxo-replace-all-hardcoded-tailwind-grayscale/) |
 
 ## Session Continuity
 
-Last session: 2026-04-06T23:21:05.342Z
-Stopped at: Completed quick-17 (wiki engine ChromaDB semantic search)
+Last session: 2026-04-11T23:37:32.192Z
+Stopped at: Completed 260411-qux (automated hex-to-token sweep)
 Resume file: None

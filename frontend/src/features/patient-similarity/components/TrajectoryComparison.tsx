@@ -41,10 +41,10 @@ export function TrajectoryComparison({
 
   if (isLoading) {
     return (
-      <div className="rounded-lg border border-[#232328] bg-[#151518] p-6">
+      <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] p-6">
         <div className="flex items-center justify-center py-12">
-          <Loader2 size={20} className="animate-spin text-[#2DD4BF]" />
-          <span className="ml-3 text-sm text-[#8A857D]">
+          <Loader2 size={20} className="animate-spin text-[var(--color-primary)]" />
+          <span className="ml-3 text-sm text-[var(--color-text-secondary)]">
             Computing trajectory similarity...
           </span>
         </div>
@@ -54,10 +54,10 @@ export function TrajectoryComparison({
 
   if (isError) {
     return (
-      <div className="rounded-lg border border-[#E85A6B]/20 bg-[#E85A6B]/5 p-4">
+      <div className="rounded-lg border border-[var(--color-critical)]/20 bg-[var(--color-critical)]/5 p-4">
         <div className="flex items-center gap-2">
-          <AlertCircle size={16} className="text-[#E85A6B]" />
-          <span className="text-sm text-[#E85A6B]">
+          <AlertCircle size={16} className="text-[var(--color-critical)]" />
+          <span className="text-sm text-[var(--color-critical)]">
             Failed to compute temporal trajectory comparison.
           </span>
         </div>
@@ -70,14 +70,14 @@ export function TrajectoryComparison({
     temporalData.per_measurement.length === 0
   ) {
     return (
-      <div className="rounded-lg border border-[#1C1C20] bg-[#0E0E11]/50 p-4 opacity-60">
+      <div className="rounded-lg border border-[var(--color-surface-raised)] bg-[var(--color-surface-base)]/50 p-4 opacity-60">
         <div className="flex items-center gap-2">
-          <TrendingUp size={14} className="text-[#5A5650]" />
-          <span className="text-xs text-[#5A5650] font-semibold uppercase tracking-wider">
+          <TrendingUp size={14} className="text-[var(--color-text-muted)]" />
+          <span className="text-xs text-[var(--color-text-muted)] font-semibold uppercase tracking-wider">
             Temporal Trajectory
           </span>
         </div>
-        <p className="mt-2 text-xs text-[#5A5650]">
+        <p className="mt-2 text-xs text-[var(--color-text-muted)]">
           No shared temporal measurements found between these patients.
         </p>
       </div>
@@ -95,12 +95,12 @@ export function TrajectoryComparison({
   );
 
   return (
-    <div className="rounded-lg border border-[#232328] bg-[#151518] p-4 space-y-4">
+    <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] p-4 space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <TrendingUp size={14} className="text-[#60A5FA]" />
-          <h3 className="text-[10px] text-[#5A5650] uppercase tracking-wider font-semibold">
+          <h3 className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider font-semibold">
             Temporal Trajectory Comparison
           </h3>
         </div>
@@ -109,16 +109,16 @@ export function TrajectoryComparison({
           style={{
             color:
               temporalData.overall_similarity >= 0.7
-                ? "#2DD4BF"
+                ? "var(--color-primary)"
                 : temporalData.overall_similarity >= 0.4
-                  ? "#C9A227"
-                  : "#8A857D",
+                  ? "var(--color-primary)"
+                  : "var(--color-text-secondary)",
             backgroundColor:
               temporalData.overall_similarity >= 0.7
-                ? "#2DD4BF15"
+                ? "var(--color-primary)15"
                 : temporalData.overall_similarity >= 0.4
-                  ? "#C9A22715"
-                  : "#8A857D15",
+                  ? "var(--color-primary)15"
+                  : "var(--color-text-secondary)15",
           }}
         >
           DTW Similarity: {temporalData.overall_similarity.toFixed(3)}
@@ -130,7 +130,7 @@ export function TrajectoryComparison({
         <select
           value={activeConceptId ?? ""}
           onChange={(e) => setSelectedConceptId(Number(e.target.value))}
-          className="w-full rounded-md border border-[#232328] bg-[#0E0E11] px-3 py-1.5 text-sm text-[#C5C0B8] focus:border-[#60A5FA] focus:outline-none"
+          className="w-full rounded-md border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] px-3 py-1.5 text-sm text-[var(--color-text-primary)] focus:border-[#60A5FA] focus:outline-none"
         >
           {sortedMeasurements.map((m) => (
             <option key={m.concept_id} value={m.concept_id}>
@@ -176,11 +176,11 @@ export function TrajectoryComparison({
 
 function StatCell({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border border-[#1C1C20] bg-[#0E0E11] px-3 py-2">
-      <div className="text-[10px] text-[#5A5650] uppercase tracking-wider">
+    <div className="rounded-md border border-[var(--color-surface-raised)] bg-[var(--color-surface-base)] px-3 py-2">
+      <div className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider">
         {label}
       </div>
-      <div className="text-sm text-[#C5C0B8] font-medium tabular-nums mt-0.5">
+      <div className="text-sm text-[var(--color-text-primary)] font-medium tabular-nums mt-0.5">
         {value}
       </div>
     </div>
@@ -217,29 +217,29 @@ function TrajectoryChart({
       <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
         <XAxis
           dataKey="date"
-          tick={{ fill: "#5A5650", fontSize: 10 }}
-          tickLine={{ stroke: "#232328" }}
-          axisLine={{ stroke: "#232328" }}
+          tick={{ fill: "var(--color-text-muted)", fontSize: 10 }}
+          tickLine={{ stroke: "var(--color-surface-overlay)" }}
+          axisLine={{ stroke: "var(--color-surface-overlay)" }}
         />
         <YAxis
-          tick={{ fill: "#5A5650", fontSize: 10 }}
-          tickLine={{ stroke: "#232328" }}
-          axisLine={{ stroke: "#232328" }}
+          tick={{ fill: "var(--color-text-muted)", fontSize: 10 }}
+          tickLine={{ stroke: "var(--color-surface-overlay)" }}
+          axisLine={{ stroke: "var(--color-surface-overlay)" }}
           label={{
             value: "Value",
             angle: -90,
             position: "insideLeft",
-            style: { fill: "#5A5650", fontSize: 10 },
+            style: { fill: "var(--color-text-muted)", fontSize: 10 },
           }}
         />
         <Tooltip
           contentStyle={{
-            backgroundColor: "#151518",
-            border: "1px solid #232328",
+            backgroundColor: "var(--color-surface-base)",
+            border: "1px solid var(--color-surface-overlay)",
             borderRadius: 6,
             fontSize: 12,
           }}
-          labelStyle={{ color: "#C5C0B8" }}
+          labelStyle={{ color: "var(--color-text-primary)" }}
           formatter={
             ((value: number) => [
               value != null ? value.toFixed(2) : "N/A",
@@ -248,13 +248,13 @@ function TrajectoryChart({
           }
         />
         <Legend
-          wrapperStyle={{ fontSize: 11, color: "#C5C0B8" }}
+          wrapperStyle={{ fontSize: 11, color: "var(--color-text-primary)" }}
         />
         <Line
           type="monotone"
           dataKey="patientA"
           name={`Patient #${personAId}`}
-          stroke="#2DD4BF"
+          stroke="var(--color-primary)"
           strokeWidth={2}
           dot={false}
           connectNulls
@@ -263,7 +263,7 @@ function TrajectoryChart({
           type="monotone"
           dataKey="patientB"
           name={`Patient #${personBId}`}
-          stroke="#C9A227"
+          stroke="var(--color-primary)"
           strokeWidth={2}
           dot={false}
           connectNulls

@@ -26,17 +26,17 @@ export function CohortComparisonRadar({
   const { data, unavailableDimensions } = buildCohortComparisonRadarModel(divergence);
 
   return (
-    <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
+    <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] p-4">
       <div className="mb-3 flex items-start justify-between gap-4">
         <div>
-          <h3 className="text-sm font-semibold text-[#F0EDE8]">
+          <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">
             Divergence Radar
           </h3>
-          <p className="mt-1 text-xs text-[#8A857D]">
+          <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
             {sourceName} vs {targetName}
           </p>
         </div>
-        <span className="text-[10px] uppercase tracking-wider text-[#5A5650]">
+        <span className="text-[10px] uppercase tracking-wider text-[var(--color-text-muted)]">
           0% similar • 100% divergent
         </span>
       </div>
@@ -44,29 +44,29 @@ export function CohortComparisonRadar({
       {data.length > 0 ? (
         <ResponsiveContainer width="100%" height={300}>
           <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
-            <PolarGrid stroke="#323238" />
+            <PolarGrid stroke="var(--color-border-default)" />
             <PolarAngleAxis
               dataKey="dimension"
-              tick={{ fill: "#8A857D", fontSize: 11 }}
+              tick={{ fill: "var(--color-text-secondary)", fontSize: 11 }}
             />
             <PolarRadiusAxis
               angle={90}
               domain={[0, 100]}
-              tick={{ fill: "#5A5650", fontSize: 9 }}
+              tick={{ fill: "var(--color-text-muted)", fontSize: 9 }}
               tickFormatter={(v: number) => `${v}%`}
             />
             <Radar
               name="Divergence"
               dataKey="divergence"
-              stroke="#E85A6B"
-              fill="#E85A6B"
+              stroke="var(--color-critical)"
+              fill="var(--color-critical)"
               fillOpacity={0.18}
               strokeWidth={2}
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: "#1A1A1E",
-                border: "1px solid #323238",
+                backgroundColor: "var(--color-surface-raised)",
+                border: "1px solid var(--color-border-default)",
                 borderRadius: "8px",
                 fontSize: "12px",
               }}
@@ -78,17 +78,17 @@ export function CohortComparisonRadar({
           </RadarChart>
         </ResponsiveContainer>
       ) : (
-        <div className="flex h-[300px] items-center justify-center rounded border border-dashed border-[#323238] bg-[#0E0E11]">
-          <p className="max-w-sm text-center text-sm text-[#8A857D]">
+        <div className="flex h-[300px] items-center justify-center rounded border border-dashed border-[var(--color-border-default)] bg-[var(--color-surface-base)]">
+          <p className="max-w-sm text-center text-sm text-[var(--color-text-secondary)]">
             No comparable dimensions are available for these cohorts.
           </p>
         </div>
       )}
 
       {unavailableDimensions.length > 0 && (
-        <p className="mt-3 text-xs text-[#8A857D]">
+        <p className="mt-3 text-xs text-[var(--color-text-secondary)]">
           Omitted from radar due to unavailable data:{" "}
-          <span className="text-[#C5C0B8]">
+          <span className="text-[var(--color-text-primary)]">
             {unavailableDimensions.join(", ")}
           </span>
         </p>

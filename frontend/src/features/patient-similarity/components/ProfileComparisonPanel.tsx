@@ -15,15 +15,15 @@ function getDivergenceLabel(pct: number): string {
 }
 
 function getDivergenceColor(pct: number): string {
-  if (pct < 30) return "#2DD4BF";
-  if (pct < 50) return "#C9A227";
-  return "#9B1B30";
+  if (pct < 30) return "var(--color-primary)";
+  if (pct < 50) return "var(--color-primary)";
+  return "var(--color-critical)";
 }
 
 function getDimensionColor(score: number): string {
-  if (score > 0.5) return "#9B1B30";
-  if (score >= 0.3) return "#C9A227";
-  return "#2DD4BF";
+  if (score > 0.5) return "var(--color-critical)";
+  if (score >= 0.3) return "var(--color-primary)";
+  return "var(--color-primary)";
 }
 
 export function ProfileComparisonPanel({
@@ -44,9 +44,9 @@ export function ProfileComparisonPanel({
   return (
     <div className="space-y-4">
       {/* Overall divergence banner */}
-      <div className="rounded-lg border border-[#232328] bg-[#131316] p-4">
+      <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[#131316] p-4">
         <div className="mb-3 flex items-center justify-between">
-          <span className="text-xs font-medium uppercase tracking-wider text-[#5A5650]">
+          <span className="text-xs font-medium uppercase tracking-wider text-[var(--color-text-muted)]">
             Overall Divergence
           </span>
           <span
@@ -57,17 +57,17 @@ export function ProfileComparisonPanel({
           </span>
         </div>
         {/* Gradient bar */}
-        <div className="h-2 overflow-hidden rounded-full bg-[#232328]">
+        <div className="h-2 overflow-hidden rounded-full bg-[var(--color-surface-overlay)]">
           <div
             className="h-full rounded-full transition-all duration-500"
             style={{
               width: `${overallPct}%`,
               background:
-                "linear-gradient(90deg, #2DD4BF 0%, #C9A227 50%, #9B1B30 100%)",
+                "linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary) 50%, var(--color-critical) 100%)",
             }}
           />
         </div>
-        <p className="mt-2 text-xs text-[#8A857D]">{interpretationText}</p>
+        <p className="mt-2 text-xs text-[var(--color-text-secondary)]">{interpretationText}</p>
       </div>
 
       {/* Two-column chart grid */}
@@ -80,8 +80,8 @@ export function ProfileComparisonPanel({
         />
 
         {/* Right: Per-dimension bars */}
-        <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-          <h3 className="mb-3 text-sm font-semibold text-[#F0EDE8]">
+        <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] p-4">
+          <h3 className="mb-3 text-sm font-semibold text-[var(--color-text-primary)]">
             Per-Dimension Divergence
           </h3>
           {sortedDimensions.length > 0 ? (
@@ -92,7 +92,7 @@ export function ProfileComparisonPanel({
                 return (
                   <div key={key}>
                     <div className="mb-1 flex items-center justify-between">
-                      <span className="text-xs capitalize text-[#C5C0B8]">
+                      <span className="text-xs capitalize text-[var(--color-text-primary)]">
                         {dim.label || key}
                       </span>
                       <span
@@ -102,7 +102,7 @@ export function ProfileComparisonPanel({
                         {pct}%
                       </span>
                     </div>
-                    <div className="h-1.5 overflow-hidden rounded-full bg-[#232328]">
+                    <div className="h-1.5 overflow-hidden rounded-full bg-[var(--color-surface-overlay)]">
                       <div
                         className="h-full rounded-full transition-all duration-300"
                         style={{ width: `${pct}%`, backgroundColor: color }}
@@ -113,7 +113,7 @@ export function ProfileComparisonPanel({
               })}
             </div>
           ) : (
-            <p className="text-sm text-[#8A857D]">
+            <p className="text-sm text-[var(--color-text-secondary)]">
               No per-dimension scores available.
             </p>
           )}
@@ -125,7 +125,7 @@ export function ProfileComparisonPanel({
         <button
           type="button"
           onClick={onContinue}
-          className="rounded-md bg-[#2DD4BF]/10 px-4 py-2 text-sm font-medium text-[#2DD4BF] transition-colors hover:bg-[#2DD4BF]/20"
+          className="rounded-md bg-[var(--color-primary)]/10 px-4 py-2 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[var(--color-primary)]/20"
         >
           View Covariate Balance →
         </button>

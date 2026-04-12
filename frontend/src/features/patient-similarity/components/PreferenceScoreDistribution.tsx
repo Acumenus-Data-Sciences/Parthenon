@@ -10,8 +10,8 @@ import {
 } from "recharts";
 import type { PreferenceDistribution } from "../types/patientSimilarity";
 
-const TEAL = "#2DD4BF";
-const CRIMSON = "#9B1B30";
+const TEAL = "var(--color-primary)";
+const CRIMSON = "var(--color-critical)";
 
 interface PreferenceScoreDistributionProps {
   distribution: PreferenceDistribution;
@@ -39,35 +39,35 @@ export function PreferenceScoreDistribution({
   const yDomain = [-(maxVal * 1.1), maxVal * 1.1];
 
   return (
-    <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-      <h3 className="text-sm font-semibold text-[#F0EDE8] mb-1">
+    <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] p-4">
+      <h3 className="text-sm font-semibold text-[var(--color-text-primary)] mb-1">
         Preference Score Distribution
       </h3>
-      <p className="text-xs text-[#5A5650] mb-3">
+      <p className="text-xs text-[var(--color-text-muted)] mb-3">
         Overlapping distributions indicate good equipoise between cohorts
       </p>
       <ResponsiveContainer width="100%" height={260}>
         <AreaChart data={chartData} margin={{ top: 10, right: 10, bottom: 20, left: 10 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#232328" />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-surface-overlay)" />
           <XAxis
             dataKey="bin"
-            tick={{ fill: "#5A5650", fontSize: 10 }}
-            label={{ value: "Preference Score", position: "bottom", fill: "#5A5650", fontSize: 11, offset: 5 }}
+            tick={{ fill: "var(--color-text-muted)", fontSize: 10 }}
+            label={{ value: "Preference Score", position: "bottom", fill: "var(--color-text-muted)", fontSize: 11, offset: 5 }}
           />
           <YAxis
             domain={yDomain}
-            tick={{ fill: "#5A5650", fontSize: 10 }}
+            tick={{ fill: "var(--color-text-muted)", fontSize: 10 }}
             tickFormatter={(v: number) => Math.abs(v).toFixed(2)}
           />
-          <ReferenceLine y={0} stroke="#323238" />
+          <ReferenceLine y={0} stroke="var(--color-border-default)" />
           <Tooltip
             contentStyle={{
-              backgroundColor: "#1A1A1F",
-              border: "1px solid #323238",
+              backgroundColor: "var(--color-surface-raised)",
+              border: "1px solid var(--color-border-default)",
               borderRadius: 6,
               fontSize: 11,
             }}
-            labelStyle={{ color: "#C5C0B8" }}
+            labelStyle={{ color: "var(--color-text-primary)" }}
             formatter={((value: number, name: string) => [
               Math.abs(value).toFixed(4),
               name === "target" ? "Target" : "Comparator",
@@ -97,11 +97,11 @@ export function PreferenceScoreDistribution({
       <div className="flex items-center justify-center gap-4 mt-2">
         <div className="flex items-center gap-1.5 text-xs">
           <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: TEAL }} />
-          <span className="text-[#C5C0B8]">Target (above)</span>
+          <span className="text-[var(--color-text-primary)]">Target (above)</span>
         </div>
         <div className="flex items-center gap-1.5 text-xs">
           <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: CRIMSON }} />
-          <span className="text-[#C5C0B8]">Comparator (below)</span>
+          <span className="text-[var(--color-text-primary)]">Comparator (below)</span>
         </div>
       </div>
     </div>

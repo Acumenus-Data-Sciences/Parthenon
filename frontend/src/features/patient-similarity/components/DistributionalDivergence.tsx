@@ -17,48 +17,48 @@ const DIMENSION_LABELS: Record<string, string> = {
 function getInterpretationColor(interpretation: string): string {
   switch (interpretation) {
     case "Very similar":
-      return "#2DD4BF";
+      return "var(--color-primary)";
     case "Similar":
-      return "#2DD4BF80";
+      return "var(--color-primary)80";
     case "Moderate":
-      return "#C9A227";
+      return "var(--color-primary)";
     case "Divergent":
-      return "#9B1B30";
+      return "var(--color-critical)";
     default:
-      return "#8A857D";
+      return "var(--color-text-secondary)";
   }
 }
 
 function getInterpretationBg(interpretation: string): string {
   switch (interpretation) {
     case "Very similar":
-      return "bg-[#2DD4BF]/10";
+      return "bg-[var(--color-primary)]/10";
     case "Similar":
-      return "bg-[#2DD4BF]/5";
+      return "bg-[var(--color-primary)]/5";
     case "Moderate":
-      return "bg-[#C9A227]/10";
+      return "bg-[var(--color-primary)]/10";
     case "Divergent":
-      return "bg-[#9B1B30]/10";
+      return "bg-[var(--color-critical)]/10";
     default:
-      return "bg-[#8A857D]/10";
+      return "bg-[var(--color-text-secondary)]/10";
   }
 }
 
 function getMetricBadgeStyle(metric: string): string {
   return metric === "wasserstein"
-    ? "bg-[#C9A227]/15 text-[#C9A227]"
-    : "bg-[#2DD4BF]/15 text-[#2DD4BF]";
+    ? "bg-[var(--color-primary)]/15 text-[var(--color-primary)]"
+    : "bg-[var(--color-primary)]/15 text-[var(--color-primary)]";
 }
 
 export function DistributionalDivergence({
   rows,
 }: DistributionalDivergenceProps) {
   return (
-    <div className="rounded-lg border border-[#232328] bg-[#151518] p-4">
-      <h3 className="mb-3 text-sm font-semibold text-[#F0EDE8]">
+    <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] p-4">
+      <h3 className="mb-3 text-sm font-semibold text-[var(--color-text-primary)]">
         Distributional Divergence
       </h3>
-      <p className="mb-3 text-xs text-[#8A857D]">
+      <p className="mb-3 text-xs text-[var(--color-text-secondary)]">
         Jensen-Shannon Divergence (JSD) for categorical and Wasserstein distance
         for continuous dimensions.
       </p>
@@ -66,15 +66,15 @@ export function DistributionalDivergence({
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
           <thead>
-            <tr className="border-b border-[#232328]">
-              <th className="pb-2 pr-4 text-[#5A5650] font-medium">
+            <tr className="border-b border-[var(--color-surface-overlay)]">
+              <th className="pb-2 pr-4 text-[var(--color-text-muted)] font-medium">
                 Dimension
               </th>
-              <th className="pb-2 pr-4 text-[#5A5650] font-medium">Metric</th>
-              <th className="pb-2 pr-4 text-[#5A5650] font-medium text-right">
+              <th className="pb-2 pr-4 text-[var(--color-text-muted)] font-medium">Metric</th>
+              <th className="pb-2 pr-4 text-[var(--color-text-muted)] font-medium text-right">
                 Value
               </th>
-              <th className="pb-2 text-[#5A5650] font-medium">
+              <th className="pb-2 text-[var(--color-text-muted)] font-medium">
                 Interpretation
               </th>
             </tr>
@@ -83,9 +83,9 @@ export function DistributionalDivergence({
             {rows.map((row) => (
               <tr
                 key={row.dimension}
-                className="border-b border-[#232328]/50 last:border-0"
+                className="border-b border-[var(--color-surface-overlay)]/50 last:border-0"
               >
-                <td className="py-2 pr-4 text-[#F0EDE8]">
+                <td className="py-2 pr-4 text-[var(--color-text-primary)]">
                   {DIMENSION_LABELS[row.dimension] ?? row.dimension}
                 </td>
                 <td className="py-2 pr-4">
@@ -98,7 +98,7 @@ export function DistributionalDivergence({
                     {row.metric === "wasserstein" ? "W1" : "JSD"}
                   </span>
                 </td>
-                <td className="py-2 pr-4 text-right tabular-nums text-[#F0EDE8]">
+                <td className="py-2 pr-4 text-right tabular-nums text-[var(--color-text-primary)]">
                   {row.value.toFixed(4)}
                 </td>
                 <td className="py-2">

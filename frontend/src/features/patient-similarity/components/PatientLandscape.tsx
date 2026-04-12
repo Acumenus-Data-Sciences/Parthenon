@@ -8,11 +8,11 @@ import type { LandscapePoint, LandscapeCluster, LandscapeResult } from "../types
 
 // ── Constants ────────────────────────────────────────────────────────
 
-const SCENE_BG = "#0E0E11";
-const TEAL = "#2DD4BF";
+const SCENE_BG = "var(--color-surface-base)";
+const TEAL = "var(--color-primary)";
 const GRAY = "#4B5563";
 const CLUSTER_PALETTE = [
-  "#2DD4BF", "#C9A227", "#9B1B30", "#6366F1", "#EC4899",
+  "var(--color-primary)", "var(--color-primary)", "var(--color-critical)", "#6366F1", "#EC4899",
   "#22D3EE", "#A78BFA", "#F97316", "#84CC16", "#F43F5E",
 ];
 
@@ -143,27 +143,27 @@ function PointTooltip({ point, clusters, is2D }: TooltipProps) {
       center
       style={{ pointerEvents: "none" }}
     >
-      <div className="rounded-lg border border-[#2A2A2E] bg-[#151518]/95 px-3 py-2 text-xs text-gray-300 shadow-xl backdrop-blur-sm whitespace-nowrap">
-        <div className="font-semibold text-[#F0EDE8]">
+      <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)]/95 px-3 py-2 text-xs text-gray-300 shadow-xl backdrop-blur-sm whitespace-nowrap">
+        <div className="font-semibold text-[var(--color-text-primary)]">
           Person {point.person_id}
         </div>
         <div className="mt-1 space-y-0.5">
           <div>
-            Age bucket: <span className="text-[#C9A227]">{point.age_bucket}</span>
+            Age bucket: <span className="text-[var(--color-primary)]">{point.age_bucket}</span>
           </div>
           <div>
             Gender:{" "}
-            <span className="text-[#2DD4BF]">
+            <span className="text-[var(--color-primary)]">
               {GENDER_LABELS[point.gender_concept_id] ?? `ID ${point.gender_concept_id}`}
             </span>
           </div>
           {cluster && (
             <div>
-              Cluster: <span className="text-[#C5C0B8]">{cluster.label ?? `#${cluster.id}`}</span>
+              Cluster: <span className="text-[var(--color-text-primary)]">{cluster.label ?? `#${cluster.id}`}</span>
             </div>
           )}
           {point.is_cohort_member && (
-            <div className="text-[#2DD4BF] font-medium">Cohort member</div>
+            <div className="text-[var(--color-primary)] font-medium">Cohort member</div>
           )}
         </div>
       </div>
@@ -200,20 +200,20 @@ export function PatientLandscape({
   );
 
   return (
-    <div className="flex flex-col rounded-lg border border-[#2A2A2E] bg-[#151518] overflow-hidden">
+    <div className="flex flex-col rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] overflow-hidden">
       {/* Top bar */}
-      <div className="flex items-center justify-between border-b border-[#232328] px-4 py-2">
+      <div className="flex items-center justify-between border-b border-[var(--color-surface-overlay)] px-4 py-2">
         <div className="flex items-center gap-4">
           {/* 2D / 3D toggle */}
-          <div className="flex rounded border border-[#2A2A2E] overflow-hidden">
+          <div className="flex rounded border border-[var(--color-surface-overlay)] overflow-hidden">
             <button
               type="button"
               onClick={() => setIs2D(false)}
               className={cn(
                 "px-2.5 py-1 text-xs font-medium transition-colors",
                 !is2D
-                  ? "bg-[#2DD4BF]/10 text-[#2DD4BF]"
-                  : "bg-[#0E0E11] text-[#5A5650] hover:text-[#C5C0B8]",
+                  ? "bg-[var(--color-primary)]/10 text-[var(--color-primary)]"
+                  : "bg-[var(--color-surface-base)] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]",
               )}
             >
               <Layers size={12} className="inline mr-1" />
@@ -225,8 +225,8 @@ export function PatientLandscape({
               className={cn(
                 "px-2.5 py-1 text-xs font-medium transition-colors",
                 is2D
-                  ? "bg-[#2DD4BF]/10 text-[#2DD4BF]"
-                  : "bg-[#0E0E11] text-[#5A5650] hover:text-[#C5C0B8]",
+                  ? "bg-[var(--color-primary)]/10 text-[var(--color-primary)]"
+                  : "bg-[var(--color-surface-base)] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]",
               )}
             >
               <Grid3X3 size={12} className="inline mr-1" />
@@ -241,8 +241,8 @@ export function PatientLandscape({
             className={cn(
               "px-2.5 py-1 text-xs font-medium rounded border transition-colors",
               colorByCluster
-                ? "border-[#C9A227]/30 text-[#C9A227] bg-[#C9A227]/10"
-                : "border-[#2A2A2E] text-[#5A5650] hover:text-[#C5C0B8]",
+                ? "border-[var(--color-primary)]/30 text-[var(--color-primary)] bg-[var(--color-primary)]/10"
+                : "border-[var(--color-surface-overlay)] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]",
             )}
           >
             {colorByCluster ? "Cluster colors" : "Cohort colors"}
@@ -250,9 +250,9 @@ export function PatientLandscape({
         </div>
 
         {/* Stats */}
-        <div className="flex items-center gap-4 text-xs text-[#5A5650]">
+        <div className="flex items-center gap-4 text-xs text-[var(--color-text-muted)]">
           <span>
-            <span className="text-[#C5C0B8] font-medium">
+            <span className="text-[var(--color-text-primary)] font-medium">
               {points.length.toLocaleString()}
             </span>{" "}
             patients projected
@@ -260,14 +260,14 @@ export function PatientLandscape({
           {stats?.projection_time_ms != null && stats.projection_time_ms > 0 && (
             <span>
               in{" "}
-              <span className="text-[#C5C0B8]">
+              <span className="text-[var(--color-text-primary)]">
                 {(stats.projection_time_ms / 1000).toFixed(1)}s
               </span>
             </span>
           )}
           {clusters.length > 0 && (
             <span>
-              <span className="text-[#C9A227]">{clusters.length}</span> clusters
+              <span className="text-[var(--color-primary)]">{clusters.length}</span> clusters
             </span>
           )}
         </div>
@@ -310,7 +310,7 @@ export function PatientLandscape({
       </div>
 
       {/* Legend */}
-      <div className="flex items-center gap-6 border-t border-[#232328] px-4 py-2 text-xs text-[#5A5650]">
+      <div className="flex items-center gap-6 border-t border-[var(--color-surface-overlay)] px-4 py-2 text-xs text-[var(--color-text-muted)]">
         {!colorByCluster ? (
           <>
             <div className="flex items-center gap-1.5">

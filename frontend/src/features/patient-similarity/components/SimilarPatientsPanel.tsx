@@ -34,7 +34,7 @@ export function SimilarPatientsPanel({
           type="button"
           onClick={() => setExportOpen(true)}
           disabled={cacheId === 0 || patients.length === 0}
-          className="flex items-center gap-2 rounded-lg border border-[#232328] bg-[#151518] px-4 py-2 text-sm font-medium text-[#C5C0B8] transition-colors hover:border-[#2DD4BF]/40 hover:text-[#2DD4BF] disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex items-center gap-2 rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] px-4 py-2 text-sm font-medium text-[var(--color-text-primary)] transition-colors hover:border-[var(--color-primary)]/40 hover:text-[var(--color-primary)] disabled:cursor-not-allowed disabled:opacity-40"
         >
           <Download size={14} />
           Export as New Cohort
@@ -43,7 +43,7 @@ export function SimilarPatientsPanel({
         <button
           type="button"
           onClick={onContinue}
-          className="flex items-center gap-2 rounded-lg bg-[#2DD4BF]/10 px-4 py-2 text-sm font-medium text-[#2DD4BF] transition-colors hover:bg-[#2DD4BF]/20"
+          className="flex items-center gap-2 rounded-lg bg-[var(--color-primary)]/10 px-4 py-2 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[var(--color-primary)]/20"
         >
           Continue to Landscape
           <ArrowRight size={14} />
