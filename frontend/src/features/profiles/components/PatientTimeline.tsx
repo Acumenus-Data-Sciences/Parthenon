@@ -513,7 +513,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
                   x={tick.x}
                   y={18}
                   textAnchor="middle"
-                  className="fill-[#8A857D]"
+                  className="fill-text-ghost"
                   style={{ fontSize: 9 }}
                 >
                   {tick.label}
@@ -546,7 +546,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
                 <text
                   x={todayX + 3}
                   y={18}
-                  className="fill-[#C9A227]"
+                  className="fill-accent"
                   style={{ fontSize: 8 }}
                 >
                   Today
@@ -595,7 +595,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
                   <text
                     x={10}
                     y={y + LANE_HEIGHT / 2 + 4}
-                    className="fill-[#5A5650]"
+                    className="fill-text-muted"
                     style={{ fontSize: 8 }}
                   >
                     {isCollapsed ? "\u25B6" : "\u25BC"}
@@ -611,7 +611,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
                   <text
                     x={36}
                     y={y + LANE_HEIGHT / 2 + 3}
-                    className="fill-[#C5C0B8]"
+                    className="fill-text-ghost"
                     style={{ fontSize: 10, fontWeight: 500 }}
                   >
                     {config.label}
@@ -620,7 +620,7 @@ export function PatientTimeline({ events, observationPeriods = [], onEventClick 
                     x={LABEL_WIDTH - 6}
                     y={y + LANE_HEIGHT / 2 + 3}
                     textAnchor="end"
-                    className="fill-[#5A5650]"
+                    className="fill-text-muted"
                     style={{ fontSize: 9 }}
                   >
                     {domEvts.length}

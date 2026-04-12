@@ -131,14 +131,14 @@ function HeaderSourceSelector() {
   return (
     <div className="relative flex items-center gap-1.5">
       {selectedSource && selectedSource.id === defaultSourceId ? (
-        <Star size={13} className="text-accent fill-[#C9A227] shrink-0" />
+        <Star size={13} className="text-accent fill-accent shrink-0" />
       ) : (
         <Database size={13} className="text-text-muted shrink-0" />
       )}
       <select
         value={activeSourceId ?? ""}
         onChange={(e) => handleChange(Number(e.target.value))}
-        className="appearance-none rounded-md border border-border-default bg-surface-raised pl-2 pr-6 py-1 text-base text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-[#C9A227]/30 cursor-pointer min-w-[160px]"
+        className="appearance-none rounded-md border border-border-default bg-surface-raised pl-2 pr-6 py-1 text-base text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30 cursor-pointer min-w-[160px]"
       >
         <option value="" disabled>
           Select source

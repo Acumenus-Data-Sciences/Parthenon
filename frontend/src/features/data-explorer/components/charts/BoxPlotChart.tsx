@@ -126,19 +126,19 @@ export function BoxPlotChart({ data, label }: BoxPlotChartProps) {
         />
 
         {/* Labels */}
-        <text x={sx(min)} y={plotH + 12} textAnchor="middle" className="fill-[#8A857D]" fontSize={9}>
+        <text x={sx(min)} y={plotH + 12} textAnchor="middle" className="fill-text-ghost" fontSize={9}>
           {formatCompact(min)}
         </text>
-        <text x={sx(p25)} y={plotH + 12} textAnchor="middle" className="fill-[#C5C0B8]" fontSize={9}>
+        <text x={sx(p25)} y={plotH + 12} textAnchor="middle" className="fill-text-ghost" fontSize={9}>
           P25: {formatCompact(p25)}
         </text>
-        <text x={sx(median)} y={plotH + 24} textAnchor="middle" className="fill-[#C9A227]" fontSize={9} fontWeight={600}>
+        <text x={sx(median)} y={plotH + 24} textAnchor="middle" className="fill-accent" fontSize={9} fontWeight={600}>
           Median: {formatCompact(median)}
         </text>
-        <text x={sx(p75)} y={plotH + 12} textAnchor="middle" className="fill-[#C5C0B8]" fontSize={9}>
+        <text x={sx(p75)} y={plotH + 12} textAnchor="middle" className="fill-text-ghost" fontSize={9}>
           P75: {formatCompact(p75)}
         </text>
-        <text x={sx(max)} y={plotH + 12} textAnchor="middle" className="fill-[#8A857D]" fontSize={9}>
+        <text x={sx(max)} y={plotH + 12} textAnchor="middle" className="fill-text-ghost" fontSize={9}>
           {formatCompact(max)}
         </text>
       </svg>
