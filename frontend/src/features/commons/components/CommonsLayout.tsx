@@ -128,7 +128,7 @@ export function CommonsLayout() {
   }
 
   return (
-    <div className="layout-full-bleed flex h-full gap-3 bg-[#0b0b0e] p-3">
+    <div className="layout-full-bleed flex h-full gap-3 bg-surface-base p-3">
       {/* Left sidebar */}
       <div className="flex w-64 shrink-0 flex-col overflow-hidden rounded-2xl border border-border-default bg-surface-raised">
         <div className="flex shrink-0 items-center justify-between border-b border-white/[0.06] px-4 py-3.5">
@@ -184,7 +184,7 @@ export function CommonsLayout() {
           <WikiPage />
         ) : (
           <>
-            <div className="border-b border-white/[0.06] bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.05),transparent_42%),#15151a] px-6 py-4">
+            <div className="border-b border-white/[0.06] bg-surface-raised px-6 py-4">
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">

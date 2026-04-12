@@ -47,7 +47,7 @@ export function ThreadView({ parentMessage, slug, currentUserId }: ThreadViewPro
         </span>
       </div>
 
-      <div className="divide-y divide-[#23232a]">
+      <div className="divide-y divide-border-default">
         {!isLoading &&
           replies.map((reply) => (
             <div

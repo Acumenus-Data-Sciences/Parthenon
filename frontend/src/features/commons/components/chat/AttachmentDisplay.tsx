@@ -66,7 +66,7 @@ export function AttachmentDisplay({ attachments }: AttachmentDisplayProps) {
           href={downloadUrl(file.id)}
           className="flex max-w-sm items-center gap-3 rounded-2xl border border-border-default bg-surface-raised px-3 py-3 text-sm text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] transition-colors hover:border-surface-highlight hover:bg-surface-raised"
         >
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#2f2f36] bg-surface-overlay">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border-default bg-surface-overlay">
             {file.mime_type === "application/pdf" ? (
               <FileText className="h-4 w-4 shrink-0 text-red-400" />
             ) : (
