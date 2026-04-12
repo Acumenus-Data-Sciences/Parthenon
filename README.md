@@ -122,6 +122,18 @@ For server-side promotion after CI passes, deploy an exact commit, tag, or branc
 
 This wrapper fetches from git, refuses a dirty checkout by default, switches to the target commit in detached HEAD mode, and then runs `./deploy.sh` with any extra deploy flags you pass after `--`.
 
+### Remote Deploy
+
+From another workstation with SSH access to the production server:
+
+```bash
+./deploy-remote.sh --push --frontend
+./deploy-remote.sh --ref main -- --frontend
+./deploy-remote.sh --sync --frontend
+```
+
+By default this connects to `smudoshi@parthenon.acumenus.net`, uses `/home/smudoshi/Github/Parthenon`, and runs the server-side `deploy-ref.sh`/`deploy.sh` flow. Use committed and pushed refs for normal deploys; `--sync` is available for explicit working-tree syncs.
+
 The guided installer and browser launcher now also require:
 
 - a `Beginner` or `Experienced` OHDSI/OMOP user selection
