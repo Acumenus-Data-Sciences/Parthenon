@@ -2,41 +2,35 @@ import { useRef, useMemo, useCallback, useState, useEffect } from "react";
 import { Canvas, type ThreeEvent } from "@react-three/fiber";
 import { OrbitControls, Html } from "@react-three/drei";
 import * as THREE from "three";
-import { Layers, Grid3X3 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useThemeStore } from "@/stores/themeStore";
+import { RefreshCw, Maximize2, Minimize2 } from "lucide-react";
+import { createPortal } from "react-dom";
+import DimensionToggle from "@/features/administration/components/vector-explorer/DimensionToggle";
+import {
+  CLUSTER_PALETTE,
+  POINT_RADIUS,
+  POINT_SEGMENTS,
+  HOVER_SCALE,
+  SCENE_BG,
+} from "@/features/administration/components/vector-explorer/constants";
 import type { LandscapePoint, LandscapeCluster, LandscapeResult } from "../types/patientSimilarity";
 
 // ── Constants ────────────────────────────────────────────────────────
-
-const SCENE_BG = "var(--color-surface-base)";
-const COHORT_COLOR = "var(--color-primary)";
-const NON_MEMBER_COLOR = "var(--color-text-muted)";
-const CLUSTER_COLOR_VARS = [
-  ["--primary", "#7A1526"],
-  ["--accent", "#8B7018"],
-  ["--critical", "#C93545"],
-  ["--chart-4", "#7C3AED"],
-  ["--domain-procedure", "#DB2777"],
-  ["--info", "#2563EB"],
-  ["--domain-observation", "#7C3AED"],
-  ["--domain-device", "#EA580C"],
-  ["--chart-5", "#8B7018"],
-  ["--chart-8", "#C93545"],
-];
 
 const GENDER_LABELS: Record<number, string> = {
   8507: "Male",
   8532: "Female",
 };
 
+// Accent for controls chrome (matches Vector Explorer default "docs" theme).
+const ACCENT_COLOR = "var(--success)";
+const ACCENT_BG = "rgba(45, 212, 191, 0.10)";
+const ACCENT_BORDER = "rgba(45, 212, 191, 0.25)";
+
 const tempObject = new THREE.Object3D();
 const tempColor = new THREE.Color();
+const ignoreRaycast: THREE.Object3D["raycast"] = () => {};
 
-function resolveCssColor(name: string, fallback: string): string {
-  if (typeof document === "undefined") return fallback;
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
-}
+type ColorMode = "cohort" | "cluster";
 
 // ── Props ────────────────────────────────────────────────────────────
 
@@ -47,150 +41,271 @@ interface PatientLandscapeProps {
   onPatientClick?: (personId: number) => void;
 }
 
-// ── Instanced Points Component ───────────────────────────────────────
+// ── Instanced Point Cloud (mirrors vector-explorer ThreeScene) ───────
 
 interface PointCloudProps {
   points: LandscapePoint[];
-  colorByCluster: boolean;
-  is2D: boolean;
+  colorMode: ColorMode;
+  hoveredIndex: number | null;
+  selectedIndex: number | null;
   onHover: (index: number | null) => void;
   onClick: (index: number) => void;
 }
 
-function PointCloud({ points, colorByCluster, is2D, onHover, onClick }: PointCloudProps) {
+function PointCloud({
+  points,
+  colorMode,
+  hoveredIndex,
+  selectedIndex,
+  onHover,
+  onClick,
+}: PointCloudProps) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
-  const theme = useThemeStore((state) => state.theme);
-  const count = points.length;
-  const resolvedColors = useMemo(() => {
-    const cohort = resolveCssColor("--primary", "#7A1526");
-    const nonMember = resolveCssColor("--text-muted", "#6D6860");
-    const clusters = CLUSTER_COLOR_VARS.map(([name, fallback]) =>
-      resolveCssColor(name, fallback),
-    );
-    return { cohort, nonMember, clusters };
-  }, [theme]);
+  const colorAttrRef = useRef<THREE.InstancedBufferAttribute | null>(null);
+  const previousHoveredRef = useRef<number | null>(null);
 
-  const { colorArray } = useMemo(() => {
-    const colors = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
-      const p = points[i];
-      let hex: string;
-      if (colorByCluster) {
-        hex = resolvedColors.clusters[p.cluster_id % resolvedColors.clusters.length];
-      } else {
-        hex = p.is_cohort_member ? resolvedColors.cohort : resolvedColors.nonMember;
-      }
-      tempColor.set(hex);
-      colors[i * 3] = tempColor.r;
-      colors[i * 3 + 1] = tempColor.g;
-      colors[i * 3 + 2] = tempColor.b;
-    }
-    return { colorArray: colors };
-  }, [points, colorByCluster, count, resolvedColors]);
-
+  // Create (and replace) the color attribute whenever point count changes.
   useEffect(() => {
-    if (!meshRef.current) return;
     const mesh = meshRef.current;
-    for (let i = 0; i < count; i++) {
-      const p = points[i];
-      tempObject.position.set(p.x, p.y, is2D ? 0 : (p.z ?? 0));
-      tempObject.scale.setScalar(1);
-      tempObject.updateMatrix();
-      mesh.setMatrixAt(i, tempObject.matrix);
-    }
-    mesh.instanceMatrix.needsUpdate = true;
+    if (!mesh) return;
+    const attr = new THREE.InstancedBufferAttribute(
+      new Float32Array(points.length * 3),
+      3,
+    );
+    mesh.geometry.setAttribute("color", attr);
+    colorAttrRef.current = attr;
+    return () => {
+      mesh.geometry.deleteAttribute("color");
+      colorAttrRef.current = null;
+    };
+  }, [points.length]);
 
-    const attr = mesh.geometry.getAttribute("color") as THREE.InstancedBufferAttribute | undefined;
-    if (attr) {
-      attr.set(colorArray);
-      attr.needsUpdate = true;
+  const getPointColor = useCallback(
+    (point: LandscapePoint): string => {
+      if (colorMode === "cluster") {
+        return CLUSTER_PALETTE[point.cluster_id % CLUSTER_PALETTE.length];
+      }
+      // Cohort mode — use the same categorical palette so colors stay
+      // consistent with the Vector Explorer. Cohort members = class 0,
+      // non-members = class 1.
+      return point.is_cohort_member
+        ? CLUSTER_PALETTE[0]
+        : CLUSTER_PALETTE[1];
+    },
+    [colorMode],
+  );
+
+  const setPointScaleAtIndex = useCallback(
+    (index: number, scale: number) => {
+      if (!meshRef.current || index < 0 || index >= points.length) return;
+      const p = points[index];
+      tempObject.position.set(p.x, p.y, p.z ?? 0);
+      tempObject.scale.setScalar(scale);
+      tempObject.updateMatrix();
+      meshRef.current.setMatrixAt(index, tempObject.matrix);
+    },
+    [points],
+  );
+
+  // Full rebuild of matrices + colors when points or color mode change.
+  useEffect(() => {
+    if (!meshRef.current || !colorAttrRef.current) return;
+    const nextColors = new Float32Array(points.length * 3);
+
+    for (let i = 0; i < points.length; i++) {
+      const p = points[i];
+      const scale = i === selectedIndex ? HOVER_SCALE : 1;
+      setPointScaleAtIndex(i, scale);
+
+      tempColor.set(getPointColor(p));
+      nextColors[i * 3] = tempColor.r;
+      nextColors[i * 3 + 1] = tempColor.g;
+      nextColors[i * 3 + 2] = tempColor.b;
     }
-  }, [points, colorArray, is2D, count]);
+
+    meshRef.current.instanceMatrix.needsUpdate = true;
+    colorAttrRef.current.copyArray(nextColors);
+    colorAttrRef.current.needsUpdate = true;
+  }, [points, selectedIndex, getPointColor, setPointScaleAtIndex]);
+
+  // Targeted repaint on hover — only the prev + next hovered instances.
+  useEffect(() => {
+    if (!meshRef.current) {
+      previousHoveredRef.current = hoveredIndex;
+      return;
+    }
+    const touched = new Set<number>();
+    if (previousHoveredRef.current !== null) touched.add(previousHoveredRef.current);
+    if (hoveredIndex !== null) touched.add(hoveredIndex);
+    if (touched.size === 0) return;
+
+    for (const idx of touched) {
+      const scale = idx === hoveredIndex || idx === selectedIndex ? HOVER_SCALE : 1;
+      setPointScaleAtIndex(idx, scale);
+    }
+    meshRef.current.instanceMatrix.needsUpdate = true;
+    previousHoveredRef.current = hoveredIndex;
+  }, [hoveredIndex, selectedIndex, setPointScaleAtIndex]);
 
   const handlePointerMove = useCallback(
     (e: ThreeEvent<PointerEvent>) => {
       e.stopPropagation();
-      if (e.instanceId !== undefined) {
-        onHover(e.instanceId);
+      if (e.instanceId !== undefined && e.instanceId < points.length) {
+        if (e.instanceId !== hoveredIndex) onHover(e.instanceId);
       }
     },
-    [onHover],
+    [hoveredIndex, points.length, onHover],
   );
 
   const handlePointerOut = useCallback(() => {
-    onHover(null);
-  }, [onHover]);
+    if (hoveredIndex !== null) onHover(null);
+  }, [hoveredIndex, onHover]);
 
   const handleClick = useCallback(
     (e: ThreeEvent<MouseEvent>) => {
       e.stopPropagation();
-      if (e.instanceId !== undefined) {
+      if (e.instanceId !== undefined && e.instanceId < points.length) {
         onClick(e.instanceId);
       }
     },
-    [onClick],
+    [points.length, onClick],
   );
+
+  if (points.length === 0) return null;
 
   return (
     <instancedMesh
       ref={meshRef}
-      args={[undefined, undefined, count]}
+      args={[undefined, undefined, points.length]}
       onPointerMove={handlePointerMove}
       onPointerOut={handlePointerOut}
       onClick={handleClick}
+      raycast={points.length > 0 ? undefined : ignoreRaycast}
     >
-      <sphereGeometry args={[0.025, 8, 8]}>
-        <instancedBufferAttribute
-          attach="attributes-color"
-          args={[colorArray, 3]}
-        />
-      </sphereGeometry>
+      <sphereGeometry args={[POINT_RADIUS, POINT_SEGMENTS, POINT_SEGMENTS]} />
       <meshBasicMaterial vertexColors toneMapped={false} />
     </instancedMesh>
   );
 }
 
-// ── Tooltip Component ────────────────────────────────────────────────
+// ── Hover Tooltip (matches vector-explorer ThreeScene tooltip chrome) ─
 
 interface TooltipProps {
   point: LandscapePoint;
   clusters: LandscapeCluster[];
-  is2D: boolean;
 }
 
-function PointTooltip({ point, clusters, is2D }: TooltipProps) {
+function PointTooltip({ point, clusters }: TooltipProps) {
   const cluster = clusters.find((c) => c.id === point.cluster_id);
   return (
     <Html
-      position={[point.x, point.y, is2D ? 0 : (point.z ?? 0)]}
+      position={[point.x, point.y + 0.15, point.z ?? 0]}
       center
+      zIndexRange={[100, 0]}
       style={{ pointerEvents: "none" }}
     >
-      <div className="rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)]/95 px-3 py-2 text-xs text-[var(--color-text-secondary)] shadow-xl backdrop-blur-sm whitespace-nowrap">
-        <div className="font-semibold text-[var(--color-text-primary)]">
+      <div
+        className="pointer-events-none whitespace-nowrap rounded bg-surface-raised/95 px-2 py-1 text-xs shadow-xl backdrop-blur"
+        style={{ border: `1px solid ${ACCENT_BORDER}` }}
+      >
+        <div
+          className="font-['IBM_Plex_Mono',monospace]"
+          style={{ color: ACCENT_COLOR }}
+        >
           Person {point.person_id}
         </div>
-        <div className="mt-1 space-y-0.5">
-          <div>
-            Age bucket: <span className="text-[var(--color-primary)]">{point.age_bucket}</span>
-          </div>
-          <div>
-            Gender:{" "}
-            <span className="text-[var(--color-primary)]">
-              {GENDER_LABELS[point.gender_concept_id] ?? `ID ${point.gender_concept_id}`}
+        <div className="text-text-muted">
+          Age bucket:{" "}
+          <span className="text-text-secondary">{point.age_bucket}</span>
+        </div>
+        <div className="text-text-muted">
+          Gender:{" "}
+          <span className="text-text-secondary">
+            {GENDER_LABELS[point.gender_concept_id] ?? `ID ${point.gender_concept_id}`}
+          </span>
+        </div>
+        {cluster && (
+          <div className="text-text-muted">
+            Cluster:{" "}
+            <span className="text-text-secondary">
+              {cluster.label ?? `#${cluster.id}`}
             </span>
           </div>
-          {cluster && (
-            <div>
-              Cluster: <span className="text-[var(--color-text-primary)]">{cluster.label ?? `#${cluster.id}`}</span>
-            </div>
-          )}
-          {point.is_cohort_member && (
-            <div className="text-[var(--color-primary)] font-medium">Cohort member</div>
-          )}
-        </div>
+        )}
+        {point.is_cohort_member && (
+          <div className="mt-0.5" style={{ color: ACCENT_COLOR }}>
+            Cohort member
+          </div>
+        )}
       </div>
     </Html>
+  );
+}
+
+// ── Scene wrapper (mirrors vector-explorer ThreeScene) ───────────────
+
+interface SceneProps {
+  points: LandscapePoint[];
+  clusters: LandscapeCluster[];
+  colorMode: ColorMode;
+  is2D: boolean;
+  hoveredIndex: number | null;
+  selectedIndex: number | null;
+  onHover: (index: number | null) => void;
+  onClick: (index: number) => void;
+  autoRotateDisabled: boolean;
+}
+
+function Scene({
+  points,
+  clusters,
+  colorMode,
+  is2D,
+  hoveredIndex,
+  selectedIndex,
+  onHover,
+  onClick,
+  autoRotateDisabled,
+}: SceneProps) {
+  const [isPointerInside, setIsPointerInside] = useState(false);
+  const hoveredPoint = hoveredIndex !== null ? points[hoveredIndex] : null;
+
+  return (
+    <div
+      className="h-full w-full"
+      onPointerEnter={() => setIsPointerInside(true)}
+      onPointerLeave={() => setIsPointerInside(false)}
+    >
+      <Canvas
+        camera={{
+          position: is2D ? [0, 0, 2.5] : [2, 2, 2],
+          fov: 50,
+        }}
+        style={{ background: SCENE_BG }}
+        dpr={[1, 2]}
+      >
+        <ambientLight intensity={0.8} />
+        <PointCloud
+          points={points}
+          colorMode={colorMode}
+          hoveredIndex={hoveredIndex}
+          selectedIndex={selectedIndex}
+          onHover={onHover}
+          onClick={onClick}
+        />
+        <OrbitControls
+          autoRotate={!is2D && !autoRotateDisabled && !isPointerInside}
+          autoRotateSpeed={0.5}
+          enableRotate={!is2D}
+          enablePan
+          enableZoom
+          dampingFactor={0.1}
+          enableDamping
+          makeDefault
+        />
+        {hoveredPoint && <PointTooltip point={hoveredPoint} clusters={clusters} />}
+      </Canvas>
+    </div>
   );
 }
 
@@ -202,11 +317,13 @@ export function PatientLandscape({
   stats,
   onPatientClick,
 }: PatientLandscapeProps) {
-  const [is2D, setIs2D] = useState(false);
-  const [colorByCluster, setColorByCluster] = useState(false);
+  const [dimensions, setDimensions] = useState<2 | 3>(3);
+  const [colorMode, setColorMode] = useState<ColorMode>("cohort");
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
 
-  const hoveredPoint = hoveredIndex !== null ? points[hoveredIndex] : null;
+  const is2D = dimensions === 2;
   const cohortCount = useMemo(
     () => points.filter((p) => p.is_cohort_member).length,
     [points],
@@ -214,157 +331,180 @@ export function PatientLandscape({
 
   const handleClick = useCallback(
     (index: number) => {
+      setSelectedIndex(index);
       const p = points[index];
-      if (p && onPatientClick) {
-        onPatientClick(p.person_id);
-      }
+      if (p && onPatientClick) onPatientClick(p.person_id);
     },
     [points, onPatientClick],
   );
 
-  return (
-    <div className="flex flex-col rounded-lg border border-[var(--color-surface-overlay)] bg-[var(--color-surface-base)] overflow-hidden">
-      {/* Top bar */}
-      <div className="flex items-center justify-between border-b border-[var(--color-surface-overlay)] px-4 py-2">
-        <div className="flex items-center gap-4">
-          {/* 2D / 3D toggle */}
-          <div className="flex rounded border border-[var(--color-surface-overlay)] overflow-hidden">
-            <button
-              type="button"
-              onClick={() => setIs2D(false)}
-              className={cn(
-                "px-2.5 py-1 text-xs font-medium transition-colors",
-                !is2D
-                  ? "bg-[var(--color-primary)]/10 text-[var(--color-primary)]"
-                  : "bg-[var(--color-surface-base)] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]",
-              )}
-            >
-              <Layers size={12} className="inline mr-1" />
-              3D
-            </button>
-            <button
-              type="button"
-              onClick={() => setIs2D(true)}
-              className={cn(
-                "px-2.5 py-1 text-xs font-medium transition-colors",
-                is2D
-                  ? "bg-[var(--color-primary)]/10 text-[var(--color-primary)]"
-                  : "bg-[var(--color-surface-base)] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]",
-              )}
-            >
-              <Grid3X3 size={12} className="inline mr-1" />
-              2D
-            </button>
-          </div>
+  const sceneContent = (
+    <Scene
+      points={points}
+      clusters={clusters}
+      colorMode={colorMode}
+      is2D={is2D}
+      hoveredIndex={hoveredIndex}
+      selectedIndex={selectedIndex}
+      onHover={setHoveredIndex}
+      onClick={handleClick}
+      autoRotateDisabled={isExpanded}
+    />
+  );
 
-          {/* Cluster color toggle */}
-          <button
-            type="button"
-            onClick={() => setColorByCluster((v) => !v)}
-            className={cn(
-              "px-2.5 py-1 text-xs font-medium rounded border transition-colors",
-              colorByCluster
-                ? "border-[var(--color-primary)]/30 text-[var(--color-primary)] bg-[var(--color-primary)]/10"
-                : "border-[var(--color-surface-overlay)] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]",
-            )}
-          >
-            {colorByCluster ? "Cluster colors" : "Cohort colors"}
-          </button>
-        </div>
-
-        {/* Stats */}
-        <div className="flex items-center gap-4 text-xs text-[var(--color-text-muted)]">
-          <span>
-            <span className="text-[var(--color-text-primary)] font-medium">
-              {points.length.toLocaleString()}
-            </span>{" "}
-            patients projected
-          </span>
-          {stats?.projection_time_ms != null && stats.projection_time_ms > 0 && (
-            <span>
-              in{" "}
-              <span className="text-[var(--color-text-primary)]">
-                {(stats.projection_time_ms / 1000).toFixed(1)}s
-              </span>
-            </span>
-          )}
-          {clusters.length > 0 && (
-            <span>
-              <span className="text-[var(--color-primary)]">{clusters.length}</span> clusters
-            </span>
-          )}
+  const header = (
+    <div className="flex items-center justify-between border-b border-border-default bg-surface-base px-4 py-2">
+      <div className="flex items-center gap-3">
+        <h3 className="text-sm font-semibold text-text-primary">
+          {dimensions}D Patient Landscape
+        </h3>
+        <div className="flex items-center gap-1 rounded border border-border-default bg-surface-base p-0.5">
+          <span className="px-1 text-xs text-text-ghost">Color</span>
+          {(["cohort", "cluster"] as const).map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              onClick={() => setColorMode(mode)}
+              className="rounded px-2 py-0.5 text-xs font-medium transition-colors"
+              style={
+                colorMode === mode
+                  ? { background: ACCENT_BG, color: ACCENT_COLOR }
+                  : { color: "var(--text-ghost)" }
+              }
+            >
+              {mode === "cohort" ? "Cohort" : "Cluster"}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Canvas */}
-      <div className="relative" style={{ height: 560 }}>
-        <Canvas
-          camera={{
-            position: is2D ? [0, 0, 2.5] : [1.5, 1.5, 1.5],
-            fov: 50,
-            near: 0.01,
-            far: 100,
+      <div className="flex items-center gap-3">
+        <DimensionToggle
+          value={dimensions}
+          onChange={setDimensions}
+          accentColor={ACCENT_COLOR}
+          accentBg={ACCENT_BG}
+        />
+        <button
+          type="button"
+          onClick={() => {
+            setHoveredIndex(null);
+            setSelectedIndex(null);
           }}
-          style={{ background: SCENE_BG }}
-          gl={{ antialias: true }}
+          title="Reset selection"
+          className="rounded p-1 text-text-muted hover:bg-surface-raised hover:text-text-primary"
         >
-          <ambientLight intensity={1} />
-          <PointCloud
-            points={points}
-            colorByCluster={colorByCluster}
-            is2D={is2D}
-            onHover={setHoveredIndex}
-            onClick={handleClick}
-          />
-          {hoveredPoint && (
-            <PointTooltip
-              point={hoveredPoint}
-              clusters={clusters}
-              is2D={is2D}
-            />
+          <RefreshCw className="h-3.5 w-3.5" />
+        </button>
+        <button
+          type="button"
+          onClick={() => setIsExpanded((v) => !v)}
+          title={isExpanded ? "Collapse" : "Expand"}
+          className="rounded p-1 text-text-muted hover:bg-surface-raised hover:text-text-primary"
+        >
+          {isExpanded ? (
+            <Minimize2 className="h-3.5 w-3.5" />
+          ) : (
+            <Maximize2 className="h-3.5 w-3.5" />
           )}
-          <OrbitControls
-            enableRotate={!is2D}
-            enablePan
-            enableZoom
-            makeDefault
-          />
-        </Canvas>
+        </button>
       </div>
+    </div>
+  );
 
-      {/* Legend */}
-      <div className="flex items-center gap-6 border-t border-[var(--color-surface-overlay)] px-4 py-2 text-xs text-[var(--color-text-muted)]">
-        {!colorByCluster ? (
-          <>
-            <div className="flex items-center gap-1.5">
-              <span
-                className="inline-block h-2.5 w-2.5 rounded-full"
-                style={{ background: COHORT_COLOR }}
-              />
-              Cohort members ({cohortCount.toLocaleString()})
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span
-                className="inline-block h-2.5 w-2.5 rounded-full"
-                style={{ background: NON_MEMBER_COLOR }}
-              />
-              Non-members ({(points.length - cohortCount).toLocaleString()})
-            </div>
-          </>
-        ) : (
-          clusters.map((c) => (
-            <div key={c.id} className="flex items-center gap-1.5">
-              <span
-                className="inline-block h-2.5 w-2.5 rounded-full"
-                style={{
-                  background: `var(${CLUSTER_COLOR_VARS[c.id % CLUSTER_COLOR_VARS.length][0]})`,
-                }}
-              />
-              {c.label ?? `Cluster ${c.id}`} ({c.size})
-            </div>
-          ))
+  const statsBar = (
+    <div className="flex items-center justify-between border-t border-border-default bg-surface-base px-4 py-1.5 text-xs text-text-ghost">
+      <div className="flex items-center gap-4">
+        <span>
+          <span className="text-text-secondary font-medium">
+            {points.length.toLocaleString()}
+          </span>{" "}
+          patients
+        </span>
+        {clusters.length > 0 && (
+          <span>
+            <span className="text-text-secondary">{clusters.length}</span> clusters
+          </span>
+        )}
+        {stats?.projection_time_ms != null && stats.projection_time_ms > 0 && (
+          <span>
+            Projection{" "}
+            <span className="font-['IBM_Plex_Mono',monospace] text-text-muted">
+              {(stats.projection_time_ms / 1000).toFixed(1)}s
+            </span>
+          </span>
         )}
       </div>
+    </div>
+  );
+
+  // Legend — cluster mode or cohort mode.
+  const legend = (
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-border-default bg-surface-base px-4 py-2 text-xs">
+      {colorMode === "cohort" ? (
+        <>
+          <div className="flex items-center gap-1.5 text-text-secondary">
+            <span
+              className="inline-block h-2.5 w-2.5 rounded-full"
+              style={{ background: CLUSTER_PALETTE[0] }}
+            />
+            Cohort members{" "}
+            <span className="text-text-ghost">({cohortCount.toLocaleString()})</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-text-secondary">
+            <span
+              className="inline-block h-2.5 w-2.5 rounded-full"
+              style={{ background: CLUSTER_PALETTE[1] }}
+            />
+            Non-members{" "}
+            <span className="text-text-ghost">
+              ({(points.length - cohortCount).toLocaleString()})
+            </span>
+          </div>
+        </>
+      ) : (
+        clusters.map((c) => (
+          <div
+            key={c.id}
+            className="flex items-center gap-1.5 text-text-secondary"
+          >
+            <span
+              className="inline-block h-2.5 w-2.5 rounded-full"
+              style={{
+                background: CLUSTER_PALETTE[c.id % CLUSTER_PALETTE.length],
+              }}
+            />
+            {c.label ?? `Cluster ${c.id}`}{" "}
+            <span className="text-text-ghost">({c.size.toLocaleString()})</span>
+          </div>
+        ))
+      )}
+    </div>
+  );
+
+  if (isExpanded) {
+    return createPortal(
+      <div
+        className="fixed inset-0 flex flex-col bg-surface-darkest"
+        style={{ zIndex: 200 }}
+      >
+        {header}
+        <div className="flex-1">{sceneContent}</div>
+        {legend}
+        {statsBar}
+      </div>,
+      document.body,
+    );
+  }
+
+  return (
+    <div className="flex flex-col overflow-hidden rounded-lg border border-border-default bg-surface-base">
+      {header}
+      <div className="relative" style={{ height: 560 }}>
+        {sceneContent}
+      </div>
+      {legend}
+      {statsBar}
     </div>
   );
 }

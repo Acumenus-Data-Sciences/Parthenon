@@ -1,11 +1,7 @@
 import { useMemo } from "react";
 import type { LandscapeResult } from "../types/patientSimilarity";
 import { PatientLandscape } from "./PatientLandscape";
-
-const CLUSTER_PALETTE = [
-  "var(--color-primary)", "var(--color-accent)", "var(--color-critical)", "var(--color-chart-4)", "var(--color-domain-procedure)",
-  "var(--color-info)", "var(--color-domain-observation)", "var(--color-domain-device)", "var(--color-chart-5)", "var(--color-chart-8)",
-];
+import { CLUSTER_PALETTE } from "@/features/administration/components/vector-explorer/constants";
 
 const GENDER_LABELS: Record<number, string> = { 8507: "Male", 8532: "Female" };
 
@@ -116,11 +112,9 @@ export function LandscapePanel({ result, onContinue }: LandscapePanelProps) {
         <button
           type="button"
           onClick={onContinue}
-          disabled
-          title="Phenotype Discovery will be available in a future update"
-          className="rounded-md bg-[var(--color-primary)]/20 px-4 py-2 text-sm font-medium text-[var(--color-primary)]/50 cursor-not-allowed"
+          className="rounded-md bg-[var(--color-primary)]/10 px-4 py-2 text-sm font-medium text-[var(--color-primary)] transition-colors hover:bg-[var(--color-primary)]/20"
         >
-          Phenotype Discovery (coming soon)
+          Continue to Phenotype Discovery
         </button>
       </div>
     </div>
