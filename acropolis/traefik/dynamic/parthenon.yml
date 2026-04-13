@@ -11,11 +11,6 @@ http:
       entryPoints:
         - web
       service: parthenon-study-agent
-    parthenon-finngen:
-      rule: "Host(`finngen.acumenus.net`)"
-      entryPoints:
-        - web
-      service: parthenon-finngen
     parthenon-prometheus:
       rule: "Host(`prometheus.acumenus.net`)"
       entryPoints:
@@ -89,10 +84,6 @@ http:
       loadBalancer:
         servers:
           - url: "http://parthenon-study-agent:8765"
-    parthenon-finngen:
-      loadBalancer:
-        servers:
-          - url: "http://parthenon-finngen-runner:8786"
     parthenon-prometheus:
       loadBalancer:
         servers:
