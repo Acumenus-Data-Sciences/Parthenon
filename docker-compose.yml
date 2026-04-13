@@ -375,47 +375,6 @@ services:
     profiles:
       - build
 
-  finngen-runner:
-    container_name: parthenon-finngen-runner
-    image: ghcr.io/sudoshi/parthenon-finngen-runner:latest
-    build:
-      context: .
-      dockerfile: docker/finngen-runner/Dockerfile
-    ports:
-      - "${FINNGEN_RUNNER_PORT:-8786}:8786"
-    volumes:
-      - ./external/finngen:/opt/finngen:ro
-      - finngen-runner-state:/opt/runner-state
-      - finngen-runner-r-lib:/usr/local/lib/R/site-library
-    environment:
-      - MAKEFLAGS=-j1
-      - MAKE=make -j1
-      - CMAKE_BUILD_PARALLEL_LEVEL=1
-      - R_REMOTES_UPGRADE=never
-      - DATABASECONNECTOR_JAR_FOLDER=/opt/runner-state/jdbc
-      - CDM_DB_HOST=${DB_HOST:-pgsql.acumenus.net}
-      - CDM_DB_PORT=${DB_PORT:-5432}
-      - CDM_DB_DATABASE=${DB_DATABASE:-ohdsi}
-      - CDM_DB_USERNAME=${DB_USERNAME:-smudoshi}
-      - CDM_DB_PASSWORD=${DB_PASSWORD:-acumenus}
-      - CDM_DB_SCHEMA=${CDM_DB_SEARCH_PATH:-cdm}
-      - VOCAB_DB_SCHEMA=${VOCAB_DB_SEARCH_PATH:-vocab}
-      - RESULTS_DB_SCHEMA=${RESULTS_DB_SEARCH_PATH:-results}
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8786/health')"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 20m
-    mem_limit: 24g
-    deploy:
-      resources:
-        limits:
-          memory: 24G
-    networks:
-      - parthenon
-    restart: unless-stopped
-
   qdrant:
     container_name: parthenon-qdrant
     image: qdrant/qdrant:v1.17.1
@@ -1118,8 +1077,6 @@ volumes:
   chromadb-data:
   study-agent-data:
   qdrant-data:
-  finngen-runner-state:
-  finngen-runner-r-lib:
   finngen-artifacts:
     name: parthenon_finngen_artifacts
   hecate-data:
