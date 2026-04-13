@@ -74,6 +74,7 @@ use App\Services\Cohort\Criteria\CriteriaBuilderRegistry;
 use App\Services\Cohort\Criteria\DemographicCriteriaBuilder;
 use App\Services\Cohort\Schema\CohortExpressionSchema;
 use App\Services\FinnGen\FinnGenArtifactService;
+use App\Services\FinnGen\FinnGenIdempotencyStore;
 use App\Services\SqlRenderer\SqlRendererService;
 use Illuminate\Console\Events\CommandStarting;
 use Illuminate\Support\Facades\Config;
@@ -168,6 +169,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(FinnGenArtifactService::class, fn () => new FinnGenArtifactService(
             (string) config('finngen.artifacts_path'),
             (int) config('finngen.artifacts_stream_threshold_bytes'),
+        ));
+
+        $this->app->singleton(FinnGenIdempotencyStore::class, fn () => new FinnGenIdempotencyStore(
+            (int) config('finngen.idempotency_ttl_seconds'),
         ));
     }
 
