@@ -53,6 +53,14 @@ RUN wget -O /usr/local/bin/php-fpm-healthcheck \
 COPY docker/php/php.ini /usr/local/etc/php/conf.d/custom.ini
 COPY docker/php/www.conf /usr/local/etc/php-fpm.d/zz-custom.conf
 
+# Graceful reload: wait up to 5 minutes for in-flight workers to finish
+# before killing them on USR2. Default 0 = kill immediately, which aborts
+# long-running requests (Patient Similarity PSM / landscape) mid-compute.
+RUN sed -i 's/^;\?process_control_timeout\s*=.*/process_control_timeout = 300s/' \
+      /usr/local/etc/php-fpm.conf \
+    && grep -q '^process_control_timeout' /usr/local/etc/php-fpm.conf \
+    || echo 'process_control_timeout = 300s' >> /usr/local/etc/php-fpm.conf
+
 WORKDIR /var/www/html
 
 # Install dependencies (cached layer)

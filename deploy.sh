@@ -154,16 +154,23 @@ clear_runtime_caches() {
       fi
     fi
 
-    if docker compose exec -T php kill -USR2 1 2>/dev/null; then
-      ok "php-fpm reloaded (USR2)"
-    else
-      warn "USR2 signal failed — restarting PHP container"
-      if docker compose restart php >/dev/null 2>&1; then
-        ok "PHP container restarted"
+    # Only reload php-fpm when PHP code or DB changed. Frontend-only deploys
+    # don't need it, and a USR2 reload mid-request kills long-running jobs
+    # (2026-04-12: killed an in-flight propensity-match at 82s → user saw 502).
+    if $DO_PHP || $DO_DB || $DO_OPENAPI; then
+      if docker compose exec -T php kill -USR2 1 2>/dev/null; then
+        ok "php-fpm reloaded (USR2)"
       else
-        fail "PHP container failed to restart"
-        ERRORS=$((ERRORS + 1))
+        warn "USR2 signal failed — restarting PHP container"
+        if docker compose restart php >/dev/null 2>&1; then
+          ok "PHP container restarted"
+        else
+          fail "PHP container failed to restart"
+          ERRORS=$((ERRORS + 1))
+        fi
       fi
+    else
+      ok "php-fpm reload skipped (frontend-only deploy)"
     fi
   fi
 
