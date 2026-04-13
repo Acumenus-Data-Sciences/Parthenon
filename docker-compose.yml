@@ -38,6 +38,7 @@ services:
       - ./external/finngen:/opt/finngen:ro
       - ./dicom_samples:/var/www/html/dicom_samples:ro
       - ./.resendapikey:/var/www/.resendapikey:ro
+      - finngen-artifacts:/opt/finngen-artifacts
     env_file:
       - ./backend/.env
     environment:
@@ -558,6 +559,7 @@ services:
       - "${R_PORT:-8787}:8787"
     volumes:
       - ./darkstar:/app
+      - finngen-artifacts:/opt/finngen-artifacts
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
@@ -1118,6 +1120,8 @@ volumes:
   qdrant-data:
   finngen-runner-state:
   finngen-runner-r-lib:
+  finngen-artifacts:
+    name: parthenon_finngen_artifacts
   hecate-data:
   ohif-dist:
   prometheus_data:
