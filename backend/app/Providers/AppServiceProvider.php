@@ -73,6 +73,7 @@ use App\Services\Cohort\CohortSqlCompiler;
 use App\Services\Cohort\Criteria\CriteriaBuilderRegistry;
 use App\Services\Cohort\Criteria\DemographicCriteriaBuilder;
 use App\Services\Cohort\Schema\CohortExpressionSchema;
+use App\Services\FinnGen\FinnGenArtifactService;
 use App\Services\SqlRenderer\SqlRendererService;
 use Illuminate\Console\Events\CommandStarting;
 use Illuminate\Support\Facades\Config;
@@ -162,6 +163,12 @@ class AppServiceProvider extends ServiceProvider
                 $app->make(CohortSqlCompiler::class),
             );
         });
+
+        // FinnGen SP1 services
+        $this->app->singleton(FinnGenArtifactService::class, fn () => new FinnGenArtifactService(
+            (string) config('finngen.artifacts_path'),
+            (int) config('finngen.artifacts_stream_threshold_bytes'),
+        ));
     }
 
     /**
