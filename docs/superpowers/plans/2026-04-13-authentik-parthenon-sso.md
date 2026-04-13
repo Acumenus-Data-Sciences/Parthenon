@@ -228,9 +228,12 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::connection('pgsql')->create('app.user_external_identities', function (Blueprint $table) {
+        // The default `pgsql` connection has search_path=app,php so bare table
+        // names resolve into app.*. Follow the existing migration pattern
+        // (see 2026_03_01_151000_create_cohort_definitions_table.php).
+        Schema::create('user_external_identities', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('app.users')->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('provider', 32);
             $table->string('provider_subject', 255);
             $table->string('provider_email_at_link', 255)->nullable();
@@ -244,7 +247,7 @@ return new class extends Migration {
 
     public function down(): void
     {
-        Schema::connection('pgsql')->dropIfExists('app.user_external_identities');
+        Schema::dropIfExists('user_external_identities');
     }
 };
 ```
@@ -262,7 +265,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class UserExternalIdentity extends Model
 {
-    protected $table = 'app.user_external_identities';
+    // Bare table name; search_path=app,php on the default connection.
+    protected $table = 'user_external_identities';
 
     protected $fillable = [
         'user_id', 'provider', 'provider_subject',
@@ -397,7 +401,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::connection('pgsql')->create('app.oidc_email_aliases', function (Blueprint $table) {
+        Schema::create('oidc_email_aliases', function (Blueprint $table) {
             $table->id();
             $table->string('alias_email', 255)->unique();
             $table->string('canonical_email', 255);
@@ -410,7 +414,7 @@ return new class extends Migration {
 
     public function down(): void
     {
-        Schema::connection('pgsql')->dropIfExists('app.oidc_email_aliases');
+        Schema::dropIfExists('oidc_email_aliases');
     }
 };
 ```
@@ -426,7 +430,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class OidcEmailAlias extends Model
 {
-    protected $table = 'app.oidc_email_aliases';
+    protected $table = 'oidc_email_aliases';
 
     protected $fillable = ['alias_email', 'canonical_email', 'note'];
 
