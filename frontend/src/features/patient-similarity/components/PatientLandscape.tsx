@@ -2,7 +2,7 @@ import { useRef, useMemo, useCallback, useState, useEffect } from "react";
 import { Canvas, type ThreeEvent } from "@react-three/fiber";
 import { OrbitControls, Html } from "@react-three/drei";
 import * as THREE from "three";
-import { RefreshCw, Maximize2, Minimize2 } from "lucide-react";
+import { RefreshCw, Maximize2, Minimize2, X } from "lucide-react";
 import { createPortal } from "react-dom";
 import DimensionToggle from "@/features/administration/components/vector-explorer/DimensionToggle";
 import {
@@ -12,7 +12,11 @@ import {
   HOVER_SCALE,
   SCENE_BG,
 } from "@/features/administration/components/vector-explorer/constants";
-import type { LandscapePoint, LandscapeCluster, LandscapeResult } from "../types/patientSimilarity";
+import type {
+  LandscapePoint,
+  LandscapeCluster,
+  LandscapeResult,
+} from "../types/patientSimilarity";
 
 // ── Constants ────────────────────────────────────────────────────────
 
@@ -21,7 +25,7 @@ const GENDER_LABELS: Record<number, string> = {
   8532: "Female",
 };
 
-// Accent for controls chrome (matches Vector Explorer default "docs" theme).
+// Accent for controls chrome (matches Vector Explorer default theme).
 const ACCENT_COLOR = "var(--success)";
 const ACCENT_BG = "rgba(45, 212, 191, 0.10)";
 const ACCENT_BORDER = "rgba(45, 212, 191, 0.25)";
@@ -31,6 +35,16 @@ const tempColor = new THREE.Color();
 const ignoreRaycast: THREE.Object3D["raycast"] = () => {};
 
 type ColorMode = "cohort" | "cluster";
+
+function ageBucketLabel(bucket: number | null | undefined): string {
+  if (bucket == null) return "—";
+  const lo = bucket * 5;
+  return `${lo}–${lo + 4}`;
+}
+
+function genderLabel(id: number): string {
+  return GENDER_LABELS[id] ?? `Concept ${id}`;
+}
 
 // ── Props ────────────────────────────────────────────────────────────
 
@@ -47,16 +61,18 @@ interface PointCloudProps {
   points: LandscapePoint[];
   colorMode: ColorMode;
   hoveredIndex: number | null;
-  selectedIndex: number | null;
+  selectedIndices: Set<number>;
+  hiddenClusterIds: Set<number>;
   onHover: (index: number | null) => void;
-  onClick: (index: number) => void;
+  onClick: (index: number, multi: boolean) => void;
 }
 
 function PointCloud({
   points,
   colorMode,
   hoveredIndex,
-  selectedIndex,
+  selectedIndices,
+  hiddenClusterIds,
   onHover,
   onClick,
 }: PointCloudProps) {
@@ -64,7 +80,7 @@ function PointCloud({
   const colorAttrRef = useRef<THREE.InstancedBufferAttribute | null>(null);
   const previousHoveredRef = useRef<number | null>(null);
 
-  // Create (and replace) the color attribute whenever point count changes.
+  // (Re)allocate the per-instance color attribute whenever point count changes.
   useEffect(() => {
     const mesh = meshRef.current;
     if (!mesh) return;
@@ -85,37 +101,35 @@ function PointCloud({
       if (colorMode === "cluster") {
         return CLUSTER_PALETTE[point.cluster_id % CLUSTER_PALETTE.length];
       }
-      // Cohort mode — use the same categorical palette so colors stay
-      // consistent with the Vector Explorer. Cohort members = class 0,
-      // non-members = class 1.
-      return point.is_cohort_member
-        ? CLUSTER_PALETTE[0]
-        : CLUSTER_PALETTE[1];
+      return point.is_cohort_member ? CLUSTER_PALETTE[0] : CLUSTER_PALETTE[1];
     },
     [colorMode],
   );
 
-  const setPointScaleAtIndex = useCallback(
-    (index: number, scale: number) => {
+  const setPointMatrixAtIndex = useCallback(
+    (index: number, scale: number, hidden: boolean) => {
       if (!meshRef.current || index < 0 || index >= points.length) return;
       const p = points[index];
       tempObject.position.set(p.x, p.y, p.z ?? 0);
-      tempObject.scale.setScalar(scale);
+      tempObject.scale.setScalar(hidden ? 0 : scale);
       tempObject.updateMatrix();
       meshRef.current.setMatrixAt(index, tempObject.matrix);
     },
     [points],
   );
 
-  // Full rebuild of matrices + colors when points or color mode change.
+  // Full rebuild — matrices + colors — on points / colorMode / selection /
+  // visibility changes.
   useEffect(() => {
     if (!meshRef.current || !colorAttrRef.current) return;
     const nextColors = new Float32Array(points.length * 3);
 
     for (let i = 0; i < points.length; i++) {
       const p = points[i];
-      const scale = i === selectedIndex ? HOVER_SCALE : 1;
-      setPointScaleAtIndex(i, scale);
+      const hidden = hiddenClusterIds.has(p.cluster_id);
+      const scale =
+        i === hoveredIndex || selectedIndices.has(i) ? HOVER_SCALE : 1;
+      setPointMatrixAtIndex(i, scale, hidden);
 
       tempColor.set(getPointColor(p));
       nextColors[i * 3] = tempColor.r;
@@ -126,7 +140,14 @@ function PointCloud({
     meshRef.current.instanceMatrix.needsUpdate = true;
     colorAttrRef.current.copyArray(nextColors);
     colorAttrRef.current.needsUpdate = true;
-  }, [points, selectedIndex, getPointColor, setPointScaleAtIndex]);
+  }, [
+    points,
+    hoveredIndex,
+    selectedIndices,
+    hiddenClusterIds,
+    getPointColor,
+    setPointMatrixAtIndex,
+  ]);
 
   // Targeted repaint on hover — only the prev + next hovered instances.
   useEffect(() => {
@@ -135,26 +156,39 @@ function PointCloud({
       return;
     }
     const touched = new Set<number>();
-    if (previousHoveredRef.current !== null) touched.add(previousHoveredRef.current);
+    if (previousHoveredRef.current !== null)
+      touched.add(previousHoveredRef.current);
     if (hoveredIndex !== null) touched.add(hoveredIndex);
     if (touched.size === 0) return;
 
     for (const idx of touched) {
-      const scale = idx === hoveredIndex || idx === selectedIndex ? HOVER_SCALE : 1;
-      setPointScaleAtIndex(idx, scale);
+      const p = points[idx];
+      if (!p) continue;
+      const hidden = hiddenClusterIds.has(p.cluster_id);
+      const scale =
+        idx === hoveredIndex || selectedIndices.has(idx) ? HOVER_SCALE : 1;
+      setPointMatrixAtIndex(idx, scale, hidden);
     }
     meshRef.current.instanceMatrix.needsUpdate = true;
     previousHoveredRef.current = hoveredIndex;
-  }, [hoveredIndex, selectedIndex, setPointScaleAtIndex]);
+  }, [
+    hoveredIndex,
+    selectedIndices,
+    hiddenClusterIds,
+    points,
+    setPointMatrixAtIndex,
+  ]);
 
   const handlePointerMove = useCallback(
     (e: ThreeEvent<PointerEvent>) => {
       e.stopPropagation();
       if (e.instanceId !== undefined && e.instanceId < points.length) {
+        const p = points[e.instanceId];
+        if (hiddenClusterIds.has(p.cluster_id)) return;
         if (e.instanceId !== hoveredIndex) onHover(e.instanceId);
       }
     },
-    [hoveredIndex, points.length, onHover],
+    [hoveredIndex, points, hiddenClusterIds, onHover],
   );
 
   const handlePointerOut = useCallback(() => {
@@ -165,10 +199,12 @@ function PointCloud({
     (e: ThreeEvent<MouseEvent>) => {
       e.stopPropagation();
       if (e.instanceId !== undefined && e.instanceId < points.length) {
-        onClick(e.instanceId);
+        const p = points[e.instanceId];
+        if (hiddenClusterIds.has(p.cluster_id)) return;
+        onClick(e.instanceId, e.shiftKey);
       }
     },
-    [points.length, onClick],
+    [points, hiddenClusterIds, onClick],
   );
 
   if (points.length === 0) return null;
@@ -188,7 +224,7 @@ function PointCloud({
   );
 }
 
-// ── Hover Tooltip (matches vector-explorer ThreeScene tooltip chrome) ─
+// ── Hover Tooltip (inside canvas via drei <Html>) ────────────────────
 
 interface TooltipProps {
   point: LandscapePoint;
@@ -216,12 +252,12 @@ function PointTooltip({ point, clusters }: TooltipProps) {
         </div>
         <div className="text-text-muted">
           Age bucket:{" "}
-          <span className="text-text-secondary">{point.age_bucket}</span>
+          <span className="text-text-secondary">{ageBucketLabel(point.age_bucket)}</span>
         </div>
         <div className="text-text-muted">
           Gender:{" "}
           <span className="text-text-secondary">
-            {GENDER_LABELS[point.gender_concept_id] ?? `ID ${point.gender_concept_id}`}
+            {genderLabel(point.gender_concept_id)}
           </span>
         </div>
         {cluster && (
@@ -242,7 +278,7 @@ function PointTooltip({ point, clusters }: TooltipProps) {
   );
 }
 
-// ── Scene wrapper (mirrors vector-explorer ThreeScene) ───────────────
+// ── Scene wrapper ────────────────────────────────────────────────────
 
 interface SceneProps {
   points: LandscapePoint[];
@@ -250,9 +286,10 @@ interface SceneProps {
   colorMode: ColorMode;
   is2D: boolean;
   hoveredIndex: number | null;
-  selectedIndex: number | null;
+  selectedIndices: Set<number>;
+  hiddenClusterIds: Set<number>;
   onHover: (index: number | null) => void;
-  onClick: (index: number) => void;
+  onClick: (index: number, multi: boolean) => void;
   autoRotateDisabled: boolean;
 }
 
@@ -262,7 +299,8 @@ function Scene({
   colorMode,
   is2D,
   hoveredIndex,
-  selectedIndex,
+  selectedIndices,
+  hiddenClusterIds,
   onHover,
   onClick,
   autoRotateDisabled,
@@ -289,7 +327,8 @@ function Scene({
           points={points}
           colorMode={colorMode}
           hoveredIndex={hoveredIndex}
-          selectedIndex={selectedIndex}
+          selectedIndices={selectedIndices}
+          hiddenClusterIds={hiddenClusterIds}
           onHover={onHover}
           onClick={onClick}
         />
@@ -309,63 +348,57 @@ function Scene({
   );
 }
 
-// ── Main Component ───────────────────────────────────────────────────
+// ── Sidebar: Color mode + Legend + Inspector + Stats ─────────────────
 
-export function PatientLandscape({
+interface SidebarProps {
+  points: LandscapePoint[];
+  clusters: LandscapeCluster[];
+  stats: LandscapeResult["stats"];
+  colorMode: ColorMode;
+  onColorModeChange: (m: ColorMode) => void;
+  hiddenClusterIds: Set<number>;
+  onToggleCluster: (id: number) => void;
+  selectedIndices: Set<number>;
+  onClearSelection: () => void;
+  onRemoveFromSelection: (index: number) => void;
+  cohortCount: number;
+}
+
+function Sidebar({
   points,
   clusters,
   stats,
-  onPatientClick,
-}: PatientLandscapeProps) {
-  const [dimensions, setDimensions] = useState<2 | 3>(3);
-  const [colorMode, setColorMode] = useState<ColorMode>("cohort");
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  const is2D = dimensions === 2;
-  const cohortCount = useMemo(
-    () => points.filter((p) => p.is_cohort_member).length,
-    [points],
+  colorMode,
+  onColorModeChange,
+  hiddenClusterIds,
+  onToggleCluster,
+  selectedIndices,
+  onClearSelection,
+  onRemoveFromSelection,
+  cohortCount,
+}: SidebarProps) {
+  const selectedList = useMemo(
+    () =>
+      Array.from(selectedIndices)
+        .map((idx) => ({ idx, point: points[idx] }))
+        .filter((x) => x.point !== undefined),
+    [selectedIndices, points],
   );
 
-  const handleClick = useCallback(
-    (index: number) => {
-      setSelectedIndex(index);
-      const p = points[index];
-      if (p && onPatientClick) onPatientClick(p.person_id);
-    },
-    [points, onPatientClick],
-  );
-
-  const sceneContent = (
-    <Scene
-      points={points}
-      clusters={clusters}
-      colorMode={colorMode}
-      is2D={is2D}
-      hoveredIndex={hoveredIndex}
-      selectedIndex={selectedIndex}
-      onHover={setHoveredIndex}
-      onClick={handleClick}
-      autoRotateDisabled={isExpanded}
-    />
-  );
-
-  const header = (
-    <div className="flex items-center justify-between border-b border-border-default bg-surface-base px-4 py-2">
-      <div className="flex items-center gap-3">
-        <h3 className="text-sm font-semibold text-text-primary">
-          {dimensions}D Patient Landscape
-        </h3>
-        <div className="flex items-center gap-1 rounded border border-border-default bg-surface-base p-0.5">
-          <span className="px-1 text-xs text-text-ghost">Color</span>
+  return (
+    <aside className="flex w-72 shrink-0 flex-col overflow-y-auto border-l border-border-default bg-surface-base">
+      {/* Color mode */}
+      <div className="space-y-1.5 border-b border-border-default p-4">
+        <h4 className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+          Color by
+        </h4>
+        <div className="flex rounded border border-border-default bg-surface-base p-0.5">
           {(["cohort", "cluster"] as const).map((mode) => (
             <button
               key={mode}
               type="button"
-              onClick={() => setColorMode(mode)}
-              className="rounded px-2 py-0.5 text-xs font-medium transition-colors"
+              onClick={() => onColorModeChange(mode)}
+              className="flex-1 rounded px-2 py-1 text-xs font-medium transition-colors"
               style={
                 colorMode === mode
                   ? { background: ACCENT_BG, color: ACCENT_COLOR }
@@ -378,6 +411,276 @@ export function PatientLandscape({
         </div>
       </div>
 
+      {/* Legend */}
+      <div className="space-y-1 border-b border-border-default p-4">
+        <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-text-muted">
+          {colorMode === "cohort" ? "Groups" : "Clusters"}
+        </h4>
+        {colorMode === "cohort" ? (
+          <>
+            <div className="flex items-center gap-2 px-1.5 py-1 text-sm">
+              <span
+                className="h-2.5 w-2.5 rounded-full"
+                style={{ background: CLUSTER_PALETTE[0] }}
+              />
+              <span className="flex-1 text-text-secondary">Cohort members</span>
+              <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-ghost">
+                {cohortCount.toLocaleString()}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 px-1.5 py-1 text-sm">
+              <span
+                className="h-2.5 w-2.5 rounded-full"
+                style={{ background: CLUSTER_PALETTE[1] }}
+              />
+              <span className="flex-1 text-text-secondary">Non-members</span>
+              <span className="font-['IBM_Plex_Mono',monospace] text-xs text-text-ghost">
+                {(points.length - cohortCount).toLocaleString()}
+              </span>
+            </div>
+          </>
+        ) : (
+          clusters.map((c) => {
+            const hidden = hiddenClusterIds.has(c.id);
+            return (
+              <div
+                key={c.id}
+                className={`flex items-start gap-2 rounded px-1.5 py-1 transition-opacity ${
+                  hidden ? "opacity-40" : "opacity-100"
+                }`}
+              >
+                <span
+                  className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full"
+                  style={{
+                    background: CLUSTER_PALETTE[c.id % CLUSTER_PALETTE.length],
+                  }}
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm text-text-secondary">
+                    {c.label ?? `Cluster ${c.id}`}
+                  </div>
+                  <div className="font-['IBM_Plex_Mono',monospace] text-xs text-text-ghost">
+                    {c.size.toLocaleString()} pts
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onToggleCluster(c.id)}
+                  className="rounded border border-border-default px-2 py-0.5 text-[11px] text-text-muted hover:bg-surface-raised hover:text-text-secondary"
+                >
+                  {hidden ? "Show" : "Hide"}
+                </button>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Inspector */}
+      <div className="flex-1 space-y-2 border-b border-border-default p-4">
+        <div className="flex items-center justify-between">
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+            Inspector
+          </h4>
+          {selectedList.length > 0 && (
+            <button
+              type="button"
+              onClick={onClearSelection}
+              className="rounded px-1.5 py-0.5 text-[11px] text-text-muted hover:bg-surface-raised hover:text-text-secondary"
+            >
+              Clear ({selectedList.length})
+            </button>
+          )}
+        </div>
+        {selectedList.length === 0 ? (
+          <div className="text-sm text-text-ghost">
+            Click a point to inspect. Shift-click to add.
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {selectedList.map(({ idx, point }) => {
+              const cluster = clusters.find((c) => c.id === point.cluster_id);
+              return (
+                <div
+                  key={idx}
+                  className="rounded border border-border-default bg-surface-base p-3"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div
+                      className="font-['IBM_Plex_Mono',monospace] text-xs"
+                      style={{ color: ACCENT_COLOR }}
+                    >
+                      Person {point.person_id}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => onRemoveFromSelection(idx)}
+                      className="rounded p-0.5 text-text-ghost hover:bg-surface-raised hover:text-text-secondary"
+                      title="Remove from selection"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                  <div className="mt-2 space-y-1">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-text-muted">Age bucket</span>
+                      <span className="text-text-secondary">
+                        {ageBucketLabel(point.age_bucket)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-text-muted">Gender</span>
+                      <span className="text-text-secondary">
+                        {genderLabel(point.gender_concept_id)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-text-muted">Cluster</span>
+                      <span className="text-text-secondary">
+                        {cluster?.label ?? `#${point.cluster_id}`}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-text-muted">Cohort</span>
+                      <span
+                        className="text-text-secondary"
+                        style={
+                          point.is_cohort_member
+                            ? { color: ACCENT_COLOR }
+                            : undefined
+                        }
+                      >
+                        {point.is_cohort_member ? "Member" : "Non-member"}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="mt-2 font-['IBM_Plex_Mono',monospace] text-xs text-text-ghost">
+                    ({point.x.toFixed(3)}, {point.y.toFixed(3)}
+                    {point.z != null ? `, ${point.z.toFixed(3)}` : ""})
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Stats */}
+      <div className="space-y-1 p-4">
+        <div className="flex justify-between text-xs">
+          <span className="text-text-ghost">Points</span>
+          <span className="font-['IBM_Plex_Mono',monospace] text-text-muted">
+            {points.length.toLocaleString()}
+          </span>
+        </div>
+        <div className="flex justify-between text-xs">
+          <span className="text-text-ghost">Clusters</span>
+          <span className="font-['IBM_Plex_Mono',monospace] text-text-muted">
+            {clusters.length}
+          </span>
+        </div>
+        {stats?.projection_time_ms != null && stats.projection_time_ms > 0 && (
+          <div className="flex justify-between text-xs">
+            <span className="text-text-ghost">Projection</span>
+            <span className="font-['IBM_Plex_Mono',monospace] text-text-muted">
+              {(stats.projection_time_ms / 1000).toFixed(1)}s
+            </span>
+          </div>
+        )}
+      </div>
+    </aside>
+  );
+}
+
+// ── Main Component ───────────────────────────────────────────────────
+
+export function PatientLandscape({
+  points,
+  clusters,
+  stats,
+  onPatientClick,
+}: PatientLandscapeProps) {
+  const [dimensions, setDimensions] = useState<2 | 3>(3);
+  const [colorMode, setColorMode] = useState<ColorMode>("cohort");
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [selectedIndices, setSelectedIndices] = useState<Set<number>>(
+    new Set(),
+  );
+  const [hiddenClusterIds, setHiddenClusterIds] = useState<Set<number>>(
+    new Set(),
+  );
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const is2D = dimensions === 2;
+  const cohortCount = useMemo(
+    () => points.filter((p) => p.is_cohort_member).length,
+    [points],
+  );
+
+  const handleClick = useCallback(
+    (index: number, multi: boolean) => {
+      setSelectedIndices((prev) => {
+        const next = new Set(multi ? prev : []);
+        if (prev.has(index) && multi) {
+          next.delete(index);
+        } else {
+          next.add(index);
+        }
+        return next;
+      });
+      const p = points[index];
+      if (p && onPatientClick) onPatientClick(p.person_id);
+    },
+    [points, onPatientClick],
+  );
+
+  const handleToggleCluster = useCallback((id: number) => {
+    setHiddenClusterIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const handleClearSelection = useCallback(() => setSelectedIndices(new Set()), []);
+
+  const handleRemoveFromSelection = useCallback((idx: number) => {
+    setSelectedIndices((prev) => {
+      const next = new Set(prev);
+      next.delete(idx);
+      return next;
+    });
+  }, []);
+
+  const handleReset = useCallback(() => {
+    setHoveredIndex(null);
+    setSelectedIndices(new Set());
+    setHiddenClusterIds(new Set());
+  }, []);
+
+  const sceneContent = (
+    <Scene
+      points={points}
+      clusters={clusters}
+      colorMode={colorMode}
+      is2D={is2D}
+      hoveredIndex={hoveredIndex}
+      selectedIndices={selectedIndices}
+      hiddenClusterIds={hiddenClusterIds}
+      onHover={setHoveredIndex}
+      onClick={handleClick}
+      autoRotateDisabled={isExpanded}
+    />
+  );
+
+  const header = (
+    <div className="flex items-center justify-between border-b border-border-default bg-surface-base px-4 py-2">
+      <div className="flex items-center gap-3">
+        <h3 className="text-sm font-semibold text-text-primary">
+          {dimensions}D Patient Landscape
+        </h3>
+      </div>
       <div className="flex items-center gap-3">
         <DimensionToggle
           value={dimensions}
@@ -387,11 +690,8 @@ export function PatientLandscape({
         />
         <button
           type="button"
-          onClick={() => {
-            setHoveredIndex(null);
-            setSelectedIndex(null);
-          }}
-          title="Reset selection"
+          onClick={handleReset}
+          title="Reset view"
           className="rounded p-1 text-text-muted hover:bg-surface-raised hover:text-text-primary"
         >
           <RefreshCw className="h-3.5 w-3.5" />
@@ -412,74 +712,20 @@ export function PatientLandscape({
     </div>
   );
 
-  const statsBar = (
-    <div className="flex items-center justify-between border-t border-border-default bg-surface-base px-4 py-1.5 text-xs text-text-ghost">
-      <div className="flex items-center gap-4">
-        <span>
-          <span className="text-text-secondary font-medium">
-            {points.length.toLocaleString()}
-          </span>{" "}
-          patients
-        </span>
-        {clusters.length > 0 && (
-          <span>
-            <span className="text-text-secondary">{clusters.length}</span> clusters
-          </span>
-        )}
-        {stats?.projection_time_ms != null && stats.projection_time_ms > 0 && (
-          <span>
-            Projection{" "}
-            <span className="font-['IBM_Plex_Mono',monospace] text-text-muted">
-              {(stats.projection_time_ms / 1000).toFixed(1)}s
-            </span>
-          </span>
-        )}
-      </div>
-    </div>
-  );
-
-  // Legend — cluster mode or cohort mode.
-  const legend = (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-border-default bg-surface-base px-4 py-2 text-xs">
-      {colorMode === "cohort" ? (
-        <>
-          <div className="flex items-center gap-1.5 text-text-secondary">
-            <span
-              className="inline-block h-2.5 w-2.5 rounded-full"
-              style={{ background: CLUSTER_PALETTE[0] }}
-            />
-            Cohort members{" "}
-            <span className="text-text-ghost">({cohortCount.toLocaleString()})</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-text-secondary">
-            <span
-              className="inline-block h-2.5 w-2.5 rounded-full"
-              style={{ background: CLUSTER_PALETTE[1] }}
-            />
-            Non-members{" "}
-            <span className="text-text-ghost">
-              ({(points.length - cohortCount).toLocaleString()})
-            </span>
-          </div>
-        </>
-      ) : (
-        clusters.map((c) => (
-          <div
-            key={c.id}
-            className="flex items-center gap-1.5 text-text-secondary"
-          >
-            <span
-              className="inline-block h-2.5 w-2.5 rounded-full"
-              style={{
-                background: CLUSTER_PALETTE[c.id % CLUSTER_PALETTE.length],
-              }}
-            />
-            {c.label ?? `Cluster ${c.id}`}{" "}
-            <span className="text-text-ghost">({c.size.toLocaleString()})</span>
-          </div>
-        ))
-      )}
-    </div>
+  const sidebar = (
+    <Sidebar
+      points={points}
+      clusters={clusters}
+      stats={stats}
+      colorMode={colorMode}
+      onColorModeChange={setColorMode}
+      hiddenClusterIds={hiddenClusterIds}
+      onToggleCluster={handleToggleCluster}
+      selectedIndices={selectedIndices}
+      onClearSelection={handleClearSelection}
+      onRemoveFromSelection={handleRemoveFromSelection}
+      cohortCount={cohortCount}
+    />
   );
 
   if (isExpanded) {
@@ -489,9 +735,10 @@ export function PatientLandscape({
         style={{ zIndex: 200 }}
       >
         {header}
-        <div className="flex-1">{sceneContent}</div>
-        {legend}
-        {statsBar}
+        <div className="flex flex-1 min-h-0">
+          <div className="flex-1 min-w-0">{sceneContent}</div>
+          {sidebar}
+        </div>
       </div>,
       document.body,
     );
@@ -500,11 +747,10 @@ export function PatientLandscape({
   return (
     <div className="flex flex-col overflow-hidden rounded-lg border border-border-default bg-surface-base">
       {header}
-      <div className="relative" style={{ height: 560 }}>
-        {sceneContent}
+      <div className="flex" style={{ height: 560 }}>
+        <div className="flex-1 min-w-0 relative">{sceneContent}</div>
+        {sidebar}
       </div>
-      {legend}
-      {statsBar}
     </div>
   );
 }
