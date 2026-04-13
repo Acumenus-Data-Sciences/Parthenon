@@ -1,6 +1,12 @@
-upstream php-fpm {
-    server php:9000;
-}
+# NOTE: no static `upstream` block for php-fpm.
+# nginx OSS resolves `server php:9000` once at startup and caches forever.
+# When the `php` container is recreated (e.g. Dockerfile rebuild) its IP
+# changes and nginx keeps sending FastCGI traffic to the dead old IP →
+# 502 "Connection refused" until nginx reload. To force per-request DNS
+# lookup via Docker's embedded DNS, each server block uses
+#   set $php_upstream "php:9000"; fastcgi_pass $php_upstream;
+# with a `resolver 127.0.0.11` directive. Variables in fastcgi_pass
+# trigger re-resolution on every request, respecting the resolver TTL.
 
 # Cache zone for DICOMweb responses (WADO-RS pixel data, metadata)
 proxy_cache_path /tmp/nginx-dicom-cache levels=1:2 keys_zone=dicom_cache:10m
@@ -25,6 +31,11 @@ server {
     # Use Docker DNS resolver so optional upstreams don't crash nginx at start
     resolver 127.0.0.11 valid=10s ipv6=off;
 
+    # Force per-request DNS resolution of php-fpm via variable (see header).
+    # Without this, `fastcgi_pass php-fpm` caches the container IP forever
+    # and returns 502 after any `php` container recreate.
+    set $php_upstream "php:9000";
+
     # ── Laravel / PHP-FPM routes ──────────────────────────────────────────
     # All PHP routes go directly to index.php (Laravel single entry point).
     # SCRIPT_FILENAME is hardcoded so these locations need no root directive.
@@ -38,7 +49,7 @@ server {
     # Disables fastcgi/proxy buffering and gzip so tokens flush immediately.
     location = /api/v1/abby/chat/stream {
         include fastcgi_params;
-        fastcgi_pass php-fpm;
+        fastcgi_pass $php_upstream;
         fastcgi_param SCRIPT_FILENAME /var/www/html/public/index.php;
         fastcgi_param SCRIPT_NAME     /index.php;
         fastcgi_hide_header X-Powered-By;
@@ -50,7 +61,7 @@ server {
 
     location = /api/v1/wiki/query/stream {
         include fastcgi_params;
-        fastcgi_pass php-fpm;
+        fastcgi_pass $php_upstream;
         fastcgi_param SCRIPT_FILENAME /var/www/html/public/index.php;
         fastcgi_param SCRIPT_NAME     /index.php;
         fastcgi_hide_header X-Powered-By;
@@ -62,7 +73,7 @@ server {
 
     location /api {
         include fastcgi_params;
-        fastcgi_pass php-fpm;
+        fastcgi_pass $php_upstream;
         fastcgi_param SCRIPT_FILENAME /var/www/html/public/index.php;
         fastcgi_param SCRIPT_NAME     /index.php;
         fastcgi_hide_header X-Powered-By;
@@ -76,14 +87,14 @@ server {
 
     location /sanctum {
         include fastcgi_params;
-        fastcgi_pass php-fpm;
+        fastcgi_pass $php_upstream;
         fastcgi_param SCRIPT_FILENAME /var/www/html/public/index.php;
         fastcgi_param SCRIPT_NAME     /index.php;
     }
 
     location /horizon {
         include fastcgi_params;
-        fastcgi_pass php-fpm;
+        fastcgi_pass $php_upstream;
         fastcgi_param SCRIPT_FILENAME /var/www/html/public/index.php;
         fastcgi_param SCRIPT_NAME     /index.php;
     }
@@ -229,7 +240,7 @@ server {
     # ── Broadcasting auth ─────────────────────────────────────────────────
     location /broadcasting/ {
         include fastcgi_params;
-        fastcgi_pass php-fpm;
+        fastcgi_pass $php_upstream;
         fastcgi_param SCRIPT_FILENAME /var/www/html/public/index.php;
         fastcgi_param SCRIPT_NAME     /index.php;
     }
