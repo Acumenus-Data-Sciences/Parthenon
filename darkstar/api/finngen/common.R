@@ -86,9 +86,12 @@ write_progress <- function(path, obj) {
 
 # ---- source → HadesExtras handlers -------------------------------------
 
-.build_connection_details <- function(source_envelope) {
+.build_connection_config <- function(source_envelope) {
+  # HadesExtras::connectionHandlerFromList expects a list of NAMED ARGUMENTS
+  # to DatabaseConnector::createConnectionDetails, not a pre-built ConnectionDetails.
+  # See HadesExtras::connectionHandlerFromList source — it uses rlang::exec(..., !!!settings).
   conn <- source_envelope$connection
-  DatabaseConnector::createConnectionDetails(
+  list(
     dbms         = source_envelope$dbms,
     server       = conn$server,
     port         = conn$port,
@@ -98,31 +101,48 @@ write_progress <- function(path, obj) {
   )
 }
 
+.build_database_block <- function(source_envelope) {
+  list(
+    databaseId          = source_envelope$source_key %||% "unknown",
+    databaseName        = source_envelope$label %||% source_envelope$source_key %||% "unknown",
+    databaseDescription = ""
+  )
+}
+
 build_cohort_table_handler <- function(source_envelope) {
+  # Config schema (from HadesExtras::createCohortTableHandlerFromList source):
+  #   names must be subset of {database, connection, cdm, cohortTable}
+  #   resultsDatabaseSchema goes under $cdm (NOT top-level)
   stopifnot(is.list(source_envelope))
   sch <- source_envelope$schemas
   HadesExtras::createCohortTableHandlerFromList(list(
-    connectionHandlerSettings = list(connectionDetailsSettings = .build_connection_details(source_envelope)),
+    database   = .build_database_block(source_envelope),
+    connection = list(connectionDetailsSettings = .build_connection_config(source_envelope)),
     cdm = list(
       cdmDatabaseSchema        = sch$cdm,
-      vocabularyDatabaseSchema = sch$vocab
+      vocabularyDatabaseSchema = sch$vocab,
+      resultsDatabaseSchema    = sch$results
     ),
     cohortTable = list(
       cohortDatabaseSchema = sch$cohort,
       cohortTableName      = "cohort"
-    ),
-    resultsDatabaseSchema = sch$results
+    )
   ))
 }
 
 build_cdm_handler <- function(source_envelope) {
+  # Config schema (from HadesExtras::createCDMdbHandlerFromList source):
+  #   names must include {database, connection, cdm}
+  #   resultsDatabaseSchema optional under $cdm
   stopifnot(is.list(source_envelope))
   sch <- source_envelope$schemas
   HadesExtras::createCDMdbHandlerFromList(list(
-    connectionHandlerSettings = list(connectionDetailsSettings = .build_connection_details(source_envelope)),
+    database   = .build_database_block(source_envelope),
+    connection = list(connectionDetailsSettings = .build_connection_config(source_envelope)),
     cdm = list(
       cdmDatabaseSchema        = sch$cdm,
-      vocabularyDatabaseSchema = sch$vocab
+      vocabularyDatabaseSchema = sch$vocab,
+      resultsDatabaseSchema    = sch$results
     )
   ))
 }

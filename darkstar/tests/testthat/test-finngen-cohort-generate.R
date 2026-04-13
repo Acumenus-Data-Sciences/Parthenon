@@ -14,7 +14,7 @@ testthat::test_that("finngen_cohort_generate_execute materializes counts", {
     source_key = "eunomia",
     dbms       = "postgresql",
     connection = list(
-      server = "postgres/parthenon", port = 5432,
+      server = "host.docker.internal/parthenon", port = 5432,
       user = "parthenon_finngen_rw",
       password = Sys.getenv("FINNGEN_PG_RW_PASSWORD")
     ),

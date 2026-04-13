@@ -10,7 +10,7 @@ eunomia_source <- function() {
     source_key = "eunomia",
     dbms       = "postgresql",
     connection = list(
-      server = "postgres/parthenon", port = 5432,
+      server = "host.docker.internal/parthenon", port = 5432,
       user = "parthenon_finngen_ro",
       password = Sys.getenv("FINNGEN_PG_RO_PASSWORD", "")
     ),
