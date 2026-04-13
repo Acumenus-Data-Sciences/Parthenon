@@ -7,10 +7,6 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Create as parthenon_owner so default privileges auto-grant DML to
-        // parthenon_app (see project_parthenon_pg_roles memory, 2026-04-12).
-        DB::statement('SET LOCAL ROLE parthenon_owner');
-
         DB::statement("
             CREATE TABLE app.finngen_runs (
                 id                  CHAR(26)    PRIMARY KEY,
@@ -51,6 +47,24 @@ return new class extends Migration
             WHERE pinned = false AND finished_at IS NOT NULL
         ');
         DB::statement('CREATE INDEX finngen_runs_analysis_type_idx ON app.finngen_runs (analysis_type)');
+
+        // Ensure runtime role has DML access regardless of ownership. Conditional
+        // so CI environments without parthenon_app role don't fail.
+        DB::statement("
+            DO \$grants\$
+            BEGIN
+                IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_app') THEN
+                    GRANT SELECT, INSERT, UPDATE, DELETE ON app.finngen_runs TO parthenon_app;
+                END IF;
+                IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_finngen_ro') THEN
+                    GRANT SELECT ON app.finngen_runs TO parthenon_finngen_ro;
+                END IF;
+                IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'parthenon_finngen_rw') THEN
+                    GRANT SELECT ON app.finngen_runs TO parthenon_finngen_rw;
+                END IF;
+            END
+            \$grants\$
+        ");
     }
 
     public function down(): void
