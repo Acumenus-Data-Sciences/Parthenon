@@ -28,6 +28,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libfontconfig1-dev \
     libtiff5-dev \
     libwebp-dev \
+    libcairo2-dev \
+    libxt-dev \
+    libjpeg-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Rust toolchain — required by waysign (plumber2 dependency for cryptographic signing)
@@ -165,6 +168,28 @@ RUN R -e " \
   if (!requireNamespace('ETLSyntheaBuilder', quietly = TRUE)) stop('ETLSyntheaBuilder failed'); \
 "
 
+## Layer 8 — FinnGen SP1: ROMOPAPI + HadesExtras + CO2AnalysisModules.
+## Depends on HADES stack (CohortGenerator, FeatureExtraction, CohortIncidence, etc.).
+## CO2AnalysisModules: load via CO2AnalysisModules::execute_* only — never library()
+## (its Shiny transitive deps pollute the runtime). SP4 replaces the CO2 Shiny UI
+## with native React; SP1 uses only its execute_CodeWAS / execute_CohortOverlaps /
+## execute_DBProfile functions.
+## See docs/superpowers/specs/2026-04-12-finngen-runtime-foundation-design.md
+## Commits pinned 2026-04-12 — bump refs after validating upstream changes.
+RUN R -e " \
+  options(repos = c( \
+    OHDSI = 'https://ohdsi.r-universe.dev', \
+    CRAN  = 'https://cloud.r-project.org' \
+  )); \
+  remotes::install_github('FINNGEN/ROMOPAPI',           ref = '49b67615e20e06119a8b54bb65606e90d3acaa67', upgrade = FALSE, dependencies = TRUE); \
+  remotes::install_github('FINNGEN/HadesExtras',        ref = '2b5dd3f9f3de0777a1a1e497225f5b0bfb5ef152', upgrade = FALSE, dependencies = TRUE); \
+  remotes::install_github('FINNGEN/CO2AnalysisModules', ref = '8555f45715af94b4a8988e1e96380a6b4f3dcff5', upgrade = FALSE, dependencies = TRUE); \
+  if (!requireNamespace('ROMOPAPI',           quietly = TRUE)) stop('ROMOPAPI failed'); \
+  if (!requireNamespace('HadesExtras',        quietly = TRUE)) stop('HadesExtras failed'); \
+  if (!requireNamespace('CO2AnalysisModules', quietly = TRUE)) stop('CO2AnalysisModules failed'); \
+  cat('[BUILD] FinnGen packages installed: ROMOPAPI, HadesExtras, CO2AnalysisModules\n'); \
+"
+
 # Python packages for PLP sklearn-based models — pinned versions
 # + PyTorch and deps for DeepPatientLevelPrediction (via reticulate)
 RUN pip3 install --break-system-packages \
@@ -229,6 +254,14 @@ RUN chown -R ruser:ruser /app
 # s6-overlay service registration
 COPY darkstar/s6/plumber/ /etc/s6-overlay/s6-rc.d/plumber/
 RUN touch /etc/s6-overlay/s6-rc.d/user/contents.d/plumber
+
+# FinnGen artifact-volume cont-init (oneshot) — sets /opt/finngen-artifacts
+# ownership to ruser:ruser with setgid dirs BEFORE plumber starts.
+# plumber depends on this via darkstar/s6/plumber/dependencies.d/finngen-artifacts-init
+COPY darkstar/s6/finngen-artifacts-init/ /etc/s6-overlay/s6-rc.d/finngen-artifacts-init/
+COPY darkstar/s6/scripts/finngen-artifacts-init.sh /etc/s6-overlay/scripts/finngen-artifacts-init.sh
+RUN chmod +x /etc/s6-overlay/scripts/finngen-artifacts-init.sh && \
+    touch /etc/s6-overlay/s6-rc.d/user/contents.d/finngen-artifacts-init
 
 # Ensure JDBC driver directory is readable by ruser
 RUN chown -R ruser:ruser /opt/jdbc
