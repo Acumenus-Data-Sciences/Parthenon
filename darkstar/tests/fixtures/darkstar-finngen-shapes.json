@@ -1,0 +1,31 @@
+{
+  "_comment": "Response-shape snapshot for FinnGen sync endpoints. Values map each endpoint function to the top-level keys its response list is contracted to emit. Drift test (test-finngen-shape-drift.R) asserts the actual function output matches these keys — catching upstream breaking changes before they reach Laravel. Update this file deliberately via PR when the API contract changes.",
+  "_version": "1.0.0",
+  "_last_updated": "2026-04-13",
+  "endpoints": {
+    "finngen_romopapi_code_counts": {
+      "keys": ["concept", "stratified_counts", "node_count", "descendant_count"],
+      "notes": "Requires ROMOPAPI::createCodeCountsTables() to have materialized the stratified_code_counts table in the results schema. SP2 Code Explorer will invoke this setup lazily."
+    },
+    "finngen_romopapi_relationships": {
+      "keys": ["relationships"],
+      "notes": "Direct SQL over vocab.concept_relationship. Works against vocab-only seed."
+    },
+    "finngen_romopapi_ancestors": {
+      "keys": ["nodes", "edges", "mermaid"],
+      "notes": "Direct SQL over vocab.concept_ancestor. Mermaid string starts with 'graph TD'."
+    },
+    "finngen_hades_counts": {
+      "keys": ["counts"],
+      "notes": "Direct SQL over {cohort_schema}.cohort. counts is a data.frame with COHORT_ID, SUBJECTS, ENTRIES."
+    },
+    "finngen_hades_overlap": {
+      "keys": ["matrix", "labels"],
+      "notes": "Square matrix (length(cohort_ids) x length(cohort_ids)). Diagonal = total subjects per cohort. Off-diagonal = shared subjects."
+    },
+    "finngen_hades_demographics": {
+      "keys": ["age_histogram", "gender_counts", "total"],
+      "notes": "Wraps HadesExtras::CohortGenerator_getCohortDemograpics (note upstream typo)."
+    }
+  }
+}
