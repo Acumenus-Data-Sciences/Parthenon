@@ -49,12 +49,9 @@ def _clear_state() -> None:
 
 def _build_frontend() -> None:
     console.rule("[bold]Phase 6 — Frontend Build[/bold]")
-    console.print("  [cyan]▶[/cyan] Building React frontend (npm ci + vite build)…")
-    # The node service has `profiles: [dev]` so it's not started by `up -d`.
-    # Use `docker compose run --rm --no-deps` to spin up a one-shot build container.
+    console.print("  [cyan]▶[/cyan] Building React frontend via ./deploy.sh --frontend…")
     rc = utils.run_stream(
-        ["docker", "compose", "run", "--rm", "--no-deps", "-T", "node",
-         "sh", "-c", "cd /app && npm ci --legacy-peer-deps && npx vite build --mode production"]
+        ["env", "DEPLOY_SKIP_SMOKE=true", "bash", "./deploy.sh", "--frontend"]
     )
     if rc != 0:
         console.print("[red]✗ Frontend build failed.[/red]")
@@ -191,6 +188,7 @@ def _print_summary(cfg: dict[str, Any]) -> None:
 
 _V103_NEW_VARS = [
     ("HECATE_PORT", "8088"),
+    ("BLACKRABBIT_PORT", "8090"),
     ("BLACKRABBIT_SCAN_TIMEOUT_SECONDS", "1200"),
     ("HOST_UID", str(__import__("os").getuid())),
     ("HOST_GID", str(__import__("os").getgid())),
@@ -319,11 +317,7 @@ def run(*, non_interactive: bool = False, pre_seed: dict[str, Any] | None = None
             ])
 
             # Rebuild frontend
-            console.print("[cyan]Rebuilding frontend...[/cyan]")
-            utils.run_stream([
-                "docker", "compose", "run", "--rm", "--no-deps", "-T", "node",
-                "sh", "-c", "cd /app && npm ci --legacy-peer-deps && npx vite build --mode production",
-            ])
+            _build_frontend()
 
             # Write version file
             write_version()

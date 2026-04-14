@@ -278,13 +278,11 @@ function renderStep() {
     container.innerHTML = `
       <div class="page">
         <section class="section glass-soft">
-          <div class="section-kicker">Edition &amp; Licensing</div>
+          <div class="section-kicker">Community Setup</div>
           <h4>Install Path &amp; Keys</h4>
-          <p class="section-copy">Select the edition and provide any license keys. The Community Edition is free. Enterprise Edition unlocks SSO, Superset, DataHub, Wazuh, and n8n.</p>
+          <p class="section-copy">Community Edition installs the core Parthenon stack with guided setup, demo data, and optional services.</p>
           <div class="grid two">
             ${renderFields([
-              { key: "edition", label: "Edition", type: "select", options: ["Community Edition", "Enterprise Edition"] },
-              { key: "enterprise_key", label: "Enterprise license key (ACRO-XXXX-XXXX-XXXX)", secret: false },
               { key: "umls_api_key", label: "UMLS API key", secret: true },
             ])}
           </div>
@@ -315,48 +313,11 @@ function renderStep() {
             ])}
           </div>
         </section>
-        <section class="section glass-soft">
-          <div class="section-kicker">AI Services</div>
-          <h4>Language Model Configuration</h4>
-          <p class="section-copy">Parthenon uses a frontier LLM for Abby AI assistant, concept mapping, and clinical NLP. A local Ollama instance provides on-premise models like MedGemma.</p>
-          <div class="grid two">
-            ${renderFields([
-              { key: "frontier_api_key", label: "Frontier model API key (Claude, OpenAI, etc.)", secret: true },
-              { key: "ollama_url", label: "Ollama URL" },
-            ])}
-          </div>
-          <div class="inline-actions">
-            <label class="checkbox-row">
-              <input type="checkbox" data-field="install_ollama" />
-              <span>Install Ollama automatically (downloads ~2 GB, sets up local model serving)</span>
-            </label>
-          </div>
-          <p class="section-hint" id="ollama-hint"></p>
-        </section>
+        <input type="hidden" data-field="edition" value="Community Edition" />
+        <input type="hidden" data-field="enterprise_key" value="" />
       </div>
     `;
     bindValues();
-    // Ollama hint based on detection
-    const ollamaHint = $("ollama-hint");
-    const ollamaCheckbox = document.querySelector('[data-field="install_ollama"]');
-    if (ollamaHint && state.bootstrap.ollama) {
-      const { installed, running } = state.bootstrap.ollama;
-      if (installed && running) {
-        ollamaHint.textContent = "Ollama is installed and running on this machine.";
-        ollamaHint.classList.add("hint-ok");
-        if (ollamaCheckbox) ollamaCheckbox.checked = false;
-      } else if (installed) {
-        ollamaHint.textContent = "Ollama is installed but not currently running. The installer can start it for you.";
-        ollamaHint.classList.add("hint-warn");
-      } else {
-        ollamaHint.textContent = "Ollama is not installed. Check the box above to install it during setup.";
-        ollamaHint.classList.add("hint-warn");
-        if (ollamaCheckbox && !state.currentValues.hasOwnProperty("install_ollama")) {
-          ollamaCheckbox.checked = true;
-          state.currentValues.install_ollama = true;
-        }
-      }
-    }
     $("browse-vocab").addEventListener("click", () => {
       const input = document.createElement("input");
       input.type = "file";
@@ -417,26 +378,6 @@ function renderStep() {
   }
 
   if (stepKey === "modules") {
-    const isEnterprise = (state.currentValues.edition || "Community Edition") === "Enterprise Edition";
-    const enterpriseSection = isEnterprise
-      ? `
-        <section class="section glass-soft">
-          <div class="section-kicker">Acropolis Enterprise</div>
-          <h4>Infrastructure Services</h4>
-          <p class="section-copy">Enterprise Edition includes these production-grade infrastructure services behind the Traefik SSO gateway. All are enabled by default &mdash; uncheck any you want to skip.</p>
-          ${renderCheckboxGrid([
-            ["enable_authentik", "Authentik SSO"],
-            ["enable_superset", "Apache Superset"],
-            ["enable_datahub", "DataHub Catalog"],
-            ["enable_wazuh", "Wazuh SIEM"],
-            ["enable_n8n", "n8n Workflows"],
-            ["enable_portainer", "Portainer CE"],
-            ["enable_pgadmin", "pgAdmin 4"],
-            ["enable_grafana", "Grafana Monitoring"],
-          ])}
-        </section>
-      `
-      : "";
     container.innerHTML = `
       <div class="page">
         <section class="section glass-soft">
@@ -465,7 +406,6 @@ function renderStep() {
             ["enable_solr", "Apache Solr"],
           ])}
         </section>
-        ${enterpriseSection}
         <section class="section glass-soft">
           <div class="section-kicker">Service Configuration</div>
           <h4>Credentials &amp; Ports</h4>
@@ -767,20 +707,13 @@ function applyExperienceSelection(experience) {
   state.currentValues = {
     ...state.currentValues,
     experience,
-    edition: experience === "Beginner" ? "Community Edition" : state.currentValues.edition || "Community Edition",
-    enterprise_key: experience === "Beginner" ? "" : state.currentValues.enterprise_key || "",
+    edition: "Community Edition",
+    enterprise_key: "",
   };
   syncModalSelection();
 }
 
 function formatReview(payload) {
-  const enterpriseState =
-    payload.edition === "Enterprise Edition"
-      ? payload.enterprise_key
-        ? "provided"
-        : "missing"
-      : "not required";
-
   function row(label, value) {
     return `<div class="review-row"><span class="review-label">${label}</span><span class="review-value">${value || "&mdash;"}</span></div>`;
   }
@@ -812,7 +745,6 @@ function formatReview(payload) {
     + group("Edition",
         row("Experience", payload.experience)
         + row("Edition", payload.edition)
-        + row("Enterprise Key", enterpriseState)
         + row("CDM Dialect", payload.cdm_dialect)
         + row("Demo Dataset", payload.include_eunomia ? "Eunomia (GiBleed)" : "None"))
     + group("Access",
@@ -820,21 +752,6 @@ function formatReview(payload) {
         + row("Admin Name", payload.admin_name)
         + row("Admin Password", payload.admin_password ? "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" : "not set")
         + row("DB Password", payload.db_password ? "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" : "not set"))
-    + group("AI Services",
-        row("Frontier API Key", payload.frontier_api_key ? "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" : "not set")
-        + row("Ollama URL", payload.ollama_url || "&mdash;")
-        + row("Install Ollama", payload.install_ollama ? "Yes" : "No"))
-    + (payload.edition === "Enterprise Edition"
-      ? group("Acropolis Enterprise",
-          row("Authentik SSO", payload.enable_authentik ? "Enabled" : "Skipped")
-          + row("Apache Superset", payload.enable_superset ? "Enabled" : "Skipped")
-          + row("DataHub Catalog", payload.enable_datahub ? "Enabled" : "Skipped")
-          + row("Wazuh SIEM", payload.enable_wazuh ? "Enabled" : "Skipped")
-          + row("n8n Workflows", payload.enable_n8n ? "Enabled" : "Skipped")
-          + row("Portainer CE", payload.enable_portainer ? "Enabled" : "Skipped")
-          + row("pgAdmin 4", payload.enable_pgadmin ? "Enabled" : "Skipped")
-          + row("Grafana", payload.enable_grafana ? "Enabled" : "Skipped"))
-      : "")
     + group("Platform",
         row("Module Groups", payload.modules.join(", ") || "(none)")
         + row("Optional Services", services.join(", ") || "(none)")
@@ -862,15 +779,6 @@ async function validateCurrentStep() {
       if (!state.preflight) throw new Error("Run preflight checks before continuing");
       if (state.preflight.failures > 0) throw new Error("Resolve preflight failures before continuing");
     } else if (step === "basics") {
-      if (payload.edition === "Enterprise Edition") {
-        const key = String(payload.enterprise_key || "").trim();
-        if (!key) throw new Error("Enterprise license key is required for Enterprise Edition");
-        if (!/^ACRO-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/i.test(key)) {
-          throw new Error("Invalid license key format. Expected: ACRO-XXXX-XXXX-XXXX");
-        }
-        const result = await api("/api/validate-license", "POST", { enterprise_key: key });
-        if (!result.valid) throw new Error(result.message || "License key validation failed");
-      }
       if (!payload.app_url) throw new Error("Application URL is required");
       if (!payload.timezone) throw new Error("Timezone is required");
     } else if (step === "credentials") {
@@ -1055,15 +963,6 @@ async function pollInstall() {
 function syncDynamicState() {
   const payload = getPayload();
 
-  // Enterprise key: only enabled when Enterprise Edition is selected
-  const edition = document.querySelector('[data-field="edition"]');
-  const enterpriseKey = document.querySelector('[data-field="enterprise_key"]');
-  const enterprise = (edition ? edition.value : payload.edition) === "Enterprise Edition";
-  if (enterpriseKey) {
-    enterpriseKey.disabled = !enterprise;
-    if (!enterprise) enterpriseKey.value = "";
-  }
-
   // Module → service dependency gating
   const research = !!payload.research;
   const commons = !!payload.commons;
@@ -1115,19 +1014,9 @@ async function init() {
     ai_knowledge: mods.includes("ai_knowledge"),
     data_pipeline: mods.includes("data_pipeline"),
     infrastructure: mods.includes("infrastructure"),
-    frontier_api_key: d.frontier_api_key || "",
-    install_ollama: false,
     umls_api_key: d.umls_api_key || "",
-    // Enterprise services default on (opt-out model)
-    enable_authentik: d.enable_authentik !== false,
-    enable_superset: d.enable_superset !== false,
-    enable_datahub: d.enable_datahub !== false,
-    enable_wazuh: d.enable_wazuh !== false,
-    enable_n8n: d.enable_n8n !== false,
-    // Community infra services default on
-    enable_portainer: d.enable_portainer !== false,
-    enable_pgadmin: d.enable_pgadmin !== false,
-    enable_grafana: d.enable_grafana !== false,
+    edition: "Community Edition",
+    enterprise_key: "",
   };
   state.selectedExperience = state.currentValues.experience || "";
   buildSteps();

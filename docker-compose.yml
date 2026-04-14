@@ -459,8 +459,8 @@ services:
       - CORS_ORIGINS=http://nginx:80
       - OPENAI_BASE_URL=http://host.docker.internal:11434/v1
       - OPENAI_API_KEY=not-needed
-      - PG__USER=${HECATE_PG_USER:-claude_dev}
-      - PG__PASSWORD=${HECATE_PG_PASSWORD}
+      - PG__USER=${HECATE_PG_USER:-parthenon}
+      - PG__PASSWORD=${HECATE_PG_PASSWORD:-}
       - PG__HOST=host.docker.internal
       - PG__PORT=5432
       - PG__DBNAME=${HECATE_PG_DBNAME:-parthenon}
@@ -507,7 +507,7 @@ services:
       - ./solr/configsets/vector_explorer:/opt/solr/server/solr/configsets/vector_explorer:ro
       - ./solr/configsets/query_library:/opt/solr/server/solr/configsets/query_library:ro
     environment:
-      - SOLR_JAVA_MEM=-Xms512m -Xmx2g
+      - SOLR_JAVA_MEM=${SOLR_JAVA_MEM:--Xms512m -Xmx2g}
     command: bash -c "precreate-core vocabulary /opt/solr/server/solr/configsets/vocabulary; precreate-core cohorts /opt/solr/server/solr/configsets/cohorts; precreate-core analyses /opt/solr/server/solr/configsets/analyses; precreate-core mappings /opt/solr/server/solr/configsets/mappings; precreate-core clinical /opt/solr/server/solr/configsets/clinical; precreate-core imaging /opt/solr/server/solr/configsets/imaging; precreate-core claims /opt/solr/server/solr/configsets/claims; precreate-core gis_spatial /opt/solr/server/solr/configsets/gis_spatial; precreate-core vector_explorer /opt/solr/server/solr/configsets/vector_explorer; precreate-core query_library /opt/solr/server/solr/configsets/query_library; exec solr-foreground"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8983/solr/vocabulary/admin/ping"]
@@ -530,11 +530,11 @@ services:
       context: .
       dockerfile: docker/blackrabbit/Dockerfile
     ports:
-      - "${WHITERABBIT_PORT:-8090}:8090"
+      - "${BLACKRABBIT_PORT:-8090}:8090"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
-      - BLACKRABBIT_SCAN_TIMEOUT_SECONDS=${SCAN_TIMEOUT_SECONDS:-1200}
+      - BLACKRABBIT_SCAN_TIMEOUT_SECONDS=${BLACKRABBIT_SCAN_TIMEOUT_SECONDS:-1200}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8090/health"]
       interval: 30s
@@ -679,15 +679,18 @@ services:
       # PostgreSQL index — concurrent query support for 926K+ instances
       - ORTHANC__POSTGRESQL__ENABLE_INDEX=true
       - ORTHANC__POSTGRESQL__ENABLE_STORAGE=false
-      - ORTHANC__POSTGRESQL__HOST=host.docker.internal
-      - ORTHANC__POSTGRESQL__PORT=${DB_PORT:-5432}
+      - ORTHANC__POSTGRESQL__HOST=${ORTHANC_DB_HOST:-postgres}
+      - ORTHANC__POSTGRESQL__PORT=${ORTHANC_DB_PORT:-5432}
       - ORTHANC__POSTGRESQL__DATABASE=${DB_DATABASE:-parthenon}
-      - ORTHANC__POSTGRESQL__USERNAME=${DB_USERNAME:-smudoshi}
-      - ORTHANC__POSTGRESQL__PASSWORD=${DB_PASSWORD:-acumenus}
+      - ORTHANC__POSTGRESQL__USERNAME=${DB_USERNAME:-parthenon}
+      - ORTHANC__POSTGRESQL__PASSWORD=${DB_PASSWORD:-}
       - ORTHANC__POSTGRESQL__INDEX_CONNECTIONS_COUNT=5
       - ORTHANC__POSTGRESQL__PREPARE_INDEX=true
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    depends_on:
+      postgres:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "python3", "-c", "import urllib.request,base64,os; urllib.request.urlopen(urllib.request.Request('http://localhost:8042/system', headers={'Authorization': 'Basic ' + base64.b64encode((os.environ.get('ORTHANC_USER','parthenon') + ':' + os.environ.get('ORTHANC_PASSWORD','')).encode()).decode()}))"]
       interval: 10s

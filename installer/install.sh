@@ -32,22 +32,39 @@ BASE="https://github.com/${REPO}/releases/download/${TAG}"
 
 echo "Parthenon ${TAG} — downloading installer..."
 
-# Try Cosmopolitan universal binary first, fall back to platform-specific
-BINARY=""
-for name in "acropolis-install.com" "acropolis-install-${PLATFORM}"; do
-  if curl -fsSL -o "${TMPDIR}/${name}" "${BASE}/${name}" 2>/dev/null; then
-    BINARY="${name}"
-    break
-  fi
-done
-[ -z "$BINARY" ] && die "Could not download installer binary for ${PLATFORM}/${ARCH}"
+case "$PLATFORM" in
+  linux)
+    ASSET="acropolis-install-linux.tar.gz"
+    BINARY="acropolis-install"
+    ;;
+  macos)
+    ASSET="acropolis-install-macos.zip"
+    BINARY="acropolis-install.com"
+    ;;
+esac
+
+curl -fsSL -o "${TMPDIR}/${ASSET}" "${BASE}/${ASSET}" \
+  || die "Could not download installer package for ${PLATFORM}/${ARCH}"
 
 # Verify checksum
 curl -fsSL -o "${TMPDIR}/checksums.sha256" "${BASE}/checksums.sha256" \
   || die "Could not download checksums"
-(cd "$TMPDIR" && grep "$BINARY" checksums.sha256 | $SHASUM -c --quiet) \
-  || die "Checksum verification failed for ${BINARY}"
+(cd "$TMPDIR" && grep "$ASSET" checksums.sha256 | $SHASUM -c --quiet) \
+  || die "Checksum verification failed for ${ASSET}"
 
-chmod +x "${TMPDIR}/${BINARY}"
+case "$PLATFORM" in
+  linux)
+    tar xzf "${TMPDIR}/${ASSET}" -C "$TMPDIR" \
+      || die "Could not extract ${ASSET}"
+    ;;
+  macos)
+    unzip -q "${TMPDIR}/${ASSET}" -d "$TMPDIR" \
+      || die "Could not extract ${ASSET}"
+    ;;
+esac
+
+[ -f "${TMPDIR}/${BINARY}" ] || die "Installer binary missing from ${ASSET}"
+chmod +x "${TMPDIR}/${BINARY}" || die "Could not mark installer executable"
+
 echo "Verified. Launching installer..."
 exec "${TMPDIR}/${BINARY}" "$@"
