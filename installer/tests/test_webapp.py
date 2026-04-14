@@ -72,6 +72,7 @@ def test_web_installer_is_community_mvp_only():
 def test_install_landing_pages_match_release_bootstrap_regime():
     root = Path(__file__).resolve().parents[2]
     public_install = (root / "frontend" / "public" / "install" / "index.html").read_text()
+    public_bootstrap = (root / "frontend" / "public" / "install.sh").read_text()
     packaged_install = (root / "installer" / "web" / "install-landing.html").read_text()
     wizard_index = (root / "installer" / "web" / "index.html").read_text()
 
@@ -89,6 +90,12 @@ def test_install_landing_pages_match_release_bootstrap_regime():
 
     assert "Remote Community Install" in wizard_index
     assert "brew, snap, or winget" not in wizard_index
+
+    assert public_bootstrap.startswith("#!/bin/sh")
+    assert "acropolis-install-linux.tar.gz" in public_bootstrap
+    assert "acropolis-install-macos.zip" in public_bootstrap
+    assert "checksums.sha256" in public_bootstrap
+    assert "exec \"${TMPDIR}/${BINARY}\" \"$@\"" in public_bootstrap
 
 
 def test_status_pill_removed_and_alerts_live_at_top():
