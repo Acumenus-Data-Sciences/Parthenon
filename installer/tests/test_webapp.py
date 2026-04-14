@@ -69,6 +69,28 @@ def test_web_installer_is_community_mvp_only():
     assert 'edition: "Community Edition"' in app_js
 
 
+def test_install_landing_pages_match_release_bootstrap_regime():
+    root = Path(__file__).resolve().parents[2]
+    public_install = (root / "frontend" / "public" / "install" / "index.html").read_text()
+    packaged_install = (root / "installer" / "web" / "install-landing.html").read_text()
+    wizard_index = (root / "installer" / "web" / "index.html").read_text()
+
+    for html in (public_install, packaged_install):
+        assert "curl -fsSL https://parthenon.acumenus.net/install.sh | sh" in html
+        assert "acropolis-install-linux.tar.gz" in html
+        assert "acropolis-install-macos.zip" in html
+        assert "checksums.sha256" in html
+        assert "No Enterprise key required" in html
+
+        assert "brew install" not in html
+        assert "sudo snap install" not in html
+        assert "winget install" not in html
+        assert "Package Manager" not in html
+
+    assert "Remote Community Install" in wizard_index
+    assert "brew, snap, or winget" not in wizard_index
+
+
 def test_status_pill_removed_and_alerts_live_at_top():
     web_dir = Path(__file__).resolve().parents[1] / "web"
     index_html = (web_dir / "index.html").read_text()

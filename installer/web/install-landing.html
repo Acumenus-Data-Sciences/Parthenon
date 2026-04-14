@@ -3,51 +3,95 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Install Parthenon — Acumenus Data Sciences</title>
-    <meta name="description" content="One-command installation of Parthenon, the unified OHDSI outcomes research platform on OMOP CDM v5.4." />
+    <title>Install Parthenon Community — Acumenus Data Sciences</title>
+    <meta name="description" content="Install Parthenon Community with the verified Acropolis release bootstrap for Linux, macOS, and Windows via WSL 2." />
     <link rel="stylesheet" href="/install-landing.css" />
   </head>
   <body>
-    <div class="card">
-      <div class="accent-line"></div>
-      <h1>Install Parthenon</h1>
-      <p class="subtitle">Unified Outcomes Research Platform on OMOP CDM</p>
-      <p class="description">
-        Deploy the Parthenon Community stack with a single command. The
-        Acropolis installer checks the machine, writes local configuration,
-        loads optional demo data, and starts the platform in one guided flow.
-      </p>
+    <main class="page-shell">
+      <section class="hero">
+        <p class="eyebrow">Community Edition installer</p>
+        <h1>Install Parthenon Community</h1>
+        <p class="subtitle">A verified release bootstrap for the local OHDSI research stack.</p>
+        <p class="description">
+          Run one command on a Docker-ready machine. The Acropolis bootstrap
+          resolves the latest GitHub release, downloads the platform package,
+          verifies it against <code>checksums.sha256</code>, and opens the guided
+          Community installer.
+        </p>
 
-      <a id="download-btn" class="download-btn" href="https://github.com/sudoshi/Parthenon/releases/latest" download>
-        Download for Linux
-      </a>
+        <div class="command-block primary-command">
+          <div>
+            <span class="command-label">Linux, macOS, or Windows inside WSL 2</span>
+            <code>curl -fsSL https://parthenon.acumenus.net/install.sh | sh</code>
+          </div>
+          <button class="copy-btn" data-copy="curl -fsSL https://parthenon.acumenus.net/install.sh | sh" type="button">Copy</button>
+        </div>
 
-      <div class="curl-block">
-        <code>curl -fsSL https://parthenon.acumenus.net/install.sh | sh</code>
-        <button id="copy-btn" class="copy-btn" type="button">Copy</button>
-      </div>
+        <div class="assurance">
+          <span>Verified package flow</span>
+          <span>Community defaults</span>
+          <span>No Enterprise key required</span>
+        </div>
+      </section>
 
-      <p class="fallback">
-        Having trouble? Download directly:
-        <span id="fallback-links">
-          <a href="https://github.com/sudoshi/Parthenon/releases/latest">Linux</a> &middot;
-          <a href="https://github.com/sudoshi/Parthenon/releases/latest">macOS</a> &middot;
-          <a href="https://github.com/sudoshi/Parthenon/releases/latest">Windows (WSL)</a>
-        </span>
-      </p>
+      <section class="section-block">
+        <h2>Before You Start</h2>
+        <div class="check-grid">
+          <div class="check-item">
+            <strong>Docker is running</strong>
+            <p>Use Docker Desktop on macOS or Windows, or Docker Engine with the Compose plugin on Linux.</p>
+          </div>
+          <div class="check-item">
+            <strong>Local resources are ready</strong>
+            <p>Plan for at least 8 GB RAM and 20 GB of available disk for the Community stack.</p>
+          </div>
+          <div class="check-item">
+            <strong>Windows uses WSL 2</strong>
+            <p>Open an Ubuntu or Debian WSL shell, enable Docker Desktop WSL integration, then run the same command.</p>
+          </div>
+        </div>
+      </section>
 
-      <div class="requirements">
-        <strong>Requirements</strong><br />
-        8 GB RAM &middot; 20 GB disk &middot; Docker &amp; Docker Compose<br />
-        Linux (x64/arm64), macOS (Apple Silicon/Intel), or Windows via WSL 2
-      </div>
+      <section class="section-block">
+        <h2>What Happens Next</h2>
+        <ol class="flow-list">
+          <li>
+            <strong>Preflight checks</strong>
+            <span>Acropolis verifies Docker, Docker Compose, disk space, ports, and operating-system support.</span>
+          </li>
+          <li>
+            <strong>Community configuration</strong>
+            <span>The installer writes local environment files, chooses safe defaults, and keeps Enterprise-only prompts out of the MVP flow.</span>
+          </li>
+          <li>
+            <strong>Stack launch</strong>
+            <span>Docker Compose starts Parthenon and the Community sidecars, then the installer reports the local URL and admin setup path.</span>
+          </li>
+        </ol>
+      </section>
 
-      <div class="footer">
+      <section class="section-block">
+        <h2>Direct Release Assets</h2>
+        <p class="section-copy">
+          Use these when a locked-down host cannot pipe the bootstrap script.
+          Download the package for the host, verify it with the checksums file,
+          then run the included installer binary.
+        </p>
+        <div class="asset-links" aria-label="Direct installer downloads">
+          <a href="https://github.com/sudoshi/Parthenon/releases/latest/download/acropolis-install-linux.tar.gz">Linux package</a>
+          <a href="https://github.com/sudoshi/Parthenon/releases/latest/download/acropolis-install-macos.zip">macOS package</a>
+          <a href="https://github.com/sudoshi/Parthenon/releases/latest/download/checksums.sha256">Checksums</a>
+          <a href="https://github.com/sudoshi/Parthenon/releases/latest">Latest release</a>
+        </div>
+      </section>
+
+      <footer class="footer">
         <a href="https://github.com/sudoshi/Parthenon" target="_blank" rel="noopener noreferrer">GitHub</a>
         <a href="https://discord.gg/GkkT7dzmwf" target="_blank" rel="noopener noreferrer">Discord</a>
         <a href="https://www.acumenus.io" target="_blank" rel="noopener noreferrer">Acumenus Data Sciences</a>
-      </div>
-    </div>
+      </footer>
+    </main>
 
     <script src="/install-landing.js"></script>
   </body>
