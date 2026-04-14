@@ -802,12 +802,16 @@ def build_root_env(cfg: dict[str, Any]) -> str:
         lines.append("LLM_MODEL=gemma3:4b")
         lines.append("EMBED_MODEL=nomic-embed-text")
     if cfg.get("enable_blackrabbit"):
+        lines.append(f"BLACKRABBIT_PORT={cfg.get('blackrabbit_port', 8090)}")
         lines.append(f"WHITERABBIT_PORT={cfg.get('blackrabbit_port', 8090)}")
         lines.append("BLACKRABBIT_SCAN_TIMEOUT_SECONDS=1200")
     if cfg.get("enable_fhir_to_cdm"):
         lines.append(f"FHIR_TO_CDM_PORT={cfg.get('fhir_to_cdm_port', 8091)}")
     if cfg.get("enable_hecate"):
         lines.append(f"HECATE_PORT={cfg.get('hecate_port', 8088)}")
+        lines.append("HECATE_PG_USER=parthenon")
+        lines.append(f"HECATE_PG_PASSWORD={cfg['db_password']}")
+        lines.append("HECATE_PG_DBNAME=parthenon")
     if cfg.get("enable_qdrant"):
         lines.append("QDRANT_PORT=6333")
     if cfg.get("enable_orthanc"):
@@ -917,7 +921,7 @@ def build_backend_env(cfg: dict[str, Any]) -> str:
         f"# Optional sidecar service URLs\n"
         f"BLACKRABBIT_URL={'http://blackrabbit:8090' if cfg.get('enable_blackrabbit') else ''}\n"
         f"FHIR_TO_CDM_URL={'http://fhir-to-cdm:8091' if cfg.get('enable_fhir_to_cdm') else ''}\n"
-        f"HECATE_URL={'http://hecate:8088' if cfg.get('enable_hecate') else ''}\n"
+        f"HECATE_URL={'http://hecate:8080' if cfg.get('enable_hecate') else ''}\n"
         f"ORTHANC_URL={'http://orthanc:8042' if cfg.get('enable_orthanc') else ''}\n"
         f"LIVEKIT_URL={cfg.get('livekit_url', '') if cfg.get('enable_livekit') else ''}\n"
         f"LIVEKIT_API_KEY={cfg.get('livekit_api_key', '') if cfg.get('enable_livekit') else ''}\n"

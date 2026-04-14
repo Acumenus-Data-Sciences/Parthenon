@@ -6,6 +6,33 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from installer import config, preflight
 
 
+def test_community_sidecar_env_matches_compose_service_ports():
+    cfg = config.build_config_defaults(
+        {
+            "db_password": "generated-db-password",
+            "enable_blackrabbit": True,
+            "enable_hecate": True,
+            "enable_orthanc": True,
+            "blackrabbit_port": 18090,
+            "hecate_port": 18088,
+            "orthanc_port": 18042,
+        }
+    )
+
+    root_env = config.build_root_env(cfg)
+    backend_env = config.build_backend_env(cfg)
+
+    assert "BLACKRABBIT_PORT=18090" in root_env
+    assert "BLACKRABBIT_SCAN_TIMEOUT_SECONDS=1200" in root_env
+    assert "HECATE_PORT=18088" in root_env
+    assert "HECATE_PG_USER=parthenon" in root_env
+    assert "HECATE_PG_PASSWORD=generated-db-password" in root_env
+    assert "ORTHANC_PORT=18042" in root_env
+    assert "HECATE_URL=http://hecate:8080" in backend_env
+    assert "BLACKRABBIT_URL=http://blackrabbit:8090" in backend_env
+    assert "ORTHANC_URL=http://orthanc:8042" in backend_env
+
+
 def test_build_config_defaults_auto_assigns_non_nginx_ports(monkeypatch):
     busy = {5480, 6381, 8002, 8888, 8787, 8983}
     monkeypatch.setattr("installer.config.utils.is_port_free", lambda port: port not in busy)
