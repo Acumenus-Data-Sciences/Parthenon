@@ -72,6 +72,40 @@ class RService
     }
 
     /**
+     * Run SelfControlledCohort via the R sidecar.
+     *
+     * @param  array<string, mixed>  $spec
+     * @return array<string, mixed>
+     */
+    public function runSelfControlledCohort(array $spec): array
+    {
+        $response = Http::timeout($this->timeout)
+            ->post("{$this->baseUrl}/analysis/self-controlled-cohort/run", $spec);
+
+        return $response->json() ?? [
+            'status' => 'error',
+            'message' => 'R runtime returned empty response (HTTP '.$response->status().')',
+        ];
+    }
+
+    /**
+     * Run PheValuator phenotype validation via the R sidecar.
+     *
+     * @param  array<string, mixed>  $spec
+     * @return array<string, mixed>
+     */
+    public function runPhenotypeValidation(array $spec): array
+    {
+        $response = Http::timeout($this->timeout)
+            ->post("{$this->baseUrl}/analysis/phenotype-validation/run", $spec);
+
+        return $response->json() ?? [
+            'status' => 'error',
+            'message' => 'R runtime returned empty response (HTTP '.$response->status().')',
+        ];
+    }
+
+    /**
      * Run Evidence Synthesis meta-analysis via the R sidecar.
      *
      * @param  array<string, mixed>  $spec

@@ -164,13 +164,13 @@ class StudyDesignController extends Controller
             $this->createAsset($session, $version, [
                 'asset_type' => 'imported_study_cohort',
                 'role' => $studyCohort->role,
-                'status' => StudyDesignAssetStatus::Accepted->value,
+                'status' => StudyDesignAssetStatus::ACCEPTED->value,
                 'canonical_type' => CohortDefinition::class,
                 'canonical_id' => $definition?->id,
                 'materialized_type' => CohortDefinition::class,
                 'materialized_id' => $definition?->id,
                 'materialized_at' => $definition ? now() : null,
-                'verification_status' => $deprecated ? StudyDesignVerificationStatus::Blocked->value : StudyDesignVerificationStatus::Verified->value,
+                'verification_status' => $deprecated ? StudyDesignVerificationStatus::BLOCKED->value : StudyDesignVerificationStatus::VERIFIED->value,
                 'verified_at' => $deprecated ? null : now(),
                 'draft_payload_json' => [
                     'title' => $studyCohort->label ?? $definition?->name,
@@ -194,8 +194,8 @@ class StudyDesignController extends Controller
             $this->createAsset($session, $version, [
                 'asset_type' => 'imported_study_analysis',
                 'role' => 'analysis',
-                'status' => StudyDesignAssetStatus::Accepted->value,
-                'verification_status' => StudyDesignVerificationStatus::Verified->value,
+                'status' => StudyDesignAssetStatus::ACCEPTED->value,
+                'verification_status' => StudyDesignVerificationStatus::VERIFIED->value,
                 'verified_at' => now(),
                 'materialized_type' => StudyAnalysis::class,
                 'materialized_id' => $analysis->id,
@@ -228,8 +228,8 @@ class StudyDesignController extends Controller
         $assets = collect($findings)->map(fn (array $finding) => $this->createAsset($session, $version, [
             'asset_type' => 'design_critique',
             'role' => $finding['role'],
-            'status' => StudyDesignAssetStatus::NeedsReview->value,
-            'verification_status' => StudyDesignVerificationStatus::Verified->value,
+            'status' => StudyDesignAssetStatus::NEEDS_REVIEW->value,
+            'verification_status' => StudyDesignVerificationStatus::VERIFIED->value,
             'verified_at' => now(),
             'rank_score' => $finding['severity'] === 'high' ? 0.95 : 0.65,
             'draft_payload_json' => $finding,
@@ -251,8 +251,8 @@ class StudyDesignController extends Controller
         $asset = $this->createAsset($session, $version, [
             'asset_type' => 'phenotype_recommendation',
             'role' => 'population',
-            'status' => StudyDesignAssetStatus::NeedsReview->value,
-            'verification_status' => StudyDesignVerificationStatus::Unverified->value,
+            'status' => StudyDesignAssetStatus::NEEDS_REVIEW->value,
+            'verification_status' => StudyDesignVerificationStatus::UNVERIFIED->value,
             'rank_score' => 0.7,
             'draft_payload_json' => [
                 'title' => $intent['pico']['population'] ?? $study->title,
@@ -300,8 +300,8 @@ class StudyDesignController extends Controller
         $assets = collect($drafts)->map(fn (array $draft) => $this->createAsset($session, $version, [
             'asset_type' => 'concept_set_draft',
             'role' => $draft['role'] ?? $validated['role'] ?? 'population',
-            'status' => StudyDesignAssetStatus::NeedsReview->value,
-            'verification_status' => StudyDesignVerificationStatus::Unverified->value,
+            'status' => StudyDesignAssetStatus::NEEDS_REVIEW->value,
+            'verification_status' => StudyDesignVerificationStatus::UNVERIFIED->value,
             'draft_payload_json' => $draft,
             'provenance_json' => ['source' => 'study_design_concept_set_draft'],
         ]))->values();
@@ -358,9 +358,9 @@ class StudyDesignController extends Controller
 
         $asset->update([
             'status' => match ($validated['decision']) {
-                'accept' => StudyDesignAssetStatus::Accepted->value,
-                'reject' => StudyDesignAssetStatus::Rejected->value,
-                default => StudyDesignAssetStatus::Deferred->value,
+                'accept' => StudyDesignAssetStatus::ACCEPTED->value,
+                'reject' => StudyDesignAssetStatus::REJECTED->value,
+                default => StudyDesignAssetStatus::DEFERRED->value,
             },
             'review_notes' => $validated['review_notes'] ?? null,
             'reviewed_by' => $request->user()->id,
@@ -402,7 +402,7 @@ class StudyDesignController extends Controller
         $asset->update([
             'role' => $validated['role'] ?? $asset->role,
             'draft_payload_json' => $validated,
-            'verification_status' => StudyDesignVerificationStatus::Unverified->value,
+            'verification_status' => StudyDesignVerificationStatus::UNVERIFIED->value,
             'verification_json' => null,
             'verified_at' => null,
         ]);
@@ -437,7 +437,7 @@ class StudyDesignController extends Controller
         }
 
         $asset->update([
-            'status' => StudyDesignAssetStatus::Accepted->value,
+            'status' => StudyDesignAssetStatus::ACCEPTED->value,
             'materialized_type' => ConceptSet::class,
             'materialized_id' => $conceptSet->id,
             'materialized_at' => now(),
@@ -464,8 +464,8 @@ class StudyDesignController extends Controller
         $assets = $conceptAssets->map(fn (StudyDesignAsset $conceptAsset) => $this->createAsset($session, $version, [
             'asset_type' => 'cohort_draft',
             'role' => $validated['role'] ?? $conceptAsset->role ?? 'target',
-            'status' => StudyDesignAssetStatus::NeedsReview->value,
-            'verification_status' => StudyDesignVerificationStatus::Unverified->value,
+            'status' => StudyDesignAssetStatus::NEEDS_REVIEW->value,
+            'verification_status' => StudyDesignVerificationStatus::UNVERIFIED->value,
             'draft_payload_json' => [
                 'title' => ($conceptAsset->draft_payload_json['title'] ?? 'Study Designer').' Cohort',
                 'role' => $validated['role'] ?? $conceptAsset->role ?? 'target',
@@ -481,8 +481,8 @@ class StudyDesignController extends Controller
             $assets->push($this->createAsset($session, $version, [
                 'asset_type' => 'cohort_draft',
                 'role' => $validated['role'] ?? 'target',
-                'status' => StudyDesignAssetStatus::NeedsReview->value,
-                'verification_status' => StudyDesignVerificationStatus::Blocked->value,
+                'status' => StudyDesignAssetStatus::NEEDS_REVIEW->value,
+                'verification_status' => StudyDesignVerificationStatus::BLOCKED->value,
                 'draft_payload_json' => ['title' => "{$study->title} Cohort", 'role' => $validated['role'] ?? 'target'],
                 'verification_json' => ['messages' => ['Materialized concept sets are required before cohort draft verification.']],
                 'provenance_json' => ['source' => 'study_design_cohort_draft'],
@@ -523,7 +523,7 @@ class StudyDesignController extends Controller
         ]);
 
         $asset->update([
-            'status' => StudyDesignAssetStatus::Accepted->value,
+            'status' => StudyDesignAssetStatus::ACCEPTED->value,
             'materialized_type' => CohortDefinition::class,
             'materialized_id' => $cohort->id,
             'materialized_at' => now(),
@@ -577,8 +577,8 @@ class StudyDesignController extends Controller
         $asset = $this->createAsset($session, $version, [
             'asset_type' => 'feasibility_evidence',
             'role' => 'feasibility',
-            'status' => StudyDesignAssetStatus::Accepted->value,
-            'verification_status' => $blocked ? StudyDesignVerificationStatus::Blocked->value : StudyDesignVerificationStatus::Verified->value,
+            'status' => StudyDesignAssetStatus::ACCEPTED->value,
+            'verification_status' => $blocked ? StudyDesignVerificationStatus::BLOCKED->value : StudyDesignVerificationStatus::VERIFIED->value,
             'verified_at' => $blocked ? null : now(),
             'draft_payload_json' => [
                 'source' => 'local_database',
@@ -606,8 +606,8 @@ class StudyDesignController extends Controller
         $asset = $this->createAsset($session, $version, [
             'asset_type' => 'analysis_plan_draft',
             'role' => 'analysis',
-            'status' => StudyDesignAssetStatus::NeedsReview->value,
-            'verification_status' => StudyDesignVerificationStatus::Unverified->value,
+            'status' => StudyDesignAssetStatus::NEEDS_REVIEW->value,
+            'verification_status' => StudyDesignVerificationStatus::UNVERIFIED->value,
             'draft_payload_json' => [
                 'analysis_type' => $validated['analysis_type'] ?? 'characterization',
                 'title' => "{$study->title} Analysis Plan",
@@ -632,7 +632,7 @@ class StudyDesignController extends Controller
         $blocked = ! $readiness['ready'];
 
         $asset->update([
-            'verification_status' => $blocked ? StudyDesignVerificationStatus::Blocked->value : StudyDesignVerificationStatus::Verified->value,
+            'verification_status' => $blocked ? StudyDesignVerificationStatus::BLOCKED->value : StudyDesignVerificationStatus::VERIFIED->value,
             'verified_at' => $blocked ? null : now(),
             'verification_json' => [
                 'checks' => [
@@ -667,7 +667,7 @@ class StudyDesignController extends Controller
         ]);
 
         $asset->update([
-            'status' => StudyDesignAssetStatus::Accepted->value,
+            'status' => StudyDesignAssetStatus::ACCEPTED->value,
             'materialized_type' => StudyAnalysis::class,
             'materialized_id' => $studyAnalysis->id,
             'materialized_at' => now(),
@@ -763,7 +763,7 @@ class StudyDesignController extends Controller
 
     private function guardVerified(StudyDesignAsset $asset): void
     {
-        abort_if($this->verificationValue($asset) !== StudyDesignVerificationStatus::Verified->value, 422, 'Asset must be verified before materialization.');
+        abort_if($this->verificationValue($asset) !== StudyDesignVerificationStatus::VERIFIED->value, 422, 'Asset must be verified before materialization.');
     }
 
     private function isLocked(StudyDesignVersion $version): bool
@@ -782,8 +782,8 @@ class StudyDesignController extends Controller
     {
         return $session->assets()->create(array_merge([
             'version_id' => $version->id,
-            'status' => StudyDesignAssetStatus::NeedsReview->value,
-            'verification_status' => StudyDesignVerificationStatus::Unverified->value,
+            'status' => StudyDesignAssetStatus::NEEDS_REVIEW->value,
+            'verification_status' => StudyDesignVerificationStatus::UNVERIFIED->value,
         ], $attributes));
     }
 
