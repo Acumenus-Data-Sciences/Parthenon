@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Install Parthenon Community — Acumenus Data Sciences</title>
-    <meta name="description" content="Install Parthenon Community with the verified Acropolis release bootstrap for Linux, macOS, and Windows via WSL 2." />
+    <title>Install Parthenon Community — Desktop GUI MVP</title>
+    <meta name="description" content="Install Parthenon Community with the desktop GUI MVP direction and the verified release bootstrap for Linux, macOS, and Windows via WSL 2." />
     <link rel="stylesheet" href="/install/install-landing.css" />
   </head>
   <body>
@@ -12,12 +12,12 @@
       <section class="hero">
         <p class="eyebrow">Community Edition installer</p>
         <h1>Install Parthenon Community</h1>
-        <p class="subtitle">A verified release bootstrap for the local OHDSI research stack.</p>
+        <p class="subtitle">The Community MVP is moving to a cross-platform desktop GUI backed by the Python installer.</p>
         <p class="description">
-          Run one command on a Docker-ready machine. The Acropolis bootstrap
-          resolves the latest GitHub release, downloads the platform package,
-          verifies it against <code>checksums.sha256</code>, and opens the guided
-          Community installer.
+          The new Rust desktop shell collects Community defaults, runs preflight
+          checks, writes a generated defaults file, and launches the existing
+          Python installer. Until signed GUI binaries are published, the verified
+          release bootstrap remains the supported install path.
         </p>
 
         <div class="command-block primary-command">
@@ -29,9 +29,40 @@
         </div>
 
         <div class="assurance">
-          <span>Verified package flow</span>
-          <span>Community defaults</span>
+          <span>Desktop GUI MVP in validation</span>
+          <span>Python installer remains source of truth</span>
           <span>No Enterprise key required</span>
+        </div>
+      </section>
+
+      <section class="section-block">
+        <h2>Desktop GUI MVP</h2>
+        <p class="section-copy">
+          The next installer package is a Rust/Tauri application for Linux,
+          macOS, and Windows through WSL 2. It keeps Community setup focused on
+          the local OHDSI research stack and avoids Enterprise-only prompts.
+        </p>
+        <div class="check-grid feature-grid">
+          <div class="check-item">
+            <strong>Guided Community defaults</strong>
+            <p>Repo path, admin account, demo data, Solr, Study Agent, BlackRabbit, FHIR-to-CDM, Hecate, and Orthanc are collected in one desktop flow.</p>
+          </div>
+          <div class="check-item">
+            <strong>Safe dry run first</strong>
+            <p>Dry run is enabled by default, previews redact secrets, and real installs require an explicit confirmation before Docker services start.</p>
+          </div>
+          <div class="check-item">
+            <strong>Same Python installer</strong>
+            <p>The GUI writes a defaults JSON file and calls <code>python3 install.py --defaults-file ... --non-interactive</code>.</p>
+          </div>
+        </div>
+        <div class="download-strip">
+          <div>
+            <strong>Rust GUI Linux preview</strong>
+            <p>Unsigned x86_64 build for validation on Docker-ready Linux hosts with GTK/WebKit available. macOS and Windows packages follow after signed release packaging.</p>
+          </div>
+          <a class="download-button" href="/install/downloads/parthenon-installer-gui-linux-x86_64.tar.gz">Download Rust GUI</a>
+          <a class="download-button secondary" href="/install/downloads/parthenon-installer-gui-linux-x86_64.tar.gz.sha256">Checksum</a>
         </div>
       </section>
 
@@ -81,6 +112,7 @@
         <div class="asset-links" aria-label="Direct installer downloads">
           <a href="https://github.com/sudoshi/Parthenon/releases/latest/download/acropolis-install-linux.tar.gz">Linux package</a>
           <a href="https://github.com/sudoshi/Parthenon/releases/latest/download/acropolis-install-macos.zip">macOS package</a>
+          <a href="https://github.com/sudoshi/Parthenon/releases/latest/download/acropolis-install-win.exe">Windows package</a>
           <a href="https://github.com/sudoshi/Parthenon/releases/latest/download/checksums.sha256">Checksums</a>
           <a href="https://github.com/sudoshi/Parthenon/releases/latest">Latest release</a>
         </div>
