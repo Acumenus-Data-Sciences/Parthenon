@@ -2,21 +2,21 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { Loader2, AlertCircle } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
-import { useExchangeOidcCode } from "../api";
+import apiClient from "@/lib/api-client";
+import type { AuthResponse } from "@/types/api";
 
-type Status = "exchanging" | "success" | "failed";
+type Status = "exchanging" | "failed";
 
 export function OidcCallbackPage() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const setAuth = useAuthStore((s) => s.setAuth);
-  const exchange = useExchangeOidcCode();
   const [status, setStatus] = useState<Status>("exchanging");
   const [errorReason, setErrorReason] = useState<string>("");
   const exchanged = useRef(false);
 
   useEffect(() => {
-    // Guard against React 19 strict-mode double-mount (the exchange code is single-use).
+    // Guard against React 19 strict-mode double-mount (the code is single-use).
     if (exchanged.current) return;
     exchanged.current = true;
 
@@ -27,17 +27,23 @@ export function OidcCallbackPage() {
       return;
     }
 
-    exchange.mutate(code, {
-      onSuccess: (data) => {
+    // Imperative async/await + try/catch — same pattern LoginPage uses.
+    // Avoids TanStack Query's inline onSuccess callback style which was not
+    // firing reliably in the React 19 + mutate-with-options path (observed
+    // 200 response but onSuccess never executed during Phase 7 smoke test).
+    (async () => {
+      try {
+        const { data } = await apiClient.post<AuthResponse>(
+          "/auth/oidc/exchange",
+          { code },
+        );
         setAuth(data.token, data.user);
-        setStatus("success");
         navigate("/", { replace: true });
-      },
-      onError: () => {
+      } catch {
         setStatus("failed");
         setErrorReason("exchange_failed");
-      },
-    });
+      }
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

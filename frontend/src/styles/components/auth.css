@@ -1,0 +1,52 @@
+/* Auth screens keep the photo hero light-on-dark while the form panel follows theme tokens. */
+:root {
+  --auth-page-bg: #08060A;
+  --auth-hero-card-bg: linear-gradient(135deg, rgba(10, 8, 6, 0.62) 0%, rgba(6, 5, 4, 0.52) 100%);
+  --auth-hero-card-border: rgba(255, 255, 255, 0.10);
+  --auth-hero-card-border-top: rgba(255, 255, 255, 0.20);
+  --auth-hero-card-shadow: 0 24px 72px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.15);
+  --auth-hero-text-primary: #F0EDE8;
+  --auth-hero-text-secondary: #C5C0B8;
+  --auth-hero-text-muted: #A09A90;
+  --auth-hero-text-ghost: #8A857D;
+  --auth-hero-accent: #C9A227;
+  --auth-hero-accent-light: #D4B340;
+  --auth-hero-accent-muted: #A68B1F;
+  --auth-hero-pill-bg: rgba(255, 255, 255, 0.03);
+  --auth-hero-pill-border: rgba(255, 255, 255, 0.06);
+  --auth-hero-link-border-muted: rgba(255, 255, 255, 0.08);
+
+  --auth-panel-bg: linear-gradient(135deg, rgba(14, 14, 17, 0.88) 0%, rgba(14, 14, 17, 0.95) 100%);
+  --auth-panel-bg-size: auto;
+  --auth-panel-bg-position: center;
+  --auth-panel-bg-repeat: no-repeat;
+  --auth-panel-constellation-opacity: 1;
+  --auth-panel-glow-opacity: 0.15;
+  --auth-card-bg: var(--gradient-panel);
+  --auth-card-border: rgba(255, 255, 255, 0.08);
+  --auth-card-shadow: 0 24px 64px rgba(0, 0, 0, 0.60), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --auth-field-bg: rgba(0, 0, 0, 0.35);
+  --auth-demo-bg: rgba(255, 255, 255, 0.03);
+  --auth-demo-border: rgba(255, 255, 255, 0.08);
+  --auth-divider-border: rgba(255, 255, 255, 0.05);
+  --auth-primary-action-text: #FFFFFF;
+}
+
+html.light {
+  --auth-page-bg: var(--surface-base);
+  --auth-panel-bg:
+    linear-gradient(135deg, rgba(245, 243, 239, 0.18) 0%, rgba(240, 237, 231, 0.36) 100%),
+    url("/sunlight.jpg");
+  --auth-panel-bg-size: cover;
+  --auth-panel-bg-position: center;
+  --auth-panel-bg-repeat: no-repeat;
+  --auth-panel-constellation-opacity: 0;
+  --auth-panel-glow-opacity: 0;
+  --auth-card-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.88) 0%, rgba(240, 237, 231, 0.78) 100%);
+  --auth-card-border: rgba(26, 24, 22, 0.12);
+  --auth-card-shadow: 0 24px 64px rgba(74, 69, 64, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  --auth-field-bg: rgba(255, 255, 255, 0.78);
+  --auth-demo-bg: rgba(26, 24, 22, 0.025);
+  --auth-demo-border: rgba(26, 24, 22, 0.16);
+  --auth-divider-border: rgba(26, 24, 22, 0.10);
+}

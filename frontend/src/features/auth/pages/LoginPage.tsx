@@ -80,7 +80,7 @@ export function LoginPage() {
         style={{
           position: "absolute",
           inset: 0,
-          background: "#08060A",
+          background: "var(--auth-page-bg)",
         }}
       />
 
@@ -126,16 +126,14 @@ export function LoginPage() {
             zIndex: 1,
             maxWidth: 500,
             textAlign: "center",
-            background:
-              "linear-gradient(135deg, rgba(10, 8, 6, 0.62) 0%, rgba(6, 5, 4, 0.52) 100%)",
+            background: "var(--auth-hero-card-bg)",
             backdropFilter: "blur(28px) saturate(1.4)",
             WebkitBackdropFilter: "blur(28px) saturate(1.4)",
-            border: "1px solid rgba(255, 255, 255, 0.10)",
-            borderTop: "1px solid rgba(255, 255, 255, 0.20)",
+            border: "1px solid var(--auth-hero-card-border)",
+            borderTop: "1px solid var(--auth-hero-card-border-top)",
             borderRadius: 20,
             padding: "48px 52px",
-            boxShadow:
-              "0 24px 72px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.15)",
+            boxShadow: "var(--auth-hero-card-shadow)",
           }}
         >
           {/* Crimson accent line */}
@@ -154,7 +152,7 @@ export function LoginPage() {
               fontFamily: "var(--font-display)",
               fontSize: "clamp(2.5rem, 4vw, 3.5rem)",
               fontWeight: 400,
-              color: "var(--text-primary)",
+              color: "var(--auth-hero-text-primary)",
               letterSpacing: "-0.025em",
               lineHeight: 1.08,
             }}
@@ -167,7 +165,7 @@ export function LoginPage() {
               fontFamily: "var(--font-heading)",
               fontSize: "var(--text-xl)",
               fontWeight: 400,
-              color: "var(--text-secondary)",
+              color: "var(--auth-hero-text-secondary)",
               marginTop: "var(--space-3)",
               lineHeight: 1.4,
             }}
@@ -179,7 +177,7 @@ export function LoginPage() {
             style={{
               fontFamily: "var(--font-body)",
               fontSize: "var(--text-base)",
-              color: "var(--text-muted)",
+              color: "var(--auth-hero-text-muted)",
               marginTop: "var(--space-4)",
               lineHeight: 1.6,
             }}
@@ -189,7 +187,7 @@ export function LoginPage() {
               href="https://ohdsi.org"
               target="_blank"
               rel="noopener noreferrer"
-              style={{ color: "var(--accent)", textDecoration: "none", borderBottom: "1px solid var(--accent-muted)" }}
+              style={{ color: "var(--auth-hero-accent)", textDecoration: "none", borderBottom: "1px solid var(--auth-hero-accent-muted)" }}
             >
               OHDSI
             </a>{" "}
@@ -202,7 +200,7 @@ export function LoginPage() {
             style={{
               fontFamily: "var(--font-body)",
               fontSize: "var(--text-sm)",
-              color: "var(--text-ghost)",
+              color: "var(--auth-hero-text-ghost)",
               marginTop: "var(--space-3)",
               lineHeight: 1.5,
             }}
@@ -212,7 +210,7 @@ export function LoginPage() {
               href="https://github.com/sudoshi/Parthenon"
               target="_blank"
               rel="noopener noreferrer"
-              style={{ color: "var(--text-muted)", textDecoration: "none", borderBottom: "1px solid var(--text-ghost)" }}
+              style={{ color: "var(--auth-hero-text-muted)", textDecoration: "none", borderBottom: "1px solid var(--auth-hero-text-ghost)" }}
             >
               GitHub
             </a>
@@ -245,13 +243,13 @@ export function LoginPage() {
                 style={{
                   fontFamily: "var(--font-mono)",
                   fontSize: "10px",
-                  color: "var(--text-ghost)",
+                  color: "var(--auth-hero-text-ghost)",
                   letterSpacing: "0.8px",
                   textTransform: "uppercase",
                   padding: "5px 10px",
-                  border: "1px solid rgba(255, 255, 255, 0.06)",
+                  border: "1px solid var(--auth-hero-pill-border)",
                   borderRadius: "var(--radius-full)",
-                  background: "rgba(255, 255, 255, 0.03)",
+                  background: "var(--auth-hero-pill-bg)",
                 }}
               >
                 {label}
@@ -279,17 +277,17 @@ export function LoginPage() {
                 gap: "6px",
                 fontFamily: "var(--font-mono)",
                 fontSize: "var(--text-xs)",
-                color: "var(--accent)",
+                color: "var(--auth-hero-accent)",
                 textDecoration: "none",
-                borderBottom: "1px solid var(--accent-muted)",
+                borderBottom: "1px solid var(--auth-hero-accent-muted)",
                 letterSpacing: "0.3px",
                 transition: "color 200ms",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.color = "var(--accent-light)";
+                e.currentTarget.style.color = "var(--auth-hero-accent-light)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.color = "var(--accent)";
+                e.currentTarget.style.color = "var(--auth-hero-accent)";
               }}
             >
               Read our Development Blog &rarr;
@@ -304,17 +302,17 @@ export function LoginPage() {
                 gap: "6px",
                 fontFamily: "var(--font-mono)",
                 fontSize: "var(--text-xs)",
-                color: "var(--accent)",
+                color: "var(--auth-hero-accent)",
                 textDecoration: "none",
-                borderBottom: "1px solid var(--accent-muted)",
+                borderBottom: "1px solid var(--auth-hero-accent-muted)",
                 letterSpacing: "0.3px",
                 transition: "color 200ms",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.color = "var(--accent-light)";
+                e.currentTarget.style.color = "var(--auth-hero-accent-light)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.color = "var(--accent)";
+                e.currentTarget.style.color = "var(--auth-hero-accent)";
               }}
             >
               Join our Discord Community &rarr;
@@ -329,19 +327,19 @@ export function LoginPage() {
                 gap: "6px",
                 fontFamily: "var(--font-mono)",
                 fontSize: "var(--text-xs)",
-                color: "var(--text-ghost)",
+                color: "var(--auth-hero-text-ghost)",
                 textDecoration: "none",
-                borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+                borderBottom: "1px solid var(--auth-hero-link-border-muted)",
                 letterSpacing: "0.3px",
                 transition: "color 200ms",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.color = "var(--accent)";
-                e.currentTarget.style.borderBottomColor = "var(--accent-muted)";
+                e.currentTarget.style.color = "var(--auth-hero-accent)";
+                e.currentTarget.style.borderBottomColor = "var(--auth-hero-accent-muted)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.color = "var(--text-ghost)";
-                e.currentTarget.style.borderBottomColor = "rgba(255, 255, 255, 0.08)";
+                e.currentTarget.style.color = "var(--auth-hero-text-ghost)";
+                e.currentTarget.style.borderBottomColor = "var(--auth-hero-link-border-muted)";
               }}
             >
               Install on a New Machine &rarr;
@@ -362,7 +360,7 @@ export function LoginPage() {
               style={{
                 fontFamily: "var(--font-mono)",
                 fontSize: "10px",
-                color: "var(--text-ghost)",
+                color: "var(--auth-hero-text-ghost)",
                 letterSpacing: "1.2px",
                 textTransform: "uppercase",
                 opacity: 0.6,
@@ -377,16 +375,16 @@ export function LoginPage() {
               style={{
                 fontFamily: "var(--font-body)",
                 fontSize: "var(--text-xs)",
-                color: "var(--text-ghost)",
+                color: "var(--auth-hero-text-ghost)",
                 textDecoration: "none",
                 letterSpacing: "0.3px",
                 transition: "color 200ms",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.color = "var(--text-muted)";
+                e.currentTarget.style.color = "var(--auth-hero-text-muted)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.color = "var(--text-ghost)";
+                e.currentTarget.style.color = "var(--auth-hero-text-ghost)";
               }}
             >
               Acumenus Data Sciences
@@ -449,14 +447,18 @@ export function LoginPage() {
           alignItems: "center",
           justifyContent: "center",
           padding: "var(--space-10)",
-          background:
-            "linear-gradient(135deg, rgba(14, 14, 17, 0.88) 0%, rgba(14, 14, 17, 0.95) 100%)",
+          background: "var(--auth-panel-bg)",
+          backgroundSize: "var(--auth-panel-bg-size)",
+          backgroundPosition: "var(--auth-panel-bg-position)",
+          backgroundRepeat: "var(--auth-panel-bg-repeat)",
           backdropFilter: "blur(40px)",
           WebkitBackdropFilter: "blur(40px)",
         }}
       >
         {/* Animated constellation star map */}
-        <ConstellationBackground />
+        <div style={{ opacity: "var(--auth-panel-constellation-opacity)" }}>
+          <ConstellationBackground />
+        </div>
 
         {/* Subtle top-right glow */}
         <div
@@ -468,7 +470,7 @@ export function LoginPage() {
             height: 300,
             background:
               "radial-gradient(circle at top right, var(--primary-glow), transparent 70%)",
-            opacity: 0.15,
+            opacity: "var(--auth-panel-glow-opacity)",
             pointerEvents: "none",
           }}
         />
@@ -479,15 +481,13 @@ export function LoginPage() {
             position: "relative",
             width: "100%",
             maxWidth: 420,
-            background:
-              "linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.015) 100%)",
+            background: "var(--auth-card-bg)",
             backdropFilter: "blur(16px)",
             WebkitBackdropFilter: "blur(16px)",
-            border: "1px solid rgba(255, 255, 255, 0.08)",
+            border: "1px solid var(--auth-card-border)",
             borderRadius: "var(--radius-xl)",
             padding: "var(--space-10) var(--space-8)",
-            boxShadow:
-              "0 24px 64px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.06)",
+            boxShadow: "var(--auth-card-shadow)",
           }}
         >
           {/* Panel heading */}
@@ -581,7 +581,7 @@ export function LoginPage() {
                     fontFamily: "var(--font-body)",
                     fontSize: "var(--text-base)",
                     color: "var(--text-primary)",
-                    background: "rgba(0, 0, 0, 0.35)",
+                    background: "var(--auth-field-bg)",
                     border: "1px solid var(--border-default)",
                     borderRadius: "var(--radius-md)",
                     outline: "none",
@@ -642,7 +642,7 @@ export function LoginPage() {
                     fontFamily: "var(--font-body)",
                     fontSize: "var(--text-base)",
                     color: "var(--text-primary)",
-                    background: "rgba(0, 0, 0, 0.35)",
+                    background: "var(--auth-field-bg)",
                     border: "1px solid var(--border-default)",
                     borderRadius: "var(--radius-md)",
                     outline: "none",
@@ -707,8 +707,8 @@ export function LoginPage() {
                   fontFamily: "var(--font-mono)",
                   fontSize: "var(--text-xs)",
                   color: "var(--text-muted)",
-                  background: "rgba(255, 255, 255, 0.03)",
-                  border: "1px dashed rgba(255, 255, 255, 0.08)",
+                  background: "var(--auth-demo-bg)",
+                  border: "1px dashed var(--auth-demo-border)",
                   borderRadius: "var(--radius-md)",
                   cursor: "pointer",
                   transition: "color 200ms, border-color 200ms, background 200ms",
@@ -721,8 +721,8 @@ export function LoginPage() {
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.color = "var(--text-muted)";
-                  e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.08)";
-                  e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)";
+                  e.currentTarget.style.borderColor = "var(--auth-demo-border)";
+                  e.currentTarget.style.background = "var(--auth-demo-bg)";
                 }}
               >
                 Fill demo credentials
@@ -743,7 +743,7 @@ export function LoginPage() {
                 fontFamily: "var(--font-body)",
                 fontSize: "var(--text-base)",
                 fontWeight: 600,
-                color: "var(--text-primary)",
+                color: "var(--auth-primary-action-text)",
                 background: "var(--gradient-crimson)",
                 border: "1px solid var(--primary-light)",
                 borderRadius: "var(--radius-md)",
@@ -849,7 +849,7 @@ export function LoginPage() {
               textAlign: "center",
               marginTop: "var(--space-8)",
               paddingTop: "var(--space-5)",
-              borderTop: "1px solid rgba(255, 255, 255, 0.05)",
+              borderTop: "1px solid var(--auth-divider-border)",
               display: "flex",
               flexDirection: "column",
               gap: "var(--space-3)",
