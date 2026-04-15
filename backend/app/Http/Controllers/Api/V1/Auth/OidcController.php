@@ -147,19 +147,25 @@ class OidcController extends Controller
             return response()->json(['error' => 'oidc_failed', 'reason' => 'unknown_code'], 400);
         }
 
-        $user = User::query()->find($payload['user_id']);
+        $user = User::query()->with('roles.permissions')->find($payload['user_id']);
         if ($user === null) {
             return response()->json(['error' => 'oidc_failed', 'reason' => 'user_missing'], 400);
         }
 
+        // Match AuthController::formatUser exactly so the SPA's MainLayout
+        // (which keys off onboarding_completed, must_change_password, permissions)
+        // treats an SSO login identically to a local login.
         return response()->json([
             'token' => $payload['token'],
             'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'roles' => $user->roles->pluck('name'),
-                'must_change_password' => (bool) $user->must_change_password,
+                ...$user->only([
+                    'id', 'name', 'email', 'avatar', 'phone_number', 'job_title',
+                    'department', 'organization', 'bio', 'last_login_at',
+                    'must_change_password', 'onboarding_completed', 'default_source_id',
+                    'theme_preference', 'created_at', 'updated_at',
+                ]),
+                'roles' => $user->getRoleNames(),
+                'permissions' => $user->getAllPermissions()->pluck('name'),
             ],
         ]);
     }
