@@ -357,11 +357,10 @@ export const router = createBrowserRouter(
         element: <Navigate to="/workbench/investigation" replace />,
       },
       {
+        // SP2 Code Explorer moved into Investigation as a domain tab.
+        // Preserve the old URL as a redirect for any bookmarks.
         path: "finngen/explore",
-        lazy: () =>
-          import("@/features/code-explorer").then((m) => ({
-            Component: m.CodeExplorerPage,
-          })),
+        element: <Navigate to="/workbench/investigation" replace />,
       },
       {
         path: "workbench/aqueduct",

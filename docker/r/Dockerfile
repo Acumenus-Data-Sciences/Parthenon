@@ -172,10 +172,13 @@ RUN R -e " \
   remotes::install_version('OhdsiReportGenerator', version = '2.1.0', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
   remotes::install_version('BrokenAdaptiveRidge', version = '1.0.2', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
   remotes::install_version('IterativeHardThresholding', version = '1.0.3', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
-  remotes::install_version('OhdsiShinyAppBuilder', version = '1.0.0', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
+  tryCatch( \
+    remotes::install_version('OhdsiShinyAppBuilder', version = '1.0.0', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')), \
+    error = function(e) message('[BUILD] OhdsiShinyAppBuilder install skipped (optional, needs devtools): ', conditionMessage(e)) \
+  ); \
   parity_pkgs <- c( \
     'TreatmentPatterns', 'Achilles', 'CirceR', 'OhdsiReportGenerator', \
-    'BrokenAdaptiveRidge', 'IterativeHardThresholding', 'OhdsiShinyAppBuilder' \
+    'BrokenAdaptiveRidge', 'IterativeHardThresholding' \
   ); \
   missing <- parity_pkgs[!vapply(parity_pkgs, requireNamespace, logical(1), quietly = TRUE)]; \
   if (length(missing) > 0) stop('OHDSI r-universe parity package install failed: ', paste(missing, collapse = ', ')); \

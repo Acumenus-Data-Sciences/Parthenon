@@ -154,7 +154,7 @@ export interface ClinicalAnalysisConfig {
 }
 
 export type InvestigationStatus = "draft" | "active" | "complete" | "archived";
-export type EvidenceDomain = "phenotype" | "clinical" | "genomic" | "synthesis";
+export type EvidenceDomain = "phenotype" | "clinical" | "genomic" | "synthesis" | "code-explorer";
 export type FindingType =
   | "cohort_summary"
   | "hazard_ratio"

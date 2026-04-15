@@ -43,7 +43,6 @@ import {
   ScrollText,
   NotebookPen,
   ShieldUser,
-  Binary,
   type LucideIcon,
 } from "lucide-react";
 import { HelpSlideOver } from "@/features/help/components/HelpSlideOver";
@@ -102,7 +101,6 @@ const navItems: NavItem[] = [
         : []),
       { path: "/study-packages", label: "Study Packages", icon: Package },
       { path: "/phenotype-library", label: "Phenotype Library", icon: Library },
-      { path: "/finngen/explore", label: "Code Explorer", icon: Binary },
     ],
   },
   {

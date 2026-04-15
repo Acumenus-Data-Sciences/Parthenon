@@ -1,6 +1,7 @@
 import { ArrowLeft } from "lucide-react";
 import { useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { CodeExplorerPage } from "@/features/code-explorer";
 import { useInvestigationStore } from "../stores/investigationStore";
 import type { EvidenceDomain, Investigation, InvestigationStatus } from "../types";
 import { ClinicalPanel } from "./clinical/ClinicalPanel";
@@ -49,12 +50,14 @@ function FocusPanel({ investigation }: { investigation: Investigation }) {
       return <GenomicPanel investigation={investigation} />;
     case "synthesis":
       return <SynthesisPanel investigation={investigation} />;
+    case "code-explorer":
+      return <CodeExplorerPage />;
     default:
       return null;
   }
 }
 
-const VALID_DOMAINS: EvidenceDomain[] = ["phenotype", "clinical", "genomic", "synthesis"];
+const VALID_DOMAINS: EvidenceDomain[] = ["phenotype", "clinical", "genomic", "synthesis", "code-explorer"];
 
 export function EvidenceBoard({ investigation }: EvidenceBoardProps) {
   const pinCount = investigation.pins?.length ?? 0;

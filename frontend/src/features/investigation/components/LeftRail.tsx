@@ -1,4 +1,4 @@
-import { Activity, Dna, FileText, Microscope, Pin, Play } from "lucide-react";
+import { Activity, Binary, Dna, FileText, Microscope, Pin, Play } from "lucide-react";
 import { useInvestigationStore } from "../stores/investigationStore";
 import type { EvidenceDomain } from "../types";
 
@@ -38,6 +38,13 @@ const DOMAIN_ITEMS: DomainItem[] = [
     icon: <FileText size={16} />,
     activeColor: "text-text-secondary",
     activeBorder: "border-l-2 border-border-hover",
+  },
+  {
+    domain: "code-explorer",
+    label: "Code Explorer",
+    icon: <Binary size={16} />,
+    activeColor: "text-warning",
+    activeBorder: "border-l-2 border-warning",
   },
 ];
 
