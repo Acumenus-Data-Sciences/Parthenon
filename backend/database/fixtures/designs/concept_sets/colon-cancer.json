@@ -1,0 +1,24 @@
+{
+    "id": 156,
+    "name": "Colon Cancer",
+    "description": null,
+    "expression_json": null,
+    "author_id": 117,
+    "is_public": false,
+    "tags": null,
+    "created_at": "2026-04-14T23:44:21.000000Z",
+    "updated_at": "2026-04-14T23:44:21.000000Z",
+    "deleted_at": null,
+    "items": [
+        {
+            "id": 1425,
+            "concept_set_id": 156,
+            "concept_id": 4149847,
+            "is_excluded": false,
+            "include_descendants": true,
+            "include_mapped": false,
+            "created_at": "2026-04-14T23:44:21.000000Z",
+            "updated_at": "2026-04-14T23:44:21.000000Z"
+        }
+    ]
+}
