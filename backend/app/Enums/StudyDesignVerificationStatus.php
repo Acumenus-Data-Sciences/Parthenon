@@ -4,7 +4,8 @@ namespace App\Enums;
 
 enum StudyDesignVerificationStatus: string
 {
-    case Unverified = 'unverified';
-    case Verified = 'verified';
-    case Blocked = 'blocked';
+    case UNVERIFIED = 'unverified';
+    case VERIFIED = 'verified';
+    case BLOCKED = 'blocked';
+    case PARTIAL = 'partial';
 }

@@ -22,13 +22,13 @@ class StudyDesignReadinessService
             ->get();
 
         $readyAssets = $cohortAssets->filter(fn (StudyDesignAsset $asset) => $asset->materialized_id !== null
-            && $this->verificationValue($asset) === StudyDesignVerificationStatus::Verified->value);
+            && $this->verificationValue($asset) === StudyDesignVerificationStatus::VERIFIED->value);
 
         return [
             'ready' => $readyAssets->isNotEmpty(),
             'cohort_asset_count' => $cohortAssets->count(),
             'materialized_verified_count' => $readyAssets->count(),
-            'blocked_count' => $cohortAssets->filter(fn (StudyDesignAsset $asset) => $this->verificationValue($asset) === StudyDesignVerificationStatus::Blocked->value)->count(),
+            'blocked_count' => $cohortAssets->filter(fn (StudyDesignAsset $asset) => $this->verificationValue($asset) === StudyDesignVerificationStatus::BLOCKED->value)->count(),
         ];
     }
 
@@ -40,10 +40,10 @@ class StudyDesignReadinessService
         $assets = $session->assets()->where('version_id', $version->id)->get();
         $cohortReadiness = $this->cohortReadiness($session, $version);
         $hasFeasibility = $assets->contains(fn (StudyDesignAsset $asset) => $asset->asset_type === 'feasibility_evidence'
-            && $this->verificationValue($asset) === StudyDesignVerificationStatus::Verified->value);
+            && $this->verificationValue($asset) === StudyDesignVerificationStatus::VERIFIED->value);
         $hasAnalysis = $assets->contains(fn (StudyDesignAsset $asset) => in_array($asset->asset_type, ['analysis_plan_draft', 'imported_study_analysis'], true)
             && $asset->materialized_id !== null
-            && $this->verificationValue($asset) === StudyDesignVerificationStatus::Verified->value);
+            && $this->verificationValue($asset) === StudyDesignVerificationStatus::VERIFIED->value);
         $blocking = [];
 
         if (! in_array($version->status, ['accepted', 'locked'], true)) {
@@ -78,7 +78,7 @@ class StudyDesignReadinessService
                 'accepted_at' => $version->accepted_at?->toISOString(),
                 'ai_events' => $session->aiEvents()->count(),
                 'reviewed_assets' => $assets->whereNotNull('reviewed_at')->count(),
-                'verified_assets' => $assets->filter(fn (StudyDesignAsset $asset) => $this->verificationValue($asset) === StudyDesignVerificationStatus::Verified->value)->count(),
+                'verified_assets' => $assets->filter(fn (StudyDesignAsset $asset) => $this->verificationValue($asset) === StudyDesignVerificationStatus::VERIFIED->value)->count(),
                 'package_manifest_sha256' => $version->provenance_json['package_manifest_sha256'] ?? null,
             ],
         ];

@@ -46,4 +46,9 @@ class StudyDesignVersion extends Model
     {
         return $this->hasMany(StudyDesignAsset::class, 'version_id');
     }
+
+    public function aiEvents(): HasMany
+    {
+        return $this->hasMany(StudyDesignAiEvent::class, 'version_id');
+    }
 }
