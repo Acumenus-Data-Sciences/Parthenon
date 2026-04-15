@@ -3,7 +3,6 @@ import { useSearchParams } from "react-router-dom";
 import { useAutoSave } from "../hooks/useAutoSave";
 import type { ConceptSearchResult, Investigation, PhenotypeState } from "../types";
 import { CohortBuilder } from "./phenotype/CohortBuilder";
-import { CodeWASRunner } from "./phenotype/CodeWASRunner";
 import { ValidationChecklist } from "./phenotype/ValidationChecklist";
 import { CohortOverlapMatrix } from "./phenotype/CohortOverlapMatrix";
 import { ConceptExplorer } from "./phenotype/ConceptExplorer";
@@ -360,17 +359,10 @@ export function PhenotypePanel({ investigation }: PhenotypePanelProps) {
 
         {activeTab === "validate" && (
           <div className="flex flex-col gap-4 h-full overflow-y-auto pr-1">
-            <CodeWASRunner
-              investigation={investigation}
-              onPinFinding={(finding) => {
-                createPin.mutate({
-                  domain: finding.domain,
-                  section: finding.section,
-                  finding_type: finding.finding_type,
-                  finding_payload: finding.finding_payload,
-                });
-              }}
-            />
+            {/* CodeWASRunner removed in FinnGen SP1 Task D3 — old StudyAgent
+                /api/v1/study-agent/finngen-* backend is gone. SP2+ will
+                reintroduce a CodeWAS UI on top of the new SP1 foundation
+                hooks at @/features/_finngen-foundation. */}
             <ValidationChecklist investigation={investigation} />
             <CohortOverlapMatrix
               cohorts={(investigation.phenotype_state.selected_cohort_ids ?? []).map((id) => ({

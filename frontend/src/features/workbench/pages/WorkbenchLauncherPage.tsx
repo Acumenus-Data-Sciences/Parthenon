@@ -1,8 +1,38 @@
 import { Loader2, PanelsTopLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useInvestigations } from "@/features/investigation/hooks/useInvestigation";
-import { TOOLSET_REGISTRY } from "../toolsets";
+import type { ToolsetDescriptor } from "../types";
 import { ToolsetCard } from "../components/ToolsetCard";
+
+// Inline toolset registry (previously in ../toolsets.ts — removed with the
+// obsolete StudyAgent FinnGen components in Task D3). The FinnGen Evidence
+// Investigation toolset will be re-added once the SP2+ UI lands on the new
+// FinnGen SP1 foundation hooks.
+const TOOLSET_REGISTRY: ToolsetDescriptor[] = [
+  {
+    slug: "morpheus",
+    name: "Morpheus",
+    tagline: "Inpatient outcomes & ICU analytics workbench",
+    description:
+      "ICU-focused analytics leveraging MIMIC-IV data in OMOP CDM 5.4. ABCDEF Liberation Bundle compliance, ventilator weaning prediction, sedation monitoring, and inpatient outcome research.",
+    icon: "BedDouble",
+    accent: "var(--primary)",
+    status: "available",
+    route: "/morpheus",
+    badge: "MIMIC-IV",
+  },
+  {
+    slug: "sdk",
+    name: "Build a Toolset",
+    tagline: "Community SDK for third-party integrations",
+    description:
+      "Reference implementation and SDK documentation for building custom toolsets that plug into the Parthenon Workbench. Service descriptors, result envelopes, and artifact patterns.",
+    icon: "Blocks",
+    accent: "var(--accent)",
+    status: "available",
+    route: "/workbench/community-sdk-demo",
+  },
+];
 
 const STATUS_BADGE: Record<string, string> = {
   draft: "bg-surface-raised text-text-muted",

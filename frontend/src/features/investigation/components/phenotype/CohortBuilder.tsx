@@ -1,9 +1,8 @@
 import { useState, useRef } from "react";
-import type { Investigation, PhenotypeState, CohortOperationResult } from "../../types";
+import type { Investigation, PhenotypeState } from "../../types";
 import { CohortPicker } from "./CohortPicker";
 import { PhenotypeLibrarySearch } from "./PhenotypeLibrarySearch";
 import { useCohortDefinitions } from "@/features/cohort-definitions/hooks/useCohortDefinitions";
-import { CohortOperationPanel } from "./CohortOperationPanel";
 
 type ImportMode = PhenotypeState["import_mode"];
 
@@ -39,6 +38,11 @@ const IMPORT_OPTIONS: ImportOption[] = [
 interface CohortBuilderProps {
   investigation: Investigation;
   onStateChange: (partial: Partial<PhenotypeState>) => void;
+  /**
+   * Retained in props API for SP2+ compatibility. Currently unused because
+   * the CohortOperationPanel (which used to pin findings) was removed in
+   * FinnGen SP1 Task D3 along with the old StudyAgent backend.
+   */
   onPinFinding?: (finding: {
     domain: string;
     section: string;
@@ -47,7 +51,7 @@ interface CohortBuilderProps {
   }) => void;
 }
 
-export function CohortBuilder({ investigation, onStateChange, onPinFinding }: CohortBuilderProps) {
+export function CohortBuilder({ investigation, onStateChange }: CohortBuilderProps) {
   const [importMode, setImportMode] = useState<ImportMode>(
     investigation.phenotype_state.import_mode ?? "parthenon",
   );
@@ -63,7 +67,7 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
   const [fileInfo, setFileInfo] = useState<{ name: string; size: string; summary: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Resolved cohort objects (name + count) for CohortOperationPanel
+  // Resolved cohort objects (name + count) for display badges
   const { data: cohortListData } = useCohortDefinitions({ limit: 200, with_generations: true });
   const cohortList = cohortListData?.items ?? [];
   const selectedCohorts = selectedIds.map((id) => {
@@ -74,10 +78,6 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
       count: def?.latest_generation?.person_count ?? 0,
     };
   });
-
-  function handleOperationComplete(_result: CohortOperationResult) {
-    // TODO: surface operation result in UI
-  }
 
   function handleAtlasParse() {
     setAtlasParseError(null);
@@ -338,14 +338,10 @@ export function CohortBuilder({ investigation, onStateChange, onPinFinding }: Co
         </div>
       )}
 
-      {selectedCohorts.length >= 2 && (
-        <CohortOperationPanel
-          selectedCohorts={selectedCohorts}
-          primaryId={primaryId}
-          onOperationComplete={handleOperationComplete}
-          onPinFinding={onPinFinding}
-        />
-      )}
+      {/* CohortOperationPanel removed in FinnGen SP1 Task D3 — old StudyAgent
+          /api/v1/study-agent/finngen-* backend is gone. SP2+ will reintroduce
+          cohort set-operations UI on top of the new SP1 foundation hooks at
+          @/features/_finngen-foundation. */}
 
       {/* Concept sets from Explore tab */}
       {conceptSetCount > 0 && (
