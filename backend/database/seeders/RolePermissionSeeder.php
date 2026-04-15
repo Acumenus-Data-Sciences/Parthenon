@@ -83,6 +83,9 @@ class RolePermissionSeeder extends Seeder
 
         // ── AI-maintained wiki ───────────────────────────────────────────
         'wiki' => ['view', 'ingest', 'lint', 'manage'],
+
+        // ── FinnGen Code Explorer ────────────────────────────────────────
+        'finngen.code-explorer' => ['view', 'setup'],
     ];
 
     /**
@@ -111,6 +114,7 @@ class RolePermissionSeeder extends Seeder
             'imaging.view', 'imaging.create', 'imaging.delete', 'imaging.run',
             'genomics.view', 'genomics.upload', 'genomics.delete', 'genomics.run',
             'wiki.view', 'wiki.ingest', 'wiki.lint', 'wiki.manage',
+            'finngen.code-explorer.view', 'finngen.code-explorer.setup',
         ],
 
         // Clinical/epidemiological researcher — primary user persona.
@@ -132,6 +136,7 @@ class RolePermissionSeeder extends Seeder
             'imaging.view', 'imaging.create', 'imaging.run',
             'genomics.view', 'genomics.upload', 'genomics.run',
             'wiki.view', 'wiki.ingest', 'wiki.lint',
+            'finngen.code-explorer.view',
         ],
 
         // Responsible for data pipelines and CDM quality.
@@ -181,6 +186,7 @@ class RolePermissionSeeder extends Seeder
             'imaging.view',
             'genomics.view',
             'wiki.view',
+            'finngen.code-explorer.view',
         ],
     ];
 
