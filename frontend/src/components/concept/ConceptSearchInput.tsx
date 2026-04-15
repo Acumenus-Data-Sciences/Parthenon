@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Search, Loader2 } from "lucide-react";
-import { searchConcepts } from "../../vocabulary/api/vocabularyApi";
-import type { Concept } from "../../vocabulary/types/vocabulary";
+import { searchConcepts } from "@/features/vocabulary/api/vocabularyApi";
+import type { Concept } from "@/features/vocabulary/types/vocabulary";
 
 interface ConceptSearchInputProps {
   value: string;
