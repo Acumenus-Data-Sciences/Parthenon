@@ -310,3 +310,32 @@ See `docs/superpowers/specs/2026-04-12-finngen-workbench-subprojects-handoff.md`
 - **HIGHSEC rules:** `.claude/rules/HIGHSEC.spec.md`
 - **PG role model:** `~/.claude/memory/project_parthenon_pg_roles.md`
 - **Darkstar infra:** `~/.claude/memory/reference_parthenon_infra.md`
+
+---
+
+## SP2 — Code Explorer source initialization
+
+Before `/api/v1/finngen/code-explorer/counts` returns data for a source, the
+source must have `stratified_code_counts` materialized via ROMOPAPI. This is
+a one-time-per-source admin action:
+
+```bash
+docker compose exec -T php sh -c 'cd /var/www/html && \
+  php artisan finngen:setup-source EUNOMIA'
+```
+
+The command:
+- Dispatches a `romopapi.setup` async run via `FinnGenRunService::create`
+- Polls for terminal state (press Ctrl+C to detach; the run continues in background)
+- Prints progress step + percentage + message as they land
+
+Alternative admin-UI path: `/finngen/explore` → pick source → click "Initialize source" banner button. Requires `finngen.code-explorer.setup` permission (admin or super-admin role).
+
+**Duration estimates:**
+- Eunomia: ~30s-2min
+- SynPUF (2.3M persons): ~30-90min
+- Acumenus (1M persons): ~20-60min
+
+**Idempotent:** ROMOPAPI uses `CREATE TABLE IF NOT EXISTS` under the hood, so repeat runs are safe.
+
+**Rollback:** To drop the table manually: `DROP TABLE {results_schema}.stratified_code_counts` — next `/counts` call returns `FINNGEN_SOURCE_NOT_INITIALIZED` until re-initialized.

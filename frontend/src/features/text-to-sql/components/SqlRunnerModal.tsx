@@ -210,7 +210,7 @@ function ErrorGuidance({ error }: { error: string | null }) {
 }
 
 // Lazy import to avoid circular deps
-import { ConceptSearchInput } from "./ConceptSearchInput";
+import { ConceptSearchInput } from "@/components/concept/ConceptSearchInput";
 
 export function SqlRunnerModal({
   open,

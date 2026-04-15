@@ -16,6 +16,7 @@ source("/app/api/finngen/romopapi.R")
 source("/app/api/finngen/hades_extras.R")
 source("/app/api/finngen/co2_analysis.R")
 source("/app/api/finngen/cohort_ops.R")
+source("/app/api/finngen/romopapi_async.R")
 source("/app/R/async_jobs.R")  # provides submit_job()
 
 suppressPackageStartupMessages({
@@ -87,33 +88,22 @@ suppressPackageStartupMessages({
       )
     },
     "finngen.romopapi.report" = function(spec) {
-      source("/app/api/finngen/common.R")
-      suppressPackageStartupMessages({ library(ROMOPAPI) })
-      export_folder <- file.path("/opt/finngen-artifacts/runs", spec$run_id)
-      dir.create(export_folder, recursive = TRUE, showWarnings = FALSE)
-      progress_path <- file.path(export_folder, "progress.json")
-      run_with_classification(export_folder, function() {
-        write_progress(progress_path, list(step = "build_handler", pct = 5))
-        handler <- build_cdm_handler(spec$source)
-        on.exit(tryCatch(handler$closeConnection(), error = function(e) NULL), add = TRUE)
-
-        write_progress(progress_path, list(step = "createReport", pct = 20))
-        report_path <- ROMOPAPI::createReport(handler, conceptId = as.integer(spec$params$concept_id))
-        target <- file.path(export_folder, "report.html")
-        if (!is.null(report_path) && file.exists(report_path) && report_path != target) {
-          file.copy(report_path, target, overwrite = TRUE)
-        }
-
-        writeLines(
-          jsonlite::toJSON(
-            list(analysis_type = "romopapi.report", concept_id = spec$params$concept_id),
-            auto_unbox = TRUE
-          ),
-          file.path(export_folder, "summary.json")
-        )
-        write_progress(progress_path, list(step = "done", pct = 100))
-        list(report = "report.html")
-      })
+      source("/app/api/finngen/common.R"); source("/app/api/finngen/romopapi_async.R")
+      finngen_romopapi_report_execute(
+        source_envelope = spec$source,
+        run_id          = spec$run_id,
+        export_folder   = file.path("/opt/finngen-artifacts/runs", spec$run_id),
+        params          = spec$params
+      )
+    },
+    "finngen.romopapi.setup" = function(spec) {
+      source("/app/api/finngen/common.R"); source("/app/api/finngen/romopapi_async.R")
+      finngen_romopapi_setup_source_execute(
+        source_envelope = spec$source,
+        run_id          = spec$run_id,
+        export_folder   = file.path("/opt/finngen-artifacts/runs", spec$run_id),
+        params          = spec$params
+      )
     },
     stop(paste0("Unknown FinnGen endpoint key: ", endpoint_key))
   )
@@ -248,4 +238,10 @@ function(req, response) {
 #* @serializer unboxedJSON
 function(req, response) {
   .dispatch_async("finngen.romopapi.report", req, response)
+}
+
+#* @post /finngen/romopapi/setup
+#* @serializer unboxedJSON
+function(req, response) {
+  .dispatch_async("finngen.romopapi.setup", req, response)
 }

@@ -2,24 +2,27 @@
 
 declare(strict_types=1);
 
+use App\Jobs\FinnGen\RunFinnGenAnalysisJob;
 use App\Models\App\FinnGen\Run;
 use App\Models\User;
+use Database\Seeders\Testing\FinnGenTestingSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Redis;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->seed(\Database\Seeders\Testing\FinnGenTestingSeeder::class);
+    $this->seed(FinnGenTestingSeeder::class);
     $this->researcher = User::where('email', 'finngen-test-researcher@test.local')->firstOrFail();
     $this->admin = User::where('email', 'finngen-test-admin@test.local')->firstOrFail();
 
     try {
-        foreach (\Illuminate\Support\Facades\Redis::connection()->keys('finngen:sync:code-explorer:*') as $k) {
-            \Illuminate\Support\Facades\Redis::connection()->del($k);
+        foreach (Redis::connection()->keys('finngen:sync:code-explorer:*') as $k) {
+            Redis::connection()->del($k);
         }
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         // Redis not available — ignore
     }
 });
@@ -134,7 +137,7 @@ it('POST /report dispatches a romopapi.report run', function () {
     expect($response->json('analysis_type'))->toBe('romopapi.report');
     expect($response->json('params.concept_id'))->toBe(201826);
 
-    Bus::assertDispatched(\App\Jobs\FinnGen\RunFinnGenAnalysisJob::class);
+    Bus::assertDispatched(RunFinnGenAnalysisJob::class);
 });
 
 it('POST /initialize-source dispatches a romopapi.setup run (admin)', function () {
@@ -153,8 +156,8 @@ it('POST /initialize-source dispatches a romopapi.setup run (admin)', function (
 function redisAvailable(): bool
 {
     try {
-        return \Illuminate\Support\Facades\Redis::connection()->ping() !== false;
-    } catch (\Throwable $e) {
+        return Redis::connection()->ping() !== false;
+    } catch (Throwable $e) {
         return false;
     }
 }

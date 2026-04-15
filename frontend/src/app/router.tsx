@@ -357,6 +357,13 @@ export const router = createBrowserRouter(
         element: <Navigate to="/workbench/investigation" replace />,
       },
       {
+        path: "finngen/explore",
+        lazy: () =>
+          import("@/features/code-explorer").then((m) => ({
+            Component: m.CodeExplorerPage,
+          })),
+      },
+      {
         path: "workbench/aqueduct",
         element: <Navigate to="/workbench" replace />,
       },
