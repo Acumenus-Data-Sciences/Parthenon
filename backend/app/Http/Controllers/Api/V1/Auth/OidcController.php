@@ -164,6 +164,20 @@ class OidcController extends Controller
         ]);
     }
 
+    /**
+     * Public endpoint that tells the login UI which auth providers are available.
+     * Always reachable (no 404 gate) so the SPA can decide whether to render the
+     * "Sign in with Authentik" button without probing other endpoints.
+     */
+    public function providers(): JsonResponse
+    {
+        return response()->json([
+            'oidc_enabled' => (bool) config('services.oidc.enabled', false),
+            'oidc_label' => 'Sign in with Authentik',
+            'oidc_redirect_path' => '/api/v1/auth/oidc/redirect',
+        ]);
+    }
+
     private function ensureEnabled(): void
     {
         if (! (bool) config('services.oidc.enabled', false)) {

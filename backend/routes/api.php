@@ -150,6 +150,9 @@ Route::prefix('v1')->group(function () {
     Route::post('/auth/register', [AuthController::class, 'register']);
     Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:3,15');
 
+    // Provider discovery for the login page (always reachable; reports flag state).
+    Route::get('/auth/providers', [OidcController::class, 'providers']);
+
     // Authentik OIDC (public; each endpoint returns 404 when services.oidc.enabled=false).
     Route::get('/auth/oidc/redirect', [OidcController::class, 'redirect'])
         ->middleware('throttle:20,1');
