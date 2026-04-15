@@ -62,6 +62,10 @@ use App\Services\Analysis\PathwayService;
 use App\Services\Analysis\PatientProfileService;
 use App\Services\Analysis\PredictionService;
 use App\Services\Analysis\StudyService;
+use App\Services\Auth\Oidc\OidcDiscoveryService;
+use App\Services\Auth\Oidc\OidcHandshakeStore;
+use App\Services\Auth\Oidc\OidcReconciliationService;
+use App\Services\Auth\Oidc\OidcTokenValidator;
 use App\Services\Cohort\Builders\CensoringBuilder;
 use App\Services\Cohort\Builders\ConceptSetSqlBuilder;
 use App\Services\Cohort\Builders\EndStrategyBuilder;
@@ -99,6 +103,19 @@ class AppServiceProvider extends ServiceProvider
         $this->app->scoped(SourceContext::class, fn () => new SourceContext);
 
         $this->app->singleton(SqlRendererService::class);
+
+        // OIDC services — feature-flagged; only wired when config('services.oidc.enabled') is true.
+        $this->app->singleton(OidcDiscoveryService::class, fn ($app) => new OidcDiscoveryService(
+            (string) config('services.oidc.discovery_url')
+        ));
+        $this->app->singleton(OidcTokenValidator::class, fn ($app) => new OidcTokenValidator(
+            $app->make(OidcDiscoveryService::class),
+            (string) config('services.oidc.client_id')
+        ));
+        $this->app->singleton(OidcReconciliationService::class, fn ($app) => new OidcReconciliationService(
+            (array) config('services.oidc.allowed_groups', ['Parthenon Admins'])
+        ));
+        $this->app->singleton(OidcHandshakeStore::class);
 
         // Image processing (Intervention Image v3 with GD driver)
         $this->app->singleton(ImageManagerInterface::class, fn () => ImageManager::gd());

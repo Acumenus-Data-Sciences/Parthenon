@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import type { FormEvent } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Loader2, AlertCircle, Lock, Mail } from "lucide-react";
+import { Loader2, AlertCircle, Lock, Mail, KeyRound } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
 import { ConstellationBackground } from "../components/ConstellationBackground";
 import { ForgotPasswordModal } from "../components/ForgotPasswordModal";
+import { useAuthProviders } from "../api";
 import axios from "axios";
 import apiClient from "@/lib/api-client";
 import { queryClient } from "@/lib/query-client";
@@ -20,6 +21,7 @@ export function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
+  const { data: providers } = useAuthProviders();
 
   // Prefetch CSRF cookie on mount — eliminates a round-trip at submit time
   const csrfReady = useRef<Promise<void> | null>(null);
@@ -778,6 +780,68 @@ export function LoginPage() {
               )}
             </button>
           </form>
+
+          {/* Authentik SSO (conditional on backend flag) */}
+          {providers?.oidc_enabled && (
+            <div
+              style={{
+                marginTop: "var(--space-5)",
+                display: "flex",
+                flexDirection: "column",
+                gap: "var(--space-3)",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--space-3)",
+                  color: "var(--text-muted)",
+                  fontSize: "var(--text-xs)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                }}
+              >
+                <div
+                  style={{
+                    flex: 1,
+                    height: "1px",
+                    background: "rgba(255,255,255,0.08)",
+                  }}
+                />
+                or
+                <div
+                  style={{
+                    flex: 1,
+                    height: "1px",
+                    background: "rgba(255,255,255,0.08)",
+                  }}
+                />
+              </div>
+              <a
+                href="/api/v1/auth/oidc/redirect"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "var(--space-2)",
+                  padding: "var(--space-3) var(--space-4)",
+                  border: "1px solid rgba(201, 162, 39, 0.3)",
+                  borderRadius: "var(--radius-md)",
+                  background: "rgba(201, 162, 39, 0.04)",
+                  color: "var(--accent)",
+                  fontFamily: "var(--font-body)",
+                  fontSize: "var(--text-sm)",
+                  fontWeight: 500,
+                  textDecoration: "none",
+                  transition: "background 150ms ease",
+                }}
+              >
+                <KeyRound size={16} />
+                {providers.oidc_label ?? "Sign in with Authentik"}
+              </a>
+            </div>
+          )}
 
           {/* Footer */}
           <div

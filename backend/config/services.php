@@ -121,4 +121,16 @@ return [
         'api_secret' => env('LIVEKIT_API_SECRET', ''),
     ],
 
+    // Authentik OIDC single sign-on. Disabled by default; Phase 7 flips the
+    // flag once the Authentik app is registered and the first smoke test passes.
+    'oidc' => [
+        'enabled' => (bool) env('OIDC_ENABLED', false),
+        'discovery_url' => env('OIDC_DISCOVERY_URL', 'https://auth.acumenus.net/application/o/parthenon-oidc/.well-known/openid-configuration'),
+        'client_id' => env('OIDC_CLIENT_ID', ''),
+        'client_secret' => env('OIDC_CLIENT_SECRET', ''),
+        'redirect_uri' => env('OIDC_REDIRECT_URI', 'https://parthenon.acumenus.net/api/v1/auth/oidc/callback'),
+        'scopes' => ['openid', 'profile', 'email', 'groups'],
+        'allowed_groups' => ['Parthenon Admins'],
+    ],
+
 ];

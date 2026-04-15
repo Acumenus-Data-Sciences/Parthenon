@@ -156,6 +156,24 @@ NATIVE_SSO_DEFS: list[NativeSsoDef] = [
         env_client_id="PORTAINER_OAUTH_CLIENT_ID",
         env_client_secret="PORTAINER_OAUTH_CLIENT_SECRET",
     ),
+    # Parthenon is hosted outside the Acropolis {domain} subdomain tree
+    # (parthenon.acumenus.net). Redirect URIs are hard-coded to the full
+    # production URL; the {domain} placeholder is not used. After install,
+    # copy the generated PARTHENON_OIDC_CLIENT_ID / PARTHENON_OIDC_CLIENT_SECRET
+    # from the Acropolis .env into Parthenon's backend/.env as
+    # OIDC_CLIENT_ID / OIDC_CLIENT_SECRET, then set OIDC_ENABLED=true and
+    # `docker compose up -d php` to pick up env_file changes.
+    NativeSsoDef(
+        service_name="parthenon",
+        sso_type="oidc",
+        app_slug="parthenon-oidc",
+        display_name="Parthenon OIDC",
+        redirect_uris=[
+            "https://parthenon.acumenus.net/api/v1/auth/oidc/callback",
+        ],
+        env_client_id="PARTHENON_OIDC_CLIENT_ID",
+        env_client_secret="PARTHENON_OIDC_CLIENT_SECRET",
+    ),
     NativeSsoDef(
         service_name="wazuh",
         sso_type="saml",

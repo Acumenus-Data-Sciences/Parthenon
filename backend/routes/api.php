@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\V1\AnalysisStatsController;
 use App\Http\Controllers\Api\V1\ArachneController;
 use App\Http\Controllers\Api\V1\AresController;
 use App\Http\Controllers\Api\V1\AriadneController;
+use App\Http\Controllers\Api\V1\Auth\OidcController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CareGapController;
 use App\Http\Controllers\Api\V1\CharacterizationController;
@@ -157,6 +158,17 @@ Route::prefix('v1')->group(function () {
     Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:5,15');
     Route::post('/auth/register', [AuthController::class, 'register']);
     Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:3,15');
+
+    // Provider discovery for the login page (always reachable; reports flag state).
+    Route::get('/auth/providers', [OidcController::class, 'providers']);
+
+    // Authentik OIDC (public; each endpoint returns 404 when services.oidc.enabled=false).
+    Route::get('/auth/oidc/redirect', [OidcController::class, 'redirect'])
+        ->middleware('throttle:20,1');
+    Route::get('/auth/oidc/callback', [OidcController::class, 'callback'])
+        ->middleware('throttle:20,1');
+    Route::post('/auth/oidc/exchange', [OidcController::class, 'exchange'])
+        ->middleware('throttle:20,1');
 
     // §9.2 — Public shared cohort link (no auth required)
     Route::get('/cohort-definitions/shared/{token}', [CohortDefinitionController::class, 'showShared']);

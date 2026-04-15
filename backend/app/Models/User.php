@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\App\Investigation;
+use App\Models\App\UserExternalIdentity;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -82,5 +83,13 @@ class User extends Authenticatable
     public function investigations(): HasMany
     {
         return $this->hasMany(Investigation::class, 'owner_id');
+    }
+
+    /**
+     * @return HasMany<UserExternalIdentity, $this>
+     */
+    public function externalIdentities(): HasMany
+    {
+        return $this->hasMany(UserExternalIdentity::class);
     }
 }

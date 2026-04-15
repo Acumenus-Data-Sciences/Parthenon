@@ -3,6 +3,7 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
 import { RegisterPage } from "@/features/auth/pages/RegisterPage";
+import { OidcCallbackPage } from "@/features/auth/pages/OidcCallbackPage";
 import { DashboardPage } from "@/features/dashboard/pages/DashboardPage";
 import { SourcesListPage } from "@/features/data-sources/pages/SourcesListPage";
 import { AnalysisRouteError } from "@/features/analyses/components/AnalysisRouteError";
@@ -23,6 +24,10 @@ export const router = createBrowserRouter(
   {
     path: "/register",
     element: <RegisterPage />,
+  },
+  {
+    path: "/auth/callback",
+    element: <OidcCallbackPage />,
   },
   {
     path: "/shared/:token",
