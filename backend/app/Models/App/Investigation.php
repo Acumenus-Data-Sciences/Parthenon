@@ -57,14 +57,6 @@ class Investigation extends Model
     }
 
     /**
-     * @return HasMany<FinnGenRun, $this>
-     */
-    public function runs(): HasMany
-    {
-        return $this->hasMany(FinnGenRun::class);
-    }
-
-    /**
      * @return HasMany<InvestigationVersion, $this>
      */
     public function versions(): HasMany
