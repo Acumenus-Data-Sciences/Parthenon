@@ -3,22 +3,23 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Api\V1\FinnGen\CodeExplorerController;
+use Tests\TestCase;
 
-uses(Tests\TestCase::class);
+uses(TestCase::class);
 
 /**
  * Cache-key format is a contract with both downstream cache-invalidation
  * tooling AND the observer (ops reading Redis). Any drift breaks both.
  */
 it('controller defines the expected TTL constants', function () {
-    $reflection = new \ReflectionClass(CodeExplorerController::class);
+    $reflection = new ReflectionClass(CodeExplorerController::class);
     expect($reflection->getConstant('TTL_COUNTS'))->toBe(3600);
     expect($reflection->getConstant('TTL_RELATIONSHIPS'))->toBe(86400);
     expect($reflection->getConstant('TTL_ANCESTORS'))->toBe(86400);
 });
 
 it('max-depth cap constant matches spec (§4.1)', function () {
-    $reflection = new \ReflectionClass(CodeExplorerController::class);
+    $reflection = new ReflectionClass(CodeExplorerController::class);
     expect($reflection->getConstant('MAX_DEPTH_CAP'))->toBe(7);
 });
 
