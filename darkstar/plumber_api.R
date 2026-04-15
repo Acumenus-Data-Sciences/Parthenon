@@ -22,6 +22,7 @@ pa <- api(
   "/app/api/strategus.R",
   "/app/api/synthea.R",
   "/app/api/jobs.R",
+  "/app/api/finngen/routes.R",
   host = "0.0.0.0",
   port = 8787L,
   default_async = "mirai"

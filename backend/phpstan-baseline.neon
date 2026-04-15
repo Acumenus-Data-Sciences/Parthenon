@@ -113,12 +113,6 @@ parameters:
 			path: app/Services/QueryLibrary/OhdsiQueryLibraryImporter.php
 
 		-
-			message: '#^PHPDoc tag @param references unknown parameter\: \$payload$#'
-			identifier: parameter.notFound
-			count: 1
-			path: app/Services/StudyAgent/FinnGenExternalAdapterService.php
-
-		-
 			message: '#^Method App\\Services\\WebApi\\AtlasCohortImportService\:\:importAtlasConceptSet\(\) has parameter \$client with no type specified\.$#'
 			identifier: missingType.parameter
 			count: 1

@@ -7,69 +7,19 @@ import type {
   EvidenceDomain,
   ConceptSearchResult,
   ConceptHierarchy,
-  SetOperationType,
-  CohortOperationResult,
   OpenTargetsResult,
   GwasCatalogResult,
   GwasUploadResult,
   CrossLinksMap,
-  FinnGenSource,
-  FinnGenCohortOperationsResult,
-  FinnGenCo2AnalysisResult,
   InvestigationVersion,
   DossierExport,
 } from "./types";
 
-// ── Study-Agent API functions (migrated from deprecated finngen feature) ───────
-
-export async function previewFinnGenCohortOperations(payload: {
-  source: FinnGenSource;
-  cohort_definition: Record<string, unknown>;
-  execution_mode?: string;
-  import_mode?: string;
-  operation_type?: string;
-  atlas_cohort_ids?: number[];
-  atlas_import_behavior?: string;
-  cohort_table_name?: string;
-  file_name?: string;
-  file_format?: string;
-  file_row_count?: number;
-  file_columns?: string[];
-  file_contents?: string;
-  selected_cohort_ids?: number[];
-  selected_cohort_labels?: string[];
-  primary_cohort_id?: number | null;
-  matching_enabled?: boolean;
-  matching_strategy?: string;
-  matching_target?: string;
-  matching_covariates?: string[];
-  matching_ratio?: number;
-  matching_caliper?: number;
-  export_target?: string;
-}): Promise<FinnGenCohortOperationsResult> {
-  const { data } = await apiClient.post("/study-agent/finngen/cohort-operations", payload);
-  return data.data ?? data;
-}
-
-export async function previewFinnGenCo2Analysis(payload: {
-  source: FinnGenSource;
-  module_key: string;
-  cohort_label?: string;
-  outcome_name?: string;
-  cohort_context?: Record<string, unknown>;
-  comparator_label?: string;
-  sensitivity_label?: string;
-  burden_domain?: string;
-  exposure_window?: string;
-  stratify_by?: string;
-  time_window_unit?: string;
-  time_window_count?: number;
-  gwas_trait?: string;
-  gwas_method?: string;
-}): Promise<FinnGenCo2AnalysisResult> {
-  const { data } = await apiClient.post("/study-agent/finngen/co2-analysis", payload);
-  return data.data ?? data;
-}
+// NOTE: previewFinnGenCohortOperations / previewFinnGenCo2Analysis /
+// executeCohortOperation were removed in FinnGen SP1 Task D3. They called the
+// old /api/v1/study-agent/finngen-* StudyAgent endpoints which have been
+// deleted (see Task C14). Consumers should migrate to the new SP1 foundation
+// hooks at @/features/_finngen-foundation.
 
 // ── Investigations ────────────────────────────────────────────────────
 
@@ -332,43 +282,6 @@ export async function createVersion(investigationId: number): Promise<Investigat
 }
 
 // ── Cohort Operations ──────────────────────────────────────────────────
-
-export async function executeCohortOperation(
-  source: FinnGenSource,
-  selectedCohortIds: number[],
-  selectedCohortLabels: string[],
-  primaryCohortId: number | null,
-  operationType: SetOperationType,
-): Promise<CohortOperationResult> {
-  // NOTE: previewFinnGenCohortOperations requires a full FinnGenSource object
-  // and requires cohort_definition (pass empty object for parthenon import mode)
-  const result = await previewFinnGenCohortOperations({
-    source,
-    cohort_definition: {},
-    import_mode: "parthenon",
-    operation_type: operationType,
-    selected_cohort_ids: selectedCohortIds,
-    selected_cohort_labels: selectedCohortLabels,
-    primary_cohort_id: primaryCohortId,
-    matching_enabled: false,
-  });
-
-  const data = result as unknown as Record<string, unknown>;
-  const attritionRaw = (data.attrition ?? []) as Array<Record<string, unknown>>;
-  const resultCount =
-    ((data.compile_summary as Record<string, unknown>)?.result_rows as number) ?? 0;
-
-  return {
-    compile_summary: (data.compile_summary ?? {}) as Record<string, unknown>,
-    attrition: attritionRaw.map((step, i) => ({
-      label: String(step.label ?? step.step ?? `Step ${i + 1}`),
-      count: Number(step.count ?? step.persons ?? 0),
-      percent: Number(step.percent ?? step.retention ?? 100),
-    })),
-    result_count: resultCount,
-    operation_type: operationType,
-    export_summary: (data.export_summary ?? {}) as Record<string, unknown>,
-    matching_summary: data.matching_summary as Record<string, unknown> | undefined,
-    handoff_ready: Boolean(data.handoff_ready ?? false),
-  };
-}
+// executeCohortOperation() removed in FinnGen SP1 Task D3 (see top-of-file
+// note). SP2+ will reintroduce set-operation support on top of the new SP1
+// foundation hooks.

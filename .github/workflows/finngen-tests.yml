@@ -1,0 +1,230 @@
+name: FinnGen Tests
+
+on:
+  pull_request:
+    paths:
+      - 'backend/app/Services/FinnGen/**'
+      - 'backend/app/Http/Controllers/Api/V1/FinnGen/**'
+      - 'backend/app/Http/Middleware/EnforceFinnGenIdempotency.php'
+      - 'backend/app/Http/Requests/FinnGen/**'
+      - 'backend/app/Jobs/FinnGen/**'
+      - 'backend/app/Models/App/FinnGen/**'
+      - 'backend/app/Policies/FinnGen/**'
+      - 'backend/app/Console/Commands/FinnGen/**'
+      - 'backend/config/finngen.php'
+      - 'backend/config/horizon.php'
+      - 'backend/bootstrap/app.php'
+      - 'backend/routes/api.php'
+      - 'backend/database/migrations/*finngen*'
+      - 'backend/database/seeders/*FinnGen*'
+      - 'backend/database/seeders/Testing/*FinnGen*'
+      - 'backend/tests/Unit/FinnGen/**'
+      - 'backend/tests/Feature/FinnGen/**'
+      - 'backend/lang/en/finngen.php'
+      - 'darkstar/api/finngen/**'
+      - 'darkstar/tests/testthat/test-finngen-*.R'
+      - 'darkstar/tests/fixtures/darkstar-finngen-shapes.json'
+      - 'docker/r/Dockerfile'
+      - 'frontend/src/features/_finngen-foundation/**'
+      - '.github/workflows/finngen-tests.yml'
+  push:
+    branches: [main, master]
+  schedule:
+    # 04:30 UTC nightly — slow lane (Darkstar R integration + reserved E2E slot).
+    - cron: '30 4 * * *'
+
+jobs:
+  backend:
+    name: Backend (FinnGen Pest + coverage)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: parthenon_test
+          POSTGRES_USER: parthenon
+          POSTGRES_PASSWORD: secret
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U parthenon"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Create schemas and extensions
+        env:
+          PGPASSWORD: secret
+        run: |
+          # Mirror ci.yml — Pest uses parthenon_testing (phpunit.xml),
+          # migrations also run against parthenon_test for parity.
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE EXTENSION IF NOT EXISTS vector;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS app;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS php;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS omop;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS results;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS gis;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS eunomia;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS inpatient;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS inpatient_ext;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS eunomia_results;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE SCHEMA IF NOT EXISTS vocab;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_test -c "CREATE DATABASE parthenon_testing OWNER parthenon;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE EXTENSION IF NOT EXISTS vector;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE SCHEMA IF NOT EXISTS app;"
+          psql -h 127.0.0.1 -U parthenon -d parthenon_testing -c "CREATE SCHEMA IF NOT EXISTS php;"
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: pdo_pgsql, pgsql, redis, bcmath, intl, mbstring, pcntl, zip
+          coverage: pcov
+
+      - name: Install Composer dependencies
+        working-directory: backend
+        run: composer install --prefer-dist --no-interaction
+
+      - name: Copy env
+        working-directory: backend
+        run: cp .env.example .env && php artisan key:generate
+
+      - name: Run migrations
+        working-directory: backend
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: parthenon_test
+          DB_USERNAME: parthenon
+          DB_PASSWORD: secret
+          FINNGEN_PG_RO_PASSWORD: ci-ro-secret
+          FINNGEN_PG_RW_PASSWORD: ci-rw-secret
+          REDIS_HOST: 127.0.0.1
+          CACHE_STORE: array
+          SESSION_DRIVER: array
+          QUEUE_CONNECTION: sync
+        run: php artisan migrate --force
+
+      - name: Run FinnGen Pest suite with coverage (80% floor)
+        working-directory: backend
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: parthenon_test
+          DB_USERNAME: parthenon
+          DB_PASSWORD: secret
+          FINNGEN_PG_RO_PASSWORD: ci-ro-secret
+          FINNGEN_PG_RW_PASSWORD: ci-rw-secret
+          REDIS_HOST: 127.0.0.1
+          CACHE_STORE: array
+          SESSION_DRIVER: array
+          QUEUE_CONNECTION: sync
+        # NOTE: --min=80 enforces an overall coverage floor (spec §6.10).
+        # Tightening app/Services/FinnGen/** to 90% requires a path-scoped
+        # coverage checker — planned follow-up after SP1.
+        run: |
+          ./vendor/bin/pest \
+            tests/Unit/FinnGen tests/Feature/FinnGen \
+            --coverage --min=80 \
+            --coverage-clover=coverage-finngen.xml
+
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: finngen-backend-coverage
+          path: backend/coverage-finngen.xml
+          retention-days: 14
+
+  frontend:
+    name: Frontend (FinnGen foundation Vitest + typecheck)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci --legacy-peer-deps
+
+      - name: Vitest (FinnGen foundation)
+        working-directory: frontend
+        run: npx vitest run src/features/_finngen-foundation
+
+      - name: Type check
+        working-directory: frontend
+        run: npx tsc --noEmit
+
+      - name: Vite build (strictness parity)
+        working-directory: frontend
+        run: npm run build
+
+  # Slow lane — nightly + main-branch push only. Not gated on PR.
+  darkstar-integration:
+    name: Darkstar R integration (nightly/main only)
+    if: github.event_name == 'schedule' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Build darkstar image
+        run: docker compose build darkstar
+
+      - name: Start supporting services + darkstar
+        run: |
+          docker compose up -d postgres redis darkstar
+          # Wait for darkstar Plumber to come up (s6 + HADES package load
+          # take ~60s — allow up to 5 min).
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:8787/health > /dev/null 2>&1; then
+              echo "darkstar healthy"
+              break
+            fi
+            sleep 5
+          done
+
+      - name: Run FinnGen testthat suite
+        run: |
+          docker compose exec -T darkstar Rscript -e \
+            'testthat::test_dir("/app/tests/testthat", filter="finngen-")'
+
+      - name: Capture darkstar logs on failure
+        if: failure()
+        run: docker compose logs darkstar
+
+  e2e:
+    name: E2E (Playwright, nightly/main only)
+    if: github.event_name == 'schedule' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Reserved E2E slot
+        # E2E specs for FinnGen live at e2e/finngen/ (SP2). Enabled here to
+        # reserve the job name + nightly schedule; will be wired up when the
+        # full FinnGen UI lands.
+        run: |
+          echo "E2E FinnGen specs will be wired in SP2 (e2e/finngen/)."
+          echo "This slot is reserved on the nightly + main-push schedule."

@@ -29,6 +29,7 @@ use App\Http\Controllers\Api\V1\CharacterizationController;
 use App\Http\Controllers\Api\V1\CirceController;
 use App\Http\Controllers\Api\V1\ClaimsSearchController;
 use App\Http\Controllers\Api\V1\ClinicalCoherenceController;
+use App\Http\Controllers\Api\V1\CohortAuthoringArtifactController;
 use App\Http\Controllers\Api\V1\CohortDefinitionController;
 use App\Http\Controllers\Api\V1\CohortDiagnosticsController;
 use App\Http\Controllers\Api\V1\Commons\ActivityController;
@@ -56,6 +57,10 @@ use App\Http\Controllers\Api\V1\EtlProjectController;
 use App\Http\Controllers\Api\V1\EvidencePinController;
 use App\Http\Controllers\Api\V1\EvidenceSynthesisController;
 use App\Http\Controllers\Api\V1\FhirToCdmController;
+use App\Http\Controllers\Api\V1\FinnGen\AnalysisModuleController;
+use App\Http\Controllers\Api\V1\FinnGen\ArtifactController;
+use App\Http\Controllers\Api\V1\FinnGen\RunController;
+use App\Http\Controllers\Api\V1\FinnGen\SyncReadController;
 use App\Http\Controllers\Api\V1\GenomicEvidenceController;
 use App\Http\Controllers\Api\V1\GenomicsController;
 use App\Http\Controllers\Api\V1\GisAirQualityController;
@@ -68,6 +73,7 @@ use App\Http\Controllers\Api\V1\GisImportController;
 use App\Http\Controllers\Api\V1\GisRuccController;
 use App\Http\Controllers\Api\V1\GisSviController;
 use App\Http\Controllers\Api\V1\GlobalSearchController;
+use App\Http\Controllers\Api\V1\HadesCapabilityController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\HecateController;
 use App\Http\Controllers\Api\V1\HelpController;
@@ -94,6 +100,7 @@ use App\Http\Controllers\Api\V1\PathwayController;
 use App\Http\Controllers\Api\V1\PatientProfileController;
 use App\Http\Controllers\Api\V1\PatientSimilarityController;
 use App\Http\Controllers\Api\V1\PhenotypeLibraryController;
+use App\Http\Controllers\Api\V1\PhenotypeValidationController;
 use App\Http\Controllers\Api\V1\PopulationCharacterizationController;
 use App\Http\Controllers\Api\V1\PopulationRiskScoreController;
 use App\Http\Controllers\Api\V1\PoseidonController;
@@ -104,6 +111,7 @@ use App\Http\Controllers\Api\V1\QueryLibraryController;
 use App\Http\Controllers\Api\V1\RadiogenomicsController;
 use App\Http\Controllers\Api\V1\RiskScoreAnalysisController;
 use App\Http\Controllers\Api\V1\SccsController;
+use App\Http\Controllers\Api\V1\SelfControlledCohortController;
 use App\Http\Controllers\Api\V1\SourceController;
 use App\Http\Controllers\Api\V1\SourceProfilerController;
 use App\Http\Controllers\Api\V1\StrategusController;
@@ -112,6 +120,7 @@ use App\Http\Controllers\Api\V1\StudyAgentController;
 use App\Http\Controllers\Api\V1\StudyArtifactController;
 use App\Http\Controllers\Api\V1\StudyCohortController;
 use App\Http\Controllers\Api\V1\StudyController;
+use App\Http\Controllers\Api\V1\StudyDesignController;
 use App\Http\Controllers\Api\V1\StudyMilestoneController;
 use App\Http\Controllers\Api\V1\StudyResultController;
 use App\Http\Controllers\Api\V1\StudySiteController;
@@ -549,6 +558,7 @@ Route::prefix('v1')->group(function () {
 
         // Cohort Definitions — §9.2/9.4 static routes BEFORE apiResource (avoid wildcard clash)
         Route::post('/cohort-definitions/import', [CohortDefinitionController::class, 'import']);
+        Route::post('/cohort-definitions/authoring/import', [CohortAuthoringArtifactController::class, 'import']);
         Route::get('/cohort-definitions/tags', [CohortDefinitionController::class, 'tags']);
         Route::get('/cohort-definitions/stats', [CohortDefinitionController::class, 'stats']);
         Route::get('/cohort-definitions/domains', [CohortDefinitionController::class, 'domains']);
@@ -556,6 +566,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/cohort-definitions/compare', [CohortDefinitionController::class, 'compare']);
         Route::apiResource('cohort-definitions', CohortDefinitionController::class);
         Route::get('/cohort-definitions/{cohortDefinition}/export', [CohortDefinitionController::class, 'export']);
+        Route::get('/cohort-definitions/{cohortDefinition}/authoring/export', [CohortAuthoringArtifactController::class, 'export']);
         Route::post('/cohort-definitions/{cohortDefinition}/share', [CohortDefinitionController::class, 'share']);
         Route::post('/cohort-definitions/{cohortDefinition}/generate', [CohortDefinitionController::class, 'generate']);
         Route::get('/cohort-definitions/{cohortDefinition}/generations', [CohortDefinitionController::class, 'generations']);
@@ -563,6 +574,26 @@ Route::prefix('v1')->group(function () {
         Route::get('/cohort-definitions/{cohortDefinition}/sql', [CohortDefinitionController::class, 'previewSql']);
         Route::post('/cohort-definitions/{cohortDefinition}/copy', [CohortDefinitionController::class, 'copy']);
         Route::post('/cohort-definitions/{cohortDefinition}/diagnostics', [CohortDefinitionController::class, 'diagnostics']);
+        Route::get('/cohort-definitions/{cohortDefinition}/phenotype-validations', [PhenotypeValidationController::class, 'index']);
+        Route::post('/cohort-definitions/{cohortDefinition}/phenotype-validations', [PhenotypeValidationController::class, 'store'])
+            ->middleware('permission:analyses.run');
+        Route::get('/cohort-definitions/{cohortDefinition}/phenotype-promotions', [PhenotypeValidationController::class, 'promotions']);
+        Route::get('/cohort-definitions/{cohortDefinition}/phenotype-validations/{validation}', [PhenotypeValidationController::class, 'show']);
+        Route::get('/cohort-definitions/{cohortDefinition}/phenotype-validations/{validation}/adjudications', [PhenotypeValidationController::class, 'adjudications']);
+        Route::post('/cohort-definitions/{cohortDefinition}/phenotype-validations/{validation}/sample', [PhenotypeValidationController::class, 'sample'])
+            ->middleware('permission:analyses.run');
+        Route::post('/cohort-definitions/{cohortDefinition}/phenotype-validations/{validation}/review-state', [PhenotypeValidationController::class, 'updateReviewState'])
+            ->middleware('permission:analyses.run');
+        Route::get('/cohort-definitions/{cohortDefinition}/phenotype-validations/{validation}/quality-summary', [PhenotypeValidationController::class, 'qualitySummary']);
+        Route::get('/cohort-definitions/{cohortDefinition}/phenotype-validations/{validation}/evidence-export', [PhenotypeValidationController::class, 'evidenceExport']);
+        Route::patch('/cohort-definitions/{cohortDefinition}/phenotype-validations/{validation}/adjudications/{adjudication}', [PhenotypeValidationController::class, 'updateAdjudication'])
+            ->middleware('permission:analyses.run');
+        Route::post('/cohort-definitions/{cohortDefinition}/phenotype-validations/{validation}/adjudications/{adjudication}/resolve', [PhenotypeValidationController::class, 'resolveAdjudication'])
+            ->middleware('permission:analyses.run');
+        Route::post('/cohort-definitions/{cohortDefinition}/phenotype-validations/{validation}/compute', [PhenotypeValidationController::class, 'computeFromAdjudications'])
+            ->middleware('permission:analyses.run');
+        Route::post('/cohort-definitions/{cohortDefinition}/phenotype-validations/{validation}/promote', [PhenotypeValidationController::class, 'promote'])
+            ->middleware('permission:analyses.run');
         Route::post('/cohort-definitions/{cohortDefinition}/deprecate', [CohortDefinitionController::class, 'deprecate']);
         Route::post('/cohort-definitions/{cohortDefinition}/restore-active', [CohortDefinitionController::class, 'restoreActive']);
 
@@ -588,6 +619,7 @@ Route::prefix('v1')->group(function () {
                 ->only(['index', 'show']);
             Route::get('pathways/{pathway}/executions', [PathwayController::class, 'executions']);
             Route::get('pathways/{pathway}/executions/{execution}', [PathwayController::class, 'showExecution']);
+            Route::get('pathways/{pathway}/executions/{execution}/artifacts/{artifact}', [PathwayController::class, 'downloadArtifact']);
 
             // Estimation
             Route::apiResource('estimations', EstimationController::class)
@@ -606,6 +638,13 @@ Route::prefix('v1')->group(function () {
                 ->only(['index', 'show']);
             Route::get('sccs/{scc}/executions', [SccsController::class, 'executions']);
             Route::get('sccs/{scc}/executions/{execution}', [SccsController::class, 'showExecution']);
+
+            // Self-Controlled Cohort
+            Route::apiResource('self-controlled-cohorts', SelfControlledCohortController::class)
+                ->parameters(['self-controlled-cohorts' => 'selfControlledCohort'])
+                ->only(['index', 'show']);
+            Route::get('self-controlled-cohorts/{selfControlledCohort}/executions', [SelfControlledCohortController::class, 'executions']);
+            Route::get('self-controlled-cohorts/{selfControlledCohort}/executions/{execution}', [SelfControlledCohortController::class, 'showExecution']);
 
             // Evidence Synthesis
             Route::apiResource('evidence-synthesis', EvidenceSynthesisController::class)
@@ -636,6 +675,10 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('sccs', SccsController::class)
                 ->only(['store', 'update', 'destroy']);
 
+            Route::apiResource('self-controlled-cohorts', SelfControlledCohortController::class)
+                ->parameters(['self-controlled-cohorts' => 'selfControlledCohort'])
+                ->only(['store', 'update', 'destroy']);
+
             Route::apiResource('evidence-synthesis', EvidenceSynthesisController::class)
                 ->parameters(['evidence-synthesis' => 'evidenceSynthesis'])
                 ->only(['store', 'update', 'destroy']);
@@ -648,6 +691,7 @@ Route::prefix('v1')->group(function () {
             Route::post('estimations/{estimation}/execute', [EstimationController::class, 'execute']);
             Route::post('predictions/{prediction}/execute', [PredictionController::class, 'execute']);
             Route::post('sccs/{scc}/execute', [SccsController::class, 'execute']);
+            Route::post('self-controlled-cohorts/{selfControlledCohort}/execute', [SelfControlledCohortController::class, 'execute']);
             Route::post('evidence-synthesis/{evidenceSynthesis}/execute', [EvidenceSynthesisController::class, 'execute']);
         });
 
@@ -719,6 +763,28 @@ Route::prefix('v1')->group(function () {
 
             // Activity log (read-only)
             Route::get('activity', [StudyActivityController::class, 'index']);
+
+            // Study Design compiler foundation
+            Route::prefix('design-sessions')->group(function () {
+                Route::get('/', [StudyDesignController::class, 'index'])->middleware('permission:studies.view');
+                Route::post('/', [StudyDesignController::class, 'store'])->middleware('permission:studies.create');
+                Route::get('{session}', [StudyDesignController::class, 'show'])->middleware('permission:studies.view');
+                Route::get('{session}/versions', [StudyDesignController::class, 'versions'])->middleware('permission:studies.view');
+                Route::get('{session}/assets', [StudyDesignController::class, 'assets'])->middleware('permission:studies.view');
+                Route::post('{session}/intent', [StudyDesignController::class, 'generateIntent'])->middleware(['permission:studies.create', 'throttle:10,1']);
+                Route::post('{session}/versions/{version}/phenotypes/recommend', [StudyDesignController::class, 'recommendPhenotypes'])->middleware(['permission:studies.create', 'throttle:10,1']);
+                Route::post('{session}/versions/{version}/concept-sets/draft', [StudyDesignController::class, 'draftConceptSets'])->middleware(['permission:studies.create', 'throttle:10,1']);
+                Route::post('{session}/versions/{version}/cohorts/draft', [StudyDesignController::class, 'draftCohorts'])->middleware(['permission:studies.create', 'throttle:10,1']);
+                Route::put('{session}/versions/{version}', [StudyDesignController::class, 'updateVersion'])->middleware('permission:studies.create');
+                Route::post('{session}/versions/{version}/accept', [StudyDesignController::class, 'acceptVersion'])->middleware('permission:studies.create');
+                Route::post('{session}/assets/{asset}/review', [StudyDesignController::class, 'reviewAsset'])->middleware('permission:studies.create');
+                Route::post('{session}/assets/{asset}/concept-sets/verify', [StudyDesignController::class, 'verifyConceptSetDraft'])->middleware('permission:studies.create');
+                Route::put('{session}/assets/{asset}/concept-sets/draft', [StudyDesignController::class, 'updateConceptSetDraft'])->middleware('permission:studies.create');
+                Route::post('{session}/assets/{asset}/concept-sets/materialize', [StudyDesignController::class, 'materializeConceptSetDraft'])->middleware('permission:studies.create');
+                Route::post('{session}/assets/{asset}/cohorts/verify', [StudyDesignController::class, 'verifyCohortDraft'])->middleware('permission:studies.create');
+                Route::post('{session}/assets/{asset}/cohorts/materialize', [StudyDesignController::class, 'materializeCohortDraft'])->middleware('permission:studies.create');
+                Route::post('{session}/assets/{asset}/cohorts/link-to-study', [StudyDesignController::class, 'linkCohortDraft'])->middleware('permission:studies.create');
+            });
         });
 
         // Patient Profiles
@@ -731,6 +797,18 @@ Route::prefix('v1')->group(function () {
 
         // Patient Similarity
         Route::prefix('patient-similarity')->group(function () {
+            Route::get('/runs', [PatientSimilarityController::class, 'listRuns'])
+                ->middleware('permission:patient-similarity.view');
+            Route::post('/runs', [PatientSimilarityController::class, 'createRun'])
+                ->middleware('permission:patient-similarity.view');
+            Route::get('/runs/{run}', [PatientSimilarityController::class, 'showRun'])
+                ->middleware('permission:patient-similarity.view');
+            Route::patch('/runs/{run}', [PatientSimilarityController::class, 'updateRun'])
+                ->middleware('permission:patient-similarity.view');
+            Route::delete('/runs/{run}', [PatientSimilarityController::class, 'deleteRun'])
+                ->middleware('permission:patient-similarity.view');
+            Route::post('/runs/{run}/steps', [PatientSimilarityController::class, 'saveRunStep'])
+                ->middleware('permission:patient-similarity.view');
             Route::post('/search', [PatientSimilarityController::class, 'search'])
                 ->middleware(['permission:patient-similarity.view', 'throttle:30,1']);
             Route::get('/dimensions', [PatientSimilarityController::class, 'dimensions'])
@@ -760,7 +838,9 @@ Route::prefix('v1')->group(function () {
             Route::post('/landscape', [PatientSimilarityController::class, 'landscape'])
                 ->middleware(['permission:patient-similarity.view', 'throttle:10,1']);
             Route::post('/phenotype-discovery', [PatientSimilarityController::class, 'phenotypeDiscovery'])
-                ->middleware(['permission:patient-similarity.compute', 'throttle:2,60']);
+                ->middleware(['permission:patient-similarity.compute', 'throttle:10,1']);
+            Route::post('/interpret-step', [PatientSimilarityController::class, 'interpretStep'])
+                ->middleware(['permission:patient-similarity.view', 'throttle:20,1']);
         });
 
         // Negative Control Outcomes
@@ -879,15 +959,43 @@ Route::prefix('v1')->group(function () {
                 Route::post('/concept-set/review', [StudyAgentController::class, 'conceptSetReview']);
                 Route::post('/lint-cohort', [StudyAgentController::class, 'lintCohortCombined']);
                 Route::post('/recommend-phenotypes', [StudyAgentController::class, 'recommendPhenotypes']);
-                Route::post('/finngen/cohort-operations', [StudyAgentController::class, 'finngenCohortOperations']);
-                Route::post('/finngen/co2-analysis', [StudyAgentController::class, 'finngenCo2Analysis']);
-                Route::post('/finngen/hades-extras', [StudyAgentController::class, 'finngenHadesExtras']);
-                Route::post('/finngen/romopapi', [StudyAgentController::class, 'finngenRomopapi']);
-                Route::get('/finngen/runs', [StudyAgentController::class, 'finngenRuns']);
-                Route::get('/finngen/runs/{runId}', [StudyAgentController::class, 'finngenRun']);
-                Route::post('/finngen/runs/{runId}/replay', [StudyAgentController::class, 'replayFinnGenRun']);
-                Route::get('/finngen/runs/{runId}/export', [StudyAgentController::class, 'exportFinnGenRun']);
             });
+
+        // FinnGen SP1 Runtime Foundation routes (replaces /study-agent/finngen-*)
+        Route::prefix('finngen')->group(function () {
+            // Runs
+            Route::get('/runs', [RunController::class, 'index'])
+                ->middleware('permission:analyses.view');
+            Route::post('/runs', [RunController::class, 'store'])
+                ->middleware(['permission:analyses.run', 'finngen.idempotency', 'throttle:10,1']);
+            Route::get('/runs/{run}', [RunController::class, 'show'])
+                ->middleware('permission:analyses.view');
+            Route::post('/runs/{run}/cancel', [RunController::class, 'cancel'])
+                ->middleware('permission:analyses.run');
+            Route::post('/runs/{run}/pin', [RunController::class, 'pin'])
+                ->middleware('permission:analyses.view');
+            Route::delete('/runs/{run}/pin', [RunController::class, 'unpin'])
+                ->middleware('permission:analyses.view');
+
+            // Artifacts — signed URL + RBAC
+            Route::get('/runs/{run}/artifacts/{key}', [ArtifactController::class, 'show'])
+                ->middleware(['permission:analyses.view', 'signed'])
+                ->name('finngen.runs.artifact');
+
+            // Sync reads (ROMOPAPI + HADES Extras proxies)
+            Route::prefix('sync')->middleware(['permission:analyses.view', 'throttle:60,1'])->group(function () {
+                Route::get('/romopapi/code-counts', [SyncReadController::class, 'romopapiCodeCounts']);
+                Route::get('/romopapi/relationships', [SyncReadController::class, 'romopapiRelationships']);
+                Route::get('/romopapi/ancestors', [SyncReadController::class, 'romopapiAncestors']);
+                Route::get('/hades/overlap', [SyncReadController::class, 'hadesOverlap']);
+                Route::get('/hades/demographics', [SyncReadController::class, 'hadesDemographics']);
+                Route::get('/hades/counts', [SyncReadController::class, 'hadesCounts']);
+            });
+
+            // Analysis module registry
+            Route::get('/analyses/modules', [AnalysisModuleController::class, 'index'])
+                ->middleware('permission:analyses.view');
+        });
 
         // Jupyter workbench
         Route::prefix('jupyter')->group(function () {
@@ -909,8 +1017,15 @@ Route::prefix('v1')->group(function () {
         });
 
         // Publication / Export
+        Route::get('publish/drafts', [PublicationController::class, 'listDrafts']);
+        Route::post('publish/drafts', [PublicationController::class, 'createDraft']);
+        Route::get('publish/drafts/{draft}', [PublicationController::class, 'showDraft']);
+        Route::patch('publish/drafts/{draft}', [PublicationController::class, 'updateDraft']);
+        Route::delete('publish/drafts/{draft}', [PublicationController::class, 'deleteDraft']);
         Route::post('publish/narrative', [PublicationController::class, 'narrative']);
         Route::post('publish/export', [PublicationController::class, 'export']);
+        Route::post('publish/report-bundles/export', [PublicationController::class, 'exportReportBundle']);
+        Route::post('publish/report-bundles/import', [PublicationController::class, 'importReportBundle']);
 
         // ETL Tools
         Route::prefix('etl')->group(function () {
@@ -1007,6 +1122,11 @@ Route::prefix('v1')->group(function () {
             Route::post('/execute', [StrategusController::class, 'execute']);
             Route::post('/validate', [StrategusController::class, 'validate']);
             Route::get('/modules', [StrategusController::class, 'modules']);
+        });
+
+        // HADES / OHDSI runtime capabilities
+        Route::prefix('hades')->group(function () {
+            Route::get('/packages', [HadesCapabilityController::class, 'packages']);
         });
 
         // Arachne Federated Execution

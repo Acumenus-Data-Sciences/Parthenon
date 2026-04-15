@@ -278,6 +278,20 @@ return [
             'nice' => 0,
         ],
 
+        'finngen' => [
+            'connection' => 'redis',
+            'queue' => ['finngen'],
+            'balance' => 'auto',
+            'autoScalingStrategy' => 'time',
+            'maxProcesses' => 2,
+            'maxTime' => 0,
+            'maxJobs' => 0,
+            'memory' => 1024,
+            'tries' => 1,
+            'timeout' => 7200,
+            'nice' => 0,
+        ],
+
     ],
 
     'environments' => [
@@ -302,6 +316,9 @@ return [
             'cohort' => [
                 'maxProcesses' => 2,
             ],
+            'finngen' => [
+                'maxProcesses' => 2,
+            ],
         ],
 
         'local' => [
@@ -321,6 +338,9 @@ return [
                 'maxProcesses' => 1,
             ],
             'cohort' => [
+                'maxProcesses' => 1,
+            ],
+            'finngen' => [
                 'maxProcesses' => 1,
             ],
         ],

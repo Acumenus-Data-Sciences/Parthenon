@@ -1,0 +1,179 @@
+[
+    {
+        "method": "GET",
+        "path": "/api/v1/finngen/analyses/modules",
+        "name": null,
+        "middleware": [
+            "api",
+            "auth:sanctum",
+            "source.resolve",
+            "permission:analyses.view"
+        ],
+        "action": "App\\Http\\Controllers\\Api\\V1\\FinnGen\\AnalysisModuleController@index"
+    },
+    {
+        "method": "GET",
+        "path": "/api/v1/finngen/runs/{run}/artifacts/{key}",
+        "name": "finngen.runs.artifact",
+        "middleware": [
+            "api",
+            "auth:sanctum",
+            "source.resolve",
+            "permission:analyses.view",
+            "signed"
+        ],
+        "action": "App\\Http\\Controllers\\Api\\V1\\FinnGen\\ArtifactController@show"
+    },
+    {
+        "method": "POST",
+        "path": "/api/v1/finngen/runs/{run}/cancel",
+        "name": null,
+        "middleware": [
+            "api",
+            "auth:sanctum",
+            "source.resolve",
+            "permission:analyses.run"
+        ],
+        "action": "App\\Http\\Controllers\\Api\\V1\\FinnGen\\RunController@cancel"
+    },
+    {
+        "method": "DELETE",
+        "path": "/api/v1/finngen/runs/{run}/pin",
+        "name": null,
+        "middleware": [
+            "api",
+            "auth:sanctum",
+            "source.resolve",
+            "permission:analyses.view"
+        ],
+        "action": "App\\Http\\Controllers\\Api\\V1\\FinnGen\\RunController@unpin"
+    },
+    {
+        "method": "POST",
+        "path": "/api/v1/finngen/runs/{run}/pin",
+        "name": null,
+        "middleware": [
+            "api",
+            "auth:sanctum",
+            "source.resolve",
+            "permission:analyses.view"
+        ],
+        "action": "App\\Http\\Controllers\\Api\\V1\\FinnGen\\RunController@pin"
+    },
+    {
+        "method": "GET",
+        "path": "/api/v1/finngen/runs/{run}",
+        "name": null,
+        "middleware": [
+            "api",
+            "auth:sanctum",
+            "source.resolve",
+            "permission:analyses.view"
+        ],
+        "action": "App\\Http\\Controllers\\Api\\V1\\FinnGen\\RunController@show"
+    },
+    {
+        "method": "GET",
+        "path": "/api/v1/finngen/runs",
+        "name": null,
+        "middleware": [
+            "api",
+            "auth:sanctum",
+            "source.resolve",
+            "permission:analyses.view"
+        ],
+        "action": "App\\Http\\Controllers\\Api\\V1\\FinnGen\\RunController@index"
+    },
+    {
+        "method": "POST",
+        "path": "/api/v1/finngen/runs",
+        "name": null,
+        "middleware": [
+            "api",
+            "auth:sanctum",
+            "source.resolve",
+            "permission:analyses.run",
+            "finngen.idempotency",
+            "throttle:10,1"
+        ],
+        "action": "App\\Http\\Controllers\\Api\\V1\\FinnGen\\RunController@store"
+    },
+    {
+        "method": "GET",
+        "path": "/api/v1/finngen/sync/hades/counts",
+        "name": null,
+        "middleware": [
+            "api",
+            "auth:sanctum",
+            "source.resolve",
+            "permission:analyses.view",
+            "throttle:60,1"
+        ],
+        "action": "App\\Http\\Controllers\\Api\\V1\\FinnGen\\SyncReadController@hadesCounts"
+    },
+    {
+        "method": "GET",
+        "path": "/api/v1/finngen/sync/hades/demographics",
+        "name": null,
+        "middleware": [
+            "api",
+            "auth:sanctum",
+            "source.resolve",
+            "permission:analyses.view",
+            "throttle:60,1"
+        ],
+        "action": "App\\Http\\Controllers\\Api\\V1\\FinnGen\\SyncReadController@hadesDemographics"
+    },
+    {
+        "method": "GET",
+        "path": "/api/v1/finngen/sync/hades/overlap",
+        "name": null,
+        "middleware": [
+            "api",
+            "auth:sanctum",
+            "source.resolve",
+            "permission:analyses.view",
+            "throttle:60,1"
+        ],
+        "action": "App\\Http\\Controllers\\Api\\V1\\FinnGen\\SyncReadController@hadesOverlap"
+    },
+    {
+        "method": "GET",
+        "path": "/api/v1/finngen/sync/romopapi/ancestors",
+        "name": null,
+        "middleware": [
+            "api",
+            "auth:sanctum",
+            "source.resolve",
+            "permission:analyses.view",
+            "throttle:60,1"
+        ],
+        "action": "App\\Http\\Controllers\\Api\\V1\\FinnGen\\SyncReadController@romopapiAncestors"
+    },
+    {
+        "method": "GET",
+        "path": "/api/v1/finngen/sync/romopapi/code-counts",
+        "name": null,
+        "middleware": [
+            "api",
+            "auth:sanctum",
+            "source.resolve",
+            "permission:analyses.view",
+            "throttle:60,1"
+        ],
+        "action": "App\\Http\\Controllers\\Api\\V1\\FinnGen\\SyncReadController@romopapiCodeCounts"
+    },
+    {
+        "method": "GET",
+        "path": "/api/v1/finngen/sync/romopapi/relationships",
+        "name": null,
+        "middleware": [
+            "api",
+            "auth:sanctum",
+            "source.resolve",
+            "permission:analyses.view",
+            "throttle:60,1"
+        ],
+        "action": "App\\Http\\Controllers\\Api\\V1\\FinnGen\\SyncReadController@romopapiRelationships"
+    }
+]

@@ -39,7 +39,6 @@ CURATED_SERVICES: list[CuratedService] = [
     CuratedService("morpheus-ingest", "parthenon-morpheus-ingest", 8000, "morpheus", "always"),
     CuratedService("solr", "parthenon-solr", 8983, "solr", "if_running"),
     CuratedService("jupyterhub", "parthenon-jupyterhub", 8000, "jupyter", "if_running"),
-    CuratedService("finngen-runner", "parthenon-finngen-runner", 8786, "finngen", "if_running"),
     CuratedService("reverb", "parthenon-reverb", 8080, "ws", "if_running"),
     CuratedService("grafana", "parthenon-grafana", 3000, "grafana", "if_running"),
     CuratedService("prometheus", "parthenon-prometheus", 9090, "prometheus", "if_running"),

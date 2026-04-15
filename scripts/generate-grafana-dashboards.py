@@ -22,7 +22,7 @@ LOKI_DS = {"type": "loki", "uid": "loki-parthenon"}
 TIER1 = "parthenon-(php|nginx|ai|postgres)"
 
 # Tier 2 services — shared filterable log panel
-TIER2 = "parthenon-(horizon|redis|solr|darkstar|chromadb|study-agent|reverb|node|orthanc|finngen-runner|qdrant)"
+TIER2 = "parthenon-(horizon|redis|solr|darkstar|chromadb|study-agent|reverb|node|orthanc|qdrant)"
 
 # Thresholds
 THRESH_PERCENT = {
@@ -837,10 +837,9 @@ def make_dashboard():
                         {"selected": False, "text": "reverb", "value": "parthenon-reverb"},
                         {"selected": False, "text": "node", "value": "parthenon-node"},
                         {"selected": False, "text": "orthanc", "value": "parthenon-orthanc"},
-                        {"selected": False, "text": "finngen-runner", "value": "parthenon-finngen-runner"},
                         {"selected": False, "text": "qdrant", "value": "parthenon-qdrant"},
                     ],
-                    "query": "parthenon-horizon,parthenon-redis,parthenon-solr,parthenon-darkstar,parthenon-chromadb,parthenon-study-agent,parthenon-reverb,parthenon-node,parthenon-orthanc,parthenon-finngen-runner,parthenon-qdrant",
+                    "query": "parthenon-horizon,parthenon-redis,parthenon-solr,parthenon-darkstar,parthenon-chromadb,parthenon-study-agent,parthenon-reverb,parthenon-node,parthenon-orthanc,parthenon-qdrant",
                     "hide": 0, "multi": True, "includeAll": True,
                     "allValue": TIER2,
                     "skipUrlSync": False,

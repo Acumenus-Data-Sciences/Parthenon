@@ -5,6 +5,7 @@ import {
   enableAiProvider,
   fetchAiProvider,
   fetchAiProviders,
+  fetchHadesPackageInventory,
   fetchLiveKitConfig,
   fetchServiceDetail,
   fetchSystemHealth,
@@ -16,6 +17,7 @@ import {
 
 const QUERY_KEY = "ai-providers";
 const HEALTH_KEY = "system-health";
+const HADES_PACKAGES_KEY = "hades-packages";
 
 export function useAiProviders() {
   return useQuery({ queryKey: [QUERY_KEY], queryFn: fetchAiProviders });
@@ -74,6 +76,14 @@ export function useServiceDetail(key: string) {
     queryFn: () => fetchServiceDetail(key),
     refetchInterval: 15_000,
     enabled: !!key,
+  });
+}
+
+export function useHadesPackageInventory() {
+  return useQuery({
+    queryKey: [HADES_PACKAGES_KEY],
+    queryFn: fetchHadesPackageInventory,
+    refetchInterval: 60_000,
   });
 }
 

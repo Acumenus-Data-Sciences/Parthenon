@@ -150,6 +150,55 @@ export interface ServiceDetail {
 export const fetchServiceDetail = (key: string) =>
   apiClient.get<ServiceDetail>(`/admin/system-health/${key}`).then((r) => r.data);
 
+// ── HADES / OHDSI Runtime Capabilities ───────────────────────────────────────
+
+export interface HadesPackageStatus {
+  package: string;
+  install_package: string;
+  installed: boolean;
+  version: string | null;
+  capability: string;
+  surface: string;
+  priority: string;
+  install_source?: string | null;
+  pinned_ref?: string | null;
+  inclusion_reason?: string | null;
+  required_for_parity?: boolean;
+  hosted_surface?: boolean;
+  exposure_policy?: string | null;
+  decision?: string | null;
+  replacement_surface?: string | null;
+}
+
+export interface HadesShinyPolicy {
+  expose_hosted_surfaces: boolean;
+  allow_iframe_embedding: boolean;
+  allow_user_supplied_app_paths: boolean;
+  decision: string;
+  replacement_surface: string;
+}
+
+export interface HadesPackageInventory {
+  status: "complete" | "partial";
+  parity_status?: "ready" | "degraded";
+  generated_at: string;
+  total: number;
+  installed_count: number;
+  missing_count: number;
+  required_count?: number;
+  required_missing_count?: number;
+  required_missing?: string[];
+  installed: string[];
+  missing: string[];
+  packages: HadesPackageStatus[];
+  shiny_policy?: HadesShinyPolicy;
+}
+
+export const fetchHadesPackageInventory = () =>
+  apiClient
+    .get<{ data: HadesPackageInventory }>("/hades/packages")
+    .then((r) => r.data.data);
+
 // ── LiveKit Configuration ─────────────────────────────────────────────────────
 
 export interface LiveKitConfig {

@@ -7,12 +7,16 @@ use App\Models\App\Study;
 use App\Models\App\StudyArtifact;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 /**
  * @group Studies
  */
 class StudyArtifactController extends Controller
 {
+    /** @var list<string> */
+    private const PROHIBITED_ARTIFACT_TYPES = ['shiny_app_url'];
+
     /**
      * GET /v1/studies/{study}/artifacts
      *
@@ -22,6 +26,7 @@ class StudyArtifactController extends Controller
     {
         try {
             $artifacts = $study->artifacts()
+                ->whereNotIn('artifact_type', self::PROHIBITED_ARTIFACT_TYPES)
                 ->with('uploadedBy:id,name,email')
                 ->orderByDesc('created_at')
                 ->get();
@@ -42,7 +47,7 @@ class StudyArtifactController extends Controller
     public function store(Request $request, Study $study): JsonResponse
     {
         $validated = $request->validate([
-            'artifact_type' => 'required|string|max:50',
+            'artifact_type' => ['required', 'string', 'max:50', Rule::notIn(self::PROHIBITED_ARTIFACT_TYPES)],
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'version' => 'nullable|string|max:50',
@@ -83,8 +88,12 @@ class StudyArtifactController extends Controller
             return response()->json(['message' => 'Artifact does not belong to this study.'], 404);
         }
 
+        if (in_array($studyArtifact->artifact_type, self::PROHIBITED_ARTIFACT_TYPES, true)) {
+            return response()->json(['message' => 'Legacy Shiny artifacts are not exposed.'], 404);
+        }
+
         $validated = $request->validate([
-            'artifact_type' => 'sometimes|required|string|max:50',
+            'artifact_type' => ['sometimes', 'required', 'string', 'max:50', Rule::notIn(self::PROHIBITED_ARTIFACT_TYPES)],
             'title' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
             'version' => 'nullable|string|max:50',

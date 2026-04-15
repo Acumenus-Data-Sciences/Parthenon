@@ -3,9 +3,10 @@ import { RefreshCw, ArrowRight, Server, Database, Cpu, HeartPulse, Activity, Bui
 import { Link } from "react-router-dom";
 import { Panel, Badge, StatusDot, Button, type BadgeVariant, type StatusDotVariant } from "@/components/ui";
 import type { SystemHealthService } from "@/types/models";
-import { useSystemHealth } from "../hooks/useAiProviders";
+import { useHadesPackageInventory, useSystemHealth } from "../hooks/useAiProviders";
 import { GisDataPanel } from "../components/GisDataPanel";
 import { LiveKitConfigPanel } from "../components/LiveKitConfigPanel";
+import type { HadesPackageStatus } from "../api/adminApi";
 
 const STATUS_MAP: Record<string, { badge: BadgeVariant; dot: StatusDotVariant }> = {
   healthy:  { badge: "success",  dot: "healthy" },
@@ -192,6 +193,133 @@ function TierSection({ tier, services }: { tier: string; services: SystemHealthS
   );
 }
 
+function priorityWeight(pkg: HadesPackageStatus): number {
+  const order: Record<string, number> = {
+    high: 0,
+    first_class: 1,
+    medium: 2,
+    compatibility: 3,
+    low: 4,
+    optional: 5,
+    superseded: 6,
+    runtime: 7,
+    core: 8,
+  };
+
+  return order[pkg.priority] ?? 9;
+}
+
+function HadesPackagePanel() {
+  const { data, isLoading, isError, isFetching, refetch } = useHadesPackageInventory();
+
+  const missingPackages = useMemo(() => {
+    if (!data) return [];
+    return data.packages
+      .filter((pkg) => !pkg.installed)
+      .sort((a, b) => priorityWeight(a) - priorityWeight(b) || a.package.localeCompare(b.package));
+  }, [data]);
+
+  const topMissing = missingPackages.slice(0, 8);
+  const statusVariant: BadgeVariant = data?.required_missing_count
+    ? "critical"
+    : data?.status === "complete" ? "success" : "warning";
+
+  return (
+    <Panel>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-semibold text-foreground">OHDSI Package Parity</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Darkstar package coverage for first-class, native, and compatibility work.
+          </p>
+        </div>
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() => refetch()}
+          disabled={isFetching}
+        >
+          <RefreshCw className={`h-4 w-4 mr-1 ${isFetching ? "animate-spin" : ""}`} />
+          Refresh
+        </Button>
+      </div>
+
+      {isLoading ? (
+        <p className="mt-4 text-sm text-muted-foreground">Checking Darkstar packages...</p>
+      ) : isError || !data ? (
+        <p className="mt-4 text-sm text-destructive">
+          Darkstar package inventory is unavailable.
+        </p>
+      ) : (
+        <div className="mt-4 space-y-4">
+          <div className="flex flex-wrap items-center gap-3">
+            <Badge variant={statusVariant}>{data.status}</Badge>
+            <span className="text-sm text-muted-foreground">
+              Installed: <span className="font-medium text-foreground">{data.installed_count}</span>
+            </span>
+            <span className="text-sm text-muted-foreground">
+              Missing: <span className="font-medium text-foreground">{data.missing_count}</span>
+            </span>
+            <span className="text-sm text-muted-foreground">
+              Total: <span className="font-medium text-foreground">{data.total}</span>
+            </span>
+            {typeof data.required_missing_count === "number" && (
+              <span className="text-sm text-muted-foreground">
+                Required missing: <span className="font-medium text-foreground">{data.required_missing_count}</span>
+              </span>
+            )}
+          </div>
+
+          {data.shiny_policy && (
+            <div className="rounded-lg border border-border-default bg-surface-raised p-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="text-sm font-medium text-foreground">Legacy Shiny Policy</p>
+                <Badge variant="inactive">not exposed</Badge>
+              </div>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Hosted Shiny apps, iframe embedding, and user-supplied app paths are disabled.
+                OHDSI Shiny packages remain runtime compatibility artifacts only.
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Replacement: {data.shiny_policy.replacement_surface}
+              </p>
+            </div>
+          )}
+
+          {topMissing.length > 0 && (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="border-b border-border-default text-xs uppercase text-muted-foreground">
+                  <tr>
+                    <th className="py-2 pr-4 font-medium">Package</th>
+                    <th className="py-2 pr-4 font-medium">Capability</th>
+                    <th className="py-2 pr-4 font-medium">Priority</th>
+                    <th className="py-2 pr-4 font-medium">Surface</th>
+                    <th className="py-2 font-medium">Source</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {topMissing.map((pkg) => (
+                    <tr key={pkg.package} className="border-b border-border-default/60">
+                      <td className="py-2 pr-4 font-mono text-xs text-foreground">
+                        {pkg.package}
+                      </td>
+                      <td className="py-2 pr-4 text-muted-foreground">{pkg.capability}</td>
+                      <td className="py-2 pr-4 text-muted-foreground">{pkg.priority}</td>
+                      <td className="py-2 pr-4 text-muted-foreground">{pkg.surface}</td>
+                      <td className="py-2 text-muted-foreground">{pkg.install_source ?? "runtime"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+    </Panel>
+  );
+}
+
 export default function SystemHealthPage() {
   const { data, isLoading, isFetching, refetch, dataUpdatedAt } = useSystemHealth();
 
@@ -277,6 +405,8 @@ export default function SystemHealthPage() {
       )}
 
       {/* GIS Data Management */}
+      <HadesPackagePanel />
+
       <div>
         <h2 className="mb-3 text-lg font-semibold text-foreground">
           GIS Data Management

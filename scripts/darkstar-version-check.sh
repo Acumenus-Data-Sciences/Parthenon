@@ -45,7 +45,9 @@ pkgs <- c(
     "SelfControlledCaseSeries", "EvidenceSynthesis", "CohortGenerator",
     "CohortDiagnostics", "DeepPatientLevelPrediction", "CohortIncidence",
     "Characterization", "Strategus", "ETLSyntheaBuilder",
-    "DataQualityDashboard"
+    "DataQualityDashboard",
+    # FinnGen SP1 packages (GitHub-only; will show "GitHub-only" status vs r-universe)
+    "ROMOPAPI", "HadesExtras", "CO2AnalysisModules"
 )
 installed <- installed.packages()
 for (pkg in pkgs) {
@@ -65,7 +67,9 @@ pkgs <- c(
     "SelfControlledCaseSeries", "EvidenceSynthesis", "CohortGenerator",
     "CohortDiagnostics", "DeepPatientLevelPrediction", "CohortIncidence",
     "Characterization", "Strategus", "ETLSyntheaBuilder",
-    "DataQualityDashboard"
+    "DataQualityDashboard",
+    # FinnGen SP1 packages (GitHub-only; will show "GitHub-only" status vs r-universe)
+    "ROMOPAPI", "HadesExtras", "CO2AnalysisModules"
 )
 repos <- c(OHDSI = "https://ohdsi.r-universe.dev", CRAN = "https://cloud.r-project.org")
 avail <- available.packages(repos = repos)

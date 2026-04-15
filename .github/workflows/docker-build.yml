@@ -42,7 +42,6 @@ on:
           - study-agent
           - jupyterhub
           - jupyter-user
-          - finngen-runner
           - darkstar
           - hecate
           - whiterabbit
@@ -92,7 +91,6 @@ jobs:
             [study-agent]="docker/study-agent"
             [jupyterhub]="docker/jupyterhub"
             [jupyter-user]="docker/jupyter-user"
-            [finngen-runner]="docker/finngen-runner"
             [darkstar]="docker/r"
             [hecate]="docker/hecate"
             [whiterabbit]="docker/whiterabbit"
@@ -168,7 +166,6 @@ jobs:
             study-agent)      DOCKERFILE="docker/study-agent/Dockerfile";   CONTEXT="." ;;
             jupyterhub)       DOCKERFILE="docker/jupyterhub/Dockerfile";    CONTEXT="." ;;
             jupyter-user)     DOCKERFILE="docker/jupyter-user/Dockerfile";  CONTEXT="." ;;
-            finngen-runner)   DOCKERFILE="docker/finngen-runner/Dockerfile"; CONTEXT="." ;;
             darkstar)         DOCKERFILE="docker/r/Dockerfile";             CONTEXT="." ;;
             hecate)           DOCKERFILE="docker/hecate/Dockerfile";        CONTEXT="." ;;
             whiterabbit)      DOCKERFILE="docker/whiterabbit/Dockerfile";   CONTEXT="." ;;

@@ -76,6 +76,19 @@ function() {
   ohdsi_versions <- Filter(Negate(is.na), ohdsi_versions)
   posit_versions <- Filter(Negate(is.na), posit_versions)
 
+  # FinnGen SP1 runtime probe: report which FinnGen-stack packages load.
+  finngen_block <- tryCatch({
+    pkgs <- c("ROMOPAPI", "HadesExtras", "CO2AnalysisModules")
+    loaded <- vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)
+    list(
+      packages_loaded = as.list(pkgs[loaded]),
+      load_errors     = as.list(pkgs[!loaded])
+    )
+  }, error = function(e) list(
+    packages_loaded = list(),
+    load_errors     = list(as.character(e$message))
+  ))
+
   list(
     status = if (overall) "ok" else "degraded",
     service = "darkstar",
@@ -86,6 +99,7 @@ function() {
     packages = list(
       ohdsi = ohdsi_versions,
       posit = posit_versions
-    )
+    ),
+    finngen = finngen_block
   )
 }

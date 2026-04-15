@@ -99,6 +99,85 @@ smoke_check() {
   fi
 }
 
+smoke_hades_required_packages() {
+  local service="darkstar"
+  local darkstar_url="http://127.0.0.1:${R_PORT:-8787}/hades/packages"
+  local payload=""
+  local attempt
+  local result
+  local parse_status
+
+  if ! service_exists "$service"; then
+    warn "Smoke: HADES required packages skipped — darkstar service is not configured"
+    return 0
+  fi
+
+  if ! is_running "$service"; then
+    fail "Smoke: HADES required packages skipped — darkstar is not running"
+    ERRORS=$((ERRORS + 1))
+    return 0
+  fi
+
+  for attempt in 1 2 3 4 5 6 7 8 9 10; do
+    if payload="$(curl -fsS --max-time "$SMOKE_TIMEOUT" "$darkstar_url" 2>/dev/null)"; then
+      break
+    fi
+    sleep 2
+  done
+
+  if [ -z "$payload" ]; then
+    fail "Smoke: HADES required packages -> endpoint unavailable (${darkstar_url})"
+    ERRORS=$((ERRORS + 1))
+    return 0
+  fi
+
+  if ! command -v python3 >/dev/null 2>&1; then
+    fail "Smoke: HADES required packages -> python3 is required to validate the package matrix"
+    ERRORS=$((ERRORS + 1))
+    return 0
+  fi
+
+  result="$(DEPLOY_HADES_PAYLOAD="$payload" python3 - <<'PY'
+import json
+import os
+import sys
+
+try:
+    data = json.loads(os.environ["DEPLOY_HADES_PAYLOAD"])
+except Exception as exc:
+    print(f"malformed JSON: {exc}")
+    sys.exit(1)
+
+missing = data.get("required_missing")
+if missing is None:
+    missing = [
+        row.get("package")
+        for row in data.get("packages", [])
+        if row.get("required_for_parity") is True and row.get("installed") is not True
+    ]
+
+missing = [str(package) for package in missing if package]
+if missing:
+    print("required HADES packages missing: " + ", ".join(missing))
+    sys.exit(2)
+
+required_count = data.get("required_count", "?")
+installed_count = data.get("installed_count", "?")
+total = data.get("total", "?")
+parity_status = data.get("parity_status", "ready")
+print(f"{parity_status}; required={required_count}; installed={installed_count}/{total}")
+PY
+)"
+  parse_status=$?
+
+  if [ $parse_status -eq 0 ]; then
+    ok "Smoke: HADES required packages -> ${result}"
+  else
+    fail "Smoke: HADES required packages -> ${result}"
+    ERRORS=$((ERRORS + 1))
+  fi
+}
+
 service_exists() {
   docker compose config --services 2>/dev/null | grep -qx "$1"
 }
@@ -277,26 +356,6 @@ if is_running redis; then
 else
   warn "Redis is not running — sessions/cache/queues will fail"
   ERRORS=$((ERRORS + 1))
-fi
-
-if docker compose config --services 2>/dev/null | grep -q "^finngen-runner$"; then
-  if is_running finngen-runner; then
-    ok "FINNGEN runner is running"
-  else
-    warn "FINNGEN runner is not running — attempting to build and start it"
-    if docker compose up -d --build finngen-runner 2>&1 | sed 's/^/   /'; then
-      sleep 5
-      if is_running finngen-runner; then
-        ok "FINNGEN runner started successfully"
-      else
-        warn "FINNGEN runner did not stay up"
-        ERRORS=$((ERRORS + 1))
-      fi
-    else
-      warn "FINNGEN runner build/start failed"
-      ERRORS=$((ERRORS + 1))
-    fi
-  fi
 fi
 
 # ── PHP / Laravel ────────────────────────────────────────────────────────────
@@ -622,6 +681,10 @@ else
     if $DO_PHP || $DO_DB || $DO_OPENAPI; then
       smoke_check "api /sanctum/csrf-cookie" "/sanctum/csrf-cookie" "204"
       smoke_check "api /api/v1/nonexistent-endpoint" "/api/v1/nonexistent-endpoint" "404"
+    fi
+
+    if $DO_PHP || $DO_DB; then
+      smoke_hades_required_packages
     fi
 
     if $DO_DOCS; then

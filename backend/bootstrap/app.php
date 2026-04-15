@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnforceFinnGenIdempotency;
 use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Middleware\RecordUserActivity;
 use App\Http\Middleware\RequireSourceContext;
@@ -41,6 +42,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role_or_permission' => RoleOrPermissionMiddleware::class,
             'source.resolve' => ResolveSourceContext::class,
             'source.require' => RequireSourceContext::class,
+            'finngen.idempotency' => EnforceFinnGenIdempotency::class,
         ]);
     })
     ->withSchedule(function (Schedule $schedule) {
@@ -49,6 +51,21 @@ return Application::configure(basePath: dirname(__DIR__))
             ->withoutOverlapping(60)
             ->onOneServer()
             ->appendOutputTo(storage_path('logs/care-gap-refresh.log'));
+
+        $schedule->command('finngen:prune-runs')
+            ->dailyAt('03:45')
+            ->onOneServer()
+            ->withoutOverlapping();
+
+        $schedule->command('finngen:sweep-artifacts')
+            ->weeklyOn(0, '04:00')
+            ->onOneServer()
+            ->withoutOverlapping();
+
+        $schedule->command('finngen:reconcile-orphans')
+            ->everyFifteenMinutes()
+            ->onOneServer()
+            ->withoutOverlapping();
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
