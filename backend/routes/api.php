@@ -1017,6 +1017,22 @@ Route::prefix('v1')->group(function () {
             // Analysis module registry
             Route::get('/analyses/modules', [AnalysisModuleController::class, 'index'])
                 ->middleware('permission:analyses.view');
+
+            // Code Explorer (SP2)
+            Route::prefix('code-explorer')->group(function () {
+                Route::get('/source-readiness', [\App\Http\Controllers\Api\V1\FinnGen\CodeExplorerController::class, 'sourceReadiness'])
+                    ->middleware('permission:finngen.code-explorer.view');
+                Route::get('/counts', [\App\Http\Controllers\Api\V1\FinnGen\CodeExplorerController::class, 'counts'])
+                    ->middleware(['permission:finngen.code-explorer.view', 'throttle:60,1']);
+                Route::get('/relationships', [\App\Http\Controllers\Api\V1\FinnGen\CodeExplorerController::class, 'relationships'])
+                    ->middleware(['permission:finngen.code-explorer.view', 'throttle:60,1']);
+                Route::get('/ancestors', [\App\Http\Controllers\Api\V1\FinnGen\CodeExplorerController::class, 'ancestors'])
+                    ->middleware(['permission:finngen.code-explorer.view', 'throttle:60,1']);
+                Route::post('/report', [\App\Http\Controllers\Api\V1\FinnGen\CodeExplorerController::class, 'createReport'])
+                    ->middleware(['permission:finngen.code-explorer.view', 'finngen.idempotency', 'throttle:10,1']);
+                Route::post('/initialize-source', [\App\Http\Controllers\Api\V1\FinnGen\CodeExplorerController::class, 'initializeSource'])
+                    ->middleware(['permission:finngen.code-explorer.setup', 'finngen.idempotency', 'throttle:10,1']);
+            });
         });
 
         // Jupyter workbench
