@@ -10,6 +10,7 @@ services:
       - ./frontend/dist:/var/www/frontend:ro
       - ./docs/site/build:/var/www/docs-dist:ro
       - ohif-dist:/var/www/ohif:ro
+      - finngen-artifacts:/opt/finngen-artifacts:ro
     environment:
       - ORTHANC_AUTH_HEADER=${ORTHANC_AUTH_HEADER:-}
       - NGINX_ENVSUBST_TEMPLATE_SUFFIX=.template
@@ -156,7 +157,7 @@ services:
     command:
       - sh
       - -lc
-      - uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1 --timeout-keep-alive 5
+      - uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers "$${AI_WORKERS:-1}" --timeout-keep-alive 5
     ports:
       - "${AI_PORT:-8002}:8000"
     volumes:
@@ -190,6 +191,8 @@ services:
       - ABBY_OLLAMA_BASE_URL=${ABBY_OLLAMA_BASE_URL:-http://host.docker.internal:11435}
       - ABBY_OLLAMA_MODEL=${ABBY_OLLAMA_MODEL:-gemma4:26b}
       - ABBY_OLLAMA_KEEP_ALIVE=${ABBY_OLLAMA_KEEP_ALIVE:-3600}
+      - PHENOTYPE_INTERPRETER_BASE_URL=${PHENOTYPE_INTERPRETER_BASE_URL:-http://host.docker.internal:11434}
+      - PHENOTYPE_INTERPRETER_MODEL=${PHENOTYPE_INTERPRETER_MODEL:-MedAIBase/MedGemma1.5:4b}
       - HELP_DIR=/var/www/html/resources/help
       - DOCS_DIR=/app/docs
       - CHROMA_HOST=chromadb
