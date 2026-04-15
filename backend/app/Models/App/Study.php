@@ -154,6 +154,14 @@ class Study extends Model
     }
 
     /**
+     * @return HasMany<StudyDesignSession, $this>
+     */
+    public function designSessions(): HasMany
+    {
+        return $this->hasMany(StudyDesignSession::class);
+    }
+
+    /**
      * @return HasMany<StudySite, $this>
      */
     public function sites(): HasMany

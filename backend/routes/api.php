@@ -759,8 +759,9 @@ Route::prefix('v1')->group(function () {
             // Artifacts
             Route::get('artifacts', [StudyArtifactController::class, 'index']);
             Route::post('artifacts', [StudyArtifactController::class, 'store']);
-            Route::put('artifacts/{artifact}', [StudyArtifactController::class, 'update']);
-            Route::delete('artifacts/{artifact}', [StudyArtifactController::class, 'destroy']);
+            Route::put('artifacts/{studyArtifact}', [StudyArtifactController::class, 'update']);
+            Route::get('artifacts/{studyArtifact}/download', [StudyArtifactController::class, 'download']);
+            Route::delete('artifacts/{studyArtifact}', [StudyArtifactController::class, 'destroy']);
 
             // Results
             Route::get('results', [StudyResultController::class, 'index']);
@@ -784,9 +785,16 @@ Route::prefix('v1')->group(function () {
                 Route::get('{session}/versions', [StudyDesignController::class, 'versions'])->middleware('permission:studies.view');
                 Route::get('{session}/assets', [StudyDesignController::class, 'assets'])->middleware('permission:studies.view');
                 Route::post('{session}/intent', [StudyDesignController::class, 'generateIntent'])->middleware(['permission:studies.create', 'throttle:10,1']);
+                Route::post('{session}/import-existing', [StudyDesignController::class, 'importExistingStudy'])->middleware('permission:studies.create');
                 Route::post('{session}/versions/{version}/phenotypes/recommend', [StudyDesignController::class, 'recommendPhenotypes'])->middleware(['permission:studies.create', 'throttle:10,1']);
+                Route::post('{session}/versions/{version}/critique', [StudyDesignController::class, 'critiqueVersion'])->middleware(['permission:studies.create', 'throttle:10,1']);
                 Route::post('{session}/versions/{version}/concept-sets/draft', [StudyDesignController::class, 'draftConceptSets'])->middleware(['permission:studies.create', 'throttle:10,1']);
                 Route::post('{session}/versions/{version}/cohorts/draft', [StudyDesignController::class, 'draftCohorts'])->middleware(['permission:studies.create', 'throttle:10,1']);
+                Route::get('{session}/versions/{version}/cohorts/readiness', [StudyDesignController::class, 'cohortReadiness'])->middleware('permission:studies.view');
+                Route::post('{session}/versions/{version}/feasibility/run', [StudyDesignController::class, 'runFeasibility'])->middleware(['permission:studies.create', 'throttle:10,1']);
+                Route::post('{session}/versions/{version}/analysis-plans/draft', [StudyDesignController::class, 'draftAnalysisPlans'])->middleware(['permission:studies.create', 'throttle:10,1']);
+                Route::get('{session}/versions/{version}/lock-readiness', [StudyDesignController::class, 'lockReadiness'])->middleware('permission:studies.view');
+                Route::post('{session}/versions/{version}/lock', [StudyDesignController::class, 'lockVersion'])->middleware('permission:studies.create');
                 Route::put('{session}/versions/{version}', [StudyDesignController::class, 'updateVersion'])->middleware('permission:studies.create');
                 Route::post('{session}/versions/{version}/accept', [StudyDesignController::class, 'acceptVersion'])->middleware('permission:studies.create');
                 Route::post('{session}/assets/{asset}/review', [StudyDesignController::class, 'reviewAsset'])->middleware('permission:studies.create');
@@ -796,6 +804,8 @@ Route::prefix('v1')->group(function () {
                 Route::post('{session}/assets/{asset}/cohorts/verify', [StudyDesignController::class, 'verifyCohortDraft'])->middleware('permission:studies.create');
                 Route::post('{session}/assets/{asset}/cohorts/materialize', [StudyDesignController::class, 'materializeCohortDraft'])->middleware('permission:studies.create');
                 Route::post('{session}/assets/{asset}/cohorts/link-to-study', [StudyDesignController::class, 'linkCohortDraft'])->middleware('permission:studies.create');
+                Route::post('{session}/assets/{asset}/analysis-plans/verify', [StudyDesignController::class, 'verifyAnalysisPlanDraft'])->middleware('permission:studies.create');
+                Route::post('{session}/assets/{asset}/analysis-plans/materialize', [StudyDesignController::class, 'materializeAnalysisPlanDraft'])->middleware('permission:studies.create');
             });
         });
 

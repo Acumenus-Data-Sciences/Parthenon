@@ -7,7 +7,9 @@ use App\Models\App\Study;
 use App\Models\App\StudyArtifact;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * @group Studies
@@ -115,6 +117,39 @@ class StudyArtifactController extends Controller
         } catch (\Throwable $e) {
             return $this->errorResponse('Failed to update study artifact', $e);
         }
+    }
+
+    /**
+     * GET /v1/studies/{study}/artifacts/{studyArtifact}/download
+     *
+     * Download a locally stored study artifact.
+     */
+    public function download(Study $study, StudyArtifact $studyArtifact): JsonResponse|StreamedResponse
+    {
+        if ((int) $studyArtifact->study_id !== (int) $study->id) {
+            return response()->json(['message' => 'Artifact does not belong to this study.'], 404);
+        }
+
+        if (in_array($studyArtifact->artifact_type, self::PROHIBITED_ARTIFACT_TYPES, true)) {
+            return response()->json(['message' => 'Legacy Shiny artifacts are not exposed.'], 404);
+        }
+
+        if ($studyArtifact->file_path === null || ! Storage::disk('local')->exists($studyArtifact->file_path)) {
+            return response()->json(['message' => 'Artifact file is not available.'], 404);
+        }
+
+        $extension = match ($studyArtifact->mime_type) {
+            'application/zip' => 'zip',
+            'application/json' => 'json',
+            'text/plain' => 'txt',
+            default => 'bin',
+        };
+
+        return Storage::disk('local')->download(
+            $studyArtifact->file_path,
+            str($studyArtifact->title)->slug()->append(".{$extension}")->toString(),
+            ['Content-Type' => $studyArtifact->mime_type ?? 'application/octet-stream'],
+        );
     }
 
     /**

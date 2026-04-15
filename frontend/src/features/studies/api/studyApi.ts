@@ -15,6 +15,10 @@ import type {
   StudyTransitionResponse,
   StudyResult,
   StudySynthesis,
+  StudyDesignAsset,
+  StudyDesignReadiness,
+  StudyDesignSession,
+  StudyDesignVersion,
 } from "../types/study";
 import type { PaginatedResponse } from "@/features/analyses/types/analysis";
 
@@ -99,6 +103,96 @@ export async function removeStudyAnalysis(
   entryId: number,
 ): Promise<void> {
   await apiClient.delete(`${BASE}/${slugOrId}/analyses/${entryId}`);
+}
+
+// ---------------------------------------------------------------------------
+// Study Design Compiler
+// ---------------------------------------------------------------------------
+
+export async function listStudyDesignSessions(
+  slug: string,
+): Promise<StudyDesignSession[]> {
+  const { data } = await apiClient.get(`${BASE}/${slug}/design-sessions`);
+  return data.data ?? data;
+}
+
+export async function createStudyDesignSession(
+  slug: string,
+  payload: { title?: string; source_mode?: string; settings_json?: Record<string, unknown> },
+): Promise<StudyDesignSession> {
+  const { data } = await apiClient.post(`${BASE}/${slug}/design-sessions`, payload);
+  return data.data ?? data;
+}
+
+export async function listStudyDesignVersions(
+  slug: string,
+  sessionId: number,
+): Promise<StudyDesignVersion[]> {
+  const { data } = await apiClient.get(`${BASE}/${slug}/design-sessions/${sessionId}/versions`);
+  return data.data ?? data;
+}
+
+export async function listStudyDesignAssets(
+  slug: string,
+  sessionId: number,
+): Promise<StudyDesignAsset[]> {
+  const { data } = await apiClient.get(`${BASE}/${slug}/design-sessions/${sessionId}/assets`);
+  return data.data ?? data;
+}
+
+export async function generateStudyDesignIntent(
+  slug: string,
+  sessionId: number,
+  researchQuestion: string,
+): Promise<StudyDesignVersion> {
+  const { data } = await apiClient.post(`${BASE}/${slug}/design-sessions/${sessionId}/intent`, {
+    research_question: researchQuestion,
+  });
+  return data.data ?? data;
+}
+
+export async function importExistingStudyDesign(
+  slug: string,
+  sessionId: number,
+): Promise<StudyDesignVersion> {
+  const { data } = await apiClient.post(`${BASE}/${slug}/design-sessions/${sessionId}/import-existing`);
+  return data.data ?? data;
+}
+
+export async function critiqueStudyDesignVersion(
+  slug: string,
+  sessionId: number,
+  versionId: number,
+): Promise<StudyDesignAsset[]> {
+  const { data } = await apiClient.post(`${BASE}/${slug}/design-sessions/${sessionId}/versions/${versionId}/critique`);
+  return data.data ?? data;
+}
+
+export async function acceptStudyDesignVersion(
+  slug: string,
+  sessionId: number,
+  versionId: number,
+): Promise<StudyDesignVersion> {
+  const { data } = await apiClient.post(`${BASE}/${slug}/design-sessions/${sessionId}/versions/${versionId}/accept`);
+  return data.data ?? data;
+}
+
+export async function getStudyDesignLockReadiness(
+  slug: string,
+  sessionId: number,
+  versionId: number,
+): Promise<StudyDesignReadiness> {
+  const { data } = await apiClient.get(`${BASE}/${slug}/design-sessions/${sessionId}/versions/${versionId}/lock-readiness`);
+  return data.data ?? data;
+}
+
+export async function lockStudyDesignVersion(
+  slug: string,
+  sessionId: number,
+  versionId: number,
+): Promise<{ data: StudyDesignVersion; package_artifact?: StudyArtifact; readiness?: StudyDesignReadiness }> {
+  const { data } = await apiClient.post(`${BASE}/${slug}/design-sessions/${sessionId}/versions/${versionId}/lock`);
+  return data;
 }
 
 // ---------------------------------------------------------------------------

@@ -236,6 +236,89 @@ export interface StudyTransitionResponse {
 }
 
 // ---------------------------------------------------------------------------
+// Study Design Compiler Types
+// ---------------------------------------------------------------------------
+
+export interface StudyDesignSession {
+  id: number;
+  study_id: number;
+  created_by: number;
+  active_version_id: number | null;
+  title: string;
+  status: string;
+  source_mode: string;
+  settings_json: Record<string, unknown> | null;
+  created_at: string;
+  updated_at: string;
+  active_version?: StudyDesignVersion | null;
+}
+
+export interface StudyDesignVersion {
+  id: number;
+  session_id: number;
+  version_number: number;
+  status: string;
+  intent_json: Record<string, unknown> | null;
+  normalized_spec_json: Record<string, unknown> | null;
+  provenance_json: Record<string, unknown> | null;
+  accepted_by: number | null;
+  accepted_at: string | null;
+  locked_at: string | null;
+  created_at: string;
+  updated_at: string;
+  assets?: StudyDesignAsset[];
+}
+
+export interface StudyDesignAsset {
+  id: number;
+  session_id: number;
+  version_id: number | null;
+  asset_type: string;
+  role: string | null;
+  status: string;
+  draft_payload_json: Record<string, unknown> | null;
+  canonical_type: string | null;
+  canonical_id: number | null;
+  provenance_json: Record<string, unknown> | null;
+  verification_status: string;
+  verification_json: Record<string, unknown> | null;
+  verified_at: string | null;
+  rank_score: number | null;
+  rank_score_json: Record<string, unknown> | null;
+  materialized_type: string | null;
+  materialized_id: number | null;
+  materialized_at: string | null;
+  review_notes: string | null;
+  reviewed_by: number | null;
+  reviewed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface StudyDesignReadiness {
+  ready: boolean;
+  blocking_reasons?: string[];
+  cohorts?: {
+    ready: boolean;
+    cohort_asset_count: number;
+    materialized_verified_count: number;
+    blocked_count: number;
+  };
+  feasibility_ready?: boolean;
+  analysis_plan_ready?: boolean;
+  package_artifact?: StudyArtifact | null;
+  provenance_summary?: {
+    study_id?: number;
+    version_status: string;
+    accepted_at: string | null;
+    ai_events: number;
+    reviewed_assets: number;
+    verified_assets: number;
+    package_manifest_sha256: string | null;
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Results & Synthesis
 // ---------------------------------------------------------------------------
 
