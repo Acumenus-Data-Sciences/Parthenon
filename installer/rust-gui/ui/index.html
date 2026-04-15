@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Parthenon Community Installer</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="workspace">
+        <div class="intro">
+          <p class="eyebrow">Community Edition</p>
+          <h1>Install Parthenon</h1>
+          <p>Choose the local checkout, confirm the default Community stack, and launch the existing Python installer with a generated defaults file.</p>
+        </div>
+
+        <form id="installer-form" class="installer-form">
+          <fieldset>
+            <legend>Workspace</legend>
+            <label>
+              Parthenon repo path
+              <input id="repo-path" name="repo_path" autocomplete="off" />
+            </label>
+            <div id="windows-fields" class="windows-fields" hidden>
+              <label>
+                WSL distro
+                <input id="wsl-distro" name="wsl_distro" placeholder="Ubuntu-24.04" autocomplete="off" />
+              </label>
+              <label>
+                WSL repo path
+                <input id="wsl-repo-path" name="wsl_repo_path" placeholder="/home/user/Parthenon" autocomplete="off" />
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Administrator</legend>
+            <div class="field-grid">
+              <label>
+                Admin email
+                <input id="admin-email" name="admin_email" type="email" value="admin@example.com" />
+              </label>
+              <label>
+                Admin name
+                <input id="admin-name" name="admin_name" value="Admin" />
+              </label>
+              <label>
+                Admin password
+                <input id="admin-password" name="admin_password" type="password" placeholder="Leave blank to auto-generate" />
+              </label>
+              <label>
+                Timezone
+                <input id="timezone" name="timezone" value="UTC" />
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Community Stack</legend>
+            <div class="field-grid">
+              <label>
+                App URL
+                <input id="app-url" name="app_url" value="http://localhost" />
+              </label>
+              <label>
+                Ollama URL
+                <input id="ollama-url" name="ollama_url" value="http://host.docker.internal:11434" />
+              </label>
+            </div>
+            <div class="toggle-grid">
+              <label><input id="include-eunomia" type="checkbox" checked /> Eunomia demo data</label>
+              <label><input id="enable-solr" type="checkbox" checked /> Solr search</label>
+              <label><input id="enable-study-agent" type="checkbox" checked /> Study Agent</label>
+              <label><input id="enable-blackrabbit" type="checkbox" checked /> BlackRabbit profiler</label>
+              <label><input id="enable-fhir-to-cdm" type="checkbox" checked /> FHIR-to-CDM</label>
+              <label><input id="enable-hecate" type="checkbox" /> Hecate concept search</label>
+              <label><input id="enable-orthanc" type="checkbox" /> Orthanc imaging</label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Launch</legend>
+            <div class="launch-options">
+              <label><input id="dry-run" type="checkbox" checked /> Dry run only</label>
+              <label><input id="confirm-real-install" type="checkbox" /> I understand real install will write files and start Docker services</label>
+            </div>
+            <div class="button-row">
+              <button id="preflight-btn" type="button">Run Preflight</button>
+              <button id="preview-btn" type="button">Preview Defaults</button>
+              <button id="install-btn" class="primary" type="submit">Start</button>
+            </div>
+          </fieldset>
+        </form>
+      </section>
+
+      <aside class="status-panel">
+        <section>
+          <h2>Status</h2>
+          <div id="status" class="status">Ready</div>
+        </section>
+        <section>
+          <h2>Preflight</h2>
+          <div id="preflight" class="preflight-list">Run preflight before starting the installer.</div>
+        </section>
+        <section>
+          <h2>Defaults Preview</h2>
+          <p class="panel-note">Secrets are redacted in preview and dry-run output.</p>
+          <pre id="preview" class="preview">No defaults generated yet.</pre>
+        </section>
+        <section>
+          <h2>Installer Log</h2>
+          <pre id="log" class="log">Waiting for installer output.</pre>
+        </section>
+      </aside>
+    </main>
+    <script src="./app.js"></script>
+  </body>
+</html>
