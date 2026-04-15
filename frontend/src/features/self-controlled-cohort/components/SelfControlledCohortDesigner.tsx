@@ -1,0 +1,359 @@
+import { useState, useEffect } from "react";
+import { Loader2, Save, X, Plus } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { getCohortDefinitions } from "@/features/cohort-definitions/api/cohortApi";
+import { CovariateSettingsPanel } from "@/components/analysis/CovariateSettingsPanel";
+import type { SelfControlledCohortDesign, SelfControlledCohortAnalysis, SelfControlledCohortRiskWindow } from "../types/selfControlledCohort";
+import { useCreateSelfControlledCohort, useUpdateSelfControlledCohort } from "../hooks/useSelfControlledCohort";
+
+const defaultSelfControlledCohortRiskWindow: SelfControlledCohortRiskWindow = {
+  start: 0,
+  end: 30,
+  startAnchor: "era_start",
+  endAnchor: "era_start",
+  label: "Risk Window 1",
+};
+
+const defaultDesign: SelfControlledCohortDesign = {
+  exposureCohortId: 0,
+  outcomeCohortId: 0,
+  riskWindows: [{ ...defaultSelfControlledCohortRiskWindow }],
+  model: { type: "simple" },
+  studyPopulation: {
+    naivePeriod: 365,
+    firstOutcomeOnly: true,
+  },
+  covariateSettings: {
+    useDemographics: false,
+    useConditionOccurrence: true,
+    useDrugExposure: true,
+    useProcedureOccurrence: false,
+    useMeasurement: false,
+    timeWindows: [{ start: -365, end: 0 }],
+  },
+};
+
+interface SelfControlledCohortDesignerProps {
+  analysis?: SelfControlledCohortAnalysis | null;
+  isNew?: boolean;
+  onSaved?: (s: SelfControlledCohortAnalysis) => void;
+}
+
+export function SelfControlledCohortDesigner({ analysis, isNew, onSaved }: SelfControlledCohortDesignerProps) {
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [design, setDesign] = useState<SelfControlledCohortDesign>(defaultDesign);
+
+  const { data: cohortData, isLoading: loadingCohorts } = useQuery({
+    queryKey: ["cohort-definitions", { page: 1, limit: 200 }],
+    queryFn: () => getCohortDefinitions({ page: 1, limit: 200 }),
+  });
+
+  const createMutation = useCreateSelfControlledCohort();
+  const updateMutation = useUpdateSelfControlledCohort();
+
+  const cohorts = cohortData?.items ?? [];
+
+  useEffect(() => {
+    if (analysis) {
+      setName(analysis.name);
+      setDescription(analysis.description ?? "");
+      // design_json may arrive from API in snake_case or camelCase — cast to Record for safe access
+      const dj = (analysis.design_json ?? {}) as unknown as Record<string, unknown>;
+      const studyPop = (dj.studyPopulation ?? dj.studyPopulationSettings ?? defaultDesign.studyPopulation) as Record<string, unknown>;
+      setDesign({
+        ...defaultDesign,
+        ...(analysis.design_json ?? {}),
+        studyPopulation: {
+          naivePeriod: (studyPop?.naivePeriod ?? studyPop?.naive_period ?? 365) as number,
+          firstOutcomeOnly: (studyPop?.firstOutcomeOnly ?? studyPop?.first_outcome_only ?? true) as boolean,
+        },
+        riskWindows: (dj.riskWindows ?? dj.risk_windows ?? defaultDesign.riskWindows) as SelfControlledCohortDesign["riskWindows"],
+      });
+    }
+  }, [analysis]);
+
+  const handleSave = () => {
+    if (!name.trim()) return;
+
+    if (isNew || !analysis) {
+      createMutation.mutate(
+        { name: name.trim(), description: description.trim() || undefined, design_json: design },
+        { onSuccess: (s) => onSaved?.(s) },
+      );
+    } else {
+      updateMutation.mutate(
+        { id: analysis.id, payload: { name: name.trim(), description: description.trim(), design_json: design } },
+        { onSuccess: (s) => onSaved?.(s) },
+      );
+    }
+  };
+
+  const isSaving = createMutation.isPending || updateMutation.isPending;
+
+  const addSelfControlledCohortRiskWindow = () => {
+    setDesign((d) => ({
+      ...d,
+      riskWindows: [
+        ...d.riskWindows,
+        {
+          ...defaultSelfControlledCohortRiskWindow,
+          label: `Risk Window ${d.riskWindows.length + 1}`,
+        },
+      ],
+    }));
+  };
+
+  const removeSelfControlledCohortRiskWindow = (idx: number) => {
+    setDesign((d) => ({
+      ...d,
+      riskWindows: d.riskWindows.filter((_, i) => i !== idx),
+    }));
+  };
+
+  const updateSelfControlledCohortRiskWindow = (idx: number, updates: Partial<SelfControlledCohortRiskWindow>) => {
+    setDesign((d) => ({
+      ...d,
+      riskWindows: d.riskWindows.map((w, i) => (i === idx ? { ...w, ...updates } : w)),
+    }));
+  };
+
+  const inputCls = cn(
+    "w-full rounded-lg border border-border-default bg-surface-base px-3 py-2 text-sm",
+    "text-text-primary focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent/30",
+  );
+
+  return (
+    <div className="space-y-6">
+      {/* Name & Description */}
+      <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
+        <h3 className="text-sm font-semibold text-text-primary">Basic Information</h3>
+        <div className="space-y-3">
+          <div>
+            <label className="block text-xs font-medium text-text-muted mb-1">Name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Self-Controlled Cohort analysis name"
+              className={cn(inputCls, "placeholder:text-text-ghost")}
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-text-muted mb-1">Description</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Optional description"
+              rows={2}
+              className={cn(inputCls, "placeholder:text-text-ghost resize-none")}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Exposure Cohort */}
+      <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
+        <h3 className="text-sm font-semibold text-text-primary">Exposure Cohort</h3>
+        <p className="text-xs text-text-muted">Select the drug/exposure cohort. Each patient serves as their own control.</p>
+        {loadingCohorts ? (
+          <Loader2 size={16} className="animate-spin text-text-muted" />
+        ) : (
+          <select
+            value={design.exposureCohortId || ""}
+            onChange={(e) => setDesign((d) => ({ ...d, exposureCohortId: Number(e.target.value) || 0 }))}
+            className={inputCls}
+          >
+            <option value="">Select exposure cohort...</option>
+            {cohorts.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        )}
+      </div>
+
+      {/* Outcome Cohort */}
+      <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
+        <h3 className="text-sm font-semibold text-text-primary">Outcome Cohort</h3>
+        <p className="text-xs text-text-muted">Select the adverse event/outcome to study.</p>
+        {loadingCohorts ? (
+          <Loader2 size={16} className="animate-spin text-text-muted" />
+        ) : (
+          <select
+            value={design.outcomeCohortId || ""}
+            onChange={(e) => setDesign((d) => ({ ...d, outcomeCohortId: Number(e.target.value) || 0 }))}
+            className={inputCls}
+          >
+            <option value="">Select outcome cohort...</option>
+            {cohorts.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        )}
+      </div>
+
+      {/* Risk Windows */}
+      <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-text-primary">Risk Windows</h3>
+          <button
+            type="button"
+            onClick={addSelfControlledCohortRiskWindow}
+            className="inline-flex items-center gap-1 text-xs text-success hover:text-success-dark transition-colors"
+          >
+            <Plus size={12} /> Add Window
+          </button>
+        </div>
+        <p className="text-xs text-text-muted">
+          Define time windows relative to the exposure era where the outcome risk is assessed.
+        </p>
+        {design.riskWindows.map((rw, idx) => (
+          <div key={idx} className="rounded-lg border border-border-default bg-surface-base p-3 space-y-3">
+            <div className="flex items-center justify-between">
+              <input
+                type="text"
+                value={rw.label}
+                onChange={(e) => updateSelfControlledCohortRiskWindow(idx, { label: e.target.value })}
+                className="bg-transparent text-sm text-text-primary font-medium focus:outline-none border-b border-transparent focus:border-accent transition-colors"
+              />
+              {design.riskWindows.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeSelfControlledCohortRiskWindow(idx)}
+                  className="text-text-muted hover:text-critical transition-colors"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div>
+                <label className="block text-[10px] text-text-ghost mb-1">Start Day</label>
+                <input
+                  type="number"
+                  value={rw.start}
+                  onChange={(e) => updateSelfControlledCohortRiskWindow(idx, { start: Number(e.target.value) })}
+                  className={inputCls}
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] text-text-ghost mb-1">Start Anchor</label>
+                <select
+                  value={rw.startAnchor}
+                  onChange={(e) => updateSelfControlledCohortRiskWindow(idx, { startAnchor: e.target.value as "era_start" | "era_end" })}
+                  className={inputCls}
+                >
+                  <option value="era_start">Era Start</option>
+                  <option value="era_end">Era End</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-[10px] text-text-ghost mb-1">End Day</label>
+                <input
+                  type="number"
+                  value={rw.end}
+                  onChange={(e) => updateSelfControlledCohortRiskWindow(idx, { end: Number(e.target.value) })}
+                  className={inputCls}
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] text-text-ghost mb-1">End Anchor</label>
+                <select
+                  value={rw.endAnchor}
+                  onChange={(e) => updateSelfControlledCohortRiskWindow(idx, { endAnchor: e.target.value as "era_start" | "era_end" })}
+                  className={inputCls}
+                >
+                  <option value="era_start">Era Start</option>
+                  <option value="era_end">Era End</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Model & Population Settings */}
+      <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-4">
+        <h3 className="text-sm font-semibold text-text-primary">Model & Population</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-medium text-text-muted mb-1">Model Type</label>
+            <select
+              value={design.model.type}
+              onChange={(e) => setDesign((d) => ({ ...d, model: { ...d.model, type: e.target.value as SelfControlledCohortDesign["model"]["type"] } }))}
+              className={inputCls}
+            >
+              <option value="simple">Simple (no adjustments)</option>
+              <option value="age_adjusted">Age-adjusted</option>
+              <option value="season_adjusted">Season-adjusted</option>
+              <option value="age_season_adjusted">Age + Season adjusted</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-text-muted mb-1">Naive Period (days)</label>
+            <input
+              type="number"
+              min={0}
+              value={design.studyPopulation?.naivePeriod ?? 365}
+              onChange={(e) => setDesign((d) => ({
+                ...d,
+                studyPopulation: { ...(d.studyPopulation ?? defaultDesign.studyPopulation), naivePeriod: Number(e.target.value) },
+              }))}
+              className={inputCls}
+            />
+          </div>
+        </div>
+        <div className="flex items-center gap-6">
+          <label className="flex items-center gap-2 text-sm text-text-secondary cursor-pointer">
+            <button
+              type="button"
+              onClick={() => setDesign((d) => ({
+                ...d,
+                studyPopulation: { ...(d.studyPopulation ?? defaultDesign.studyPopulation), firstOutcomeOnly: !(d.studyPopulation?.firstOutcomeOnly ?? true) },
+              }))}
+              className={cn(
+                "relative w-9 h-5 rounded-full transition-colors",
+                (design.studyPopulation?.firstOutcomeOnly ?? true) ? "bg-success" : "bg-surface-highlight",
+              )}
+            >
+              <span className={cn(
+                "absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform",
+                (design.studyPopulation?.firstOutcomeOnly ?? true) && "translate-x-4",
+              )} />
+            </button>
+            First Outcome Only
+          </label>
+        </div>
+      </div>
+
+      {/* Covariate Settings */}
+      {design.covariateSettings && (
+        <CovariateSettingsPanel
+          settings={design.covariateSettings}
+          onChange={(covariateSettings) => setDesign((d) => ({ ...d, covariateSettings }))}
+          visibleKeys={[
+            "useDemographics",
+            "useConditionOccurrence",
+            "useDrugExposure",
+            "useProcedureOccurrence",
+            "useMeasurement",
+          ]}
+        />
+      )}
+
+      {/* Save Button */}
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={isSaving || !name.trim()}
+          className="inline-flex items-center gap-2 rounded-lg bg-success px-5 py-2.5 text-sm font-medium text-surface-base hover:bg-success-dark transition-colors disabled:opacity-50"
+        >
+          {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+          {isNew ? "Create" : "Save Changes"}
+        </button>
+      </div>
+    </div>
+  );
+}
