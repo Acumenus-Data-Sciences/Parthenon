@@ -6,6 +6,7 @@ namespace App\Services\FinnGen;
 
 use App\Jobs\FinnGen\RunFinnGenAnalysisJob;
 use App\Models\App\FinnGen\Run;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -36,7 +37,10 @@ class FinnGenRunService
      */
     public function create(int $userId, string $sourceKey, string $analysisType, array $params): Run
     {
-        if ((bool) config('finngen.pause_dispatch')) {
+        // Cache override (set by `php artisan finngen:pause-dispatch`) takes
+        // precedence over the env-driven config default. Spec §7.3.
+        $paused = (bool) Cache::get('finngen.pause_dispatch', (bool) config('finngen.pause_dispatch'));
+        if ($paused) {
             abort(503, 'FinnGen dispatch is paused by admin.');
         }
 

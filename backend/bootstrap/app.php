@@ -51,6 +51,21 @@ return Application::configure(basePath: dirname(__DIR__))
             ->withoutOverlapping(60)
             ->onOneServer()
             ->appendOutputTo(storage_path('logs/care-gap-refresh.log'));
+
+        $schedule->command('finngen:prune-runs')
+            ->dailyAt('03:45')
+            ->onOneServer()
+            ->withoutOverlapping();
+
+        $schedule->command('finngen:sweep-artifacts')
+            ->weeklyOn(0, '04:00')
+            ->onOneServer()
+            ->withoutOverlapping();
+
+        $schedule->command('finngen:reconcile-orphans')
+            ->everyFifteenMinutes()
+            ->onOneServer()
+            ->withoutOverlapping();
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
