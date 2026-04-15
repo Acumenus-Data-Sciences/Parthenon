@@ -3,7 +3,7 @@
 # POST /analysis/phenotype-validation/run
 # ──────────────────────────────────────────────────────────────────
 
-library(PheValuator)
+.phevaluator_available <- requireNamespace("PheValuator", quietly = TRUE)
 source("/app/R/progress.R")
 
 .ensure_list <- function(x) {
@@ -51,6 +51,14 @@ source("/app/R/progress.R")
 #* @post /analysis/phenotype-validation/run
 #* @serializer unboxedJSON
 function(body, response) {
+  if (!isTRUE(.phevaluator_available)) {
+    response$status <- 501L
+    return(list(
+      status = "error",
+      message = "PheValuator R package is not installed in this Darkstar image. Install HADES PheValuator and restart the container to enable this endpoint."
+    ))
+  }
+
   spec <- .ensure_list(body)
   logger <- create_analysis_logger()
 

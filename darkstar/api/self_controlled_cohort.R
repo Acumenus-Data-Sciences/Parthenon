@@ -5,7 +5,7 @@
 
 library(DatabaseConnector)
 library(DBI)
-library(SelfControlledCohort)
+.scc_available <- requireNamespace("SelfControlledCohort", quietly = TRUE)
 source("/app/R/connection.R")
 source("/app/R/progress.R")
 
@@ -75,6 +75,14 @@ source("/app/R/progress.R")
 #* @post /analysis/self-controlled-cohort/run
 #* @serializer unboxedJSON
 function(body, response) {
+  if (!isTRUE(.scc_available)) {
+    response$status <- 501L
+    return(list(
+      status = "error",
+      message = "SelfControlledCohort R package is not installed in this Darkstar image. Install HADES SelfControlledCohort and restart the container to enable this endpoint."
+    ))
+  }
+
   spec <- .ensure_list(body)
   logger <- create_analysis_logger()
 

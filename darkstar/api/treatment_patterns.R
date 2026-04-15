@@ -4,11 +4,14 @@
 # ──────────────────────────────────────────────────────────────────
 
 library(DatabaseConnector)
-library(CDMConnector)
-library(TreatmentPatterns)
 library(dplyr)
-library(dbplyr)
 library(DBI)
+.cdmconnector_available <- requireNamespace("CDMConnector", quietly = TRUE)
+.treatmentpatterns_available <- requireNamespace("TreatmentPatterns", quietly = TRUE)
+.dbplyr_available <- requireNamespace("dbplyr", quietly = TRUE)
+if (isTRUE(.cdmconnector_available)) suppressPackageStartupMessages(library(CDMConnector))
+if (isTRUE(.treatmentpatterns_available)) suppressPackageStartupMessages(library(TreatmentPatterns))
+if (isTRUE(.dbplyr_available)) suppressPackageStartupMessages(library(dbplyr))
 source("/app/R/connection.R")
 source("/app/R/progress.R")
 
@@ -88,6 +91,14 @@ source("/app/R/progress.R")
 #* @post /analysis/treatment-patterns/run
 #* @serializer unboxedJSON
 function(body, response) {
+  if (!isTRUE(.treatmentpatterns_available) || !isTRUE(.cdmconnector_available)) {
+    response$status <- 501L
+    return(list(
+      status = "error",
+      message = "TreatmentPatterns and/or CDMConnector R packages are not installed in this Darkstar image. Install HADES TreatmentPatterns + CDMConnector and restart the container to enable this endpoint."
+    ))
+  }
+
   spec <- .ensure_list(body)
   logger <- create_analysis_logger()
 
