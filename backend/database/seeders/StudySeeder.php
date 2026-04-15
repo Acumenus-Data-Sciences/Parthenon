@@ -1499,7 +1499,6 @@ class StudySeeder extends Seeder
                 ['type' => 'protocol', 'title' => 'CoVax-Myocarditis Protocol v3.0', 'version' => '3.0', 'mime' => 'application/pdf'],
                 ['type' => 'manuscript_draft', 'title' => 'Manuscript Draft — NEJM Submission', 'version' => '4.2', 'mime' => 'application/pdf'],
                 ['type' => 'supplementary', 'title' => 'Supplementary Tables and Figures', 'version' => '1.0', 'mime' => 'application/pdf'],
-                ['type' => 'shiny_app_url', 'title' => 'Interactive Results Explorer (Shiny)', 'version' => '1.0', 'mime' => 'text/uri-list'],
             ],
             'hf-readmit' => [
                 ['type' => 'protocol', 'title' => 'HF-Readmit Protocol v3.0', 'version' => '3.0', 'mime' => 'application/pdf'],

@@ -21,7 +21,6 @@ const ARTIFACT_TYPES = [
   "presentation",
   "data_dictionary",
   "study_package_zip",
-  "shiny_app_url",
   "other",
 ] as const;
 
@@ -38,7 +37,6 @@ const TYPE_ICONS: Record<string, typeof File> = {
   presentation: FileImage,
   data_dictionary: FileText,
   study_package_zip: File,
-  shiny_app_url: Link,
   other: File,
 };
 
@@ -113,10 +111,12 @@ export function StudyArtifactsTab({ slug }: StudyArtifactsTabProps) {
     return <div className="flex items-center justify-center py-16"><Loader2 size={24} className="animate-spin text-text-muted" /></div>;
   }
 
+  const visibleArtifacts = artifacts?.filter((artifact) => artifact.artifact_type !== "shiny_app_url") ?? [];
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-text-secondary">Artifacts ({artifacts?.length ?? 0})</h3>
+        <h3 className="text-sm font-semibold text-text-secondary">Artifacts ({visibleArtifacts.length})</h3>
         <button type="button" onClick={() => setShowAdd(true)} disabled={showAdd} className="btn btn-primary btn-sm">
           <Plus size={14} /> Add Artifact
         </button>
@@ -193,7 +193,7 @@ export function StudyArtifactsTab({ slug }: StudyArtifactsTabProps) {
         </div>
       )}
 
-      {(!artifacts || artifacts.length === 0) ? (
+      {visibleArtifacts.length === 0 ? (
         <div className="empty-state">
           <FileText size={24} className="text-text-ghost mb-2" />
           <h3 className="empty-title">No artifacts</h3>
@@ -201,7 +201,7 @@ export function StudyArtifactsTab({ slug }: StudyArtifactsTabProps) {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {artifacts.map((a) => {
+          {visibleArtifacts.map((a) => {
             const Icon = TYPE_ICONS[a.artifact_type] ?? File;
             const isEditing = editId === a.id;
 

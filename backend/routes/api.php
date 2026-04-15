@@ -68,6 +68,7 @@ use App\Http\Controllers\Api\V1\GisImportController;
 use App\Http\Controllers\Api\V1\GisRuccController;
 use App\Http\Controllers\Api\V1\GisSviController;
 use App\Http\Controllers\Api\V1\GlobalSearchController;
+use App\Http\Controllers\Api\V1\HadesCapabilityController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\HecateController;
 use App\Http\Controllers\Api\V1\HelpController;
@@ -1007,6 +1008,11 @@ Route::prefix('v1')->group(function () {
             Route::post('/execute', [StrategusController::class, 'execute']);
             Route::post('/validate', [StrategusController::class, 'validate']);
             Route::get('/modules', [StrategusController::class, 'modules']);
+        });
+
+        // HADES / OHDSI runtime capabilities
+        Route::prefix('hades')->group(function () {
+            Route::get('/packages', [HadesCapabilityController::class, 'packages']);
         });
 
         // Arachne Federated Execution

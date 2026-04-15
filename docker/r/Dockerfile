@@ -157,7 +157,77 @@ RUN R -e " \
   if (!requireNamespace('Strategus', quietly = TRUE)) stop('Strategus failed'); \
 "
 
-## Layer 7 — Phase E: ETL tools
+## Layer 7A — OHDSI parity packages from r-universe
+## Runtime-capability parity for package-native OHDSI workflows. Native React
+## remains the preferred UI for Shiny-adjacent capabilities; the packages are
+## installed so report/artifact imports and method-specific endpoints can load.
+RUN R -e " \
+  options(repos = c( \
+    OHDSI = 'https://ohdsi.r-universe.dev', \
+    CRAN  = 'https://cloud.r-project.org' \
+  )); \
+  remotes::install_version('TreatmentPatterns', version = '3.1.2', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
+  remotes::install_version('Achilles', version = '1.7.2', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
+  remotes::install_version('CirceR', version = '1.3.3', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
+  remotes::install_version('OhdsiReportGenerator', version = '2.1.0', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
+  remotes::install_version('BrokenAdaptiveRidge', version = '1.0.2', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
+  remotes::install_version('IterativeHardThresholding', version = '1.0.3', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
+  remotes::install_version('OhdsiShinyAppBuilder', version = '1.0.0', repos = c('https://ohdsi.r-universe.dev', 'https://cloud.r-project.org')); \
+  parity_pkgs <- c( \
+    'TreatmentPatterns', 'Achilles', 'CirceR', 'OhdsiReportGenerator', \
+    'BrokenAdaptiveRidge', 'IterativeHardThresholding', 'OhdsiShinyAppBuilder' \
+  ); \
+  missing <- parity_pkgs[!vapply(parity_pkgs, requireNamespace, logical(1), quietly = TRUE)]; \
+  if (length(missing) > 0) stop('OHDSI r-universe parity package install failed: ', paste(missing, collapse = ', ')); \
+  cat('[BUILD] OHDSI r-universe parity packages installed:', paste(parity_pkgs, collapse = ', '), '\n'); \
+"
+
+## Layer 7B — OHDSI method + authoring parity packages from pinned GitHub tags
+RUN R -e " \
+  options(repos = c( \
+    OHDSI = 'https://ohdsi.r-universe.dev', \
+    CRAN  = 'https://cloud.r-project.org' \
+  )); \
+  remotes::install_github(c( \
+    'OHDSI/SelfControlledCohort@v1.6.0', \
+    'OHDSI/PheValuator@v2.2.16', \
+    'OHDSI/EnsemblePatientLevelPrediction@v1.0.3', \
+    'OHDSI/Capr@v2.1.1', \
+    'OHDSI/PhenotypeLibrary@v3.37.0' \
+  ), upgrade = FALSE); \
+  parity_pkgs <- c( \
+    'SelfControlledCohort', 'PheValuator', 'EnsemblePatientLevelPrediction', \
+    'Capr', 'PhenotypeLibrary' \
+  ); \
+  missing <- parity_pkgs[!vapply(parity_pkgs, requireNamespace, logical(1), quietly = TRUE)]; \
+  if (length(missing) > 0) stop('OHDSI method parity package install failed: ', paste(missing, collapse = ', ')); \
+  cat('[BUILD] OHDSI method parity packages installed:', paste(parity_pkgs, collapse = ', '), '\n'); \
+"
+
+## Layer 7C — OHDSI sharing, exploration, method evaluation, and Shiny compatibility
+RUN R -e " \
+  options(repos = c( \
+    OHDSI = 'https://ohdsi.r-universe.dev', \
+    CRAN  = 'https://cloud.r-project.org' \
+  )); \
+  remotes::install_github(c( \
+    'OHDSI/OhdsiSharing@v0.2.2', \
+    'OHDSI/CohortExplorer@v0.1.0', \
+    'OHDSI/MethodEvaluation@v2.4.0', \
+    'OHDSI/BigKNN@v1.0.2', \
+    'OHDSI/OhdsiShinyModules@v3.5.0', \
+    'OHDSI/Keeper@v2.0.0' \
+  ), upgrade = FALSE); \
+  parity_pkgs <- c( \
+    'OhdsiSharing', 'CohortExplorer', 'MethodEvaluation', \
+    'BigKnn', 'OhdsiShinyModules', 'Keeper' \
+  ); \
+  missing <- parity_pkgs[!vapply(parity_pkgs, requireNamespace, logical(1), quietly = TRUE)]; \
+  if (length(missing) > 0) stop('OHDSI sharing/exploration parity package install failed: ', paste(missing, collapse = ', ')); \
+  cat('[BUILD] OHDSI sharing/exploration parity packages installed:', paste(parity_pkgs, collapse = ', '), '\n'); \
+"
+
+## Layer 8 — Phase E: ETL tools
 ## ETL-Synthea: Synthea CSV → OMOP CDM converter for synthetic data generation
 RUN R -e " \
   options(repos = c( \
@@ -168,7 +238,7 @@ RUN R -e " \
   if (!requireNamespace('ETLSyntheaBuilder', quietly = TRUE)) stop('ETLSyntheaBuilder failed'); \
 "
 
-## Layer 8 — FinnGen SP1: ROMOPAPI + HadesExtras + CO2AnalysisModules.
+## Layer 9 — FinnGen SP1: ROMOPAPI + HadesExtras + CO2AnalysisModules.
 ## Depends on HADES stack (CohortGenerator, FeatureExtraction, CohortIncidence, etc.).
 ## CO2AnalysisModules: load via CO2AnalysisModules::execute_* only — never library()
 ## (its Shiny transitive deps pollute the runtime). SP4 replaces the CO2 Shiny UI

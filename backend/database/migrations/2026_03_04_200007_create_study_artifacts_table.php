@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('study_artifacts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('study_id')->constrained()->cascadeOnDelete();
-            $table->string('artifact_type', 40); // protocol, sap, irb_submission, cohort_json, analysis_package_r, analysis_package_python, results_report, manuscript_draft, supplementary, presentation, data_dictionary, study_package_zip, shiny_app_url, other
+            $table->string('artifact_type', 40); // protocol, sap, irb_submission, cohort_json, analysis_package_r, analysis_package_python, results_report, manuscript_draft, supplementary, presentation, data_dictionary, study_package_zip, other
             $table->string('title', 500);
             $table->text('description')->nullable();
             $table->string('version', 20)->default('1.0');
