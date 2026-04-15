@@ -22,8 +22,8 @@ class StudyCohortDraftVerifier
 
         return [
             'verification_status' => $ready
-                ? StudyDesignVerificationStatus::Verified->value
-                : StudyDesignVerificationStatus::Blocked->value,
+                ? StudyDesignVerificationStatus::VERIFIED->value
+                : StudyDesignVerificationStatus::BLOCKED->value,
             'verified_at' => $ready ? now() : null,
             'verification_json' => [
                 'checks' => [
@@ -90,7 +90,7 @@ class StudyCohortDraftVerifier
 
         $verifiedAssets = $relatedAssets->filter(fn (StudyDesignAsset $related) => $related->materialized_type === ConceptSet::class
             && $related->materialized_id !== null
-            && $this->verificationValue($related) === StudyDesignVerificationStatus::Verified->value);
+            && $this->verificationValue($related) === StudyDesignVerificationStatus::VERIFIED->value);
 
         $existingConceptSetIds = ConceptSet::query()
             ->whereIn('id', $conceptSetIds)
@@ -101,7 +101,7 @@ class StudyCohortDraftVerifier
         return [
             'ready' => $verifiedAssets->isNotEmpty(),
             'verified_asset_count' => $verifiedAssets->count(),
-            'blocked_asset_count' => $relatedAssets->filter(fn (StudyDesignAsset $related) => $this->verificationValue($related) === StudyDesignVerificationStatus::Blocked->value)->count(),
+            'blocked_asset_count' => $relatedAssets->filter(fn (StudyDesignAsset $related) => $this->verificationValue($related) === StudyDesignVerificationStatus::BLOCKED->value)->count(),
             'existing_concept_set_count' => count($existingConceptSetIds),
             'missing_concept_set_ids' => array_values(array_diff($conceptSetIds->all(), $existingConceptSetIds)),
         ];

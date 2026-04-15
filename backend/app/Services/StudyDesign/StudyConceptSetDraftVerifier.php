@@ -8,6 +8,32 @@ use Illuminate\Support\Facades\DB;
 class StudyConceptSetDraftVerifier
 {
     /**
+     * Normalize a raw list of concept entries (from various API shapes) into
+     * a stable internal schema used by both the materializer and the verifier.
+     *
+     * @param  list<array<string, mixed>>  $items
+     * @return list<array<string, mixed>>
+     */
+    public function normalizeConcepts(array $items): array
+    {
+        return collect($items)
+            ->map(function (array $item): array {
+                $rawConcept = (array) ($item['concept'] ?? []);
+                $conceptId = $item['concept_id'] ?? $rawConcept['concept_id'] ?? $rawConcept['CONCEPT_ID'] ?? null;
+
+                return [
+                    'concept_id' => is_numeric($conceptId) ? (int) $conceptId : null,
+                    'is_excluded' => (bool) ($item['is_excluded'] ?? $item['isExcluded'] ?? false),
+                    'include_descendants' => (bool) ($item['include_descendants'] ?? $item['includeDescendants'] ?? true),
+                    'include_mapped' => (bool) ($item['include_mapped'] ?? $item['includeMapped'] ?? false),
+                    'rationale' => $item['rationale'] ?? null,
+                ];
+            })
+            ->values()
+            ->all();
+    }
+
+    /**
      * @param  array<string, mixed>  $payload
      * @return array{verification_status:string,verified_at:mixed,verification_json:array<string,mixed>}
      */
@@ -21,8 +47,8 @@ class StudyConceptSetDraftVerifier
 
         return [
             'verification_status' => $blocked
-                ? StudyDesignVerificationStatus::Blocked->value
-                : StudyDesignVerificationStatus::Verified->value,
+                ? StudyDesignVerificationStatus::BLOCKED->value
+                : StudyDesignVerificationStatus::VERIFIED->value,
             'verified_at' => $blocked ? null : now(),
             'verification_json' => [
                 'checks' => [

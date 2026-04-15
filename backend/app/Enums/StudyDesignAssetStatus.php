@@ -4,8 +4,9 @@ namespace App\Enums;
 
 enum StudyDesignAssetStatus: string
 {
-    case NeedsReview = 'needs_review';
-    case Accepted = 'accepted';
-    case Rejected = 'rejected';
-    case Deferred = 'deferred';
+    case NEEDS_REVIEW = 'needs_review';
+    case ACCEPTED = 'accepted';
+    case REJECTED = 'rejected';
+    case DEFERRED = 'deferred';
+    case MATERIALIZED = 'materialized';
 }
