@@ -51,6 +51,7 @@ class CohortAuthoringArtifactService
                 $this->caprScript($payload),
             ),
             'r_package' => $this->packageArtifact($cohortDefinition, $payload),
+            default => throw new \InvalidArgumentException("Unknown cohort authoring format: {$format}"),
         };
     }
 
@@ -66,6 +67,7 @@ class CohortAuthoringArtifactService
             'atlas_json', 'circe_json' => $this->parseJsonLikeArtifact($artifact),
             'circer_r', 'capr_r' => $this->parseScriptArtifact((string) $artifact),
             'r_package' => $this->parsePackageArtifact($artifact),
+            default => throw new \InvalidArgumentException("Unknown cohort authoring format: {$format}"),
         };
 
         $name = trim((string) ($payload['name'] ?? $parsed['name'] ?? 'Imported cohort'));
