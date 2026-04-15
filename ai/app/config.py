@@ -18,6 +18,11 @@ class Settings(BaseSettings):
     abby_ollama_base_url: str = "http://host.docker.internal:11435"
     abby_ollama_model: str = ""
     abby_ollama_keep_alive: int = 3600
+    phenotype_interpreter_enabled: bool = True
+    phenotype_interpreter_base_url: str = "http://host.docker.internal:11434"
+    phenotype_interpreter_model: str = "MedAIBase/MedGemma1.5:4b"
+    phenotype_interpreter_timeout: int = 120
+    phenotype_interpreter_num_predict: int = 900
 
     # ChromaDB configuration
     chroma_host: str = "chromadb"
@@ -92,6 +97,10 @@ class Settings(BaseSettings):
     @property
     def abby_llm_model(self) -> str:
         return self.abby_ollama_model or self.ollama_model
+
+    @property
+    def phenotype_llm_base_url(self) -> str:
+        return self.phenotype_interpreter_base_url or self.ollama_base_url
 
 
 settings = Settings()
