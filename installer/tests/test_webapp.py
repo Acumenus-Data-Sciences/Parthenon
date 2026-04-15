@@ -80,6 +80,9 @@ def test_install_landing_pages_match_release_bootstrap_regime():
         assert "curl -fsSL https://parthenon.acumenus.net/install.sh | sh" in html
         assert "acropolis-install-linux.tar.gz" in html
         assert "acropolis-install-macos.zip" in html
+        assert "acropolis-install-win.exe" in html
+        assert "parthenon-installer-gui-linux-x86_64.tar.gz" in html
+        assert "Download Rust GUI" in html
         assert "checksums.sha256" in html
         assert "No Enterprise key required" in html
 
