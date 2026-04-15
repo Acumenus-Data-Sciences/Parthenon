@@ -7,6 +7,7 @@ namespace Database\Seeders\Testing;
 use App\Models\App\Source;
 use App\Models\User;
 use Database\Seeders\FinnGenAnalysisModuleSeeder;
+use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 
@@ -32,6 +33,10 @@ class FinnGenTestingSeeder extends Seeder
 {
     public function run(): void
     {
+        // Role→permission matrix must be in place before we sync roles onto users.
+        // Parthenon's production RolePermissionSeeder is idempotent.
+        (new RolePermissionSeeder)->run();
+
         (new FinnGenAnalysisModuleSeeder)->run();
 
         $this->seedSources();

@@ -16,6 +16,7 @@ use App\Models\App\ConceptSet;
 use App\Models\App\EstimationAnalysis;
 use App\Models\App\EtlProject;
 use App\Models\App\EvidenceSynthesisAnalysis;
+use App\Models\App\FinnGen\Run;
 use App\Models\App\HeorAnalysis;
 use App\Models\App\IncidenceRateAnalysis;
 use App\Models\App\IngestionProject;
@@ -50,6 +51,7 @@ use App\Observers\StudySubResourceObserver;
 use App\Policies\Commons\ChannelPolicy;
 use App\Policies\Commons\MessagePolicy;
 use App\Policies\EtlProjectPolicy;
+use App\Policies\FinnGen\RunPolicy as FinnGenRunPolicy;
 use App\Policies\IngestionProjectPolicy;
 use App\Services\AI\AbbyAiService;
 use App\Services\Analysis\CareGapService;
@@ -74,6 +76,7 @@ use App\Services\Cohort\Criteria\CriteriaBuilderRegistry;
 use App\Services\Cohort\Criteria\DemographicCriteriaBuilder;
 use App\Services\Cohort\Schema\CohortExpressionSchema;
 use App\Services\FinnGen\FinnGenArtifactService;
+use App\Services\FinnGen\FinnGenClient;
 use App\Services\FinnGen\FinnGenIdempotencyStore;
 use App\Services\SqlRenderer\SqlRendererService;
 use Illuminate\Console\Events\CommandStarting;
@@ -174,6 +177,12 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(FinnGenIdempotencyStore::class, fn () => new FinnGenIdempotencyStore(
             (int) config('finngen.idempotency_ttl_seconds'),
         ));
+
+        // FinnGenClient has a primitive constructor — use the config-driven factory.
+        $this->app->singleton(
+            FinnGenClient::class,
+            fn () => FinnGenClient::forContainer(),
+        );
     }
 
     /**
@@ -226,6 +235,9 @@ class AppServiceProvider extends ServiceProvider
 
         // Ingestion project policies
         Gate::policy(IngestionProject::class, IngestionProjectPolicy::class);
+
+        // FinnGen run policies
+        Gate::policy(Run::class, FinnGenRunPolicy::class);
 
         // Model observers — activity logging + Solr delta indexing
         CohortDefinition::observe(CohortDefinitionObserver::class);
