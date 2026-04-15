@@ -60,6 +60,7 @@ use App\Http\Controllers\Api\V1\EvidenceSynthesisController;
 use App\Http\Controllers\Api\V1\FhirToCdmController;
 use App\Http\Controllers\Api\V1\FinnGen\AnalysisModuleController;
 use App\Http\Controllers\Api\V1\FinnGen\ArtifactController;
+use App\Http\Controllers\Api\V1\FinnGen\CodeExplorerController;
 use App\Http\Controllers\Api\V1\FinnGen\RunController;
 use App\Http\Controllers\Api\V1\FinnGen\SyncReadController;
 use App\Http\Controllers\Api\V1\GenomicEvidenceController;
@@ -1020,17 +1021,17 @@ Route::prefix('v1')->group(function () {
 
             // Code Explorer (SP2)
             Route::prefix('code-explorer')->group(function () {
-                Route::get('/source-readiness', [\App\Http\Controllers\Api\V1\FinnGen\CodeExplorerController::class, 'sourceReadiness'])
+                Route::get('/source-readiness', [CodeExplorerController::class, 'sourceReadiness'])
                     ->middleware('permission:finngen.code-explorer.view');
-                Route::get('/counts', [\App\Http\Controllers\Api\V1\FinnGen\CodeExplorerController::class, 'counts'])
+                Route::get('/counts', [CodeExplorerController::class, 'counts'])
                     ->middleware(['permission:finngen.code-explorer.view', 'throttle:60,1']);
-                Route::get('/relationships', [\App\Http\Controllers\Api\V1\FinnGen\CodeExplorerController::class, 'relationships'])
+                Route::get('/relationships', [CodeExplorerController::class, 'relationships'])
                     ->middleware(['permission:finngen.code-explorer.view', 'throttle:60,1']);
-                Route::get('/ancestors', [\App\Http\Controllers\Api\V1\FinnGen\CodeExplorerController::class, 'ancestors'])
+                Route::get('/ancestors', [CodeExplorerController::class, 'ancestors'])
                     ->middleware(['permission:finngen.code-explorer.view', 'throttle:60,1']);
-                Route::post('/report', [\App\Http\Controllers\Api\V1\FinnGen\CodeExplorerController::class, 'createReport'])
+                Route::post('/report', [CodeExplorerController::class, 'createReport'])
                     ->middleware(['permission:finngen.code-explorer.view', 'finngen.idempotency', 'throttle:10,1']);
-                Route::post('/initialize-source', [\App\Http\Controllers\Api\V1\FinnGen\CodeExplorerController::class, 'initializeSource'])
+                Route::post('/initialize-source', [CodeExplorerController::class, 'initializeSource'])
                     ->middleware(['permission:finngen.code-explorer.setup', 'finngen.idempotency', 'throttle:10,1']);
             });
         });
