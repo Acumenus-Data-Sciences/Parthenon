@@ -41,6 +41,20 @@ class FinnGenAnalysisModuleSeeder extends Seeder
                 'description' => 'Demographic summary (age histogram, gender counts) for one or more cohorts.',
                 'darkstar_endpoint' => '/finngen/co2/demographics',
             ],
+            [
+                'key' => 'romopapi.report',
+                'label' => 'ROMOPAPI Report',
+                'description' => 'HTML report with concept metadata, stratified counts, relationships, and hierarchy.',
+                'darkstar_endpoint' => '/finngen/romopapi/report',
+                'min_role' => 'researcher',
+            ],
+            [
+                'key' => 'romopapi.setup',
+                'label' => 'ROMOPAPI Source Setup',
+                'description' => 'Materializes stratified_code_counts table for a CDM source. One-time per source.',
+                'darkstar_endpoint' => '/finngen/romopapi/setup',
+                'min_role' => 'admin',
+            ],
         ];
 
         foreach ($modules as $mod) {
