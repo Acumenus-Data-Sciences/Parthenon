@@ -1,0 +1,118 @@
+{
+  "id": "op-sync-from-op",
+  "name": "OP Sync — OpenProject → GitHub + GSD",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "op-sync",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "op-webhook",
+      "name": "OP Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "op-sync"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\n\n// Loop prevention: skip if the change came from svc-n8n-sync or n8n Sync\nconst updatedBy = body._embedded?.user?.name || body._embedded?.updatedBy?.name || '';\nif (updatedBy === 'svc-n8n-sync' || updatedBy === 'n8n Sync') {\n  return [];\n}\n\nconst action = body.action || '';\nconst wp = body._embedded?.work_package || body.work_package || body;\nconst wpId = wp.id || body.id;\nconst subject = wp.subject || body.subject || '';\nconst status = wp._embedded?.status?.name || body.status || '';\nconst description = wp.description?.raw || wp.description || '';\nconst projectId = wp._embedded?.project?.id || body.project_id;\nconst typeTitle = wp._embedded?.type?.name || body.type || '';\nconst parentId = wp._embedded?.parent?.id || body.parent_id || null;\n\nreturn [{\n  json: {\n    action,\n    wpId,\n    subject,\n    status,\n    description,\n    projectId,\n    typeTitle,\n    parentId,\n    updatedBy,\n    rawBody: body\n  }\n}];"
+      },
+      "id": "parse-op-event",
+      "name": "Parse OP Event",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Placeholder: actual sync table lookup wired in n8n UI via DB node\n// This code node passes through for now; replace with Postgres node in production\nconst item = $input.first().json;\n\n// Expected: query app.op_sync_map WHERE op_wp_id = item.wpId\n// Returns: { ghIssueNumber, ghRepo, gsdTaskId, lastSyncedAt }\nconst syncRecord = {\n  ghIssueNumber: null,\n  ghRepo: 'sudoshi/Parthenon',\n  gsdTaskId: null,\n  lastSyncedAt: null,\n  found: false\n};\n\nreturn [{ json: { ...item, syncRecord } }];"
+      },
+      "id": "lookup-sync-table",
+      "name": "Lookup Sync Table",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "is-update",
+              "leftValue": "={{ $json.action }}",
+              "rightValue": "work_package:updated",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "is-update",
+      "name": "Is Update?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst { wpId, subject, status, description, syncRecord } = item;\n\n// Map OP status to GitHub state\nconst statusMap = {\n  'New': 'open',\n  'In Progress': 'open',\n  'In Review': 'open',\n  'Closed': 'closed',\n  'Rejected': 'closed',\n  'Done': 'closed',\n  'On hold': 'open'\n};\nconst ghState = statusMap[status] || 'open';\n\n// Determine GitHub labels from OP status\nconst labelMap = {\n  'In Progress': ['in-progress'],\n  'In Review': ['in-review'],\n  'On hold': ['on-hold'],\n  'Done': ['done']\n};\nconst labels = (labelMap[status] || []).concat(['synced-by:n8n']);\n\nconst action = syncRecord.found ? 'update' : 'create';\n\nreturn [{\n  json: {\n    ...item,\n    github: {\n      action,\n      repo: syncRecord.ghRepo || 'sudoshi/Parthenon',\n      issueNumber: syncRecord.ghIssueNumber,\n      title: subject,\n      body: description ? `${description}\\n\\n---\\n*Synced from OpenProject WP #${wpId}*` : `*Synced from OpenProject WP #${wpId}*`,\n      state: ghState,\n      labels\n    }\n  }\n}];"
+      },
+      "id": "sync-to-github",
+      "name": "Sync to GitHub",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 200]
+    },
+    {
+      "parameters": {},
+      "id": "no-action",
+      "name": "No Action",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1120, 420]
+    }
+  ],
+  "connections": {
+    "OP Webhook": {
+      "main": [
+        [{ "node": "Parse OP Event", "type": "main", "index": 0 }]
+      ]
+    },
+    "Parse OP Event": {
+      "main": [
+        [{ "node": "Lookup Sync Table", "type": "main", "index": 0 }]
+      ]
+    },
+    "Lookup Sync Table": {
+      "main": [
+        [{ "node": "Is Update?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Is Update?": {
+      "main": [
+        [{ "node": "Sync to GitHub", "type": "main", "index": 0 }],
+        [{ "node": "No Action", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/New_York"
+  },
+  "tags": [
+    { "name": "sync" }
+  ]
+}

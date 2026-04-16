@@ -1,0 +1,105 @@
+{
+  "id": "op-sync-from-gh",
+  "name": "OP Sync — GitHub → OpenProject",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gh-sync",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "gh-webhook",
+      "name": "GitHub Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "gh-sync"
+    },
+    {
+      "parameters": {
+        "jsCode": "const headers = $input.first().json.headers || {};\nconst body = $input.first().json.body || $input.first().json;\n\nconst eventType = headers['x-github-event'] || headers['X-GitHub-Event'] || '';\nconst action = body.action || '';\n\n// Loop prevention: skip if opened/labeled and the 'synced-by:n8n' label is present\nif ((action === 'opened' || action === 'labeled') && eventType === 'issues') {\n  const labels = (body.issue?.labels || []).map(l => l.name);\n  if (labels.includes('synced-by:n8n')) {\n    return [];\n  }\n}\n\nconst issue = body.issue || body.pull_request || {};\nconst issueNumber = issue.number || null;\nconst title = issue.title || '';\nconst state = issue.state || 'open';\nconst bodyText = issue.body || '';\nconst labels = (issue.labels || []).map(l => l.name);\nconst milestoneNumber = issue.milestone?.number || null;\nconst merged = body.pull_request?.merged || false;\nconst prUrl = body.pull_request?.html_url || null;\n\nreturn [{\n  json: {\n    eventType,\n    action,\n    issueNumber,\n    title,\n    state,\n    body: bodyText,\n    labels,\n    milestoneNumber,\n    merged,\n    prUrl,\n    rawBody: body\n  }\n}];"
+      },
+      "id": "parse-gh-event",
+      "name": "Parse GitHub Event",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "is-pr",
+              "leftValue": "={{ $json.eventType }}",
+              "rightValue": "pull_request",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "is-pr-event",
+      "name": "Is PR Event?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\n\n// Skip if not merged\nif (!item.merged) {\n  return [];\n}\n\n// Extract linked issue numbers from PR body using common closing keywords\n// Matches: Closes #N, Fixes #N, Resolves #N (case-insensitive)\nconst bodyText = item.body || '';\nconst pattern = /(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\\s*#(\\d+)/gi;\nconst linkedIssues = [];\nlet match;\nwhile ((match = pattern.exec(bodyText)) !== null) {\n  linkedIssues.push(parseInt(match[1], 10));\n}\n\nreturn [{\n  json: {\n    ...item,\n    linkedIssues,\n    opStatusId: 12, // Closed\n    opComment: `Closed via PR merge: ${item.prUrl}`\n  }\n}];"
+      },
+      "id": "handle-pr-merge",
+      "name": "Handle PR Merge",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst { state, labels } = item;\n\n// Map GitHub state + labels to OP status_id\n// OP status IDs: 1=New, 7=In Progress, 12=Closed\nlet opStatusId = 1; // New by default\nif (state === 'closed') {\n  opStatusId = 12; // Closed\n} else if (labels.includes('in-progress') || labels.includes('status:in-progress')) {\n  opStatusId = 7; // In Progress\n}\n\n// Map GitHub labels to OP properties\nconst opUpdate = {\n  statusId: opStatusId,\n  subject: item.title,\n  description: item.body,\n  ghIssueNumber: item.issueNumber,\n  milestoneNumber: item.milestoneNumber\n};\n\nreturn [{ json: { ...item, opUpdate } }];"
+      },
+      "id": "handle-issue",
+      "name": "Handle Issue",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 420]
+    }
+  ],
+  "connections": {
+    "GitHub Webhook": {
+      "main": [
+        [{ "node": "Parse GitHub Event", "type": "main", "index": 0 }]
+      ]
+    },
+    "Parse GitHub Event": {
+      "main": [
+        [{ "node": "Is PR Event?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Is PR Event?": {
+      "main": [
+        [{ "node": "Handle PR Merge", "type": "main", "index": 0 }],
+        [{ "node": "Handle Issue", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/New_York"
+  },
+  "tags": [
+    { "name": "sync" }
+  ]
+}

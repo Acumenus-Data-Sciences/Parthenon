@@ -1,0 +1,60 @@
+{
+  "id": "op-sync-from-push",
+  "name": "OP Sync — Git Push → OpenProject",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gh-push",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "push-webhook",
+      "name": "Push Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "gh-push"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\n\nconst commits = body.commits || [];\nconst ref = body.ref || '';\nconst pusher = body.pusher?.name || body.sender?.login || '';\n\n// Skip commits tagged with [op-sync] to prevent feedback loops\nconst filteredCommits = commits.filter(c => !(c.message || '').includes('[op-sync]'));\n\nif (filteredCommits.length === 0) {\n  return [];\n}\n\n// Collect all files changed across filtered commits\nconst allChangedFiles = new Set();\nfor (const commit of filteredCommits) {\n  for (const f of (commit.added || [])) allChangedFiles.add(f);\n  for (const f of (commit.modified || [])) allChangedFiles.add(f);\n  for (const f of (commit.removed || [])) allChangedFiles.add(f);\n}\n\n// Filter to .planning/ file changes only\nconst planningFiles = [...allChangedFiles].filter(f => f.startsWith('.planning/'));\n\nif (planningFiles.length === 0) {\n  return [];\n}\n\nreturn [{\n  json: {\n    ref,\n    pusher,\n    planningFiles,\n    commits: filteredCommits.map(c => ({\n      id: c.id,\n      message: c.message,\n      timestamp: c.timestamp\n    }))\n  }\n}];"
+      },
+      "id": "filter-planning-changes",
+      "name": "Filter .planning/ Changes",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst { planningFiles, commits, ref, pusher } = item;\n\n// Categorize each .planning/ file change\n// Path patterns:\n//   .planning/ROADMAP.md                                    → roadmap\n//   .planning/STATE.md                                      → state\n//   .planning/phases/{phaseNum}-{slug}/{planNum}-{taskNum}-PLAN.md → plan\n\nconst categorized = planningFiles.map(filePath => {\n  const filename = filePath.split('/').pop() || '';\n\n  if (filename === 'ROADMAP.md') {\n    return { filePath, category: 'roadmap', phaseNum: null, planNum: null, taskNum: null };\n  }\n\n  if (filename === 'STATE.md') {\n    return { filePath, category: 'state', phaseNum: null, planNum: null, taskNum: null };\n  }\n\n  // Match phases/{phaseNum}-{slug}/{planNum}-{taskNum}-PLAN.md\n  const planMatch = filePath.match(/phases\\/(\\d+)-[^/]+\\/(\\d+)-(\\d+)-PLAN\\.md$/);\n  if (planMatch) {\n    return {\n      filePath,\n      category: 'plan',\n      phaseNum: parseInt(planMatch[1], 10),\n      planNum: parseInt(planMatch[2], 10),\n      taskNum: parseInt(planMatch[3], 10)\n    };\n  }\n\n  // Generic .planning/ file\n  return { filePath, category: 'other', phaseNum: null, planNum: null, taskNum: null };\n});\n\nreturn [{\n  json: {\n    ref,\n    pusher,\n    categorized,\n    commits\n  }\n}];"
+      },
+      "id": "categorize-changes",
+      "name": "Categorize Changes",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    }
+  ],
+  "connections": {
+    "Push Webhook": {
+      "main": [
+        [{ "node": "Filter .planning/ Changes", "type": "main", "index": 0 }]
+      ]
+    },
+    "Filter .planning/ Changes": {
+      "main": [
+        [{ "node": "Categorize Changes", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/New_York"
+  },
+  "tags": [
+    { "name": "sync" }
+  ]
+}

@@ -1,0 +1,128 @@
+{
+  "id": "op-sync-reconcile",
+  "name": "OP Sync — 30-Minute Reconciliation",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "*/30 * * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Every 30 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = new Date();\n// Look back 35 minutes to overlap with the 30-min window and catch any stragglers\nconst since = new Date(now.getTime() - 35 * 60 * 1000).toISOString();\n\nreturn [{\n  json: {\n    startedAt: now.toISOString(),\n    reconcileUrl: 'http://host.docker.internal:9878/reconcile',\n    since\n  }\n}];"
+      },
+      "id": "init-reconciliation",
+      "name": "Init Reconciliation",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.reconcileUrl }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ since: $json.since }) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "run-reconciliation",
+      "name": "Run Reconciliation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "has-conflicts",
+              "leftValue": "={{ $json.conflicts }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "any-conflicts",
+      "name": "Any Conflicts?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const result = $input.first().json;\nconst conflicts = result.conflicts || 0;\nconst synced = result.synced || 0;\nconst errors = result.errors || [];\nconst duration = result.duration_ms || 0;\n\nconst summary = [\n  `Reconciliation conflicts: ${conflicts}`,\n  `Items synced: ${synced}`,\n  `Duration: ${duration}ms`,\n  errors.length > 0 ? `Errors (${errors.length}): ${errors.slice(0, 3).join('; ')}` : null\n].filter(Boolean).join(' | ');\n\nreturn [{ json: { summary, conflicts, synced, errors, duration } }];"
+      },
+      "id": "log-conflicts",
+      "name": "Log Conflicts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 200]
+    },
+    {
+      "parameters": {},
+      "id": "all-clean",
+      "name": "All Clean",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1120, 420]
+    }
+  ],
+  "connections": {
+    "Every 30 Minutes": {
+      "main": [
+        [{ "node": "Init Reconciliation", "type": "main", "index": 0 }]
+      ]
+    },
+    "Init Reconciliation": {
+      "main": [
+        [{ "node": "Run Reconciliation", "type": "main", "index": 0 }]
+      ]
+    },
+    "Run Reconciliation": {
+      "main": [
+        [{ "node": "Any Conflicts?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Any Conflicts?": {
+      "main": [
+        [{ "node": "Log Conflicts", "type": "main", "index": 0 }],
+        [{ "node": "All Clean", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/New_York"
+  },
+  "tags": [
+    { "name": "sync" }
+  ]
+}
