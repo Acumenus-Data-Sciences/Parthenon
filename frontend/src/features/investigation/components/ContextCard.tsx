@@ -15,6 +15,7 @@ const DOMAIN_ACCENT: Record<EvidenceDomain, string> = {
   clinical: "border-red-700",
   genomic: "border-yellow-600",
   synthesis: "border-border-hover",
+  "code-explorer": "border-info",
 };
 
 /** Extract a leading integer from a summary string, e.g. "3 concept sets" → [3, "concept sets"]. */

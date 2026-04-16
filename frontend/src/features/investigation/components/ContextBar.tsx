@@ -112,6 +112,7 @@ const DOMAIN_LABELS: Record<EvidenceDomain, string> = {
   clinical: "Clinical",
   genomic: "Genomic",
   synthesis: "Synthesis",
+  "code-explorer": "Code Explorer",
 };
 
 interface KpiMetric {
@@ -142,6 +143,7 @@ export function ContextBar({ investigation }: ContextBarProps) {
     clinical: getClinicalSummary(investigation.clinical_state),
     genomic: getGenomicSummary(investigation.genomic_state),
     synthesis: getSynthesisSummary(investigation),
+    "code-explorer": "—",
   };
 
   const kpiMetrics: KpiMetric[] = [

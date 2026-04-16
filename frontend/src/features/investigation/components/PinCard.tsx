@@ -12,6 +12,7 @@ const DOMAIN_BADGE_STYLE: Record<EvidenceDomain, string> = {
   clinical: "bg-red-950 text-red-400",
   genomic: "bg-yellow-950 text-accent",
   synthesis: "bg-surface-raised text-text-secondary",
+  "code-explorer": "bg-info/10 text-info",
 };
 
 function extractPayloadSummary(payload: Record<string, unknown>): string {
