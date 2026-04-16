@@ -12,6 +12,7 @@ import { MatchingResults } from "../components/MatchingResults";
 import { MaterializeStep } from "../components/MaterializeStep";
 import { ImportCohortsStep } from "../components/ImportCohortsStep";
 import { AutosaveBadge } from "../components/AutosaveBadge";
+import { RecentRunsPanel } from "../components/RecentRunsPanel";
 import {
   WorkbenchStepper,
   WORKBENCH_STEPS,
@@ -37,6 +38,18 @@ export default function WorkbenchPage() {
 
   const [matchRunId, setMatchRunId] = useState<string | null>(null);
   const matchMutation = useMatchCohort();
+
+  // Persisted list of run ids dispatched from this session (Phase polish #4
+  // — run history). Appended in chronological order; cap applied at render.
+  const recentRunIds: string[] = Array.isArray(sessionState.recent_run_ids)
+    ? (sessionState.recent_run_ids as string[])
+    : [];
+  const pushRecentRunId = (runId: string) => {
+    if (recentRunIds.includes(runId)) return;
+    useWorkbenchStore.getState().patchState({
+      recent_run_ids: [...recentRunIds, runId].slice(-50), // hard cap on persisted list
+    });
+  };
 
   // Hydrate the store from the loaded session once.
   useEffect(() => {
@@ -150,7 +163,10 @@ export default function WorkbenchPage() {
               loading={matchMutation.isPending}
               onSubmit={(payload) => {
                 matchMutation.mutate(payload, {
-                  onSuccess: (run) => setMatchRunId(run.id),
+                  onSuccess: (run) => {
+                    setMatchRunId(run.id);
+                    pushRecentRunId(run.id);
+                  },
                 });
               }}
             />
@@ -178,6 +194,7 @@ export default function WorkbenchPage() {
                 materialize_run_id: runId,
                 materialized_cohort_id: cohortDefinitionId,
               });
+              pushRecentRunId(runId);
             }}
           />
         )}
@@ -191,6 +208,22 @@ export default function WorkbenchPage() {
                 : null
             }
             navigate={navigate}
+          />
+        )}
+
+        {/* Polish — run history persisted in session_state */}
+        {recentRunIds.length > 0 && (
+          <RecentRunsPanel
+            runIds={recentRunIds}
+            activeRunId={matchRunId}
+            onSelect={(runId, analysisType) => {
+              if (analysisType === "cohort.match") {
+                setMatchRunId(runId);
+                goToStep("match");
+              } else if (analysisType === "cohort.materialize") {
+                goToStep("materialize");
+              }
+            }}
           />
         )}
       </main>
