@@ -44,45 +44,132 @@ finngen_cohort_generate_execute <- function(source_envelope, run_id, export_fold
 }
 
 finngen_cohort_match_execute <- function(source_envelope, run_id, export_folder, params) {
+  # Bespoke SQL matcher — same strategy that SP3 used (option C2) after we
+  # established that HadesExtras' matcher requires a handler-registered
+  # cohortDefinitionSet we can't cheaply populate. Greedy with-replacement:
+  # each primary case gets up to `match_ratio` comparators, ranked by
+  # |birth_year_diff| with a random tie-break. Sex + birth-year predicates
+  # are applied as JOIN filters when the matching flags are on.
   dir.create(export_folder, recursive = TRUE, showWarnings = FALSE)
   progress_path <- file.path(export_folder, "progress.json")
 
   run_with_classification(export_folder, function() {
-    write_progress(progress_path, list(step = "build_handler", pct = 5))
-    handler <- build_cohort_table_handler(source_envelope)
-    on.exit(tryCatch(handler$closeConnection(), error = function(e) NULL), add = TRUE)
-
     primary_id      <- as.integer(params$primary_cohort_id)
     comparator_ids  <- as.integer(params$comparator_cohort_ids)
-    match_ratio     <- params$ratio %||% 1L
+    match_ratio     <- as.integer(params$ratio %||% 1L)
+    match_sex       <- isTRUE(params$match_sex %||% TRUE)
+    match_by        <- isTRUE(params$match_birth_year %||% TRUE)
+    max_year_diff   <- as.integer(params$max_year_difference %||% 1L)
 
-    # SP4 Polish 5 — capture pre-match cohort sizes for the attrition
-    # waterfall BEFORE running the matcher.
+    if (!match_sex && !match_by) stop("cohort.match requires at least one of match_sex or match_birth_year")
+
+    write_progress(progress_path, list(step = "build_connection", pct = 5))
+    connection <- .finngen_open_connection(source_envelope)
+    on.exit(tryCatch(DatabaseConnector::disconnect(connection), error = function(e) NULL), add = TRUE)
+
+    cohort_schema <- source_envelope$schemas$cohort
+    cdm_schema    <- source_envelope$schemas$cdm
+    if (!grepl("^[a-z][a-z0-9_]*$", cohort_schema)) stop(sprintf("cohort.match: unsafe cohort_schema %s", cohort_schema))
+    if (!grepl("^[a-z][a-z0-9_]*$", cdm_schema))    stop(sprintf("cohort.match: unsafe cdm_schema %s", cdm_schema))
+
     write_progress(progress_path, list(step = "capture_pre_match_sizes", pct = 15))
     pre_counts <- .finngen_match_cohort_sizes(source_envelope, c(primary_id, comparator_ids))
 
-    write_progress(progress_path, list(step = "build_matching_operator", pct = 30))
-    matched <- HadesExtras::CohortGenerator_MatchingSubsetOperator(
-      targetCohortId      = primary_id,
-      comparatorCohortIds = comparator_ids,
-      ratio               = match_ratio,
-      matchSex            = params$match_sex %||% TRUE,
-      matchBirthYear      = params$match_birth_year %||% TRUE,
-      maxYearDifference   = params$max_year_difference %||% 1L
+    # Allocate a fresh cohort_definition_id for the matched output. We go
+    # high (9e6 + primary_id) to avoid collisions with user cohorts; in a
+    # future iteration we'd hand these back through Laravel so they become
+    # first-class cohort_definitions with names.
+    matched_cohort_id <- 9000000L + primary_id
+
+    write_progress(progress_path, list(
+      step = "clear_existing_matched", pct = 25,
+      message = sprintf("Clearing prior matched rows for cohort_definition_id=%d", matched_cohort_id)
+    ))
+    DatabaseConnector::executeSql(
+      connection,
+      sprintf("DELETE FROM %s.cohort WHERE cohort_definition_id = %d",
+              cohort_schema, matched_cohort_id)
     )
 
-    write_progress(progress_path, list(step = "generateCohortSet", pct = 60, message = "Materializing matched cohort"))
-    handler$generateCohortSet(cohortDefinitionSet = list(matched))
+    # Build match predicates. Comparing year_of_birth directly is the Shiny
+    # default (maxYearDifference=1 means within 1 calendar year); gender
+    # uses gender_concept_id exact-match.
+    sex_pred       <- if (match_sex) "pp.gender_concept_id = cp.gender_concept_id"                 else "1=1"
+    birth_pred     <- if (match_by)  sprintf("ABS(pp.year_of_birth - cp.year_of_birth) <= %d", max_year_diff) else "1=1"
+    tiebreak_order <- if (match_by)  "ABS(pp.year_of_birth - cp.year_of_birth), RANDOM()"          else "RANDOM()"
+
+    comparator_id_list <- paste(comparator_ids, collapse = ",")
+
+    write_progress(progress_path, list(step = "insert_matched", pct = 55, message = "Running greedy match"))
+    insert_sql <- sprintf(
+      "WITH primary_subjects AS (
+         SELECT DISTINCT c.subject_id, p.year_of_birth, p.gender_concept_id,
+                MIN(c.cohort_start_date) AS cohort_start_date,
+                MAX(c.cohort_end_date)   AS cohort_end_date
+         FROM %1$s.cohort c
+         JOIN %2$s.person p ON p.person_id = c.subject_id
+         WHERE c.cohort_definition_id = %3$d
+         GROUP BY c.subject_id, p.year_of_birth, p.gender_concept_id
+       ),
+       comparator_pool AS (
+         SELECT DISTINCT c.subject_id, p.year_of_birth, p.gender_concept_id,
+                MIN(c.cohort_start_date) AS cohort_start_date,
+                MAX(c.cohort_end_date)   AS cohort_end_date
+         FROM %1$s.cohort c
+         JOIN %2$s.person p ON p.person_id = c.subject_id
+         WHERE c.cohort_definition_id IN (%4$s)
+           AND c.subject_id NOT IN (SELECT subject_id FROM primary_subjects)
+         GROUP BY c.subject_id, p.year_of_birth, p.gender_concept_id
+       ),
+       ranked AS (
+         SELECT cp.subject_id, cp.cohort_start_date, cp.cohort_end_date,
+                ROW_NUMBER() OVER (
+                  PARTITION BY pp.subject_id
+                  ORDER BY %5$s
+                ) AS rnk
+         FROM primary_subjects pp
+         JOIN comparator_pool  cp
+           ON %6$s AND %7$s
+       ),
+       matched_controls AS (
+         SELECT DISTINCT subject_id, cohort_start_date, cohort_end_date
+         FROM ranked WHERE rnk <= %8$d
+       )
+       INSERT INTO %1$s.cohort (cohort_definition_id, subject_id, cohort_start_date, cohort_end_date)
+       SELECT %9$d, subject_id, cohort_start_date, cohort_end_date FROM primary_subjects
+       UNION ALL
+       SELECT %9$d, subject_id, cohort_start_date, cohort_end_date FROM matched_controls",
+      cohort_schema,   cdm_schema,       # %1 %2
+      primary_id,      comparator_id_list, # %3 %4
+      tiebreak_order,  sex_pred, birth_pred, # %5 %6 %7
+      match_ratio,     matched_cohort_id  # %8 %9
+    )
+    DatabaseConnector::executeSql(connection, insert_sql)
 
     write_progress(progress_path, list(step = "getCohortCounts", pct = 75))
-    counts <- handler$getCohortCounts()
+    count_sql <- sprintf(
+      "SELECT %d AS cohort_id, 'Matched from #%d' AS cohort_name,
+              COUNT(*) AS cohort_entries, COUNT(DISTINCT subject_id) AS cohort_subjects
+       FROM %s.cohort WHERE cohort_definition_id = %d
+       GROUP BY 1, 2",
+      matched_cohort_id, primary_id, cohort_schema, matched_cohort_id
+    )
+    counts_df <- DatabaseConnector::querySql(connection, count_sql)
+    names(counts_df) <- tolower(names(counts_df))
+    counts <- lapply(seq_len(nrow(counts_df)), function(i) {
+      list(
+        cohortId       = as.integer(counts_df$cohort_id[i]),
+        cohortName     = as.character(counts_df$cohort_name[i]),
+        cohortEntries  = as.integer(counts_df$cohort_entries[i]),
+        cohortSubjects = as.integer(counts_df$cohort_subjects[i])
+      )
+    })
 
     # SP4 Polish 5 — waterfall + SMD diagnostics. Failures are non-fatal; the
     # primary match run has already succeeded by this point.
     write_progress(progress_path, list(step = "compute_diagnostics", pct = 88))
     post_ids <- tryCatch({
-      ids <- counts$cohortId
-      if (!is.null(ids)) as.integer(ids[!is.na(ids)]) else integer(0)
+      as.integer(vapply(counts, function(x) x$cohortId %||% NA_integer_, integer(1)))
     }, error = function(e) integer(0))
 
     waterfall <- tryCatch(
@@ -152,15 +239,14 @@ finngen_cohort_match_execute <- function(source_envelope, run_id, export_folder,
       cohort_id = as.integer(cid)
     )
   }
-  # Matched-output rows from the HadesExtras counts tibble (one row per
-  # emitted matched cohort — typically one per comparator plus the primary).
-  if (!is.null(counts) && nrow(counts) > 0) {
-    for (i in seq_len(nrow(counts))) {
+  # Matched-output rows. Bespoke matcher emits counts as list-of-lists.
+  if (is.list(counts) && length(counts) > 0) {
+    for (row in counts) {
       waterfall[[length(waterfall) + 1]] <- list(
         step = "matched_output",
-        label = sprintf("Matched: %s", counts$cohortName[i] %||% counts$cohort_name[i] %||% "?"),
-        count = as.integer(counts$cohortSubjects[i] %||% counts$cohort_subjects[i] %||% NA_integer_),
-        cohort_id = as.integer(counts$cohortId[i] %||% counts$cohort_id[i] %||% NA_integer_),
+        label = sprintf("Matched: %s", row$cohortName %||% "?"),
+        count = as.integer(row$cohortSubjects %||% NA_integer_),
+        cohort_id = as.integer(row$cohortId %||% NA_integer_),
         ratio = as.integer(ratio)
       )
     }
