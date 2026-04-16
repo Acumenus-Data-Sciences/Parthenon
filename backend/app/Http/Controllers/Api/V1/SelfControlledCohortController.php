@@ -42,26 +42,24 @@ class SelfControlledCohortController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        $validated = $request->validate([
+        $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'design_json' => ['required', 'array'],
-            'design_json.target_cohort_id' => ['nullable', 'integer'],
-            'design_json.comparator_cohort_id' => ['nullable', 'integer'],
-            'design_json.outcome_cohort_id' => ['nullable', 'integer'],
-            'design_json.time_windows' => ['nullable', 'array'],
+            'design_json.exposureCohortId' => ['required', 'integer'],
+            'design_json.outcomeCohortId' => ['required', 'integer'],
         ]);
 
         $analysis = SelfControlledCohortAnalysis::create([
-            'name' => $validated['name'],
-            'description' => $validated['description'] ?? null,
-            'design_json' => $validated['design_json'],
+            'name' => $request->input('name'),
+            'description' => $request->input('description'),
+            'design_json' => $request->input('design_json'),
             'author_id' => $request->user()->id,
         ]);
 
         return response()->json([
             'data' => $analysis->load('author:id,name,email'),
-            'message' => 'Self-controlled cohort analysis created.',
+            'message' => 'Self-Controlled Cohort analysis created.',
         ], 201);
     }
 

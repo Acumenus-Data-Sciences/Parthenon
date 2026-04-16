@@ -180,7 +180,24 @@ class PhenotypeValidationController extends Controller
             'review_state' => ['required', 'string', 'max:40'],
         ]);
 
-        $record->update(['review_state' => $validated['review_state']]);
+        $newState = $validated['review_state'];
+
+        if ($newState === 'completed') {
+            $unlabeled = $record->adjudications()->whereNull('label')->count();
+            if ($unlabeled > 0) {
+                throw ValidationException::withMessages([
+                    'review_state' => "Cannot complete review: {$unlabeled} adjudication(s) still need a label.",
+                ]);
+            }
+        }
+
+        $settings = is_array($record->settings_json) ? $record->settings_json : [];
+        $settings['review_state'] = $newState;
+
+        $record->update([
+            'review_state' => $newState,
+            'settings_json' => $settings,
+        ]);
 
         return response()->json(['data' => $record->fresh()]);
     }
@@ -219,7 +236,16 @@ class PhenotypeValidationController extends Controller
 
     public function updateAdjudication(Request $request, CohortDefinition $cohortDefinition, int $validation, int $adjudication): JsonResponse
     {
-        $record = $this->adjudicationForValidation($cohortDefinition, $validation, $adjudication);
+        $validationRecord = $this->validationForCohort($cohortDefinition, $validation);
+        $settings = is_array($validationRecord->settings_json) ? $validationRecord->settings_json : [];
+        $currentReviewState = $settings['review_state'] ?? $validationRecord->review_state;
+        if (in_array($currentReviewState, ['locked', 'completed'], true)) {
+            throw ValidationException::withMessages([
+                'review_state' => "Adjudications cannot be modified when review_state is '{$currentReviewState}'.",
+            ]);
+        }
+
+        $record = $validationRecord->adjudications()->findOrFail($adjudication);
         $validated = $request->validate([
             'label' => ['nullable', 'string', 'max:40'],
             'notes' => ['nullable', 'string', 'max:2000'],
@@ -267,7 +293,7 @@ class PhenotypeValidationController extends Controller
         $record->update([
             'counts_json' => $counts,
             'metrics_json' => $this->metricsFromCounts($counts),
-            'status' => 'computed',
+            'status' => ExecutionStatus::Completed,
             'computed_at' => now(),
         ]);
 

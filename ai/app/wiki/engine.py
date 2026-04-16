@@ -802,9 +802,23 @@ class WikiEngine:
         normalized_links = sorted({link for link in links if link})
         source_metadata = metadata or self._normalize_source_metadata()
 
-        # Preserve ingested_at from existing entry; set on first ingest
-        existing_entries = {e.slug: e for e in read_index(workspace_dir)}
+        # Preserve ingested_at from existing entry; set on first ingest.
+        # Primary match: exact slug. Fallback: same (page_type, title, source_slug),
+        # which covers slug-resolution drift (e.g., fingerprinted collisions) on re-ingest.
+        existing_list = read_index(workspace_dir)
+        existing_entries = {e.slug: e for e in existing_list}
         existing = existing_entries.get(slug)
+        if existing is None:
+            existing = next(
+                (
+                    e
+                    for e in existing_list
+                    if e.page_type == page_type
+                    and e.title == title
+                    and (e.source_slug or "") == (source_slug or "")
+                ),
+                None,
+            )
         ingested_at = existing.ingested_at if existing and existing.ingested_at else updated_at
 
         frontmatter = build_frontmatter(

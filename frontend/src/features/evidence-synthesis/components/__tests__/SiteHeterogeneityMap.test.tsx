@@ -26,22 +26,22 @@ describe("SiteHeterogeneityMap", () => {
     expect(container.innerHTML).toBe("");
   });
 
-  it("applies teal color for protective (HR<1, CI excludes 1)", () => {
+  it("applies success color for protective (HR<1, CI excludes 1)", () => {
     render(<SiteHeterogeneityMap sites={mockSites} pooledHr={0.85} />);
     const siteA = screen.getByLabelText("Site A");
-    expect(siteA).toHaveAttribute("fill", "#2DD4BF");
+    expect(siteA).toHaveAttribute("fill", "var(--success)");
   });
 
-  it("applies gray color when CI spans null", () => {
+  it("applies muted color when CI spans null", () => {
     render(<SiteHeterogeneityMap sites={mockSites} pooledHr={0.85} />);
     const siteB = screen.getByLabelText("Site B");
-    expect(siteB).toHaveAttribute("fill", "#8A857D");
+    expect(siteB).toHaveAttribute("fill", "var(--text-muted)");
   });
 
-  it("applies red color for harmful (HR>1, CI excludes 1)", () => {
+  it("applies critical color for harmful (HR>1, CI excludes 1)", () => {
     render(<SiteHeterogeneityMap sites={mockSites} pooledHr={0.85} />);
     const siteC = screen.getByLabelText("Site C");
-    expect(siteC).toHaveAttribute("fill", "#E85A6B");
+    expect(siteC).toHaveAttribute("fill", "var(--critical)");
   });
 
   it("shows tooltip on hover", () => {

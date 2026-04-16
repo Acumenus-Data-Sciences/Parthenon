@@ -67,8 +67,8 @@ export function DemographicsResults({ display }: DemographicsResultsProps) {
       {/* Summary cards */}
       <div className="grid grid-cols-4 gap-3">
         <SummaryCard icon={Users} label="Total N" value={cohort.n.toLocaleString()} />
-        <SummaryCard icon={BarChart3} label="Mean Age" value={cohort.summary.mean_age?.toFixed(1) ?? "--"} />
-        <SummaryCard icon={BarChart3} label="Median Age" value={String(cohort.summary.median_age ?? "--")} />
+        <SummaryCard icon={BarChart3} label="Mean Age" value={typeof cohort.summary.mean_age === "number" ? cohort.summary.mean_age.toFixed(1) : "--"} />
+        <SummaryCard icon={BarChart3} label="Median Age" value={typeof cohort.summary.median_age === "number" ? cohort.summary.median_age.toFixed(1) : "--"} />
         <SummaryCard
           icon={Users}
           label="Gender (M/F/U)"

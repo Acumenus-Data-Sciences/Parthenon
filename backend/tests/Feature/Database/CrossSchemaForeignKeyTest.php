@@ -15,6 +15,12 @@ beforeEach(function (): void {
         'password' => '',
         'search_path' => 'omop,vocab,app,public',
     ]]);
+
+    try {
+        DB::connection('local_parthenon')->getPdo();
+    } catch (Throwable $e) {
+        test()->markTestSkipped('Local parthenon database not reachable (CI environment).');
+    }
 });
 
 function localDb(): ConnectionInterface
