@@ -13,6 +13,9 @@ import { useFinnGenRun } from "@/features/_finngen-foundation";
 import { useAnalysisModule } from "../hooks/useAnalysisModules";
 import { useModuleRuns, useRunDisplay } from "../hooks/useModuleRuns";
 import { RunProgressBar } from "../components/RunProgressBar";
+import { SettingsForm } from "../components/SettingsForm";
+import { ResultViewerSwitch } from "../components/results/ResultViewerSwitch";
+import type { CO2ModuleKey } from "../types";
 
 interface AnalysisDetailPageProps {
   moduleKey: string;
@@ -77,9 +80,6 @@ export function AnalysisDetailPage({ moduleKey, sourceKey, onBack }: AnalysisDet
     [createRun, moduleKey, sourceKey, idempotencyKey, queryClient],
   );
 
-  // Suppress unused variable warning — handleSubmit will be wired to SettingsForm in Part E
-  void handleSubmit;
-
   if (moduleLoading || !module) {
     return (
       <div className="flex items-center justify-center py-16">
@@ -111,10 +111,19 @@ export function AnalysisDetailPage({ moduleKey, sourceKey, onBack }: AnalysisDet
       <div className="flex gap-6">
         {/* Settings sidebar */}
         <div className="w-80 shrink-0 space-y-6">
-          {/* TODO: SettingsForm — wired in Part E */}
-          <div className="rounded-lg border border-border-default bg-surface-raised p-4">
-            <p className="text-sm text-slate-400">Settings form (Part E)</p>
-          </div>
+          {module.settings_schema ? (
+            <SettingsForm
+              moduleKey={moduleKey as CO2ModuleKey}
+              schema={module.settings_schema}
+              defaultValues={module.default_settings ?? {}}
+              onSubmit={handleSubmit}
+              isPending={createRun.isPending}
+            />
+          ) : (
+            <div className="rounded-lg border border-border-default bg-surface-raised p-4">
+              <p className="text-xs text-text-ghost">No settings schema available for this module.</p>
+            </div>
+          )}
 
           {/* Recent runs */}
           {recentRuns.length > 0 && (
@@ -173,13 +182,10 @@ export function AnalysisDetailPage({ moduleKey, sourceKey, onBack }: AnalysisDet
           )}
 
           {showRun?.status === "succeeded" && displayData && (
-            // TODO: ResultViewerSwitch — wired in Part F
-            <div className="rounded-lg border border-border-default bg-surface-raised p-4">
-              <p className="text-sm text-slate-400">Result viewer (Part F)</p>
-              <pre className="mt-2 text-xs text-text-ghost overflow-auto max-h-64">
-                {JSON.stringify(displayData, null, 2)}
-              </pre>
-            </div>
+            <ResultViewerSwitch
+              moduleKey={moduleKey as CO2ModuleKey}
+              display={displayData}
+            />
           )}
 
           {showRun?.status === "succeeded" && !displayData && (
