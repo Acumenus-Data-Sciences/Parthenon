@@ -424,3 +424,84 @@ it('POST /workbench/materialize requires name', function () {
         ->assertStatus(422)
         ->assertJsonValidationErrors(['name']);
 });
+
+// ── SP4 Phase E — Atlas import ──────────────────────────────────────────────
+
+it('GET /workbench/atlas/cohorts denies viewer', function () {
+    Http::fake();
+    $this->actingAs($this->viewer)
+        ->getJson('/api/v1/finngen/workbench/atlas/cohorts')
+        ->assertStatus(403);
+});
+
+it('GET /workbench/atlas/cohorts returns 503 when no active registry', function () {
+    Http::fake();
+    \App\Models\App\WebApiRegistry::query()->update(['is_active' => false]);
+    $this->actingAs($this->researcher)
+        ->getJson('/api/v1/finngen/workbench/atlas/cohorts')
+        ->assertStatus(503)
+        ->assertJsonPath('message', fn ($msg) => is_string($msg) && str_contains($msg, 'No active WebAPI registry'));
+});
+
+it('GET /workbench/atlas/cohorts lists cohorts from active registry', function () {
+    $registry = \App\Models\App\WebApiRegistry::create([
+        'name' => 'Atlas Test',
+        'base_url' => 'https://atlas.test.example.com/WebAPI',
+        'auth_type' => 'none',
+        'is_active' => true,
+        'created_by' => $this->researcher->id,
+    ]);
+
+    Http::fake([
+        '*/source/sources' => Http::response([], 200),
+        '*/conceptset/' => Http::response([], 200),
+        '*/cohortdefinition' => Http::response([
+            ['id' => 101, 'name' => 'Atlas HF cohort', 'description' => 'Heart failure'],
+            ['id' => 102, 'name' => 'Atlas T2D cohort', 'description' => null],
+        ], 200),
+        '*' => Http::response([], 200),
+    ]);
+
+    $resp = $this->actingAs($this->researcher)
+        ->getJson('/api/v1/finngen/workbench/atlas/cohorts')
+        ->assertStatus(200);
+
+    $resp->assertJsonPath('data.registry.id', $registry->id);
+    $resp->assertJsonPath('data.registry.name', 'Atlas Test');
+    $resp->assertJsonPath('data.cohort_count', 2);
+});
+
+it('POST /workbench/atlas/import denies viewer', function () {
+    Http::fake();
+    $this->actingAs($this->viewer)
+        ->postJson('/api/v1/finngen/workbench/atlas/import', ['atlas_ids' => [1]])
+        ->assertStatus(403);
+});
+
+it('POST /workbench/atlas/import validates atlas_ids', function () {
+    Http::fake();
+    $this->actingAs($this->researcher)
+        ->postJson('/api/v1/finngen/workbench/atlas/import', [])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['atlas_ids']);
+});
+
+it('POST /workbench/atlas/import rejects > 50 ids', function () {
+    Http::fake();
+    $this->actingAs($this->researcher)
+        ->postJson('/api/v1/finngen/workbench/atlas/import', [
+            'atlas_ids' => range(1, 51),
+        ])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['atlas_ids']);
+});
+
+it('POST /workbench/atlas/import returns 503 when no active registry', function () {
+    Http::fake();
+    \App\Models\App\WebApiRegistry::query()->update(['is_active' => false]);
+    $this->actingAs($this->researcher)
+        ->postJson('/api/v1/finngen/workbench/atlas/import', [
+            'atlas_ids' => [101, 102],
+        ])
+        ->assertStatus(503);
+});

@@ -1,11 +1,12 @@
 // frontend/src/features/finngen-workbench/components/ImportCohortsStep.tsx
 //
-// Step 2 of the Workbench wizard. Lets the researcher browse
-// app.cohort_definitions, multi-select cohorts, and push them into the
-// operation tree as a top-level UNION (or a single leaf when only one is
-// selected). Replaces the Phase F placeholder.
+// Step 2 of the Workbench wizard. Two tabs:
+//   - Parthenon: browse app.cohort_definitions, multi-select, push to tree.
+//   - Atlas:     list cohorts from the active WebAPI registry, import to
+//                app.cohort_definitions (SP4 Phase E). Imports become
+//                visible in the Parthenon tab immediately.
 import { useMemo, useState } from "react";
-import { Loader2, Search, Check, Plus, ArrowRight } from "lucide-react";
+import { Loader2, Search, Check, Plus, ArrowRight, Database, Globe2 } from "lucide-react";
 import { useCohortBrowse, useCohortById, type CohortSummary } from "../hooks/useCohortSearch";
 import {
   listCohortIds,
@@ -13,6 +14,7 @@ import {
   makeOp,
   type OperationNode,
 } from "../lib/operationTree";
+import { AtlasImportTab } from "./AtlasImportTab";
 
 interface ImportCohortsStepProps {
   tree: OperationNode | null;
@@ -21,8 +23,10 @@ interface ImportCohortsStepProps {
 }
 
 const DEBOUNCE_MS = 250;
+type ImportTab = "parthenon" | "atlas";
 
 export function ImportCohortsStep({ tree, onImport, onAdvance }: ImportCohortsStepProps) {
+  const [activeTab, setActiveTab] = useState<ImportTab>("parthenon");
   const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
   const [selected, setSelected] = useState<number[]>([]);
@@ -63,14 +67,52 @@ export function ImportCohortsStep({ tree, onImport, onAdvance }: ImportCohortsSt
   return (
     <div className="space-y-3">
       <div className="rounded-lg border border-border-default bg-surface-raised p-4 space-y-3">
-        <header className="space-y-1">
+        <header className="space-y-2">
           <h2 className="text-sm font-semibold text-text-primary">Import cohorts</h2>
           <p className="text-xs text-text-ghost">
-            Browse Parthenon cohort definitions and push them into the operation tree.
-            Pick one to start, or a few to compose a UNION that you can refine in the Operate step.
+            Pull cohorts from Parthenon directly, or import them from an
+            OHDSI Atlas instance via the active WebAPI registry.
           </p>
+          <div className="flex gap-1 border-b border-border-default pb-px -mb-1">
+            <TabButton
+              active={activeTab === "parthenon"}
+              onClick={() => setActiveTab("parthenon")}
+              icon={<Database size={12} />}
+              label="Parthenon"
+            />
+            <TabButton
+              active={activeTab === "atlas"}
+              onClick={() => setActiveTab("atlas")}
+              icon={<Globe2 size={12} />}
+              label="Atlas"
+            />
+          </div>
         </header>
 
+        {activeTab === "atlas" && (
+          <AtlasImportTab
+            onImportedCohorts={(ids) => {
+              // After Atlas imports land, optionally push them straight into the
+              // tree as a UNION so the researcher doesn't need to switch tabs
+              // + re-select. Uses the same append/replace heuristic as the
+              // Parthenon tab's Add-to-tree.
+              if (ids.length === 0) return;
+              const cohortNodes = ids.map((id) => makeCohort(id));
+              let next: OperationNode;
+              if (tree === null) {
+                next = cohortNodes.length === 1 ? cohortNodes[0] : makeOp("UNION", cohortNodes);
+              } else if (tree.kind === "op") {
+                next = { ...tree, children: [...tree.children, ...cohortNodes] };
+              } else {
+                next = makeOp("UNION", [tree, ...cohortNodes]);
+              }
+              onImport(next);
+            }}
+          />
+        )}
+
+        {activeTab === "parthenon" && (
+        <>
         <div className="relative">
           <Search size={12} className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-text-ghost" />
           <input
@@ -153,6 +195,8 @@ export function ImportCohortsStep({ tree, onImport, onAdvance }: ImportCohortsSt
             </button>
           </div>
         </div>
+        </>
+        )}
       </div>
 
       {tree !== null && (
@@ -227,6 +271,34 @@ function CohortRow({
           )}
       </button>
     </li>
+  );
+}
+
+function TabButton({
+  active,
+  onClick,
+  icon,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={[
+        "flex items-center gap-1.5 rounded-t border-b-2 px-3 py-1 text-xs font-medium transition-colors",
+        active
+          ? "border-success text-success"
+          : "border-transparent text-text-ghost hover:text-text-secondary",
+      ].join(" ")}
+    >
+      {icon}
+      <span>{label}</span>
+    </button>
   );
 }
 

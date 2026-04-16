@@ -1061,6 +1061,12 @@ Route::prefix('v1')->group(function () {
                 // SP4 Polish 2 — materialize tree → new cohort_definition + cohort rows
                 Route::post('/materialize', [WorkbenchSessionController::class, 'materializeCohort'])
                     ->middleware(['permission:finngen.workbench.use', 'finngen.idempotency', 'throttle:10,1']);
+                // SP4 Phase E — Atlas import (reuses admin AtlasDiscoveryService +
+                // AtlasCohortImportService via the active WebApiRegistry row).
+                Route::get('/atlas/cohorts', [WorkbenchSessionController::class, 'listAtlasCohorts'])
+                    ->middleware(['permission:finngen.workbench.use', 'throttle:30,1']);
+                Route::post('/atlas/import', [WorkbenchSessionController::class, 'importAtlasCohorts'])
+                    ->middleware(['permission:finngen.workbench.use', 'finngen.idempotency', 'throttle:10,1']);
             });
         });
 

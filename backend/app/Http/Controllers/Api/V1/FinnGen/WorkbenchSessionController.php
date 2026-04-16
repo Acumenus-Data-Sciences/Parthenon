@@ -12,6 +12,7 @@ use App\Http\Requests\FinnGen\PreviewWorkbenchCountsRequest;
 use App\Http\Requests\FinnGen\UpdateWorkbenchSessionRequest;
 use App\Jobs\FinnGen\RunFinnGenAnalysisJob;
 use App\Models\App\CohortDefinition;
+use App\Models\App\WebApiRegistry;
 use App\Services\FinnGen\CohortOperationCompiler;
 use App\Services\FinnGen\Exceptions\FinnGenDarkstarRejectedException;
 use App\Services\FinnGen\Exceptions\FinnGenDarkstarTimeoutException;
@@ -20,6 +21,8 @@ use App\Services\FinnGen\FinnGenClient;
 use App\Services\FinnGen\FinnGenRunService;
 use App\Services\FinnGen\FinnGenSourceContextBuilder;
 use App\Services\FinnGen\WorkbenchSessionService;
+use App\Services\WebApi\AtlasCohortImportService;
+use App\Services\WebApi\AtlasDiscoveryService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Bus;
@@ -41,6 +44,8 @@ class WorkbenchSessionController extends Controller
         private readonly FinnGenSourceContextBuilder $sourceBuilder,
         private readonly FinnGenClient $client,
         private readonly FinnGenRunService $runs,
+        private readonly AtlasDiscoveryService $atlasDiscovery,
+        private readonly AtlasCohortImportService $atlasImporter,
     ) {}
 
     public function index(Request $request): JsonResponse
@@ -324,5 +329,99 @@ class WorkbenchSessionController extends Controller
                 'overwrite' => $overwrite,
             ],
         ], 202);
+    }
+
+    /**
+     * SP4 Phase E — list Atlas cohorts from the active WebAPI registry.
+     *
+     * Wraps AtlasDiscoveryService::discover() with a registry-based lookup
+     * so researchers can browse Atlas cohorts via the Workbench Import step
+     * without ever seeing WebAPI credentials (admin owns registry config).
+     *
+     * Response shape:
+     *   200 { data: { registry: {name, base_url}, cohorts: [...] } }
+     *   503 { message: "No active WebAPI registry configured" }
+     */
+    public function listAtlasCohorts(Request $request): JsonResponse
+    {
+        if (! ($request->user()?->can('finngen.workbench.use') ?? false)) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        /** @var WebApiRegistry|null $registry */
+        $registry = WebApiRegistry::query()
+            ->where('is_active', true)
+            ->orderByDesc('last_synced_at')
+            ->orderByDesc('id')
+            ->first();
+
+        if ($registry === null) {
+            return response()->json([
+                'message' => 'No active WebAPI registry configured. Ask an admin to configure one under Admin → WebAPI Registries.',
+            ], 503);
+        }
+
+        $inventory = $this->atlasDiscovery->discover(
+            (string) $registry->base_url,
+            (string) ($registry->auth_type ?? 'none'),
+            $registry->getRawOriginal('auth_credentials') !== null
+                ? (string) $registry->auth_credentials
+                : null,
+        );
+        $cohorts = $inventory['cohort_definitions']['items'] ?? [];
+
+        return response()->json([
+            'data' => [
+                'registry' => [
+                    'id' => $registry->id,
+                    'name' => $registry->name,
+                    'base_url' => $registry->base_url,
+                ],
+                'cohorts' => $cohorts,
+                'cohort_count' => $inventory['cohort_definitions']['count'] ?? count($cohorts),
+            ],
+        ]);
+    }
+
+    /**
+     * SP4 Phase E — import a set of Atlas cohorts into app.cohort_definitions.
+     *
+     * Wraps AtlasCohortImportService::importFromActiveRegistry(). Imported
+     * rows land in the same table the Parthenon browse tab reads from, so
+     * they become findable in ImportCohortsStep tab 1 immediately.
+     */
+    public function importAtlasCohorts(Request $request): JsonResponse
+    {
+        if (! ($request->user()?->can('finngen.workbench.use') ?? false)) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+
+        $validated = $request->validate([
+            'atlas_ids' => ['required', 'array', 'min:1', 'max:50'],
+            'atlas_ids.*' => ['integer', 'min:1'],
+            'import_behavior' => ['nullable', 'string', 'in:auto,reuse_existing,reimport'],
+        ]);
+
+        $result = $this->atlasImporter->importFromActiveRegistry(
+            $validated['atlas_ids'],
+            (int) $request->user()->id,
+            (string) ($validated['import_behavior'] ?? 'auto'),
+        );
+
+        if ($result['registry'] === null) {
+            return response()->json([
+                'message' => 'No active WebAPI registry configured.',
+                'warnings' => $result['warnings'] ?? [],
+            ], 503);
+        }
+
+        return response()->json([
+            'data' => [
+                'cohorts' => $result['cohorts'] ?? [],
+                'concept_sets' => $result['concept_sets'] ?? [],
+                'warnings' => $result['warnings'] ?? [],
+                'diagnostics' => $result['diagnostics'] ?? [],
+            ],
+        ]);
     }
 }

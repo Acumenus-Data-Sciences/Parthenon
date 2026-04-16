@@ -143,4 +143,52 @@ export const finngenWorkbenchApi = {
     );
     return data;
   },
+
+  /**
+   * SP4 Phase E — list Atlas cohorts from the active WebAPI registry.
+   * Admin owns registry config; researchers just read it through this proxy.
+   * Returns 503 when no registry is marked active.
+   */
+  listAtlasCohorts: async (): Promise<{
+    data: {
+      registry: { id: number; name: string; base_url: string };
+      cohorts: Array<{ atlas_id: number; name: string; description?: string | null }>;
+      cohort_count: number;
+    };
+  }> => {
+    const { data } = await apiClient.get("/finngen/workbench/atlas/cohorts");
+    return data as {
+      data: {
+        registry: { id: number; name: string; base_url: string };
+        cohorts: Array<{ atlas_id: number; name: string; description?: string | null }>;
+        cohort_count: number;
+      };
+    };
+  },
+
+  /**
+   * SP4 Phase E — import Atlas cohort_definitions into app.cohort_definitions.
+   * Wraps AtlasCohortImportService::importFromActiveRegistry server-side.
+   * Returns the Parthenon cohort_definition_ids + any warnings.
+   */
+  importAtlasCohorts: async (
+    atlasIds: number[],
+    importBehavior: "auto" | "reuse_existing" | "reimport" = "auto",
+  ): Promise<{
+    data: {
+      cohorts: Array<{ id: number; atlas_id: number; name: string; status: string }>;
+      warnings: string[];
+    };
+  }> => {
+    const { data } = await apiClient.post("/finngen/workbench/atlas/import", {
+      atlas_ids: atlasIds,
+      import_behavior: importBehavior,
+    });
+    return data as {
+      data: {
+        cohorts: Array<{ id: number; atlas_id: number; name: string; status: string }>;
+        warnings: string[];
+      };
+    };
+  },
 };
