@@ -105,8 +105,11 @@ class CodeExplorerController extends Controller
         $source = $this->sourceBuilder->build($sourceKey, FinnGenSourceContextBuilder::ROLE_RO);
 
         $resultsSchema = $source['schemas']['results'];
+        // Use pg_tables (system catalog) instead of information_schema.tables — the
+        // default Laravel role (parthenon_app) has no grants on per-source results
+        // schemas, so info_schema would filter the row out and falsely report ready=false.
         $row = DB::selectOne(
-            'SELECT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_schema = ? AND table_name = ?) AS present',
+            'SELECT EXISTS(SELECT 1 FROM pg_tables WHERE schemaname = ? AND tablename = ?) AS present',
             [$resultsSchema, 'stratified_code_counts']
         );
         $exists = (bool) ($row?->present ?? false);

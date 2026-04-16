@@ -133,68 +133,93 @@ suppressPackageStartupMessages({
 
 # Sync endpoints ---------------------------------------------------------
 
-#* @get /finngen/romopapi/code-counts
-#* @serializer unboxedJSON
-function(source, concept_id, response) {
-  src <- .decode_source(source)
-  cid <- as.integer(concept_id)
-  out <- run_with_classification(NULL, function() finngen_romopapi_code_counts(src, cid))
-  if (!isTRUE(out$ok)) response$status <- 422L
-  out
-}
+# plumber2 does not inject query parameters as named function args.
+# Access them via req$query$X. `response` still binds by name.
 
-#* @get /finngen/romopapi/relationships
-#* @serializer unboxedJSON
-function(source, concept_id, response) {
-  src <- .decode_source(source)
-  cid <- as.integer(concept_id)
-  out <- run_with_classification(NULL, function() finngen_romopapi_relationships(src, cid))
-  if (!isTRUE(out$ok)) response$status <- 422L
-  out
-}
+.safe_sync <- function(endpoint_name, response, handler_fn) {
+  # ROMOPAPI + some HadesExtras helpers write temp files to CWD.
+  # Use a per-request temp dir so sync reads don't accumulate in /app or similar.
+  tmpdir <- tempfile(pattern = paste0("finngen_sync_", endpoint_name, "_"))
+  dir.create(tmpdir, recursive = TRUE, showWarnings = FALSE)
+  old_wd <- getwd()
+  setwd(tmpdir)
+  on.exit({
+    setwd(old_wd)
+    unlink(tmpdir, recursive = TRUE)
+  }, add = TRUE)
 
-#* @get /finngen/romopapi/ancestors
-#* @serializer unboxedJSON
-function(source, concept_id, direction = "both", max_depth = 5L, response) {
-  src <- .decode_source(source)
-  cid <- as.integer(concept_id)
-  dir_arg <- direction
-  depth_arg <- as.integer(max_depth)
-  out <- run_with_classification(NULL, function() {
-    finngen_romopapi_ancestors(src, cid, dir_arg, depth_arg)
+  out <- tryCatch(handler_fn(), error = function(e) {
+    message(sprintf("[FinnGen %s] UNHANDLED: %s", endpoint_name, conditionMessage(e)))
+    list(ok = FALSE, error = list(category = "ROUTE_HANDLER_ERROR", message = conditionMessage(e)))
   })
   if (!isTRUE(out$ok)) response$status <- 422L
   out
 }
 
+#* @get /finngen/romopapi/code-counts
+#* @serializer unboxedJSON
+function(request, response) {
+  message(sprintf("[code-counts] class(request)=%s", paste(class(request), collapse=",")))
+  message(sprintf("[code-counts] names(request)=%s", paste(names(request), collapse=",")))
+  .safe_sync("code-counts", response, function() {
+    src <- .decode_source(request$query$source %||% request$query[["source"]])
+    cid <- as.integer(request$query$concept_id %||% request$query[["concept_id"]])
+    run_with_classification(NULL, function() finngen_romopapi_code_counts(src, cid))
+  })
+}
+
+#* @get /finngen/romopapi/relationships
+#* @serializer unboxedJSON
+function(req, response) {
+  .safe_sync("relationships", response, function() {
+    src <- .decode_source(req$query$source)
+    cid <- as.integer(req$query$concept_id)
+    run_with_classification(NULL, function() finngen_romopapi_relationships(src, cid))
+  })
+}
+
+#* @get /finngen/romopapi/ancestors
+#* @serializer unboxedJSON
+function(req, response) {
+  .safe_sync("ancestors", response, function() {
+    src <- .decode_source(req$query$source)
+    cid <- as.integer(req$query$concept_id)
+    dir_arg <- req$query$direction %||% "both"
+    depth_arg <- as.integer(req$query$max_depth %||% 5L)
+    run_with_classification(NULL, function() {
+      finngen_romopapi_ancestors(src, cid, dir_arg, depth_arg)
+    })
+  })
+}
+
 #* @get /finngen/hades/counts
 #* @serializer unboxedJSON
-function(source, cohort_ids, response) {
-  src <- .decode_source(source)
-  ids <- as.integer(strsplit(cohort_ids, ",")[[1]])
-  out <- run_with_classification(NULL, function() finngen_hades_counts(src, ids))
-  if (!isTRUE(out$ok)) response$status <- 422L
-  out
+function(req, response) {
+  .safe_sync("hades/counts", response, function() {
+    src <- .decode_source(req$query$source)
+    ids <- as.integer(strsplit(req$query$cohort_ids, ",")[[1]])
+    run_with_classification(NULL, function() finngen_hades_counts(src, ids))
+  })
 }
 
 #* @get /finngen/hades/overlap
 #* @serializer unboxedJSON
-function(source, cohort_ids, response) {
-  src <- .decode_source(source)
-  ids <- as.integer(strsplit(cohort_ids, ",")[[1]])
-  out <- run_with_classification(NULL, function() finngen_hades_overlap(src, ids))
-  if (!isTRUE(out$ok)) response$status <- 422L
-  out
+function(req, response) {
+  .safe_sync("hades/overlap", response, function() {
+    src <- .decode_source(req$query$source)
+    ids <- as.integer(strsplit(req$query$cohort_ids, ",")[[1]])
+    run_with_classification(NULL, function() finngen_hades_overlap(src, ids))
+  })
 }
 
 #* @get /finngen/hades/demographics
 #* @serializer unboxedJSON
-function(source, cohort_id, response) {
-  src <- .decode_source(source)
-  cid <- as.integer(cohort_id)
-  out <- run_with_classification(NULL, function() finngen_hades_demographics(src, cid))
-  if (!isTRUE(out$ok)) response$status <- 422L
-  out
+function(req, response) {
+  .safe_sync("hades/demographics", response, function() {
+    src <- .decode_source(req$query$source)
+    cid <- as.integer(req$query$cohort_id)
+    run_with_classification(NULL, function() finngen_hades_demographics(src, cid))
+  })
 }
 
 # Async endpoints --------------------------------------------------------
