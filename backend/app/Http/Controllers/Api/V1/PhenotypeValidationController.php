@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Enums\ExecutionStatus;
 use App\Http\Controllers\Controller;
+use App\Jobs\Analysis\RunPhenotypeValidationJob;
 use App\Models\App\CohortDefinition;
 use App\Models\App\CohortPhenotypeAdjudication;
 use App\Models\App\CohortPhenotypePromotion;
 use App\Models\App\CohortPhenotypeValidation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class PhenotypeValidationController extends Controller
 {
@@ -35,21 +38,71 @@ class PhenotypeValidationController extends Controller
             'notes' => ['nullable', 'string', 'max:2000'],
         ]);
 
-        $metrics = isset($validated['counts'])
-            ? $this->metricsFromCounts($validated['counts'])
-            : null;
+        if ($validated['mode'] === 'counts' && isset($validated['counts'])) {
+            $total = (int) ($validated['counts']['true_positives'] ?? 0)
+                + (int) ($validated['counts']['false_positives'] ?? 0)
+                + (int) ($validated['counts']['true_negatives'] ?? 0)
+                + (int) ($validated['counts']['false_negatives'] ?? 0);
+            if ($total <= 0) {
+                throw ValidationException::withMessages([
+                    'counts' => 'Counts must contain at least one positive value.',
+                ]);
+            }
+        }
+
+        $authorId = $request->user()?->id;
+
+        if ($validated['mode'] === 'counts' && isset($validated['counts'])) {
+            $validation = CohortPhenotypeValidation::create([
+                'cohort_definition_id' => $cohortDefinition->id,
+                'source_id' => $validated['source_id'],
+                'mode' => 'counts',
+                'status' => ExecutionStatus::Queued,
+                'review_state' => 'not_started',
+                'settings_json' => ['counts' => $validated['counts']],
+                'notes' => $validated['notes'] ?? null,
+                'author_id' => $authorId,
+                'created_by' => $authorId,
+                'started_at' => now(),
+            ]);
+
+            RunPhenotypeValidationJob::dispatch($validation);
+
+            return response()->json([
+                'data' => $validation->load('source:id,source_name,source_key'),
+                'message' => 'Phenotype validation queued.',
+            ], 202);
+        }
+
+        if ($validated['mode'] === 'adjudication') {
+            $validation = CohortPhenotypeValidation::create([
+                'cohort_definition_id' => $cohortDefinition->id,
+                'source_id' => $validated['source_id'],
+                'mode' => 'adjudication',
+                'status' => ExecutionStatus::Pending,
+                'review_state' => 'draft',
+                'settings_json' => ['review_state' => 'draft'],
+                'notes' => $validated['notes'] ?? null,
+                'author_id' => $authorId,
+                'created_by' => $authorId,
+            ]);
+
+            return response()->json([
+                'data' => $validation->load('source:id,source_name,source_key'),
+                'message' => 'Phenotype review session created.',
+            ], 201);
+        }
 
         $validation = CohortPhenotypeValidation::create([
             'cohort_definition_id' => $cohortDefinition->id,
             'source_id' => $validated['source_id'],
             'mode' => $validated['mode'],
-            'status' => $metrics ? 'computed' : 'draft',
+            'status' => ExecutionStatus::Pending,
             'review_state' => 'not_started',
-            'counts_json' => $validated['counts'] ?? null,
-            'metrics_json' => $metrics,
+            'settings_json' => $validated['counts'] ?? null ? ['counts' => $validated['counts']] : null,
             'notes' => $validated['notes'] ?? null,
-            'created_by' => $request->user()?->id,
-            'computed_at' => $metrics ? now() : null,
+            'author_id' => $authorId,
+            'created_by' => $authorId,
         ]);
 
         return response()->json([
@@ -101,9 +154,9 @@ class PhenotypeValidationController extends Controller
         foreach (['cohort_member' => $memberCount, 'non_member' => $nonMemberCount] as $type => $count) {
             for ($i = 0; $i < $count; $i++) {
                 $created->push(CohortPhenotypeAdjudication::create([
-                    'validation_id' => $record->id,
+                    'phenotype_validation_id' => $record->id,
                     'person_id' => null,
-                    'sample_type' => $type,
+                    'sample_group' => $type,
                     'status' => 'pending',
                     'payload_json' => [
                         'seed' => $validated['seed'] ?? null,

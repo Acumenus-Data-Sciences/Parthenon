@@ -20,26 +20,26 @@ interface DemographicsResultsProps {
 export function DemographicsResults({ display }: DemographicsResultsProps) {
   const [selectedCohortIdx, setSelectedCohortIdx] = useState(0);
 
-  if (display.cohorts.length === 0) {
+  const cohort = display.cohorts[selectedCohortIdx];
+
+  const pyramidData = useMemo(() => {
+    if (!cohort) return [];
+    return cohort.age_histogram
+      .sort((a, b) => a.decile - b.decile)
+      .map((bin) => ({
+        decile: `${bin.decile * 10}-${bin.decile * 10 + 9}`,
+        male: -bin.male,
+        female: bin.female,
+      }));
+  }, [cohort]);
+
+  if (display.cohorts.length === 0 || !cohort) {
     return (
       <div className="py-12 text-center text-sm text-text-ghost">
         No demographic data available.
       </div>
     );
   }
-
-  const cohort = display.cohorts[selectedCohortIdx];
-
-  // Build pyramid data: male counts are negative for left-side rendering
-  const pyramidData = useMemo(() => {
-    return cohort.age_histogram
-      .sort((a, b) => a.decile - b.decile)
-      .map((bin) => ({
-        decile: `${bin.decile * 10}-${bin.decile * 10 + 9}`,
-        male: -bin.male, // negative for left side
-        female: bin.female,
-      }));
-  }, [cohort]);
 
   return (
     <div className="space-y-6">

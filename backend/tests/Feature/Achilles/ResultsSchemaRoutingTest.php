@@ -19,6 +19,18 @@ use Illuminate\Support\Facades\DB;
 
 const LOCAL_CONN = 'local_parthenon';
 
+function localParthenonReachable(): bool
+{
+    ensureLocalConnection();
+    try {
+        DB::connection(LOCAL_CONN)->getPdo();
+
+        return true;
+    } catch (Throwable $e) {
+        return false;
+    }
+}
+
 /**
  * Register a temporary connection targeting the local PG17 host.
  * Uses the same parthenon database with the `app,php` search_path
@@ -78,6 +90,9 @@ function loadSourceDaimonMap(): array
 }
 
 it('every source with a results daimon resolves a distinct results schema', function () {
+    if (! localParthenonReachable()) {
+        $this->markTestSkipped('Local parthenon database not reachable (CI environment).');
+    }
     $sources = loadSourceDaimonMap();
 
     $sourcesWithResults = array_filter($sources, fn ($s) => $s['results'] !== null);
@@ -107,6 +122,9 @@ it('every source with a results daimon resolves a distinct results schema', func
 });
 
 it('results schema != CDM schema for every source', function () {
+    if (! localParthenonReachable()) {
+        $this->markTestSkipped('Local parthenon database not reachable (CI environment).');
+    }
     $sources = loadSourceDaimonMap();
 
     $sourcesWithResults = array_filter($sources, fn ($s) => $s['results'] !== null);
@@ -120,6 +138,9 @@ it('results schema != CDM schema for every source', function () {
 });
 
 it('every source has a vocabulary daimon', function () {
+    if (! localParthenonReachable()) {
+        $this->markTestSkipped('Local parthenon database not reachable (CI environment).');
+    }
     $sources = loadSourceDaimonMap();
 
     expect($sources)->not->toBeEmpty('No sources found — seed data may be missing');
@@ -132,7 +153,9 @@ it('every source has a vocabulary daimon', function () {
 });
 
 it('results schema exists in PostgreSQL and accepts SET search_path', function () {
-    ensureLocalConnection();
+    if (! localParthenonReachable()) {
+        $this->markTestSkipped('Local parthenon database not reachable (CI environment).');
+    }
     $sources = loadSourceDaimonMap();
 
     $sourcesWithResults = array_filter($sources, fn ($s) => $s['results'] !== null);

@@ -313,7 +313,7 @@ def _fit_kmeans(feature_matrix: np.ndarray, k: int) -> np.ndarray:
         delayed(run_start)(int(seed)) for seed in seeds
     )
     _, labels = min(results, key=lambda result: result[0])
-    return labels
+    return np.asarray(labels)
 
 
 def _safe_silhouette(feature_matrix: np.ndarray, labels: np.ndarray) -> float:
@@ -676,7 +676,7 @@ def build_phenotype_interpretation_prompt(result: dict[str, Any]) -> tuple[str, 
 async def review_phenotype_interpretation(result: dict[str, Any]) -> dict[str, Any]:
     """Ask MedGemma to review the deterministic phenotype interpretation."""
     proposed, prompt = build_phenotype_interpretation_prompt(result)
-    review = {
+    review: dict[str, Any] = {
         "status": "not_requested",
         "provider": "ollama",
         "model": settings.phenotype_interpreter_model,

@@ -9,13 +9,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class CohortPhenotypeAdjudication extends Model
 {
     protected $fillable = [
-        'validation_id',
+        'phenotype_validation_id',
         'person_id',
-        'sample_type',
+        'sample_group',
         'label',
         'status',
         'notes',
         'payload_json',
+        'demographics_json',
+        'sampling_json',
+        'sampled_at',
         'reviewed_by',
         'reviewed_at',
     ];
@@ -24,13 +27,16 @@ class CohortPhenotypeAdjudication extends Model
     {
         return [
             'payload_json' => 'array',
+            'demographics_json' => 'array',
+            'sampling_json' => 'array',
+            'sampled_at' => 'datetime',
             'reviewed_at' => 'datetime',
         ];
     }
 
     public function validation(): BelongsTo
     {
-        return $this->belongsTo(CohortPhenotypeValidation::class, 'validation_id');
+        return $this->belongsTo(CohortPhenotypeValidation::class, 'phenotype_validation_id');
     }
 
     public function reviewer(): BelongsTo

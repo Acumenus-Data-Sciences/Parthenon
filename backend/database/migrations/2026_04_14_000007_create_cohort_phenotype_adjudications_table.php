@@ -10,19 +10,20 @@ return new class extends Migration
     {
         Schema::create('cohort_phenotype_adjudications', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('validation_id')->constrained('cohort_phenotype_validations')->cascadeOnDelete();
+            $table->foreignId('phenotype_validation_id')->constrained('cohort_phenotype_validations')->cascadeOnDelete();
             $table->unsignedBigInteger('person_id')->nullable();
-            $table->string('sample_type', 40)->default('cohort_member');
+            $table->string('sample_group', 40)->default('cohort_member');
             $table->string('label', 40)->nullable();
             $table->string('status', 40)->default('pending');
             $table->text('notes')->nullable();
             $table->jsonb('payload_json')->nullable();
+            $table->jsonb('demographics_json')->nullable();
             $table->foreignId('reviewed_by')->nullable()->constrained('users');
             $table->timestamp('reviewed_at')->nullable();
             $table->timestamps();
 
-            $table->index(['validation_id', 'sample_type']);
-            $table->index(['validation_id', 'status']);
+            $table->index(['phenotype_validation_id', 'sample_group']);
+            $table->index(['phenotype_validation_id', 'status']);
         });
     }
 
