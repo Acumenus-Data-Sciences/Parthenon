@@ -70,6 +70,12 @@ def _parse_args() -> argparse.Namespace:
         help="Also install Acropolis infrastructure (Traefik, Portainer, pgAdmin, + Enterprise)",
     )
     parser.add_argument(
+        "--community",
+        action="store_true",
+        default=False,
+        help="Community Edition fast-boot: minimal service set, skip enterprise sidecars and demo data, go straight to login page",
+    )
+    parser.add_argument(
         "--upgrade",
         action="store_true",
         default=False,
@@ -107,6 +113,39 @@ def main() -> None:
             print(f"Loaded defaults from {args.defaults_file}\n")
         else:
             print(f"Warning: defaults file {args.defaults_file} not found, ignoring.\n")
+
+    if args.community and args.with_infrastructure:
+        print("Error: --community and --with-infrastructure are mutually exclusive.", file=sys.stderr)
+        sys.exit(2)
+
+    if args.community:
+        community_defaults = {
+            "experience": "Beginner",
+            "edition": "Community Edition",
+            "enterprise_key": "",
+            "umls_api_key": "",
+            "vocab_zip_path": None,
+            "cdm_dialect": "PostgreSQL",
+            "app_url": "http://localhost",
+            "env": "local",
+            "timezone": "UTC",
+            "include_eunomia": False,
+            "ollama_url": "",
+            "modules": ["research"],
+            "enable_solr": False,
+            "enable_study_agent": False,
+            "enable_blackrabbit": False,
+            "enable_fhir_to_cdm": False,
+            "enable_hecate": False,
+            "enable_qdrant": False,
+            "enable_orthanc": False,
+            "enable_livekit": False,
+            "datasets": [],
+        }
+        if defaults:
+            community_defaults.update(defaults)
+        defaults = community_defaults
+        args.non_interactive = True
 
     try:
         if args.webapp:

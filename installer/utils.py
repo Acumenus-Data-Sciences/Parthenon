@@ -152,18 +152,18 @@ def container_health(name: str) -> str:
         result = run(
             ["docker", "inspect", "--format={{.State.Health.Status}}", name],
             capture=True,
-            check=True,
+            check=False,
         )
-        status = result.stdout.strip()
-        if status:
+        status = (result.stdout or "").strip()
+        if result.returncode == 0 and status:
             return status
-        # No healthcheck — fall back to running state
+        # No healthcheck defined (template error) — fall back to running state.
         result2 = run(
             ["docker", "inspect", "--format={{.State.Status}}", name],
             capture=True,
-            check=True,
+            check=False,
         )
-        return result2.stdout.strip() or "unknown"
+        return (result2.stdout or "").strip() or "unknown"
     except Exception:
         return "unknown"
 

@@ -56,6 +56,13 @@ def _build_frontend() -> None:
     if rc != 0:
         console.print("[red]✗ Frontend build failed.[/red]")
         sys.exit(1)
+
+    # Restart nginx so it picks up the freshly-built frontend/dist bind mount.
+    # On macOS Docker Desktop, nginx mounting an empty directory at startup can
+    # cache that empty state even after files appear — restart forces a re-scan.
+    console.print("  [cyan]▶[/cyan] Restarting nginx to serve new frontend dist…")
+    utils.run(["docker", "compose", "restart", "nginx"], capture=True, check=False)
+
     console.print("[green]✓ Frontend built.[/green]\n")
 
 

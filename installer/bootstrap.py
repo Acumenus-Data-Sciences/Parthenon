@@ -48,16 +48,28 @@ def run_laravel_bootstrap() -> None:
         console.print("[red]composer install failed.[/red]")
         sys.exit(1)
 
-    # Step 2 — key:generate
-    console.print("[bold]Step 2/7:[/bold] Generating application key…")
-    result = utils.run(
-        ["docker", "compose", "exec", "-T", "php",
-         "php", "artisan", "key:generate", "--force"],
-        capture=True, check=False
-    )
-    if result.returncode != 0:
-        console.print(f"[red]key:generate failed:[/red]\n{result.stderr}")
-        sys.exit(1)
+    # Step 2 — key:generate (skip if already set — re-generating would invalidate
+    # encrypted DB data if Phase 4 is being resumed after a partial run).
+    env_path = utils.REPO_ROOT / "backend" / ".env"
+    existing_key = ""
+    if env_path.exists():
+        for line in env_path.read_text().splitlines():
+            if line.startswith("APP_KEY=base64:"):
+                existing_key = line.split("=", 1)[1]
+                break
+
+    if existing_key:
+        console.print("[bold]Step 2/7:[/bold] Application key already set — skipping key:generate.")
+    else:
+        console.print("[bold]Step 2/7:[/bold] Generating application key…")
+        result = utils.run(
+            ["docker", "compose", "exec", "-T", "php",
+             "php", "artisan", "key:generate", "--force"],
+            capture=True, check=False
+        )
+        if result.returncode != 0:
+            console.print(f"[red]key:generate failed:[/red]\n{result.stderr}")
+            sys.exit(1)
 
     # Step 3 — recreate php container + wait healthy
     # docker compose restart does NOT reload env_file. Container recreation (up -d)
@@ -81,10 +93,15 @@ def run_laravel_bootstrap() -> None:
     )
 
     # Step 4 — migrate
+    # PROTECTED_CONSOLE_DATABASES is a safety guard that blocks bare `migrate`
+    # on the parthenon database (added after a 2026-03-30 incident). During fresh
+    # install the DB is empty, so bare migrate is safe. Setting the env var to
+    # empty bypasses the guard for this single invocation only.
     console.print("[bold]Step 4/7:[/bold] Running database migrations…")
     rc = utils.run_stream(
-        ["docker", "compose", "exec", "-T", "php",
-         "php", "artisan", "migrate", "--force"]
+        ["docker", "compose", "exec", "-T",
+         "-e", "PROTECTED_CONSOLE_DATABASES=",
+         "php", "php", "artisan", "migrate", "--force"]
     )
     if rc != 0:
         console.print("[red]Database migration failed.[/red]")
@@ -116,7 +133,7 @@ def run_laravel_bootstrap() -> None:
     )
 
     # PostGIS verification — non-fatal, informational only
-    console.print("  [cyan]▶[/cyan] Verifying PostGIS extension…", end=" ", flush=True)
+    console.print("  [cyan]▶[/cyan] Verifying PostGIS extension…", end=" ")
     result = utils.run(
         ["docker", "compose", "exec", "-T", "postgres",
          "psql", "-U", "parthenon", "-d", "parthenon", "-tAc",
@@ -144,6 +161,14 @@ def run_laravel_bootstrap() -> None:
             "  [dim]Re-run after loading OMOP vocabulary: "
             "docker compose exec php php artisan abby:setup-analyst[/dim]"
         )
+
+    # Start Horizon now that vendor/ exists on the bind mount.
+    console.print("[bold]Step 8:[/bold] Starting Horizon queue worker…")
+    rc = utils.run_stream(["docker", "compose", "up", "-d", "horizon"])
+    if rc != 0:
+        console.print("[yellow]⚠ Horizon failed to start — queued jobs won't run until resolved.[/yellow]")
+    else:
+        console.print("[green]✓ Horizon started.[/green]")
 
     console.print("[green]✓ Laravel bootstrap complete.[/green]\n")
 

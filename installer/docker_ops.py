@@ -14,40 +14,60 @@ from . import utils
 
 console = Console()
 
-# Services and their expected health status source
-# (name_in_compose, container_name, timeout_seconds)
-BASE_SERVICES = [
-    ("postgres",   "parthenon-postgres", 60),
-    ("redis",      "parthenon-redis",    30),
-    ("php",        "parthenon-php",      120),
-    ("python-ai",  "python-ai",          120),
-    ("jupyterhub", "parthenon-jupyterhub", 60),
-    ("darkstar",   "parthenon-darkstar",  120),
-    ("nginx",      "parthenon-nginx",    30),
-    ("horizon",    "parthenon-horizon",  30),
+# Minimum service set needed to reach the login page.
+# Community Edition fast-boot uses this list verbatim.
+# Horizon is deliberately excluded from the core set — it bind-mounts the host
+# backend/ dir and requires vendor/autoload.php, which only exists after Phase 4
+# runs `composer install`. It's started by bootstrap.run_laravel_bootstrap().
+CE_CORE_SERVICES = [
+    ("postgres", "parthenon-postgres", 60),
+    ("redis",    "parthenon-redis",    30),
+    ("php",      "parthenon-php",     120),
+    ("nginx",    "parthenon-nginx",    30),
+]
+
+HORIZON_SERVICE = ("horizon", "parthenon-horizon", 30)
+
+# Services added on top of CE core for a full interactive install.
+FULL_ADDITIONS = [
+    ("horizon",    "parthenon-horizon",     30),
+    ("python-ai",  "python-ai",            120),
+    ("jupyterhub", "parthenon-jupyterhub",  60),
+    ("darkstar",   "parthenon-darkstar",   120),
 ]
 
 SOLR_SERVICE = ("solr", "parthenon-solr", 60)
 CHROMADB_SERVICE = ("chromadb", "parthenon-chromadb", 60)
 
-# Optional sidecar services
+# Optional sidecar services (enabled via cfg["enable_*"] flags)
 OPTIONAL_SERVICES = {
-    "study_agent":  ("study-agent",  "parthenon-study-agent",  120),
-    "qdrant":       ("qdrant",       "parthenon-qdrant",       60),
-    "hecate":       ("hecate",       "parthenon-hecate",       60),
-    "blackrabbit":  ("blackrabbit",  "parthenon-blackrabbit",  60),
-    "fhir_to_cdm":  ("fhir-to-cdm", "parthenon-fhir-to-cdm",  60),
-    "orthanc":      ("orthanc",      "parthenon-orthanc",      60),
+    "study_agent":  ("study-agent",   "parthenon-study-agent",   120),
+    "qdrant":       ("qdrant",        "parthenon-qdrant",         60),
+    "hecate":       ("hecate",        "parthenon-hecate",         60),
+    "blackrabbit":  ("blackrabbit",   "parthenon-blackrabbit",    60),
+    "fhir_to_cdm":  ("fhir-to-cdm",   "parthenon-fhir-to-cdm",    60),
+    "orthanc":      ("orthanc",       "parthenon-orthanc",        60),
 }
 
-# Default for backward compat (used when run() called without config)
+# Back-compat alias — older callers import BASE_SERVICES / SERVICES.
+BASE_SERVICES = CE_CORE_SERVICES + FULL_ADDITIONS
 SERVICES = BASE_SERVICES
 
 
+def _is_community(cfg: dict[str, Any] | None) -> bool:
+    return bool(cfg and cfg.get("edition") == "Community Edition")
+
+
 def _compose_service_names(cfg: dict[str, Any] | None = None) -> list[str]:
-    names = [service for service, _, _ in BASE_SERVICES]
+    if _is_community(cfg):
+        base = [service for service, _, _ in CE_CORE_SERVICES]
+    else:
+        base = [service for service, _, _ in (CE_CORE_SERVICES + FULL_ADDITIONS)]
+    names = list(base)
     if cfg is None or cfg.get("enable_solr", True):
         names.append(SOLR_SERVICE[0])
+    if cfg and cfg.get("ollama_url") and not _is_community(cfg):
+        names.append(CHROMADB_SERVICE[0])
     if cfg is None or cfg.get("enable_study_agent"):
         names.append(OPTIONAL_SERVICES["study_agent"][0])
     if cfg is None or cfg.get("enable_hecate"):
@@ -65,18 +85,40 @@ def _compose_service_names(cfg: dict[str, Any] | None = None) -> list[str]:
     return deduped
 
 
-def pull() -> None:
-    """docker compose pull — stream progress."""
-    console.print("[cyan][1/3] Pulling Docker images…[/cyan]")
-    rc = utils.run_stream(["docker", "compose", "pull"])
+def _ensure_external_networks() -> None:
+    """Create external networks referenced by docker-compose.yml if missing.
+
+    docker-compose.yml declares the `acumenus` network as external (shared
+    with the Acropolis infrastructure stack). On a fresh machine that network
+    does not exist and compose fails immediately. On a dev machine it already
+    exists — `docker network create` is idempotent via the check below.
+    """
+    for net in ("acumenus",):
+        inspect = utils.run(
+            ["docker", "network", "inspect", net],
+            capture=True, check=False,
+        )
+        if inspect.returncode != 0:
+            utils.run(
+                ["docker", "network", "create", net],
+                capture=True, check=False,
+            )
+
+
+def pull(cfg: dict[str, Any] | None = None) -> None:
+    """docker compose pull — only pulls images for services we'll actually start."""
+    services = _compose_service_names(cfg)
+    console.print(f"[cyan][1/3] Pulling Docker images for {len(services)} service(s)…[/cyan]")
+    rc = utils.run_stream(["docker", "compose", "pull", *services])
     if rc != 0:
         console.print("[yellow]⚠ Some images failed to pull — continuing with local images.[/yellow]")
 
 
-def build() -> None:
-    """docker compose build — stream progress."""
-    console.print("[cyan][2/3] Building Docker images…[/cyan]")
-    rc = utils.run_stream(["docker", "compose", "build"])
+def build(cfg: dict[str, Any] | None = None) -> None:
+    """docker compose build — only builds services we'll actually start."""
+    services = _compose_service_names(cfg)
+    console.print(f"[cyan][2/3] Building Docker images for {len(services)} service(s)…[/cyan]")
+    rc = utils.run_stream(["docker", "compose", "build", *services])
     if rc != 0:
         console.print("[red]✗ Build failed.[/red]")
         sys.exit(1)
@@ -84,6 +126,7 @@ def build() -> None:
 
 def start(cfg: dict[str, Any] | None = None) -> None:
     """docker compose up -d — start the selected services."""
+    _ensure_external_networks()
     console.print("[cyan][3/3] Starting services…[/cyan]")
     result = utils.docker_compose(["up", "-d", *_compose_service_names(cfg)], check=False)
     if result.returncode != 0:
@@ -105,14 +148,17 @@ def _poll_service(container: str, timeout: int) -> str:
 
 
 def _get_services(cfg: dict[str, Any] | None = None) -> list[tuple[str, str, int]]:
-    """Return list of services to poll, including optional sidecars if enabled."""
-    services = list(BASE_SERVICES)
+    """Return list of services to poll, matching the set started by `start()`."""
+    if _is_community(cfg):
+        services = list(CE_CORE_SERVICES)
+    else:
+        services = list(CE_CORE_SERVICES + FULL_ADDITIONS)
     if cfg is None or cfg.get("enable_solr", True):
         services.append(SOLR_SERVICE)
-    # ChromaDB is automatically included with the AI service
-    if cfg is None or cfg.get("ollama_url"):
+    # ChromaDB ships with the AI service and only polls when AI is enabled.
+    if cfg and cfg.get("ollama_url") and not _is_community(cfg):
         services.append(CHROMADB_SERVICE)
-    # Optional sidecar services — only poll if user enabled them
+    # Optional sidecars — only poll what we actually started.
     if cfg:
         for key, svc_tuple in OPTIONAL_SERVICES.items():
             if cfg.get(f"enable_{key}"):
@@ -163,7 +209,7 @@ def wait_for_services(cfg: dict[str, Any] | None = None) -> None:
 def run(cfg: dict[str, Any] | None = None) -> None:
     """Execute the full Docker setup phase."""
     console.rule("[bold]Phase 3 — Docker Setup[/bold]")
-    pull()
-    build()
+    pull(cfg)
+    build(cfg)
     start(cfg)
     wait_for_services(cfg)

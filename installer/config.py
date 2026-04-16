@@ -217,6 +217,7 @@ def build_config_defaults(overrides: dict[str, Any] | None = None) -> dict[str, 
         "app_url": app_url,
         "env": _validated_choice(seed.get("env"), choices=ENV_CHOICES, default="local"),
         "db_password": seed.get("db_password") or _generate_password(24),
+        "redis_password": seed.get("redis_password") or _generate_password(24),
         "abby_analyst_password": seed.get("abby_analyst_password") or _generate_password(24),
         "admin_email": (seed.get("admin_email") or "admin@example.com").strip(),
         "admin_name": (seed.get("admin_name") or "Admin").strip(),
@@ -753,6 +754,7 @@ def build_root_env(cfg: dict[str, Any]) -> str:
         f"PARTHENON_ENTERPRISE_KEY={cfg.get('enterprise_key', '')}",
         f"UMLS_API_KEY={cfg.get('umls_api_key', '')}",
         f"DB_PASSWORD={cfg['db_password']}",
+        f"REDIS_PASSWORD={cfg['redis_password']}",
         f"",
         f"# Host port mapping",
         f"NGINX_PORT={cfg['nginx_port']}",
@@ -886,7 +888,7 @@ def build_backend_env(cfg: dict[str, Any]) -> str:
         f"\n"
         f"REDIS_CLIENT=phpredis\n"
         f"REDIS_HOST=redis\n"
-        f"REDIS_PASSWORD=null\n"
+        f"REDIS_PASSWORD={cfg['redis_password']}\n"
         f"REDIS_PORT=6379\n"
         f"\n"
         f"SANCTUM_STATEFUL_DOMAINS={sanctum_domains}\n"
