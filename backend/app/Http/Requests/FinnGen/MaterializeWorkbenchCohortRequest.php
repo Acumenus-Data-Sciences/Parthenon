@@ -36,6 +36,11 @@ class MaterializeWorkbenchCohortRequest extends FormRequest
             'tree' => ['required', 'array'],
             'tree.kind' => ['required', 'string', 'in:cohort,op'],
             'tree.id' => ['required', 'string'],
+            // SP4 Polish #7 — overwrite flow. When the researcher re-materializes
+            // an existing cohort, pass the cohort_definition_id so the backend
+            // reuses that row (updates name/description/expression) and truncates
+            // its rows in cohort before re-inserting. Must belong to the caller.
+            'overwrite_cohort_definition_id' => ['nullable', 'integer', 'min:1'],
         ];
     }
 }

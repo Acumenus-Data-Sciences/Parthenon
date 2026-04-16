@@ -52,11 +52,16 @@ export type MaterializeCohortPayload = {
   name: string;
   description?: string | null;
   tree: OperationNode;
+  // SP4 Polish #7 — when set, reuses this cohort_definition_id (must be owned
+  // by the caller) instead of creating a new row, and overwrites its cohort
+  // rows in-place. Omit to always create a new cohort_definition.
+  overwrite_cohort_definition_id?: number;
 };
 
 export type MaterializeCohortResponse = {
   run: MatchCohortRunResponse; // same Run envelope; analysis_type = cohort.materialize
   cohort_definition_id: number;
+  overwrite?: boolean;
 };
 
 export const finngenWorkbenchApi = {

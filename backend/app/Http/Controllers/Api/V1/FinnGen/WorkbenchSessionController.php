@@ -257,20 +257,50 @@ class WorkbenchSessionController extends Controller
             ], 422);
         }
 
-        // Persist the cohort_definition first so we have a stable id to hand
-        // to the Darkstar INSERT. Use the DB default connection (app schema).
-        $definition = CohortDefinition::create([
-            'name' => (string) $data['name'],
-            'description' => isset($data['description']) ? (string) $data['description'] : null,
-            'author_id' => (int) $request->user()->id,
-            'is_public' => false,
-            'version' => 1,
-            'expression_json' => [
-                'source_key' => (string) $data['source_key'],
-                'workbench_tree' => $tree,
-                'referenced_cohort_ids' => $referenced,
-            ],
-        ]);
+        // SP4 Polish #7 — overwrite flow. When the request carries a valid
+        // overwrite_cohort_definition_id AND it belongs to the caller, reuse
+        // that row (update metadata + bump version), then pass overwrite=true
+        // to the R worker so it DELETEs existing cohort rows before INSERT.
+        $overwriteId = $data['overwrite_cohort_definition_id'] ?? null;
+        $overwrite = false;
+        $definition = null;
+        if ($overwriteId !== null) {
+            /** @var CohortDefinition|null $existing */
+            $existing = CohortDefinition::where('id', (int) $overwriteId)
+                ->where('author_id', (int) $request->user()->id)
+                ->first();
+            if ($existing === null) {
+                return response()->json([
+                    'message' => "Cohort definition {$overwriteId} not found or not owned by you",
+                ], 404);
+            }
+            $existing->update([
+                'name' => (string) $data['name'],
+                'description' => isset($data['description']) ? (string) $data['description'] : null,
+                'version' => ((int) $existing->version) + 1,
+                'expression_json' => [
+                    'source_key' => (string) $data['source_key'],
+                    'workbench_tree' => $tree,
+                    'referenced_cohort_ids' => $referenced,
+                ],
+            ]);
+            $definition = $existing;
+            $overwrite = true;
+        } else {
+            // Normal path — create a fresh cohort_definition.
+            $definition = CohortDefinition::create([
+                'name' => (string) $data['name'],
+                'description' => isset($data['description']) ? (string) $data['description'] : null,
+                'author_id' => (int) $request->user()->id,
+                'is_public' => false,
+                'version' => 1,
+                'expression_json' => [
+                    'source_key' => (string) $data['source_key'],
+                    'workbench_tree' => $tree,
+                    'referenced_cohort_ids' => $referenced,
+                ],
+            ]);
+        }
 
         $run = $this->runs->create(
             userId: (int) $request->user()->id,
@@ -281,6 +311,7 @@ class WorkbenchSessionController extends Controller
                 'subject_sql' => $subjectSql,
                 'cohort_schema' => $cohortSchema,
                 'referenced_cohort_ids' => $referenced,
+                'overwrite_existing' => $overwrite,
             ],
         );
 
@@ -290,6 +321,7 @@ class WorkbenchSessionController extends Controller
             'data' => [
                 'run' => $run,
                 'cohort_definition_id' => $definition->id,
+                'overwrite' => $overwrite,
             ],
         ], 202);
     }

@@ -29,6 +29,9 @@ export function MaterializeStep({
   const [description, setDescription] = useState("");
   const [runId, setRunId] = useState<string | null>(existing?.runId ?? null);
   const [cohortId, setCohortId] = useState<number | null>(existing?.cohortDefinitionId ?? null);
+  // SP4 Polish #7 — when a prior cohort is materialized, default to
+  // overwriting it on re-run instead of piling up new cohort_definitions.
+  const [overwrite, setOverwrite] = useState<boolean>(existing?.cohortDefinitionId !== undefined);
   const materialize = useMaterializeCohort();
   const status = useMatchRunStatus(runId);
 
@@ -38,6 +41,7 @@ export function MaterializeStep({
   const canSubmit = treeValid && name.trim().length > 0 && !materialize.isPending;
 
   const expression = tree !== null && treeValid ? compile(tree) : null;
+  const existingId = existing?.cohortDefinitionId ?? null;
 
   function handleSubmit() {
     if (!canSubmit || tree === null) return;
@@ -47,6 +51,7 @@ export function MaterializeStep({
         name: name.trim(),
         description: description.trim() === "" ? null : description.trim(),
         tree,
+        overwrite_cohort_definition_id: overwrite && existingId !== null ? existingId : undefined,
       },
       {
         onSuccess: (data) => {
@@ -104,6 +109,27 @@ export function MaterializeStep({
             <p className="text-[10px] text-error">
               Tree is invalid ({errors.length} validation error{errors.length === 1 ? "" : "s"}). Fix it in the Operate step.
             </p>
+          )}
+          {existingId !== null && (
+            <div className="rounded border border-warning/40 bg-warning/5 p-2 space-y-1.5">
+              <p className="text-[10px] text-warning">
+                This session already materialized cohort <span className="font-mono">#{existingId}</span>.
+              </p>
+              <label className="flex items-start gap-2 text-xs text-text-secondary cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={overwrite}
+                  onChange={(e) => setOverwrite(e.target.checked)}
+                  className="mt-0.5"
+                />
+                <span>
+                  Overwrite cohort #{existingId} (clears its rows and re-inserts).{" "}
+                  <span className="text-text-ghost">
+                    Uncheck to create a new cohort_definition instead — useful when you want to A/B test two trees.
+                  </span>
+                </span>
+              </label>
+            </div>
           )}
           <button
             type="button"

@@ -329,6 +329,7 @@ finngen_cohort_materialize_execute <- function(source_envelope, run_id, export_f
     subject_sql   <- as.character(params$subject_sql)
     cohort_schema <- as.character(params$cohort_schema)
     referenced    <- as.integer(params$referenced_cohort_ids)
+    overwrite     <- isTRUE(params$overwrite_existing)
 
     if (is.na(cohort_def_id) || cohort_def_id <= 0) stop("cohort.materialize requires a positive cohort_definition_id")
     if (is.na(subject_sql) || !nzchar(subject_sql)) stop("cohort.materialize requires subject_sql")
@@ -347,7 +348,11 @@ finngen_cohort_materialize_execute <- function(source_envelope, run_id, export_f
     connection <- DatabaseConnector::connect(connection_details)
     on.exit(tryCatch(DatabaseConnector::disconnect(connection), error = function(e) NULL), add = TRUE)
 
-    # Guard: refuse to re-materialize if this cohort_definition already has rows.
+    # SP4 Polish #7 — overwrite flow. When the PHP caller passes
+    # overwrite_existing=true (only possible when the researcher explicitly
+    # re-materializes one of their own cohorts), DELETE existing rows for this
+    # cohort_definition_id before re-inserting. Without the flag, keep the
+    # original guard so accidental collisions still fail loud.
     write_progress(progress_path, list(step = "check_existing", pct = 15))
     existing_sql <- sprintf(
       "SELECT COUNT(*) AS c FROM %s.cohort WHERE cohort_definition_id = %d",
@@ -355,8 +360,22 @@ finngen_cohort_materialize_execute <- function(source_envelope, run_id, export_f
     )
     existing <- DatabaseConnector::querySql(connection, existing_sql)
     names(existing) <- tolower(names(existing))
-    if (as.integer(existing$c[1]) > 0) {
-      stop(sprintf("cohort.materialize: cohort_definition_id %d already has rows in %s.cohort — delete them first", cohort_def_id, cohort_schema))
+    existing_count <- as.integer(existing$c[1])
+    if (existing_count > 0) {
+      if (overwrite) {
+        write_progress(progress_path, list(
+          step = "clear_existing", pct = 20,
+          message = sprintf("Clearing %d prior rows for cohort_definition_id=%d", existing_count, cohort_def_id)
+        ))
+        DatabaseConnector::executeSql(
+          connection,
+          sprintf("DELETE FROM %s.cohort WHERE cohort_definition_id = %d",
+                  cohort_schema, cohort_def_id)
+        )
+      } else {
+        stop(sprintf("cohort.materialize: cohort_definition_id %d already has %d rows in %s.cohort — re-run with overwrite_existing=true",
+                     cohort_def_id, existing_count, cohort_schema))
+      }
     }
 
     write_progress(progress_path, list(step = "insert_cohort", pct = 30, message = "Writing subject rows"))
