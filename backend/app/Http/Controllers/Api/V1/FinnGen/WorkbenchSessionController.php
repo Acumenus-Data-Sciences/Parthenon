@@ -163,7 +163,18 @@ class WorkbenchSessionController extends Controller
             return response()->json(['message' => 'Darkstar error: '.$e->getMessage()], 502);
         }
 
-        $total = is_int($result['total'] ?? null) ? $result['total'] : null;
+        // Darkstar's .safe_sync wraps the handler return in the same
+        // {ok, result} envelope that run_with_classification uses — so a
+        // successful preview comes back as {ok: true, result: {total: N}}.
+        // Fall through to the direct-total shape for backwards compat.
+        $inner = is_array($result['result'] ?? null) ? $result['result'] : $result;
+        if (isset($result['ok']) && $result['ok'] === false) {
+            $err = is_array($result['error'] ?? null) ? $result['error'] : [];
+            $msg = is_string($err['message'] ?? null) ? $err['message'] : 'Darkstar preview failed';
+
+            return response()->json(['message' => $msg, 'raw' => $result], 502);
+        }
+        $total = is_int($inner['total'] ?? null) ? $inner['total'] : null;
         if ($total === null) {
             return response()->json([
                 'message' => 'Malformed preview response from Darkstar',

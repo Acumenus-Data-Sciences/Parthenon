@@ -178,6 +178,26 @@ it('POST /preview-counts denies viewer', function () {
         ])->assertStatus(403);
 });
 
+it('POST /preview-counts unwraps the Darkstar {ok, result} envelope', function () {
+    // Regression — production darkstar wraps sync responses in
+    // {ok, result} via .safe_sync/run_with_classification. Controller
+    // must read result.result.total, not result.total.
+    Http::fake([
+        '*/finngen/cohort/preview-count' => Http::response(
+            ['ok' => true, 'result' => ['total' => 361]],
+            200,
+        ),
+    ]);
+
+    $this->actingAs($this->researcher)
+        ->postJson('/api/v1/finngen/workbench/preview-counts', [
+            'source_key' => 'EUNOMIA',
+            'tree' => ['kind' => 'cohort', 'id' => 'c1', 'cohort_id' => 221],
+        ])
+        ->assertStatus(200)
+        ->assertJsonPath('data.total', 361);
+});
+
 it('POST /preview-counts returns total + operation string for a valid tree', function () {
     Http::fake([
         '*/finngen/cohort/preview-count' => Http::response(['total' => 1234], 200),
