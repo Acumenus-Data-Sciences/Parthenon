@@ -10,7 +10,7 @@ numpy==2.*
 ollama==0.6.*
 transformers>=4.41,<6
 torch==2.*
-pandas==2.*
+pandas==3.*
 chromadb==1.*
 sentence-transformers==5.*
 langchain-text-splitters==1.*
