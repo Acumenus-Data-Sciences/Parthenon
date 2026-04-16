@@ -254,6 +254,12 @@ class RunFinnGenAnalysisJob implements ShouldQueue
 
     private function roleForAnalysisType(string $type): string
     {
+        // romopapi.setup writes stratified_code_counts to *_results and needs RW.
+        // Other romopapi.* and hades.* are pure reads.
+        if ($type === 'romopapi.setup') {
+            return FinnGenSourceContextBuilder::ROLE_RW;
+        }
+
         return (str_starts_with($type, 'romopapi.') || str_starts_with($type, 'hades.'))
             ? FinnGenSourceContextBuilder::ROLE_RO
             : FinnGenSourceContextBuilder::ROLE_RW;

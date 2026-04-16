@@ -109,9 +109,10 @@ suppressPackageStartupMessages({
   )
 }
 
-.dispatch_async <- function(endpoint_key, req, response) {
-  spec <- jsonlite::fromJSON(req$postBody, simplifyVector = FALSE)
-  if (is.null(spec$run_id) || is.null(spec$source)) {
+.dispatch_async <- function(endpoint_key, spec, response) {
+  # plumber2 injects the parsed POST body as the `body` parameter directly.
+  # Each route calls: .dispatch_async("key", body, response)
+  if (is.null(spec) || is.null(spec$run_id) || is.null(spec$source)) {
     response$status <- 400L
     return(list(status = "error", message = "Request body must include run_id and source"))
   }
@@ -200,48 +201,48 @@ function(source, cohort_id, response) {
 
 #* @post /finngen/co2/codewas
 #* @serializer unboxedJSON
-function(req, response) {
-  .dispatch_async("finngen.co2.codewas", req, response)
+function(body, response) {
+  .dispatch_async("finngen.co2.codewas", body, response)
 }
 
 #* @post /finngen/co2/time-codewas
 #* @serializer unboxedJSON
-function(req, response) {
-  .dispatch_async("finngen.co2.time_codewas", req, response)
+function(body, response) {
+  .dispatch_async("finngen.co2.time_codewas", body, response)
 }
 
 #* @post /finngen/co2/overlaps
 #* @serializer unboxedJSON
-function(req, response) {
-  .dispatch_async("finngen.co2.overlaps", req, response)
+function(body, response) {
+  .dispatch_async("finngen.co2.overlaps", body, response)
 }
 
 #* @post /finngen/co2/demographics
 #* @serializer unboxedJSON
-function(req, response) {
-  .dispatch_async("finngen.co2.demographics", req, response)
+function(body, response) {
+  .dispatch_async("finngen.co2.demographics", body, response)
 }
 
 #* @post /finngen/cohort/generate
 #* @serializer unboxedJSON
-function(req, response) {
-  .dispatch_async("finngen.cohort.generate", req, response)
+function(body, response) {
+  .dispatch_async("finngen.cohort.generate", body, response)
 }
 
 #* @post /finngen/cohort/match
 #* @serializer unboxedJSON
-function(req, response) {
-  .dispatch_async("finngen.cohort.match", req, response)
+function(body, response) {
+  .dispatch_async("finngen.cohort.match", body, response)
 }
 
 #* @post /finngen/romopapi/report
 #* @serializer unboxedJSON
-function(req, response) {
-  .dispatch_async("finngen.romopapi.report", req, response)
+function(body, response) {
+  .dispatch_async("finngen.romopapi.report", body, response)
 }
 
 #* @post /finngen/romopapi/setup
 #* @serializer unboxedJSON
-function(req, response) {
-  .dispatch_async("finngen.romopapi.setup", req, response)
+function(body, response) {
+  .dispatch_async("finngen.romopapi.setup", body, response)
 }

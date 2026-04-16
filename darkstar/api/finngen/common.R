@@ -97,7 +97,7 @@ write_progress <- function(path, obj) {
     port         = conn$port,
     user         = conn$user,
     password     = conn$password,
-    pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER", "/opt/runner-state/jdbc")
+    pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER", "/opt/jdbc")
   )
 }
 
@@ -125,7 +125,10 @@ build_cohort_table_handler <- function(source_envelope) {
     ),
     cohortTable = list(
       cohortDatabaseSchema = sch$cohort,
-      cohortTableName      = "cohort"
+      # Namespaced cohort table — keeps FinnGen writes isolated from any
+      # existing Parthenon cohort table (which is owned by a different role).
+      # See devlog/modules/finngen/sp2-code-explorer.md for rationale.
+      cohortTableName      = "finngen_cohort"
     )
   ))
 }

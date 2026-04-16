@@ -30,6 +30,10 @@ finngen_romopapi_report_execute <- function(source_envelope, run_id, export_fold
   dir.create(export_folder, recursive = TRUE, showWarnings = FALSE)
   progress_path <- file.path(export_folder, "progress.json")
 
+  old_wd <- getwd()
+  setwd(export_folder)
+  on.exit(setwd(old_wd), add = TRUE)
+
   run_with_classification(export_folder, function() {
     concept_id <- as.integer(params$concept_id)
 
@@ -73,6 +77,12 @@ finngen_romopapi_report_execute <- function(source_envelope, run_id, export_fold
 finngen_romopapi_setup_source_execute <- function(source_envelope, run_id, export_folder, params) {
   dir.create(export_folder, recursive = TRUE, showWarnings = FALSE)
   progress_path <- file.path(export_folder, "progress.json")
+
+  # ROMOPAPI writes intermediate files to the current working directory.
+  # setwd() to export_folder so those writes succeed (container root dir is read-only).
+  old_wd <- getwd()
+  setwd(export_folder)
+  on.exit(setwd(old_wd), add = TRUE)
 
   run_with_classification(export_folder, function() {
     write_progress(progress_path, list(step = "build_handler", pct = 5))
