@@ -31,7 +31,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libcairo2-dev \
     libxt-dev \
     libjpeg-dev \
-    pandoc \
     && rm -rf /var/lib/apt/lists/*
 
 # Rust toolchain — required by waysign (plumber2 dependency for cryptographic signing)
@@ -263,6 +262,12 @@ RUN R -e " \
   if (!requireNamespace('CO2AnalysisModules', quietly = TRUE)) stop('CO2AnalysisModules failed'); \
   cat('[BUILD] FinnGen packages installed: ROMOPAPI, HadesExtras, CO2AnalysisModules\n'); \
 "
+
+# pandoc is a runtime dep for ROMOPAPI::createReport (R Markdown → HTML).
+# Installed as a LATE layer so future apt changes don't invalidate the R-package
+# cache above (adding pandoc alone: ~30s; invalidating the apt base layer: ~30-60min).
+RUN apt-get update && apt-get install -y --no-install-recommends pandoc \
+    && rm -rf /var/lib/apt/lists/*
 
 # Python packages for PLP sklearn-based models — pinned versions
 # + PyTorch and deps for DeepPatientLevelPrediction (via reticulate)

@@ -34,6 +34,13 @@ finngen_romopapi_report_execute <- function(source_envelope, run_id, export_fold
   setwd(export_folder)
   on.exit(setwd(old_wd), add = TRUE)
 
+  # pandoc + rmarkdown need HOME + a writable TMPDIR. The callr subprocess
+  # inherits a minimal env under s6; export_folder is guaranteed writable by ruser.
+  if (Sys.getenv("HOME") == "") Sys.setenv(HOME = export_folder)
+  rmd_tmp <- file.path(export_folder, ".rmd-tmp")
+  dir.create(rmd_tmp, recursive = TRUE, showWarnings = FALSE)
+  Sys.setenv(TMPDIR = rmd_tmp)
+
   run_with_classification(export_folder, function() {
     concept_id <- as.integer(params$concept_id)
 
