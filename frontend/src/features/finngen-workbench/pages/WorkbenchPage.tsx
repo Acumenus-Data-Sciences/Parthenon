@@ -1,0 +1,195 @@
+// frontend/src/features/finngen-workbench/pages/WorkbenchPage.tsx
+//
+// SP4 Phase F.1 — top-level workbench shell. Loads a session by id from the
+// URL, hydrates the Zustand store, and renders the active step. Autosave
+// (Phase A's hook) PATCHes session_state on any change.
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import { Loader2, ArrowLeft, ExternalLink } from "lucide-react";
+import { OperationBuilder } from "../components/OperationBuilder";
+import { MatchingConfigForm } from "../components/MatchingConfigForm";
+import { MatchingResults } from "../components/MatchingResults";
+import {
+  WorkbenchStepper,
+  WORKBENCH_STEPS,
+  type WorkbenchStepKey,
+} from "../components/WorkbenchStepper";
+import {
+  useAutosaveWorkbenchSession,
+  useWorkbenchSession,
+} from "../hooks/useWorkbenchSession";
+import { useMatchCohort } from "../hooks/useMatchCohort";
+import { useWorkbenchStore } from "../stores/workbenchStore";
+import type { OperationNode } from "../lib/operationTree";
+
+export default function WorkbenchPage() {
+  const { sessionId } = useParams<{ sessionId: string }>();
+  const navigate = useNavigate();
+  const { data: session, isPending, isError } = useWorkbenchSession(sessionId ?? null);
+
+  const sessionState = useWorkbenchStore((s) => s.sessionState);
+  const loadSession = useWorkbenchStore((s) => s.loadSession);
+  const setOperationTree = useWorkbenchStore((s) => s.setOperationTree);
+  const setStep = useWorkbenchStore((s) => s.setStep);
+
+  const [matchRunId, setMatchRunId] = useState<string | null>(null);
+  const matchMutation = useMatchCohort();
+
+  // Hydrate the store from the loaded session once.
+  useEffect(() => {
+    if (session !== undefined && sessionId !== undefined) {
+      loadSession(sessionId, session.session_state ?? {});
+    }
+  }, [session, sessionId, loadSession]);
+
+  // Autosave on any sessionState change.
+  useAutosaveWorkbenchSession(sessionId ?? null, sessionState, 5_000);
+
+  const stepIndex = typeof sessionState.step === "number" ? sessionState.step : 0;
+  const currentStep = WORKBENCH_STEPS[stepIndex]?.key ?? "select-source";
+
+  const completed = useMemo(() => {
+    const set = new Set<WorkbenchStepKey>();
+    for (let i = 0; i < stepIndex; i++) {
+      const k = WORKBENCH_STEPS[i]?.key;
+      if (k) set.add(k);
+    }
+    return set;
+  }, [stepIndex]);
+
+  function goToStep(key: WorkbenchStepKey) {
+    const idx = WORKBENCH_STEPS.findIndex((s) => s.key === key);
+    if (idx >= 0) setStep(idx);
+  }
+
+  if (isPending) {
+    return (
+      <div className="flex items-center gap-2 p-6 text-sm text-text-secondary">
+        <Loader2 size={16} className="animate-spin" /> Loading workbench session...
+      </div>
+    );
+  }
+  if (isError || session === undefined) {
+    return (
+      <div className="p-6 text-sm text-error">
+        Could not load this workbench session.{" "}
+        <Link to="/workbench/cohorts" className="underline">Back to sessions</Link>
+      </div>
+    );
+  }
+
+  const tree = (sessionState.operation_tree as OperationNode | null | undefined) ?? null;
+
+  return (
+    <div className="space-y-4 p-4">
+      <header className="space-y-2">
+        <Link
+          to="/workbench/cohorts"
+          className="inline-flex items-center gap-1 text-xs text-text-ghost hover:text-text-secondary"
+        >
+          <ArrowLeft size={12} /> All sessions
+        </Link>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-lg font-semibold text-text-primary">{session.name}</h1>
+            <p className="text-xs text-text-ghost">
+              {session.source_key} · session {session.id.slice(0, 8)}…
+            </p>
+          </div>
+        </div>
+        <WorkbenchStepper current={currentStep} completed={completed} onStepChange={goToStep} />
+      </header>
+
+      <main className="space-y-4">
+        {currentStep === "select-source" && (
+          <PlaceholderStep title="Source already selected">
+            <p className="text-xs text-text-secondary">
+              This session is bound to <span className="font-mono">{session.source_key}</span>.
+              Source switching is deferred to a future phase.
+            </p>
+          </PlaceholderStep>
+        )}
+
+        {currentStep === "import-cohorts" && (
+          <PlaceholderStep title="Import cohorts">
+            <p className="text-xs text-text-ghost">
+              Cohort picker (browse <span className="font-mono">app.cohort_definitions</span>) and
+              Atlas import are pending. For now, add cohorts by id directly in the Operate step.
+            </p>
+          </PlaceholderStep>
+        )}
+
+        {currentStep === "operate" && (
+          <OperationBuilder
+            tree={tree}
+            onChange={(next) => setOperationTree(next)}
+            sourceKey={session.source_key}
+          />
+        )}
+
+        {currentStep === "match" && (
+          <div className="space-y-3">
+            <MatchingConfigForm
+              sourceKey={session.source_key}
+              loading={matchMutation.isPending}
+              onSubmit={(payload) => {
+                matchMutation.mutate(payload, {
+                  onSuccess: (run) => setMatchRunId(run.id),
+                });
+              }}
+            />
+            <MatchingResults runId={matchRunId} />
+          </div>
+        )}
+
+        {currentStep === "materialize" && (
+          <PlaceholderStep title="Materialize matched cohort">
+            <p className="text-xs text-text-ghost">
+              Cohort materialization (writes the result of either the operation tree or the matched
+              cohort to <span className="font-mono">cohort</span>) is pending.
+            </p>
+          </PlaceholderStep>
+        )}
+
+        {currentStep === "handoff" && (
+          <HandoffStep sourceKey={session.source_key} navigate={navigate} />
+        )}
+      </main>
+    </div>
+  );
+}
+
+function PlaceholderStep({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-lg border border-dashed border-border-default p-6">
+      <h2 className="mb-2 text-sm font-semibold text-text-secondary">{title}</h2>
+      {children}
+    </div>
+  );
+}
+
+function HandoffStep({
+  sourceKey,
+  navigate,
+}: {
+  sourceKey: string;
+  navigate: (path: string) => void;
+}) {
+  return (
+    <div className="rounded-lg border border-border-default bg-surface-raised p-6 space-y-3">
+      <h2 className="text-sm font-semibold text-text-secondary">Handoff to Analysis Gallery</h2>
+      <p className="text-xs text-text-ghost">
+        When the matched cohort is materialized, hand it off to a CO2 analysis (CodeWAS,
+        Demographics, Overlaps, timeCodeWAS).
+      </p>
+      <button
+        type="button"
+        onClick={() => navigate(`/workbench/investigation`)}
+        className="inline-flex items-center gap-2 rounded bg-success px-3 py-1.5 text-xs font-medium text-bg-canvas hover:bg-success/90"
+      >
+        <ExternalLink size={12} />
+        Open {sourceKey} in Analysis Gallery
+      </button>
+    </div>
+  );
+}

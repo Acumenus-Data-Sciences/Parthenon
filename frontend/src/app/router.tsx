@@ -318,6 +318,26 @@ export const router = createBrowserRouter(
             element: <Navigate to="/workbench/investigation" replace />,
           },
           {
+            // SP4 Phase F — FinnGen Cohort Workbench
+            path: "cohorts",
+            children: [
+              {
+                index: true,
+                lazy: () =>
+                  import(
+                    "@/features/finngen-workbench/pages/SessionsListPage"
+                  ).then((m) => ({ Component: m.default })),
+              },
+              {
+                path: ":sessionId",
+                lazy: () =>
+                  import(
+                    "@/features/finngen-workbench/pages/WorkbenchPage"
+                  ).then((m) => ({ Component: m.default })),
+              },
+            ],
+          },
+          {
             path: "community-sdk-demo",
             lazy: () =>
               import(
