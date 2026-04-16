@@ -10,6 +10,7 @@ import { OperationBuilder } from "../components/OperationBuilder";
 import { MatchingConfigForm } from "../components/MatchingConfigForm";
 import { MatchingResults } from "../components/MatchingResults";
 import { MaterializeStep } from "../components/MaterializeStep";
+import { ImportCohortsStep } from "../components/ImportCohortsStep";
 import {
   WorkbenchStepper,
   WORKBENCH_STEPS,
@@ -112,12 +113,11 @@ export default function WorkbenchPage() {
         )}
 
         {currentStep === "import-cohorts" && (
-          <PlaceholderStep title="Import cohorts">
-            <p className="text-xs text-text-ghost">
-              Cohort picker (browse <span className="font-mono">app.cohort_definitions</span>) and
-              Atlas import are pending. For now, add cohorts by id directly in the Operate step.
-            </p>
-          </PlaceholderStep>
+          <ImportCohortsStep
+            tree={tree}
+            onImport={(next) => setOperationTree(next)}
+            onAdvance={() => goToStep("operate")}
+          />
         )}
 
         {currentStep === "operate" && (

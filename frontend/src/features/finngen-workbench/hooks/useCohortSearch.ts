@@ -52,3 +52,23 @@ export function useCohortById(id: number | null) {
     staleTime: 5 * 60 * 1000,
   });
 }
+
+/**
+ * Unfiltered browse (default sort) for the Import Cohorts step. Unlike
+ * useCohortSearch, this fires on empty query too so the step has something
+ * to show the researcher before they type. Pagination via page + per_page.
+ */
+export function useCohortBrowse(args: { search?: string; page?: number; perPage?: number } = {}) {
+  const { search = "", page = 1, perPage = 50 } = args;
+  return useQuery<{ items: CohortSummary[]; total: number }>({
+    queryKey: ["finngen", "workbench", "cohort-browse", search, page, perPage],
+    queryFn: async () => {
+      const { data } = await apiClient.get<{ data: CohortSummary[]; total?: number }>(
+        "/cohort-definitions",
+        { params: { search, page, per_page: perPage } },
+      );
+      return { items: data.data ?? [], total: data.total ?? (data.data?.length ?? 0) };
+    },
+    staleTime: 30_000,
+  });
+}
