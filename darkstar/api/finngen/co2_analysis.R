@@ -23,14 +23,14 @@ suppressPackageStartupMessages({
 
 .write_summary <- function(export_folder, summary_obj) {
   writeLines(
-    jsonlite::toJSON(summary_obj, auto_unbox = TRUE, null = "null", force = TRUE),
+    jsonlite::toJSON(summary_obj, auto_unbox = TRUE, null = "null", na = "null", force = TRUE),
     file.path(export_folder, "summary.json")
   )
 }
 
 .write_display <- function(export_folder, display_obj) {
   writeLines(
-    jsonlite::toJSON(display_obj, auto_unbox = TRUE, null = "null", force = TRUE, digits = 8),
+    jsonlite::toJSON(display_obj, auto_unbox = TRUE, null = "null", na = "null", force = TRUE, digits = 8),
     file.path(export_folder, "display.json")
   )
 }
@@ -868,13 +868,31 @@ finngen_co2_demographics_execute <- function(source_envelope, run_id, export_fol
             total_female  <- as.integer(sum(cdf$count[gender_upper == "FEMALE"], na.rm = TRUE))
             total_unknown <- max(0L, as.integer(n - total_male - total_female))
 
+            # Mean / median from decile midpoints weighted by count
+            decile_totals <- aggregate(count ~ decile, cdf, sum, na.rm = TRUE)
+            decile_totals <- decile_totals[!is.na(decile_totals$decile), , drop = FALSE]
+            mean_age <- NA_real_
+            median_age <- NA_real_
+            if (nrow(decile_totals) > 0 && sum(decile_totals$count) > 0) {
+              midpoints <- decile_totals$decile * 10 + 5
+              counts    <- decile_totals$count
+              mean_age <- as.numeric(sum(midpoints * counts) / sum(counts))
+              # Weighted median via cumulative counts crossing n/2
+              ord <- order(midpoints)
+              mp  <- midpoints[ord]; ct <- counts[ord]
+              cum <- cumsum(ct)
+              target <- sum(ct) / 2
+              idx <- which(cum >= target)[1]
+              if (!is.na(idx)) median_age <- as.numeric(mp[idx])
+            }
+
             list(
               cohort_id     = as.integer(cid),
               cohort_name   = as.character(cohort_name),
               n             = n,
               age_histogram = age_histogram,
               gender_counts = list(male = total_male, female = total_female, unknown = total_unknown),
-              summary       = list(mean_age = NA_real_, median_age = NA_real_)
+              summary       = list(mean_age = mean_age, median_age = median_age)
             )
           })
           list(cohorts = cohorts)

@@ -235,12 +235,23 @@ class RunFinnGenAnalysisJob implements ShouldQueue
         $candidates = [
             'results_db' => 'results.duckdb',
             'summary' => 'summary.json',
+            'display' => 'display.json',
             'log' => 'log.txt',
             'report' => 'report.html',
             'progress' => 'progress.json',
             'params' => 'params.json',
             'result' => 'result.json',
+            'codewas_csv' => 'codeWASCounts.csv',
         ];
+
+        // Small polling window to tolerate the race between darkstar reporting
+        // terminal status over HTTP and the shared volume flushing all output
+        // files. Writers flush result.json last, so its presence is our signal
+        // that everything else has landed. Poll up to ~1s before giving up.
+        $deadline = microtime(true) + 1.0;
+        while (! is_file($runDir.'/result.json') && microtime(true) < $deadline) {
+            usleep(100_000);
+        }
 
         $artifacts = [];
         foreach ($candidates as $key => $filename) {
