@@ -1018,6 +1018,8 @@ Route::prefix('v1')->group(function () {
             // Analysis module registry
             Route::get('/analyses/modules', [AnalysisModuleController::class, 'index'])
                 ->middleware('permission:analyses.view');
+            Route::get('/analyses/modules/{key}', [AnalysisModuleController::class, 'show'])
+                ->middleware('permission:analyses.view');
 
             // Code Explorer (SP2)
             Route::prefix('code-explorer')->group(function () {

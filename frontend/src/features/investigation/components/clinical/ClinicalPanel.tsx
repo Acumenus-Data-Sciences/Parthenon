@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { lazy, Suspense, useCallback, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useAutoSave } from "../../hooks/useAutoSave";
 import { useCreateAnalysis, useExecuteAnalysis } from "../../hooks/useClinicalAnalysis";
@@ -10,15 +10,34 @@ import type {
   ClinicalState,
   Investigation,
 } from "../../types";
+import type { FinnGenAnalysisModule, FinnGenRun } from "@/features/_finngen-foundation";
 import { AlertCircle } from "lucide-react";
 import { AnalysisGallery } from "./AnalysisGallery";
 import { ConfigDrawer } from "./ConfigDrawer";
 import { ExecutionTracker } from "./ExecutionTracker";
 import { RunHistoryPanel } from "./RunHistoryPanel";
 
+const FinnGenGalleryPage = lazy(() =>
+  import("@/features/finngen-analyses/pages/AnalysisGalleryPage").then((m) => ({
+    default: m.AnalysisGalleryPage,
+  })),
+);
+
+const FinnGenDetailPage = lazy(() =>
+  import("@/features/finngen-analyses/pages/AnalysisDetailPage").then((m) => ({
+    default: m.AnalysisDetailPage,
+  })),
+);
+
+const FinnGenRunHistoryTable = lazy(() =>
+  import("@/features/finngen-analyses/components/RunHistoryTable").then((m) => ({
+    default: m.RunHistoryTable,
+  })),
+);
+
 // ── Types ────────────────────────────────────────────────────────────────────
 
-type PanelView = "gallery" | "tracking" | "history";
+type PanelView = "gallery" | "tracking" | "history" | "finngen" | "finngen-history";
 
 interface ActiveExecution {
   apiPrefix: string;
@@ -41,9 +60,11 @@ interface SubTabBarProps {
 
 function SubTabBar({ view, hasActiveExecution, onChange }: SubTabBarProps) {
   const tabs: { id: PanelView; label: string; hidden?: boolean }[] = [
-    { id: "gallery", label: "Gallery" },
+    { id: "gallery", label: "OHDSI Analyses" },
     { id: "tracking", label: "Active Run", hidden: !hasActiveExecution },
     { id: "history", label: "History" },
+    { id: "finngen", label: "FinnGen Analyses" },
+    { id: "finngen-history", label: "Run History" },
   ];
 
   return (
@@ -156,13 +177,14 @@ function buildDesignPayload(
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-const VALID_PANEL_VIEWS: PanelView[] = ["gallery", "tracking", "history"];
+const VALID_PANEL_VIEWS: PanelView[] = ["gallery", "tracking", "history", "finngen", "finngen-history"];
 
 export function ClinicalPanel({ investigation }: ClinicalPanelProps) {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [selectedType, setSelectedType] = useState<ClinicalAnalysisType | null>(null);
   const [activeExecution, setActiveExecution] = useState<ActiveExecution | null>(null);
+  const [selectedFinnGenModule, setSelectedFinnGenModule] = useState<FinnGenAnalysisModule | null>(null);
   const [view, setView] = useState<PanelView>(() => {
     const urlTab = searchParams.get("subtab");
     const isValid = VALID_PANEL_VIEWS.includes(urlTab as PanelView);
@@ -173,6 +195,9 @@ export function ClinicalPanel({ investigation }: ClinicalPanelProps) {
   const [executeError, setExecuteError] = useState<string | null>(null);
 
   function handleViewChange(v: PanelView) {
+    if (v !== "finngen") {
+      setSelectedFinnGenModule(null);
+    }
     setView(v);
     setSearchParams(
       (prev) => {
@@ -370,6 +395,49 @@ export function ClinicalPanel({ investigation }: ClinicalPanelProps) {
             investigation={{ ...investigation, clinical_state: clinicalState }}
             onSelectExecution={handleSelectExecution}
           />
+        )}
+
+        {view === "finngen" && !selectedFinnGenModule && (
+          <Suspense fallback={<div className="py-8 text-center text-xs text-text-ghost">Loading...</div>}>
+            <FinnGenGalleryPage
+              sourceKey={String(clinicalState.selected_source_id ?? "")}
+              onSelectModule={(mod) => setSelectedFinnGenModule(mod)}
+            />
+          </Suspense>
+        )}
+
+        {view === "finngen" && selectedFinnGenModule && (
+          <Suspense fallback={<div className="py-8 text-center text-xs text-text-ghost">Loading...</div>}>
+            <FinnGenDetailPage
+              moduleKey={selectedFinnGenModule.key}
+              sourceKey={String(clinicalState.selected_source_id ?? "")}
+              onBack={() => setSelectedFinnGenModule(null)}
+            />
+          </Suspense>
+        )}
+
+        {view === "finngen-history" && (
+          <Suspense fallback={<div className="py-8 text-center text-xs text-text-ghost">Loading...</div>}>
+            <FinnGenRunHistoryTable
+              sourceKey={String(clinicalState.selected_source_id ?? "")}
+              onSelectRun={(run: FinnGenRun) => {
+                const mod: FinnGenAnalysisModule = {
+                  key: run.analysis_type,
+                  label: run.analysis_type.replace("co2.", ""),
+                  description: "",
+                  darkstar_endpoint: "",
+                  enabled: true,
+                  min_role: "researcher",
+                  settings_schema: null,
+                  default_settings: null,
+                  result_schema: null,
+                  result_component: null,
+                };
+                setSelectedFinnGenModule(mod);
+                handleViewChange("finngen");
+              }}
+            />
+          </Suspense>
         )}
       </div>
 

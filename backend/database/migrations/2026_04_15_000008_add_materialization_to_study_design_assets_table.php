@@ -9,6 +9,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasColumn('study_design_assets', 'materialized_type')) {
+            return;
+        }
+
         Schema::table('study_design_assets', function (Blueprint $table) {
             $table->string('materialized_type', 128)->nullable()->after('rank_score_json');
             $table->unsignedBigInteger('materialized_id')->nullable()->after('materialized_type');
