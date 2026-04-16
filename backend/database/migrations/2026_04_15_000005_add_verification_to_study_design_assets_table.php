@@ -9,8 +9,6 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Guard: 000004 already creates these columns in a fresh DB (test env).
-        // This migration only runs on prod where the table existed before 000004.
         if (Schema::hasColumn('study_design_assets', 'verification_status')) {
             return;
         }

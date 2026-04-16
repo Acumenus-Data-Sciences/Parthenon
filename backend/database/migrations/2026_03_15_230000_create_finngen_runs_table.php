@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('finngen_runs')) {
+            return;
+        }
+
         Schema::create('finngen_runs', function (Blueprint $table) {
             $table->id();
             $table->string('service_name', 80);

@@ -25,9 +25,9 @@ return new class extends Migration
         $rwPassword = (string) config('finngen.pg_rw_password');
 
         if ($roPassword === '' || $rwPassword === '') {
-            throw new RuntimeException(
-                'FINNGEN_PG_RO_PASSWORD and FINNGEN_PG_RW_PASSWORD must be set in .env before running this migration.'
-            );
+            // Skip on Community Edition / fresh installs that don't use FinnGen.
+            // Roles can be created later by re-running with the env vars set.
+            return;
         }
 
         // Defensive escape of single quotes for the SQL literal. We control the

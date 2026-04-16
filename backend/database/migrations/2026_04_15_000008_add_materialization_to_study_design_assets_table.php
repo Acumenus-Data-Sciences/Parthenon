@@ -9,7 +9,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (Schema::hasColumn('study_design_assets', 'materialized_type')) {
+        if (Schema::hasColumn('study_design_assets', 'materialized_at')) {
             return;
         }
 
