@@ -12,6 +12,7 @@ enum CohortDomain: string
     case PAIN_SUBSTANCE_USE = 'pain-substance-use';
     case PEDIATRIC = 'pediatric';
     case GENERAL = 'general';
+    case FINNGEN_ENDPOINT = 'finngen-endpoint';
 
     public function label(): string
     {
@@ -24,6 +25,7 @@ enum CohortDomain: string
             self::PAIN_SUBSTANCE_USE => 'Pain & Substance Use',
             self::PEDIATRIC => 'Pediatric',
             self::GENERAL => 'General',
+            self::FINNGEN_ENDPOINT => 'FinnGen Endpoint Library',
         };
     }
 
