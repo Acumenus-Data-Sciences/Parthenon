@@ -10,7 +10,6 @@ use App\Http\Requests\FinnGen\MatchWorkbenchCohortRequest;
 use App\Http\Requests\FinnGen\MaterializeWorkbenchCohortRequest;
 use App\Http\Requests\FinnGen\PreviewWorkbenchCountsRequest;
 use App\Http\Requests\FinnGen\UpdateWorkbenchSessionRequest;
-use App\Jobs\FinnGen\RunFinnGenAnalysisJob;
 use App\Models\App\CohortDefinition;
 use App\Models\App\WebApiRegistry;
 use App\Services\FinnGen\CohortOperationCompiler;
@@ -25,7 +24,6 @@ use App\Services\WebApi\AtlasCohortImportService;
 use App\Services\WebApi\AtlasDiscoveryService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Bus;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -218,8 +216,6 @@ class WorkbenchSessionController extends Controller
             params: $params,
         );
 
-        Bus::dispatch(new RunFinnGenAnalysisJob($run->id));
-
         return response()->json(['data' => $run], 202);
     }
 
@@ -330,8 +326,6 @@ class WorkbenchSessionController extends Controller
                 'overwrite_existing' => $overwrite,
             ],
         );
-
-        Bus::dispatch(new RunFinnGenAnalysisJob($run->id));
 
         return response()->json([
             'data' => [

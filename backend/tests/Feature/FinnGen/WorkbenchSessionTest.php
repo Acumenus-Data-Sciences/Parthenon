@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 use App\Jobs\FinnGen\RunFinnGenAnalysisJob;
+use App\Models\App\CohortDefinition;
 use App\Models\App\FinnGen\WorkbenchSession;
+use App\Models\App\WebApiRegistry;
 use App\Models\User;
 use Database\Seeders\Testing\FinnGenTestingSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -333,7 +335,11 @@ it('POST /workbench/match creates a cohort.match run + dispatches the analysis j
     $resp->assertJsonPath('data.params.ratio', 2);
     $resp->assertJsonPath('data.user_id', $this->researcher->id);
 
-    Bus::assertDispatched(RunFinnGenAnalysisJob::class);
+    // Regression — see fix for double-dispatch bug surfaced by SP4 live smoke
+    // (260416-owf). FinnGenRunService::create() already dispatches the job;
+    // the controller MUST NOT redispatch, otherwise materialize-style writes
+    // race themselves and inflate row counts 2×.
+    Bus::assertDispatched(RunFinnGenAnalysisJob::class, 1);
 });
 
 it('POST /workbench/match validates required fields', function () {
@@ -401,12 +407,13 @@ it('POST /workbench/materialize creates cohort_definition + dispatches run', fun
         ->toContain('cohort_definition_id = 221')
         ->toContain('cohort_definition_id = 222');
 
-    Bus::assertDispatched(\App\Jobs\FinnGen\RunFinnGenAnalysisJob::class);
+    // Regression — exactly one dispatch (see match test above).
+    Bus::assertDispatched(RunFinnGenAnalysisJob::class, 1);
 
     // The cohort_definition row exists with the researcher as author and the
     // workbench tree stored under expression_json.workbench_tree.
     $cohortId = (int) $resp->json('data.cohort_definition_id');
-    $def = \App\Models\App\CohortDefinition::find($cohortId);
+    $def = CohortDefinition::find($cohortId);
     expect($def)->not->toBeNull();
     expect($def->author_id)->toBe($this->researcher->id);
     expect($def->expression_json['source_key'] ?? null)->toBe('EUNOMIA');
@@ -456,7 +463,7 @@ it('GET /workbench/atlas/cohorts denies viewer', function () {
 
 it('GET /workbench/atlas/cohorts returns 503 when no active registry', function () {
     Http::fake();
-    \App\Models\App\WebApiRegistry::query()->update(['is_active' => false]);
+    WebApiRegistry::query()->update(['is_active' => false]);
     $this->actingAs($this->researcher)
         ->getJson('/api/v1/finngen/workbench/atlas/cohorts')
         ->assertStatus(503)
@@ -464,7 +471,7 @@ it('GET /workbench/atlas/cohorts returns 503 when no active registry', function 
 });
 
 it('GET /workbench/atlas/cohorts lists cohorts from active registry', function () {
-    $registry = \App\Models\App\WebApiRegistry::create([
+    $registry = WebApiRegistry::create([
         'name' => 'Atlas Test',
         'base_url' => 'https://atlas.test.example.com/WebAPI',
         'auth_type' => 'none',
@@ -518,7 +525,7 @@ it('POST /workbench/atlas/import rejects > 50 ids', function () {
 
 it('POST /workbench/atlas/import returns 503 when no active registry', function () {
     Http::fake();
-    \App\Models\App\WebApiRegistry::query()->update(['is_active' => false]);
+    WebApiRegistry::query()->update(['is_active' => false]);
     $this->actingAs($this->researcher)
         ->postJson('/api/v1/finngen/workbench/atlas/import', [
             'atlas_ids' => [101, 102],
