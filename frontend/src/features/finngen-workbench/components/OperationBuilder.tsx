@@ -3,8 +3,13 @@
 // SP4 Phase B.4 — visual operation-tree builder. v0 ships with click-based
 // controls (add cohort/op, cycle op kind, remove); drag-and-drop reordering
 // is a polish follow-up that will plug into the same store mutators.
+//
+// Phase C — optional `sourceKey` prop turns on the Preview button + result
+// panel. The button POSTs the current tree to /finngen/workbench/preview-counts
+// and shows total subjects, the compiled operation string, and any structured
+// validation errors with their node ids highlighted.
 import { useMemo, useState } from "react";
-import { Plus, ChevronDown, ChevronRight } from "lucide-react";
+import { Plus, ChevronDown, ChevronRight, Loader2, Eye } from "lucide-react";
 import {
   appendChild,
   compile,
@@ -18,6 +23,7 @@ import {
   type OperationNode,
   type ValidationError,
 } from "../lib/operationTree";
+import { usePreviewCounts } from "../hooks/usePreviewCounts";
 import { CohortChip } from "./CohortChip";
 import { OpContainer } from "./OpContainer";
 
@@ -25,6 +31,9 @@ interface OperationBuilderProps {
   tree: OperationNode | null;
   onChange: (next: OperationNode | null) => void;
   cohortNames?: Record<number, string>;
+  /** When set, exposes the Preview button + result panel. Optional so the
+   * builder is still useful in pure-form contexts (e.g. matching subtrees). */
+  sourceKey?: string;
 }
 
 const NEXT_OP: Record<OpKind, OpKind> = {
@@ -33,9 +42,10 @@ const NEXT_OP: Record<OpKind, OpKind> = {
   MINUS: "UNION",
 };
 
-export function OperationBuilder({ tree, onChange, cohortNames }: OperationBuilderProps) {
+export function OperationBuilder({ tree, onChange, cohortNames, sourceKey }: OperationBuilderProps) {
   const [expressionOpen, setExpressionOpen] = useState(false);
   const [pendingCohortId, setPendingCohortId] = useState("");
+  const preview = usePreviewCounts(sourceKey ?? "");
 
   const errors = useMemo(() => validate(tree), [tree]);
   const errorsByNode = useMemo(() => {
@@ -172,6 +182,19 @@ export function OperationBuilder({ tree, onChange, cohortNames }: OperationBuild
         expression={expression}
         errorCount={errors.length}
       />
+
+      {sourceKey !== undefined && (
+        <PreviewPanel
+          disabled={tree === null || errors.length > 0 || preview.isPending}
+          loading={preview.isPending}
+          onPreview={() => {
+            if (tree === null) return;
+            preview.mutate({ tree });
+          }}
+          result={preview.data}
+          error={preview.error}
+        />
+      )}
     </div>
   );
 }
@@ -295,6 +318,82 @@ function ExpressionDisclosure({
           {expression || "(empty)"}
         </pre>
       )}
+    </div>
+  );
+}
+
+// SP4 Phase C — preview panel
+function PreviewPanel({
+  disabled,
+  loading,
+  onPreview,
+  result,
+  error,
+}: {
+  disabled: boolean;
+  loading: boolean;
+  onPreview: () => void;
+  result: import("../api").PreviewCountsResponse | undefined;
+  error: import("../hooks/usePreviewCounts").PreviewError | null;
+}) {
+  return (
+    <div className="rounded border border-border-default bg-surface-raised">
+      <div className="flex items-center gap-2 border-b border-border-default px-3 py-2">
+        <button
+          type="button"
+          onClick={onPreview}
+          disabled={disabled}
+          className={[
+            "flex items-center gap-1.5 rounded px-2 py-1 text-xs font-medium transition-colors",
+            disabled
+              ? "bg-surface-overlay text-text-ghost cursor-not-allowed"
+              : "bg-success text-bg-canvas hover:bg-success/90",
+          ].join(" ")}
+        >
+          {loading ? <Loader2 size={12} className="animate-spin" /> : <Eye size={12} />}
+          Preview row count
+        </button>
+        {result !== undefined && !loading && (
+          <span className="text-[10px] text-text-ghost">
+            (last preview: {result.total.toLocaleString()} subjects)
+          </span>
+        )}
+      </div>
+      <div className="px-3 py-2 text-xs space-y-1">
+        {result !== undefined && !loading && error === null && (
+          <>
+            <div className="flex items-baseline gap-2">
+              <span className="text-2xl font-semibold text-success">
+                {result.total.toLocaleString()}
+              </span>
+              <span className="text-text-ghost">subjects</span>
+            </div>
+            <div className="text-[10px] text-text-ghost">
+              <span className="font-mono text-text-secondary">{result.operation_string}</span>
+              <span className="ml-2">— references {result.cohort_ids.length} cohort{result.cohort_ids.length === 1 ? "" : "s"}</span>
+            </div>
+          </>
+        )}
+        {error !== null && (
+          <div className="space-y-1 text-error">
+            <div className="font-medium">{error.message}</div>
+            {error.kind === "validation" && error.validation && (
+              <ul className="list-disc pl-4 text-[10px]">
+                {error.validation.map((v, i) => (
+                  <li key={i}>
+                    <span className="font-mono">{v.code}</span> @ {v.node_id}: {v.message}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+        {result === undefined && error === null && !loading && (
+          <p className="text-[10px] text-text-ghost">
+            Click Preview to compute the row count for this tree.
+          </p>
+        )}
+      </div>
     </div>
   );
 }

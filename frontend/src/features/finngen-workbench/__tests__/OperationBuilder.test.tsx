@@ -1,15 +1,26 @@
 // SP4 Phase B.4 — OperationBuilder render + interaction smoke. We exercise
 // the click-based controls (add cohort, add op, cycle op kind, remove) and
 // assert validation/expression display reflects the live tree state.
+//
+// usePreviewCounts uses TanStack Query useMutation unconditionally, so every
+// render needs a QueryClientProvider — even when sourceKey is omitted (the
+// hook still runs). The renderWithQuery helper wraps consistently.
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import type { ReactElement } from "react";
 import { OperationBuilder } from "../components/OperationBuilder";
 import { makeCohort, makeOp } from "../lib/operationTree";
+
+function renderWithQuery(ui: ReactElement) {
+  const qc = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
+  return render(<QueryClientProvider client={qc}>{ui}</QueryClientProvider>);
+}
 
 describe("OperationBuilder", () => {
   it("renders empty state with cohort input + op buttons", () => {
     const onChange = vi.fn();
-    render(<OperationBuilder tree={null} onChange={onChange} />);
+    renderWithQuery(<OperationBuilder tree={null} onChange={onChange} />);
     expect(screen.getByText(/Empty operation tree/i)).toBeDefined();
     expect(screen.getByPlaceholderText("cohort id")).toBeDefined();
     expect(screen.getByText("UNION")).toBeDefined();
@@ -19,7 +30,7 @@ describe("OperationBuilder", () => {
 
   it("creates a UNION root when the empty-state UNION button is clicked", () => {
     const onChange = vi.fn();
-    render(<OperationBuilder tree={null} onChange={onChange} />);
+    renderWithQuery(<OperationBuilder tree={null} onChange={onChange} />);
     fireEvent.click(screen.getByText("UNION"));
     expect(onChange).toHaveBeenCalledOnce();
     const arg = onChange.mock.calls[0][0];
@@ -30,7 +41,7 @@ describe("OperationBuilder", () => {
 
   it("renders a non-empty tree with cohort chips", () => {
     const tree = makeOp("UNION", [makeCohort(221), makeCohort(222)]);
-    render(<OperationBuilder tree={tree} onChange={vi.fn()} cohortNames={{ 221: "All PDAC" }} />);
+    renderWithQuery(<OperationBuilder tree={tree} onChange={vi.fn()} cohortNames={{ 221: "All PDAC" }} />);
     expect(screen.getByText("All PDAC")).toBeDefined();
     expect(screen.getByText("#221")).toBeDefined();
     expect(screen.getByText("#222")).toBeDefined();
@@ -41,7 +52,7 @@ describe("OperationBuilder", () => {
     const c2 = makeCohort(222);
     const tree = makeOp("UNION", [c1, c2]);
     const onChange = vi.fn();
-    render(<OperationBuilder tree={tree} onChange={onChange} />);
+    renderWithQuery(<OperationBuilder tree={tree} onChange={onChange} />);
     const removeBtns = screen.getAllByLabelText("Remove cohort");
     fireEvent.click(removeBtns[0]);
     expect(onChange).toHaveBeenCalledOnce();
@@ -53,8 +64,8 @@ describe("OperationBuilder", () => {
   it("cycles op kind UNION → INTERSECT → MINUS → UNION on repeated clicks", () => {
     const tree = makeOp("UNION", [makeCohort(1), makeCohort(2)]);
     let current = tree;
-    const { rerender } = render(
-      <OperationBuilder tree={current} onChange={(t) => { current = t!; rerender(<OperationBuilder tree={t!} onChange={() => {}} />); }} />
+    renderWithQuery(
+      <OperationBuilder tree={current} onChange={(t) => { current = t!; }} />,
     );
     fireEvent.click(screen.getByText("UNION").closest("button")!);
     expect(current.kind).toBe("op");
@@ -63,14 +74,26 @@ describe("OperationBuilder", () => {
 
   it("expression disclosure renders compiled string when valid", () => {
     const tree = makeOp("UNION", [makeCohort(1), makeCohort(2)]);
-    render(<OperationBuilder tree={tree} onChange={vi.fn()} />);
+    renderWithQuery(<OperationBuilder tree={tree} onChange={vi.fn()} />);
     fireEvent.click(screen.getByText(/Show as expression/i));
     expect(screen.getByText("1 UNION 2")).toBeDefined();
   });
 
   it("expression disclosure flags invalid trees", () => {
     const tree = makeOp("UNION", [makeCohort(1)]); // op with one child
-    render(<OperationBuilder tree={tree} onChange={vi.fn()} />);
+    renderWithQuery(<OperationBuilder tree={tree} onChange={vi.fn()} />);
     expect(screen.getByText(/1 validation error/)).toBeDefined();
+  });
+
+  it("Preview button is hidden when sourceKey is omitted", () => {
+    const tree = makeOp("UNION", [makeCohort(1), makeCohort(2)]);
+    renderWithQuery(<OperationBuilder tree={tree} onChange={vi.fn()} />);
+    expect(screen.queryByText(/Preview row count/i)).toBeNull();
+  });
+
+  it("Preview button shows when sourceKey is provided", () => {
+    const tree = makeOp("UNION", [makeCohort(1), makeCohort(2)]);
+    renderWithQuery(<OperationBuilder tree={tree} onChange={vi.fn()} sourceKey="PANCREAS" />);
+    expect(screen.getByText(/Preview row count/i)).toBeDefined();
   });
 });
