@@ -79,10 +79,13 @@ suppressPackageStartupMessages({
     if (is.null(out$referenceYears) || length(out$referenceYears) == 0) {
       out$referenceYears <- "cohort_start_date"
     }
+    # IMPORTANT: use all 3 dimensions to avoid the upstream groupBy-subset bug
+    # (CO2AnalysisModules#199). When groupBy is a strict subset, the function's
+    # reshape branch drops the referenceYear column that's later transmute'd.
+    # All 3 dimensions = skip the buggy branch entirely.
     if (is.null(out$groupBy) || length(out$groupBy) == 0) {
-      out$groupBy <- c("gender", "ageGroup")
+      out$groupBy <- c("calendarYear", "ageGroup", "gender")
     }
-    if (is.null(out$minCellCount)) out$minCellCount <- 5L
   }
   if (identical(module_key, "co2.codewas") || identical(module_key, "co2.time_codewas")) {
     if (is.null(out$analysisIds) || length(out$analysisIds) == 0) {
