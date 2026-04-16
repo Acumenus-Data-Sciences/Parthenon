@@ -1,6 +1,6 @@
 // frontend/src/features/finngen-workbench/components/OpContainer.tsx
-import type { ReactNode } from "react";
-import { X, RotateCw } from "lucide-react";
+import { useState, type ReactNode } from "react";
+import { X, RotateCw, ChevronDown, ChevronRight } from "lucide-react";
 import type { OpKind, OpNode } from "../lib/operationTree";
 
 const OP_COLORS: Record<OpKind, string> = {
@@ -37,6 +37,7 @@ export function OpContainer({
   const colorClass = OP_COLORS[node.op];
   const labelColor = OP_LABEL_COLORS[node.op];
   const hasErrors = errorCodes.length > 0;
+  const [collapsed, setCollapsed] = useState(false);
 
   return (
     <div
@@ -47,6 +48,14 @@ export function OpContainer({
       ].join(" ")}
     >
       <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setCollapsed((c) => !c)}
+          className="text-text-ghost hover:text-text-secondary transition-colors"
+          aria-label={collapsed ? "Expand" : "Collapse"}
+        >
+          {collapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
+        </button>
         <button
           type="button"
           onClick={() => onCycleKind(node.id)}
@@ -64,7 +73,7 @@ export function OpContainer({
           {node.children.length} {node.children.length === 1 ? "child" : "children"}
         </span>
         <div className="ml-auto flex items-center gap-1">
-          {toolbar}
+          {!collapsed && toolbar}
           {!isRoot && (
             <button
               type="button"
@@ -77,12 +86,16 @@ export function OpContainer({
           )}
         </div>
       </div>
-      {hasErrors && (
+      {hasErrors && !collapsed && (
         <p className="text-[10px] text-error">
           {errorCodes.join(", ")}
         </p>
       )}
-      <div className="flex flex-wrap items-center gap-2 pl-2">{children}</div>
+      {!collapsed && (
+        <div className="flex flex-wrap items-center gap-2 border-l-2 border-border-default/50 pl-3">
+          {children}
+        </div>
+      )}
     </div>
   );
 }

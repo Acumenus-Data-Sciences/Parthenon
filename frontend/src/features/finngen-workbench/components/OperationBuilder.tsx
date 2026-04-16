@@ -328,7 +328,7 @@ function SortableNode({ id, children }: { id: string; children: React.ReactNode 
         className="cursor-grab touch-none text-text-ghost hover:text-text-secondary active:cursor-grabbing"
         aria-label="Drag to reorder"
       >
-        <GripVertical size={10} />
+        <GripVertical size={14} />
       </button>
       {children}
     </div>
