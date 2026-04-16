@@ -53,14 +53,30 @@ finngen_romopapi_report_execute <- function(source_envelope, run_id, export_fold
       message = sprintf("Generating report for concept %d", concept_id)
     ))
 
-    src_html <- ROMOPAPI::createReport(handler, conceptId = concept_id)
+    # ROMOPAPI::createReport calls rmarkdown::render on the Rmd bundled inside
+    # the installed package directory. knitr writes intermediate files (*.knit.md)
+    # next to the input Rmd, but the package dir is read-only for ruser.
+    # Fix: copy the Rmd to the writable export_folder and render from there.
+    rmd_src <- system.file("reports", "testReport.Rmd", package = "ROMOPAPI")
+    rmd_copy <- file.path(export_folder, "testReport.Rmd")
+    file.copy(rmd_src, rmd_copy, overwrite = TRUE)
 
-    write_progress(progress_path, list(step = "copy_artifact", pct = 90))
     dst_html <- file.path(export_folder, "report.html")
-    if (!is.null(src_html) && file.exists(src_html) && src_html != dst_html) {
-      file.copy(src_html, dst_html, overwrite = TRUE)
-    } else if (!file.exists(dst_html)) {
-      stop("ROMOPAPI::createReport did not produce an HTML file at ", src_html %||% "<NULL>")
+    rmarkdown::render(
+      rmd_copy,
+      output_file = dst_html,
+      quiet = TRUE,
+      params = list(
+        conceptId = concept_id,
+        CDMdbHandler = handler,
+        showsMappings = FALSE,
+        pruneLevels = 3L,
+        pruneClass = ""
+      )
+    )
+
+    if (!file.exists(dst_html)) {
+      stop("rmarkdown::render did not produce report.html in ", export_folder)
     }
 
     report_size <- file.size(dst_html)
