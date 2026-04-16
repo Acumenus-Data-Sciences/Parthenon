@@ -22,7 +22,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const now = new Date();\n// Look back 35 minutes to overlap with the 30-min window and catch any stragglers\nconst since = new Date(now.getTime() - 35 * 60 * 1000).toISOString();\n\nreturn [{\n  json: {\n    startedAt: now.toISOString(),\n    reconcileUrl: 'http://host.docker.internal:9878/reconcile',\n    since\n  }\n}];"
+        "jsCode": "const now = new Date();\n// Look back 35 minutes to overlap with the 30-min window and catch any stragglers\nconst since = new Date(now.getTime() - 35 * 60 * 1000).toISOString();\n\nreturn [{\n  json: {\n    startedAt: now.toISOString(),\n    reconcileUrl: 'http://host.docker.internal:9890/reconcile',\n    since\n  }\n}];"
       },
       "id": "init-reconciliation",
       "name": "Init Reconciliation",
