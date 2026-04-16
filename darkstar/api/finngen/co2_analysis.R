@@ -404,83 +404,226 @@ finngen_co2_codewas_execute <- function(source_envelope, run_id, export_folder, 
 }
 
 finngen_co2_time_codewas_execute <- function(source_envelope, run_id, export_folder, analysis_settings) {
+  # SP3 bespoke-SQL implementation. Bypasses CO2AnalysisModules::execute_timeCodeWAS
+  # (same handler-state limitation as CodeWAS). For each user-specified window
+  # [start_day, end_day] we compute per-concept 2x2 + Fisher's exact against
+  # events whose date falls in [cohort_start_date + start_day, cohort_start_date + end_day].
   dir.create(export_folder, recursive = TRUE, showWarnings = FALSE)
   progress_path <- file.path(export_folder, "progress.json")
 
   run_with_classification(export_folder, function() {
-    write_progress(progress_path, list(step = "build_handler", pct = 5))
-    handler <- build_cohort_table_handler(source_envelope)
-    on.exit(tryCatch(handler$closeConnection(), error = function(e) NULL), add = TRUE)
+    write_progress(progress_path, list(step = "build_connection", pct = 5))
+    cohort_ids <- .extract_cohort_ids_for_module("co2.time_codewas", analysis_settings)
+    case_id <- as.integer(analysis_settings$case_cohort_id %||% analysis_settings$cohortIdCases %||% cohort_ids[1])
+    ctrl_id <- as.integer(analysis_settings$control_cohort_id %||% analysis_settings$cohortIdControls %||% cohort_ids[2])
+    if (is.na(case_id) || is.na(ctrl_id)) stop("co2.time_codewas requires case_cohort_id and control_cohort_id")
 
-    write_progress(progress_path, list(step = "stage_cohorts", pct = 8))
-    .stage_cohorts_for_finngen(
-      handler, source_envelope,
-      .extract_cohort_ids_for_module("co2.time_codewas", analysis_settings)
-    )
-
-    write_progress(progress_path, list(step = "execute_timeCodeWAS", pct = 10, message = "Running temporal CodeWAS"))
-    res <- CO2AnalysisModules::execute_timeCodeWAS(
-      exportFolder       = export_folder,
-      cohortTableHandler = handler,
-      analysisSettings   = .normalize_co2_settings("co2.time_codewas", analysis_settings)
-    )
-
-    rows <- .count_rows_in_duckdb(res, export_folder, "timeCodeWASCounts")
-    .write_summary(export_folder, list(
-      analysis_type = "co2.time_codewas",
-      rows          = rows,
-      temporal_windows = analysis_settings$temporalStartDays %||% integer()
-    ))
-
-    # ── SP3: emit display.json for tabbed Manhattan plots ──
-    write_progress(progress_path, list(step = "build_display", pct = 96))
-    display <- tryCatch({
-      # Read the timeCodeWAS CSV output
-      csv_path <- file.path(export_folder, "timeCodeWASCounts.csv")
-      if (file.exists(csv_path)) {
-        df <- read.csv(csv_path, stringsAsFactors = FALSE)
-        # Group by temporal window (startDay, endDay)
-        window_keys <- unique(df[, c("startDay", "endDay"), drop = FALSE])
-        windows <- lapply(seq_len(nrow(window_keys)), function(w) {
-          sd <- window_keys$startDay[w]
-          ed <- window_keys$endDay[w]
-          wdf <- df[df$startDay == sd & df$endDay == ed, ]
-          signals <- lapply(seq_len(nrow(wdf)), function(i) {
-            list(
-              concept_id   = as.integer(wdf$conceptId[i]),
-              concept_name = as.character(wdf$conceptName[i]),
-              domain_id    = as.character(wdf$domainId[i]),
-              p_value      = wdf$pValue[i],
-              beta         = wdf$beta[i],
-              se           = wdf$se[i],
-              n_cases      = as.integer(wdf$nCases[i]),
-              n_controls   = as.integer(wdf$nControls[i])
-            )
-          })
-          list(start_day = as.integer(sd), end_day = as.integer(ed), signals = signals)
-        })
-
-        total_sig <- sum(sapply(windows, function(w) {
-          n <- length(w$signals)
-          if (n == 0) return(0L)
-          bonf <- 0.05 / n
-          sum(sapply(w$signals, function(s) if (!is.na(s$p_value) && s$p_value < bonf) 1L else 0L))
-        }))
-
-        list(
-          windows = windows,
-          summary = list(window_count = nrow(window_keys), total_significant = total_sig)
-        )
-      } else {
-        list(windows = list(), summary = list(window_count = 0L, total_significant = 0L))
+    # Accept either the frontend shape time_windows=[[s,e],...] or CO2's parallel
+    # temporalStartDays/temporalEndDays vectors.
+    tw <- analysis_settings$time_windows %||% analysis_settings$timeWindows
+    if (is.null(tw) || length(tw) == 0) {
+      starts <- analysis_settings$temporalStartDays %||% integer()
+      ends   <- analysis_settings$temporalEndDays   %||% integer()
+      if (length(starts) != length(ends) || length(starts) == 0) {
+        stop("co2.time_codewas requires time_windows or matching temporalStartDays/temporalEndDays")
       }
-    }, error = function(e) {
-      list(windows = list(), summary = list(window_count = 0L, total_significant = 0L, error = conditionMessage(e)))
-    })
+      tw <- mapply(function(s, e) list(as.integer(s), as.integer(e)), starts, ends, SIMPLIFY = FALSE)
+    }
+    # jsonlite auto-simplifies [[s,e],...] to an N×2 matrix when homogeneous.
+    # Normalize back to a list of 2-element vectors so downstream indexing works.
+    if (is.matrix(tw)) {
+      tw <- lapply(seq_len(nrow(tw)), function(i) as.integer(tw[i, ]))
+    }
 
+    min_count    <- as.integer(analysis_settings$min_cell_count %||% analysis_settings$minCellCount %||% 5L)
+    cdm_schema   <- source_envelope$schemas$cdm
+    vocab_schema <- source_envelope$schemas$vocab
+    coh_schema   <- source_envelope$schemas$cohort
+
+    connection_details <- DatabaseConnector::createConnectionDetails(
+      dbms     = source_envelope$dbms %||% "postgresql",
+      server   = source_envelope$connection$server,
+      port     = source_envelope$connection$port,
+      user     = source_envelope$connection$user,
+      password = source_envelope$connection$password,
+      pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER", "/opt/jdbc")
+    )
+    connection <- DatabaseConnector::connect(connection_details)
+    on.exit(tryCatch(DatabaseConnector::disconnect(connection), error = function(e) NULL), add = TRUE)
+
+    # Cohort sizes are time-window-independent; compute once.
+    sizes_sql <- sprintf(
+      "WITH case_subs AS (
+         SELECT DISTINCT subject_id FROM %s.cohort WHERE cohort_definition_id = %d
+       ),
+       ctrl_subs AS (
+         SELECT DISTINCT subject_id FROM %s.cohort
+         WHERE cohort_definition_id = %d
+           AND subject_id NOT IN (SELECT subject_id FROM case_subs)
+       )
+       SELECT (SELECT COUNT(*) FROM case_subs) AS n_case,
+              (SELECT COUNT(*) FROM ctrl_subs) AS n_ctrl",
+      coh_schema, case_id, coh_schema, ctrl_id
+    )
+    sizes <- DatabaseConnector::querySql(connection, sizes_sql)
+    names(sizes) <- tolower(names(sizes))
+    n_case_total <- as.integer(sizes$n_case[1])
+    n_ctrl_total <- as.integer(sizes$n_ctrl[1])
+    if (n_case_total == 0 || n_ctrl_total == 0) {
+      stop(sprintf("co2.time_codewas: case/control sizes are zero (case=%s, ctrl=%s)", n_case_total, n_ctrl_total))
+    }
+
+    # Domain event-date mapping
+    domain_specs <- list(
+      list(domain = "Condition",   table = "condition_occurrence",   concept_col = "condition_concept_id",   date_col = "condition_start_date"),
+      list(domain = "Drug",        table = "drug_exposure",          concept_col = "drug_concept_id",        date_col = "drug_exposure_start_date"),
+      list(domain = "Procedure",   table = "procedure_occurrence",   concept_col = "procedure_concept_id",   date_col = "procedure_date"),
+      list(domain = "Measurement", table = "measurement",            concept_col = "measurement_concept_id", date_col = "measurement_date")
+    )
+
+    window_count <- length(tw)
+    windows_out <- vector("list", window_count)
+    total_sig   <- 0L
+
+    for (w_idx in seq_along(tw)) {
+      pair <- tw[[w_idx]]
+      # Accept [s,e] arrays (atomic vectors) or named lists {start_day,end_day}
+      if (is.list(pair)) {
+        sd <- as.integer(pair$start_day %||% pair[[1]])
+        ed <- as.integer(pair$end_day   %||% pair[[2]])
+      } else {
+        sd <- as.integer(pair[[1]])
+        ed <- as.integer(pair[[2]])
+      }
+      if (is.na(sd) || is.na(ed)) stop(sprintf("co2.time_codewas: invalid window at index %d", w_idx))
+
+      write_progress(progress_path, list(
+        step = sprintf("window_%d_counts", w_idx),
+        pct = as.integer(10 + 80 * (w_idx - 1) / window_count),
+        message = sprintf("Window [%d, %d]", sd, ed)
+      ))
+
+      build_count_sql <- function(d) {
+        sprintf(
+          "SELECT '%s' AS domain_id,
+                  t.%s AS concept_id,
+                  SUM(CASE WHEN cs.which = 'case' THEN 1 ELSE 0 END) AS case_n,
+                  SUM(CASE WHEN cs.which = 'ctrl' THEN 1 ELSE 0 END) AS ctrl_n
+           FROM (
+             SELECT DISTINCT t.person_id, t.%s, s.which
+             FROM %s.%s t
+             JOIN (
+               SELECT subject_id, cohort_start_date, 'case'::text AS which FROM %s.cohort WHERE cohort_definition_id = %d
+               UNION
+               SELECT subject_id, cohort_start_date, 'ctrl'::text AS which FROM %s.cohort
+                 WHERE cohort_definition_id = %d
+                   AND subject_id NOT IN (SELECT subject_id FROM %s.cohort WHERE cohort_definition_id = %d)
+             ) s ON s.subject_id = t.person_id
+             WHERE t.%s > 0
+               AND (t.%s::date - s.cohort_start_date::date) BETWEEN %d AND %d
+           ) t
+           JOIN (
+             SELECT subject_id, 'case'::text AS which FROM %s.cohort WHERE cohort_definition_id = %d
+             UNION
+             SELECT subject_id, 'ctrl'::text AS which FROM %s.cohort
+               WHERE cohort_definition_id = %d
+                 AND subject_id NOT IN (SELECT subject_id FROM %s.cohort WHERE cohort_definition_id = %d)
+           ) cs ON cs.subject_id = t.person_id AND cs.which = t.which
+           GROUP BY t.%s",
+          d$domain, d$concept_col, d$concept_col,
+          cdm_schema, d$table,
+          coh_schema, case_id,
+          coh_schema, ctrl_id, coh_schema, case_id,
+          d$concept_col, d$date_col, sd, ed,
+          coh_schema, case_id,
+          coh_schema, ctrl_id, coh_schema, case_id,
+          d$concept_col
+        )
+      }
+      parts <- vapply(domain_specs, build_count_sql, character(1))
+      counts_sql <- paste(parts, collapse = "\nUNION ALL\n")
+      counts_df <- DatabaseConnector::querySql(connection, counts_sql)
+      names(counts_df) <- tolower(names(counts_df))
+      if (nrow(counts_df) > 0) {
+        counts_df$case_n <- as.integer(counts_df$case_n)
+        counts_df$ctrl_n <- as.integer(counts_df$ctrl_n)
+        counts_df <- counts_df[(counts_df$case_n >= min_count) | (counts_df$ctrl_n >= min_count), , drop = FALSE]
+      }
+
+      concept_names <- data.frame(concept_id = integer(0), concept_name = character(0))
+      if (nrow(counts_df) > 0) {
+        id_list <- paste(unique(counts_df$concept_id), collapse = ",")
+        names_sql <- sprintf(
+          "SELECT concept_id, concept_name FROM %s.concept WHERE concept_id IN (%s)",
+          vocab_schema, id_list
+        )
+        concept_names <- tryCatch(DatabaseConnector::querySql(connection, names_sql),
+                                  error = function(e) data.frame(concept_id = integer(0), concept_name = character(0)))
+        names(concept_names) <- tolower(names(concept_names))
+      }
+
+      n_w <- nrow(counts_df)
+      signals <- if (n_w == 0) list() else lapply(seq_len(n_w), function(i) {
+        case_yes <- counts_df$case_n[i]
+        ctrl_yes <- counts_df$ctrl_n[i]
+        case_no  <- n_case_total - case_yes
+        ctrl_no  <- n_ctrl_total - ctrl_yes
+        a <- case_yes + 0.5; b <- case_no + 0.5
+        c <- ctrl_yes + 0.5; d <- ctrl_no + 0.5
+        or_log <- log((a * d) / (b * c))
+        se     <- sqrt(1/a + 1/b + 1/c + 1/d)
+        p <- tryCatch(
+          fisher.test(matrix(c(case_yes, ctrl_yes, case_no, ctrl_no), nrow = 2))$p.value,
+          error = function(e) NA_real_
+        )
+        cid   <- as.integer(counts_df$concept_id[i])
+        cname <- concept_names$concept_name[match(cid, concept_names$concept_id)]
+        list(
+          concept_id   = cid,
+          concept_name = if (is.na(cname) || is.null(cname)) paste("Concept", cid) else as.character(cname),
+          domain_id    = as.character(counts_df$domain_id[i]),
+          p_value      = as.numeric(p),
+          beta         = as.numeric(or_log),
+          se           = as.numeric(se),
+          n_cases      = as.integer(case_yes),
+          n_controls   = as.integer(ctrl_yes)
+        )
+      })
+
+      # Per-window Bonferroni
+      if (n_w > 0) {
+        bonf_w <- 0.05 / n_w
+        sig_w <- sum(vapply(signals, function(s) !is.na(s$p_value) && s$p_value < bonf_w, logical(1)))
+        total_sig <- total_sig + as.integer(sig_w)
+      }
+
+      windows_out[[w_idx]] <- list(
+        start_day = sd,
+        end_day   = ed,
+        signals   = signals
+      )
+    }
+
+    display <- list(
+      windows = windows_out,
+      summary = list(
+        window_count      = as.integer(window_count),
+        total_significant = as.integer(total_sig),
+        n_case_subjects   = n_case_total,
+        n_control_subjects = n_ctrl_total
+      )
+    )
+
+    .write_summary(export_folder, list(
+      analysis_type  = "co2.time_codewas",
+      windows        = length(windows_out),
+      case_cohort    = case_id,
+      control_cohort = ctrl_id,
+      total_significant = as.integer(total_sig)
+    ))
     .write_display(export_folder, display)
     write_progress(progress_path, list(step = "done", pct = 100))
-    list(rows = rows)
+    list(windows = length(windows_out), total_significant = as.integer(total_sig))
   })
 }
 
