@@ -119,7 +119,7 @@ class SelfControlledCohortController extends Controller
 
         return response()->json([
             'data' => $execution,
-            'message' => 'Self-controlled cohort execution queued.',
+            'message' => 'Self-Controlled Cohort execution queued.',
         ], 202);
     }
 

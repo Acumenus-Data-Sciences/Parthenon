@@ -49,6 +49,6 @@ describe("CohortStatsBar", () => {
     });
     render(<CohortStatsBar activeKey="public" />);
     const publicTile = screen.getByText("Public").closest("[role='button']")!;
-    expect(publicTile.className).toContain("#C9A227");
+    expect(publicTile.className).toContain("border-accent/50");
   });
 });
