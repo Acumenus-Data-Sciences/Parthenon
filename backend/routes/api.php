@@ -1058,6 +1058,9 @@ Route::prefix('v1')->group(function () {
                 // SP4 Phase D — match wrapper (dispatches finngen.cohort.match async)
                 Route::post('/match', [WorkbenchSessionController::class, 'matchCohort'])
                     ->middleware(['permission:finngen.workbench.use', 'finngen.idempotency', 'throttle:10,1']);
+                // SP4 Polish 2 — materialize tree → new cohort_definition + cohort rows
+                Route::post('/materialize', [WorkbenchSessionController::class, 'materializeCohort'])
+                    ->middleware(['permission:finngen.workbench.use', 'finngen.idempotency', 'throttle:10,1']);
             });
         });
 

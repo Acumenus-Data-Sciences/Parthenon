@@ -106,3 +106,89 @@ finngen_cohort_preview_count <- function(source_envelope, sql) {
   total <- as.integer(res$total[1])
   list(total = total)
 }
+
+# SP4 Polish 2 — materialize an operation tree as a new cohort row. Laravel
+# creates the cohort_definitions row first, compiles the tree to subject-id
+# SQL, and hands us the {cohort_definition_id, subject_sql, cohort_schema,
+# referenced_cohort_ids} payload. We INSERT INTO cohort with subject_ids from
+# the compiled SQL, joining back to cohort to pick up cohort_start_date /
+# cohort_end_date (min/max across referenced cohort memberships). Returns
+# {subject_count, cohort_definition_id} for the workbench UI.
+finngen_cohort_materialize_execute <- function(source_envelope, run_id, export_folder, params) {
+  dir.create(export_folder, recursive = TRUE, showWarnings = FALSE)
+  progress_path <- file.path(export_folder, "progress.json")
+
+  run_with_classification(export_folder, function() {
+    cohort_def_id <- as.integer(params$cohort_definition_id)
+    subject_sql   <- as.character(params$subject_sql)
+    cohort_schema <- as.character(params$cohort_schema)
+    referenced    <- as.integer(params$referenced_cohort_ids)
+
+    if (is.na(cohort_def_id) || cohort_def_id <= 0) stop("cohort.materialize requires a positive cohort_definition_id")
+    if (is.na(subject_sql) || !nzchar(subject_sql)) stop("cohort.materialize requires subject_sql")
+    if (!grepl("^[a-z][a-z0-9_]*$", cohort_schema)) stop(sprintf("cohort.materialize: unsafe cohort_schema %s", cohort_schema))
+    if (length(referenced) == 0) stop("cohort.materialize requires referenced_cohort_ids")
+
+    write_progress(progress_path, list(step = "build_connection", pct = 5))
+    connection_details <- DatabaseConnector::createConnectionDetails(
+      dbms     = source_envelope$dbms %||% "postgresql",
+      server   = source_envelope$connection$server,
+      port     = source_envelope$connection$port,
+      user     = source_envelope$connection$user,
+      password = source_envelope$connection$password,
+      pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER", "/opt/jdbc")
+    )
+    connection <- DatabaseConnector::connect(connection_details)
+    on.exit(tryCatch(DatabaseConnector::disconnect(connection), error = function(e) NULL), add = TRUE)
+
+    # Guard: refuse to re-materialize if this cohort_definition already has rows.
+    write_progress(progress_path, list(step = "check_existing", pct = 15))
+    existing_sql <- sprintf(
+      "SELECT COUNT(*) AS c FROM %s.cohort WHERE cohort_definition_id = %d",
+      cohort_schema, cohort_def_id
+    )
+    existing <- DatabaseConnector::querySql(connection, existing_sql)
+    names(existing) <- tolower(names(existing))
+    if (as.integer(existing$c[1]) > 0) {
+      stop(sprintf("cohort.materialize: cohort_definition_id %d already has rows in %s.cohort — delete them first", cohort_def_id, cohort_schema))
+    }
+
+    write_progress(progress_path, list(step = "insert_cohort", pct = 30, message = "Writing subject rows"))
+    id_list <- paste(referenced, collapse = ",")
+    insert_sql <- sprintf(
+      "INSERT INTO %s.cohort (cohort_definition_id, subject_id, cohort_start_date, cohort_end_date)
+       SELECT %d AS cohort_definition_id,
+              r.subject_id,
+              MIN(c.cohort_start_date) AS cohort_start_date,
+              MAX(c.cohort_end_date)   AS cohort_end_date
+       FROM (%s) r
+       JOIN %s.cohort c
+         ON c.subject_id = r.subject_id
+        AND c.cohort_definition_id IN (%s)
+       GROUP BY r.subject_id",
+      cohort_schema, cohort_def_id, subject_sql, cohort_schema, id_list
+    )
+    DatabaseConnector::executeSql(connection, insert_sql)
+
+    write_progress(progress_path, list(step = "count_subjects", pct = 80))
+    count_sql <- sprintf(
+      "SELECT COUNT(*) AS c FROM %s.cohort WHERE cohort_definition_id = %d",
+      cohort_schema, cohort_def_id
+    )
+    cnt <- DatabaseConnector::querySql(connection, count_sql)
+    names(cnt) <- tolower(names(cnt))
+    subject_count <- as.integer(cnt$c[1])
+
+    .write_summary(export_folder, list(
+      analysis_type        = "cohort.materialize",
+      cohort_definition_id = cohort_def_id,
+      subject_count        = subject_count,
+      referenced_cohort_ids = referenced
+    ))
+    write_progress(progress_path, list(step = "done", pct = 100))
+    list(
+      subject_count = subject_count,
+      cohort_definition_id = cohort_def_id
+    )
+  })
+}

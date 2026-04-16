@@ -10,6 +10,7 @@ import type {
 const BASE = "/finngen/workbench/sessions";
 const PREVIEW_URL = "/finngen/workbench/preview-counts";
 const MATCH_URL = "/finngen/workbench/match";
+const MATERIALIZE_URL = "/finngen/workbench/materialize";
 
 export type PreviewCountsResponse = {
   total: number;
@@ -43,6 +44,19 @@ export type MatchCohortRunResponse = {
   params: Record<string, unknown>;
   created_at: string;
   updated_at: string;
+};
+
+// SP4 Polish 2 — materialize endpoint response.
+export type MaterializeCohortPayload = {
+  source_key: string;
+  name: string;
+  description?: string | null;
+  tree: OperationNode;
+};
+
+export type MaterializeCohortResponse = {
+  run: MatchCohortRunResponse; // same Run envelope; analysis_type = cohort.materialize
+  cohort_definition_id: number;
 };
 
 export const finngenWorkbenchApi = {
@@ -106,6 +120,22 @@ export const finngenWorkbenchApi = {
     payload: MatchCohortPayload,
   ): Promise<{ data: MatchCohortRunResponse }> => {
     const { data } = await apiClient.post<{ data: MatchCohortRunResponse }>(MATCH_URL, payload);
+    return data;
+  },
+
+  /**
+   * SP4 Polish 2 — dispatch a cohort.materialize run. Laravel creates the
+   * cohort_definition row, compiles the tree, and hands off to Darkstar.
+   * Returns the Run record + the new cohort_definition_id (so the UI can
+   * wire the Handoff step once the run is succeeded).
+   */
+  materializeCohort: async (
+    payload: MaterializeCohortPayload,
+  ): Promise<{ data: MaterializeCohortResponse }> => {
+    const { data } = await apiClient.post<{ data: MaterializeCohortResponse }>(
+      MATERIALIZE_URL,
+      payload,
+    );
     return data;
   },
 };

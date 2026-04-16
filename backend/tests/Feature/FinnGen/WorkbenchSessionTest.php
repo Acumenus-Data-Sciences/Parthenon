@@ -338,3 +338,89 @@ it('POST /workbench/match rejects > 10 comparators', function () {
         ->assertStatus(422)
         ->assertJsonValidationErrors(['comparator_cohort_ids']);
 });
+
+// ── SP4 Polish 2 — materialize wrapper ──────────────────────────────────────
+
+it('POST /workbench/materialize denies viewer', function () {
+    Bus::fake();
+    $this->actingAs($this->viewer)
+        ->postJson('/api/v1/finngen/workbench/materialize', [
+            'source_key' => 'EUNOMIA',
+            'name' => 'denied',
+            'tree' => ['kind' => 'cohort', 'id' => 'a', 'cohort_id' => 1],
+        ])->assertStatus(403);
+});
+
+it('POST /workbench/materialize creates cohort_definition + dispatches run', function () {
+    Bus::fake();
+
+    $tree = [
+        'kind' => 'op',
+        'id' => 'root',
+        'op' => 'UNION',
+        'children' => [
+            ['kind' => 'cohort', 'id' => 'a', 'cohort_id' => 221],
+            ['kind' => 'cohort', 'id' => 'b', 'cohort_id' => 222],
+        ],
+    ];
+
+    $resp = $this->actingAs($this->researcher)
+        ->postJson('/api/v1/finngen/workbench/materialize', [
+            'source_key' => 'EUNOMIA',
+            'name' => 'Workbench union of 221 + 222',
+            'description' => 'Smoke test',
+            'tree' => $tree,
+        ])
+        ->assertStatus(202);
+
+    $resp->assertJsonPath('data.run.analysis_type', 'cohort.materialize');
+    $resp->assertJsonPath('data.run.params.referenced_cohort_ids', [221, 222]);
+    expect($resp->json('data.cohort_definition_id'))->toBeInt()->toBeGreaterThan(0);
+    expect($resp->json('data.run.params.subject_sql'))
+        ->toContain('SELECT subject_id FROM')
+        ->toContain('cohort_definition_id = 221')
+        ->toContain('cohort_definition_id = 222');
+
+    Bus::assertDispatched(\App\Jobs\FinnGen\RunFinnGenAnalysisJob::class);
+
+    // The cohort_definition row exists with the researcher as author and the
+    // workbench tree stored under expression_json.workbench_tree.
+    $cohortId = (int) $resp->json('data.cohort_definition_id');
+    $def = \App\Models\App\CohortDefinition::find($cohortId);
+    expect($def)->not->toBeNull();
+    expect($def->author_id)->toBe($this->researcher->id);
+    expect($def->expression_json['source_key'] ?? null)->toBe('EUNOMIA');
+    expect($def->expression_json['referenced_cohort_ids'] ?? [])->toBe([221, 222]);
+});
+
+it('POST /workbench/materialize returns 422 on invalid tree', function () {
+    Bus::fake();
+    $this->actingAs($this->researcher)
+        ->postJson('/api/v1/finngen/workbench/materialize', [
+            'source_key' => 'EUNOMIA',
+            'name' => 'bad',
+            'tree' => [
+                'kind' => 'op', 'id' => 'r', 'op' => 'UNION',
+                'children' => [['kind' => 'cohort', 'id' => 'a', 'cohort_id' => 1]],
+            ],
+        ])
+        ->assertStatus(422)
+        ->assertJsonPath('errors.0.code', 'OP_NEEDS_AT_LEAST_TWO_CHILDREN');
+});
+
+it('POST /workbench/materialize requires name', function () {
+    Bus::fake();
+    $this->actingAs($this->researcher)
+        ->postJson('/api/v1/finngen/workbench/materialize', [
+            'source_key' => 'EUNOMIA',
+            'tree' => [
+                'kind' => 'op', 'id' => 'r', 'op' => 'UNION',
+                'children' => [
+                    ['kind' => 'cohort', 'id' => 'a', 'cohort_id' => 1],
+                    ['kind' => 'cohort', 'id' => 'b', 'cohort_id' => 2],
+                ],
+            ],
+        ])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['name']);
+});

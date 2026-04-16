@@ -87,6 +87,15 @@ suppressPackageStartupMessages({
         params          = spec$params
       )
     },
+    "finngen.cohort.materialize" = function(spec) {
+      source("/app/api/finngen/common.R"); source("/app/api/finngen/cohort_ops.R")
+      finngen_cohort_materialize_execute(
+        source_envelope = spec$source,
+        run_id          = spec$run_id,
+        export_folder   = file.path("/opt/finngen-artifacts/runs", spec$run_id),
+        params          = spec$params
+      )
+    },
     "finngen.romopapi.report" = function(spec) {
       source("/app/api/finngen/common.R"); source("/app/api/finngen/romopapi_async.R")
       finngen_romopapi_report_execute(
@@ -269,6 +278,12 @@ function(body, response) {
 #* @serializer unboxedJSON
 function(body, response) {
   .dispatch_async("finngen.cohort.match", body, response)
+}
+
+#* @post /finngen/cohort/materialize
+#* @serializer unboxedJSON
+function(body, response) {
+  .dispatch_async("finngen.cohort.materialize", body, response)
 }
 
 #* @post /finngen/romopapi/report

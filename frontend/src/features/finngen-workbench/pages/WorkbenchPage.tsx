@@ -9,6 +9,7 @@ import { Loader2, ArrowLeft, ExternalLink } from "lucide-react";
 import { OperationBuilder } from "../components/OperationBuilder";
 import { MatchingConfigForm } from "../components/MatchingConfigForm";
 import { MatchingResults } from "../components/MatchingResults";
+import { MaterializeStep } from "../components/MaterializeStep";
 import {
   WorkbenchStepper,
   WORKBENCH_STEPS,
@@ -143,16 +144,39 @@ export default function WorkbenchPage() {
         )}
 
         {currentStep === "materialize" && (
-          <PlaceholderStep title="Materialize matched cohort">
-            <p className="text-xs text-text-ghost">
-              Cohort materialization (writes the result of either the operation tree or the matched
-              cohort to <span className="font-mono">cohort</span>) is pending.
-            </p>
-          </PlaceholderStep>
+          <MaterializeStep
+            sourceKey={session.source_key}
+            tree={tree}
+            existing={
+              typeof sessionState.materialized_cohort_id === "number"
+                ? {
+                    runId:
+                      typeof sessionState.materialize_run_id === "string"
+                        ? sessionState.materialize_run_id
+                        : "",
+                    cohortDefinitionId: sessionState.materialized_cohort_id,
+                  }
+                : null
+            }
+            onMaterialized={({ runId, cohortDefinitionId }) => {
+              useWorkbenchStore.getState().patchState({
+                materialize_run_id: runId,
+                materialized_cohort_id: cohortDefinitionId,
+              });
+            }}
+          />
         )}
 
         {currentStep === "handoff" && (
-          <HandoffStep sourceKey={session.source_key} navigate={navigate} />
+          <HandoffStep
+            sourceKey={session.source_key}
+            materializedCohortId={
+              typeof sessionState.materialized_cohort_id === "number"
+                ? sessionState.materialized_cohort_id
+                : null
+            }
+            navigate={navigate}
+          />
         )}
       </main>
     </div>
@@ -170,25 +194,48 @@ function PlaceholderStep({ title, children }: { title: string; children: React.R
 
 function HandoffStep({
   sourceKey,
+  materializedCohortId,
   navigate,
 }: {
   sourceKey: string;
+  materializedCohortId: number | null;
   navigate: (path: string) => void;
 }) {
+  const ready = materializedCohortId !== null;
+  // Pass the materialized cohort id via a query param the analysis gallery can
+  // read to pre-select the cohort in CodeWAS / Demographics / Overlaps forms.
+  const destination = ready
+    ? `/workbench/investigation?source_key=${encodeURIComponent(sourceKey)}&workbench_cohort_id=${materializedCohortId}`
+    : `/workbench/investigation?source_key=${encodeURIComponent(sourceKey)}`;
+
   return (
     <div className="rounded-lg border border-border-default bg-surface-raised p-6 space-y-3">
       <h2 className="text-sm font-semibold text-text-secondary">Handoff to Analysis Gallery</h2>
-      <p className="text-xs text-text-ghost">
-        When the matched cohort is materialized, hand it off to a CO2 analysis (CodeWAS,
-        Demographics, Overlaps, timeCodeWAS).
-      </p>
+      {ready ? (
+        <p className="text-xs text-text-secondary">
+          Materialized cohort <span className="font-mono">#{materializedCohortId}</span> is ready.
+          Open it directly in a CO2 analysis (CodeWAS, Demographics, Overlaps, timeCodeWAS).
+        </p>
+      ) : (
+        <p className="text-xs text-text-ghost">
+          Materialize the operation tree in the previous step to enable hand-off. You can also
+          open the gallery empty and pick a cohort manually.
+        </p>
+      )}
       <button
         type="button"
-        onClick={() => navigate(`/workbench/investigation`)}
-        className="inline-flex items-center gap-2 rounded bg-success px-3 py-1.5 text-xs font-medium text-bg-canvas hover:bg-success/90"
+        onClick={() => navigate(destination)}
+        className={[
+          "inline-flex items-center gap-2 rounded px-3 py-1.5 text-xs font-medium transition-colors",
+          ready
+            ? "bg-success text-bg-canvas hover:bg-success/90"
+            : "border border-border-default bg-surface-overlay text-text-secondary hover:bg-surface-raised",
+        ].join(" ")}
       >
         <ExternalLink size={12} />
-        Open {sourceKey} in Analysis Gallery
+        {ready
+          ? `Open cohort #${materializedCohortId} in Analysis Gallery`
+          : `Open ${sourceKey} in Analysis Gallery`}
       </button>
     </div>
   );

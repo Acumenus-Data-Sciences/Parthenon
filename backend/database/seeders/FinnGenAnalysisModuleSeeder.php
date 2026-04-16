@@ -223,6 +223,33 @@ class FinnGenAnalysisModuleSeeder extends Seeder
                 ],
                 'result_component' => 'MatchingResults',
             ],
+            // SP4 Polish 2 — Materialize an operation tree to a new cohort row
+            [
+                'key' => 'cohort.materialize',
+                'label' => 'Materialize Cohort',
+                'description' => 'Write the result of an operation tree (UNION/INTERSECT/MINUS) as a new cohort in the source cohort table. Used by the workbench Materialize step.',
+                'darkstar_endpoint' => '/finngen/cohort/materialize',
+                'min_role' => 'researcher',
+                'settings_schema' => [
+                    'type' => 'object',
+                    'required' => ['cohort_definition_id', 'subject_sql', 'cohort_schema', 'referenced_cohort_ids'],
+                    'properties' => [
+                        'cohort_definition_id' => ['type' => 'integer'],
+                        'subject_sql' => ['type' => 'string'],
+                        'cohort_schema' => ['type' => 'string'],
+                        'referenced_cohort_ids' => ['type' => 'array', 'items' => ['type' => 'integer']],
+                    ],
+                ],
+                'default_settings' => (object) [],
+                'result_schema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'subject_count' => ['type' => 'integer'],
+                        'cohort_definition_id' => ['type' => 'integer'],
+                    ],
+                ],
+                'result_component' => null,
+            ],
         ];
 
         foreach ($modules as $mod) {

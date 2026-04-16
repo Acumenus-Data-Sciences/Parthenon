@@ -7,9 +7,11 @@ namespace App\Http\Controllers\Api\V1\FinnGen;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FinnGen\CreateWorkbenchSessionRequest;
 use App\Http\Requests\FinnGen\MatchWorkbenchCohortRequest;
+use App\Http\Requests\FinnGen\MaterializeWorkbenchCohortRequest;
 use App\Http\Requests\FinnGen\PreviewWorkbenchCountsRequest;
 use App\Http\Requests\FinnGen\UpdateWorkbenchSessionRequest;
 use App\Jobs\FinnGen\RunFinnGenAnalysisJob;
+use App\Models\App\CohortDefinition;
 use App\Services\FinnGen\CohortOperationCompiler;
 use App\Services\FinnGen\Exceptions\FinnGenDarkstarRejectedException;
 use App\Services\FinnGen\Exceptions\FinnGenDarkstarTimeoutException;
@@ -203,5 +205,92 @@ class WorkbenchSessionController extends Controller
         Bus::dispatch(new RunFinnGenAnalysisJob($run->id));
 
         return response()->json(['data' => $run], 202);
+    }
+
+    /**
+     * SP4 Polish 2 — materialize an operation tree as a new cohort_definition
+     * + cohort table rows in the source's cohort schema.
+     *
+     * Flow:
+     *   1. Validate the tree structurally (CohortOperationCompiler).
+     *   2. Create the cohort_definition row in app.cohort_definitions owned
+     *      by the caller; store the operation tree under expression_json
+     *      so the definition round-trips.
+     *   3. Compile the tree to a subject-id SELECT fragment + collect the
+     *      referenced cohort IDs (needed for the INSERT that joins back to
+     *      cohort for start/end dates).
+     *   4. Dispatch a cohort.materialize Run; caller polls /runs/{id}.
+     *
+     * Returns 202 with the Run record + the new cohort_definition_id so the
+     * UI can wire the Handoff step to the freshly materialized cohort.
+     */
+    public function materializeCohort(MaterializeWorkbenchCohortRequest $request): JsonResponse
+    {
+        $data = $request->validated();
+        $rawTree = $request->input('tree');
+        $tree = is_array($rawTree) ? $rawTree : [];
+
+        $errors = $this->compiler->validate($tree);
+        if (! empty($errors)) {
+            return response()->json([
+                'message' => 'Operation tree failed validation',
+                'errors' => $errors,
+            ], 422);
+        }
+
+        $source = $this->sourceBuilder->build(
+            (string) $data['source_key'],
+            FinnGenSourceContextBuilder::ROLE_RW,
+        );
+        $cohortSchema = (string) $source['schemas']['cohort'];
+
+        try {
+            $subjectSql = $this->compiler->compileSql($tree, $cohortSchema);
+        } catch (InvalidArgumentException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+
+        $referenced = $this->compiler->listCohortIds($tree);
+        if (empty($referenced)) {
+            return response()->json([
+                'message' => 'Operation tree references no cohorts',
+            ], 422);
+        }
+
+        // Persist the cohort_definition first so we have a stable id to hand
+        // to the Darkstar INSERT. Use the DB default connection (app schema).
+        $definition = CohortDefinition::create([
+            'name' => (string) $data['name'],
+            'description' => isset($data['description']) ? (string) $data['description'] : null,
+            'author_id' => (int) $request->user()->id,
+            'is_public' => false,
+            'version' => 1,
+            'expression_json' => [
+                'source_key' => (string) $data['source_key'],
+                'workbench_tree' => $tree,
+                'referenced_cohort_ids' => $referenced,
+            ],
+        ]);
+
+        $run = $this->runs->create(
+            userId: (int) $request->user()->id,
+            sourceKey: (string) $data['source_key'],
+            analysisType: 'cohort.materialize',
+            params: [
+                'cohort_definition_id' => $definition->id,
+                'subject_sql' => $subjectSql,
+                'cohort_schema' => $cohortSchema,
+                'referenced_cohort_ids' => $referenced,
+            ],
+        );
+
+        Bus::dispatch(new RunFinnGenAnalysisJob($run->id));
+
+        return response()->json([
+            'data' => [
+                'run' => $run,
+                'cohort_definition_id' => $definition->id,
+            ],
+        ], 202);
     }
 }
