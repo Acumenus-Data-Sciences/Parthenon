@@ -509,6 +509,8 @@ if $DO_FRONTEND; then
 
   # Strategy: try node container first (consistent env), then one-shot build
   # container for installer/fresh clones, then fall back to local npm.
+  # The `node` service has `profiles: [dev]`, so service_exists / docker run
+  # must opt into that profile explicitly to see it.
   if is_running node; then
     if docker compose exec node sh -c "cd /app && npx vite build --mode production"; then
       ok "Frontend built (Docker node container)"
@@ -516,9 +518,9 @@ if $DO_FRONTEND; then
       fail "Docker node build failed"
       ERRORS=$((ERRORS + 1))
     fi
-  elif service_exists node; then
+  elif docker compose --profile dev config --services 2>/dev/null | grep -Fx node >/dev/null; then
     warn "Node dev container not running — using one-shot Docker build"
-    if docker compose run --rm --no-deps -T node sh -c "cd /app && npm ci --legacy-peer-deps && npx vite build --mode production"; then
+    if docker compose --profile dev run --rm --no-deps -T node sh -c "cd /app && npm ci --legacy-peer-deps && npx vite build --mode production"; then
       ok "Frontend built (one-shot Docker node container)"
     else
       fail "One-shot Docker node build failed"
