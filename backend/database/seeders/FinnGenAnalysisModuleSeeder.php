@@ -8,9 +8,9 @@ use App\Models\App\FinnGen\AnalysisModule;
 use Illuminate\Database\Seeder;
 
 /**
- * Seeds the four SP1 FinnGen analysis modules. Idempotent via updateOrCreate —
- * safe to re-run. SP3 (Analysis Module Gallery) extends each row with
- * settings_schema, default_settings, result_schema, result_component.
+ * Seeds all FinnGen analysis modules. Idempotent via updateOrCreate.
+ * SP3 adds settings_schema, default_settings, result_schema, result_component
+ * for all 4 CO2 modules.
  */
 class FinnGenAnalysisModuleSeeder extends Seeder
 {
@@ -22,24 +22,153 @@ class FinnGenAnalysisModuleSeeder extends Seeder
                 'label' => 'CodeWAS',
                 'description' => 'Phenome-wide association scan comparing case and control cohorts across all clinical codes.',
                 'darkstar_endpoint' => '/finngen/co2/codewas',
+                'settings_schema' => [
+                    'type' => 'object',
+                    'required' => ['case_cohort_id', 'control_cohort_id'],
+                    'properties' => [
+                        'case_cohort_id' => [
+                            'type' => 'integer',
+                            'title' => 'Case Cohort',
+                        ],
+                        'control_cohort_id' => [
+                            'type' => 'integer',
+                            'title' => 'Control Cohort',
+                        ],
+                        'min_cell_count' => [
+                            'type' => 'integer',
+                            'title' => 'Minimum Cell Count',
+                            'default' => 5,
+                            'minimum' => 1,
+                            'maximum' => 100,
+                        ],
+                    ],
+                ],
+                'default_settings' => [
+                    'min_cell_count' => 5,
+                ],
+                'result_schema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'signals' => ['type' => 'array'],
+                        'thresholds' => ['type' => 'object'],
+                        'summary' => ['type' => 'object'],
+                    ],
+                ],
+                'result_component' => 'CodeWASResults',
             ],
             [
                 'key' => 'co2.time_codewas',
                 'label' => 'timeCodeWAS',
                 'description' => 'CodeWAS stratified by temporal windows around index date.',
                 'darkstar_endpoint' => '/finngen/co2/time-codewas',
+                'settings_schema' => [
+                    'type' => 'object',
+                    'required' => ['case_cohort_id', 'control_cohort_id'],
+                    'properties' => [
+                        'case_cohort_id' => [
+                            'type' => 'integer',
+                            'title' => 'Case Cohort',
+                        ],
+                        'control_cohort_id' => [
+                            'type' => 'integer',
+                            'title' => 'Control Cohort',
+                        ],
+                        'min_cell_count' => [
+                            'type' => 'integer',
+                            'title' => 'Minimum Cell Count',
+                            'default' => 5,
+                            'minimum' => 1,
+                            'maximum' => 100,
+                        ],
+                        'time_windows' => [
+                            'type' => 'array',
+                            'title' => 'Time Windows',
+                            'items' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'start_day' => ['type' => 'integer'],
+                                    'end_day' => ['type' => 'integer'],
+                                ],
+                            ],
+                            'default' => [
+                                ['start_day' => -365, 'end_day' => -1],
+                                ['start_day' => 0, 'end_day' => 30],
+                            ],
+                        ],
+                    ],
+                ],
+                'default_settings' => [
+                    'min_cell_count' => 5,
+                    'time_windows' => [
+                        ['start_day' => -365, 'end_day' => -1],
+                        ['start_day' => 0, 'end_day' => 30],
+                    ],
+                ],
+                'result_schema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'windows' => ['type' => 'array'],
+                        'summary' => ['type' => 'object'],
+                    ],
+                ],
+                'result_component' => 'TimeCodeWASResults',
             ],
             [
                 'key' => 'co2.overlaps',
                 'label' => 'Cohort Overlaps',
                 'description' => 'Upset-plot-style overlap analysis across multiple cohorts.',
                 'darkstar_endpoint' => '/finngen/co2/overlaps',
+                'settings_schema' => [
+                    'type' => 'object',
+                    'required' => ['cohort_ids'],
+                    'properties' => [
+                        'cohort_ids' => [
+                            'type' => 'array',
+                            'title' => 'Cohorts to Compare',
+                            'items' => ['type' => 'integer'],
+                            'minItems' => 2,
+                            'maxItems' => 10,
+                        ],
+                    ],
+                ],
+                'default_settings' => (object) [],
+                'result_schema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'sets' => ['type' => 'array'],
+                        'intersections' => ['type' => 'array'],
+                        'matrix' => ['type' => 'array'],
+                        'summary' => ['type' => 'object'],
+                    ],
+                ],
+                'result_component' => 'OverlapsResults',
             ],
             [
                 'key' => 'co2.demographics',
                 'label' => 'Cohort Demographics',
                 'description' => 'Demographic summary (age histogram, gender counts) for one or more cohorts.',
                 'darkstar_endpoint' => '/finngen/co2/demographics',
+                'settings_schema' => [
+                    'type' => 'object',
+                    'required' => ['cohort_ids'],
+                    'properties' => [
+                        'cohort_ids' => [
+                            'type' => 'array',
+                            'title' => 'Cohorts',
+                            'items' => ['type' => 'integer'],
+                            'minItems' => 1,
+                            'maxItems' => 20,
+                        ],
+                    ],
+                ],
+                'default_settings' => (object) [],
+                'result_schema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'cohorts' => ['type' => 'array'],
+                    ],
+                ],
+                'result_component' => 'DemographicsResults',
             ],
             [
                 'key' => 'romopapi.report',
