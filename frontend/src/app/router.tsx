@@ -338,6 +338,14 @@ export const router = createBrowserRouter(
             ],
           },
           {
+            // SP4 Polish 2 — standalone FinnGen Analysis Gallery (workbench handoff target)
+            path: "finngen-analyses",
+            lazy: () =>
+              import(
+                "@/features/finngen-analyses/pages/FinnGenAnalysesStandalonePage"
+              ).then((m) => ({ Component: m.default })),
+          },
+          {
             path: "community-sdk-demo",
             lazy: () =>
               import(

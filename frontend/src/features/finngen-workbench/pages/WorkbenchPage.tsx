@@ -202,11 +202,13 @@ function HandoffStep({
   navigate: (path: string) => void;
 }) {
   const ready = materializedCohortId !== null;
-  // Pass the materialized cohort id via a query param the analysis gallery can
-  // read to pre-select the cohort in CodeWAS / Demographics / Overlaps forms.
+  // SP4 Polish 2 completion — hand off to the standalone FinnGen Analysis
+  // Gallery (not the investigation page). FinnGenAnalysesStandalonePage reads
+  // source_key + workbench_cohort_id from the URL and pre-populates the
+  // SettingsForm defaults via AnalysisDetailPage.defaultCohortId.
   const destination = ready
-    ? `/workbench/investigation?source_key=${encodeURIComponent(sourceKey)}&workbench_cohort_id=${materializedCohortId}`
-    : `/workbench/investigation?source_key=${encodeURIComponent(sourceKey)}`;
+    ? `/workbench/finngen-analyses?source_key=${encodeURIComponent(sourceKey)}&workbench_cohort_id=${materializedCohortId}`
+    : `/workbench/finngen-analyses?source_key=${encodeURIComponent(sourceKey)}`;
 
   return (
     <div className="rounded-lg border border-border-default bg-surface-raised p-6 space-y-3">

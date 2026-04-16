@@ -23,9 +23,17 @@ interface AnalysisDetailPageProps {
   moduleKey: string;
   sourceKey: string;
   onBack: () => void;
+  /**
+   * SP4 → SP3 handoff. When the workbench hands off a materialized cohort,
+   * this id is folded into the SettingsForm defaults so the researcher
+   * doesn't have to re-pick the cohort they just built. Shape mapping:
+   *   co2.codewas / co2.time_codewas → case_cohort_id: N
+   *   co2.demographics / co2.overlaps → cohort_ids: [N]
+   */
+  defaultCohortId?: number | null;
 }
 
-export function AnalysisDetailPage({ moduleKey, sourceKey, onBack }: AnalysisDetailPageProps) {
+export function AnalysisDetailPage({ moduleKey, sourceKey, onBack, defaultCohortId }: AnalysisDetailPageProps) {
   const queryClient = useQueryClient();
   const { data: module, isLoading: moduleLoading } = useAnalysisModule(moduleKey);
   const { data: runsResponse } = useModuleRuns({
@@ -33,6 +41,22 @@ export function AnalysisDetailPage({ moduleKey, sourceKey, onBack }: AnalysisDet
     sourceKey,
   });
   const createRun = useCreateFinnGenRun();
+
+  // SP4 → SP3 handoff: merge the workbench-supplied cohort id into the module
+  // defaults according to each CO2 module's settings_schema shape.
+  const mergedDefaults = (() => {
+    const base = { ...(module?.default_settings ?? {}) } as Record<string, unknown>;
+    if (defaultCohortId === null || defaultCohortId === undefined) return base;
+    if (moduleKey === "co2.codewas" || moduleKey === "co2.time_codewas") {
+      return { ...base, case_cohort_id: defaultCohortId };
+    }
+    if (moduleKey === "co2.demographics" || moduleKey === "co2.overlaps") {
+      const existing = Array.isArray(base.cohort_ids) ? (base.cohort_ids as number[]) : [];
+      const withNew = existing.includes(defaultCohortId) ? existing : [defaultCohortId, ...existing];
+      return { ...base, cohort_ids: withNew };
+    }
+    return base;
+  })();
 
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
   const [idempotencyKey, setIdempotencyKey] = useState(() => makeIdempotencyKey());
@@ -117,7 +141,7 @@ export function AnalysisDetailPage({ moduleKey, sourceKey, onBack }: AnalysisDet
             <SettingsForm
               moduleKey={moduleKey as CO2ModuleKey}
               schema={module.settings_schema}
-              defaultValues={module.default_settings ?? {}}
+              defaultValues={mergedDefaults}
               onSubmit={handleSubmit}
               isPending={createRun.isPending}
             />
