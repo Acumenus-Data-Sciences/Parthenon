@@ -10,6 +10,18 @@ import { ToolsetCard } from "../components/ToolsetCard";
 // FinnGen SP1 foundation hooks.
 const TOOLSET_REGISTRY: ToolsetDescriptor[] = [
   {
+    slug: "finngen-cohort",
+    name: "FinnGen Cohort Workbench",
+    tagline: "Compose, match, materialize cohorts",
+    description:
+      "Drag-and-drop operation builder for UNION/INTERSECT/MINUS composition across cohorts. Preview subject counts live, match 1:N on age/sex with SMD diagnostics, materialize to cohort_definitions, hand off to the Analysis Gallery.",
+    icon: "GitMerge",
+    accent: "var(--accent)",
+    status: "available",
+    route: "/workbench/cohorts",
+    badge: "SP4",
+  },
+  {
     slug: "morpheus",
     name: "Morpheus",
     tagline: "Inpatient outcomes & ICU analytics workbench",
