@@ -157,7 +157,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: acropolis-install-linux
           path: artifacts
@@ -192,7 +192,7 @@ jobs:
     continue-on-error: true
     if: ${{ vars.APPLE_SIGNING_ENABLED == 'true' }}
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: acropolis-install-macos
           path: artifacts
@@ -264,7 +264,7 @@ jobs:
     continue-on-error: true
     if: ${{ vars.SIGNPATH_SIGNING_ENABLED == 'true' }}
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: acropolis-install-win
           path: artifacts
@@ -298,7 +298,7 @@ jobs:
       && needs.sign-windows.result != 'success'
       && vars.ESIGNER_SIGNING_ENABLED == 'true'
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: acropolis-install-win
           path: artifacts
@@ -326,7 +326,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: artifacts
 
