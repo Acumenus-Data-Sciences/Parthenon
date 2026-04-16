@@ -134,9 +134,17 @@ class GitHubClient:
     # ------------------------------------------------------------------
 
     def list_labels(self) -> list[dict[str, Any]]:
-        return self._api(
-            f"repos/{self._repo()}/labels?per_page=100"
-        )
+        all_labels: list[dict[str, Any]] = []
+        page = 1
+        while True:
+            batch = self._api(
+                f"repos/{self._repo()}/labels?per_page=100&page={page}"
+            )
+            all_labels.extend(batch)
+            if len(batch) < 100:
+                break
+            page += 1
+        return all_labels
 
     def create_label(
         self, name: str, color: str, description: str = ""

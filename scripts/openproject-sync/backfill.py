@@ -61,7 +61,7 @@ OP_API_KEY = os.environ.get(
     "OP_API_KEY",
     "bbbe16bf0c9297f1697b7fd30638d1539462f53fac64650c0125bfe321b128a7",
 )
-OP_BASE_URL = os.environ.get("OP_BASE_URL", "http://localhost:8090")
+OP_BASE_URL = os.environ.get("OP_BASE_URL", "https://projects.acumenus.net")
 
 SYNC_DB_DSN = os.environ.get(
     "SYNC_DB_DSN",
@@ -457,7 +457,7 @@ def backfill_quick_task(
         print(f"  Created GH Issue #{gh_issue_number}: {subject}")
 
     mapping = EntityMapping(
-        entity_type="quick_task",
+        entity_type="quick",
         gsd_path=gsd_path,
         op_project_id=OP_PROJECT_ID,
         op_work_package_id=op_wp_id,
