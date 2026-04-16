@@ -159,33 +159,31 @@ suppressPackageStartupMessages({
 #* @get /finngen/romopapi/code-counts
 #* @serializer unboxedJSON
 function(request, response) {
-  message(sprintf("[code-counts] class(request)=%s", paste(class(request), collapse=",")))
-  message(sprintf("[code-counts] names(request)=%s", paste(names(request), collapse=",")))
   .safe_sync("code-counts", response, function() {
-    src <- .decode_source(request$query$source %||% request$query[["source"]])
-    cid <- as.integer(request$query$concept_id %||% request$query[["concept_id"]])
+    src <- .decode_source(request$query$source)
+    cid <- as.integer(request$query$concept_id)
     run_with_classification(NULL, function() finngen_romopapi_code_counts(src, cid))
   })
 }
 
 #* @get /finngen/romopapi/relationships
 #* @serializer unboxedJSON
-function(req, response) {
+function(request, response) {
   .safe_sync("relationships", response, function() {
-    src <- .decode_source(req$query$source)
-    cid <- as.integer(req$query$concept_id)
+    src <- .decode_source(request$query$source)
+    cid <- as.integer(request$query$concept_id)
     run_with_classification(NULL, function() finngen_romopapi_relationships(src, cid))
   })
 }
 
 #* @get /finngen/romopapi/ancestors
 #* @serializer unboxedJSON
-function(req, response) {
+function(request, response) {
   .safe_sync("ancestors", response, function() {
-    src <- .decode_source(req$query$source)
-    cid <- as.integer(req$query$concept_id)
-    dir_arg <- req$query$direction %||% "both"
-    depth_arg <- as.integer(req$query$max_depth %||% 5L)
+    src <- .decode_source(request$query$source)
+    cid <- as.integer(request$query$concept_id)
+    dir_arg <- request$query$direction %||% "both"
+    depth_arg <- as.integer(request$query$max_depth %||% 5L)
     run_with_classification(NULL, function() {
       finngen_romopapi_ancestors(src, cid, dir_arg, depth_arg)
     })
@@ -194,30 +192,30 @@ function(req, response) {
 
 #* @get /finngen/hades/counts
 #* @serializer unboxedJSON
-function(req, response) {
+function(request, response) {
   .safe_sync("hades/counts", response, function() {
-    src <- .decode_source(req$query$source)
-    ids <- as.integer(strsplit(req$query$cohort_ids, ",")[[1]])
+    src <- .decode_source(request$query$source)
+    ids <- as.integer(strsplit(request$query$cohort_ids, ",")[[1]])
     run_with_classification(NULL, function() finngen_hades_counts(src, ids))
   })
 }
 
 #* @get /finngen/hades/overlap
 #* @serializer unboxedJSON
-function(req, response) {
+function(request, response) {
   .safe_sync("hades/overlap", response, function() {
-    src <- .decode_source(req$query$source)
-    ids <- as.integer(strsplit(req$query$cohort_ids, ",")[[1]])
+    src <- .decode_source(request$query$source)
+    ids <- as.integer(strsplit(request$query$cohort_ids, ",")[[1]])
     run_with_classification(NULL, function() finngen_hades_overlap(src, ids))
   })
 }
 
 #* @get /finngen/hades/demographics
 #* @serializer unboxedJSON
-function(req, response) {
+function(request, response) {
   .safe_sync("hades/demographics", response, function() {
-    src <- .decode_source(req$query$source)
-    cid <- as.integer(req$query$cohort_id)
+    src <- .decode_source(request$query$source)
+    cid <- as.integer(request$query$cohort_id)
     run_with_classification(NULL, function() finngen_hades_demographics(src, cid))
   })
 }

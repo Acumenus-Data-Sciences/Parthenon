@@ -95,10 +95,10 @@ finngen_romopapi_setup_source_execute <- function(source_envelope, run_id, expor
     ))
     ROMOPAPI::createCodeCountsTables(handler)
 
-    write_progress(progress_path, list(step = "verify_tables", pct = 90))
+    write_progress(progress_path, list(step = "verify_tables", pct = 85))
     results_schema <- source_envelope$schemas$results
     conn <- handler$connectionHandler$getConnection()
-    row_count <- tryCatch({
+    row_count_raw <- tryCatch({
       rs <- DatabaseConnector::querySql(
         conn,
         SqlRender::render(
@@ -106,8 +106,41 @@ finngen_romopapi_setup_source_execute <- function(source_envelope, run_id, expor
           results = results_schema
         )
       )
-      as.integer(rs$N[1])
-    }, error = function(e) NA_integer_)
+      rs$N[1]
+    }, error = function(e) NA)
+    # Coerce to scalar integer — jsonlite otherwise serializes NA_integer_ as [].
+    row_count <- if (is.null(row_count_raw) || length(row_count_raw) == 0 || is.na(row_count_raw[1])) {
+      0L
+    } else {
+      as.integer(row_count_raw[1])
+    }
+
+    # Grant read access to finngen_ro and parthenon_app. ROMOPAPI-created tables
+    # are owned by parthenon_finngen_rw; other roles need explicit SELECT.
+    # ALTER DEFAULT PRIVILEGES ensures future tables this role creates are also readable.
+    write_progress(progress_path, list(
+      step = "grant_read_access", pct = 95,
+      message = "Granting SELECT to parthenon_finngen_ro + parthenon_app"
+    ))
+    tryCatch({
+      DatabaseConnector::executeSql(conn, sprintf(
+        "GRANT SELECT ON ALL TABLES IN SCHEMA %s TO parthenon_finngen_ro;", results_schema
+      ))
+      DatabaseConnector::executeSql(conn, sprintf(
+        "GRANT SELECT ON ALL TABLES IN SCHEMA %s TO parthenon_app;", results_schema
+      ))
+      DatabaseConnector::executeSql(conn, sprintf(
+        "ALTER DEFAULT PRIVILEGES IN SCHEMA %s GRANT SELECT ON TABLES TO parthenon_finngen_ro;",
+        results_schema
+      ))
+      DatabaseConnector::executeSql(conn, sprintf(
+        "ALTER DEFAULT PRIVILEGES IN SCHEMA %s GRANT SELECT ON TABLES TO parthenon_app;",
+        results_schema
+      ))
+    }, error = function(e) {
+      # Non-fatal — setup itself succeeded. Admin can grant manually if needed.
+      message(sprintf("[setup-source GRANTs] non-fatal: %s", conditionMessage(e)))
+    })
 
     .write_summary(export_folder, list(
       analysis_type        = "romopapi.setup",

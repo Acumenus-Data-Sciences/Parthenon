@@ -320,8 +320,9 @@ source must have `stratified_code_counts` materialized via ROMOPAPI. This is
 a one-time-per-source admin action:
 
 ```bash
+# PANCREAS (Pancreatic Cancer Corpus) — default researcher-facing source
 docker compose exec -T php sh -c 'cd /var/www/html && \
-  php artisan finngen:setup-source EUNOMIA'
+  php artisan finngen:setup-source PANCREAS'
 ```
 
 The command:
@@ -329,13 +330,18 @@ The command:
 - Polls for terminal state (press Ctrl+C to detach; the run continues in background)
 - Prints progress step + percentage + message as they land
 
-Alternative admin-UI path: `/finngen/explore` → pick source → click "Initialize source" banner button. Requires `finngen.code-explorer.setup` permission (admin or super-admin role).
+Alternative admin-UI path: go to any Investigation → left rail → "Code Explorer" → pick source → click "Initialize source" banner button. Requires `finngen.code-explorer.setup` permission (admin or super-admin role).
 
-**Duration estimates:**
-- Eunomia: ~30s-2min
+**Duration estimates** (measured on beastmode, 2026-04-15):
+- PANCREAS (361 persons): ~67s → 2,439 rows in stratified_code_counts, 62 distinct concepts
+- Eunomia (GiBleed demo): ~30s-2min
 - SynPUF (2.3M persons): ~30-90min
 - Acumenus (1M persons): ~20-60min
 
 **Idempotent:** ROMOPAPI uses `CREATE TABLE IF NOT EXISTS` under the hood, so repeat runs are safe.
 
+**GRANTs:** The setup worker now issues `GRANT SELECT ON ALL TABLES IN SCHEMA <results> TO parthenon_finngen_ro, parthenon_app` + `ALTER DEFAULT PRIVILEGES` after materialization. Before 2026-04-15 these had to be applied manually via psql after setup.
+
 **Rollback:** To drop the table manually: `DROP TABLE {results_schema}.stratified_code_counts` — next `/counts` call returns `FINNGEN_SOURCE_NOT_INITIALIZED` until re-initialized.
+
+**Why PANCREAS, not EUNOMIA:** EUNOMIA is a demo (GiBleed, ~100 patients, no genomics). PANCREAS has 361 patients with the OMOP Oncology extension + genomics, so it's the canonical source for FinnGen researcher flows. EUNOMIA remains useful for fast unit-test setup.

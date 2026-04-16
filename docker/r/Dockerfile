@@ -31,6 +31,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libcairo2-dev \
     libxt-dev \
     libjpeg-dev \
+    pandoc \
     && rm -rf /var/lib/apt/lists/*
 
 # Rust toolchain — required by waysign (plumber2 dependency for cryptographic signing)
