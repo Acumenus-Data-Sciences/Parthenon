@@ -50,7 +50,7 @@ jobs:
           # Package as tar.gz preserving permissions
           cd pkg && tar czf ../acropolis-install-linux.tar.gz *
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: acropolis-install-linux
           path: acropolis-install-linux.tar.gz
@@ -103,7 +103,7 @@ jobs:
       - name: Verify zip contents
         run: unzip -l acropolis-install-macos.zip
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: acropolis-install-macos
           path: acropolis-install-macos.zip
@@ -129,7 +129,7 @@ jobs:
         working-directory: installer/dist
         run: mv acropolis-install.exe acropolis-install-win.exe
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: acropolis-install-win
           path: installer/dist/acropolis-install-win.exe
@@ -144,7 +144,7 @@ jobs:
       - uses: snapcore/action-build@v1
         id: snapcraft
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: parthenon-snap
           path: ${{ steps.snapcraft.outputs.snap }}
@@ -180,7 +180,7 @@ jobs:
           cp ../artifacts/acropolis-install .
           nfpm package --config nfpm.yaml --packager deb --target ../parthenon-installer_1.0.3_amd64.deb
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: parthenon-deb
           path: parthenon-installer_1.0.3_amd64.deb
@@ -250,7 +250,7 @@ jobs:
         run: |
           cd work && zip -r ../acropolis-install-macos-signed.zip . -x ".*"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: acropolis-install-macos-signed
           path: |
@@ -282,7 +282,7 @@ jobs:
           wait-for-completion: true
           wait-for-completion-timeout-in-seconds: 600
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: acropolis-install-win-signed
           path: artifacts/acropolis-install-win-signed.exe
@@ -314,7 +314,7 @@ jobs:
           file_path: artifacts/acropolis-install-win.exe
           environment: production
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: acropolis-install-win-signed
           path: artifacts/acropolis-install-win.exe
