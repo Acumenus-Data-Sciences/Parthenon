@@ -4,7 +4,7 @@ import { PredictionVerdictDashboard } from "../PredictionVerdictDashboard";
 import type { PredictionResult } from "../../types/prediction";
 
 // ---------------------------------------------------------------------------
-// Realistic fixtures matching R runtime PatientLevelPrediction output
+// Realistic fixtures matching Darkstar PatientLevelPrediction output
 // ---------------------------------------------------------------------------
 
 /** Good model: Lasso logistic regression for 1-year MI risk prediction */

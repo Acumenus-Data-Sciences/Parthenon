@@ -46,11 +46,11 @@ list(
 
 From PHP/Laravel:
 ```php
-$url = config('services.r_runtime.url'); // http://darkstar:8787
+$url = config('services.darkstar.url'); // http://darkstar:8787
 $response = Http::timeout(7200)->post("{$url}/analysis/estimation/run", $payload);
 ```
 
-Config is in `backend/config/services.php` under `r_runtime`. Env var: `R_SERVICE_URL=http://darkstar:8787`.
+Config is in `backend/config/services.php` under `darkstar`. Env var: `DARKSTAR_URL=http://darkstar:8787`.
 
 Darkstar runs on the Docker network as hostname `darkstar`, port 8787. External access via `localhost:8787`.
 
@@ -105,7 +105,7 @@ interface VolcanoPoint {
 ### Key Constraints
 
 - Darkstar has 3 mirai daemons — volcano computation can run concurrently with other analyses
-- Timeout: 7200s (2h) configured in `services.r_runtime.timeout`
+- Timeout: 7200s (2h) configured in `services.darkstar.timeout`
 - Memory: 32GB container limit, ~3GB per R worker with JVM
 - The R process blocks during JDBC operations — use async job dispatch from PHP (like DQD pattern: dispatch job, poll progress)
 - Results should be cached in a DB table or returned directly depending on expected scan size

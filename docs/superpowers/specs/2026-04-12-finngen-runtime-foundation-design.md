@@ -12,7 +12,7 @@
 
 ### 1.1 Goal
 
-Make Darkstar (`parthenon-darkstar`, service `r-runtime`, port 8787) the host runtime for three FinnGen R packages (ROMOPAPI, HadesExtras, CO2AnalysisModules) and define the Laravel ↔ Darkstar handshake for both fast sync reads and long async analyses. Deliver the plumbing that all three downstream sub-projects (Code Explorer, Analysis Module Gallery, Cohort Workbench) depend on.
+Make Darkstar (`parthenon-darkstar`, service `darkstar`, port 8787) the host runtime for three FinnGen R packages (ROMOPAPI, HadesExtras, CO2AnalysisModules) and define the Laravel ↔ Darkstar handshake for both fast sync reads and long async analyses. Deliver the plumbing that all three downstream sub-projects (Code Explorer, Analysis Module Gallery, Cohort Workbench) depend on.
 
 **SP1 does not ship any user-visible UI.**
 
@@ -108,7 +108,7 @@ Make Darkstar (`parthenon-darkstar`, service `r-runtime`, port 8787) the host ru
        │ HTTP → Darkstar
        ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│                  parthenon-darkstar (r-runtime:8787)                 │
+│                   parthenon-darkstar (darkstar:8787)                 │
 │                                                                      │
 │   plumber_api.R  (existing, extended with finngen route mounts)      │
 │   valve_launcher.R  (existing — mirai::daemons(n=3L))                │
@@ -152,7 +152,7 @@ Shared Docker volume: finngen-artifacts
 | `parthenon-php` | Laravel API + Horizon client | New FinnGen controllers, services, jobs, models, migrations, commands |
 | `parthenon-horizon` | Job worker pool | New `finngen` queue alias; picks up `RunFinnGenAnalysisJob` |
 | `parthenon-postgres` | Primary DB | New `app.finngen_runs` + `app.finngen_analysis_modules` tables; `parthenon_finngen_ro` + `parthenon_finngen_rw` roles |
-| `parthenon-darkstar` | R runtime | New `api/finngen/*.R` route files; extended `install_deps.R`; no architectural changes to existing endpoints |
+| `parthenon-darkstar` | Darkstar | New `api/finngen/*.R` route files; extended `install_deps.R`; no architectural changes to existing endpoints |
 | `parthenon-redis` | Horizon queue + sync-read cache + idempotency dedupe | Used as-is; new key namespaces `finngen:sync:*` and `finngen:idem:*` |
 | **Deleted:** `parthenon-finngen-runner` | (gone) | Container + volumes removed from `docker-compose.yml` |
 
@@ -1094,7 +1094,7 @@ If 1/3/5 fail → §7.3 rollback.
 
 ## Appendix B — Glossary
 
-- **Darkstar** — Parthenon's R runtime (`parthenon-darkstar`, port 8787). Plumber2 + mirai 3-daemon worker pool.
+- **Darkstar** — Parthenon's HADES execution service (`parthenon-darkstar`, port 8787). Plumber2 + mirai 3-daemon worker pool.
 - **mirai** — R async task queue backing `@async` Plumber endpoints.
 - **HadesExtras** — R6 plumbing over HADES packages; `CDMdbHandler`, `CohortTableHandler`, operation-string SQL compiler.
 - **ROMOPAPI** — upstream Plumber service for code counts. We import functions; don't run their server.

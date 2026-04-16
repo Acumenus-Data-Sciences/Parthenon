@@ -303,7 +303,7 @@ class CharacterizationController extends Controller
             $cdmSchema = $source->getTableQualifier(DaimonType::CDM) ?? 'omop';
             $resultsSchema = $source->getTableQualifier(DaimonType::Results) ?? 'public';
 
-            $rRuntimeUrl = rtrim(config('services.r_runtime.url', 'http://darkstar:8787'), '/');
+            $darkstarUrl = rtrim(config('services.darkstar.url', 'http://darkstar:8787'), '/');
 
             $spec = [
                 'connection' => HadesBridgeService::buildSourceSpec($source),
@@ -324,7 +324,7 @@ class CharacterizationController extends Controller
             ]);
 
             $response = Http::timeout(600)->post(
-                "{$rRuntimeUrl}/analysis/characterization/run",
+                "{$darkstarUrl}/analysis/characterization/run",
                 $spec
             );
 

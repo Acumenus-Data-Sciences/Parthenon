@@ -19,7 +19,7 @@ All notable changes to Parthenon are documented here.
 ### Changed
 - **Aqueduct** — full-screen canvas mode, persistent viewport, compact toolbar, universal CDM selector, click-to-map field detail modals
 - **Hecate** — switched to EmbeddingGemma-300M via Ollama, Qdrant upgraded to v1.17.1
-- **Darkstar (R Runtime)** — CohortMethod 6.0.1, PLP 6.6.0, DeepPatientLevelPrediction, DQD support
+- **Darkstar** — CohortMethod 6.0.1, PLP 6.6.0, DeepPatientLevelPrediction, DQD support
 - **Nginx** — security headers, template-based config, 5GB upload support
 - **System Health** — service tier grouping with Poseidon health check panel
 
@@ -122,7 +122,7 @@ All notable changes to Parthenon are documented here.
 
 ### Fixed
 - OHIF iframe viewport sizing, study prefetcher disabled, investigational dialog suppressed
-- R runtime v6 API fixes for SCCS and PLP pipelines
+- Darkstar API fixes for SCCS and PLP pipelines
 - All analysis chart components hardened against R "NA" values
 
 ## [0.11.0] — 2026-03-04
@@ -138,7 +138,7 @@ All notable changes to Parthenon are documented here.
 ### Fixed
 - Eunomia vocabulary tables now loaded from GiBleed zip
 - Concept metadata nested under 'concept' key in API response
-- R runtime container persistence issues
+- Darkstar container persistence issues
 
 ### Security
 - HIGHSEC paradigm established (2026-03-20): WADO endpoints require auth, new users get viewer-only role, Horizon gate uses role check, mass assignment protection restored, Redis/Orthanc/Grafana authentication enforced, non-root Docker users, Sanctum 8-hour token expiration

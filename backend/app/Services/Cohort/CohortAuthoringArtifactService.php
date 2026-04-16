@@ -167,7 +167,7 @@ class CohortAuthoringArtifactService
 
         return <<<R
 # Parthenon CirceR cohort artifact
-# Requires jsonlite. CirceR is optional for SQL generation in an R runtime.
+# Requires jsonlite. CirceR is optional for SQL generation in Darkstar.
 # PARTHENON_COHORT_JSON_BEGIN
 {$encoded}
 # PARTHENON_COHORT_JSON_END

@@ -284,9 +284,9 @@ All checks passing:
 | `docker compose build` (all 5 images) | PASS |
 | `docker compose up` (all 8 services) | PASS (all healthy) |
 | `php artisan migrate` | PASS (9 migrations) |
-| `GET /api/health` | `{"status":"ok","services":{"database":"ok","redis":"ok","ai":"ok","r_runtime":"ok"}}` |
+| `GET /api/health` | `{"status":"ok","services":{"database":"ok","redis":"ok","ai":"ok","darkstar":"ok"}}` |
 | `GET :8002/health` | AI OK, MedGemma connected |
-| `GET :8787/health` | R runtime OK (4.4.3) |
+| `GET :8787/health` | Darkstar OK (4.4.3) |
 | Auth flow (register/login/profile/logout) | PASS |
 | Source CRUD with nested daimons | PASS |
 | React SPA on Vite dev server | PASS |

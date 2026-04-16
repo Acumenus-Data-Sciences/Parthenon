@@ -18,7 +18,7 @@ Container configurations for all Parthenon services.
 | hecate | ${HECATE_PORT:-8080}:8080 |
 | solr | ${SOLR_PORT:-8983}:8983 |
 | blackrabbit | ${BLACKRABBIT_PORT:-8090}:8090 |
-| r-runtime | ${R_PORT:-8787}:8787 |
+| darkstar | ${R_PORT:-8787}:8787 |
 | horizon | internal |
 | orthanc | ${ORTHANC_PORT:-8042}:8042 |
 | ohif-build | internal |
@@ -38,7 +38,7 @@ docker compose logs -f php    # Follow PHP logs
 - `docker/php/Dockerfile` — PHP-FPM 8.4 with extensions
 - `docker/nginx/Dockerfile` — Nginx reverse proxy
 - `docker/node/Dockerfile` — Node.js for Vite builds
-- `docker/r/Dockerfile` — R 4.4 with HADES packages
+- `docker/r/Dockerfile` — Darkstar, R 4.4 with HADES packages
 
 ## Key URLs (Development)
 
@@ -47,7 +47,7 @@ docker compose logs -f php    # Follow PHP logs
 | App | http://localhost:8082 |
 | Vite dev server | http://localhost:5175 |
 | AI service | http://localhost:8002 |
-| R runtime | http://localhost:8787 |
+| Darkstar | http://localhost:8787 |
 | Solr | http://localhost:8983 |
 | PostgreSQL | localhost:5480 |
 | Redis | localhost:6381 |

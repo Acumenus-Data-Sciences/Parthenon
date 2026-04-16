@@ -4,7 +4,7 @@ return [
     'pg_ro_password' => env('FINNGEN_PG_RO_PASSWORD'),
     'pg_rw_password' => env('FINNGEN_PG_RW_PASSWORD'),
 
-    'darkstar_url' => env('FINNGEN_DARKSTAR_URL', env('R_SERVICE_URL', 'http://darkstar:8787')),
+    'darkstar_url' => env('FINNGEN_DARKSTAR_URL', env('DARKSTAR_URL', env('R_SERVICE_URL', 'http://darkstar:8787'))),
     'darkstar_timeout_sync_ms' => (int) env('FINNGEN_DARKSTAR_TIMEOUT_SYNC_MS', 30_000),
     'darkstar_timeout_dispatch_ms' => (int) env('FINNGEN_DARKSTAR_TIMEOUT_DISPATCH_MS', 10_000),
     'darkstar_timeout_poll_ms' => (int) env('FINNGEN_DARKSTAR_TIMEOUT_POLL_MS', 120_000),

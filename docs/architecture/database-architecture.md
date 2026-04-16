@@ -57,7 +57,7 @@ graph LR
     Laravel -->|eunomia| DockerPG2
     Laravel -.->|Solr| Solr["Solr 9.7<br/>(optional)"]
     PythonAI["Python AI"] --> DockerPG2
-    R["R Runtime"] --> DockerPG2
+    Darkstar["Darkstar"] --> DockerPG2
 ```
 
 ### Acumenus Profile (Production)
@@ -76,7 +76,7 @@ graph LR
     Laravel -->|Solr| Solr["Solr 9.7<br/>9 cores"]
     PythonAI["Python AI"] --> ExternalPG2
     PythonAI -.->|direct writes| Solr
-    R["R Runtime"] --> DockerPG
+    Darkstar["Darkstar"] --> DockerPG
     Hecate --> ExternalPG2
 ```
 

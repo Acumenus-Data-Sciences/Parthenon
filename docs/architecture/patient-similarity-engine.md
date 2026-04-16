@@ -102,7 +102,7 @@ The platform has multiple CDM schemas with rich clinical data:
 
 - **pgvector** — already deployed for concept embeddings, ready for patient embeddings
 - **Python AI service** — FastAPI with GPU support for model inference
-- **R runtime** — HADES packages available (CohortMethod for propensity scoring)
+- **Darkstar** — HADES packages available (CohortMethod for propensity scoring)
 - **Redis** — available for caching similarity results
 - **Horizon** — queue infrastructure for background computation
 

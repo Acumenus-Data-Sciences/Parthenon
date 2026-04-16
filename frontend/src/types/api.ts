@@ -19,6 +19,6 @@ export interface HealthResponse {
     database: string;
     redis: string;
     ai: string;
-    r_runtime: string;
+    darkstar: string;
   };
 }

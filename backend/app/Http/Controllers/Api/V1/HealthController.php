@@ -20,7 +20,7 @@ class HealthController extends Controller
             'database' => $this->checkDatabase(),
             'redis' => $this->checkRedis(),
             'ai' => $this->checkService(config('services.ai.url').'/health'),
-            'r_runtime' => $this->checkService(config('services.r_runtime.url').'/health'),
+            'darkstar' => $this->checkService(config('services.darkstar.url').'/health'),
         ];
 
         if ($solr->isEnabled()) {

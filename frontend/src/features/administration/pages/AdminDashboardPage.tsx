@@ -54,7 +54,7 @@ const NAV_CARDS = [
   },
   {
     title: "System Health",
-    description: "Live status of all Parthenon services: Redis, AI, R runtime, Solr, Orthanc PACS, job queues.",
+    description: "Live status of all Parthenon services: Redis, AI, Darkstar, Solr, Orthanc PACS, job queues.",
     icon: Activity,
     href: "/admin/system-health",
     color: "text-emerald-500",

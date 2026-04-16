@@ -89,7 +89,7 @@ export async function getIRExecution(
 }
 
 // ---------------------------------------------------------------------------
-// Direct CohortIncidence calculation via R runtime
+// Direct CohortIncidence calculation via Darkstar
 // ---------------------------------------------------------------------------
 
 export async function calculateDirectIncidenceRate(

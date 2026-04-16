@@ -284,7 +284,7 @@ RUN pip3 install --break-system-packages \
     nvidia-ml-py
 
 # Download PostgreSQL JDBC driver for DatabaseConnector.
-# IMPORTANT: must live outside /app because docker-compose mounts ./r-runtime:/app
+# IMPORTANT: must live outside /app because docker-compose mounts ./darkstar:/app
 # at runtime, which would clobber /app/jdbc and make the driver unavailable.
 RUN mkdir -p /opt/jdbc && \
     curl -L -o /opt/jdbc/postgresql-42.7.3.jar \

@@ -4,7 +4,7 @@ import { IncidenceRateVerdictDashboard } from "../IncidenceRateVerdictDashboard"
 import type { IncidenceRateResult } from "../../types/analysis";
 
 // ---------------------------------------------------------------------------
-// Realistic fixtures matching R runtime IncidenceRate output
+// Realistic fixtures matching Darkstar IncidenceRate output
 // ---------------------------------------------------------------------------
 
 /** Complete IR result: Type 2 Diabetes on ACE inhibitors */

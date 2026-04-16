@@ -781,7 +781,7 @@ export function CohortDiagnosticsPanel({
               <span>
                 {mutation.error instanceof Error
                   ? mutation.error.message
-                  : "Failed to run diagnostics. Check R runtime is healthy."}
+                  : "Failed to run diagnostics. Check Darkstar is healthy."}
               </span>
             </div>
           )}

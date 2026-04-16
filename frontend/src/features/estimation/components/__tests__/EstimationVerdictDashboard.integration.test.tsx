@@ -4,7 +4,7 @@ import { EstimationVerdictDashboard } from "../EstimationVerdictDashboard";
 import type { EstimationResult } from "../../types/estimation";
 
 // ---------------------------------------------------------------------------
-// Realistic fixtures matching R runtime CohortMethod output structure
+// Realistic fixtures matching Darkstar CohortMethod output structure
 // ---------------------------------------------------------------------------
 
 /** Complete estimation result: ACE inhibitors vs ARBs for MI — protective effect */

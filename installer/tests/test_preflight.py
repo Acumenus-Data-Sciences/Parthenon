@@ -47,6 +47,9 @@ def test_community_sidecar_env_matches_compose_service_ports():
     assert "HECATE_URL=http://hecate:8080" in backend_env
     assert "BLACKRABBIT_URL=http://blackrabbit:8090" in backend_env
     assert "ORTHANC_URL=http://orthanc:8042" in backend_env
+    assert "DARKSTAR_URL=http://darkstar:8787" in backend_env
+    assert "DARKSTAR_TIMEOUT=7200" in backend_env
+    assert "R_SERVICE_URL=" not in backend_env
 
 
 def test_build_config_defaults_auto_assigns_non_nginx_ports(monkeypatch):

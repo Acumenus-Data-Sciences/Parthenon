@@ -24,7 +24,7 @@ Summarized from the deep assessment completed 2026-04-12 (see `docs/devlog/modul
 
 By the time Sub-Project 2 starts, these will be in place and usable:
 
-1. **Darkstar R runtime** hosts ROMOPAPI, HadesExtras, CO2AnalysisModules. Monthly HADES audit (`scripts/darkstar-version-check.sh`) extended to cover new packages.
+1. **Darkstar HADES execution service** hosts ROMOPAPI, HadesExtras, CO2AnalysisModules. Monthly HADES audit (`scripts/darkstar-version-check.sh`) extended to cover new packages.
 2. **Darkstar Plumber routes** under `darkstar/api/finngen/`:
    - Sync endpoints (fast reads) — behave like existing `/characterization`, `/cohort_diagnostics` routes
    - Async endpoints (analyses) — return `{ job_id, status: "running" }`, backed by mirai daemons; polled via Darkstar's native `GET /jobs/{id}`
@@ -476,7 +476,7 @@ Each SP starts with its own brainstorming session. Load order:
 
 ## 8. Glossary
 
-- **Darkstar** — Parthenon's R runtime container (`parthenon-darkstar`, service `r-runtime`, port 8787). Plumber2 + mirai 3-daemon worker pool. HADES installed; HADES audit cron monthly.
+- **Darkstar** — Parthenon's HADES execution container (`parthenon-darkstar`, service `darkstar`, port 8787). Plumber2 + mirai 3-daemon worker pool. HADES installed; HADES audit cron monthly.
 - **mirai** — R async task queue; Darkstar uses 3 daemon workers backing all `@async` Plumber endpoints.
 - **HadesExtras** — R6-based plumbing wrapping HADES packages; all cohort ops and demographics flow through it.
 - **CDMdbHandler / CohortTableHandler** — HadesExtras R6 classes. CDMdbHandler = connection + schemas; CohortTableHandler extends it with cohort state.

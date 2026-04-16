@@ -44,8 +44,8 @@ rationale.
 - **OpenAPI spec drift detection** in CI — generated TypeScript types are now
   verified against live API responses so the frontend never diverges from the
   backend (commit `4b3a77c`)
-- **R Plumber contract tests** — a new `RRuntimeContractTest.php` hits the
-  `darkstar` service `/health` endpoint via `config('services.r_runtime.url')`,
+- **R Plumber contract tests** — a new `DarkstarContractTest.php` hits the
+  `darkstar` service `/health` endpoint via `config('services.darkstar.url')`,
   asserting the response shape: `status`, `service=darkstar`, semver `version`,
   the `checks.{packages,jvm,memory_ok,jdbc_driver}` dict, and non-empty
   `packages.ohdsi` metadata. The test gracefully skips when darkstar is not

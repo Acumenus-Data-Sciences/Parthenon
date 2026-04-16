@@ -53,7 +53,7 @@ class SystemHealthController extends Controller
             'chromadb' => fn () => $this->checkChromaDb(),
             // AI & Analytics
             'ai' => fn () => $this->checkAiService(),
-            'darkstar' => fn () => $this->checkRRuntime(),
+            'darkstar' => fn () => $this->checkDarkstar(),
             'study-agent' => fn () => $this->checkStudyAgent(),
             'poseidon' => fn () => $this->checkPoseidon(),
             // Clinical Services
@@ -277,9 +277,9 @@ class SystemHealthController extends Controller
         }
     }
 
-    private function checkRRuntime(): array
+    private function checkDarkstar(): array
     {
-        $url = rtrim(config('services.r_runtime.url', 'http://darkstar:8787'), '/');
+        $url = rtrim(config('services.darkstar.url', 'http://darkstar:8787'), '/');
 
         try {
             $response = Http::timeout(3)->get("{$url}/health");
@@ -924,7 +924,7 @@ class SystemHealthController extends Controller
      */
     private function getDarkstarMetrics(): array
     {
-        $url = rtrim(config('services.r_runtime.url', 'http://darkstar:8787'), '/');
+        $url = rtrim(config('services.darkstar.url', 'http://darkstar:8787'), '/');
 
         try {
             $response = Http::timeout(5)->get("{$url}/health");

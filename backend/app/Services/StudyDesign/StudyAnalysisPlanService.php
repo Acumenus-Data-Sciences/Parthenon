@@ -227,7 +227,7 @@ class StudyAnalysisPlanService
      */
     private function hadesCapabilities(): array
     {
-        $url = rtrim(config('services.r_runtime.url', 'http://darkstar:8787'), '/');
+        $url = rtrim(config('services.darkstar.url', 'http://darkstar:8787'), '/');
 
         try {
             $payload = Http::timeout(8)->get("{$url}/hades/packages")->json();

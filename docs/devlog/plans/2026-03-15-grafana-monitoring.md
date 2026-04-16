@@ -806,7 +806,7 @@ The full checkers array becomes:
             'backend'      => fn () => $this->checkBackend(),
             'redis'        => fn () => $this->checkRedis(),
             'ai'           => fn () => $this->checkAiService(),
-            'r'            => fn () => $this->checkRRuntime(),
+            'darkstar'     => fn () => $this->checkDarkstar(),
             'solr'         => fn () => $this->checkSolr(),
             'orthanc'      => fn () => $this->checkOrthanc(),
             'queue'        => fn () => $this->checkQueue(),

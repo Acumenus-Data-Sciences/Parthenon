@@ -244,7 +244,7 @@ class PublicationReportBundleService
 
         return <<<R
 # Parthenon OHDSI report bundle handoff
-# Requires jsonlite. OhdsiReportGenerator is used when installed in the R runtime.
+# Requires jsonlite. OhdsiReportGenerator is used when installed in Darkstar.
 # PARTHENON_REPORT_JSON_BEGIN
 {$encoded}
 # PARTHENON_REPORT_JSON_END
@@ -268,7 +268,7 @@ R;
 
         return <<<R
 # Parthenon OHDSI sharing handoff
-# Requires jsonlite. OhdsiSharing is used when installed in the R runtime.
+# Requires jsonlite. OhdsiSharing is used when installed in Darkstar.
 report_document <- jsonlite::fromJSON(rawToChar(jsonlite::base64_dec("{$encoded}")), simplifyVector = FALSE)
 
 if (requireNamespace("OhdsiSharing", quietly = TRUE)) {

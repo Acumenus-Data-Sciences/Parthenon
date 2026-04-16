@@ -16,11 +16,11 @@ use Illuminate\Support\Facades\Log;
  */
 class StrategusController extends Controller
 {
-    private string $rRuntimeUrl;
+    private string $darkstarUrl;
 
     public function __construct()
     {
-        $this->rRuntimeUrl = rtrim(config('services.r_runtime.url', 'http://darkstar:8787'), '/');
+        $this->darkstarUrl = rtrim(config('services.darkstar.url', 'http://darkstar:8787'), '/');
     }
 
     /**
@@ -61,7 +61,7 @@ class StrategusController extends Controller
 
             // Strategus studies can run for 30+ minutes
             $response = Http::timeout(1800)->post(
-                "{$this->rRuntimeUrl}/strategus/execute",
+                "{$this->darkstarUrl}/strategus/execute",
                 $spec
             );
 
@@ -104,7 +104,7 @@ class StrategusController extends Controller
 
         try {
             $response = Http::timeout(30)->post(
-                "{$this->rRuntimeUrl}/strategus/validate",
+                "{$this->darkstarUrl}/strategus/validate",
                 ['analysis_spec' => $validated['analysis_spec']]
             );
 
@@ -134,7 +134,7 @@ class StrategusController extends Controller
     {
         try {
             $response = Http::timeout(10)->get(
-                "{$this->rRuntimeUrl}/strategus/modules"
+                "{$this->darkstarUrl}/strategus/modules"
             );
 
             if ($response->failed()) {
@@ -147,7 +147,7 @@ class StrategusController extends Controller
 
         } catch (\Throwable $e) {
             return response()->json([
-                'error' => 'R runtime unavailable',
+                'error' => 'Darkstar unavailable',
                 'message' => $e->getMessage(),
             ], 503);
         }

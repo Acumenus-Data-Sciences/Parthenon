@@ -15,7 +15,7 @@ test('health endpoint returns ok', function () {
                 'database',
                 'redis',
                 'ai',
-                'r_runtime',
+                'darkstar',
             ],
         ]);
 });

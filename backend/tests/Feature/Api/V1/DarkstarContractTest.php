@@ -4,25 +4,25 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
 /**
- * Contract tests for the R Plumber service (darkstar) via the `services.r_runtime.url`
- * configured URL. Each test gracefully skips when the R runtime is unreachable so CI
- * stays green in environments that do not run the darkstar container.
+ * Contract tests for Darkstar via `services.darkstar.url`. Each test
+ * gracefully skips when Darkstar is unreachable so CI stays green in
+ * environments that do not run the darkstar container.
  */
-function rRuntimeHealthUrl(): string
+function darkstarHealthUrl(): string
 {
-    return rtrim((string) config('services.r_runtime.url'), '/').'/health';
+    return rtrim((string) config('services.darkstar.url'), '/').'/health';
 }
 
-it('reaches R plumber /health and returns the expected top-level shape', function () {
+it('reaches Darkstar /health and returns the expected top-level shape', function () {
     try {
         /** @var Response $response */
-        $response = Http::timeout(30)->get(rRuntimeHealthUrl());
+        $response = Http::timeout(30)->get(darkstarHealthUrl());
     } catch (Throwable $e) {
-        $this->markTestSkipped('R runtime not reachable: '.$e->getMessage());
+        $this->markTestSkipped('Darkstar not reachable: '.$e->getMessage());
     }
 
     if (! $response->successful()) {
-        $this->markTestSkipped('R runtime returned HTTP '.$response->status());
+        $this->markTestSkipped('Darkstar returned HTTP '.$response->status());
     }
 
     $body = $response->json();
@@ -37,13 +37,13 @@ it('reaches R plumber /health and returns the expected top-level shape', functio
 it('returns a darkstar version that matches semver', function () {
     try {
         /** @var Response $response */
-        $response = Http::timeout(30)->get(rRuntimeHealthUrl());
+        $response = Http::timeout(30)->get(darkstarHealthUrl());
     } catch (Throwable $e) {
-        $this->markTestSkipped('R runtime not reachable: '.$e->getMessage());
+        $this->markTestSkipped('Darkstar not reachable: '.$e->getMessage());
     }
 
     if (! $response->successful()) {
-        $this->markTestSkipped('R runtime returned HTTP '.$response->status());
+        $this->markTestSkipped('Darkstar returned HTTP '.$response->status());
     }
 
     $body = $response->json();
@@ -55,13 +55,13 @@ it('returns a darkstar version that matches semver', function () {
 it('reports ohdsi package metadata under packages.ohdsi', function () {
     try {
         /** @var Response $response */
-        $response = Http::timeout(30)->get(rRuntimeHealthUrl());
+        $response = Http::timeout(30)->get(darkstarHealthUrl());
     } catch (Throwable $e) {
-        $this->markTestSkipped('R runtime not reachable: '.$e->getMessage());
+        $this->markTestSkipped('Darkstar not reachable: '.$e->getMessage());
     }
 
     if (! $response->successful()) {
-        $this->markTestSkipped('R runtime returned HTTP '.$response->status());
+        $this->markTestSkipped('Darkstar returned HTTP '.$response->status());
     }
 
     $body = $response->json();

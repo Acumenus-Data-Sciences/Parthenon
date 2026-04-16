@@ -24,9 +24,9 @@ Before writing any application code we lay down the Docker volume, Postgres role
 
 - [ ] **Step 1: Inspect current compose surface**
 
-Run: `grep -n "finngen\|volumes:\|r-runtime\|darkstar\|^  php:" docker-compose.yml | head -40`
+Run: `grep -n "finngen\|volumes:\|darkstar\|^  php:" docker-compose.yml | head -40`
 
-Expected: see the existing `darkstar` / `r-runtime` service, the `php` service, and the `volumes:` section near the bottom.
+Expected: see the existing `darkstar` service, the `php` service, and the `volumes:` section near the bottom.
 
 - [ ] **Step 2: Add the `finngen-artifacts` volume definition**
 
@@ -37,9 +37,9 @@ In the top-level `volumes:` block at the bottom of `docker-compose.yml`, add aft
     name: parthenon_finngen_artifacts
 ```
 
-- [ ] **Step 3: Mount the volume into the Darkstar (r-runtime) service**
+- [ ] **Step 3: Mount the volume into the Darkstar service**
 
-Find the `r-runtime:` service block. Under its `volumes:` key, add:
+Find the `darkstar:` service block. Under its `volumes:` key, add:
 
 ```yaml
       - finngen-artifacts:/opt/finngen-artifacts
@@ -168,7 +168,7 @@ return [
     'pg_ro_password' => env('FINNGEN_PG_RO_PASSWORD'),
     'pg_rw_password' => env('FINNGEN_PG_RW_PASSWORD'),
 
-    'darkstar_url'   => env('FINNGEN_DARKSTAR_URL', env('R_SERVICE_URL', 'http://darkstar:8787')),
+    'darkstar_url'   => env('FINNGEN_DARKSTAR_URL', env('DARKSTAR_URL', 'http://darkstar:8787')),
     'darkstar_timeout_sync_ms'     => (int) env('FINNGEN_DARKSTAR_TIMEOUT_SYNC_MS', 30_000),
     'darkstar_timeout_dispatch_ms' => (int) env('FINNGEN_DARKSTAR_TIMEOUT_DISPATCH_MS', 10_000),
     'darkstar_timeout_poll_ms'     => (int) env('FINNGEN_DARKSTAR_TIMEOUT_POLL_MS', 120_000),
@@ -297,7 +297,7 @@ git commit -m "chore(finngen): remove deprecated finngen-runner container + sour
 
 ---
 
-## Part B — Darkstar R Runtime
+## Part B — Darkstar HADES Runtime
 
 Install the three FinnGen packages into Darkstar, write the shared R utilities, and mount new Plumber routes. Everything here is testable against Eunomia (the bundled demo CDM).
 

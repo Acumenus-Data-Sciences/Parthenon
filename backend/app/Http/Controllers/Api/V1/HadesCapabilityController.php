@@ -12,11 +12,11 @@ use Illuminate\Support\Facades\Log;
  */
 class HadesCapabilityController extends Controller
 {
-    private string $rRuntimeUrl;
+    private string $darkstarUrl;
 
     public function __construct()
     {
-        $this->rRuntimeUrl = rtrim(config('services.r_runtime.url', 'http://darkstar:8787'), '/');
+        $this->darkstarUrl = rtrim(config('services.darkstar.url', 'http://darkstar:8787'), '/');
     }
 
     /**
@@ -27,7 +27,7 @@ class HadesCapabilityController extends Controller
     public function packages(): JsonResponse
     {
         try {
-            $response = Http::timeout(10)->get("{$this->rRuntimeUrl}/hades/packages");
+            $response = Http::timeout(10)->get("{$this->darkstarUrl}/hades/packages");
 
             if ($response->failed()) {
                 Log::warning('HADES package inventory request failed', [
@@ -56,7 +56,7 @@ class HadesCapabilityController extends Controller
             ]);
 
             return response()->json([
-                'error' => 'R runtime unavailable',
+                'error' => 'Darkstar unavailable',
                 'message' => $e->getMessage(),
             ], 503);
         }

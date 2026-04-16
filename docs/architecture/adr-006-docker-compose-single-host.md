@@ -24,7 +24,7 @@ Define all services in a single `docker-compose.yml` file (886 lines, 28+ servic
 | Core app | nginx, php, node (Vite dev), horizon (queue worker), reverb (WebSocket) |
 | Data | postgres, redis, solr |
 | AI/ML | python-ai, chromadb, qdrant |
-| Analytics | darkstar (R runtime), finngen-runner |
+| Analytics | darkstar, finngen-runner |
 | Research tools | study-agent, whiterabbit, hecate, fhir-to-cdm |
 | Medical | orthanc (DICOM), ohif-build (viewer) |
 | Ingest | morpheus-ingest |

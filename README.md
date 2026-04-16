@@ -261,7 +261,7 @@ The original OHDSI Atlas codebase is archived at the `archive/legacy` branch.
 | hecate | ${HECATE_PORT:-8080}:8080 |
 | solr | ${SOLR_PORT:-8983}:8983 |
 | blackrabbit | ${BLACKRABBIT_PORT:-8090}:8090 |
-| r-runtime | ${R_PORT:-8787}:8787 |
+| darkstar | ${R_PORT:-8787}:8787 |
 | horizon | internal |
 | orthanc | ${ORTHANC_PORT:-8042}:8042 |
 | ohif-build | internal |

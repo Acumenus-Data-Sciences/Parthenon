@@ -12,8 +12,8 @@ class RService
 
     public function __construct()
     {
-        $this->baseUrl = (string) config('services.r_runtime.url');
-        $this->timeout = (int) config('services.r_runtime.timeout', 7200);
+        $this->baseUrl = (string) config('services.darkstar.url');
+        $this->timeout = (int) config('services.darkstar.timeout', 7200);
     }
 
     /**
@@ -53,7 +53,7 @@ class RService
 
         return $response->json() ?? [
             'status' => 'error',
-            'message' => 'R runtime returned empty response (HTTP '.$response->status().')',
+            'message' => 'Darkstar returned empty response (HTTP '.$response->status().')',
         ];
     }
 
@@ -84,7 +84,7 @@ class RService
 
         return $response->json() ?? [
             'status' => 'error',
-            'message' => 'R runtime returned empty response (HTTP '.$response->status().')',
+            'message' => 'Darkstar returned empty response (HTTP '.$response->status().')',
         ];
     }
 
@@ -101,7 +101,7 @@ class RService
 
         return $response->json() ?? [
             'status' => 'error',
-            'message' => 'R runtime returned empty response (HTTP '.$response->status().')',
+            'message' => 'Darkstar returned empty response (HTTP '.$response->status().')',
         ];
     }
 
@@ -134,7 +134,7 @@ class RService
 
             return $response->json() ?? ['status' => 'error', 'message' => 'Empty response'];
         } catch (\Throwable $e) {
-            return ['status' => 'error', 'message' => 'R runtime unavailable: '.$e->getMessage()];
+            return ['status' => 'error', 'message' => 'Darkstar unavailable: '.$e->getMessage()];
         }
     }
 
@@ -151,7 +151,7 @@ class RService
 
             return $response->json() ?? ['status' => 'error', 'message' => 'Empty response'];
         } catch (\Throwable $e) {
-            return ['status' => 'error', 'message' => 'R runtime unavailable: '.$e->getMessage()];
+            return ['status' => 'error', 'message' => 'Darkstar unavailable: '.$e->getMessage()];
         }
     }
 
@@ -168,7 +168,7 @@ class RService
 
             return $response->json() ?? ['status' => 'error', 'message' => 'Empty response'];
         } catch (\Throwable $e) {
-            return ['status' => 'error', 'message' => 'R runtime unavailable: '.$e->getMessage()];
+            return ['status' => 'error', 'message' => 'Darkstar unavailable: '.$e->getMessage()];
         }
     }
 }

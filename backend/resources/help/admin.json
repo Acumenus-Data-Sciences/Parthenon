@@ -8,7 +8,7 @@
     "Manage users, assign roles, and control access permissions from the Users and Roles pages.",
     "Configure SSO authentication via SAML or OIDC in the Auth Providers section.",
     "Set up AI providers (Ollama, OpenAI, etc.) for semantic search and clinical AI features.",
-    "Monitor system health to verify all services (database, Redis, AI, R runtime) are operational.",
+    "Monitor system health to verify all services (database, Redis, AI, Darkstar) are operational.",
     "FHIR connections enable automated data synchronization from Epic, Cerner, and other EHR systems."
   ]
 }

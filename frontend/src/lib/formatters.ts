@@ -1,5 +1,5 @@
 /**
- * Defensive numeric formatting helpers for R runtime values.
+ * Defensive numeric formatting helpers for Darkstar values.
  *
  * R can return "NA" (string), null, NaN, or string-encoded numbers
  * for fields that TypeScript types expect as `number`. These helpers

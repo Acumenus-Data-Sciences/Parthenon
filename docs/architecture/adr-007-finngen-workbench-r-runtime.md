@@ -1,4 +1,4 @@
-# ADR-007: Darkstar R Runtime with s6-overlay, Plumber2, and mirai Worker Pool
+# ADR-007: Darkstar with s6-overlay, Plumber2, and mirai Worker Pool
 
 **Status:** Accepted
 **Date:** 2026-03-21
@@ -8,7 +8,7 @@
 
 Parthenon executes OHDSI HADES analytics packages (CohortMethod, PatientLevelPrediction, CohortGenerator, Achilles, DataQualityDashboard) that are written in R. These packages require R 4.4, Java (for DatabaseConnector/JDBC), and 20+ R package dependencies including Cyclops, SqlRender, and Arrow.
 
-The R runtime must:
+Darkstar must:
 1. Expose an HTTP API so the Laravel backend and Python AI service can trigger R analyses
 2. Handle concurrent analysis requests without blocking (analyses can run for minutes to hours)
 3. Survive process crashes without bringing down the container

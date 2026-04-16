@@ -87,7 +87,7 @@ it('runs cohort diagnostics successfully via R proxy', function () {
     $response->assertJsonStructure(['data']);
 });
 
-it('handles R runtime failure gracefully', function () {
+it('handles Darkstar failure gracefully', function () {
     $user = User::factory()->create();
     $user->assignRole('researcher');
 

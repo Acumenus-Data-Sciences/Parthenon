@@ -9,6 +9,6 @@
     "Minimum outcome prevalence of 1% is recommended for reliable model training.",
     "LASSO logistic regression is the recommended starting model — it's interpretable and fast.",
     "Review the AUC, calibration plot, and feature importance before deploying any prediction model.",
-    "PLP requires the HADES R runtime — check System Health if execution stalls."
+    "PLP requires Darkstar's HADES runtime — check System Health if execution stalls."
   ]
 }

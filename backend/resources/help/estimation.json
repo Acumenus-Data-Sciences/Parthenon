@@ -5,7 +5,7 @@
   "docs_url": "/docs/part4-analyses/12-population-level-estimation",
   "video_url": null,
   "tips": [
-    "PLE requires the HADES R runtime to be active — check System Health if execution fails.",
+    "PLE requires Darkstar's HADES runtime to be active — check System Health if execution fails.",
     "Large covariate sets (1000+ features) improve propensity score balance but increase computation time.",
     "Review the propensity score distribution plot before trusting the HR estimate.",
     "Negative control outcomes help calibrate empirical p-values for systematic error correction.",

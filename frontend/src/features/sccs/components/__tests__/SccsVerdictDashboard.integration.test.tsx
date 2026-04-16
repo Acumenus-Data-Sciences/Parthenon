@@ -4,7 +4,7 @@ import { SccsVerdictDashboard } from "../SccsVerdictDashboard";
 import type { SccsResult } from "../../types/sccs";
 
 // ---------------------------------------------------------------------------
-// Realistic fixtures matching R runtime SelfControlledCaseSeries output
+// Realistic fixtures matching Darkstar SelfControlledCaseSeries output
 // ---------------------------------------------------------------------------
 
 /** Complete SCCS: Fluoroquinolone antibiotics and acute tendon rupture */

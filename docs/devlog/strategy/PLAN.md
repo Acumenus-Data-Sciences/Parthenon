@@ -2777,9 +2777,9 @@ GET    /v1/predictions/{prediction}/executions/{id}  → show execution
 **Horizon queue config** (`config/horizon.php`):
 - `r-analysis` supervisor: 2 processes, 512MB, 14400s timeout (4 hours), 1 try
 
-**R service config** (`config/services.php`):
-- `r_runtime.url`: `http://r-runtime:8787` (env `R_SERVICE_URL`)
-- `r_runtime.timeout`: 300s (env `R_SERVICE_TIMEOUT`)
+**Darkstar service config** (`config/services.php`):
+- `darkstar.url`: `http://darkstar:8787` (env `DARKSTAR_URL`)
+- `darkstar.timeout`: 7200s (env `DARKSTAR_TIMEOUT`)
 
 ### 2.3 Frontend (`frontend/src/features/`)
 
@@ -3719,9 +3719,9 @@ CohortMethod with large datasets can run for 30-60 minutes. PLP with hyperparame
 
 ```php
 // config/services.php
-'r_runtime' => [
-    'url' => env('R_SERVICE_URL', 'http://r-runtime:8787'),
-    'timeout' => env('R_SERVICE_TIMEOUT', 7200),  // Increase from 300s to 7200s (2 hours)
+'darkstar' => [
+    'url' => env('DARKSTAR_URL', 'http://darkstar:8787'),
+    'timeout' => env('DARKSTAR_TIMEOUT', 7200),
 ],
 ```
 

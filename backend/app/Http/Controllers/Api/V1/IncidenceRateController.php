@@ -315,7 +315,7 @@ class IncidenceRateController extends Controller
             $cdmSchema = $source->getTableQualifier(DaimonType::CDM) ?? 'omop';
             $resultsSchema = $source->getTableQualifier(DaimonType::Results) ?? 'public';
 
-            $rRuntimeUrl = rtrim(config('services.r_runtime.url', 'http://darkstar:8787'), '/');
+            $darkstarUrl = rtrim(config('services.darkstar.url', 'http://darkstar:8787'), '/');
 
             $spec = [
                 'connection' => HadesBridgeService::buildSourceSpec($source),
@@ -339,7 +339,7 @@ class IncidenceRateController extends Controller
             ]);
 
             $response = Http::timeout(300)->post(
-                "{$rRuntimeUrl}/analysis/cohort-incidence/calculate",
+                "{$darkstarUrl}/analysis/cohort-incidence/calculate",
                 $spec
             );
 

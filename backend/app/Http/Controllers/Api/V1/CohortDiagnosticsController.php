@@ -17,11 +17,11 @@ use Illuminate\Support\Facades\Log;
  */
 class CohortDiagnosticsController extends Controller
 {
-    private string $rRuntimeUrl;
+    private string $darkstarUrl;
 
     public function __construct()
     {
-        $this->rRuntimeUrl = rtrim(config('services.r_runtime.url', 'http://darkstar:8787'), '/');
+        $this->darkstarUrl = rtrim(config('services.darkstar.url', 'http://darkstar:8787'), '/');
     }
 
     /**
@@ -113,7 +113,7 @@ class CohortDiagnosticsController extends Controller
 
             // Diagnostics can take several minutes — use 300s timeout
             $response = Http::timeout(300)->post(
-                "{$this->rRuntimeUrl}/analysis/cohort-diagnostics/run",
+                "{$this->darkstarUrl}/analysis/cohort-diagnostics/run",
                 $spec
             );
 

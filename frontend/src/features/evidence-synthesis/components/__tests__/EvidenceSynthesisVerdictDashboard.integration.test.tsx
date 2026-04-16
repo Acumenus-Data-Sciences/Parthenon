@@ -4,7 +4,7 @@ import { EvidenceSynthesisVerdictDashboard } from "../EvidenceSynthesisVerdictDa
 import type { EvidenceSynthesisResult } from "../../types/evidenceSynthesis";
 
 // ---------------------------------------------------------------------------
-// Realistic fixtures matching R runtime EvidenceSynthesis output
+// Realistic fixtures matching Darkstar EvidenceSynthesis output
 // ---------------------------------------------------------------------------
 
 /** Multi-site Bayesian meta-analysis: ACE inhibitors for MI across 4 sites */

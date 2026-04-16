@@ -15,11 +15,11 @@ use Illuminate\Support\Facades\Log;
  */
 class SyntheaController extends Controller
 {
-    private string $rRuntimeUrl;
+    private string $darkstarUrl;
 
     public function __construct()
     {
-        $this->rRuntimeUrl = rtrim(config('services.r_runtime.url', 'http://darkstar:8787'), '/');
+        $this->darkstarUrl = rtrim(config('services.darkstar.url', 'http://darkstar:8787'), '/');
     }
 
     /**
@@ -27,7 +27,7 @@ class SyntheaController extends Controller
      *
      * Generate synthetic patient data with Synthea and load it into an OMOP CDM via ETL-Synthea.
      * Resolves the target source connection from the Sources registry then proxies to
-     * POST {rRuntimeUrl}/etl/synthea/generate. Timeout: 1800 s.
+     * POST {darkstarUrl}/etl/synthea/generate. Timeout: 1800 s.
      */
     public function generate(Request $request): JsonResponse
     {
@@ -60,7 +60,7 @@ class SyntheaController extends Controller
 
             // ETL-Synthea can run for 30+ minutes on large patient counts
             $response = Http::timeout(1800)->post(
-                "{$this->rRuntimeUrl}/etl/synthea/generate",
+                "{$this->darkstarUrl}/etl/synthea/generate",
                 $payload
             );
 
@@ -93,19 +93,19 @@ class SyntheaController extends Controller
     /**
      * GET /api/v1/etl/synthea/status
      *
-     * Check the status of the ETL-Synthea endpoint in the R runtime service.
-     * Proxies to GET {rRuntimeUrl}/etl/synthea/status. Timeout: 10 s.
+     * Check the status of the ETL-Synthea endpoint in Darkstar.
+     * Proxies to GET {darkstarUrl}/etl/synthea/status. Timeout: 10 s.
      */
     public function status(): JsonResponse
     {
         try {
             $response = Http::timeout(10)->get(
-                "{$this->rRuntimeUrl}/etl/synthea/status"
+                "{$this->darkstarUrl}/etl/synthea/status"
             );
 
             if ($response->failed()) {
                 return response()->json([
-                    'error' => 'R runtime ETL-Synthea endpoint unavailable',
+                    'error' => 'Darkstar ETL-Synthea endpoint unavailable',
                 ], $response->status() ?: 502);
             }
 
@@ -113,7 +113,7 @@ class SyntheaController extends Controller
 
         } catch (\Throwable $e) {
             return response()->json([
-                'error' => 'R runtime service unreachable',
+                'error' => 'Darkstar service unreachable',
                 'message' => $e->getMessage(),
             ], 503);
         }

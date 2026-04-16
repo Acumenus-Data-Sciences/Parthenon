@@ -26,8 +26,8 @@ Moved PACS management from a standalone admin page (`/admin/pacs-connections`) i
 ### 3. Imaging Study Re-Linking
 Re-linked 622 COVID Harvard imaging studies to OMOP persons using the existing `ImagingTimelineService::linkStudiesToConditionPatients('%COVID%')` method. All studies successfully linked.
 
-### 4. R Runtime Health Fix
-Fixed R Plumber health check endpoint from `/healthz` to `/health` in both `checkRRuntime()` and `getRMetrics()`.
+### 4. Darkstar Health Fix
+Fixed Darkstar health check endpoint from `/healthz` to `/health` in both `checkDarkstar()` and `getDarkstarMetrics()`.
 
 ### 5. Frontend-Backend Data Contract Fixes
 Fixed 5 mismatches between frontend types and backend responses:
