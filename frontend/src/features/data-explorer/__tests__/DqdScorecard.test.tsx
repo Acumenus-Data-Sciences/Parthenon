@@ -82,7 +82,7 @@ describe("DqdScorecard", () => {
     );
     // At least one arc should have the teal stroke
     const tealArcs = Array.from(progressArcs).filter(
-      (el) => el.getAttribute("stroke") === "#2DD4BF",
+      (el) => el.getAttribute("stroke") === "var(--success)",
     );
     expect(tealArcs.length).toBeGreaterThan(0);
   });
@@ -103,7 +103,7 @@ describe("DqdScorecard", () => {
     );
     // At least one arc should have the crimson stroke
     const crimsonArcs = Array.from(progressArcs).filter(
-      (el) => el.getAttribute("stroke") === "#E85A6B",
+      (el) => el.getAttribute("stroke") === "var(--critical)",
     );
     expect(crimsonArcs.length).toBeGreaterThan(0);
   });

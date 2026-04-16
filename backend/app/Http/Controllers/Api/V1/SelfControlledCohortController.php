@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Enums\ExecutionStatus;
 use App\Http\Controllers\Controller;
+use App\Jobs\Analysis\RunSelfControlledCohortJob;
 use App\Models\App\AnalysisExecution;
 use App\Models\App\SelfControlledCohortAnalysis;
 use App\Models\App\Source;
@@ -116,6 +117,8 @@ class SelfControlledCohortController extends Controller
                 'message' => 'Execution queued for Darkstar/HADES worker.',
             ],
         ]);
+
+        RunSelfControlledCohortJob::dispatch($selfControlledCohort, $source, $execution);
 
         return response()->json([
             'data' => $execution,

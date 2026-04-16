@@ -46,24 +46,24 @@ describe("ConfidenceBadge", () => {
     expect(screen.getByText("None")).toBeInTheDocument();
   });
 
-  it("applies teal color class for high confidence", () => {
+  it("applies success color class for high confidence", () => {
     const { container } = render(<ConfidenceBadge score={0.98} />);
     const badge = container.firstElementChild as HTMLElement;
-    expect(badge.className).toContain("text-[#2DD4BF]");
-    expect(badge.className).toContain("bg-[#2DD4BF]/20");
+    expect(badge.className).toContain("text-success");
+    expect(badge.className).toContain("bg-success/20");
   });
 
-  it("applies gold color class for medium confidence", () => {
+  it("applies warning color class for medium confidence", () => {
     const { container } = render(<ConfidenceBadge score={0.85} />);
     const badge = container.firstElementChild as HTMLElement;
-    expect(badge.className).toContain("text-[#E5A84B]");
-    expect(badge.className).toContain("bg-[#E5A84B]/20");
+    expect(badge.className).toContain("text-warning");
+    expect(badge.className).toContain("bg-warning/20");
   });
 
-  it("applies red color class for low confidence", () => {
+  it("applies critical color class for low confidence", () => {
     const { container } = render(<ConfidenceBadge score={0.3} />);
     const badge = container.firstElementChild as HTMLElement;
-    expect(badge.className).toContain("text-[#E85A6B]");
-    expect(badge.className).toContain("bg-[#E85A6B]/20");
+    expect(badge.className).toContain("text-critical");
+    expect(badge.className).toContain("bg-critical/20");
   });
 });

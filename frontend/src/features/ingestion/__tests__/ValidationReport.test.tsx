@@ -131,7 +131,7 @@ describe("ValidationReport", () => {
 
     // Passed checks render CheckCircle2 with teal color
     const tealCheckIcons = container.querySelectorAll(
-      "table .text-\\[\\#2DD4BF\\]",
+      "table .text-success",
     );
     // At least 2 passed results should have teal icons in the table rows
     expect(tealCheckIcons.length).toBeGreaterThanOrEqual(2);
@@ -144,7 +144,7 @@ describe("ValidationReport", () => {
 
     // Failed checks render XCircle with red color
     const redIcons = container.querySelectorAll(
-      "table .text-\\[\\#E85A6B\\]",
+      "table .text-critical",
     );
     // At least 2 failed results should have red icons in the table rows
     expect(redIcons.length).toBeGreaterThanOrEqual(2);
@@ -191,12 +191,12 @@ describe("ValidationReport", () => {
 
     // The actual count values (2 passed, 2 failed)
     const passedCount = screen.getByText("2", {
-      selector: "span.text-\\[\\#2DD4BF\\]",
+      selector: "span.text-success",
     });
     expect(passedCount).toBeInTheDocument();
 
     const failedCount = screen.getByText("2", {
-      selector: "span.text-\\[\\#E85A6B\\]",
+      selector: "span.text-critical",
     });
     expect(failedCount).toBeInTheDocument();
   });
