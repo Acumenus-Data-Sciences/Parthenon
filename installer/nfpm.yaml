@@ -1,7 +1,7 @@
 name: parthenon-installer
 arch: amd64
 platform: linux
-version: v1.0.3
+version: v1.0.6
 section: devel
 priority: optional
 maintainer: "Acumenus Data Sciences <noreply@acumenus.net>"

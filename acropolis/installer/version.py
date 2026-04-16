@@ -10,7 +10,7 @@ from typing import Any
 from acropolis.installer.utils import PARTHENON_ROOT
 
 VERSION_FILE = PARTHENON_ROOT / ".parthenon-version"
-CURRENT_VERSION = "1.0.3"
+CURRENT_VERSION = "1.0.6"
 
 
 def read_version() -> dict[str, Any] | None:
@@ -61,6 +61,30 @@ def detect_installed_version() -> str | None:
 
 # Upgrade changelog — shown to users during --upgrade
 UPGRADE_NOTES: dict[str, dict[str, list[str]]] = {
+    "1.0.6": {
+        "new": [
+            "FinnGen Cohort Workbench — sessions, operation algebra, materialize, Atlas import, run history",
+            "Authentik SSO via OIDC (Phase 7 live, feature-flagged per environment)",
+            "Light mode — first-class theme with warm parchment palette + per-user preference",
+            "Patient Similarity rework — UMAP, Phenotype Discovery, Inspector sidebar, AI step interpretation",
+            "OpenProject bidirectional sync — n8n workflows + reconciliation server",
+            "eCQM care bundle library expanded 10 → 45 (OHDSI-compliant)",
+        ],
+        "upgraded": [
+            "Darkstar (R sidecar) — finngen route group, ROMOPAPI + HadesExtras + CO2AnalysisModules",
+            "TypeScript 5.9 → 6.0, react-router-dom 6 → 7, pandas 2 → 3, uvicorn 0.42 → 0.44",
+        ],
+        "migrations": [
+            "FinnGen schema (app.finngen_runs, app.finngen_analysis_modules)",
+            "OIDC linking (app.user_external_identities, app.oidc_email_aliases)",
+            "Sync schema (app.sync.*) for OpenProject/GSD/GitHub mapping",
+            "Postgres role split: parthenon_app (DML), parthenon_migrator (DDL), parthenon_owner",
+        ],
+        "config_required": [
+            "Authentik OIDC credentials (only if enabling SSO)",
+            "darkstar container must be healthy for FinnGen workbench",
+        ],
+    },
     "1.0.3": {
         "new": [
             "BlackRabbit — SQL Server, Synapse, Oracle profiling (replaces WhiteRabbit)",
