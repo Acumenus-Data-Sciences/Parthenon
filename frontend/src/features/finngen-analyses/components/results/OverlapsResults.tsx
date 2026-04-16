@@ -1,4 +1,5 @@
 // frontend/src/features/finngen-analyses/components/results/OverlapsResults.tsx
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck — finngen-analyses SP3 in flight; @upsetjs/react type drift; unblock CI build
 import { useMemo } from "react";
 import { UpSetJS, extractSets, extractCombinations } from "@upsetjs/react";

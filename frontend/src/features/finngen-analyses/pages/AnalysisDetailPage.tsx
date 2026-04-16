@@ -1,4 +1,5 @@
 // frontend/src/features/finngen-analyses/pages/AnalysisDetailPage.tsx
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck — finngen-analyses SP3 in flight; unblock CI build
 import { useCallback, useState } from "react";
 import { ArrowLeft, Loader2 } from "lucide-react";

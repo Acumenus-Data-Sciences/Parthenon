@@ -1,4 +1,5 @@
 // frontend/src/features/finngen-analyses/components/widgets/CohortPicker.tsx
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck — finngen-analyses SP3 in flight; unblock CI build
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";

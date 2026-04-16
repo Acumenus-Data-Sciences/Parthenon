@@ -124,3 +124,39 @@ it('matches the frontend operationTree contract round-trip', function () {
     ], 'root');
     expect($this->c->compile($tree))->toBe('(221 UNION 222) MINUS 223');
 });
+
+it('compileSql renders a single cohort to a SELECT subject_id', function () {
+    expect($this->c->compileSql(cohort(42), 'pancreas_results'))
+        ->toBe('SELECT subject_id FROM pancreas_results.cohort WHERE cohort_definition_id = 42');
+});
+
+it('compileSql renders nested ops to set-algebra SQL', function () {
+    $tree = op('MINUS', [
+        op('UNION', [cohort(221), cohort(222)]),
+        cohort(223),
+    ]);
+    $sql = $this->c->compileSql($tree, 'pancreas_results');
+    expect($sql)->toBe(
+        '((SELECT subject_id FROM pancreas_results.cohort WHERE cohort_definition_id = 221) '.
+        'UNION (SELECT subject_id FROM pancreas_results.cohort WHERE cohort_definition_id = 222)) '.
+        'EXCEPT (SELECT subject_id FROM pancreas_results.cohort WHERE cohort_definition_id = 223)'
+    );
+});
+
+it('compileSql maps MINUS to EXCEPT (postgres syntax)', function () {
+    $sql = $this->c->compileSql(op('MINUS', [cohort(1), cohort(2)]), 'r');
+    expect($sql)->toContain(' EXCEPT ');
+    expect($sql)->not->toContain(' MINUS ');
+});
+
+it('compileSql rejects schemas that arenʼt safe identifiers', function () {
+    expect(fn () => $this->c->compileSql(cohort(1), 'bad; DROP TABLE x'))
+        ->toThrow(InvalidArgumentException::class);
+    expect(fn () => $this->c->compileSql(cohort(1), '1results'))
+        ->toThrow(InvalidArgumentException::class); // must start with letter
+});
+
+it('compileSql throws on invalid trees', function () {
+    expect(fn () => $this->c->compileSql(op('UNION', [cohort(1)]), 'r'))
+        ->toThrow(InvalidArgumentException::class);
+});

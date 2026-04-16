@@ -82,6 +82,35 @@ class CohortOperationCompiler
     }
 
     /**
+     * Compile the tree to a SELECT-subject_id SQL fragment over a source's
+     * cohort table. Used by the preview-counts endpoint to compute
+     *   `SELECT COUNT(DISTINCT subject_id) FROM (<sql>) result`
+     * without round-tripping through HadesExtras' operationStringToSQL.
+     *
+     * Cohort IDs are validated as positive integers by validate() so inlining
+     * is safe; the schema name is whitelisted to [a-z][a-z0-9_]* to prevent
+     * any caller from injecting SQL through the source envelope.
+     *
+     * @param  array<mixed>|null  $tree
+     */
+    public function compileSql(?array $tree, string $cohortSchema): string
+    {
+        if ($tree === null || $tree === []) {
+            return '';
+        }
+        if (preg_match('/^[a-z][a-z0-9_]*$/', $cohortSchema) !== 1) {
+            throw new InvalidArgumentException("Invalid cohort schema name: {$cohortSchema}");
+        }
+        $errors = $this->validate($tree);
+        if (! empty($errors)) {
+            $codes = implode(', ', array_map(fn ($e) => $e['code'], $errors));
+            throw new InvalidArgumentException("Cannot compile invalid tree: {$codes}");
+        }
+
+        return $this->renderSql($tree, $cohortSchema);
+    }
+
+    /**
      * Flatten every cohort_id referenced by the tree (deduplicated, ordered
      * by first appearance). Useful for "what cohorts does this tree touch"
      * queries during preview / materialization.
@@ -183,6 +212,33 @@ class CohortOperationCompiler
                 $this->walk($child, $errors, $seen);
             }
         }
+    }
+
+    /**
+     * @param  array<mixed>  $node
+     */
+    private function renderSql(array $node, string $schema): string
+    {
+        if (($node['kind'] ?? null) === 'cohort') {
+            $cid = (int) $node['cohort_id'];
+
+            return "SELECT subject_id FROM {$schema}.cohort WHERE cohort_definition_id = {$cid}";
+        }
+        $sqlOp = match ($node['op']) {
+            'UNION' => 'UNION',
+            'INTERSECT' => 'INTERSECT',
+            'MINUS' => 'EXCEPT',
+            default => throw new InvalidArgumentException('Unknown op'),
+        };
+        $children = is_array($node['children'] ?? null) ? $node['children'] : [];
+        $parts = [];
+        foreach ($children as $child) {
+            if (is_array($child)) {
+                $parts[] = '('.$this->renderSql($child, $schema).')';
+            }
+        }
+
+        return implode(" {$sqlOp} ", $parts);
     }
 
     /**

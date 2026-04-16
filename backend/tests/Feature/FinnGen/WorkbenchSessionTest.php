@@ -6,6 +6,8 @@ use App\Models\App\FinnGen\WorkbenchSession;
 use App\Models\User;
 use Database\Seeders\Testing\FinnGenTestingSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\Http;
 
 uses(RefreshDatabase::class);
 
@@ -161,4 +163,117 @@ it('DELETE removes the session', function () {
         ->assertStatus(204);
 
     expect(WorkbenchSession::find($session->id))->toBeNull();
+});
+
+// ── SP4 Phase B.3 — preview-counts ──────────────────────────────────────────
+
+it('POST /preview-counts denies viewer', function () {
+    Http::fake();
+    $this->actingAs($this->viewer)
+        ->postJson('/api/v1/finngen/workbench/preview-counts', [
+            'source_key' => 'EUNOMIA',
+            'tree' => ['kind' => 'cohort', 'id' => 'a', 'cohort_id' => 1],
+        ])->assertStatus(403);
+});
+
+it('POST /preview-counts returns total + operation string for a valid tree', function () {
+    Http::fake([
+        '*/finngen/cohort/preview-count' => Http::response(['total' => 1234], 200),
+    ]);
+
+    $tree = [
+        'kind' => 'op',
+        'id' => 'root',
+        'op' => 'MINUS',
+        'children' => [
+            [
+                'kind' => 'op',
+                'id' => 'left',
+                'op' => 'UNION',
+                'children' => [
+                    ['kind' => 'cohort', 'id' => 'a', 'cohort_id' => 221],
+                    ['kind' => 'cohort', 'id' => 'b', 'cohort_id' => 222],
+                ],
+            ],
+            ['kind' => 'cohort', 'id' => 'c', 'cohort_id' => 223],
+        ],
+    ];
+
+    $resp = $this->actingAs($this->researcher)
+        ->postJson('/api/v1/finngen/workbench/preview-counts', [
+            'source_key' => 'EUNOMIA',
+            'tree' => $tree,
+        ])
+        ->assertStatus(200);
+
+    $resp->assertJsonPath('data.total', 1234);
+    $resp->assertJsonPath('data.operation_string', '(221 UNION 222) MINUS 223');
+    $resp->assertJsonPath('data.cohort_ids', [221, 222, 223]);
+
+    Http::assertSent(function ($request) {
+        $body = $request->data();
+
+        return str_contains((string) $request->url(), '/finngen/cohort/preview-count')
+            && isset($body['source'])
+            && isset($body['sql'])
+            && str_contains($body['sql'], 'EXCEPT')
+            && str_contains($body['sql'], 'cohort_definition_id = 223');
+    });
+});
+
+it('POST /preview-counts returns 422 on invalid tree (op with one child)', function () {
+    Http::fake();
+    $tree = [
+        'kind' => 'op',
+        'id' => 'root',
+        'op' => 'UNION',
+        'children' => [
+            ['kind' => 'cohort', 'id' => 'a', 'cohort_id' => 1],
+        ],
+    ];
+    $this->actingAs($this->researcher)
+        ->postJson('/api/v1/finngen/workbench/preview-counts', [
+            'source_key' => 'EUNOMIA',
+            'tree' => $tree,
+        ])
+        ->assertStatus(422)
+        ->assertJsonPath('errors.0.code', 'OP_NEEDS_AT_LEAST_TWO_CHILDREN');
+});
+
+it('POST /preview-counts maps Darkstar timeout to 504', function () {
+    Http::fake([
+        '*/finngen/cohort/preview-count' => fn () => throw new ConnectionException('timed out'),
+    ]);
+
+    $this->actingAs($this->researcher)
+        ->postJson('/api/v1/finngen/workbench/preview-counts', [
+            'source_key' => 'EUNOMIA',
+            'tree' => [
+                'kind' => 'op', 'id' => 'r', 'op' => 'UNION',
+                'children' => [
+                    ['kind' => 'cohort', 'id' => 'a', 'cohort_id' => 1],
+                    ['kind' => 'cohort', 'id' => 'b', 'cohort_id' => 2],
+                ],
+            ],
+        ])
+        ->assertStatus(504); // ConnectionException with "timed out" → Timeout → 504
+});
+
+it('POST /preview-counts maps generic Darkstar connection error to 502', function () {
+    Http::fake([
+        '*/finngen/cohort/preview-count' => fn () => throw new ConnectionException('refused'),
+    ]);
+
+    $this->actingAs($this->researcher)
+        ->postJson('/api/v1/finngen/workbench/preview-counts', [
+            'source_key' => 'EUNOMIA',
+            'tree' => [
+                'kind' => 'op', 'id' => 'r', 'op' => 'UNION',
+                'children' => [
+                    ['kind' => 'cohort', 'id' => 'a', 'cohort_id' => 1],
+                    ['kind' => 'cohort', 'id' => 'b', 'cohort_id' => 2],
+                ],
+            ],
+        ])
+        ->assertStatus(502); // No "timeout" → Unreachable → 502
 });

@@ -66,6 +66,18 @@ class FinnGenClient
     }
 
     /**
+     * Sync POST — used by preview/peek style endpoints whose payload is too
+     * large for a query string. Reuses the sync timeout.
+     *
+     * @param  array<string, mixed>  $body
+     * @return array<string, mixed>
+     */
+    public function postSync(string $path, array $body): array
+    {
+        return $this->request('POST', $path, body: $body, timeoutMs: $this->timeoutSyncMs);
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function pollJob(string $jobId): array

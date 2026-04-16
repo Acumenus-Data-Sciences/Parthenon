@@ -6,10 +6,18 @@ namespace App\Http\Controllers\Api\V1\FinnGen;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FinnGen\CreateWorkbenchSessionRequest;
+use App\Http\Requests\FinnGen\PreviewWorkbenchCountsRequest;
 use App\Http\Requests\FinnGen\UpdateWorkbenchSessionRequest;
+use App\Services\FinnGen\CohortOperationCompiler;
+use App\Services\FinnGen\Exceptions\FinnGenDarkstarRejectedException;
+use App\Services\FinnGen\Exceptions\FinnGenDarkstarTimeoutException;
+use App\Services\FinnGen\Exceptions\FinnGenDarkstarUnreachableException;
+use App\Services\FinnGen\FinnGenClient;
+use App\Services\FinnGen\FinnGenSourceContextBuilder;
 use App\Services\FinnGen\WorkbenchSessionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -23,6 +31,9 @@ class WorkbenchSessionController extends Controller
 {
     public function __construct(
         private readonly WorkbenchSessionService $sessions,
+        private readonly CohortOperationCompiler $compiler,
+        private readonly FinnGenSourceContextBuilder $sourceBuilder,
+        private readonly FinnGenClient $client,
     ) {}
 
     public function index(Request $request): JsonResponse
@@ -86,5 +97,74 @@ class WorkbenchSessionController extends Controller
         $this->sessions->delete($found);
 
         return response()->json(['data' => null], 204);
+    }
+
+    /**
+     * SP4 Phase B.3 — preview-counts. Validates the operation tree, compiles
+     * to a SELECT-subject_id SQL fragment using the source's cohort schema,
+     * and dispatches to Darkstar's sync /finngen/cohort/preview-count route
+     * to get COUNT(DISTINCT subject_id).
+     *
+     * Errors:
+     *   - 422 — tree fails validation (missing children, bad cohort_id, ...)
+     *   - 404 — source_key not found
+     *   - 504 — Darkstar timeout
+     *   - 502 — Darkstar unreachable (network) or rejected (4xx)
+     */
+    public function previewCounts(PreviewWorkbenchCountsRequest $request): JsonResponse
+    {
+        $data = $request->validated();
+        // validated() strips nested keys (tree.op, tree.children) that aren't
+        // declared as dot-rules. CohortOperationCompiler is the source of
+        // truth for structural validation, so pull the raw tree blob here.
+        $rawTree = $request->input('tree');
+        $tree = is_array($rawTree) ? $rawTree : [];
+
+        $errors = $this->compiler->validate($tree);
+        if (! empty($errors)) {
+            return response()->json([
+                'message' => 'Operation tree failed validation',
+                'errors' => $errors,
+            ], 422);
+        }
+
+        $source = $this->sourceBuilder->build(
+            (string) $data['source_key'],
+            FinnGenSourceContextBuilder::ROLE_RO,
+        );
+        $cohortSchema = (string) $source['schemas']['cohort'];
+
+        try {
+            $sql = $this->compiler->compileSql($tree, $cohortSchema);
+        } catch (InvalidArgumentException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
+
+        try {
+            $result = $this->client->postSync('/finngen/cohort/preview-count', [
+                'source' => $source,
+                'sql' => $sql,
+            ]);
+        } catch (FinnGenDarkstarTimeoutException $e) {
+            return response()->json(['message' => 'Preview timed out'], 504);
+        } catch (FinnGenDarkstarUnreachableException|FinnGenDarkstarRejectedException $e) {
+            return response()->json(['message' => 'Darkstar error: '.$e->getMessage()], 502);
+        }
+
+        $total = is_int($result['total'] ?? null) ? $result['total'] : null;
+        if ($total === null) {
+            return response()->json([
+                'message' => 'Malformed preview response from Darkstar',
+                'raw' => $result,
+            ], 502);
+        }
+
+        return response()->json([
+            'data' => [
+                'total' => $total,
+                'cohort_ids' => $this->compiler->listCohortIds($tree),
+                'operation_string' => $this->compiler->compile($tree),
+            ],
+        ]);
     }
 }

@@ -220,6 +220,19 @@ function(request, response) {
   })
 }
 
+#* @post /finngen/cohort/preview-count
+#* @serializer unboxedJSON
+function(body, response) {
+  .safe_sync("cohort/preview-count", response, function() {
+    if (is.null(body$source) || is.null(body$sql)) {
+      stop("preview-count requires {source, sql} in body")
+    }
+    run_with_classification(NULL, function() {
+      finngen_cohort_preview_count(body$source, body$sql)
+    })
+  })
+}
+
 # Async endpoints --------------------------------------------------------
 
 #* @post /finngen/co2/codewas

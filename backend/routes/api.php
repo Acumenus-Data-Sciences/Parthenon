@@ -1052,6 +1052,9 @@ Route::prefix('v1')->group(function () {
                     ->middleware(['permission:finngen.workbench.use', 'throttle:120,1']);
                 Route::delete('/sessions/{session}', [WorkbenchSessionController::class, 'destroy'])
                     ->middleware('permission:finngen.workbench.use');
+                // SP4 Phase B.3 — sync preview-counts (compiles tree, hits Darkstar)
+                Route::post('/preview-counts', [WorkbenchSessionController::class, 'previewCounts'])
+                    ->middleware(['permission:finngen.workbench.use', 'throttle:60,1']);
             });
         });
 
