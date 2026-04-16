@@ -209,107 +209,197 @@ suppressPackageStartupMessages({
 }
 
 finngen_co2_codewas_execute <- function(source_envelope, run_id, export_folder, analysis_settings) {
+  # SP3 bespoke-SQL implementation. Bypasses CO2AnalysisModules::execute_CodeWAS
+  # (which depends on HadesExtras handler state we can't cheaply register).
+  # Instead we compute per-concept 2x2 counts + Fisher's exact directly against
+  # the source's CDM schema. Same display.json shape the frontend already renders.
   dir.create(export_folder, recursive = TRUE, showWarnings = FALSE)
   progress_path <- file.path(export_folder, "progress.json")
 
   run_with_classification(export_folder, function() {
-    write_progress(progress_path, list(step = "build_handler", pct = 5, message = "Opening DB connection"))
-    handler <- build_cohort_table_handler(source_envelope)
-    on.exit(tryCatch(handler$closeConnection(), error = function(e) NULL), add = TRUE)
+    write_progress(progress_path, list(step = "build_connection", pct = 5))
+    cohort_ids <- .extract_cohort_ids_for_module("co2.codewas", analysis_settings)
+    case_id <- as.integer(analysis_settings$case_cohort_id %||% analysis_settings$cohortIdCases %||% cohort_ids[1])
+    ctrl_id <- as.integer(analysis_settings$control_cohort_id %||% analysis_settings$cohortIdControls %||% cohort_ids[2])
+    if (is.na(case_id) || is.na(ctrl_id)) stop("co2.codewas requires case_cohort_id and control_cohort_id")
 
-    write_progress(progress_path, list(step = "stage_cohorts", pct = 8, message = "Staging cohorts into finngen_cohort"))
-    .stage_cohorts_for_finngen(
-      handler, source_envelope,
-      .extract_cohort_ids_for_module("co2.codewas", analysis_settings)
+    min_count    <- as.integer(analysis_settings$min_cell_count %||% analysis_settings$minCellCount %||% 5L)
+    cdm_schema   <- source_envelope$schemas$cdm
+    vocab_schema <- source_envelope$schemas$vocab
+    coh_schema   <- source_envelope$schemas$cohort
+
+    connection_details <- DatabaseConnector::createConnectionDetails(
+      dbms     = source_envelope$dbms %||% "postgresql",
+      server   = source_envelope$connection$server,
+      port     = source_envelope$connection$port,
+      user     = source_envelope$connection$user,
+      password = source_envelope$connection$password,
+      pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER", "/opt/jdbc")
+    )
+    connection <- DatabaseConnector::connect(connection_details)
+    on.exit(tryCatch(DatabaseConnector::disconnect(connection), error = function(e) NULL), add = TRUE)
+
+    # Cohort sizes (cases / controls excluding overlap)
+    write_progress(progress_path, list(step = "compute_cohort_sizes", pct = 10))
+    cohort_sizes_sql <- sprintf(
+      "WITH case_subs AS (
+         SELECT DISTINCT subject_id FROM %s.cohort WHERE cohort_definition_id = %d
+       ),
+       ctrl_subs AS (
+         SELECT DISTINCT subject_id FROM %s.cohort
+         WHERE cohort_definition_id = %d
+           AND subject_id NOT IN (SELECT subject_id FROM case_subs)
+       )
+       SELECT (SELECT COUNT(*) FROM case_subs) AS n_case,
+              (SELECT COUNT(*) FROM ctrl_subs) AS n_ctrl",
+      coh_schema, case_id, coh_schema, ctrl_id
+    )
+    sizes <- DatabaseConnector::querySql(connection, cohort_sizes_sql)
+    names(sizes) <- tolower(names(sizes))
+    n_case_total <- as.integer(sizes$n_case[1])
+    n_ctrl_total <- as.integer(sizes$n_ctrl[1])
+    if (is.na(n_case_total) || is.na(n_ctrl_total) || n_case_total == 0 || n_ctrl_total == 0) {
+      stop(sprintf("co2.codewas: case/control sizes are zero (case=%s, ctrl=%s)", n_case_total, n_ctrl_total))
+    }
+
+    # Counts per concept across 4 OMOP domains.
+    # Each UNION member returns (domain_id, concept_id, case_n, ctrl_n).
+    # concept_id > 0 filters out OMOP "unmapped" sentinel 0.
+    domain_specs <- list(
+      list(domain = "Condition",   table = "condition_occurrence",   concept_col = "condition_concept_id"),
+      list(domain = "Drug",        table = "drug_exposure",          concept_col = "drug_concept_id"),
+      list(domain = "Procedure",   table = "procedure_occurrence",   concept_col = "procedure_concept_id"),
+      list(domain = "Measurement", table = "measurement",            concept_col = "measurement_concept_id")
     )
 
-    write_progress(progress_path, list(step = "execute_CodeWAS", pct = 10, message = "Running CodeWAS association scan"))
-    res <- CO2AnalysisModules::execute_CodeWAS(
-      exportFolder       = export_folder,
-      cohortTableHandler = handler,
-      analysisSettings   = .normalize_co2_settings("co2.codewas", analysis_settings)
-    )
+    write_progress(progress_path, list(step = "compute_counts", pct = 25))
+    build_count_sql <- function(d) {
+      sprintf(
+        "SELECT '%s' AS domain_id,
+                t.%s AS concept_id,
+                SUM(CASE WHEN cs.which = 'case' THEN 1 ELSE 0 END) AS case_n,
+                SUM(CASE WHEN cs.which = 'ctrl' THEN 1 ELSE 0 END) AS ctrl_n
+         FROM (
+           SELECT DISTINCT t.person_id, t.%s
+           FROM %s.%s t
+           WHERE t.%s > 0
+         ) t
+         JOIN (
+           SELECT subject_id, 'case'::text AS which FROM %s.cohort WHERE cohort_definition_id = %d
+           UNION
+           SELECT subject_id, 'ctrl'::text AS which FROM %s.cohort
+             WHERE cohort_definition_id = %d
+               AND subject_id NOT IN (SELECT subject_id FROM %s.cohort WHERE cohort_definition_id = %d)
+         ) cs ON cs.subject_id = t.person_id
+         GROUP BY t.%s",
+        d$domain, d$concept_col, d$concept_col,
+        cdm_schema, d$table, d$concept_col,
+        coh_schema, case_id,
+        coh_schema, ctrl_id, coh_schema, case_id,
+        d$concept_col
+      )
+    }
+    all_parts <- vapply(domain_specs, build_count_sql, character(1))
+    counts_sql <- paste(all_parts, collapse = "\nUNION ALL\n")
+    counts_df <- DatabaseConnector::querySql(connection, counts_sql)
+    names(counts_df) <- tolower(names(counts_df))
 
-    write_progress(progress_path, list(step = "write_summary", pct = 95))
-    rows <- .count_rows_in_duckdb(res, export_folder, "codeWASCounts")
-    .write_summary(export_folder, list(
-      analysis_type = "co2.codewas",
-      rows          = rows,
-      case_cohort   = analysis_settings$case_cohort_id %||% analysis_settings$cohortIdCases %||% NA_integer_,
-      control_cohort = analysis_settings$control_cohort_id %||% analysis_settings$cohortIdControls %||% NA_integer_,
-      covariate_ids = analysis_settings$analysisIds %||% integer()
-    ))
+    # Filter to concepts that clear the minimum cell count in EITHER cohort — nothing
+    # below the privacy floor is disclosable regardless of significance.
+    if (nrow(counts_df) > 0) {
+      counts_df$case_n <- as.integer(counts_df$case_n)
+      counts_df$ctrl_n <- as.integer(counts_df$ctrl_n)
+      counts_df <- counts_df[(counts_df$case_n >= min_count) | (counts_df$ctrl_n >= min_count), , drop = FALSE]
+    }
 
-    # ── SP3: emit display.json for Manhattan plot + signal table ──
-    write_progress(progress_path, list(step = "build_display", pct = 96, message = "Building display.json"))
-    display <- tryCatch({
-      # Read the CodeWAS CSV output written by CO2AnalysisModules
-      csv_path <- file.path(export_folder, "codeWASCounts.csv")
-      if (file.exists(csv_path)) {
-        df <- read.csv(csv_path, stringsAsFactors = FALSE)
-        n_total <- nrow(df)
-        # Bonferroni threshold: 0.05 / total codes tested
-        bonf <- if (n_total > 0) 0.05 / n_total else 0.05
-        sugg <- bonf * 10  # suggestive threshold = 10x Bonferroni
+    # Concept names
+    write_progress(progress_path, list(step = "fetch_concept_names", pct = 60))
+    concept_names <- data.frame(concept_id = integer(0), concept_name = character(0))
+    if (nrow(counts_df) > 0) {
+      id_list <- paste(unique(counts_df$concept_id), collapse = ",")
+      names_sql <- sprintf(
+        "SELECT concept_id, concept_name FROM %s.concept WHERE concept_id IN (%s)",
+        vocab_schema, id_list
+      )
+      concept_names <- tryCatch(DatabaseConnector::querySql(connection, names_sql),
+                                error = function(e) data.frame(concept_id = integer(0), concept_name = character(0)))
+      names(concept_names) <- tolower(names(concept_names))
+    }
 
-        sig_df <- df[!is.na(df$pValue) & df$pValue < bonf, ]
-
-        signals <- lapply(seq_len(nrow(df)), function(i) {
-          list(
-            concept_id    = as.integer(df$conceptId[i]),
-            concept_name  = as.character(df$conceptName[i]),
-            domain_id     = as.character(df$domainId[i]),
-            p_value       = df$pValue[i],
-            beta          = df$beta[i],
-            se            = df$se[i],
-            n_cases       = as.integer(df$nCases[i]),
-            n_controls    = as.integer(df$nControls[i])
-          )
-        })
-
-        list(
-          signals    = signals,
-          thresholds = list(bonferroni = bonf, suggestive = sugg),
-          summary    = list(total_codes_tested = n_total, significant_count = nrow(sig_df))
-        )
-      } else {
-        # Fallback: use the res object from execute_CodeWAS
-        counts_df <- res$codeWASCounts
-        if (!is.null(counts_df) && nrow(counts_df) > 0) {
-          n_total <- nrow(counts_df)
-          bonf <- 0.05 / n_total
-          sugg <- bonf * 10
-          sig_count <- sum(!is.na(counts_df$pValue) & counts_df$pValue < bonf, na.rm = TRUE)
-
-          signals <- lapply(seq_len(nrow(counts_df)), function(i) {
-            list(
-              concept_id    = as.integer(counts_df$conceptId[i]),
-              concept_name  = as.character(counts_df$conceptName[i]),
-              domain_id     = as.character(counts_df$domainId[i]),
-              p_value       = counts_df$pValue[i],
-              beta          = counts_df$beta[i],
-              se            = counts_df$se[i],
-              n_cases       = as.integer(counts_df$nCases[i]),
-              n_controls    = as.integer(counts_df$nControls[i])
-            )
-          })
-
-          list(
-            signals    = signals,
-            thresholds = list(bonferroni = bonf, suggestive = sugg),
-            summary    = list(total_codes_tested = n_total, significant_count = sig_count)
-          )
-        } else {
-          list(signals = list(), thresholds = list(bonferroni = 0.05, suggestive = 0.5), summary = list(total_codes_tested = 0L, significant_count = 0L))
-        }
-      }
-    }, error = function(e) {
-      list(signals = list(), thresholds = list(bonferroni = 0.05, suggestive = 0.5), summary = list(total_codes_tested = 0L, significant_count = 0L, error = conditionMessage(e)))
+    # Per-concept 2x2 + Fisher's exact
+    write_progress(progress_path, list(step = "fisher_tests", pct = 80))
+    n_total <- nrow(counts_df)
+    signals <- if (n_total == 0) list() else lapply(seq_len(n_total), function(i) {
+      case_yes <- counts_df$case_n[i]
+      ctrl_yes <- counts_df$ctrl_n[i]
+      case_no  <- n_case_total - case_yes
+      ctrl_no  <- n_ctrl_total - ctrl_yes
+      # Haldane-Anscombe continuity correction when any cell is 0, for stable OR/SE
+      a <- case_yes + 0.5; b <- case_no + 0.5
+      c <- ctrl_yes + 0.5; d <- ctrl_no + 0.5
+      or_log <- log((a * d) / (b * c))
+      se     <- sqrt(1/a + 1/b + 1/c + 1/d)
+      p <- tryCatch(
+        fisher.test(matrix(c(case_yes, ctrl_yes, case_no, ctrl_no), nrow = 2))$p.value,
+        error = function(e) NA_real_
+      )
+      cid   <- as.integer(counts_df$concept_id[i])
+      cname <- concept_names$concept_name[match(cid, concept_names$concept_id)]
+      list(
+        concept_id   = cid,
+        concept_name = if (is.na(cname) || is.null(cname)) paste("Concept", cid) else as.character(cname),
+        domain_id    = as.character(counts_df$domain_id[i]),
+        p_value      = as.numeric(p),
+        beta         = as.numeric(or_log),
+        se           = as.numeric(se),
+        n_cases      = as.integer(case_yes),
+        n_controls   = as.integer(ctrl_yes)
+      )
     })
 
+    bonf     <- if (n_total > 0) 0.05 / n_total else 0.05
+    sugg     <- min(1e-5, bonf * 10)
+    sig_cnt  <- sum(vapply(signals, function(s) !is.na(s$p_value) && s$p_value < bonf, logical(1)))
+
+    # Persist a CSV companion so downstream tooling / jobs expecting the old
+    # CO2 shape still get a flat file.
+    write_progress(progress_path, list(step = "write_csv", pct = 92))
+    if (n_total > 0) {
+      codewas_csv <- data.frame(
+        conceptId   = vapply(signals, function(s) s$concept_id, integer(1)),
+        conceptName = vapply(signals, function(s) s$concept_name, character(1)),
+        domainId    = vapply(signals, function(s) s$domain_id, character(1)),
+        nCases      = vapply(signals, function(s) s$n_cases, integer(1)),
+        nControls   = vapply(signals, function(s) s$n_controls, integer(1)),
+        beta        = vapply(signals, function(s) s$beta, numeric(1)),
+        se          = vapply(signals, function(s) s$se, numeric(1)),
+        pValue      = vapply(signals, function(s) s$p_value, numeric(1))
+      )
+      write.csv(codewas_csv, file.path(export_folder, "codeWASCounts.csv"), row.names = FALSE)
+    }
+
+    display <- list(
+      signals    = signals,
+      thresholds = list(bonferroni = bonf, suggestive = sugg),
+      summary    = list(
+        total_codes_tested = n_total,
+        significant_count  = as.integer(sig_cnt),
+        n_case_subjects    = n_case_total,
+        n_control_subjects = n_ctrl_total
+      )
+    )
+
+    .write_summary(export_folder, list(
+      analysis_type  = "co2.codewas",
+      rows           = n_total,
+      case_cohort    = case_id,
+      control_cohort = ctrl_id,
+      n_case         = n_case_total,
+      n_control      = n_ctrl_total
+    ))
     .write_display(export_folder, display)
     write_progress(progress_path, list(step = "done", pct = 100))
-    list(rows = rows)
+    list(rows = n_total, n_significant = as.integer(sig_cnt))
   })
 }
 
@@ -395,96 +485,150 @@ finngen_co2_time_codewas_execute <- function(source_envelope, run_id, export_fol
 }
 
 finngen_co2_overlaps_execute <- function(source_envelope, run_id, export_folder, analysis_settings) {
+  # SP3 bespoke-SQL implementation. Bypasses CO2AnalysisModules::execute_CohortOverlaps
+  # (which needs HadesExtras handler state we can't cheaply register). Instead we
+  # compute UpSet-style overlaps directly from Parthenon's canonical cohort table
+  # (pancreas_results.cohort, similar for other sources). Same display.json shape.
   dir.create(export_folder, recursive = TRUE, showWarnings = FALSE)
   progress_path <- file.path(export_folder, "progress.json")
 
   run_with_classification(export_folder, function() {
-    write_progress(progress_path, list(step = "build_handler", pct = 5))
-    handler <- build_cohort_table_handler(source_envelope)
-    on.exit(tryCatch(handler$closeConnection(), error = function(e) NULL), add = TRUE)
+    write_progress(progress_path, list(step = "build_connection", pct = 5))
+    cohort_ids <- .extract_cohort_ids_for_module("co2.overlaps", analysis_settings)
+    if (length(cohort_ids) < 2) stop("co2.overlaps requires at least 2 cohort_ids")
 
-    write_progress(progress_path, list(step = "stage_cohorts", pct = 8))
-    .stage_cohorts_for_finngen(
-      handler, source_envelope,
-      .extract_cohort_ids_for_module("co2.overlaps", analysis_settings)
+    min_cell <- as.integer(analysis_settings$min_cell_count %||% analysis_settings$minCellCount %||% 5L)
+    cohort_schema <- source_envelope$schemas$cohort
+
+    # Open a DatabaseConnector connection using the same envelope the handler would use.
+    connection_details <- DatabaseConnector::createConnectionDetails(
+      dbms     = source_envelope$dbms %||% "postgresql",
+      server   = source_envelope$connection$server,
+      port     = source_envelope$connection$port,
+      user     = source_envelope$connection$user,
+      password = source_envelope$connection$password,
+      pathToDriver = Sys.getenv("DATABASECONNECTOR_JAR_FOLDER", "/opt/jdbc")
     )
+    connection <- DatabaseConnector::connect(connection_details)
+    on.exit(tryCatch(DatabaseConnector::disconnect(connection), error = function(e) NULL), add = TRUE)
 
-    write_progress(progress_path, list(step = "execute_CohortOverlaps", pct = 10))
-    res <- CO2AnalysisModules::execute_CohortOverlaps(
-      exportFolder       = export_folder,
-      cohortTableHandler = handler,
-      analysisSettings   = .normalize_co2_settings("co2.overlaps", analysis_settings)
+    id_list <- paste(cohort_ids, collapse = ",")
+
+    # 1. Cohort sizes
+    write_progress(progress_path, list(step = "compute_sizes", pct = 20))
+    sizes_sql <- sprintf(
+      "SELECT cohort_definition_id, COUNT(DISTINCT subject_id) AS size
+       FROM %s.cohort
+       WHERE cohort_definition_id IN (%s)
+       GROUP BY cohort_definition_id",
+      cohort_schema, id_list
+    )
+    sizes_df <- DatabaseConnector::querySql(connection, sizes_sql)
+    names(sizes_df) <- tolower(names(sizes_df))
+
+    # 2. Cohort names (from Parthenon's app.cohort_definitions)
+    write_progress(progress_path, list(step = "fetch_names", pct = 35))
+    names_sql <- sprintf(
+      "SELECT id AS cohort_definition_id, name AS cohort_name
+       FROM app.cohort_definitions WHERE id IN (%s)",
+      id_list
+    )
+    names_df <- tryCatch(DatabaseConnector::querySql(connection, names_sql),
+                         error = function(e) data.frame(cohort_definition_id = integer(0), cohort_name = character(0)))
+    names(names_df) <- tolower(names(names_df))
+
+    # 3. Subject × cohort membership → collapse to member-set per subject
+    write_progress(progress_path, list(step = "compute_intersections", pct = 60))
+    members_sql <- sprintf(
+      "SELECT subject_id,
+              STRING_AGG(CAST(cohort_definition_id AS VARCHAR), ',' ORDER BY cohort_definition_id) AS member_cohorts
+       FROM (
+         SELECT DISTINCT subject_id, cohort_definition_id
+         FROM %s.cohort
+         WHERE cohort_definition_id IN (%s)
+       ) distinct_rows
+       GROUP BY subject_id",
+      cohort_schema, id_list
+    )
+    members_df <- DatabaseConnector::querySql(connection, members_sql)
+    names(members_df) <- tolower(names(members_df))
+
+    # Count subjects per unique membership combination
+    if (nrow(members_df) > 0) {
+      combo_counts <- as.data.frame(table(members_df$member_cohorts))
+      names(combo_counts) <- c("member_cohorts", "n")
+      combo_counts$member_cohorts <- as.character(combo_counts$member_cohorts)
+    } else {
+      combo_counts <- data.frame(member_cohorts = character(0), n = integer(0))
+    }
+
+    # Build sets array
+    write_progress(progress_path, list(step = "build_display", pct = 80))
+    sets <- lapply(cohort_ids, function(cid) {
+      sz_row <- sizes_df[sizes_df$cohort_definition_id == cid, ]
+      nm_row <- names_df[names_df$cohort_definition_id == cid, ]
+      list(
+        cohort_id   = as.integer(cid),
+        cohort_name = as.character(if (nrow(nm_row) > 0) nm_row$cohort_name[1] else paste("Cohort", cid)),
+        size        = as.integer(if (nrow(sz_row) > 0) sz_row$size[1] else 0L)
+      )
+    })
+
+    # Build intersections (all observed non-empty combinations)
+    intersections <- lapply(seq_len(nrow(combo_counts)), function(i) {
+      members <- as.integer(strsplit(combo_counts$member_cohorts[i], ",", fixed = TRUE)[[1]])
+      size    <- as.integer(combo_counts$n[i])
+      # Privacy floor
+      if (size < min_cell) return(NULL)
+      # Wrap members with I() so jsonlite emits an array even for degree=1 intersections
+      list(members = I(members), size = size, degree = length(members))
+    })
+    intersections <- intersections[!vapply(intersections, is.null, logical(1))]
+
+    # Pairwise matrix for a quick overview
+    n <- length(cohort_ids)
+    mat <- matrix(0L, nrow = n, ncol = n)
+    for (s in seq_along(sets)) mat[s, s] <- as.integer(sets[[s]]$size)
+    for (ix in intersections) {
+      if (length(ix$members) == 2) {
+        r <- match(ix$members[1], cohort_ids)
+        c <- match(ix$members[2], cohort_ids)
+        if (!is.na(r) && !is.na(c)) {
+          mat[r, c] <- as.integer(ix$size)
+          mat[c, r] <- as.integer(ix$size)
+        }
+      }
+    }
+
+    # Max overlap pct (relative to smallest member set of each intersection)
+    max_pct <- 0
+    for (ix in intersections) {
+      if (length(ix$members) < 2) next
+      min_set <- min(vapply(ix$members, function(m) {
+        s <- sets[[match(m, cohort_ids)]]$size
+        if (is.null(s) || s == 0) Inf else s
+      }, numeric(1)))
+      if (!is.infinite(min_set) && min_set > 0) {
+        pct <- round(ix$size / min_set * 100, 1)
+        if (pct > max_pct) max_pct <- pct
+      }
+    }
+
+    display <- list(
+      sets          = sets,
+      intersections = intersections,
+      matrix        = apply(mat, 1, as.list),
+      summary       = list(max_overlap_pct = max_pct)
     )
 
     .write_summary(export_folder, list(
       analysis_type = "co2.overlaps",
-      cohort_ids    = analysis_settings$cohortIds %||% integer()
+      cohort_ids    = as.integer(cohort_ids),
+      n_intersections = length(intersections)
     ))
-
-    # ── SP3: emit display.json for UpSet plot ──
-    write_progress(progress_path, list(step = "build_display", pct = 96))
-    display <- tryCatch({
-      # CO2AnalysisModules writes overlapResults.csv and/or returns overlap data in res
-      csv_path <- file.path(export_folder, "overlapResults.csv")
-      if (file.exists(csv_path)) {
-        df <- read.csv(csv_path, stringsAsFactors = FALSE)
-        # Build sets array
-        cohort_ids <- unique(c(df$cohortId1, df$cohortId2))
-        sets <- lapply(cohort_ids, function(cid) {
-          size <- max(df$size1[df$cohortId1 == cid], df$size2[df$cohortId2 == cid], na.rm = TRUE)
-          name <- if ("cohortName1" %in% names(df)) {
-            row1 <- df[df$cohortId1 == cid, ]
-            if (nrow(row1) > 0) row1$cohortName1[1] else paste("Cohort", cid)
-          } else paste("Cohort", cid)
-          list(cohort_id = as.integer(cid), cohort_name = as.character(name), size = as.integer(size))
-        })
-
-        # Build intersections (pairwise from data)
-        intersections <- lapply(seq_len(nrow(df)), function(i) {
-          list(
-            members = c(as.integer(df$cohortId1[i]), as.integer(df$cohortId2[i])),
-            size    = as.integer(df$overlapSize[i]),
-            degree  = 2L
-          )
-        })
-
-        # Build matrix
-        n <- length(cohort_ids)
-        mat <- matrix(0L, nrow = n, ncol = n)
-        for (i in seq_len(nrow(df))) {
-          r <- match(df$cohortId1[i], cohort_ids)
-          c <- match(df$cohortId2[i], cohort_ids)
-          mat[r, c] <- as.integer(df$overlapSize[i])
-          mat[c, r] <- as.integer(df$overlapSize[i])
-        }
-        for (s in seq_along(sets)) mat[s, s] <- as.integer(sets[[s]]$size)
-
-        max_pct <- if (length(intersections) > 0) {
-          max(sapply(intersections, function(ix) {
-            min_set <- min(sapply(ix$members, function(m) {
-              si <- sets[[match(m, cohort_ids)]]$size
-              if (is.null(si) || si == 0) Inf else si
-            }))
-            if (is.infinite(min_set)) 0 else round(ix$size / min_set * 100, 1)
-          }))
-        } else 0
-
-        list(
-          sets          = sets,
-          intersections = intersections,
-          matrix        = apply(mat, 1, as.list),
-          summary       = list(max_overlap_pct = max_pct)
-        )
-      } else {
-        list(sets = list(), intersections = list(), matrix = list(), summary = list(max_overlap_pct = 0))
-      }
-    }, error = function(e) {
-      list(sets = list(), intersections = list(), matrix = list(), summary = list(max_overlap_pct = 0, error = conditionMessage(e)))
-    })
-
     .write_display(export_folder, display)
     write_progress(progress_path, list(step = "done", pct = 100))
-    res
+    list(n_intersections = length(intersections))
   })
 }
 
