@@ -215,7 +215,7 @@ class AppServiceProvider extends ServiceProvider
         // 2. Repo root relative to backend dir (local dev without Docker)
         $keyFile = null;
         foreach (['/var/www/.resendapikey', base_path('../.resendapikey')] as $candidate) {
-            if (is_readable($candidate)) {
+            if (is_file($candidate) && is_readable($candidate)) {
                 $keyFile = $candidate;
                 break;
             }

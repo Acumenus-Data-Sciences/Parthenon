@@ -60,15 +60,16 @@ if [ "$HAS_PHP" -gt 0 ]; then
 fi
 
 # ── PHP: PHPStan (static analysis) ──────────────────────────────────────────
+# Run in the php container so devs without a host PHP install (e.g. macOS)
+# match CI behavior — same as Pint above.
 if [ "$HAS_PHP" -gt 0 ]; then
     echo "Pre-commit: PHPStan..."
-    if cd "$REPO_ROOT/backend" && vendor/bin/phpstan analyse --memory-limit=512M --no-progress > /dev/null 2>&1; then
+    if docker compose exec -T php sh -c "cd /var/www/html && vendor/bin/phpstan analyse --memory-limit=512M --no-progress" > /dev/null 2>&1; then
         echo "  ✓ PHPStan"
     else
-        echo "  ✗ PHPStan — run: cd backend && vendor/bin/phpstan analyse"
+        echo "  ✗ PHPStan — run: docker compose exec php sh -c 'cd /var/www/html && vendor/bin/phpstan analyse'"
         ERRORS=$((ERRORS + 1))
     fi
-    cd "$REPO_ROOT"
 fi
 
 # ── TypeScript: tsc --noEmit ────────────────────────────────────────────────
