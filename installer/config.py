@@ -827,11 +827,10 @@ def build_root_env(cfg: dict[str, Any]) -> str:
         lines.append(f"LIVEKIT_API_KEY={cfg.get('livekit_api_key', '')}")
         lines.append(f"LIVEKIT_API_SECRET={cfg.get('livekit_api_secret', '')}")
 
-    import os as _os
     lines.append("")
     lines.append("# Host user mapping")
-    lines.append(f"HOST_UID={_os.getuid()}")
-    lines.append(f"HOST_GID={_os.getgid()}")
+    lines.append(f"HOST_UID={utils.host_uid()}")
+    lines.append(f"HOST_GID={utils.host_gid()}")
     lines.append("DB_PORT=5432")
 
     return "\n".join(lines) + "\n"

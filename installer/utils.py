@@ -31,6 +31,20 @@ def is_windows() -> bool:
     return platform.system() == "Windows"
 
 
+def host_uid() -> int:
+    """Host user id for bind-mount ownership remap. Falls back to 1000 on
+    Windows (where os.getuid is absent) — matches the HOST_UID default in
+    docker-compose.yml."""
+    getter = getattr(os, "getuid", None)
+    return getter() if getter is not None else 1000
+
+
+def host_gid() -> int:
+    """Host group id — see host_uid(). Falls back to 1000 on Windows."""
+    getter = getattr(os, "getgid", None)
+    return getter() if getter is not None else 1000
+
+
 # ---------------------------------------------------------------------------
 # Subprocess helpers
 # ---------------------------------------------------------------------------
