@@ -184,6 +184,45 @@ class FinnGenAnalysisModuleSeeder extends Seeder
                 'darkstar_endpoint' => '/finngen/romopapi/setup',
                 'min_role' => 'admin',
             ],
+            // SP4 Phase D — Cohort matching (1:N propensity matching via HadesExtras)
+            [
+                'key' => 'cohort.match',
+                'label' => 'Cohort Matching',
+                'description' => 'Match a primary cohort against 1+ comparator cohorts on age/sex/index date. Outputs SMD diagnostics and a materialized matched cohort.',
+                'darkstar_endpoint' => '/finngen/cohort/match',
+                'min_role' => 'researcher',
+                'settings_schema' => [
+                    'type' => 'object',
+                    'required' => ['primary_cohort_id', 'comparator_cohort_ids'],
+                    'properties' => [
+                        'primary_cohort_id' => ['type' => 'integer', 'title' => 'Primary cohort'],
+                        'comparator_cohort_ids' => [
+                            'type' => 'array',
+                            'title' => 'Comparator cohorts',
+                            'items' => ['type' => 'integer'],
+                            'minItems' => 1,
+                            'maxItems' => 10,
+                        ],
+                        'ratio' => ['type' => 'integer', 'title' => 'Match ratio (1:N)', 'default' => 1, 'minimum' => 1, 'maximum' => 10],
+                        'match_sex' => ['type' => 'boolean', 'title' => 'Match on sex', 'default' => true],
+                        'match_birth_year' => ['type' => 'boolean', 'title' => 'Match on birth year', 'default' => true],
+                        'max_year_difference' => ['type' => 'integer', 'title' => 'Max birth-year difference', 'default' => 1, 'minimum' => 0, 'maximum' => 10],
+                    ],
+                ],
+                'default_settings' => [
+                    'ratio' => 1,
+                    'match_sex' => true,
+                    'match_birth_year' => true,
+                    'max_year_difference' => 1,
+                ],
+                'result_schema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'counts' => ['type' => 'array'],
+                    ],
+                ],
+                'result_component' => 'MatchingResults',
+            ],
         ];
 
         foreach ($modules as $mod) {

@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+use App\Jobs\FinnGen\RunFinnGenAnalysisJob;
 use App\Models\App\FinnGen\WorkbenchSession;
 use App\Models\User;
 use Database\Seeders\Testing\FinnGenTestingSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
 
 uses(RefreshDatabase::class);
@@ -276,4 +278,63 @@ it('POST /preview-counts maps generic Darkstar connection error to 502', functio
             ],
         ])
         ->assertStatus(502); // No "timeout" → Unreachable → 502
+});
+
+// ── SP4 Phase D — match wrapper ─────────────────────────────────────────────
+
+it('POST /workbench/match denies viewer', function () {
+    Bus::fake();
+    $this->actingAs($this->viewer)
+        ->postJson('/api/v1/finngen/workbench/match', [
+            'source_key' => 'EUNOMIA',
+            'primary_cohort_id' => 1,
+            'comparator_cohort_ids' => [2],
+        ])->assertStatus(403);
+});
+
+it('POST /workbench/match creates a cohort.match run + dispatches the analysis job', function () {
+    Bus::fake();
+
+    $resp = $this->actingAs($this->researcher)
+        ->postJson('/api/v1/finngen/workbench/match', [
+            'source_key' => 'EUNOMIA',
+            'primary_cohort_id' => 221,
+            'comparator_cohort_ids' => [222, 223],
+            'ratio' => 2,
+            'match_sex' => true,
+            'match_birth_year' => true,
+            'max_year_difference' => 1,
+        ])
+        ->assertStatus(202);
+
+    $resp->assertJsonPath('data.analysis_type', 'cohort.match');
+    $resp->assertJsonPath('data.params.primary_cohort_id', 221);
+    $resp->assertJsonPath('data.params.comparator_cohort_ids', [222, 223]);
+    $resp->assertJsonPath('data.params.ratio', 2);
+    $resp->assertJsonPath('data.user_id', $this->researcher->id);
+
+    Bus::assertDispatched(RunFinnGenAnalysisJob::class);
+});
+
+it('POST /workbench/match validates required fields', function () {
+    Bus::fake();
+    $this->actingAs($this->researcher)
+        ->postJson('/api/v1/finngen/workbench/match', [
+            'source_key' => 'EUNOMIA',
+            // missing primary_cohort_id and comparator_cohort_ids
+        ])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['primary_cohort_id', 'comparator_cohort_ids']);
+});
+
+it('POST /workbench/match rejects > 10 comparators', function () {
+    Bus::fake();
+    $this->actingAs($this->researcher)
+        ->postJson('/api/v1/finngen/workbench/match', [
+            'source_key' => 'EUNOMIA',
+            'primary_cohort_id' => 1,
+            'comparator_cohort_ids' => range(2, 12),
+        ])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['comparator_cohort_ids']);
 });

@@ -9,6 +9,7 @@ import type {
 
 const BASE = "/finngen/workbench/sessions";
 const PREVIEW_URL = "/finngen/workbench/preview-counts";
+const MATCH_URL = "/finngen/workbench/match";
 
 export type PreviewCountsResponse = {
   total: number;
@@ -20,6 +21,28 @@ export type PreviewCountsValidationError = {
   node_id: string;
   code: string;
   message: string;
+};
+
+export type MatchCohortPayload = {
+  source_key: string;
+  primary_cohort_id: number;
+  comparator_cohort_ids: number[];
+  ratio?: number;
+  match_sex?: boolean;
+  match_birth_year?: boolean;
+  max_year_difference?: number;
+};
+
+// The match endpoint returns the freshly-created Run record (status=queued).
+// Caller polls /api/v1/finngen/runs/{id} for terminal status + summary.counts.
+export type MatchCohortRunResponse = {
+  id: string;
+  status: string;
+  analysis_type: string;
+  source_key: string;
+  params: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
 };
 
 export const finngenWorkbenchApi = {
@@ -71,6 +94,18 @@ export const finngenWorkbenchApi = {
       PREVIEW_URL,
       { source_key: sourceKey, tree },
     );
+    return data;
+  },
+
+  /**
+   * SP4 Phase D — dispatch a cohort.match analysis run. Returns the
+   * freshly-created Run record (status=queued); caller polls
+   * /api/v1/finngen/runs/{id} for terminal status + summary.counts.
+   */
+  matchCohort: async (
+    payload: MatchCohortPayload,
+  ): Promise<{ data: MatchCohortRunResponse }> => {
+    const { data } = await apiClient.post<{ data: MatchCohortRunResponse }>(MATCH_URL, payload);
     return data;
   },
 };

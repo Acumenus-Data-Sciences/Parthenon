@@ -1055,6 +1055,9 @@ Route::prefix('v1')->group(function () {
                 // SP4 Phase B.3 — sync preview-counts (compiles tree, hits Darkstar)
                 Route::post('/preview-counts', [WorkbenchSessionController::class, 'previewCounts'])
                     ->middleware(['permission:finngen.workbench.use', 'throttle:60,1']);
+                // SP4 Phase D — match wrapper (dispatches finngen.cohort.match async)
+                Route::post('/match', [WorkbenchSessionController::class, 'matchCohort'])
+                    ->middleware(['permission:finngen.workbench.use', 'finngen.idempotency', 'throttle:10,1']);
             });
         });
 

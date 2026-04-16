@@ -6,17 +6,21 @@ namespace App\Http\Controllers\Api\V1\FinnGen;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FinnGen\CreateWorkbenchSessionRequest;
+use App\Http\Requests\FinnGen\MatchWorkbenchCohortRequest;
 use App\Http\Requests\FinnGen\PreviewWorkbenchCountsRequest;
 use App\Http\Requests\FinnGen\UpdateWorkbenchSessionRequest;
+use App\Jobs\FinnGen\RunFinnGenAnalysisJob;
 use App\Services\FinnGen\CohortOperationCompiler;
 use App\Services\FinnGen\Exceptions\FinnGenDarkstarRejectedException;
 use App\Services\FinnGen\Exceptions\FinnGenDarkstarTimeoutException;
 use App\Services\FinnGen\Exceptions\FinnGenDarkstarUnreachableException;
 use App\Services\FinnGen\FinnGenClient;
+use App\Services\FinnGen\FinnGenRunService;
 use App\Services\FinnGen\FinnGenSourceContextBuilder;
 use App\Services\FinnGen\WorkbenchSessionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Bus;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -34,6 +38,7 @@ class WorkbenchSessionController extends Controller
         private readonly CohortOperationCompiler $compiler,
         private readonly FinnGenSourceContextBuilder $sourceBuilder,
         private readonly FinnGenClient $client,
+        private readonly FinnGenRunService $runs,
     ) {}
 
     public function index(Request $request): JsonResponse
@@ -166,5 +171,37 @@ class WorkbenchSessionController extends Controller
                 'operation_string' => $this->compiler->compile($tree),
             ],
         ]);
+    }
+
+    /**
+     * SP4 Phase D — match a primary cohort against 1+ comparators.
+     *
+     * Wraps the existing async finngen.cohort.match analysis (registered in
+     * FinnGenAnalysisModuleSeeder) with workbench-namespaced RBAC. Returns
+     * the run_id; the caller polls the standard /api/v1/finngen/runs/{id}
+     * endpoint for status + summary.counts.
+     */
+    public function matchCohort(MatchWorkbenchCohortRequest $request): JsonResponse
+    {
+        $data = $request->validated();
+        $params = [
+            'primary_cohort_id' => (int) $data['primary_cohort_id'],
+            'comparator_cohort_ids' => array_map('intval', $data['comparator_cohort_ids']),
+            'ratio' => (int) ($data['ratio'] ?? 1),
+            'match_sex' => (bool) ($data['match_sex'] ?? true),
+            'match_birth_year' => (bool) ($data['match_birth_year'] ?? true),
+            'max_year_difference' => (int) ($data['max_year_difference'] ?? 1),
+        ];
+
+        $run = $this->runs->create(
+            userId: (int) $request->user()->id,
+            sourceKey: (string) $data['source_key'],
+            analysisType: 'cohort.match',
+            params: $params,
+        );
+
+        Bus::dispatch(new RunFinnGenAnalysisJob($run->id));
+
+        return response()->json(['data' => $run], 202);
     }
 }
