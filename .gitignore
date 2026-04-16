@@ -97,6 +97,9 @@ e2e/screenshots/
 .install-state.json
 .enterprise-keys
 installer/__pycache__/
+
+# Default bundled-postgres data dir when POSTGRES_DATA_DIR is unset
+.parthenon-data/
 installer/**/__pycache__/
 
 # Medical records (PHI)
