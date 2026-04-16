@@ -20,4 +20,19 @@ class AnalysisModuleController extends Controller
             'data' => array_values($this->registry->all()),
         ]);
     }
+
+    public function show(string $key): JsonResponse
+    {
+        $module = $this->registry->find($key);
+        if (! $module) {
+            return response()->json([
+                'error' => [
+                    'code' => 'FINNGEN_MODULE_NOT_FOUND',
+                    'message' => "Analysis module '{$key}' is not registered or is disabled.",
+                ],
+            ], 404);
+        }
+
+        return response()->json(['data' => $module]);
+    }
 }
