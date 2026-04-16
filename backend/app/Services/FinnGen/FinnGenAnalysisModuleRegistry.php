@@ -8,15 +8,17 @@ use App\Models\App\FinnGen\AnalysisModule;
 use App\Services\FinnGen\Exceptions\FinnGenUnknownAnalysisTypeException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Opis\JsonSchema\Errors\ErrorFormatter;
+use Opis\JsonSchema\Validator;
 
 /**
  * Cached registry of enabled FinnGen analysis modules. Keyed by module key
  * (e.g. "co2.codewas"). Used by RunService/Job/Controller to look up the
  * Darkstar endpoint + min_role + settings_schema for a given analysis_type.
  *
- * SP1: SELECTs enabled rows from app.finngen_analysis_modules, caches for
- * 5 minutes. validateParams() is a no-op stub — SP3 fills it with JSON
- * Schema validation against $module->settings_schema.
+ * SP3: validateParams() now performs JSON Schema validation against the
+ * module's settings_schema using opis/json-schema. Returns structured
+ * validation errors on failure.
  */
 class FinnGenAnalysisModuleRegistry
 {
@@ -59,16 +61,43 @@ class FinnGenAnalysisModuleRegistry
     }
 
     /**
-     * SP1 stub — accepts any params shape. SP3 implements JSON-Schema
-     * validation against $module->settings_schema so controllers don't
-     * need to change when SP3 lands.
+     * Validate params against the module's settings_schema using JSON Schema.
+     * Throws FinnGenUnknownAnalysisTypeException if the module key is invalid.
      *
      * @param  array<string, mixed>  $params
+     * @return array{valid: bool, errors: list<string>}
      */
-    public function validateParams(string $key, array $params): void
+    public function validateParams(string $key, array $params): array
     {
-        $this->assertEnabled($key);
-        // SP3 will add JSON Schema validation here.
+        $module = $this->assertEnabled($key);
+
+        $schema = $module->settings_schema;
+        if (empty($schema)) {
+            // No schema defined — accept anything (backward compat with SP1 modules).
+            return ['valid' => true, 'errors' => []];
+        }
+
+        $validator = new Validator;
+        $schemaObject = json_decode((string) json_encode($schema));
+        $dataObject = json_decode((string) json_encode($params));
+
+        $result = $validator->validate($dataObject, $schemaObject);
+
+        if ($result->isValid()) {
+            return ['valid' => true, 'errors' => []];
+        }
+
+        $formatter = new ErrorFormatter;
+        $rawErrors = $formatter->format($result->error(), false);
+
+        $flat = [];
+        foreach ($rawErrors as $path => $messages) {
+            foreach ($messages as $msg) {
+                $flat[] = ($path !== '' ? "{$path}: " : '').$msg;
+            }
+        }
+
+        return ['valid' => false, 'errors' => $flat];
     }
 
     public function flush(): void
