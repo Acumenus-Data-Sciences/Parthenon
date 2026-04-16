@@ -53,6 +53,74 @@ suppressPackageStartupMessages({
   }, error = function(e) NA_integer_)
 }
 
+# Extract the list of cohort_ids that a given module will use, from the raw
+# (pre-normalized) analysis_settings sent by Parthenon. Handles both snake_case
+# (Parthenon API) and camelCase (Shiny-parity) param names.
+.extract_cohort_ids_for_module <- function(module_key, settings) {
+  if (is.null(settings)) return(integer(0))
+  ids <- c()
+  if (identical(module_key, "co2.codewas") || identical(module_key, "co2.time_codewas")) {
+    case_id <- settings$case_cohort_id %||% settings$cohortIdCases
+    ctrl_id <- settings$control_cohort_id %||% settings$cohortIdControls
+    ids <- c(ids, case_id, ctrl_id)
+  } else {
+    ids <- c(ids, settings$cohort_ids %||% settings$cohortIds)
+  }
+  ids <- as.integer(unlist(ids))
+  ids[!is.na(ids) & ids > 0]
+}
+
+# Copy selected cohort rows from the source's canonical cohort table (e.g.
+# pancreas_results.cohort, owned by Parthenon's cohort pipeline) into the
+# finngen_cohort table that the HadesExtras handler uses. CO2AnalysisModules
+# needs the cohort to be writable (it DROPs/CREATEs _distinct temp tables)
+# AND to actually contain the subject rows for the requested cohort_ids.
+#
+# Idempotent: deletes existing rows for the requested cohort_ids first, then
+# INSERT SELECTs from the canonical cohort table. Creates finngen_cohort with
+# the same schema if it doesn't exist.
+.stage_cohorts_for_finngen <- function(handler, source_envelope, cohort_ids) {
+  if (is.null(cohort_ids) || length(cohort_ids) == 0) return(invisible(NULL))
+  ids <- as.integer(unlist(cohort_ids))
+  ids <- ids[!is.na(ids)]
+  if (length(ids) == 0) return(invisible(NULL))
+
+  cohort_schema <- source_envelope$schemas$cohort
+  conn <- handler$connectionHandler$getConnection()
+
+  # Ensure finngen_cohort exists (same schema as the standard OMOP cohort table).
+  ensure_sql <- sprintf(
+    "CREATE TABLE IF NOT EXISTS %s.finngen_cohort (
+       cohort_definition_id INTEGER NOT NULL,
+       subject_id BIGINT NOT NULL,
+       cohort_start_date DATE NOT NULL,
+       cohort_end_date DATE NOT NULL
+     )", cohort_schema
+  )
+  DatabaseConnector::executeSql(conn, ensure_sql, progressBar = FALSE, reportOverallTime = FALSE)
+
+  id_list <- paste(ids, collapse = ",")
+
+  # Idempotent replace: delete existing rows for these cohort_ids first.
+  del_sql <- sprintf(
+    "DELETE FROM %s.finngen_cohort WHERE cohort_definition_id IN (%s)",
+    cohort_schema, id_list
+  )
+  DatabaseConnector::executeSql(conn, del_sql, progressBar = FALSE, reportOverallTime = FALSE)
+
+  # Copy from canonical cohort table.
+  ins_sql <- sprintf(
+    "INSERT INTO %s.finngen_cohort (cohort_definition_id, subject_id, cohort_start_date, cohort_end_date)
+     SELECT cohort_definition_id, subject_id, cohort_start_date, cohort_end_date
+     FROM %s.cohort
+     WHERE cohort_definition_id IN (%s)",
+    cohort_schema, cohort_schema, id_list
+  )
+  DatabaseConnector::executeSql(conn, ins_sql, progressBar = FALSE, reportOverallTime = FALSE)
+
+  invisible(NULL)
+}
+
 # Translate the snake_case params sent by Parthenon's frontend into the
 # camelCase names CO2AnalysisModules::execute_* expects. Mapping is per-module
 # since different CO2 functions use different param names (e.g. CodeWAS uses
@@ -119,8 +187,9 @@ suppressPackageStartupMessages({
     # Shiny explicitly sets autoMatchRatio = NULL when not auto-matching;
     # keep the key present so checkmate assertions see it.
     if (!("autoMatchRatio" %in% names(out))) out["autoMatchRatio"] <- list(NULL)
-    # covariatesIds: empty list by default (user can opt-in later via settings).
-    if (is.null(out$covariatesIds)) out$covariatesIds <- list()
+    # covariatesIds: NULL by default (CO2 asserts it's numeric or NULL, not list).
+    # Users can opt-in to specific covariate IDs later via settings.
+    if (!("covariatesIds" %in% names(out))) out["covariatesIds"] <- list(NULL)
     # analysisIds: minimal valid subset (one per FeatureExtraction domain).
     if (is.null(out$analysisIds) || length(out$analysisIds) == 0) {
       out$analysisIds <- c(101L, 141L, 201L, 301L, 401L, 501L, 601L, 701L, 801L)
@@ -147,6 +216,12 @@ finngen_co2_codewas_execute <- function(source_envelope, run_id, export_folder, 
     write_progress(progress_path, list(step = "build_handler", pct = 5, message = "Opening DB connection"))
     handler <- build_cohort_table_handler(source_envelope)
     on.exit(tryCatch(handler$closeConnection(), error = function(e) NULL), add = TRUE)
+
+    write_progress(progress_path, list(step = "stage_cohorts", pct = 8, message = "Staging cohorts into finngen_cohort"))
+    .stage_cohorts_for_finngen(
+      handler, source_envelope,
+      .extract_cohort_ids_for_module("co2.codewas", analysis_settings)
+    )
 
     write_progress(progress_path, list(step = "execute_CodeWAS", pct = 10, message = "Running CodeWAS association scan"))
     res <- CO2AnalysisModules::execute_CodeWAS(
@@ -247,6 +322,12 @@ finngen_co2_time_codewas_execute <- function(source_envelope, run_id, export_fol
     handler <- build_cohort_table_handler(source_envelope)
     on.exit(tryCatch(handler$closeConnection(), error = function(e) NULL), add = TRUE)
 
+    write_progress(progress_path, list(step = "stage_cohorts", pct = 8))
+    .stage_cohorts_for_finngen(
+      handler, source_envelope,
+      .extract_cohort_ids_for_module("co2.time_codewas", analysis_settings)
+    )
+
     write_progress(progress_path, list(step = "execute_timeCodeWAS", pct = 10, message = "Running temporal CodeWAS"))
     res <- CO2AnalysisModules::execute_timeCodeWAS(
       exportFolder       = export_folder,
@@ -321,6 +402,12 @@ finngen_co2_overlaps_execute <- function(source_envelope, run_id, export_folder,
     write_progress(progress_path, list(step = "build_handler", pct = 5))
     handler <- build_cohort_table_handler(source_envelope)
     on.exit(tryCatch(handler$closeConnection(), error = function(e) NULL), add = TRUE)
+
+    write_progress(progress_path, list(step = "stage_cohorts", pct = 8))
+    .stage_cohorts_for_finngen(
+      handler, source_envelope,
+      .extract_cohort_ids_for_module("co2.overlaps", analysis_settings)
+    )
 
     write_progress(progress_path, list(step = "execute_CohortOverlaps", pct = 10))
     res <- CO2AnalysisModules::execute_CohortOverlaps(
@@ -410,6 +497,12 @@ finngen_co2_demographics_execute <- function(source_envelope, run_id, export_fol
     handler <- build_cohort_table_handler(source_envelope)
     on.exit(tryCatch(handler$closeConnection(), error = function(e) NULL), add = TRUE)
 
+    write_progress(progress_path, list(step = "stage_cohorts", pct = 8))
+    .stage_cohorts_for_finngen(
+      handler, source_envelope,
+      .extract_cohort_ids_for_module("co2.demographics", analysis_settings)
+    )
+
     write_progress(progress_path, list(step = "execute_CohortDemographics", pct = 10))
     res <- CO2AnalysisModules::execute_CohortDemographics(
       exportFolder       = export_folder,
@@ -472,8 +565,9 @@ finngen_co2_demographics_execute <- function(source_envelope, run_id, export_fol
             }
             cdf$decile <- vapply(cdf$ageGroup, parse_decile, integer(1))
 
-            male_df   <- cdf[cdf$gender == "MALE",   c("decile", "count"), drop = FALSE]
-            female_df <- cdf[cdf$gender == "FEMALE", c("decile", "count"), drop = FALSE]
+            gender_upper <- toupper(as.character(cdf$gender))
+            male_df   <- cdf[gender_upper == "MALE",   c("decile", "count"), drop = FALSE]
+            female_df <- cdf[gender_upper == "FEMALE", c("decile", "count"), drop = FALSE]
             male_by   <- aggregate(count ~ decile, male_df,   sum, na.rm = TRUE)
             female_by <- aggregate(count ~ decile, female_df, sum, na.rm = TRUE)
             all_deciles <- sort(unique(c(male_by$decile, female_by$decile)))
@@ -483,8 +577,8 @@ finngen_co2_demographics_execute <- function(source_envelope, run_id, export_fol
               list(decile = as.integer(d), male = as.integer(m), female = as.integer(f))
             })
 
-            total_male    <- as.integer(sum(cdf$count[cdf$gender == "MALE"],   na.rm = TRUE))
-            total_female  <- as.integer(sum(cdf$count[cdf$gender == "FEMALE"], na.rm = TRUE))
+            total_male    <- as.integer(sum(cdf$count[gender_upper == "MALE"],   na.rm = TRUE))
+            total_female  <- as.integer(sum(cdf$count[gender_upper == "FEMALE"], na.rm = TRUE))
             total_unknown <- max(0L, as.integer(n - total_male - total_female))
 
             list(
