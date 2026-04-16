@@ -18,9 +18,11 @@ beforeEach(function () {
     $this->registry = app(FinnGenAnalysisModuleRegistry::class);
 });
 
-it('all() returns the six seeded modules keyed by key', function () {
+it('all() returns the seeded modules keyed by key', function () {
     $modules = $this->registry->all();
 
+    // SP1-3: 4 CO2 modules + 2 romopapi modules.
+    // SP4 Phase D added cohort.match; Polish 2 added cohort.materialize.
     expect(array_keys($modules))->toEqualCanonicalizing([
         'co2.codewas',
         'co2.time_codewas',
@@ -28,6 +30,8 @@ it('all() returns the six seeded modules keyed by key', function () {
         'co2.demographics',
         'romopapi.report',
         'romopapi.setup',
+        'cohort.match',
+        'cohort.materialize',
     ]);
     expect($modules['co2.codewas'])->toBeInstanceOf(AnalysisModule::class);
 });
@@ -74,13 +78,13 @@ it('all() cache is refreshed after flush()', function () {
         'min_role' => 'researcher',
     ]);
 
-    // Without flush, cache still shows 6
-    expect($this->registry->all())->toHaveCount(6);
+    // Without flush, cache still shows 8 (4 CO2 + 2 romopapi + cohort.match + cohort.materialize)
+    expect($this->registry->all())->toHaveCount(8);
 
     $this->registry->flush();
 
     // After flush, new row is visible
-    expect($this->registry->all())->toHaveCount(7);
+    expect($this->registry->all())->toHaveCount(9);
 });
 
 it('validateParams() passes for enabled module + arbitrary params (SP1 stub)', function () {
