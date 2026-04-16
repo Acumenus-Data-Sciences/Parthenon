@@ -35,6 +35,66 @@ suppressPackageStartupMessages({
   )
 }
 
+# Translate the snake_case params sent by Parthenon's frontend into the
+# camelCase names CO2AnalysisModules::execute_* expects. Mapping is per-module
+# since different CO2 functions use different param names (e.g. CodeWAS uses
+# cohortIdCases/cohortIdControls, Demographics uses cohortIds).
+.normalize_co2_settings <- function(module_key, settings) {
+  if (is.null(settings)) settings <- list()
+
+  # Generic snake_case → camelCase translations
+  translations <- list(
+    case_cohort_id    = "cohortIdCases",
+    control_cohort_id = "cohortIdControls",
+    cohort_ids        = "cohortIds",
+    min_cell_count    = "minCellCount",
+    reference_years   = "referenceYears",
+    group_by          = "groupBy",
+    analysis_ids      = "analysisIds"
+  )
+
+  out <- list()
+  for (name in names(settings)) {
+    camel_name <- translations[[name]] %||% name
+    out[[camel_name]] <- settings[[name]]
+  }
+
+  # timeCodeWAS: flatten time_windows array-of-objects → temporalStartDays vector
+  if (identical(module_key, "co2.time_codewas") && !is.null(settings$time_windows)) {
+    tw <- settings$time_windows
+    if (is.list(tw) || is.data.frame(tw)) {
+      start_days <- vapply(tw, function(w) as.integer(w$start_day %||% w[["start_day"]]), integer(1))
+      out$temporalStartDays <- start_days
+      out$time_windows <- NULL
+    }
+  }
+
+  # Universal default — all CO2 modules require minCellCount for privacy gating.
+  if (is.null(out$minCellCount)) out$minCellCount <- 5L
+
+  # Module-specific defaults for required CO2AnalysisModules params
+  # that aren't surfaced in the Parthenon settings schema yet.
+  if (identical(module_key, "co2.demographics")) {
+    # CO2 expects a reference date column on person/cohort, not a year keyword.
+    if (is.null(out$referenceYears) || length(out$referenceYears) == 0) {
+      out$referenceYears <- "cohort_start_date"
+    }
+    if (is.null(out$groupBy) || length(out$groupBy) == 0) {
+      out$groupBy <- c("gender", "ageGroup")
+    }
+    if (is.null(out$minCellCount)) out$minCellCount <- 5L
+  }
+  if (identical(module_key, "co2.codewas") || identical(module_key, "co2.time_codewas")) {
+    if (is.null(out$minCellCount)) out$minCellCount <- 5L
+    if (is.null(out$analysisIds) || length(out$analysisIds) == 0) {
+      # FeatureExtraction standard covariate analysis IDs.
+      out$analysisIds <- c(101L, 141L, 1002L, 402L, 702L, 502L, 602L, 802L, 902L)
+    }
+  }
+
+  out
+}
+
 finngen_co2_codewas_execute <- function(source_envelope, run_id, export_folder, analysis_settings) {
   dir.create(export_folder, recursive = TRUE, showWarnings = FALSE)
   progress_path <- file.path(export_folder, "progress.json")
@@ -48,7 +108,7 @@ finngen_co2_codewas_execute <- function(source_envelope, run_id, export_folder, 
     res <- CO2AnalysisModules::execute_CodeWAS(
       exportFolder       = export_folder,
       cohortTableHandler = handler,
-      analysisSettings   = analysis_settings
+      analysisSettings   = .normalize_co2_settings("co2.codewas", analysis_settings)
     )
 
     write_progress(progress_path, list(step = "write_summary", pct = 95))
@@ -147,7 +207,7 @@ finngen_co2_time_codewas_execute <- function(source_envelope, run_id, export_fol
     res <- CO2AnalysisModules::execute_timeCodeWAS(
       exportFolder       = export_folder,
       cohortTableHandler = handler,
-      analysisSettings   = analysis_settings
+      analysisSettings   = .normalize_co2_settings("co2.time_codewas", analysis_settings)
     )
 
     rows <- if (!is.null(res$timeCodeWASCounts)) nrow(res$timeCodeWASCounts) else NA_integer_
@@ -222,7 +282,7 @@ finngen_co2_overlaps_execute <- function(source_envelope, run_id, export_folder,
     res <- CO2AnalysisModules::execute_CohortOverlaps(
       exportFolder       = export_folder,
       cohortTableHandler = handler,
-      analysisSettings   = analysis_settings
+      analysisSettings   = .normalize_co2_settings("co2.overlaps", analysis_settings)
     )
 
     .write_summary(export_folder, list(
@@ -310,7 +370,7 @@ finngen_co2_demographics_execute <- function(source_envelope, run_id, export_fol
     res <- CO2AnalysisModules::execute_CohortDemographics(
       exportFolder       = export_folder,
       cohortTableHandler = handler,
-      analysisSettings   = analysis_settings
+      analysisSettings   = .normalize_co2_settings("co2.demographics", analysis_settings)
     )
 
     total <- res$total %||% NA_integer_
