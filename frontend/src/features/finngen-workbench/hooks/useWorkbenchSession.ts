@@ -1,5 +1,5 @@
 // frontend/src/features/finngen-workbench/hooks/useWorkbenchSession.ts
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { finngenWorkbenchApi } from "../api";
 import type {
@@ -58,26 +58,48 @@ export function useDeleteWorkbenchSession() {
   });
 }
 
+export type AutosaveStatus = {
+  /** Mutation currently firing (POST in flight). */
+  saving: boolean;
+  /** Local state has diverged from lastSent AND the debounce timer is ticking. */
+  pending: boolean;
+  /** Last successful save timestamp — null before the first save. */
+  lastSavedAt: Date | null;
+  /** Most recent mutation error, if any. Reset on the next successful save. */
+  error: Error | null;
+};
+
 /**
  * Debounced autosave for an in-flight session. Pass the local session_state
  * (typically from the Zustand store); after `delayMs` of quiescence the patch
  * is sent. Cancels in-flight timers on rerender so rapid edits coalesce into
  * a single PATCH per quiet window.
  *
- * Returns the live mutation so callers can render save state ("Saving…",
- * "Saved", error toast).
+ * Returns the mutation object AND a structured AutosaveStatus so a header
+ * badge can render "Saving…" / "Saved HH:MM" / "Unsaved" / error states.
  */
 export function useAutosaveWorkbenchSession(
   id: string | null,
   sessionState: WorkbenchSessionStateV1 | null,
   delayMs = 5_000,
-) {
+): AutosaveStatus & { mutation: ReturnType<typeof useMutation> } {
   const qc = useQueryClient();
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+  const [error, setError] = useState<Error | null>(null);
+  const [pending, setPending] = useState(false);
+
   const mutation = useMutation({
     mutationFn: (payload: UpdateWorkbenchSessionPayload) =>
       finngenWorkbenchApi.update(id!, payload).then((r) => r.data),
     onSuccess: (updated) => {
       qc.setQueryData(KEY(updated.id), updated);
+      setLastSavedAt(new Date());
+      setError(null);
+      setPending(false);
+    },
+    onError: (err) => {
+      setError(err instanceof Error ? err : new Error(String(err)));
+      setPending(false);
     },
   });
 
@@ -92,6 +114,7 @@ export function useAutosaveWorkbenchSession(
     if (timerRef.current !== null) {
       window.clearTimeout(timerRef.current);
     }
+    setPending(true);
     timerRef.current = window.setTimeout(() => {
       lastSentRef.current = serialized;
       mutation.mutate({ session_state: sessionState });
@@ -104,5 +127,11 @@ export function useAutosaveWorkbenchSession(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, sessionState, delayMs]);
 
-  return mutation;
+  return {
+    saving: mutation.isPending,
+    pending,
+    lastSavedAt,
+    error,
+    mutation,
+  };
 }

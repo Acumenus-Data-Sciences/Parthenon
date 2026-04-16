@@ -11,6 +11,7 @@ import { MatchingConfigForm } from "../components/MatchingConfigForm";
 import { MatchingResults } from "../components/MatchingResults";
 import { MaterializeStep } from "../components/MaterializeStep";
 import { ImportCohortsStep } from "../components/ImportCohortsStep";
+import { AutosaveBadge } from "../components/AutosaveBadge";
 import {
   WorkbenchStepper,
   WORKBENCH_STEPS,
@@ -44,8 +45,8 @@ export default function WorkbenchPage() {
     }
   }, [session, sessionId, loadSession]);
 
-  // Autosave on any sessionState change.
-  useAutosaveWorkbenchSession(sessionId ?? null, sessionState, 5_000);
+  // Autosave on any sessionState change + expose status to the header badge.
+  const autosave = useAutosaveWorkbenchSession(sessionId ?? null, sessionState, 5_000);
 
   const stepIndex = typeof sessionState.step === "number" ? sessionState.step : 0;
   const currentStep = WORKBENCH_STEPS[stepIndex]?.key ?? "select-source";
@@ -73,9 +74,22 @@ export default function WorkbenchPage() {
   }
   if (isError || session === undefined) {
     return (
-      <div className="p-6 text-sm text-error">
-        Could not load this workbench session.{" "}
-        <Link to="/workbench/cohorts" className="underline">Back to sessions</Link>
+      <div className="mx-auto max-w-xl p-6 space-y-3 text-sm">
+        <h1 className="text-base font-semibold text-error">Workbench session unavailable</h1>
+        <p className="text-text-secondary">
+          This session may have been deleted, or you don't have permission to open it.
+        </p>
+        <div className="flex items-center gap-3 pt-2">
+          <Link
+            to="/workbench/cohorts"
+            className="inline-flex items-center gap-1 rounded bg-success px-3 py-1.5 text-xs font-medium text-bg-canvas hover:bg-success/90"
+          >
+            <ArrowLeft size={12} /> Back to sessions
+          </Link>
+          <Link to="/workbench" className="text-xs text-text-ghost hover:text-text-secondary">
+            Workbench launcher
+          </Link>
+        </div>
       </div>
     );
   }
@@ -98,6 +112,7 @@ export default function WorkbenchPage() {
               {session.source_key} · session {session.id.slice(0, 8)}…
             </p>
           </div>
+          <AutosaveBadge status={autosave} />
         </div>
         <WorkbenchStepper current={currentStep} completed={completed} onStepChange={goToStep} />
       </header>
