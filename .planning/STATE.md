@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-03-26)
 Phase: 7-10 parallel (Medications, Conditions, Measurements, Observations)
 Plan: 09-01 completed (growth measurements), phases 7-10 in parallel
 Status: Executing Phases 07-10 in parallel
-Last activity: 2026-04-12 - Final theme compliance sweep: eliminated 16,237 hardcoded hex values in Tailwind arbitrary classes + 766 inline style hex values → CSS variable tokens (0 non-compliant Tailwind arbitrary hex remaining)
+Last activity: 2026-04-16 - Completed quick task 260416-owf: Full live end-to-end smoke of SP4 workbench workers (FAIL — surfaced double-dispatch bug in RunFinnGenAnalysisJob)
 
 Progress: [█████████░] 92%
 
@@ -192,6 +192,7 @@ None yet.
 | 260410-7g0 | Add clustering-based phenotype discovery (consensus clustering + heatmap) | 2026-04-10 | 7eab94e24 | [260410-7g0-add-clustering-based-phenotype-discovery](./quick/260410-7g0-add-clustering-based-phenotype-discovery/) |
 | 260411-s3c | Replace 1,150+ remaining hardcoded hex colors with CSS variable tokens | 2026-04-12 | 116c7ee33 | [260411-s3c-hunt-down-and-fix-all-remaining-light-mo](./quick/260411-s3c-hunt-down-and-fix-all-remaining-light-mo/) |
 | 260411-sxo | Replace 1,033 hardcoded Tailwind grayscale utilities with theme-aware token classes | 2026-04-12 | c6587029d | [260411-sxo-replace-all-hardcoded-tailwind-grayscale](./quick/260411-sxo-replace-all-hardcoded-tailwind-grayscale/) |
+| 260416-owf | Full live end-to-end smoke of SP4 workbench workers | 2026-04-16 | fc53cfdd7 | [260416-owf-full-live-end-to-end-smoke-of-sp4-workbe](./quick/260416-owf-full-live-end-to-end-smoke-of-sp4-workbe/) |
 
 ## Session Continuity
 
