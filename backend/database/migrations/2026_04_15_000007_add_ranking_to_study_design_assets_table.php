@@ -9,6 +9,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasColumn('study_design_assets', 'rank_score')) {
+            return;
+        }
+
         Schema::table('study_design_assets', function (Blueprint $table) {
             $table->decimal('rank_score', 6, 3)->nullable()->after('verified_at');
             $table->jsonb('rank_score_json')->nullable()->after('rank_score');

@@ -92,8 +92,13 @@ class FinnGenAnalysisModuleRegistry
 
         $flat = [];
         foreach ($rawErrors as $path => $messages) {
-            foreach ($messages as $msg) {
-                $flat[] = ($path !== '' ? "{$path}: " : '').$msg;
+            // format() with multiple=false returns string per path, not array
+            if (is_string($messages)) {
+                $flat[] = ($path !== '' ? "{$path}: " : '').$messages;
+            } else {
+                foreach ($messages as $msg) {
+                    $flat[] = ($path !== '' ? "{$path}: " : '').$msg;
+                }
             }
         }
 
