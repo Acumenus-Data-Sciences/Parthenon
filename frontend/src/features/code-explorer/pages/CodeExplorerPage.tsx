@@ -82,7 +82,8 @@ export function CodeExplorerPage() {
                 value={conceptId ? String(conceptId) : ""}
                 onChange={handleConceptInputChange}
                 paramType="number"
-                placeholder="Search or enter concept_id"
+                placeholder="Search concepts with data in this source"
+                sourceKey={sourceKey}
               />
             </div>
           </>

@@ -1023,6 +1023,8 @@ Route::prefix('v1')->group(function () {
             Route::prefix('code-explorer')->group(function () {
                 Route::get('/source-readiness', [CodeExplorerController::class, 'sourceReadiness'])
                     ->middleware('permission:finngen.code-explorer.view');
+                Route::get('/concepts', [CodeExplorerController::class, 'concepts'])
+                    ->middleware(['permission:finngen.code-explorer.view', 'throttle:120,1']);
                 Route::get('/counts', [CodeExplorerController::class, 'counts'])
                     ->middleware(['permission:finngen.code-explorer.view', 'throttle:60,1']);
                 Route::get('/relationships', [CodeExplorerController::class, 'relationships'])

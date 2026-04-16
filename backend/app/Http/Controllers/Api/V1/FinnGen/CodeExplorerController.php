@@ -55,8 +55,63 @@ class CodeExplorerController extends Controller
                 refresh: $request->boolean('refresh'),
             );
         } catch (FinnGenDarkstarRejectedException $e) {
-            return $this->maybeEnrichSetupError($e, $sourceKey);
+            return $this->maybeEnrichCountsError($e, $sourceKey, $conceptId);
         }
+    }
+
+    /**
+     * Scoped concept search — returns only concepts that have observations in the
+     * given source's stratified_code_counts table. Powers ConceptSearchInput in the
+     * Code Explorer UI so researchers can't pick concepts that have no data.
+     */
+    public function concepts(Request $request): JsonResponse
+    {
+        $sourceKey = $this->requireSource($request);
+        $query = trim((string) $request->input('q', ''));
+        $limit = min(50, max(1, (int) $request->input('limit', 15)));
+
+        $source = $this->sourceBuilder->build($sourceKey, FinnGenSourceContextBuilder::ROLE_RO);
+        $resultsSchema = $source['schemas']['results'];
+        $vocabSchema = $source['schemas']['vocab'] ?? 'vocab';
+
+        // Guard against SQL injection — schema names come from app.source_daimons
+        // which is admin-controlled, but we quote defensively anyway.
+        if (! preg_match('/^[a-zA-Z0-9_]+$/', $resultsSchema) || ! preg_match('/^[a-zA-Z0-9_]+$/', $vocabSchema)) {
+            abort(422, 'invalid source schema');
+        }
+
+        $bindings = [];
+        $where = '';
+        if ($query !== '') {
+            $where = 'WHERE (c.concept_name ILIKE ? OR CAST(c.concept_id AS TEXT) = ?)';
+            $bindings = ['%'.$query.'%', $query];
+        }
+
+        $sql = sprintf(
+            'SELECT c.concept_id, c.concept_name, c.domain_id, c.vocabulary_id, c.concept_class_id,
+                    c.standard_concept, c.concept_code, obs.n AS observation_count
+             FROM (
+               SELECT scc.concept_id, SUM(scc.record_counts)::int AS n
+               FROM %s.stratified_code_counts scc
+               GROUP BY scc.concept_id
+             ) obs
+             JOIN %s.concept c ON c.concept_id = obs.concept_id
+             %s
+             ORDER BY obs.n DESC NULLS LAST, c.concept_name
+             LIMIT %d',
+            $resultsSchema,
+            $vocabSchema,
+            $where,
+            $limit,
+        );
+
+        $rows = DB::select($sql, $bindings);
+
+        return response()->json([
+            'source_key' => $sourceKey,
+            'query' => $query,
+            'items' => $rows,
+        ]);
     }
 
     public function relationships(Request $request): JsonResponse
@@ -200,18 +255,33 @@ class CodeExplorerController extends Controller
         return response()->json($result);
     }
 
-    private function maybeEnrichSetupError(FinnGenDarkstarRejectedException $e, string $sourceKey): JsonResponse
+    private function maybeEnrichCountsError(FinnGenDarkstarRejectedException $e, string $sourceKey, int $conceptId): JsonResponse
     {
         $detail = $e->darkstarError ?? [];
         $category = $detail['category'] ?? '';
         $message = $detail['message'] ?? '';
+        $messageStr = is_string($message) ? $message : '';
 
-        if ($category === 'DB_SCHEMA_MISMATCH' && is_string($message) && str_contains($message, 'stratified_code_counts')) {
+        // Setup not done — stratified_code_counts table doesn't exist.
+        if ($category === 'DB_SCHEMA_MISMATCH' && str_contains($messageStr, 'stratified_code_counts')) {
             return response()->json([
                 'error' => [
                     'code' => 'FINNGEN_SOURCE_NOT_INITIALIZED',
                     'message' => "Source '{$sourceKey}' needs one-time setup before code counts can be queried.",
                     'action' => ['type' => 'initialize_source', 'source_key' => $sourceKey],
+                    'darkstar_error' => $detail,
+                ],
+            ], 422);
+        }
+
+        // Concept is in vocabulary but has no observations in this source.
+        // ROMOPAPI::getCodeCounts throws "No family tree found for conceptId: N" in this case.
+        if (str_contains($messageStr, 'No family tree found for conceptId')) {
+            return response()->json([
+                'error' => [
+                    'code' => 'FINNGEN_CONCEPT_NOT_IN_SOURCE',
+                    'message' => "Concept {$conceptId} has no observations in source '{$sourceKey}'.",
+                    'action' => ['type' => 'pick_different_concept', 'source_key' => $sourceKey],
                     'darkstar_error' => $detail,
                 ],
             ], 422);

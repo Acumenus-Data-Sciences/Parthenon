@@ -10,11 +10,24 @@ export function CountsTab({ sourceKey, conceptId }: { sourceKey: string; concept
   const [groupBy, setGroupBy] = useState<"gender" | "age_decile">("gender");
   const { data, error, isLoading } = useCodeCounts(sourceKey, conceptId);
 
-  const errorBody = (error as AxiosError<{ error?: { code?: string; action?: { type: string; source_key: string } } }>)?.response?.data;
-  const needsSetup = errorBody?.error?.code === "FINNGEN_SOURCE_NOT_INITIALIZED";
+  const errorBody = (error as AxiosError<{ error?: { code?: string; message?: string; action?: { type: string; source_key: string } } }>)?.response?.data;
+  const errorCode = errorBody?.error?.code;
 
-  if (needsSetup) {
+  if (errorCode === "FINNGEN_SOURCE_NOT_INITIALIZED") {
     return <SourceReadinessBanner sourceKey={sourceKey} />;
+  }
+
+  if (errorCode === "FINNGEN_CONCEPT_NOT_IN_SOURCE") {
+    return (
+      <div className="rounded border border-amber-500/40 bg-amber-950/40 p-4 text-sm text-amber-100">
+        <div className="font-medium">No data for this concept in {sourceKey}</div>
+        <div className="mt-1 text-amber-200/80">
+          Concept {conceptId} is in the OMOP vocabulary but has no observations in this source's
+          stratified code counts. Try a different concept (the search box now scopes to
+          concepts that have data in {sourceKey}) or switch to a source that includes this code.
+        </div>
+      </div>
+    );
   }
 
   if (isLoading) return <div className="text-slate-400">Loading counts...</div>;

@@ -1,13 +1,23 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Search, Loader2 } from "lucide-react";
+import apiClient from "@/lib/api-client";
 import { searchConcepts } from "@/features/vocabulary/api/vocabularyApi";
 import type { Concept } from "@/features/vocabulary/types/vocabulary";
+
+type ScopedConcept = Concept & { observation_count?: number };
 
 interface ConceptSearchInputProps {
   value: string;
   onChange: (value: string) => void;
   paramType?: string;
   placeholder?: string;
+  /**
+   * Optional source_key — when provided, search is scoped to concepts that
+   * actually have observations in that source's stratified_code_counts table
+   * (via /api/v1/finngen/code-explorer/concepts). Without it, falls back to
+   * the global vocabulary search.
+   */
+  sourceKey?: string | null;
 }
 
 export function ConceptSearchInput({
@@ -15,20 +25,19 @@ export function ConceptSearchInput({
   onChange,
   paramType,
   placeholder,
+  sourceKey,
 }: ConceptSearchInputProps) {
   const [inputValue, setInputValue] = useState(value);
-  const [suggestions, setSuggestions] = useState<Concept[]>([]);
+  const [suggestions, setSuggestions] = useState<ScopedConcept[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Sync external value changes
   useEffect(() => {
     setInputValue(value);
   }, [value]);
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (
@@ -42,26 +51,38 @@ export function ConceptSearchInput({
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const doSearch = useCallback(async (query: string) => {
-    if (query.length < 2) {
-      setSuggestions([]);
-      return;
-    }
-    setIsSearching(true);
-    try {
-      const result = await searchConcepts({
-        q: query,
-        standard: true,
-        limit: 8,
-      });
-      setSuggestions(result.items);
-      setShowDropdown(result.items.length > 0);
-    } catch {
-      setSuggestions([]);
-    } finally {
-      setIsSearching(false);
-    }
-  }, []);
+  const doSearch = useCallback(
+    async (query: string) => {
+      if (query.length < 2) {
+        setSuggestions([]);
+        return;
+      }
+      setIsSearching(true);
+      try {
+        if (sourceKey) {
+          const { data } = await apiClient.get<{ items: ScopedConcept[] }>(
+            "/finngen/code-explorer/concepts",
+            { params: { source: sourceKey, q: query, limit: 15 } },
+          );
+          setSuggestions(data.items ?? []);
+          setShowDropdown((data.items ?? []).length > 0);
+        } else {
+          const result = await searchConcepts({
+            q: query,
+            standard: true,
+            limit: 8,
+          });
+          setSuggestions(result.items);
+          setShowDropdown(result.items.length > 0);
+        }
+      } catch {
+        setSuggestions([]);
+      } finally {
+        setIsSearching(false);
+      }
+    },
+    [sourceKey],
+  );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -226,6 +247,14 @@ export function ConceptSearchInput({
                   <>
                     <span>\u00b7</span>
                     <span>{concept.concept_code}</span>
+                  </>
+                )}
+                {typeof concept.observation_count === "number" && (
+                  <>
+                    <span>\u00b7</span>
+                    <span style={{ color: "var(--success)" }}>
+                      {concept.observation_count.toLocaleString()} obs
+                    </span>
                   </>
                 )}
               </div>
