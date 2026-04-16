@@ -85,10 +85,10 @@ suppressPackageStartupMessages({
     if (is.null(out$minCellCount)) out$minCellCount <- 5L
   }
   if (identical(module_key, "co2.codewas") || identical(module_key, "co2.time_codewas")) {
-    if (is.null(out$minCellCount)) out$minCellCount <- 5L
     if (is.null(out$analysisIds) || length(out$analysisIds) == 0) {
-      # FeatureExtraction standard covariate analysis IDs.
-      out$analysisIds <- c(101L, 141L, 1002L, 402L, 702L, 502L, 602L, 802L, 902L)
+      # CO2AnalysisModules allowed analysis IDs (subset of FeatureExtraction's
+      # built-in covariate set). Keep minimal — one per domain.
+      out$analysisIds <- c(101L, 141L, 201L, 301L, 401L, 501L, 601L, 701L, 801L)
     }
   }
 
