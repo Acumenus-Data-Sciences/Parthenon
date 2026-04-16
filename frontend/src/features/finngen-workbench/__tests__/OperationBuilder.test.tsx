@@ -18,11 +18,13 @@ function renderWithQuery(ui: ReactElement) {
 }
 
 describe("OperationBuilder", () => {
-  it("renders empty state with cohort input + op buttons", () => {
+  it("renders empty state with cohort + op buttons", () => {
     const onChange = vi.fn();
     renderWithQuery(<OperationBuilder tree={null} onChange={onChange} />);
     expect(screen.getByText(/Empty operation tree/i)).toBeDefined();
-    expect(screen.getByPlaceholderText("cohort id")).toBeDefined();
+    // Polish 1 — empty state shows a "+ cohort" button that opens the picker
+    // on click; raw number input was removed in favor of the typeahead.
+    expect(screen.getByText("cohort")).toBeDefined();
     expect(screen.getByText("UNION")).toBeDefined();
     expect(screen.getByText("INTERSECT")).toBeDefined();
     expect(screen.getByText("MINUS")).toBeDefined();
@@ -75,7 +77,18 @@ describe("OperationBuilder", () => {
   it("expression disclosure renders compiled string when valid", () => {
     const tree = makeOp("UNION", [makeCohort(1), makeCohort(2)]);
     renderWithQuery(<OperationBuilder tree={tree} onChange={vi.fn()} />);
+    // Polish 4 — the compiled string is now also shown inline above the
+    // disclosure (always-visible). After clicking "Show as expression", it
+    // appears in TWO places: the inline live preview AND the disclosure pane.
     fireEvent.click(screen.getByText(/Show as expression/i));
+    expect(screen.getAllByText("1 UNION 2").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("renders the live expression preview when a tree is present", () => {
+    const tree = makeOp("UNION", [makeCohort(1), makeCohort(2)]);
+    renderWithQuery(<OperationBuilder tree={tree} onChange={vi.fn()} />);
+    expect(screen.getByText(/Expression:/i)).toBeDefined();
+    // The live preview reads "1 UNION 2" before the disclosure is opened.
     expect(screen.getByText("1 UNION 2")).toBeDefined();
   });
 

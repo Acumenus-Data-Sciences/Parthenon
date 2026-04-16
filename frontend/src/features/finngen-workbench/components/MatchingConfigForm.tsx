@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Loader2, Plus, X } from "lucide-react";
 import type { MatchCohortPayload } from "../api";
+import { CohortPicker } from "./CohortPicker";
 
 interface MatchingConfigFormProps {
   sourceKey: string;
@@ -162,6 +163,30 @@ export function MatchingConfigForm({
 }
 
 function CohortInput({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  // cohortNames kept in props for backward-compat but unused — CohortPicker
+  // resolves names from the backend itself.
+  cohortNames?: Record<number, string>;
+}) {
+  // Reuse the typeahead picker so primary + comparators look identical.
+  const cid = parseInt(value, 10);
+  return (
+    <CohortPicker
+      value={Number.isFinite(cid) && cid > 0 ? cid : null}
+      onChange={(id) => onChange(id === null ? "" : String(id))}
+      compact
+    />
+  );
+}
+
+// Legacy raw input — preserved for tests/data-entry contexts that still use
+// the old number-only flow. Unused at runtime; kept here so the file diff is
+// minimal and the tests don't break their reach into the form.
+function _CohortInputLegacy({
   value,
   onChange,
   cohortNames,

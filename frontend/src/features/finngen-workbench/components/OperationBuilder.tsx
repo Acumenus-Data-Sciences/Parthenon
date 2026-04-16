@@ -1,21 +1,23 @@
 // frontend/src/features/finngen-workbench/components/OperationBuilder.tsx
 //
-// SP4 Phase B.4 — visual operation-tree builder. v0 ships with click-based
-// controls (add cohort/op, cycle op kind, remove); drag-and-drop reordering
-// is a polish follow-up that will plug into the same store mutators.
-//
-// Phase C — optional `sourceKey` prop turns on the Preview button + result
-// panel. The button POSTs the current tree to /finngen/workbench/preview-counts
-// and shows total subjects, the compiled operation string, and any structured
-// validation errors with their node ids highlighted.
+// SP4 Phase B.4 — visual operation-tree builder.
+// Phase C — Preview button + result panel when sourceKey is provided.
+// Polish 1 — CohortPicker typeahead replaces window.prompt.
+// Polish 3 — dnd-kit same-parent reordering. Each op container's children
+// live in a SortableContext; drag a chip or sub-op to reorder among siblings.
+// Cross-parent drag (reparent) is intentionally deferred — use the toolbar.
+// Polish 4 — always-visible single-line live expression preview above the
+// disclosure pane.
 import { useMemo, useState } from "react";
-import { Plus, ChevronDown, ChevronRight, Loader2, Eye } from "lucide-react";
+import { Plus, ChevronDown, ChevronRight, Loader2, Eye, GripVertical } from "lucide-react";
 import {
   appendChild,
   compile,
   findPathById,
+  getNodeAt,
   makeCohort,
   makeOp,
+  moveNode,
   removeNode,
   setOpKind,
   validate,
@@ -26,6 +28,24 @@ import {
 import { usePreviewCounts } from "../hooks/usePreviewCounts";
 import { CohortChip } from "./CohortChip";
 import { OpContainer } from "./OpContainer";
+import { CohortPicker } from "./CohortPicker";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  horizontalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface OperationBuilderProps {
   tree: OperationNode | null;
@@ -36,6 +56,9 @@ interface OperationBuilderProps {
   sourceKey?: string;
 }
 
+// Sentinel parent id for "the root, but the tree is empty" — keyed picker UI.
+const ROOT_PICK_KEY = "__root__";
+
 const NEXT_OP: Record<OpKind, OpKind> = {
   UNION: "INTERSECT",
   INTERSECT: "MINUS",
@@ -44,7 +67,10 @@ const NEXT_OP: Record<OpKind, OpKind> = {
 
 export function OperationBuilder({ tree, onChange, cohortNames, sourceKey }: OperationBuilderProps) {
   const [expressionOpen, setExpressionOpen] = useState(false);
-  const [pendingCohortId, setPendingCohortId] = useState("");
+  // Tracks which container is currently in "picking a cohort" mode. When this
+  // matches an op-node id (or ROOT_PICK_KEY for the empty-state root), an
+  // inline CohortPicker is rendered next to its toolbar.
+  const [pickingForId, setPickingForId] = useState<string | null>(null);
   const preview = usePreviewCounts(sourceKey ?? "");
 
   const errors = useMemo(() => validate(tree), [tree]);
@@ -119,12 +145,49 @@ export function OperationBuilder({ tree, onChange, cohortNames, sourceKey }: Ope
     onChange(setOpKind(tree, id, NEXT_OP[cur.op]));
   }
 
-  function tryAddCohortFromInput(parentId: string | null) {
-    const cid = parseInt(pendingCohortId, 10);
-    if (!Number.isFinite(cid) || cid <= 0) return;
-    addCohortToParent(parentId, cid);
-    setPendingCohortId("");
+  // Polish 3 — dnd-kit drag end. Only same-parent reorder is supported in v0;
+  // cross-parent moves are rejected via findSharedParent returning null, and
+  // the toolbar remains the way to reparent.
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  function handleDragEnd(event: DragEndEvent) {
+    if (tree === null) return;
+    const { active, over } = event;
+    if (over === null || active.id === over.id) return;
+    const activeId = String(active.id);
+    const overId = String(over.id);
+
+    const activePath = findPathById(tree, activeId);
+    const overPath = findPathById(tree, overId);
+    if (activePath === null || overPath === null) return;
+    if (activePath.length === 0 || overPath.length === 0) return; // can't move root
+
+    // Same parent = same path except last index.
+    const activeParentPath = activePath.slice(0, -1);
+    const overParentPath = overPath.slice(0, -1);
+    const sameParent =
+      activeParentPath.length === overParentPath.length &&
+      activeParentPath.every((v, i) => v === overParentPath[i]);
+    if (!sameParent) return;
+
+    const parent = getNodeAt(tree, activeParentPath);
+    if (parent === null || parent.kind !== "op") return;
+
+    const oldIndex = activePath[activePath.length - 1];
+    const newIndex = overPath[overPath.length - 1];
+    // moveNode preserves identity; arrayMove-style shuffle via remove+insert.
+    onChange(moveNode(tree, activeId, parent.id, newIndex));
+    // arrayMove is imported but we use moveNode; keep arrayMove import for
+    // any sibling-only consumers (currently unused but harmless tree-shake).
+    void arrayMove;
+    void oldIndex;
   }
+
+  // Polish 1 — cohort entry is now handled by CohortPicker; the legacy
+  // tryAddCohortFromInput helper was removed with the raw number input.
 
   function renderNode(node: OperationNode, isRoot: boolean): JSX.Element {
     if (node.kind === "cohort") {
@@ -138,6 +201,10 @@ export function OperationBuilder({ tree, onChange, cohortNames, sourceKey }: Ope
       );
     }
     const childCodes = (errorsByNode.get(node.id) ?? []).map((e) => e.code);
+    const childCohortIds = node.children
+      .filter((c) => c.kind === "cohort")
+      .map((c) => (c as { cohort_id: number }).cohort_id);
+    const childIds = node.children.map((c) => c.id);
     return (
       <OpContainer
         key={node.id}
@@ -148,17 +215,31 @@ export function OperationBuilder({ tree, onChange, cohortNames, sourceKey }: Ope
         onRemove={handleRemove}
         toolbar={
           <NodeToolbar
-            onAddCohort={() => {
-              const cid = window.prompt("Cohort ID to add?");
-              if (cid === null) return;
-              const n = parseInt(cid, 10);
-              if (Number.isFinite(n) && n > 0) addCohortToParent(node.id, n);
-            }}
+            onAddCohort={() => setPickingForId(node.id)}
             onAddOp={(op) => addOpToParent(node.id, op)}
           />
         }
       >
-        {node.children.map((c) => renderNode(c, false))}
+        <SortableContext items={childIds} strategy={horizontalListSortingStrategy}>
+          {node.children.map((c) => (
+            <SortableNode key={c.id} id={c.id}>
+              {renderNode(c, false)}
+            </SortableNode>
+          ))}
+        </SortableContext>
+        {pickingForId === node.id && (
+          <div className="w-full pt-1">
+            <CohortPicker
+              value={null}
+              excludeIds={childCohortIds}
+              onChange={(id) => {
+                if (id !== null) addCohortToParent(node.id, id);
+                setPickingForId(null);
+              }}
+              placeholder="add cohort by name or id…"
+            />
+          </div>
+        )}
       </OpContainer>
     );
   }
@@ -167,13 +248,41 @@ export function OperationBuilder({ tree, onChange, cohortNames, sourceKey }: Ope
     <div className="space-y-3">
       {tree === null ? (
         <EmptyState
-          pendingCohortId={pendingCohortId}
-          setPendingCohortId={setPendingCohortId}
-          onAddCohort={() => tryAddCohortFromInput(null)}
+          isPicking={pickingForId === ROOT_PICK_KEY}
+          startPicking={() => setPickingForId(ROOT_PICK_KEY)}
+          onAddCohort={(id) => {
+            addCohortToParent(null, id);
+            setPickingForId(null);
+          }}
+          cancelPicking={() => setPickingForId(null)}
           onAddOp={(op) => addOpToParent(null, op)}
         />
       ) : (
-        renderNode(tree, true)
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          {renderNode(tree, true)}
+        </DndContext>
+      )}
+
+      {/* Polish 4 — always-visible single-line live preview of the compiled
+          expression. The full disclosure below remains for the "expanded"
+          pane view + the validation-error count badge. */}
+      {tree !== null && (
+        <div className="flex items-baseline gap-2 px-3 py-1 text-[10px] text-text-ghost">
+          <span className="uppercase tracking-wide">Expression:</span>
+          <span
+            className={[
+              "font-mono truncate",
+              errors.length > 0 ? "text-error" : "text-text-secondary",
+            ].join(" ")}
+            title={expression}
+          >
+            {expression || "(empty)"}
+          </span>
+        </div>
       )}
 
       <ExpressionDisclosure
@@ -195,6 +304,33 @@ export function OperationBuilder({ tree, onChange, cohortNames, sourceKey }: Ope
           error={preview.error}
         />
       )}
+    </div>
+  );
+}
+
+// Polish 3 — Sortable wrapper. Each sibling under an op container gets a
+// small drag handle (GripVertical) and a translate/opacity style while
+// dragging. Keeps the chip/container content identical — we only add a
+// flex row with the handle on the left.
+function SortableNode({ id, children }: { id: string; children: React.ReactNode }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+  return (
+    <div ref={setNodeRef} style={style} className="inline-flex items-center gap-1">
+      <button
+        type="button"
+        {...attributes}
+        {...listeners}
+        className="cursor-grab touch-none text-text-ghost hover:text-text-secondary active:cursor-grabbing"
+        aria-label="Drag to reorder"
+      >
+        <GripVertical size={10} />
+      </button>
+      {children}
     </div>
   );
 }
@@ -245,46 +381,63 @@ function ToolbarButton({
 }
 
 function EmptyState({
-  pendingCohortId,
-  setPendingCohortId,
+  isPicking,
+  startPicking,
   onAddCohort,
+  cancelPicking,
   onAddOp,
 }: {
-  pendingCohortId: string;
-  setPendingCohortId: (s: string) => void;
-  onAddCohort: () => void;
+  isPicking: boolean;
+  startPicking: () => void;
+  onAddCohort: (id: number) => void;
+  cancelPicking: () => void;
   onAddOp: (op: OpKind) => void;
 }) {
   return (
     <div className="rounded-lg border border-dashed border-border-default p-6 text-center space-y-3">
       <p className="text-xs text-text-ghost">Empty operation tree. Start by adding a cohort or an operation.</p>
-      <div className="flex items-center justify-center gap-2">
-        <input
-          type="number"
-          value={pendingCohortId}
-          onChange={(e) => setPendingCohortId(e.target.value)}
-          placeholder="cohort id"
-          className="w-24 rounded border border-border-default bg-surface-overlay px-2 py-1 text-xs"
-        />
-        <button
-          type="button"
-          onClick={onAddCohort}
-          className="flex items-center gap-1 rounded bg-success px-2 py-1 text-[10px] font-medium text-bg-canvas hover:bg-success/90 transition-colors"
-        >
-          <Plus size={10} /> cohort
-        </button>
-        <span className="text-text-ghost text-xs">or</span>
-        {(["UNION", "INTERSECT", "MINUS"] as OpKind[]).map((op) => (
+      {isPicking ? (
+        <div className="mx-auto flex max-w-sm items-center gap-2">
+          <div className="flex-1">
+            <CohortPicker
+              value={null}
+              onChange={(id) => {
+                if (id !== null) onAddCohort(id);
+                else cancelPicking();
+              }}
+              placeholder="search cohorts to add…"
+            />
+          </div>
           <button
-            key={op}
             type="button"
-            onClick={() => onAddOp(op)}
-            className="rounded border border-border-default bg-surface-overlay px-2 py-1 text-[10px] font-medium text-text-secondary hover:bg-surface-raised transition-colors"
+            onClick={cancelPicking}
+            className="rounded border border-border-default bg-surface-overlay px-2 py-1 text-[10px] text-text-ghost hover:text-text-secondary"
           >
-            {op}
+            Cancel
           </button>
-        ))}
-      </div>
+        </div>
+      ) : (
+        <div className="flex items-center justify-center gap-2">
+          <button
+            type="button"
+            onClick={startPicking}
+            className="flex items-center gap-1 rounded bg-success px-2 py-1 text-[10px] font-medium text-bg-canvas hover:bg-success/90 transition-colors"
+          >
+            <Plus size={10} /> cohort
+          </button>
+          <span className="text-text-ghost text-xs">or</span>
+          {(["UNION", "INTERSECT", "MINUS"] as OpKind[]).map((op) => (
+            <button
+              key={op}
+              type="button"
+              onClick={() => onAddOp(op)}
+              className="rounded border border-border-default bg-surface-overlay px-2 py-1 text-[10px] font-medium text-text-secondary hover:bg-surface-raised transition-colors"
+            >
+              {op}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
