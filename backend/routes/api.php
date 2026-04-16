@@ -63,6 +63,7 @@ use App\Http\Controllers\Api\V1\FinnGen\ArtifactController;
 use App\Http\Controllers\Api\V1\FinnGen\CodeExplorerController;
 use App\Http\Controllers\Api\V1\FinnGen\RunController;
 use App\Http\Controllers\Api\V1\FinnGen\SyncReadController;
+use App\Http\Controllers\Api\V1\FinnGen\WorkbenchSessionController;
 use App\Http\Controllers\Api\V1\GenomicEvidenceController;
 use App\Http\Controllers\Api\V1\GenomicsController;
 use App\Http\Controllers\Api\V1\GisAirQualityController;
@@ -1037,6 +1038,20 @@ Route::prefix('v1')->group(function () {
                     ->middleware(['permission:finngen.code-explorer.view', 'finngen.idempotency', 'throttle:10,1']);
                 Route::post('/initialize-source', [CodeExplorerController::class, 'initializeSource'])
                     ->middleware(['permission:finngen.code-explorer.setup', 'finngen.idempotency', 'throttle:10,1']);
+            });
+
+            // SP4 Phase A — Cohort Workbench session storage
+            Route::prefix('workbench')->group(function () {
+                Route::get('/sessions', [WorkbenchSessionController::class, 'index'])
+                    ->middleware('permission:finngen.workbench.use');
+                Route::post('/sessions', [WorkbenchSessionController::class, 'store'])
+                    ->middleware(['permission:finngen.workbench.use', 'throttle:60,1']);
+                Route::get('/sessions/{session}', [WorkbenchSessionController::class, 'show'])
+                    ->middleware('permission:finngen.workbench.use');
+                Route::patch('/sessions/{session}', [WorkbenchSessionController::class, 'update'])
+                    ->middleware(['permission:finngen.workbench.use', 'throttle:120,1']);
+                Route::delete('/sessions/{session}', [WorkbenchSessionController::class, 'destroy'])
+                    ->middleware('permission:finngen.workbench.use');
             });
         });
 

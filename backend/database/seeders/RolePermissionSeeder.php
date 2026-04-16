@@ -86,6 +86,9 @@ class RolePermissionSeeder extends Seeder
 
         // ── FinnGen Code Explorer ────────────────────────────────────────
         'finngen.code-explorer' => ['view', 'setup'],
+
+        // ── FinnGen Cohort Workbench (SP4) ───────────────────────────────
+        'finngen.workbench' => ['use'],
     ];
 
     /**
@@ -115,6 +118,7 @@ class RolePermissionSeeder extends Seeder
             'genomics.view', 'genomics.upload', 'genomics.delete', 'genomics.run',
             'wiki.view', 'wiki.ingest', 'wiki.lint', 'wiki.manage',
             'finngen.code-explorer.view', 'finngen.code-explorer.setup',
+            'finngen.workbench.use',
         ],
 
         // Clinical/epidemiological researcher — primary user persona.
@@ -137,6 +141,7 @@ class RolePermissionSeeder extends Seeder
             'genomics.view', 'genomics.upload', 'genomics.run',
             'wiki.view', 'wiki.ingest', 'wiki.lint',
             'finngen.code-explorer.view',
+            'finngen.workbench.use',
         ],
 
         // Responsible for data pipelines and CDM quality.
