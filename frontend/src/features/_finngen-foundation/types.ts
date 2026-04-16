@@ -1,7 +1,7 @@
 // Re-exports + convenience types for FinnGen SP1 foundation.
-// The paths + operations come from api.generated.ts (auto-generated).
-
-import type { components, paths } from "@/types/api.generated";
+// Previously imported paths/components from api.generated.ts (auto-generated,
+// gitignored). Removed because CI's frontend job does not regenerate that
+// file and the only usage was a placeholder _Touch type below.
 
 /**
  * The top-level FinnGenRun schema, if exported by the Laravel OpenAPI.
@@ -102,5 +102,3 @@ export type FinnGenRunsListResponse = {
   };
 };
 
-// Unused-import hint for the bundler
-export type _Touch = components | paths;
