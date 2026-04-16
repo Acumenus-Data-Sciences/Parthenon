@@ -67,6 +67,9 @@ def test_web_installer_is_community_mvp_only():
     assert "frontier_api_key" not in app_js
     assert "install_ollama" not in app_js
     assert 'edition: "Community Edition"' in app_js
+    assert 'enable_hecate: true' in app_js
+    assert 'enable_qdrant: true' in app_js
+    assert 'datasets: ["eunomia", "phenotype-library"]' in app_js
 
 
 def test_install_landing_pages_match_release_bootstrap_regime():

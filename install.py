@@ -73,7 +73,7 @@ def _parse_args() -> argparse.Namespace:
         "--community",
         action="store_true",
         default=False,
-        help="Community Edition fast-boot: minimal service set, skip enterprise sidecars and demo data, go straight to login page",
+        help="Community Edition MVP: quick-start datasets, Solr, and Hecate/Qdrant without enterprise sidecars",
     )
     parser.add_argument(
         "--upgrade",
@@ -103,6 +103,7 @@ def main() -> None:
     # Deferred import — deps now guaranteed to exist
     import json
     from installer.cli import run
+    from installer import config as installer_config
 
     defaults = None
     if args.defaults_file:
@@ -119,32 +120,7 @@ def main() -> None:
         sys.exit(2)
 
     if args.community:
-        community_defaults = {
-            "experience": "Beginner",
-            "edition": "Community Edition",
-            "enterprise_key": "",
-            "umls_api_key": "",
-            "vocab_zip_path": None,
-            "cdm_dialect": "PostgreSQL",
-            "app_url": "http://localhost",
-            "env": "local",
-            "timezone": "UTC",
-            "include_eunomia": False,
-            "ollama_url": "",
-            "modules": ["research"],
-            "enable_solr": False,
-            "enable_study_agent": False,
-            "enable_blackrabbit": False,
-            "enable_fhir_to_cdm": False,
-            "enable_hecate": False,
-            "enable_qdrant": False,
-            "enable_orthanc": False,
-            "enable_livekit": False,
-            "datasets": [],
-        }
-        if defaults:
-            community_defaults.update(defaults)
-        defaults = community_defaults
+        defaults = installer_config.build_community_mvp_defaults(defaults)
         args.non_interactive = True
 
     try:

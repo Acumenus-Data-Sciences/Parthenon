@@ -51,6 +51,7 @@ and display credentials in its summary. Do not change the format.
 from __future__ import annotations
 
 import json
+import os
 import secrets
 import string
 from pathlib import Path
@@ -79,6 +80,8 @@ CDM_DIALECT_CHOICES = [
 ]
 ENV_CHOICES = ["local", "production"]
 MODULE_CHOICES = ["research", "commons", "ai_knowledge", "data_pipeline", "infrastructure"]
+COMMUNITY_MVP_MODULES = ["research", "ai_knowledge", "infrastructure"]
+COMMUNITY_MVP_DATASETS = ["eunomia", "phenotype-library"]
 
 
 def _generate_password(length: int = 24) -> str:
@@ -239,6 +242,18 @@ def build_config_defaults(overrides: dict[str, Any] | None = None) -> dict[str, 
         "orthanc_user": (seed.get("orthanc_user") or "parthenon").strip(),
         "orthanc_password": seed.get("orthanc_password") or "",
         "enable_solr": enable_infra and _coerce_bool(seed.get("enable_solr"), default=True),
+        "hecate_bootstrap_url": (
+            seed.get("hecate_bootstrap_url")
+            or os.getenv("PARTHENON_HECATE_BOOTSTRAP_URL", "")
+        ).strip(),
+        "hecate_bootstrap_archive": (
+            seed.get("hecate_bootstrap_archive")
+            or os.getenv("PARTHENON_HECATE_BOOTSTRAP_ARCHIVE", "")
+        ).strip(),
+        "hecate_bootstrap_sha256": (
+            seed.get("hecate_bootstrap_sha256")
+            or os.getenv("PARTHENON_HECATE_BOOTSTRAP_SHA256", "")
+        ).strip(),
         "nginx_port": _resolve_port(seed, "nginx_port", default=8082, used=used_ports, fixed=True),
         "postgres_port": _resolve_port(seed, "postgres_port", default=5480, used=used_ports),
         "redis_port": _resolve_port(seed, "redis_port", default=6381, used=used_ports),
@@ -289,6 +304,36 @@ def build_config_defaults(overrides: dict[str, Any] | None = None) -> dict[str, 
         cfg["datasets"] = seed["datasets"]
 
     return cfg
+
+
+def build_community_mvp_defaults(overrides: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Return defaults for the Community Edition MVP installer path."""
+    seed: dict[str, Any] = {
+        "experience": "Beginner",
+        "edition": "Community Edition",
+        "enterprise_key": "",
+        "umls_api_key": "",
+        "vocab_zip_path": None,
+        "cdm_dialect": "PostgreSQL",
+        "app_url": "http://localhost",
+        "env": "local",
+        "timezone": "UTC",
+        "include_eunomia": True,
+        "ollama_url": "",
+        "modules": list(COMMUNITY_MVP_MODULES),
+        "enable_solr": True,
+        "enable_study_agent": False,
+        "enable_blackrabbit": False,
+        "enable_fhir_to_cdm": False,
+        "enable_hecate": True,
+        "enable_qdrant": True,
+        "enable_orthanc": False,
+        "enable_livekit": False,
+        "datasets": list(COMMUNITY_MVP_DATASETS),
+    }
+    if overrides:
+        seed.update(overrides)
+    return build_config_defaults(seed)
 
 
 def validate_config(cfg: dict[str, Any]) -> dict[str, Any]:
@@ -763,6 +808,8 @@ def build_root_env(cfg: dict[str, Any]) -> str:
         f"REDIS_PORT={cfg['redis_port']}",
         f"AI_PORT={cfg['ai_port']}",
         f"JUPYTER_PORT={cfg.get('jupyter_port', 8888)}",
+        f"JUPYTER_IMAGE=ghcr.io/sudoshi/parthenon-jupyter-user:latest",
+        f"JUPYTER_PULL_POLICY=ifnotpresent",
         f"R_PORT={cfg.get('r_port', 8787)}",
     ]
 
@@ -816,6 +863,7 @@ def build_root_env(cfg: dict[str, Any]) -> str:
         lines.append("HECATE_PG_DBNAME=parthenon")
     if cfg.get("enable_qdrant"):
         lines.append("QDRANT_PORT=6333")
+        lines.append("QDRANT_DATA_DIR=./.parthenon-data/qdrant")
     if cfg.get("enable_orthanc"):
         lines.append(f"ORTHANC_PORT={cfg.get('orthanc_port', 8042)}")
         lines.append(f"ORTHANC_USER={cfg.get('orthanc_user', 'parthenon')}")

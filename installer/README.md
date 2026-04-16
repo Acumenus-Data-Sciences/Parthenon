@@ -50,6 +50,27 @@ Useful `defaults-file` fields for headless installs:
 - `umls_api_key`
 - `vocab_zip_path`
 
+Community MVP install:
+
+```bash
+python3 install.py --community
+```
+
+The Community MVP path enables Eunomia, the OHDSI Phenotype Library, Solr,
+Hecate, and Qdrant. Hecate requires both `output/hecate-bootstrap` files and
+prepared Qdrant storage. On a machine where Hecate already works, package those
+assets for release:
+
+```bash
+scripts/package-hecate-bootstrap.py
+```
+
+Installers can consume that bundle with either:
+
+- `PARTHENON_HECATE_BOOTSTRAP_URL`
+- `PARTHENON_HECATE_BOOTSTRAP_ARCHIVE`
+- `PARTHENON_HECATE_BOOTSTRAP_SHA256` for optional checksum verification
+
 Build desktop artifacts with PyInstaller:
 
 ```bash

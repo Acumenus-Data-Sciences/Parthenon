@@ -415,6 +415,11 @@ fn build_defaults(request: &InstallRequest) -> serde_json::Value {
         "data_pipeline",
         "infrastructure"
     ]);
+    let datasets = if request.include_eunomia {
+        serde_json::json!(["eunomia", "phenotype-library"])
+    } else {
+        serde_json::json!([])
+    };
     serde_json::json!({
         "experience": "Beginner",
         "edition": "Community Edition",
@@ -429,6 +434,7 @@ fn build_defaults(request: &InstallRequest) -> serde_json::Value {
         "admin_password": request.admin_password.trim(),
         "timezone": normalized_or(&request.timezone, "UTC"),
         "include_eunomia": request.include_eunomia,
+        "datasets": datasets,
         "ollama_url": request.ollama_url.trim(),
         "modules": modules,
         "enable_solr": request.enable_solr,
@@ -677,7 +683,7 @@ mod tests {
             enable_study_agent: true,
             enable_blackrabbit: true,
             enable_fhir_to_cdm: true,
-            enable_hecate: false,
+            enable_hecate: true,
             enable_orthanc: false,
             ollama_url: "http://host.docker.internal:11434".to_string(),
             dry_run: true,
@@ -695,6 +701,9 @@ mod tests {
         assert_eq!(defaults["enable_superset"], false);
         assert_eq!(defaults["enable_portainer"], false);
         assert_eq!(defaults["enable_blackrabbit"], true);
+        assert_eq!(defaults["enable_hecate"], true);
+        assert_eq!(defaults["enable_qdrant"], true);
+        assert_eq!(defaults["datasets"], serde_json::json!(["eunomia", "phenotype-library"]));
     }
 
     #[test]

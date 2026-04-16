@@ -140,7 +140,7 @@ class InstallerBackend:
                 "Linux docker group",
             }
         ]
-        workspace = [c for c in checks if c.name in {"Disk space ≥ 5 GB", "Repo complete", "Existing install", "PHP vendor dir"}]
+        workspace = [c for c in checks if c.name in {"Disk space ≥ 5 GB", "Repo complete", "Existing install", "PHP vendor dir", "Hecate bootstrap assets"}]
         ports = [c for c in checks if c.name.startswith("Port ")]
         failures = [c for c in checks if c.status == "fail"]
         warnings = [c for c in checks if c.status == "warn"]

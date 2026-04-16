@@ -14,7 +14,7 @@ from typing import Any
 from rich.console import Console
 from rich.panel import Panel
 
-from . import preflight, config, docker_ops, bootstrap, utils
+from . import preflight, config, docker_ops, bootstrap, hecate_bootstrap, utils
 
 console = Console()
 STATE_FILE = utils.REPO_ROOT / ".install-state.json"
@@ -365,7 +365,7 @@ def run(*, non_interactive: bool = False, pre_seed: dict[str, Any] | None = None
     # Phase 1 — Preflight
     # -----------------------------------------------------------------------
     if "preflight" not in completed:
-        preflight.run(interactive=not non_interactive)
+        preflight.run(interactive=not non_interactive, cfg=cfg or None)
         completed.append("preflight")
         _save_state({"completed_phases": completed, "config": cfg})
 
@@ -380,6 +380,14 @@ def run(*, non_interactive: bool = False, pre_seed: dict[str, Any] | None = None
     else:
         console.rule("[bold]Phase 2 — Configuration[/bold]")
         console.print("[dim]Resuming — using previously collected config.[/dim]\n")
+
+    # -----------------------------------------------------------------------
+    # Hecate bootstrap assets (before Docker mounts them)
+    # -----------------------------------------------------------------------
+    if "hecate-assets" not in completed:
+        hecate_bootstrap.ensure(cfg, console=console)
+        completed.append("hecate-assets")
+        _save_state({"completed_phases": completed, "config": cfg})
 
     # -----------------------------------------------------------------------
     # Phase 3 — Docker

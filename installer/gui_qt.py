@@ -712,7 +712,7 @@ if QT_IMPORT_ERROR is None:
             for check in checks:
                 if check.name.startswith("Port "):
                     ports.append(check)
-                elif check.name in {"Disk space ≥ 5 GB", "Repo complete", "Existing install", "PHP vendor dir"}:
+                elif check.name in {"Disk space ≥ 5 GB", "Repo complete", "Existing install", "PHP vendor dir", "Hecate bootstrap assets"}:
                     workspace.append(check)
                 else:
                     runtime.append(check)

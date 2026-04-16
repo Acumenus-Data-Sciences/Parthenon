@@ -11,15 +11,17 @@ from typing import NamedTuple
 from rich.console import Console
 from rich.table import Table
 
-from . import config, utils
+from . import config, hecate_bootstrap, utils
 
 console = Console()
 
 MIN_DISK_GB = 5.0
-BASE_PORT_FIELDS = [
+CORE_PORT_FIELDS = [
     ("nginx_port", "NGINX"),
     ("postgres_port", "Postgres"),
     ("redis_port", "Redis"),
+]
+FULL_ADDITION_PORT_FIELDS = [
     ("ai_port", "AI"),
     ("jupyter_port", "JupyterHub"),
     ("r_port", "Darkstar"),
@@ -34,7 +36,6 @@ OPTIONAL_PORTS = [
     ("enable_hecate", 6334, "Qdrant gRPC"),
     ("enable_orthanc", "orthanc_port", "Orthanc"),
 ]
-
 
 class CheckResult(NamedTuple):
     name: str
@@ -125,8 +126,12 @@ def required_ports(cfg: dict[str, object] | None = None) -> list[tuple[int, str]
         seen.add(port)
         ports.append((port, label))
 
-    for key, label in BASE_PORT_FIELDS:
+    for key, label in CORE_PORT_FIELDS:
         add(int(normalized[key]), label)
+
+    if normalized.get("edition") != "Community Edition":
+        for key, label in FULL_ADDITION_PORT_FIELDS:
+            add(int(normalized[key]), label)
 
     for flag, port_or_field, label in OPTIONAL_PORTS:
         if not normalized.get(flag):
@@ -147,6 +152,29 @@ def _check_ports(cfg: dict[str, object] | None = None) -> list[CheckResult]:
         else:
             results.append(CheckResult(f"Port {port} free", "fail", f"{label} host port {port} is in use — stop the process using it or change the mapped port"))
     return results
+
+
+def _check_hecate_bootstrap_assets(cfg: dict[str, object] | None = None) -> CheckResult | None:
+    normalized = config.build_config_defaults(cfg)
+    if not normalized.get("enable_hecate"):
+        return None
+
+    status = hecate_bootstrap.inspect(normalized)
+    if status.ready:
+        return CheckResult("Hecate bootstrap assets", "ok", status.source_detail)
+    if status.source_available:
+        return CheckResult(
+            "Hecate bootstrap assets",
+            "warn",
+            "missing "
+            + ", ".join(status.missing)
+            + f" — {status.source_detail} before Docker starts",
+        )
+    return CheckResult(
+        "Hecate bootstrap assets",
+        "fail",
+        "missing " + ", ".join(status.missing) + f" — {status.source_detail}",
+    )
 
 
 def _check_disk() -> CheckResult:
@@ -194,6 +222,9 @@ def run_checks(cfg: dict[str, object] | None = None) -> list[CheckResult]:
     checks.append(_check_daemon())
     checks.append(_check_docker_group())
     checks.extend(_check_ports(cfg))
+    hecate_assets = _check_hecate_bootstrap_assets(cfg)
+    if hecate_assets is not None:
+        checks.append(hecate_assets)
     checks.append(_check_disk())
     checks.append(_check_repo())
     checks.append(_check_existing_install())

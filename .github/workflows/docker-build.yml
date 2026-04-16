@@ -1,7 +1,7 @@
 # Build and push Docker images to GitHub Container Registry (GHCR)
 #
 # Triggers:
-#   - Push to main (builds all images whose Dockerfiles changed)
+#   - Push to main (builds all images whose Docker inputs changed)
 #   - Manual dispatch (builds all images or a specific one)
 #
 # Images are tagged with: latest, sha-<short>, and date-based tags.
@@ -14,7 +14,7 @@ on:
     branches: [main]
     paths:
       - 'docker/**'
-      - 'morpheus-ingest/Dockerfile'
+      - 'blackrabbit/**'
       - '.github/workflows/docker-build.yml'
       # Dependency files — rebuild base images when deps change
       - 'backend/composer.json'
@@ -38,13 +38,12 @@ on:
           - node
           - postgres
           - python-ai
-          - morpheus-ingest
           - study-agent
           - jupyterhub
           - jupyter-user
           - darkstar
           - hecate
-          - whiterabbit
+          - blackrabbit
           - fhir-to-cdm
           - ohif-build
 
@@ -67,9 +66,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
-      - name: Detect changed Dockerfiles
+      - name: Detect changed Docker inputs
         id: set-matrix
         run: |
           # If manual dispatch with specific image, build just that one
@@ -79,54 +78,99 @@ jobs:
             exit 0
           fi
 
-          # For push events, check which Dockerfiles changed; for dispatch "all", build everything
+          # For push events, check which Docker inputs changed; for dispatch "all", build everything
           IMAGES='[]'
 
-          declare -A DOCKER_PATHS=(
+          IMAGE_NAMES=(
+            php
+            node
+            postgres
+            python-ai
+            study-agent
+            jupyterhub
+            jupyter-user
+            darkstar
+            hecate
+            blackrabbit
+            fhir-to-cdm
+            ohif-build
+          )
+
+          declare -A WATCH_PATHS=(
             [php]="docker/php"
             [node]="docker/node"
             [postgres]="docker/postgres"
             [python-ai]="docker/python"
-            [morpheus-ingest]="morpheus-ingest"
             [study-agent]="docker/study-agent"
             [jupyterhub]="docker/jupyterhub"
             [jupyter-user]="docker/jupyter-user"
             [darkstar]="docker/r"
             [hecate]="docker/hecate"
-            [whiterabbit]="docker/whiterabbit"
+            [blackrabbit]="docker/blackrabbit blackrabbit"
             [fhir-to-cdm]="docker/fhir-to-cdm"
             [ohif-build]="docker/ohif"
           )
 
+          add_image() {
+            local image="$1"
+            IMAGES=$(echo "$IMAGES" | jq -c --arg n "$image" 'if any(.name == $n) then . else . + [{name: $n}] end')
+          }
+
+          path_changed() {
+            local candidate watch
+            for watch in "$@"; do
+              while IFS= read -r candidate; do
+                [[ -z "$candidate" ]] && continue
+                if [[ "$candidate" == "$watch" || "$candidate" == "$watch"/* ]]; then
+                  return 0
+                fi
+              done <<< "$CHANGED"
+            done
+            return 1
+          }
+
           if [[ "${{ github.event_name }}" == "workflow_dispatch" || "${{ github.event_name }}" == "schedule" ]]; then
             # Build all images on manual dispatch or weekly schedule
-            for name in "${!DOCKER_PATHS[@]}"; do
-              IMAGES=$(echo "$IMAGES" | jq -c --arg n "$name" '. + [{name: $n}]')
+            for name in "${IMAGE_NAMES[@]}"; do
+              add_image "$name"
             done
           else
-            # Only build images whose Dockerfiles or dependency files changed
-            CHANGED=$(git diff --name-only HEAD~1 HEAD)
-            for name in "${!DOCKER_PATHS[@]}"; do
-              path="${DOCKER_PATHS[$name]}"
-              if echo "$CHANGED" | grep -q "^${path}/"; then
-                IMAGES=$(echo "$IMAGES" | jq -c --arg n "$name" '. + [{name: $n}]')
-              fi
-            done
+            # Only build images whose Dockerfiles, service code, or dependency files changed.
+            BEFORE="${{ github.event.before }}"
+            AFTER="${{ github.sha }}"
+            if [[ -z "$BEFORE" || "$BEFORE" =~ ^0+$ ]] || ! git cat-file -e "${BEFORE}^{commit}" 2>/dev/null; then
+              CHANGED=$(git diff --name-only "${AFTER}^" "$AFTER")
+            else
+              CHANGED=$(git diff --name-only "$BEFORE" "$AFTER")
+            fi
 
-            # Dependency file changes trigger specific image rebuilds
-            if echo "$CHANGED" | grep -q "^backend/composer"; then
-              IMAGES=$(echo "$IMAGES" | jq -c 'if any(.name == "php") then . else . + [{name: "php"}] end')
-            fi
-            if echo "$CHANGED" | grep -q "^frontend/package"; then
-              IMAGES=$(echo "$IMAGES" | jq -c 'if any(.name == "node") then . else . + [{name: "node"}] end')
-            fi
-            if echo "$CHANGED" | grep -q "^ai/requirements"; then
-              IMAGES=$(echo "$IMAGES" | jq -c 'if any(.name == "python-ai") then . else . + [{name: "python-ai"}] end')
+            if path_changed ".github/workflows/docker-build.yml"; then
+              for name in "${IMAGE_NAMES[@]}"; do
+                add_image "$name"
+              done
+            else
+              for name in "${IMAGE_NAMES[@]}"; do
+                read -r -a paths <<< "${WATCH_PATHS[$name]}"
+                if path_changed "${paths[@]}"; then
+                  add_image "$name"
+                fi
+              done
+
+              # Dependency file changes trigger specific image rebuilds.
+              if path_changed "backend/composer.json" "backend/composer.lock"; then
+                add_image "php"
+              fi
+              if path_changed "frontend/package.json" "frontend/package-lock.json"; then
+                add_image "node"
+              fi
+              if path_changed "ai/requirements.txt" "ai/requirements-dev.txt"; then
+                add_image "python-ai"
+              fi
             fi
           fi
 
           if [[ $(echo "$IMAGES" | jq -r length) -eq 0 ]]; then
-            echo "No Dockerfiles changed — skipping builds"
+            echo "No Docker inputs changed — skipping builds"
             echo "matrix={\"include\":[]}" >> "$GITHUB_OUTPUT"
           else
             MATRIX=$(echo "$IMAGES" | jq -c '{include: .}')
@@ -162,17 +206,25 @@ jobs:
             node)             DOCKERFILE="docker/node/Dockerfile";          CONTEXT="." ;;
             postgres)         DOCKERFILE="docker/postgres/Dockerfile";      CONTEXT="." ;;
             python-ai)        DOCKERFILE="docker/python/Dockerfile";        CONTEXT="." ;;
-            morpheus-ingest)  DOCKERFILE="./morpheus-ingest/Dockerfile";     CONTEXT="./morpheus-ingest" ;;
             study-agent)      DOCKERFILE="docker/study-agent/Dockerfile";   CONTEXT="." ;;
             jupyterhub)       DOCKERFILE="docker/jupyterhub/Dockerfile";    CONTEXT="." ;;
             jupyter-user)     DOCKERFILE="docker/jupyter-user/Dockerfile";  CONTEXT="." ;;
             darkstar)         DOCKERFILE="docker/r/Dockerfile";             CONTEXT="." ;;
             hecate)           DOCKERFILE="docker/hecate/Dockerfile";        CONTEXT="." ;;
-            whiterabbit)      DOCKERFILE="docker/whiterabbit/Dockerfile";   CONTEXT="." ;;
+            blackrabbit)      DOCKERFILE="docker/blackrabbit/Dockerfile";   CONTEXT="." ;;
             fhir-to-cdm)      DOCKERFILE="docker/fhir-to-cdm/Dockerfile";  CONTEXT="." ;;
             ohif-build)       DOCKERFILE="./docker/ohif/Dockerfile";        CONTEXT="./docker/ohif" ;;
             *) echo "Unknown image: $NAME"; exit 1 ;;
           esac
+
+          if [[ ! -f "$DOCKERFILE" ]]; then
+            echo "::error::Dockerfile not found for $NAME: $DOCKERFILE"
+            exit 1
+          fi
+          if [[ ! -d "$CONTEXT" ]]; then
+            echo "::error::Docker build context not found for $NAME: $CONTEXT"
+            exit 1
+          fi
 
           echo "dockerfile=$DOCKERFILE" >> "$GITHUB_OUTPUT"
           echo "context=$CONTEXT" >> "$GITHUB_OUTPUT"

@@ -38,8 +38,11 @@ c.JupyterHub.tornado_settings = {
 from dockerspawner import DockerSpawner
 
 c.JupyterHub.spawner_class = DockerSpawner
-c.DockerSpawner.image = os.environ.get("JUPYTER_IMAGE", "parthenon-jupyter-user")
-c.DockerSpawner.pull_policy = "never"  # Image is built locally, never pull from Docker Hub
+c.DockerSpawner.image = os.environ.get(
+    "JUPYTER_IMAGE",
+    "ghcr.io/sudoshi/parthenon-jupyter-user:latest",
+)
+c.DockerSpawner.pull_policy = os.environ.get("JUPYTER_PULL_POLICY", "ifnotpresent")
 c.DockerSpawner.network_name = os.environ.get(
     "JUPYTER_USER_NETWORK_NAME", "parthenon_jupyter_users"
 )

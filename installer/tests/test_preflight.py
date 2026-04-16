@@ -3,7 +3,22 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from installer import config, preflight
+from installer import config, hecate_bootstrap, preflight
+
+
+def test_community_mvp_defaults_include_hecate_and_quick_start_data():
+    cfg = config.build_community_mvp_defaults({"admin_email": "admin@test.local"})
+
+    assert cfg["edition"] == "Community Edition"
+    assert cfg["experience"] == "Beginner"
+    assert cfg["modules"] == ["research", "ai_knowledge", "infrastructure"]
+    assert cfg["datasets"] == ["eunomia", "phenotype-library"]
+    assert cfg["include_eunomia"] is True
+    assert cfg["enable_solr"] is True
+    assert cfg["enable_hecate"] is True
+    assert cfg["enable_qdrant"] is True
+    assert cfg["enable_blackrabbit"] is False
+    assert cfg["enable_fhir_to_cdm"] is False
 
 
 def test_community_sidecar_env_matches_compose_service_ports():
@@ -27,6 +42,7 @@ def test_community_sidecar_env_matches_compose_service_ports():
     assert "HECATE_PORT=18088" in root_env
     assert "HECATE_PG_USER=parthenon" in root_env
     assert "HECATE_PG_PASSWORD=generated-db-password" in root_env
+    assert "QDRANT_DATA_DIR=./.parthenon-data/qdrant" in root_env
     assert "ORTHANC_PORT=18042" in root_env
     assert "HECATE_URL=http://hecate:8080" in backend_env
     assert "BLACKRABBIT_URL=http://blackrabbit:8090" in backend_env
@@ -82,9 +98,6 @@ def test_required_ports_respects_enabled_services_and_custom_mappings():
         (18082, "NGINX"),
         (15480, "Postgres"),
         (16381, "Redis"),
-        (18002, "AI"),
-        (18888, "JupyterHub"),
-        (18787, "Darkstar"),
         (18090, "BlackRabbit"),
         (18088, "Hecate"),
         (6333, "Qdrant API"),
@@ -128,5 +141,110 @@ def test_run_checks_only_checks_selected_ports(monkeypatch):
         }
     )
 
-    assert seen_ports == [8082, 5480, 6381, 8002, 8888, 8787]
+    assert seen_ports == [8082, 5480, 6381]
     assert not any(check.name == "Port 8983 free" for check in checks)
+
+
+def test_hecate_bootstrap_asset_check_requires_files(monkeypatch, tmp_path):
+    monkeypatch.setattr("installer.preflight.utils.REPO_ROOT", tmp_path)
+    monkeypatch.setattr("installer.hecate_bootstrap.utils.REPO_ROOT", tmp_path)
+    monkeypatch.setattr("installer.hecate_bootstrap.docker_volume_exists", lambda: False)
+
+    result = preflight._check_hecate_bootstrap_assets(
+        {"modules": ["ai_knowledge"], "enable_hecate": True}
+    )
+
+    assert result is not None
+    assert result.status == "fail"
+    assert "output/hecate-bootstrap/all_pairs.txt" in result.detail
+    assert "output/hecate-bootstrap/ConceptRecordCounts.json" in result.detail
+    assert ".parthenon-data/qdrant/collections/meddra/config.json" in result.detail
+
+
+def test_hecate_bootstrap_asset_check_passes_when_files_exist(monkeypatch, tmp_path):
+    bootstrap_dir = tmp_path / "output" / "hecate-bootstrap"
+    bootstrap_dir.mkdir(parents=True)
+    (bootstrap_dir / "all_pairs.txt").write_text("{}")
+    (bootstrap_dir / "ConceptRecordCounts.json").write_text("{}")
+    qdrant_dir = tmp_path / ".parthenon-data" / "qdrant" / "collections" / "meddra"
+    qdrant_dir.mkdir(parents=True)
+    (qdrant_dir / "config.json").write_text("{}")
+    monkeypatch.setattr("installer.preflight.utils.REPO_ROOT", tmp_path)
+    monkeypatch.setattr("installer.hecate_bootstrap.utils.REPO_ROOT", tmp_path)
+
+    result = preflight._check_hecate_bootstrap_assets(
+        {"modules": ["ai_knowledge"], "enable_hecate": True}
+    )
+
+    assert result is not None
+    assert result.status == "ok"
+    assert result.detail == "assets and Qdrant storage present"
+
+
+def test_hecate_bootstrap_asset_check_warns_when_url_can_prepare(monkeypatch, tmp_path):
+    monkeypatch.setattr("installer.preflight.utils.REPO_ROOT", tmp_path)
+    monkeypatch.setattr("installer.hecate_bootstrap.utils.REPO_ROOT", tmp_path)
+    monkeypatch.setattr("installer.hecate_bootstrap.docker_volume_exists", lambda: False)
+
+    result = preflight._check_hecate_bootstrap_assets(
+        {
+            "modules": ["ai_knowledge"],
+            "enable_hecate": True,
+            "hecate_bootstrap_url": "https://example.test/hecate-community-bootstrap.tar.gz",
+        }
+    )
+
+    assert result is not None
+    assert result.status == "warn"
+    assert "will download https://example.test/hecate-community-bootstrap.tar.gz" in result.detail
+
+
+def test_hecate_bundle_extracts_expected_paths(tmp_path):
+    source = tmp_path / "source"
+    (source / "hecate-bootstrap").mkdir(parents=True)
+    (source / "hecate-bootstrap" / "all_pairs.txt").write_text("{}")
+    (source / "hecate-bootstrap" / "ConceptRecordCounts.json").write_text("{}")
+    qdrant = source / "qdrant-storage" / "collections" / "meddra"
+    qdrant.mkdir(parents=True)
+    (qdrant / "config.json").write_text("{}")
+    archive = tmp_path / "bundle.tar.gz"
+
+    import tarfile
+    with tarfile.open(archive, "w:gz") as tar:
+        tar.add(source / "hecate-bootstrap", arcname="hecate-bootstrap")
+        tar.add(source / "qdrant-storage", arcname="qdrant-storage")
+
+    target = tmp_path / "target"
+    assert hecate_bootstrap.extract_bundle(archive, root=target)
+    assert (target / "output" / "hecate-bootstrap" / "all_pairs.txt").is_file()
+    assert (target / ".parthenon-data" / "qdrant" / "collections" / "meddra" / "config.json").is_file()
+
+
+def test_required_ports_includes_full_service_ports_for_enterprise():
+    ports = preflight.required_ports(
+        {
+            "edition": "Enterprise Edition",
+            "enterprise_key": "ACRO-TEST-TEST-TEST",
+            "nginx_port": 18082,
+            "postgres_port": 15480,
+            "redis_port": 16381,
+            "ai_port": 18002,
+            "jupyter_port": 18888,
+            "r_port": 18787,
+            "enable_solr": False,
+            "enable_study_agent": False,
+            "enable_blackrabbit": False,
+            "enable_fhir_to_cdm": False,
+            "enable_hecate": False,
+            "enable_orthanc": False,
+        }
+    )
+
+    assert ports == [
+        (18082, "NGINX"),
+        (15480, "Postgres"),
+        (16381, "Redis"),
+        (18002, "AI"),
+        (18888, "JupyterHub"),
+        (18787, "Darkstar"),
+    ]

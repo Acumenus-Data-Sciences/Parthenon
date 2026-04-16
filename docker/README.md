@@ -17,7 +17,7 @@ Container configurations for all Parthenon services.
 | qdrant | internal |
 | hecate | ${HECATE_PORT:-8080}:8080 |
 | solr | ${SOLR_PORT:-8983}:8983 |
-| whiterabbit | ${WHITERABBIT_PORT:-8090}:8090 |
+| blackrabbit | ${BLACKRABBIT_PORT:-8090}:8090 |
 | r-runtime | ${R_PORT:-8787}:8787 |
 | horizon | internal |
 | orthanc | ${ORTHANC_PORT:-8042}:8042 |

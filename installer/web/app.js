@@ -24,6 +24,33 @@ const state = {
   selectedExperience: "",
 };
 
+function communityMvpValues() {
+  return {
+    experience: "Beginner",
+    edition: "Community Edition",
+    enterprise_key: "",
+    umls_api_key: "",
+    vocab_zip_path: null,
+    include_eunomia: true,
+    ollama_url: "",
+    modules: ["research", "ai_knowledge", "infrastructure"],
+    datasets: ["eunomia", "phenotype-library"],
+    research: true,
+    commons: false,
+    ai_knowledge: true,
+    data_pipeline: false,
+    infrastructure: true,
+    enable_study_agent: false,
+    enable_livekit: false,
+    enable_hecate: true,
+    enable_qdrant: true,
+    enable_blackrabbit: false,
+    enable_fhir_to_cdm: false,
+    enable_orthanc: false,
+    enable_solr: true,
+  };
+}
+
 const $ = (id) => document.getElementById(id);
 
 function generateSecurePassword(length) {
@@ -538,9 +565,10 @@ function renderStep() {
           <div class="section-kicker">Ready</div>
           <h4>Install Parthenon</h4>
           <p class="section-copy">
-            Community Edition will be installed with all default modules enabled and the
-            Eunomia demo dataset included. After installation, log in and the setup wizard
-            will guide you through vocabulary import, data sources, and AI configuration.
+            Community Edition will install Eunomia, the OHDSI Phenotype Library,
+            Apache Solr, and Hecate semantic search. After installation, log in and
+            the setup wizard will guide you through vocabulary import, data sources,
+            and AI configuration.
           </p>
           <div class="beginner-summary">
             <div class="review-grid">
@@ -549,7 +577,8 @@ function renderStep() {
                 <div class="review-row"><span class="review-label">Edition</span><span class="review-value">Community Edition</span></div>
                 <div class="review-row"><span class="review-label">Admin</span><span class="review-value">${state.currentValues.admin_email || "admin@example.com"}</span></div>
                 <div class="review-row"><span class="review-label">URL</span><span class="review-value">${state.currentValues.app_url || "http://localhost:8082"}</span></div>
-                <div class="review-row"><span class="review-label">Demo Data</span><span class="review-value">Eunomia (GiBleed)</span></div>
+                <div class="review-row"><span class="review-label">Demo Data</span><span class="review-value">Eunomia + Phenotype Library</span></div>
+                <div class="review-row"><span class="review-label">Search</span><span class="review-value">Solr + Hecate</span></div>
                 <div class="review-row"><span class="review-label">Repo</span><span class="review-value">${state.currentValues.repo_path || state.bootstrap.repo_path}</span></div>
               </div>
             </div>
@@ -578,9 +607,7 @@ function renderStep() {
         // Set beginner defaults (preserve dry_run from modal)
         state.currentValues = {
           ...state.currentValues,
-          experience: "Beginner",
-          edition: "Community Edition",
-          include_eunomia: true,
+          ...communityMvpValues(),
           upgrade: false,
         };
         const payload = getPayload();
@@ -706,6 +733,7 @@ function applyExperienceSelection(experience) {
   stepMeta = experience === "Beginner" ? beginnerSteps : experiencedSteps;
   state.currentValues = {
     ...state.currentValues,
+    ...(experience === "Beginner" ? communityMvpValues() : {}),
     experience,
     edition: "Community Edition",
     enterprise_key: "",

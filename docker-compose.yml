@@ -230,29 +230,6 @@ services:
       - parthenon
     restart: unless-stopped
 
-  morpheus-ingest:
-    container_name: parthenon-morpheus-ingest
-    image: ghcr.io/sudoshi/parthenon-morpheus-ingest:latest
-    build:
-      context: ./morpheus-ingest
-      dockerfile: Dockerfile
-    ports:
-      - "8004:8000"
-    # volumes:
-    #   - ./morpheus-ingest:/app  # Disabled: empty dir clobbers container code
-    environment:
-      - MORPHEUS_DATABASE_URL=postgresql://parthenon:parthenon@postgres:5432/parthenon
-    depends_on:
-      postgres:
-        condition: service_healthy
-    deploy:
-      resources:
-        limits:
-          memory: 2G
-    networks:
-      - parthenon
-    restart: unless-stopped
-
   chromadb:
     container_name: parthenon-chromadb
     image: chromadb/chroma:latest
@@ -339,7 +316,8 @@ services:
       - PARTHENON_API_URL=http://nginx/api/v1
       - DOCKER_NETWORK_NAME=parthenon
       - JUPYTER_USER_NETWORK_NAME=parthenon_jupyter_users
-      - JUPYTER_IMAGE=parthenon-jupyter-user
+      - JUPYTER_IMAGE=${JUPYTER_IMAGE:-ghcr.io/sudoshi/parthenon-jupyter-user:latest}
+      - JUPYTER_PULL_POLICY=${JUPYTER_PULL_POLICY:-ifnotpresent}
       - JUPYTER_IDLE_TIMEOUT=${JUPYTER_IDLE_TIMEOUT:-1800}
       - JUPYTER_MEM_LIMIT=${JUPYTER_MEM_LIMIT:-2G}
       - JUPYTER_CPU_LIMIT=${JUPYTER_CPU_LIMIT:-1.0}
@@ -369,7 +347,7 @@ services:
 
   # Build-only: image used by JupyterHub DockerSpawner (not started by compose)
   jupyter-user:
-    image: parthenon-jupyter-user:latest
+    image: ${JUPYTER_IMAGE:-ghcr.io/sudoshi/parthenon-jupyter-user:latest}
     build:
       context: .
       dockerfile: docker/jupyter-user/Dockerfile
@@ -383,7 +361,7 @@ services:
       - "6333:6333"
       - "6334:6334"
     volumes:
-      - qdrant-data:/qdrant/storage
+      - ${QDRANT_DATA_DIR:-qdrant-data}:/qdrant/storage
     environment:
       - QDRANT__STORAGE__OPTIMIZERS__MEMMAP_THRESHOLD_KB=20000
     healthcheck:
