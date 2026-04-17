@@ -16,6 +16,7 @@ use App\Models\App\ConceptSet;
 use App\Models\App\EstimationAnalysis;
 use App\Models\App\EtlProject;
 use App\Models\App\EvidenceSynthesisAnalysis;
+use App\Models\App\FinnGen\GwasCovariateSet;
 use App\Models\App\FinnGen\Run;
 use App\Models\App\HeorAnalysis;
 use App\Models\App\IncidenceRateAnalysis;
@@ -46,6 +47,7 @@ use App\Observers\DesignProtection\IncidenceRateAnalysisProtectionObserver;
 use App\Observers\DesignProtection\PathwayAnalysisProtectionObserver;
 use App\Observers\DesignProtection\PredictionAnalysisProtectionObserver;
 use App\Observers\DesignProtection\SccsAnalysisProtectionObserver;
+use App\Observers\FinnGen\GwasCovariateSetObserver;
 use App\Observers\StudyObserver;
 use App\Observers\StudySubResourceObserver;
 use App\Policies\Commons\ChannelPolicy;
@@ -275,6 +277,11 @@ class AppServiceProvider extends ServiceProvider
         foreach ($subResourceModels as $model) {
             $model::observe(StudySubResourceObserver::class);
         }
+
+        // Phase 14 — maintain covariate_columns_hash on every Eloquent save
+        // (seeder bypasses this via DB::table updateOrInsert; runtime writes
+        // go through Eloquent where this observer fires).
+        GwasCovariateSet::observe(GwasCovariateSetObserver::class);
 
         // Design Protection observers — audit log + fixture export for all 10 design entity types
         CohortDefinition::observe(CohortDefinitionProtectionObserver::class);
