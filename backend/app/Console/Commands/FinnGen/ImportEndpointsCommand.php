@@ -21,7 +21,8 @@ final class ImportEndpointsCommand extends Command
         {--dry-run : Parse and report coverage but do not write cohort_definitions rows}
         {--limit= : Only import the first N endpoints (for testing)}
         {--fixture= : Override fixture filename (relative to database/fixtures/finngen/ or absolute)}
-        {--no-solr-reindex : Skip the post-import solr:index-cohorts bulk reindex}';
+        {--no-solr-reindex : Skip the post-import solr:index-cohorts bulk reindex}
+        {--overwrite : Re-import endpoints in overwrite mode; snapshots cohort_definitions to app.finngen_endpoint_expressions_pre_phase13 first (Phase 13)}';
 
     protected $description = 'Import the FinnGen curated endpoint library as cohort_definitions';
 
@@ -52,15 +53,21 @@ final class ImportEndpointsCommand extends Command
         }
 
         $dryRun = (bool) $this->option('dry-run');
+        $overwrite = (bool) $this->option('overwrite');
         $fixture = $this->option('fixture');
         $fixturePath = is_string($fixture) && $fixture !== '' ? $fixture : null;
 
         $this->info(sprintf(
-            'Starting FinnGen endpoint import — release=%s, dry-run=%s, fixture=%s',
+            'Starting FinnGen endpoint import — release=%s, dry-run=%s, overwrite=%s, fixture=%s',
             $release,
             $dryRun ? 'yes' : 'no',
+            $overwrite ? 'yes' : 'no',
             $fixturePath ?? 'default',
         ));
+
+        if ($overwrite && ! $dryRun) {
+            $this->info('Snapshotting current FinnGen cohort_definitions to app.finngen_endpoint_expressions_pre_phase13...');
+        }
 
         $report = $importer->import(
             release: $release,
@@ -73,19 +80,32 @@ final class ImportEndpointsCommand extends Command
                     $this->output->write(sprintf("\rImporting: %d / %d", $n, $total));
                 }
             },
+            overwrite: $overwrite,
         );
 
         $this->newLine(2);
         $this->info(sprintf('Total parsed: %d', $report->total));
         $this->info(sprintf('Imported: %d', $report->imported));
         $this->info(sprintf(
-            'Coverage: FULLY=%d PARTIAL=%d SPARSE=%d UNMAPPED=%d CONTROL_ONLY=%d',
+            'Coverage bucket: FULLY=%d PARTIAL=%d SPARSE=%d UNMAPPED=%d CONTROL_ONLY=%d',
             $report->coverage['FULLY_MAPPED'] ?? 0,
             $report->coverage['PARTIAL'] ?? 0,
             $report->coverage['SPARSE'] ?? 0,
             $report->coverage['UNMAPPED'] ?? 0,
             $report->coverage['CONTROL_ONLY'] ?? 0,
         ));
+        $this->info(sprintf(
+            'Coverage profile: universal=%d partial=%d finland_only=%d',
+            $report->coverageProfile['universal'] ?? 0,
+            $report->coverageProfile['partial'] ?? 0,
+            $report->coverageProfile['finland_only'] ?? 0,
+        ));
+        if ($report->snapshotRowCount !== null) {
+            $this->info(sprintf('Snapshot rows: %d', $report->snapshotRowCount));
+        }
+        if ($report->invariantViolations > 0) {
+            $this->warn(sprintf('D-07 invariant violations: %d (UNMAPPED+universal collisions)', $report->invariantViolations));
+        }
         $this->info(sprintf('Report: %s', $report->reportPath));
 
         if ($report->topUnmappedVocabularies !== []) {
