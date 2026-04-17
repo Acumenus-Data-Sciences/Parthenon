@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 use App\Services\FinnGen\FinnGenConceptResolver;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
-uses(RefreshDatabase::class);
+uses(TestCase::class, RefreshDatabase::class);
 
 it('exposes resolveNomesco returning the standard resolver shape', function () {
     $resolver = app(FinnGenConceptResolver::class);
