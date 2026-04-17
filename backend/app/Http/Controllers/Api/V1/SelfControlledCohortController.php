@@ -8,6 +8,7 @@ use App\Jobs\Analysis\RunSelfControlledCohortJob;
 use App\Models\App\AnalysisExecution;
 use App\Models\App\SelfControlledCohortAnalysis;
 use App\Models\App\Source;
+use App\Support\SelfControlledCohortResultNormalizer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -143,11 +144,16 @@ class SelfControlledCohortController extends Controller
             return response()->json(['message' => 'Execution does not belong to this self-controlled cohort analysis.'], 404);
         }
 
-        return response()->json([
-            'data' => $execution->load([
-                'source:id,source_name,source_key',
-                'logs' => fn ($query) => $query->orderBy('created_at'),
-            ]),
+        $execution->load([
+            'source:id,source_name,source_key',
+            'logs' => fn ($query) => $query->orderBy('created_at'),
         ]);
+
+        $payload = $execution->toArray();
+        if (is_array($execution->result_json)) {
+            $payload['result_json'] = SelfControlledCohortResultNormalizer::normalize($execution->result_json);
+        }
+
+        return response()->json(['data' => $payload]);
     }
 }
