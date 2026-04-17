@@ -216,6 +216,83 @@ return new class extends Migration
 
     public function down(): void
     {
-        // Stub — down() body authored in Task 2.
+        // ------------------------------------------------------------------
+        // Reverse Block 8: restore coverage_profile column on
+        // app.cohort_definitions FIRST — the rehydrate INSERT below targets
+        // this column, so it must exist before the INSERT runs.
+        // ------------------------------------------------------------------
+        DB::statement('ALTER TABLE app.cohort_definitions ADD COLUMN coverage_profile VARCHAR(16) NULL');
+        DB::statement('CREATE INDEX cohort_definitions_coverage_profile_index ON app.cohort_definitions (coverage_profile)');
+
+        // ------------------------------------------------------------------
+        // Reverse Blocks 6+7: rehydrate 5,161 rows from the Phase 13 snapshot
+        // (RESEARCH.md Pitfall 2 — the snapshot has the complete original
+        // expression_json; JOIN against finngen.endpoint_definitions gives
+        // us the typed-column values for `coverage_profile` + `tags` +
+        // `description` that the snapshot does NOT carry).
+        //
+        // Assumption A5: the Phase 13 snapshot has no author_id; fall back
+        // to admin@acumenus.net (all FinnGen endpoints are admin-authored
+        // per ImportEndpointsCommand). Terminal fallback of 1 covers the
+        // edge case where the admin user has been deleted.
+        // ------------------------------------------------------------------
+        DB::statement(<<<'SQL'
+            INSERT INTO app.cohort_definitions
+                (id, name, description, expression_json, author_id, is_public, version, tags, domain, quality_tier, coverage_profile, created_at, updated_at)
+            SELECT
+                s.cohort_definition_id, s.name, e.description,
+                s.expression_json,
+                COALESCE((SELECT id FROM app.users WHERE email='admin@acumenus.net'), 1),
+                TRUE, 1, COALESCE(e.tags, '[]'::jsonb), 'finngen-endpoint', 'draft',
+                e.coverage_profile,
+                s.created_at, NOW()
+              FROM finngen.endpoint_expressions_pre_phase13 s
+              JOIN finngen.endpoint_definitions e ON e.name = s.name
+        SQL);
+
+        // ------------------------------------------------------------------
+        // Reverse Block 10: drop the finngen_endpoint_name FK column.
+        // ------------------------------------------------------------------
+        DB::statement('ALTER TABLE finngen.endpoint_generations DROP COLUMN IF EXISTS finngen_endpoint_name');
+
+        // ------------------------------------------------------------------
+        // Reverse Blocks 4+5: drop finngen.endpoint_definitions and its
+        // dependent indexes (CASCADE by ownership).
+        // ------------------------------------------------------------------
+        DB::statement('DROP TABLE IF EXISTS finngen.endpoint_definitions');
+
+        // ------------------------------------------------------------------
+        // Reverse Block 3: RENAME back to add the finngen_ prefix inside
+        // the finngen schema (done before SET SCHEMA back so the name is
+        // conflict-free when the table lands in app).
+        // ------------------------------------------------------------------
+        DB::statement('ALTER TABLE finngen.endpoint_expressions_pre_phase13 RENAME TO finngen_endpoint_expressions_pre_phase13');
+        DB::statement('ALTER TABLE finngen.endpoint_generations             RENAME TO finngen_endpoint_generations');
+        DB::statement('ALTER TABLE finngen.unmapped_codes                   RENAME TO finngen_unmapped_codes');
+        DB::statement('ALTER TABLE finngen.workbench_sessions               RENAME TO finngen_workbench_sessions');
+        DB::statement('ALTER TABLE finngen.runs                             RENAME TO finngen_runs');
+        DB::statement('ALTER TABLE finngen.analysis_modules                 RENAME TO finngen_analysis_modules');
+
+        // ------------------------------------------------------------------
+        // Reverse Block 2: SET SCHEMA back to app on the 6 original tables.
+        // ------------------------------------------------------------------
+        DB::statement('ALTER TABLE finngen.finngen_endpoint_expressions_pre_phase13 SET SCHEMA app');
+        DB::statement('ALTER TABLE finngen.finngen_endpoint_generations             SET SCHEMA app');
+        DB::statement('ALTER TABLE finngen.finngen_unmapped_codes                   SET SCHEMA app');
+        DB::statement('ALTER TABLE finngen.finngen_workbench_sessions               SET SCHEMA app');
+        DB::statement('ALTER TABLE finngen.finngen_runs                             SET SCHEMA app');
+        DB::statement('ALTER TABLE finngen.finngen_analysis_modules                 SET SCHEMA app');
+
+        // ------------------------------------------------------------------
+        // Reverse Block 1: drop the now-empty finngen schema.
+        // ------------------------------------------------------------------
+        DB::statement('DROP SCHEMA IF EXISTS finngen');
+
+        // ------------------------------------------------------------------
+        // Reverse Block 9: drop the expression_json GIN index added in up().
+        // Ordered last so any down() failures before this point leave the
+        // index in place for debugging.
+        // ------------------------------------------------------------------
+        DB::statement('DROP INDEX IF EXISTS app.cohort_definitions_expression_json_gin');
     }
 };
