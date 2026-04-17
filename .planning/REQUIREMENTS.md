@@ -1,188 +1,149 @@
-# Requirements: IRSF-NHS OMOP CDM Import
+# Requirements
 
-**Defined:** 2026-03-26
-**Core Value:** All ~1,860 Rett Syndrome patients queryable in Parthenon's OMOP CDM with accurate demographics, medications, conditions, measurements, and observations
+**Active milestone:** v1.0 FinnGen Genomics
+**Last updated:** 2026-04-16
 
-## v1 Requirements
+## Validated (FinnGen Phenotyping Foundation — landed 2026-04-16)
 
-### Foundation
+These requirements were delivered as a series of quick tasks across
+2026-04-16 (commits `f4a9561c2` … `7504cffea`) and live in production at
+https://parthenon.acumenus.net/workbench/finngen-endpoints. They are
+recorded here so this milestone's roadmap can build on top of them.
 
-- [x] **FOUND-01**: ETL shared library provides tested date assembly from split columns (Month-text, Day-int, Year-int) with imputation rules matching Final_Queries.sql logic
-- [x] **FOUND-02**: ETL shared library provides cross-protocol ID reconciliation mapping all three ID systems to unified person_id via Person_Characteristics crosswalk
-- [x] **FOUND-03**: ETL shared library provides vocabulary validator that checks concept_ids against current Athena vocabulary and follows Maps-to chain for deprecated codes
-- [x] **FOUND-04**: ETL shared library provides error accumulation logger that tracks rejected/skipped records per table with reasons and produces rejection summary reports
-- [x] **FOUND-05**: All 60+ source CSV files are profiled with row counts, null rates, value distributions, and date format detection before any transformation begins
-- [x] **FOUND-06**: Python ETL scripts live in `scripts/irsf-etl/` with shared `lib/` package, using pandera for DataFrame schema validation
+- [x] **PHENO-01**: 5,161 FinnGen DF14 endpoint definitions imported as
+  `app.cohort_definitions` rows tagged `finngen-endpoint` + `finngen:df14`
+- [x] **PHENO-02**: ICD-10 resolver inserts decimals; expander handles
+  digit ranges, alpha ranges, single-bracket digit/alpha classes,
+  multi-digit classes, and rejects junk tokens
+- [x] **PHENO-03**: ~80% of imported endpoints have meaningful coverage
+  (FULLY_MAPPED 2,760 + PARTIAL 1,399 = 4,159 / 5,161)
+- [x] **PHENO-04**: `app.finngen_unmapped_codes` sidecar table tracks
+  9,093 unresolved (endpoint, code, vocab) tuples for future vocab work
+- [x] **PHENO-05**: FinnGen Endpoint Browser at `/workbench/finngen-endpoints`
+  with stat cards, search, tag/bucket filters, detail drawer
+- [x] **PHENO-06**: Per-endpoint generation against any CDM via
+  `POST /api/v1/finngen/endpoints/{name}/generate` → R worker
+  `finngen_endpoint_generate_execute` → cohort table
+- [x] **PHENO-07**: `app.finngen_endpoint_generations` tracking table with
+  per-source badges + confidence indicator + generation history view
+- [x] **PHENO-08**: One-click "Open in Workbench" pre-seeds a workbench
+  session with the FinnGen cohort as the operation tree root, complete
+  with `seeded_from` marker for future attribution
 
-### Person and Demographics
+## v1.0 Requirements (this milestone)
 
-- [x] **PERS-01**: Person roster built from Person_Characteristics_5201_5211.csv produces ~1,860 unique persons with deterministic person_id assignment
-- [x] **PERS-02**: Gender mapping correctly handles Rett population (~95% female) with concept_ids 8532 (Female) and 8507 (Male)
-- [x] **PERS-03**: Race mapping converts multiple boolean race columns to single OMOP race_concept_id with multi-race mapped to concept_id 0 and flags preserved in race_source_value
-- [x] **PERS-04**: Ethnicity mapping converts to standard OMOP concepts (38003563 Hispanic, 38003564 Non-Hispanic)
-- [x] **PERS-05**: Date of birth assembled from split columns with year/month/day populated in person table
-- [x] **PERS-06**: Death records imported from both protocols (5201: 73 rows, 5211: 94 rows) with deduplication on unified participant_id
+### regenie GWAS pipeline
 
-### Visit Derivation
+- [ ] **GENOMICS-01**: regenie container ships in `docker/regenie/` and
+  is dispatched async via Darkstar as a new analysis type
+  `finngen.gwas.regenie`. Step-1 + step-2 orchestration with
+  intermediate artifacts (LOCO predictions) cached on the
+  `finngen-artifacts` volume.
+- [ ] **GENOMICS-02**: `{source}_gwas_results.summary_stats` schema per
+  source. Columns: `chrom`, `pos`, `ref`, `alt`, `snp_id`, `af`, `beta`,
+  `se`, `p_value`, `case_n`, `control_n`, `cohort_definition_id`,
+  `gwas_run_id`. Indexed by `(chrom, pos)` and `(cohort_definition_id,
+  p_value)` for top-hits and Manhattan-plot lookups.
+- [ ] **GENOMICS-03**: `POST /api/v1/finngen/endpoints/{name}/gwas` with
+  body `{source_key, control_cohort_id, covariate_set_id?, overwrite?}`.
+  Validates the endpoint has resolvable concepts AND that the source has
+  variant data (VCF index registered). Returns 202 + Run record.
+- [ ] **GENOMICS-04**: PheWeb-lite results UI at
+  `/workbench/finngen-endpoints/{name}/gwas/{run_id}` — Manhattan plot
+  (chrom × -log10(p)), regional view (zoom into a hit window),
+  LocusZoom-lite (LD-colored region with gene track), top-50 variants
+  table with sortable columns, per-variant detail drawer.
+- [ ] **GENOMICS-05**: GWAS run-history view per endpoint showing
+  completed runs across (source × control_cohort_id × covariate_set)
+  with subject counts, p-value of top hit, and direct links to the
+  PheWeb-lite UI. Persist via `app.finngen_endpoint_gwas_runs` tracking
+  table (mirrors the existing endpoint_generations pattern).
 
-- [x] **VISIT-01**: Visit occurrences derived from unique (person_id, visit_date, visit_label) tuples across clinical tables
-- [x] **VISIT-02**: Study visits classified as outpatient (concept_id 9202), hospitalizations from Hospitalizations_5211 classified as inpatient (concept_id 9201)
-- [x] **VISIT-03**: Visit lookup map (visit_id_map.csv) produced for all clinical event scripts to reference
+### PRS scoring
 
-### Medications
+- [ ] **GENOMICS-06**: `php artisan parthenon:load-pgs-catalog
+  --score-id=PGS000001` ingests PGS Catalog summary stat files into
+  `vocab.pgs_scores` + `vocab.pgs_score_variants`. Idempotent on re-run.
+- [ ] **GENOMICS-07**: `POST /api/v1/finngen/endpoints/{name}/prs` with
+  `{source_key, score_id}` triggers a Darkstar PRS run that computes
+  per-subject scores from the source's variant index. Writes to
+  `{source}_gwas_results.prs_subject_scores` keyed by
+  `(score_id, cohort_definition_id, subject_id)`.
+- [ ] **GENOMICS-08**: Per-cohort PRS distribution viz in the cohort
+  detail drawer — histogram with quintile bands, summary stats (mean,
+  median, IQR), and downloadable CSV.
 
-- [x] **MED-01**: All 44K medication records from Medications_5201_5211.csv transformed to drug_exposure staging CSV
-- [x] **MED-02**: MedRxNormCode formatted strings parsed via regex to extract clean RxNorm concept_ids
-- [x] **MED-03**: Pre-mapped RxNorm codes validated against current Athena vocabulary with deprecated codes remapped via Maps-to relationships
-- [x] **MED-04**: Drug exposure start/stop dates assembled from split date columns with stop_reason populated from ReasonForStoppin columns
-- [x] **MED-05**: Drug mapping coverage rate >= 90% (records with valid RxNorm concept)
+### Risteys-style endpoint dashboard
 
-### Conditions
+- [ ] **GENOMICS-09**: Per-endpoint Kaplan-Meier survival curves +
+  median survival + age-at-death distribution. New CO2 module
+  `co2.endpoint_profile` reading from any source's
+  `condition_occurrence` + `death` + `observation_period`.
+- [ ] **GENOMICS-10**: Per-endpoint comorbidity matrix — top-50
+  co-occurring FinnGen endpoints by lift / phi-coefficient, displayed
+  as a heatmap with click-through to the comorbid endpoint's profile.
+- [ ] **GENOMICS-11**: Per-endpoint drug-use timeline — top-N ATC
+  classes prescribed in the 90-day pre-index window across the cohort,
+  displayed as a stacked horizontal bar chart.
 
-- [x] **COND-01**: Chronic diagnoses, seizures, bone fractures, and infections from 5211 tables transformed to condition_occurrence staging CSV
-- [x] **COND-02**: Pre-mapped SNOMED codes from SNOWMEDOutput columns validated against current vocabulary
-- [x] **COND-03**: Condition mapping coverage rate >= 85% (records with valid SNOMED concept)
+### Vocabulary completeness
 
-### Measurements
+- [ ] **GENOMICS-12**: Custom Finnish OMOP vocabulary load. Acquire
+  THL-published ICD-8, Finnish ICD-9, ICDO3, NOMESCO, KELA_REIMB
+  catalogs. Build custom OMOP vocabulary entries (concept_ids ≥ 2B)
+  with best-effort cross-walks to ICD10CM where possible. Re-run
+  `finngen:import-endpoints --release=df14` and verify the residual
+  UNMAPPED bucket drops from 427 to <100 endpoints.
 
-- [x] **MEAS-01**: Growth measurements (height, weight, BMI, head circumference) unpivoted from wide to long format with LOINC concept_ids (3036277, 3025315, 3038553, 3036832)
-- [x] **MEAS-02**: Clinical Severity Scale (CSS) total score and individual items stored as separate measurement rows with custom IRSF concept_ids
-- [x] **MEAS-03**: Lab results from Labs_5211 mapped to LOINC concepts
-- [x] **MEAS-04**: SF-36 quality of life scores transformed to measurement rows
-- [x] **MEAS-05**: Measurement mapping coverage rate >= 95% for growth/lab measurements
-- [x] **MEAS-06**: Wide-to-long unpivot filters NULL primary values to avoid row inflation
+### Polish + closing-the-loop
 
-### Observations
+- [ ] **GENOMICS-13**: Workbench attribution badge — when a workbench
+  session has `session_state.seeded_from.kind === "finngen-endpoint"`,
+  render a "From FinnGen {endpoint_name}" pill at the top of the
+  operation tree. Link back to the endpoint browser detail drawer.
+- [ ] **GENOMICS-14**: Generation history view that surfaces multiple
+  runs per (endpoint × source) pair, not just the latest. Adds a
+  `finngen_endpoint_generation_runs` table OR queries `finngen_runs`
+  filtered by `analysis_type = 'endpoint.generate'` and the
+  cohort_definition_id.
 
-- [x] **OBS-01**: Motor Behavioral Assessment (MBA) scores stored as observation rows with custom IRSF concept_ids
-- [x] **OBS-02**: Genotype/mutation data (~50 boolean columns) mapped to structured observations with value=1 only emitted, using custom IRSF vocabulary concepts
-- [x] **OBS-03**: Rett features, developmental history, clinical assessments, allergies, nutrition, and other categorical data mapped to observation table
-- [x] **OBS-04**: All observations carry observation_source_value preserving original column names and values
+## Future Requirements (deferred to v1.1+)
 
-### Custom Vocabulary
+- Multi-ancestry GWAS meta-analysis (METAL, MR-MEGA)
+- Functional annotation pipelines (VEP, ANNOVAR)
+- Drug-target / pharmacogenomics (Open Targets integration)
+- Federated multi-site analyses (Arachne / OHDSI federated network)
+- Whole-genome / whole-exome variant calling (we consume aligned VCFs)
+- Genome browser (IGV-style interactive)
+- ClinVar / OncoKB variant interpretation in the cohort context
 
-- [x] **VOCAB-01**: Custom IRSF-NHS vocabulary created with vocabulary_id='IRSF-NHS' and concept_ids >= 2,000,000,000 per OHDSI convention
-- [x] **VOCAB-02**: CSS total score and ~13 individual item concepts registered in custom vocabulary
-- [x] **VOCAB-03**: MBA total score and item concepts registered in custom vocabulary
-- [x] **VOCAB-04**: ~50 MECP2/CDKL5/FOXG1 mutation type concepts registered with groupings (missense, nonsense, large deletion, C-terminal truncation)
-- [x] **VOCAB-05**: Rett diagnostic category concepts (classic Rett, atypical Rett, CDKL5 deficiency, FOXG1, MECP2 duplication) registered
-- [x] **VOCAB-06**: All custom concepts registered in source_to_concept_map for ETL lookup
+## Out of Scope (v1.0)
 
-### Data Loading
-
-- [x] **LOAD-01**: Staging CSVs uploaded to Parthenon ingestion pipeline in strict FK dependency order: person -> visit -> death -> drug -> condition -> measurement -> observation
-- [x] **LOAD-02**: Observation periods computed post-load from all event table date ranges via Parthenon's ObservationPeriodCalculator
-- [x] **LOAD-03**: 100% of loaded persons have at least one observation period
-- [x] **LOAD-04**: CDM_SOURCE table populated with IRSF-NHS metadata
-
-### Validation
-
-- [x] **VAL-01**: DQD checks pass at >= 80% rate on populated tables
-- [x] **VAL-02**: Achilles characterization runs successfully and produces reports in results schema
-- [x] **VAL-03**: Zero events recorded before birth or after death (temporal integrity)
-- [x] **VAL-04**: Rett-specific plausibility checks pass: ~95% female, MECP2 mutation in ~95%, age at first visit typically 0-10 years
-- [x] **VAL-05**: At least 3 cohort definitions buildable in Parthenon's cohort builder (all Rett, seizure subgroup, medication exposure)
-- [x] **VAL-06**: Rejection rate < 5% for all high-priority tables
-
-### Source Value Preservation
-
-- [x] **SRC-01**: Every mapped record carries original source code/text in *_source_value columns
-- [x] **SRC-02**: Pre-mapped concept_ids stored in *_source_concept_id columns
-
-## v2 Requirements
-
-### Reusable Framework
-
-- **FWK-01**: Extract composable Python modules (DateAssembler, PersonRoster, WideToLong) into a reusable rare disease ETL framework
-- **FWK-02**: Parameterize registry-specific values via YAML config files per registry
-
-### Additional Clinical Data
-
-- **CLIN-01**: EKG data from 5201 mapped to measurement table
-- **CLIN-02**: AdditionalEEGInfo_5211 mapped to measurement table
-- **CLIN-03**: Sibling_5211 mapped as family history observations
-- **CLIN-04**: Pregnancy_5211 mapped as maternal observations
-
-### Cross-Protocol Deduplication
-
-- **DEDUP-01**: Automated detection and resolution of duplicate events from patients enrolled in both protocols
-
-## Out of Scope
-
-| Feature | Reason |
-|---------|--------|
-| Real-time / incremental ETL | One-time historical import; design for idempotent re-runs |
-| De-identification pipeline | Data already de-identified per RDCRN protocols |
-| Generic configurable ETL UI | Aqueduct already exists; IRSF transforms too idiosyncratic |
-| FHIR intermediary conversion | CSV-to-CDM direct; FHIR service is for HL7 bundles |
-| Multi-CDM-version support | Parthenon targets v5.4 exclusively |
-| FilesUpload_5211 | File metadata, not clinical data |
-| ContactRegistryEnrollment_5211 | Administrative, not clinical |
-| Other_Research_5211 | External study references |
-| Eligibility_5211 | Study admin, not clinical observations |
-| Custom Achilles implementation | Use existing Parthenon R runtime + HADES |
+- **Variant calling**: aligned VCFs are the input; alignment + calling
+  is upstream.
+- **Multi-ancestry GWAS**: single-cohort regenie only — meta-analysis
+  is v1.1.
+- **Functional annotation**: VEP / ANNOVAR / SnpEff are v1.1.
+- **Pharmacogenomics**: drug-target inference is v1.1.
+- **Federation**: every analysis runs on a single source CDM at a time.
+- **Real-time GWAS streaming**: results materialize once the run
+  completes; no incremental Manhattan rendering.
 
 ## Traceability
 
-| Requirement | Phase | Status |
-|-------------|-------|--------|
-| FOUND-01 | Phase 2 | Complete |
-| FOUND-02 | Phase 2 | Complete |
-| FOUND-03 | Phase 3 | Complete |
-| FOUND-04 | Phase 3 | Complete |
-| FOUND-05 | Phase 1 | Complete |
-| FOUND-06 | Phase 1 | Complete |
-| PERS-01 | Phase 4 | Complete |
-| PERS-02 | Phase 4 | Complete |
-| PERS-03 | Phase 4 | Complete |
-| PERS-04 | Phase 4 | Complete |
-| PERS-05 | Phase 4 | Complete |
-| PERS-06 | Phase 4 | Complete |
-| VISIT-01 | Phase 5 | Complete |
-| VISIT-02 | Phase 5 | Complete |
-| VISIT-03 | Phase 5 | Complete |
-| MED-01 | Phase 7 | Complete |
-| MED-02 | Phase 7 | Complete |
-| MED-03 | Phase 7 | Complete |
-| MED-04 | Phase 7 | Complete |
-| MED-05 | Phase 7 | Complete |
-| COND-01 | Phase 8 | Complete |
-| COND-02 | Phase 8 | Complete |
-| COND-03 | Phase 8 | Complete |
-| MEAS-01 | Phase 9 | Complete |
-| MEAS-02 | Phase 9 | Complete |
-| MEAS-03 | Phase 9 | Complete |
-| MEAS-04 | Phase 9 | Complete |
-| MEAS-05 | Phase 9 | Complete |
-| MEAS-06 | Phase 9 | Complete |
-| OBS-01 | Phase 10 | Complete |
-| OBS-02 | Phase 10 | Complete |
-| OBS-03 | Phase 10 | Complete |
-| OBS-04 | Phase 10 | Complete |
-| VOCAB-01 | Phase 6 | Complete |
-| VOCAB-02 | Phase 6 | Complete |
-| VOCAB-03 | Phase 6 | Complete |
-| VOCAB-04 | Phase 6 | Complete |
-| VOCAB-05 | Phase 6 | Complete |
-| VOCAB-06 | Phase 6 | Complete |
-| LOAD-01 | Phase 11 | Complete |
-| LOAD-02 | Phase 11 | Complete |
-| LOAD-03 | Phase 11 | Complete |
-| LOAD-04 | Phase 11 | Complete |
-| VAL-01 | Phase 12 | Complete |
-| VAL-02 | Phase 12 | Complete |
-| VAL-03 | Phase 12 | Complete |
-| VAL-04 | Phase 12 | Complete |
-| VAL-05 | Phase 12 | Complete |
-| VAL-06 | Phase 12 | Complete |
-| SRC-01 | Phase 7 | Complete |
-| SRC-02 | Phase 7 | Complete |
+Phase mapping is filled by `gsd-roadmapper` after the roadmap is created.
 
-**Coverage:**
-- v1 requirements: 51 total
-- Mapped to phases: 51
-- Unmapped: 0
+| REQ-ID | Phase | Status |
+|--------|-------|--------|
+| GENOMICS-01..14 | TBD by roadmapper | pending |
 
----
-*Requirements defined: 2026-03-26*
-*Last updated: 2026-03-26 after roadmap creation -- all 51 v1 requirements mapped to 12 phases*
+## Validated traceability
+
+| REQ-ID | Quick Task | Commits |
+|--------|-----------|---------|
+| PHENO-01 | 260416-qpg | f4a9561c2, 44909d0b5, 0276d3ae3 |
+| PHENO-02..04 | (resolver fixes) | e16973cfe, b7f9a1731 |
+| PHENO-05 | (browser UI) | e16973cfe |
+| PHENO-06 | (generation reconciliation) | 6a2cb4a78, 72c387aca |
+| PHENO-07 | (tracking + badges) | 55c0f5ab7 |
+| PHENO-08 | (loop closer) | 7504cffea |

@@ -1,36 +1,36 @@
 ---
 gsd_state_version: 1.0
-milestone: v5.4
-milestone_name: milestone
-status: executing
-stopped_at: Completed 260411-qux (automated hex-to-token sweep)
-last_updated: "2026-04-11T23:37:40.489Z"
-last_activity: 2026-04-10 - Added clustering-based phenotype discovery (consensus clustering + feature prevalence heatmap)
+milestone: v1.0
+milestone_name: FinnGen Genomics v1
+status: defining_requirements
+stopped_at: Milestone v1.0 FinnGen Genomics started 2026-04-16
+last_updated: "2026-04-17T01:15:00.000Z"
+last_activity: 2026-04-16 - Milestone v1.0 FinnGen Genomics started; phenotyping foundation (PHENO-01..08) validated and live in production
 progress:
-  total_phases: 12
-  completed_phases: 10
-  total_plans: 24
-  completed_plans: 29
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-26)
+See: .planning/PROJECT.md (updated 2026-04-16 — Milestone v1.0 FinnGen Genomics)
 
-**Core value:** All ~1,860 Rett Syndrome patients from the IRSF Natural History Study queryable in Parthenon's OMOP CDM with accurate demographics, medications, conditions, measurements, and observations
-**Current focus:** Phase 7 Medications (planning complete, ready to execute)
+**Core value:** A researcher can pick any of 5,161 FinnGen-aligned phenotypes from the catalog, materialize a cohort against any source CDM, run a GWAS on that cohort, see Manhattan-plot results in the browser, compute polygenic risk scores against PGS Catalog summary stats, and inspect Risteys-style mortality / comorbidity dashboards — all without leaving Parthenon.
+**Current focus:** Defining requirements + roadmapping (Phase 13+ continuing IRSF numbering)
 
 ## Current Position
 
-Phase: 7-10 parallel (Medications, Conditions, Measurements, Observations)
-Plan: 09-01 completed (growth measurements), phases 7-10 in parallel
-Status: Executing Phases 07-10 in parallel
-Last activity: 2026-04-16 - Completed quick task 260416-owf: Full live end-to-end smoke of SP4 workbench workers (FAIL — surfaced double-dispatch bug in RunFinnGenAnalysisJob)
+Phase: Not started — defining requirements
+Plan: —
+Status: Defining requirements (REQUIREMENTS.md drafted; awaiting roadmap)
+Last activity: 2026-04-16 — Milestone v1.0 FinnGen Genomics started
 
-Progress: [█████████░] 92%
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
@@ -193,6 +193,7 @@ None yet.
 | 260411-s3c | Replace 1,150+ remaining hardcoded hex colors with CSS variable tokens | 2026-04-12 | 116c7ee33 | [260411-s3c-hunt-down-and-fix-all-remaining-light-mo](./quick/260411-s3c-hunt-down-and-fix-all-remaining-light-mo/) |
 | 260411-sxo | Replace 1,033 hardcoded Tailwind grayscale utilities with theme-aware token classes | 2026-04-12 | c6587029d | [260411-sxo-replace-all-hardcoded-tailwind-grayscale](./quick/260411-sxo-replace-all-hardcoded-tailwind-grayscale/) |
 | 260416-owf | Full live end-to-end smoke of SP4 workbench workers | 2026-04-16 | fc53cfdd7 | [260416-owf-full-live-end-to-end-smoke-of-sp4-workbe](./quick/260416-owf-full-live-end-to-end-smoke-of-sp4-workbe/) |
+| 260416-qpg | Import FinnGen curated endpoint library (DF14, 5,161 phenotypes) into app.cohort_definitions | 2026-04-16 | 44909d0b5 | [260416-qpg-import-finngen-curated-endpoint-library-](./quick/260416-qpg-import-finngen-curated-endpoint-library-/) |
 
 ## Session Continuity
 
