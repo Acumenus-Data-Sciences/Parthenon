@@ -36,6 +36,13 @@ RUN curl -fL -o /tmp/plink2.zip \
 
 # Stage 3: final slim artifact image, HIGHSEC §4.1 non-root
 FROM debian:12-slim
+# regenie's upstream binary is compiled against GCC OpenMP (libgomp1); without
+# it, `regenie --version` dies with "libgomp.so.1: cannot open shared object".
+# Add only the runtime library (no build-essential) to keep the final layer
+# small. ca-certificates is kept for any TLS calls from downstream consumers.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        libgomp1 ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 COPY --from=regenie-builder /opt/regenie /opt/regenie
 COPY --from=plink2-builder  /opt/plink2  /opt/plink2
 RUN addgroup --system svcgroup \
