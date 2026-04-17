@@ -5,8 +5,9 @@ declare(strict_types=1);
 use App\Services\FinnGen\FinnGenConceptResolver;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Tests\TestCase;
 
-uses(RefreshDatabase::class);
+uses(TestCase::class, RefreshDatabase::class);
 
 it('prefers STCM target_concept_id over LIKE-ANY for ICD10_FIN source codes', function () {
     // Arrange — seed a curated STCM row for an ICD-10-FI extension code that
