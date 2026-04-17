@@ -55,6 +55,12 @@ class DatabaseSeeder extends Seeder
 
         $admin->assignRole('super-admin');
 
+        // ── FinnGen infrastructure seeders (Phase 14 D-18) ───────────────────
+        // Runs AFTER admin creation so the default covariate set can be owned
+        // by admin@acumenus.net on fresh databases. Idempotent via
+        // updateOrInsert on `name`.
+        $this->call(FinnGenGwasCovariateSetSeeder::class);
+
         // ── Detect real users ────────────────────────────────────────────────
         // Skip sample data if any non-admin, non-factory users exist.
         $realUserCount = User::query()
