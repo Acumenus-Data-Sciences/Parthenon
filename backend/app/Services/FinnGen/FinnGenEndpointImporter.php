@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\FinnGen;
 
 use App\Enums\CohortDomain;
+use App\Enums\CoverageProfile;
 use App\Models\App\CohortDefinition;
 use App\Models\App\FinnGenUnmappedCode;
 use App\Services\FinnGen\Dto\EndpointRow;
@@ -60,6 +61,7 @@ final class FinnGenEndpointImporter
         ?int $limit = null,
         ?string $fixturePath = null,
         ?Closure $progress = null,
+        bool $overwrite = false,
     ): ImportReport {
         $path = $this->resolveFixturePath($release, $fixturePath);
         $reader = new FinnGenXlsxReader($path);
@@ -70,6 +72,13 @@ final class FinnGenEndpointImporter
         $unmappedAggregator = []; // keyed by "name|code|vocab"
 
         $total = $reader->estimateTotal();
+
+        // Phase 13 — pre-overwrite snapshot per CONTEXT D-13. Idempotent via
+        // ON CONFLICT (cohort_definition_id); re-running --overwrite refreshes
+        // the snapshot without duplicating rows.
+        if ($overwrite && ! $dryRun) {
+            $report->snapshotRowCount = $this->snapshotPrePhase13();
+        }
 
         // Disable observer for the bulk loop — D-07, T-qpg-05.
         CohortDefinition::withoutEvents(function () use (
@@ -174,17 +183,38 @@ final class FinnGenEndpointImporter
             static fn (string $t): bool => $t !== 'ANY',
         ));
 
+        // Phase 13 — 3 NEW vocabs through STCM.
+        // ICDO3 prefixes are the union of canc_topo + canc_morph + canc_behav,
+        // because FinnGen splits ICDO3 into 3 source-code columns.
+        $icdO3Prefixes = array_values(array_filter(
+            array_unique(array_merge($cancTopoRaw, $cancMorphRaw, $cancBehavRaw)),
+            static fn (string $t): bool => $t !== 'ANY',
+        ));
+        $nomescoPrefixes = array_values(array_filter(
+            $operNomRaw,
+            static fn (string $t): bool => $t !== 'ANY',
+        ));
+        $kelaReimbPrefixes = array_values(array_filter(
+            $kelaReimbRaw,
+            static fn (string $t): bool => $t !== 'ANY',
+        ));
+
         // Resolve.
         $icd10 = $this->resolver->resolveIcd10($icd10Prefixes);
         $icd9 = $this->resolver->resolveIcd9($icd9Prefixes);
         $atc = $this->resolver->resolveAtc($atcPrefixes);
-        $icd8 = $this->resolver->resolveIcd8($icd8Prefixes); // always empty
+        $icd8 = $this->resolver->resolveIcd8($icd8Prefixes);
+        $icdO3 = $this->resolver->resolveIcdO3($icdO3Prefixes);
+        $nomesco = $this->resolver->resolveNomesco($nomescoPrefixes);
+        $kelaReimb = $this->resolver->resolveKelaReimb($kelaReimbPrefixes);
 
-        // Coverage math — count tokens vs resolved.
+        // Coverage math — count tokens vs resolved. Phase 13 count uses the
+        // filtered prefix arrays (ANY tokens excluded, ICDO3 dedup'd across
+        // canc_* columns) to match the resolver inputs one-to-one.
         $totalTokens =
             count($icd10Prefixes) + count($icd9Prefixes) + count($icd8Prefixes) +
-            count($atcPrefixes) + count($kelaReimbRaw) + count($cancTopoRaw) +
-            count($cancMorphRaw) + count($cancBehavRaw) + count($operNomRaw);
+            count($atcPrefixes) + count($icdO3Prefixes) + count($nomescoPrefixes) +
+            count($kelaReimbPrefixes);
 
         // "Resolved" heuristic: for each vocab group, if at least one standard concept came back,
         // count all its tokens as resolved. (Prefix matches can expand 1 token → 100 concepts.)
@@ -198,19 +228,49 @@ final class FinnGenEndpointImporter
         if ($atc['standard'] !== [] || $atc['source'] !== []) {
             $resolvedTokens += count($atcPrefixes);
         }
+        if ($icd8['standard'] !== []) {
+            $resolvedTokens += count($icd8Prefixes);
+        }
+        if ($icdO3['standard'] !== []) {
+            $resolvedTokens += count($icdO3Prefixes);
+        }
+        if ($nomesco['standard'] !== []) {
+            $resolvedTokens += count($nomescoPrefixes);
+        }
+        if ($kelaReimb['standard'] !== []) {
+            $resolvedTokens += count($kelaReimbPrefixes);
+        }
 
         [$bucket, $pct] = $this->classifyCoverage($totalTokens, $resolvedTokens);
         $report->coverage[$bucket] = ($report->coverage[$bucket] ?? 0) + 1;
 
-        // Record unmapped vocabularies.
-        $this->aggregateUnmapped($unmappedAggregator, $row->name, $hd8Raw, 'ICD8', 'HD_ICD_8', $report);
-        $this->aggregateUnmapped($unmappedAggregator, $row->name, $cod8Raw, 'ICD8', 'COD_ICD_8', $report);
-        $this->aggregateUnmapped($unmappedAggregator, $row->name, $cancTopoRaw, 'ICDO3', 'CANC_TOPO', $report);
-        $this->aggregateUnmapped($unmappedAggregator, $row->name, $cancMorphRaw, 'ICDO3', 'CANC_MORPH', $report);
-        $this->aggregateUnmapped($unmappedAggregator, $row->name, $cancBehavRaw, 'ICDO3', 'CANC_BEHAV', $report);
-        $this->aggregateUnmapped($unmappedAggregator, $row->name, $kelaReimbRaw, 'KELA_REIMB', 'KELA_REIMB', $report);
+        // Phase 13 — D-05 portability classification (independent of bucket).
+        $profile = FinnGenCoverageProfileClassifier::classify(
+            icd10: $icd10, icd9: $icd9, atc: $atc, icd8: $icd8,
+            icdO3: $icdO3, nomesco: $nomesco, kelaReimb: $kelaReimb,
+        );
+        $report->coverageProfile[$profile->value] = ($report->coverageProfile[$profile->value] ?? 0) + 1;
+
+        // Record unmapped vocabularies. Phase 13: ICD-8, ICDO3, NOMESCO, and
+        // KELA_REIMB are now STCM-resolvable, so they only count as "unmapped"
+        // when STCM returned zero standard concepts for the group. KELA_VNRO
+        // stays unconditional — it's not addressed in Phase 13.
+        if ($icd8['standard'] === []) {
+            $this->aggregateUnmapped($unmappedAggregator, $row->name, $hd8Raw, 'ICD8', 'HD_ICD_8', $report);
+            $this->aggregateUnmapped($unmappedAggregator, $row->name, $cod8Raw, 'ICD8', 'COD_ICD_8', $report);
+        }
+        if ($icdO3['standard'] === []) {
+            $this->aggregateUnmapped($unmappedAggregator, $row->name, $cancTopoRaw, 'ICDO3', 'CANC_TOPO', $report);
+            $this->aggregateUnmapped($unmappedAggregator, $row->name, $cancMorphRaw, 'ICDO3', 'CANC_MORPH', $report);
+            $this->aggregateUnmapped($unmappedAggregator, $row->name, $cancBehavRaw, 'ICDO3', 'CANC_BEHAV', $report);
+        }
+        if ($kelaReimb['standard'] === []) {
+            $this->aggregateUnmapped($unmappedAggregator, $row->name, $kelaReimbRaw, 'KELA_REIMB', 'KELA_REIMB', $report);
+        }
+        if ($nomesco['standard'] === []) {
+            $this->aggregateUnmapped($unmappedAggregator, $row->name, $operNomRaw, 'NOMESCO', 'OPER_NOM', $report);
+        }
         $this->aggregateUnmapped($unmappedAggregator, $row->name, FinnGenPatternExpander::expand($row->kela_vnro), 'KELA_VNRO', 'KELA_VNRO', $report);
-        $this->aggregateUnmapped($unmappedAggregator, $row->name, $operNomRaw, 'NOMESCO', 'OPER_NOM', $report);
 
         // Also record ICD-10/9/ATC tokens that returned zero resolved ids as unmapped.
         if ($icd10Prefixes !== [] && $icd10['standard'] === [] && $icd10['source'] === []) {
@@ -233,7 +293,8 @@ final class FinnGenEndpointImporter
             $hd10Raw, $hd9Raw, $hd8Raw, $cod10Raw, $cod9Raw, $cod8Raw,
             $outpatRaw, $operNomRaw, $kelaReimbRaw, $kelaAtcRaw,
             $cancTopoRaw, $cancMorphRaw, $cancBehavRaw,
-            $icd10, $icd9, $atc, $bucket, $pct, $totalTokens, $resolvedTokens,
+            $icd10, $icd9, $atc, $icd8, $icdO3, $nomesco, $kelaReimb,
+            $profile, $bucket, $pct, $totalTokens, $resolvedTokens,
         );
 
         // Tags: merge row tags with mandatory import tags.
@@ -263,9 +324,20 @@ final class FinnGenEndpointImporter
                 'tags' => $tags,
                 'domain' => CohortDomain::FINNGEN_ENDPOINT,
                 'quality_tier' => 'draft',
+                // Phase 13 — D-05 typed column parallel write. Lowercase enum
+                // value ('universal' | 'partial' | 'finland_only').
+                'coverage_profile' => $profile->value,
             ],
         );
         $report->imported++;
+
+        // Phase 13 — D-07 invariant: bucket=UNMAPPED AND profile=UNIVERSAL is
+        // logically impossible (universal means every group resolved; UNMAPPED
+        // means 0% resolved). Count violations for the report; CoverageInvariantTest
+        // asserts zero after re-import.
+        if ($bucket === 'UNMAPPED' && $profile === CoverageProfile::UNIVERSAL) {
+            $report->invariantViolations++;
+        }
     }
 
     /**
@@ -285,6 +357,10 @@ final class FinnGenEndpointImporter
      * @param  array{standard:list<int>,source:list<int>,truncated:bool}  $icd10
      * @param  array{standard:list<int>,source:list<int>,truncated:bool}  $icd9
      * @param  array{standard:list<int>,source:list<int>,truncated:bool}  $atc
+     * @param  array{standard:list<int>,source:list<int>,truncated:bool}  $icd8
+     * @param  array{standard:list<int>,source:list<int>,truncated:bool}  $icdO3
+     * @param  array{standard:list<int>,source:list<int>,truncated:bool}  $nomesco
+     * @param  array{standard:list<int>,source:list<int>,truncated:bool}  $kelaReimb
      * @return array<string, mixed>
      */
     private function buildExpressionJson(
@@ -307,18 +383,37 @@ final class FinnGenEndpointImporter
         array $icd10,
         array $icd9,
         array $atc,
+        array $icd8,
+        array $icdO3,
+        array $nomesco,
+        array $kelaReimb,
+        CoverageProfile $profile,
         string $bucket,
         float $pct,
         int $totalTokens,
         int $resolvedTokens,
     ): array {
-        // Dedup standard + source concept arrays across vocabs.
-        $conditionsStandard = array_values(array_unique(array_merge($icd10['standard'], $icd9['standard'])));
-        $drugsStandard = array_values(array_unique($atc['standard']));
+        // Dedup standard + source concept arrays across vocabs. Phase 13
+        // expands conditions with ICD-8 + ICDO3 + NOMESCO (all procedures/
+        // neoplasms map to SNOMED condition or procedure concepts via STCM)
+        // and drugs with KELA_REIMB (reimbursement classes map to ATC/RxNorm).
+        $conditionsStandard = array_values(array_unique(array_merge(
+            $icd10['standard'],
+            $icd9['standard'],
+            $icd8['standard'],
+            $icdO3['standard'],
+            $nomesco['standard'],
+        )));
+        $drugsStandard = array_values(array_unique(array_merge(
+            $atc['standard'],
+            $kelaReimb['standard'],
+        )));
         $sourceConceptIds = array_values(array_unique(array_merge(
             $icd10['source'], $icd9['source'], $atc['source'],
         )));
-        $truncated = $icd10['truncated'] || $icd9['truncated'] || $atc['truncated'];
+        $truncated = $icd10['truncated'] || $icd9['truncated'] || $atc['truncated']
+            || $icd8['truncated'] || $icdO3['truncated'] || $nomesco['truncated']
+            || $kelaReimb['truncated'];
 
         return [
             'kind' => 'finngen_endpoint',
@@ -328,6 +423,9 @@ final class FinnGenEndpointImporter
             // Mirrors coverage.bucket below; promoted so callers don't need
             // a 2-level JSON path traversal to filter by mapping quality.
             'coverage_bucket' => $bucket,
+            // Phase 13 — D-05 portability classification, mirrored into the
+            // typed column on app.cohort_definitions for frontend filtering.
+            'coverage_profile' => $profile->value,
             'level' => $row->level,
             'sex_restriction' => $row->sex_restriction,
             'include_endpoints' => $row->include,
@@ -462,11 +560,45 @@ final class FinnGenEndpointImporter
             'total' => $report->total,
             'imported' => $report->imported,
             'by_bucket' => $report->coverage,
+            // Phase 13 — coverage profile distribution + invariant + snapshot
+            // row count, surfaced for operator review after --overwrite runs.
+            'coverage_profile_distribution' => $report->coverageProfile,
+            'invariant_violations' => $report->invariantViolations,
+            'snapshot_row_count' => $report->snapshotRowCount,
             'top_unmapped_vocabularies' => $report->topUnmappedVocabularies,
             'generated_at' => now()->toIso8601String(),
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
         return $path;
+    }
+
+    /**
+     * Snapshot all current finngen-endpoint cohort_definitions rows into the
+     * Plan 02 rollback table BEFORE the importer rewrites expression_json.
+     * Idempotent via ON CONFLICT — re-running --overwrite refreshes the
+     * snapshot without duplicating rows (per ADR/Plan 02 schema).
+     *
+     * Returns the total snapshot row count (post-upsert) for logging.
+     */
+    private function snapshotPrePhase13(): int
+    {
+        $sql = <<<'SQL'
+INSERT INTO app.finngen_endpoint_expressions_pre_phase13
+    (cohort_definition_id, name, expression_json, coverage_bucket, created_at, snapshotted_at)
+SELECT
+    id, name, expression_json, expression_json->>'coverage_bucket', created_at, NOW()
+  FROM app.cohort_definitions
+ WHERE domain = ?
+ON CONFLICT (cohort_definition_id) DO UPDATE
+   SET expression_json = EXCLUDED.expression_json,
+       coverage_bucket = EXCLUDED.coverage_bucket,
+       snapshotted_at  = EXCLUDED.snapshotted_at
+SQL;
+        DB::statement($sql, [CohortDomain::FINNGEN_ENDPOINT->value]);
+
+        $countRow = DB::selectOne('SELECT COUNT(*) AS n FROM app.finngen_endpoint_expressions_pre_phase13');
+
+        return (int) $countRow->n;
     }
 
     private function resolveFixturePath(string $release, ?string $fixturePath): string
