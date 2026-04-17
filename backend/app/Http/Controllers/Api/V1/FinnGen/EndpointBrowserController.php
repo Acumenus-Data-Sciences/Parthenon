@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Api\V1\FinnGen;
 use App\Enums\CohortDomain;
 use App\Http\Controllers\Controller;
 use App\Models\App\CohortDefinition;
+use App\Models\App\FinnGenEndpointGeneration;
 use App\Models\App\FinnGenUnmappedCode;
 use App\Models\App\Source;
 use App\Services\FinnGen\FinnGenRunService;
@@ -84,7 +85,29 @@ final class EndpointBrowserController extends Controller
         /** @var LengthAwarePaginator $page */
         $page = $query->paginate($perPage);
 
-        $page->getCollection()->transform(fn (CohortDefinition $row): array => $this->summarize($row));
+        // Batch-load generations for all rows on this page so the frontend
+        // can render "Generated on: X" badges without N+1 round-trips.
+        $names = $page->getCollection()->pluck('name')->all();
+        $genByEndpoint = [];
+        if ($names !== []) {
+            FinnGenEndpointGeneration::query()
+                ->whereIn('endpoint_name', $names)
+                ->get(['endpoint_name', 'source_key', 'last_status', 'last_subject_count'])
+                ->each(function ($g) use (&$genByEndpoint): void {
+                    $genByEndpoint[$g->endpoint_name][] = [
+                        'source_key' => $g->source_key,
+                        'status' => $g->last_status,
+                        'subject_count' => $g->last_subject_count,
+                    ];
+                });
+        }
+
+        $page->getCollection()->transform(function (CohortDefinition $row) use ($genByEndpoint): array {
+            $summary = $this->summarize($row);
+            $summary['generations'] = $genByEndpoint[$row->name] ?? [];
+
+            return $summary;
+        });
 
         return response()->json($page);
     }
@@ -184,6 +207,7 @@ final class EndpointBrowserController extends Controller
                     'source_concept_count' => count($resolved['source_concept_ids'] ?? []),
                     'truncated' => $resolved['truncated'] ?? false,
                 ],
+                'generations' => $this->loadGenerationsFor($row->name),
                 'created_at' => $row->created_at?->toIso8601String(),
                 'updated_at' => $row->updated_at?->toIso8601String(),
             ],
@@ -260,6 +284,23 @@ final class EndpointBrowserController extends Controller
             params: $params,
         );
 
+        // Upsert generation tracking row keyed by (endpoint_name, source_key)
+        // — one row per pair, refreshed on every dispatch so the browser can
+        // surface "Generated on: SOURCE" badges with the latest run + status
+        // without joining {source_results}.cohort on every render.
+        FinnGenEndpointGeneration::updateOrCreate(
+            [
+                'endpoint_name' => (string) $row->name,
+                'source_key' => (string) $data['source_key'],
+            ],
+            [
+                'cohort_definition_id' => (int) $row->id,
+                'run_id' => (string) $run->id,
+                'last_status' => (string) $run->status,
+                'last_subject_count' => null,
+            ],
+        );
+
         return response()->json([
             'data' => [
                 'run' => $run,
@@ -273,6 +314,49 @@ final class EndpointBrowserController extends Controller
                 ],
             ],
         ], 202);
+    }
+
+    /**
+     * Build a fresh generation snapshot for one endpoint name. Reads the
+     * latest tracking row(s) and reconciles `last_status` + `last_subject_count`
+     * against the current Run state on every read — this keeps the badge
+     * accurate without needing a job-completion observer.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function loadGenerationsFor(string $endpointName): array
+    {
+        $rows = FinnGenEndpointGeneration::query()
+            ->where('endpoint_name', $endpointName)
+            ->with(['run:id,status,summary,finished_at'])
+            ->get();
+
+        $out = [];
+        foreach ($rows as $g) {
+            $run = $g->run;
+            $currentStatus = $run?->status ?? $g->last_status;
+            $currentCount = $g->last_subject_count;
+            if ($run !== null && is_array($run->summary) && isset($run->summary['subject_count'])) {
+                $currentCount = (int) $run->summary['subject_count'];
+            }
+            // Cheap drift fix: persist the up-to-date snapshot if it changed.
+            if ($currentStatus !== $g->last_status || $currentCount !== $g->last_subject_count) {
+                $g->update([
+                    'last_status' => $currentStatus,
+                    'last_subject_count' => $currentCount,
+                ]);
+            }
+            $out[] = [
+                'source_key' => $g->source_key,
+                'run_id' => $g->run_id,
+                'status' => $currentStatus,
+                'subject_count' => $currentCount,
+                'finished_at' => $run?->finished_at?->toIso8601String(),
+                'updated_at' => $g->updated_at?->toIso8601String(),
+            ];
+        }
+
+        return $out;
     }
 
     /**

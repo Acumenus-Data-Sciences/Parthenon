@@ -10,6 +10,15 @@ export type CoverageBucket =
   | "CONTROL_ONLY"
   | "UNKNOWN";
 
+export type EndpointGeneration = {
+  source_key: string;
+  status: string;
+  subject_count: number | null;
+  run_id?: string;
+  finished_at?: string | null;
+  updated_at?: string | null;
+};
+
 export type EndpointSummary = {
   id: number;
   name: string;
@@ -22,6 +31,7 @@ export type EndpointSummary = {
   release: string | null;
   level: string | number | null;
   sex_restriction: string | null;
+  generations: EndpointGeneration[];
 };
 
 export type EndpointDetail = {
@@ -53,6 +63,7 @@ export type EndpointDetail = {
     source_concept_count: number;
     truncated: boolean;
   };
+  generations: EndpointGeneration[];
   created_at: string | null;
   updated_at: string | null;
 };

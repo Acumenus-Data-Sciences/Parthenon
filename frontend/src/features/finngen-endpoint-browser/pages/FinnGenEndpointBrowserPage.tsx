@@ -14,6 +14,7 @@ import {
 import type {
   CoverageBucket,
   EndpointDetail,
+  EndpointGeneration,
   EndpointSummary,
 } from "../api";
 
@@ -392,6 +393,17 @@ function EndpointRow({
           )}
         </div>
       </div>
+      {/* Per-source generation badges */}
+      {row.generations && row.generations.length > 0 && (
+        <div className="mt-2 flex flex-wrap items-center gap-1">
+          <span className="text-[10px] uppercase tracking-wider text-slate-600">
+            Generated:
+          </span>
+          {row.generations.map((g) => (
+            <GenerationBadge key={`${g.source_key}-${g.run_id ?? ""}`} g={g} />
+          ))}
+        </div>
+      )}
       {/* Coverage bar */}
       {pct != null && row.coverage_bucket !== "CONTROL_ONLY" && (
         <div className="mt-3 h-0.5 w-full overflow-hidden rounded-full bg-slate-800">
@@ -454,6 +466,30 @@ function EndpointDetailDrawer({
         {detail.data && <EndpointDetailBody d={detail.data} />}
       </aside>
     </div>
+  );
+}
+
+function GenerationBadge({ g }: { g: EndpointGeneration }) {
+  const statusTone =
+    g.status === "succeeded"
+      ? "border-teal-500/40 bg-teal-500/10 text-teal-300"
+      : g.status === "failed" || g.status === "cancelled"
+        ? "border-rose-500/40 bg-rose-500/10 text-rose-300"
+        : g.status === "running"
+          ? "border-amber-500/40 bg-amber-500/10 text-amber-300"
+          : "border-slate-700 bg-slate-900 text-slate-400";
+  return (
+    <span
+      className={`rounded-full border px-2 py-0.5 font-mono text-[10px] ${statusTone}`}
+      title={`Run ${g.run_id ?? "—"} · ${g.status}`}
+    >
+      {g.source_key}
+      {g.subject_count != null && (
+        <span className="ml-1 text-slate-500">
+          {g.subject_count.toLocaleString()}
+        </span>
+      )}
+    </span>
   );
 }
 
@@ -591,6 +627,37 @@ function EndpointDetailBody({ d }: { d: EndpointDetail }) {
         </div>
       )}
 
+      {/* Generation history */}
+      {d.generations && d.generations.length > 0 && (
+        <div>
+          <p className="text-xs uppercase tracking-wider text-slate-500">
+            Generation history
+          </p>
+          <div className="mt-2 space-y-1.5">
+            {d.generations.map((g) => (
+              <div
+                key={`${g.source_key}-${g.run_id ?? ""}`}
+                className="flex items-center justify-between rounded border border-slate-800 bg-slate-950/60 px-3 py-2 text-xs"
+              >
+                <div className="flex items-center gap-2">
+                  <GenerationBadge g={g} />
+                  {g.subject_count != null && (
+                    <span className="text-slate-300">
+                      {g.subject_count.toLocaleString()} subjects
+                    </span>
+                  )}
+                </div>
+                {g.finished_at && (
+                  <span className="font-mono text-[10px] text-slate-600">
+                    {new Date(g.finished_at).toLocaleString()}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* CTA — Generate against a CDM (Genomics #2) */}
       <GeneratePanel endpoint={d} canGenerate={generatable} />
     </div>
@@ -658,8 +725,44 @@ function GeneratePanel({
     error?.response?.data?.message ??
     (generate.error ? "Failed to dispatch generation" : null);
 
+  // Confidence indicator — surface what the worker will actually search for.
+  const expected = endpoint.resolved_concepts;
+  const confidence: { tone: string; label: string; detail: string } = (() => {
+    const total =
+      expected.condition_count +
+      expected.drug_count +
+      expected.source_concept_count;
+    if (endpoint.coverage_bucket === "FULLY_MAPPED") {
+      return {
+        tone: "text-teal-300 border-teal-500/30 bg-teal-500/5",
+        label: "Strong match expected",
+        detail: `${total.toLocaleString()} concept IDs will be searched (${expected.condition_count} conditions + ${expected.drug_count} drugs + ${expected.source_concept_count} source codes).`,
+      };
+    }
+    if (endpoint.coverage_bucket === "PARTIAL") {
+      return {
+        tone: "text-amber-300 border-amber-500/30 bg-amber-500/5",
+        label: "Partial match expected",
+        detail: `${total.toLocaleString()} concept IDs (some source codes unresolved — subject count may underestimate the true cohort).`,
+      };
+    }
+    return {
+      tone: "text-orange-300 border-orange-500/30 bg-orange-500/5",
+      label: "Sparse match — best-effort",
+      detail: `Only ${total.toLocaleString()} concept IDs resolved; expect a small subject count.`,
+    };
+  })();
+
   return (
     <div className="sticky bottom-0 -mx-6 border-t border-slate-800 bg-[#0E0E11] px-6 py-4">
+      <div
+        className={`mb-3 rounded border px-3 py-2 text-[11px] ${confidence.tone}`}
+      >
+        <p className="font-semibold uppercase tracking-wider">
+          {confidence.label}
+        </p>
+        <p className="mt-1 text-slate-400">{confidence.detail}</p>
+      </div>
       <p className="mb-2 text-[10px] uppercase tracking-wider text-slate-500">
         Materialize against
       </p>
