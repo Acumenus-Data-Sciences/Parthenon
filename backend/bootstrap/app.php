@@ -7,11 +7,16 @@ use App\Http\Middleware\RequireSourceContext;
 use App\Http\Middleware\ResolveLocale;
 use App\Http\Middleware\ResolveSourceContext;
 use App\Jobs\Analysis\CareGapNightlyRefreshJob;
+use App\Support\ApiMessage;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
@@ -71,5 +76,35 @@ return Application::configure(basePath: dirname(__DIR__))
             ->withoutOverlapping();
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $shouldRenderApiJson = static fn (Request $request): bool => $request->is('api/*') || $request->expectsJson();
+
+        $exceptions->render(function (AuthenticationException $exception, Request $request) use ($shouldRenderApiJson) {
+            if (! $shouldRenderApiJson($request)) {
+                return null;
+            }
+
+            return response()->json(ApiMessage::payload('auth.unauthenticated'), 401);
+        });
+
+        $exceptions->render(function (AuthorizationException $exception, Request $request) use ($shouldRenderApiJson) {
+            if (! $shouldRenderApiJson($request)) {
+                return null;
+            }
+
+            return response()->json(
+                ApiMessage::payload('auth.forbidden'),
+                $exception->status() ?? 403,
+            );
+        });
+
+        $exceptions->render(function (ValidationException $exception, Request $request) use ($shouldRenderApiJson) {
+            if (! $shouldRenderApiJson($request)) {
+                return null;
+            }
+
+            return response()->json([
+                ...ApiMessage::payload('validation.failed'),
+                'errors' => $exception->errors(),
+            ], $exception->status);
+        });
     })->create();

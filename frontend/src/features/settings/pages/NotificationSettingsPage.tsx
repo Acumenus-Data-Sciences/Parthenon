@@ -1,7 +1,10 @@
 import { Bell } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { NotificationSettings } from "../components/NotificationSettings";
 
 export default function NotificationSettingsPage() {
+  const { t } = useTranslation("settings");
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -12,10 +15,10 @@ export default function NotificationSettingsPage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-text-primary">
-              Notification Preferences
+              {t("notifications.pageTitle")}
             </h1>
             <p className="text-sm text-text-muted">
-              Configure how and when you receive notifications
+              {t("notifications.pageSubtitle")}
             </p>
           </div>
         </div>

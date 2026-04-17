@@ -28,7 +28,9 @@ test('user can register', function () {
 
     // Returns 200 with generic message (prevents email enumeration)
     $response->assertStatus(200)
-        ->assertJsonPath('message', 'Account created. Check your email for your temporary password.');
+        ->assertJsonPath('message', 'Account created. Check your email for your temporary password.')
+        ->assertJsonPath('message_key', 'auth.account_created')
+        ->assertJsonPath('message_meta.fallback_used', false);
 
     $this->assertDatabaseHas('users', [
         'email' => 'test@example.com',
@@ -47,7 +49,8 @@ test('register returns same message for existing email', function () {
         'email' => 'existing@example.com',
     ])
         ->assertStatus(200)
-        ->assertJsonPath('message', 'Account created. Check your email for your temporary password.');
+        ->assertJsonPath('message', 'Account created. Check your email for your temporary password.')
+        ->assertJsonPath('message_key', 'auth.account_created');
 });
 
 test('registration reseeds roles when the default researcher role is missing', function () {
@@ -60,7 +63,8 @@ test('registration reseeds roles when the default researcher role is missing', f
         'email' => 'recovery@example.com',
     ])
         ->assertStatus(200)
-        ->assertJsonPath('message', 'Account created. Check your email for your temporary password.');
+        ->assertJsonPath('message', 'Account created. Check your email for your temporary password.')
+        ->assertJsonPath('message_key', 'auth.account_created');
 
     $user = User::where('email', 'recovery@example.com')->firstOrFail();
 
@@ -92,7 +96,42 @@ test('login fails with wrong password', function () {
         'email' => 'test@example.com',
         'password' => 'wrong_password',
     ])
-        ->assertStatus(401);
+        ->assertStatus(401)
+        ->assertJsonPath('message_key', 'auth.invalid_credentials');
+});
+
+test('public auth messages honor locale headers and expose message metadata', function () {
+    User::factory()->create([
+        'email' => 'test@example.com',
+        'password' => bcrypt('password123'),
+    ]);
+
+    $this->withHeaders(['Accept-Language' => 'es-ES'])
+        ->postJson('/api/v1/auth/login', [
+            'email' => 'test@example.com',
+            'password' => 'wrong_password',
+        ])
+        ->assertStatus(401)
+        ->assertJsonPath('message', 'Credenciales no válidas')
+        ->assertJsonPath('message_key', 'auth.invalid_credentials')
+        ->assertJsonPath('message_meta.requested_locale', 'es-ES')
+        ->assertJsonPath('message_meta.message_locale', 'es-ES')
+        ->assertJsonPath('message_meta.fallback_used', false);
+});
+
+test('public validation errors use localized API message envelopes', function () {
+    $this->withHeaders(['Accept-Language' => 'ko-KR'])
+        ->postJson('/api/v1/auth/register', [
+            'name' => 'Test User',
+            'email' => 'not-an-email',
+        ])
+        ->assertStatus(422)
+        ->assertJsonPath('message', '제공된 데이터가 유효하지 않습니다.')
+        ->assertJsonPath('message_key', 'validation.failed')
+        ->assertJsonPath('message_meta.requested_locale', 'ko-KR')
+        ->assertJsonPath('message_meta.message_locale', 'ko-KR')
+        ->assertJsonPath('message_meta.fallback_used', false)
+        ->assertJsonValidationErrors(['email']);
 });
 
 test('user can get profile with token', function () {
@@ -115,11 +154,17 @@ test('user can logout', function () {
         'Authorization' => "Bearer {$token}",
     ]);
 
-    $response->assertStatus(200);
+    $response->assertStatus(200)
+        ->assertJsonPath('message_key', 'auth.logged_out');
 });
 
 test('unauthenticated user cannot access protected routes', function () {
-    $response = $this->getJson('/api/v1/auth/user');
+    $response = $this->withHeaders(['Accept-Language' => 'ko-KR'])
+        ->getJson('/api/v1/auth/user');
 
-    $response->assertStatus(401);
+    $response->assertStatus(401)
+        ->assertJsonPath('message', '인증이 필요합니다')
+        ->assertJsonPath('message_key', 'auth.unauthenticated')
+        ->assertJsonPath('message_meta.requested_locale', 'ko-KR')
+        ->assertJsonPath('message_meta.fallback_used', false);
 });

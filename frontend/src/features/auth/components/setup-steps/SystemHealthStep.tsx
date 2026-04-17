@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   CheckCircle2,
   AlertTriangle,
@@ -25,7 +26,7 @@ const STATUS_CONFIG = {
     border: "border-emerald-500/30",
     bg: "bg-emerald-500/10",
     text: "text-emerald-400",
-    label: "Healthy",
+    labelKey: "setup.systemHealth.status.healthy",
   },
   degraded: {
     icon: AlertTriangle,
@@ -33,7 +34,7 @@ const STATUS_CONFIG = {
     border: "border-yellow-500/30",
     bg: "bg-yellow-500/10",
     text: "text-yellow-400",
-    label: "Degraded",
+    labelKey: "setup.systemHealth.status.degraded",
   },
   down: {
     icon: XCircle,
@@ -41,7 +42,7 @@ const STATUS_CONFIG = {
     border: "border-red-500/30",
     bg: "bg-red-500/10",
     text: "text-red-400",
-    label: "Down",
+    labelKey: "setup.systemHealth.status.down",
   },
 } as const;
 
@@ -52,6 +53,7 @@ function ServiceRow({
   service: SystemHealthService;
   onGoToAiProvider?: () => void;
 }) {
+  const { t } = useTranslation("auth");
   const config = STATUS_CONFIG[service.status];
   const queueDetails = service.details as { pending?: number; failed?: number } | undefined;
 
@@ -76,18 +78,18 @@ function ServiceRow({
             config.text,
           )}
         >
-          {config.label}
+          {t(config.labelKey)}
         </span>
       </div>
 
       {queueDetails && (
         <div className="mt-3 flex gap-4 text-sm">
           <span className="text-text-muted">
-            Pending:{" "}
+            {t("setup.systemHealth.queue.pending")}:{" "}
             <span className="font-medium text-text-primary">{queueDetails.pending ?? 0}</span>
           </span>
           <span className="text-text-muted">
-            Failed:{" "}
+            {t("setup.systemHealth.queue.failed")}:{" "}
             <span
               className={cn(
                 "font-medium",
@@ -104,14 +106,14 @@ function ServiceRow({
       {aiUnhealthy && onGoToAiProvider && (
         <div className="mt-3 flex items-center justify-between rounded-md border border-surface-highlight bg-surface-base/60 px-3 py-2">
           <p className="text-sm text-text-muted">
-            Abby AI is not responding — configure the provider in the next step.
+            {t("setup.systemHealth.aiUnhealthy")}
           </p>
           <button
             type="button"
             onClick={onGoToAiProvider}
             className="ml-3 flex shrink-0 items-center gap-1 text-sm font-medium text-accent hover:text-accent-light transition-colors"
           >
-            Configure AI
+            {t("setup.systemHealth.configureAi")}
             <ArrowRight size={12} />
           </button>
         </div>
@@ -121,6 +123,7 @@ function ServiceRow({
 }
 
 export function SystemHealthStep({ onHealthChecked, onGoToAiProvider }: Props) {
+  const { t } = useTranslation("auth");
   const { data: health, isLoading, isFetching, dataUpdatedAt } = useSystemHealth();
   const qc = useQueryClient();
 
@@ -141,9 +144,11 @@ export function SystemHealthStep({ onHealthChecked, onGoToAiProvider }: Props) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-text-primary">System Health Check</h3>
+          <h3 className="text-lg font-semibold text-text-primary">
+            {t("setup.systemHealth.title")}
+          </h3>
           <p className="text-base text-text-muted">
-            Verifying that all platform services are running correctly.
+            {t("setup.systemHealth.intro")}
           </p>
         </div>
         <button
@@ -153,14 +158,16 @@ export function SystemHealthStep({ onHealthChecked, onGoToAiProvider }: Props) {
           className="inline-flex items-center gap-1.5 rounded-md border border-border-default px-3 py-1.5 text-sm font-medium text-text-muted transition-colors hover:text-text-secondary disabled:opacity-50"
         >
           <RefreshCw size={12} className={isFetching ? "animate-spin" : ""} />
-          Refresh
+          {t("setup.systemHealth.refresh")}
         </button>
       </div>
 
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="h-6 w-6 animate-spin text-accent" />
-          <span className="ml-2 text-sm text-text-muted">Checking services...</span>
+          <span className="ml-2 text-sm text-text-muted">
+            {t("setup.systemHealth.checking")}
+          </span>
         </div>
       ) : (
         <>
@@ -175,11 +182,13 @@ export function SystemHealthStep({ onHealthChecked, onGoToAiProvider }: Props) {
             >
               <span className={cn("h-2.5 w-2.5 rounded-full", overallConfig.dot)} />
               <span className={cn("text-base font-medium capitalize", overallConfig.text)}>
-                System {overallStatus}
+                {t("setup.systemHealth.overall", {
+                  status: t(overallConfig.labelKey),
+                })}
               </span>
               {checkedAt && (
                 <span className="ml-auto text-sm text-text-ghost">
-                  Last checked at {checkedAt}
+                  {t("setup.systemHealth.lastChecked", { time: checkedAt })}
                 </span>
               )}
             </div>
@@ -196,7 +205,9 @@ export function SystemHealthStep({ onHealthChecked, onGoToAiProvider }: Props) {
             ))}
           </div>
 
-          <p className="text-sm text-text-ghost">Auto-refreshes every 30 seconds.</p>
+          <p className="text-sm text-text-ghost">
+            {t("setup.systemHealth.autoRefresh")}
+          </p>
         </>
       )}
     </div>

@@ -8,5 +8,7 @@ return [
     'password_changed' => 'Password changed successfully',
     'temporary_password_sent' => 'If an account exists with that email, a new temporary password has been sent.',
     'logged_out' => 'Logged out',
+    'unauthenticated' => 'Authentication is required',
+    'forbidden' => 'You do not have permission to perform this action',
     'oidc_authentik_label' => 'Sign in with Authentik',
 ];

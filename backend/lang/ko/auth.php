@@ -8,5 +8,7 @@ return [
     'password_changed' => '비밀번호가 성공적으로 변경되었습니다',
     'temporary_password_sent' => '해당 이메일의 계정이 존재하면 새 임시 비밀번호가 전송되었습니다.',
     'logged_out' => '로그아웃되었습니다',
+    'unauthenticated' => '인증이 필요합니다',
+    'forbidden' => '이 작업을 수행할 권한이 없습니다',
     'oidc_authentik_label' => 'Authentik으로 로그인',
 ];

@@ -384,7 +384,7 @@ export function RegisterPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      placeholder="you@example.com"
+                      placeholder={"you@example.com" /* i18n-exempt: example email address */}
                       style={inputStyle}
                       onFocus={(e) => {
                         e.currentTarget.style.borderColor = "var(--accent)";

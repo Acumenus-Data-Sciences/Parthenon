@@ -41,6 +41,9 @@ it('updates user profile with valid data', function () {
         ])
         ->assertOk()
         ->assertJsonPath('message', 'Profile updated successfully')
+        ->assertJsonPath('message_key', 'profile.updated')
+        ->assertJsonPath('message_meta.requested_locale', 'en-US')
+        ->assertJsonPath('message_meta.fallback_used', false)
         ->assertJsonPath('user.name', 'Updated Name')
         ->assertJsonPath('user.job_title', 'Data Analyst');
 
@@ -52,7 +55,7 @@ it('updates user profile with valid data', function () {
 });
 
 it('validates name is required on profile update', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->create(['locale' => 'es-ES']);
     $user->assignRole('viewer');
 
     $this->actingAs($user)
@@ -60,6 +63,11 @@ it('validates name is required on profile update', function () {
             'phone_number' => '555-1234',
         ])
         ->assertStatus(422)
+        ->assertJsonPath('message', 'Los datos proporcionados no son válidos.')
+        ->assertJsonPath('message_key', 'validation.failed')
+        ->assertJsonPath('message_meta.requested_locale', 'es-ES')
+        ->assertJsonPath('message_meta.message_locale', 'es-ES')
+        ->assertJsonPath('message_meta.fallback_used', false)
         ->assertJsonValidationErrors(['name']);
 });
 
@@ -105,7 +113,8 @@ it('allows nullable optional fields on profile update', function () {
             'bio' => null,
         ])
         ->assertOk()
-        ->assertJsonPath('message', 'Profile updated successfully');
+        ->assertJsonPath('message', 'Profile updated successfully')
+        ->assertJsonPath('message_key', 'profile.updated');
 });
 
 // ── Update Locale ───────────────────────────────────────────────────────────
@@ -120,9 +129,10 @@ it('updates user locale with a supported language', function () {
     $user->assignRole('viewer');
 
     $this->actingAs($user)
-        ->putJson('/api/v1/user/locale', ['locale' => 'ko-KR'])
+        ->putJson('/api/v1/user/locale', ['locale' => 'ko'])
         ->assertOk()
-        ->assertJsonPath('locale', 'ko-KR');
+        ->assertJsonPath('locale', 'ko-KR')
+        ->assertJsonPath('message_key', 'profile.locale_updated');
 
     $this->assertDatabaseHas('users', [
         'id' => $user->id,
@@ -138,6 +148,21 @@ it('rejects unsupported locales', function () {
         ->putJson('/api/v1/user/locale', ['locale' => 'tlh'])
         ->assertStatus(422)
         ->assertJsonValidationErrors(['locale']);
+});
+
+it('rejects supported but uncertified preview locales for persisted user preference', function () {
+    $user = User::factory()->create(['locale' => 'en-US']);
+    $user->assignRole('viewer');
+
+    $this->actingAs($user)
+        ->putJson('/api/v1/user/locale', ['locale' => 'fr-FR'])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['locale']);
+
+    $this->assertDatabaseHas('users', [
+        'id' => $user->id,
+        'locale' => 'en-US',
+    ]);
 });
 
 // ── Upload Avatar ────────────────────────────────────────────────────────────
@@ -171,6 +196,7 @@ it('uploads a valid avatar image', function () {
         ->postJson('/api/v1/user/avatar', ['avatar' => $file])
         ->assertOk()
         ->assertJsonPath('message', 'Avatar uploaded successfully')
+        ->assertJsonPath('message_key', 'profile.avatar_uploaded')
         ->assertJsonStructure(['message', 'avatar']);
 })->skip(! class_exists(Image::class), 'Intervention Image facade not available in CI');
 
@@ -231,7 +257,8 @@ it('deletes existing avatar', function () {
     $this->actingAs($user)
         ->deleteJson('/api/v1/user/avatar')
         ->assertOk()
-        ->assertJsonPath('message', 'Avatar removed successfully');
+        ->assertJsonPath('message', 'Avatar removed successfully')
+        ->assertJsonPath('message_key', 'profile.avatar_removed');
 
     $user->refresh();
     expect($user->avatar)->toBeNull();
@@ -245,5 +272,6 @@ it('handles delete when no avatar exists', function () {
     $this->actingAs($user)
         ->deleteJson('/api/v1/user/avatar')
         ->assertOk()
-        ->assertJsonPath('message', 'Avatar removed successfully');
+        ->assertJsonPath('message', 'Avatar removed successfully')
+        ->assertJsonPath('message_key', 'profile.avatar_removed');
 });

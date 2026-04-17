@@ -7,4 +7,6 @@ return [
     'avatar_upload_failed' => 'अवतार फ़ाइल सहेजी नहीं जा सकी',
     'avatar_uploaded' => 'अवतार सफलतापूर्वक अपलोड किया गया',
     'avatar_removed' => 'अवतार सफलतापूर्वक हटाया गया',
+    'theme_updated' => 'थीम वरीयता अपडेट की गई',
+    'locale_updated' => 'भाषा वरीयता अपडेट की गई',
 ];

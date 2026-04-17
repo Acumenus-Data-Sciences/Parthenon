@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Modal } from "@/components/ui/Modal";
 
 interface AboutAbbyModalProps {
@@ -6,15 +7,21 @@ interface AboutAbbyModalProps {
   onClose: () => void;
 }
 
-const IMAGES = [
-  { src: "/abigail-geisinger.avif", alt: "Abigail A. Geisinger (1827–1921)" },
-  { src: "/Abby-AI.png", alt: "Abby — Parthenon AI Assistant" },
-];
-
 const FADE_DURATION = 6000; // ms per image
 
 export function AboutAbbyModal({ open, onClose }: AboutAbbyModalProps) {
+  const { t } = useTranslation("layout");
   const [activeIndex, setActiveIndex] = useState(0);
+  const images = [
+    {
+      src: "/abigail-geisinger.avif",
+      alt: t("abby.about.images.abigailAlt"),
+    },
+    {
+      src: "/Abby-AI.png",
+      alt: t("abby.about.images.abbyAlt"),
+    },
+  ];
 
   useEffect(() => {
     if (!open) {
@@ -22,17 +29,17 @@ export function AboutAbbyModal({ open, onClose }: AboutAbbyModalProps) {
       return;
     }
     const interval = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % IMAGES.length);
+      setActiveIndex((prev) => (prev + 1) % images.length);
     }, FADE_DURATION);
     return () => clearInterval(interval);
-  }, [open]);
+  }, [images.length, open]);
 
   const caption = activeIndex === 0
-    ? "Abigail A. Geisinger, 1827–1921"
-    : "Abby — AI Research Assistant";
+    ? t("abby.about.images.abigailCaption")
+    : t("abby.about.images.abbyCaption");
 
   return (
-    <Modal open={open} onClose={onClose} size="lg" title="About Abby">
+    <Modal open={open} onClose={onClose} size="lg" title={t("abby.about.title")}>
       <div style={{ padding: "8px 4px" }}>
         {/* Hero with crossfade */}
         <div style={{ textAlign: "center", marginBottom: 32 }}>
@@ -48,7 +55,7 @@ export function AboutAbbyModal({ open, onClose }: AboutAbbyModalProps) {
               overflow: "hidden",
             }}
           >
-            {IMAGES.map((img, i) => (
+            {images.map((img, i) => (
               <img
                 key={img.src}
                 src={img.src}
@@ -85,7 +92,7 @@ export function AboutAbbyModal({ open, onClose }: AboutAbbyModalProps) {
               margin: 0,
             }}
           >
-            Parthenon's AI Research Assistant
+            {t("abby.about.subtitle")}
           </p>
         </div>
 
@@ -107,7 +114,7 @@ export function AboutAbbyModal({ open, onClose }: AboutAbbyModalProps) {
               margin: "0 0 16px",
             }}
           >
-            In Memory of Abigail Geisinger
+            {t("abby.about.dedication.title")}
           </h3>
           <p
             style={{
@@ -117,12 +124,11 @@ export function AboutAbbyModal({ open, onClose }: AboutAbbyModalProps) {
               margin: "0 0 16px",
             }}
           >
-            Abby is named in honor of{" "}
+            {t("abby.about.dedication.namedPrefix")}{" "}
             <strong style={{ color: "var(--text-primary, #F0EDE8)" }}>
-              Abigail A. Geisinger
+              {t("abby.about.dedication.namedName")}
             </strong>{" "}
-            (1827–1921), the pioneering philanthropist who founded what would
-            become one of America's most innovative healthcare systems.
+            {t("abby.about.dedication.namedSuffix")}
           </p>
           <p
             style={{
@@ -132,12 +138,7 @@ export function AboutAbbyModal({ open, onClose }: AboutAbbyModalProps) {
               margin: "0 0 16px",
             }}
           >
-            At the age of 85, widowed and childless, Abigail looked at her rural
-            community of Danville, Pennsylvania, and saw a problem that no one
-            else was solving: there was no hospital. People who fell ill had to be
-            transported by carriage — and later by her own personal Hupmobile — to
-            the nearest facility in Sunbury. She decided she was going to fix
-            that.
+            {t("abby.about.dedication.age85")}
           </p>
           <p
             style={{
@@ -147,15 +148,7 @@ export function AboutAbbyModal({ open, onClose }: AboutAbbyModalProps) {
               margin: "0 0 16px",
             }}
           >
-            In 1912, she gathered a group of people together and set her vision
-            into motion. She called upon the Mayo brothers themselves to recommend
-            a physician worthy of leading her hospital. They sent her Dr. Harold
-            Foss, who was practicing medicine on the frozen banks of the Kiwalik
-            River in Candle, Alaska. She convinced him to come to Pennsylvania.
-            The cornerstone was laid in 1913. When the George F. Geisinger
-            Memorial Hospital opened on September 12, 1915, a typhoid epidemic
-            had swept through Danville just two weeks earlier — and her hospital
-            was already saving lives.
+            {t("abby.about.dedication.founding")}
           </p>
           <p
             style={{
@@ -165,7 +158,7 @@ export function AboutAbbyModal({ open, onClose }: AboutAbbyModalProps) {
               margin: "0 0 16px",
             }}
           >
-            Her motto during construction was unwavering:
+            {t("abby.about.dedication.mottoIntro")}
           </p>
           <blockquote
             style={{
@@ -179,7 +172,7 @@ export function AboutAbbyModal({ open, onClose }: AboutAbbyModalProps) {
               lineHeight: 1.5,
             }}
           >
-            "Make my hospital right. Make it the best."
+            {t("abby.about.dedication.motto")}
           </blockquote>
           <p
             style={{
@@ -189,13 +182,7 @@ export function AboutAbbyModal({ open, onClose }: AboutAbbyModalProps) {
               margin: "0 0 16px",
             }}
           >
-            She was not merely a benefactor who wrote checks. She visited patients
-            and brought flowers from her own garden. At Christmas, she distributed
-            baskets of fruit throughout the community. During World War I, she
-            volunteered to care for wounded soldiers and personally contacted
-            national leaders to offer her hospital's services. Photographs from
-            the cornerstone ceremony show her with her head thrown back, laughing
-            — a woman of warmth, humor, and iron determination.
+            {t("abby.about.dedication.service")}
           </p>
           <p
             style={{
@@ -205,13 +192,7 @@ export function AboutAbbyModal({ open, onClose }: AboutAbbyModalProps) {
               margin: "0 0 16px",
             }}
           >
-            When Abigail Geisinger died on July 8, 1921, at the age of 94, she
-            left over one million dollars to ensure her hospital would endure. She
-            is buried in a cemetery overlooking the institution she built — a
-            quiet sentinel watching over her life's greatest achievement as it
-            grew from 44 beds and 13 acres into a health system spanning ten
-            hospitals, training generations of physicians, and touching millions
-            of lives.
+            {t("abby.about.dedication.legacy")}
           </p>
         </div>
 
@@ -233,7 +214,7 @@ export function AboutAbbyModal({ open, onClose }: AboutAbbyModalProps) {
               margin: "0 0 16px",
             }}
           >
-            Why We Named Her Abby
+            {t("abby.about.why.title")}
           </h3>
           <p
             style={{
@@ -243,10 +224,7 @@ export function AboutAbbyModal({ open, onClose }: AboutAbbyModalProps) {
               margin: "0 0 16px",
             }}
           >
-            Abigail Geisinger saw that healthcare was too fragmented, too
-            inaccessible, and too difficult for the people who needed it most. She
-            did not accept that as the way things had to be. She built something
-            better.
+            {t("abby.about.why.problem")}
           </p>
           <p
             style={{
@@ -256,11 +234,7 @@ export function AboutAbbyModal({ open, onClose }: AboutAbbyModalProps) {
               margin: "0 0 16px",
             }}
           >
-            Parthenon exists for the same reason. The OHDSI ecosystem — Atlas,
-            WebAPI, Achilles, and a dozen other tools — is powerful but
-            fragmented. Researchers spend more time wrestling with tooling than
-            answering clinical questions. Parthenon brings it all under one roof,
-            just as Abigail brought modern medicine to a community that had none.
+            {t("abby.about.why.parthenon")}
           </p>
           <p
             style={{
@@ -270,11 +244,8 @@ export function AboutAbbyModal({ open, onClose }: AboutAbbyModalProps) {
               margin: 0,
             }}
           >
-            Abby, our AI assistant, carries her namesake's spirit: she helps
-            researchers describe cohorts in plain English, maps concepts across
-            vocabularies, and works to make the complex accessible. She is our
-            small tribute to a woman who looked at an impossible problem and said,
-            simply, <em>"I'm going to fix that."</em>
+            {t("abby.about.why.abbyPrefix")}{" "}
+            <em>{t("abby.about.why.abbyQuote")}</em>
           </p>
         </div>
 
@@ -288,10 +259,9 @@ export function AboutAbbyModal({ open, onClose }: AboutAbbyModalProps) {
             fontStyle: "italic",
           }}
         >
-          Dedicated with admiration to the memory of Abigail A. Geisinger
-          (1827–1921)
+          {t("abby.about.footer.dedication")}
           <br />
-          Founder of Geisinger Medical Center — Danville, Pennsylvania
+          {t("abby.about.footer.founder")}
         </p>
       </div>
     </Modal>

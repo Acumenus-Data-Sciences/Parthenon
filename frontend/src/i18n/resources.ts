@@ -1477,6 +1477,8 @@ const enSettingsDetails: MessageTree = {
     passwordChangeFailed: "Failed to change password",
   },
   notifications: {
+    pageTitle: "Notification Preferences",
+    pageSubtitle: "Configure how and when you receive notifications",
     loadFailed: "Failed to load notification preferences",
     emailTitle: "Email Notifications",
     emailSubtitle: "Receive notifications via email",
@@ -1557,6 +1559,8 @@ const esSettingsDetails: MessageTree = {
     passwordChangeFailed: "No se pudo cambiar la contraseña",
   },
   notifications: {
+    pageTitle: "Preferencias de notificación",
+    pageSubtitle: "Configura cómo y cuándo recibes notificaciones",
     loadFailed: "No se pudieron cargar las preferencias de notificación",
     emailTitle: "Notificaciones por correo",
     emailSubtitle: "Recibe notificaciones por correo electrónico",
@@ -2101,6 +2105,8 @@ const koSettingsDetails: MessageTree = {
     passwordChangeFailed: "비밀번호를 변경할 수 없습니다",
   },
   notifications: {
+    pageTitle: "알림 환경설정",
+    pageSubtitle: "알림을 받는 방식과 시기를 설정하세요",
     loadFailed: "알림 환경설정을 불러올 수 없습니다",
     emailTitle: "이메일 알림",
     emailSubtitle: "이메일로 알림 받기",
@@ -3614,6 +3620,1144 @@ function mergeMessageTrees(
   );
 }
 
+const enAbbyLayout: MessageTree = {
+  panel: {
+    dialogLabel: "AI Assistant",
+    title: "Abby AI",
+    conversationHistory: "Conversation history",
+    newChat: "New chat",
+    closePanel: "Close AI panel",
+    backToChat: "Back to chat",
+    noPastConversations: "No past conversations",
+    deleteConversation: "Delete conversation",
+    suggestedPrompts: "Suggested prompts",
+    sendMessage: "Send message",
+    untitledConversation: "Untitled",
+    messagesAbbrev: "msgs",
+    inputPlaceholder: "Ask Abby about {{context}}...",
+    time: {
+      justNow: "just now",
+      minutesAgo: "{{count}}m ago",
+      hoursAgo: "{{count}}h ago",
+      daysAgo: "{{count}}d ago",
+    },
+  },
+  about: {
+    title: "About Abby",
+    images: {
+      abigailAlt: "Abigail A. Geisinger (1827-1921)",
+      abbyAlt: "Abby - Parthenon AI Assistant",
+      abigailCaption: "Abigail A. Geisinger, 1827-1921",
+      abbyCaption: "Abby - AI Research Assistant",
+    },
+    subtitle: "Parthenon's AI Research Assistant",
+    dedication: {
+      title: "In Memory of Abigail Geisinger",
+      namedPrefix: "Abby is named in honor of",
+      namedName: "Abigail A. Geisinger",
+      namedSuffix:
+        "(1827-1921), the pioneering philanthropist who founded what would become one of America's most innovative healthcare systems.",
+      age85:
+        "At the age of 85, widowed and childless, Abigail looked at her rural community of Danville, Pennsylvania, and saw a problem that no one else was solving: there was no hospital. People who fell ill had to be transported by carriage - and later by her own personal Hupmobile - to the nearest facility in Sunbury. She decided she was going to fix that.",
+      founding:
+        "In 1912, she gathered a group of people together and set her vision into motion. She called upon the Mayo brothers themselves to recommend a physician worthy of leading her hospital. They sent her Dr. Harold Foss, who was practicing medicine on the frozen banks of the Kiwalik River in Candle, Alaska. She convinced him to come to Pennsylvania. The cornerstone was laid in 1913. When the George F. Geisinger Memorial Hospital opened on September 12, 1915, a typhoid epidemic had swept through Danville just two weeks earlier - and her hospital was already saving lives.",
+      mottoIntro: "Her motto during construction was unwavering:",
+      motto: "\"Make my hospital right. Make it the best.\"",
+      service:
+        "She was not merely a benefactor who wrote checks. She visited patients and brought flowers from her own garden. At Christmas, she distributed baskets of fruit throughout the community. During World War I, she volunteered to care for wounded soldiers and personally contacted national leaders to offer her hospital's services. Photographs from the cornerstone ceremony show her with her head thrown back, laughing - a woman of warmth, humor, and iron determination.",
+      legacy:
+        "When Abigail Geisinger died on July 8, 1921, at the age of 94, she left over one million dollars to ensure her hospital would endure. She is buried in a cemetery overlooking the institution she built - a quiet sentinel watching over her life's greatest achievement as it grew from 44 beds and 13 acres into a health system spanning ten hospitals, training generations of physicians, and touching millions of lives.",
+    },
+    why: {
+      title: "Why We Named Her Abby",
+      problem:
+        "Abigail Geisinger saw that healthcare was too fragmented, too inaccessible, and too difficult for the people who needed it most. She did not accept that as the way things had to be. She built something better.",
+      parthenon:
+        "Parthenon exists for the same reason. The OHDSI ecosystem - Atlas, WebAPI, Achilles, and a dozen other tools - is powerful but fragmented. Researchers spend more time wrestling with tooling than answering clinical questions. Parthenon brings it all under one roof, just as Abigail brought modern medicine to a community that had none.",
+      abbyPrefix:
+        "Abby, our AI assistant, carries her namesake's spirit: she helps researchers describe cohorts in plain English, maps concepts across vocabularies, and works to make the complex accessible. She is our small tribute to a woman who looked at an impossible problem and said, simply,",
+      abbyQuote: "\"I'm going to fix that.\"",
+    },
+    footer: {
+      dedication:
+        "Dedicated with admiration to the memory of Abigail A. Geisinger (1827-1921)",
+      founder:
+        "Founder of Geisinger Medical Center - Danville, Pennsylvania",
+    },
+  },
+};
+
+const esAbbyLayout: MessageTree = mergeMessageTrees(enAbbyLayout, {
+  panel: {
+    dialogLabel: "Asistente de IA",
+    title: "Abby IA",
+    conversationHistory: "Historial de conversaciones",
+    newChat: "Nueva conversación",
+    closePanel: "Cerrar panel de IA",
+    backToChat: "Volver al chat",
+    noPastConversations: "No hay conversaciones anteriores",
+    deleteConversation: "Eliminar conversación",
+    suggestedPrompts: "Sugerencias",
+    sendMessage: "Enviar mensaje",
+    untitledConversation: "Sin título",
+    messagesAbbrev: "mensajes",
+    inputPlaceholder: "Pregúntale a Abby sobre {{context}}...",
+    time: {
+      justNow: "ahora mismo",
+      minutesAgo: "hace {{count}} min",
+      hoursAgo: "hace {{count}} h",
+      daysAgo: "hace {{count}} d",
+    },
+  },
+  about: {
+    title: "Acerca de Abby",
+    images: {
+      abigailAlt: "Abigail A. Geisinger (1827-1921)",
+      abbyAlt: "Abby - asistente de IA de Parthenon",
+      abigailCaption: "Abigail A. Geisinger, 1827-1921",
+      abbyCaption: "Abby - asistente de investigación con IA",
+    },
+    subtitle: "Asistente de investigación con IA de Parthenon",
+    dedication: {
+      title: "En memoria de Abigail Geisinger",
+      namedPrefix: "Abby lleva su nombre en honor a",
+      namedName: "Abigail A. Geisinger",
+      namedSuffix:
+        "(1827-1921), la filántropa pionera que fundó lo que llegaría a ser uno de los sistemas de salud más innovadores de Estados Unidos.",
+      age85:
+        "A los 85 años, viuda y sin hijos, Abigail miró su comunidad rural de Danville, Pensilvania, y vio un problema que nadie estaba resolviendo: no había hospital. Quienes enfermaban debían ser trasladados en carruaje - y más tarde en su propio Hupmobile - hasta el centro más cercano en Sunbury. Decidió que iba a arreglarlo.",
+      founding:
+        "En 1912 reunió a un grupo de personas y puso su visión en marcha. Recurrió a los propios hermanos Mayo para recomendar un médico digno de dirigir su hospital. Le enviaron al Dr. Harold Foss, que ejercía la medicina en las riberas heladas del río Kiwalik, en Candle, Alaska. Ella lo convenció de venir a Pensilvania. La piedra angular se colocó en 1913. Cuando el George F. Geisinger Memorial Hospital abrió el 12 de septiembre de 1915, una epidemia de fiebre tifoidea había azotado Danville apenas dos semanas antes, y su hospital ya estaba salvando vidas.",
+      mottoIntro: "Su lema durante la construcción fue inquebrantable:",
+      motto: "\"Hagan bien mi hospital. Háganlo el mejor.\"",
+      service:
+        "No fue simplemente una benefactora que escribía cheques. Visitaba a los pacientes y llevaba flores de su propio jardín. En Navidad distribuía cestas de fruta por toda la comunidad. Durante la Primera Guerra Mundial se ofreció como voluntaria para cuidar soldados heridos y contactó personalmente a líderes nacionales para ofrecer los servicios de su hospital. Las fotografías de la ceremonia de la piedra angular la muestran riendo con la cabeza hacia atrás: una mujer de calidez, humor y férrea determinación.",
+      legacy:
+        "Cuando Abigail Geisinger murió el 8 de julio de 1921, a los 94 años, dejó más de un millón de dólares para asegurar que su hospital perdurara. Está enterrada en un cementerio que domina la institución que construyó: una centinela silenciosa sobre el mayor logro de su vida, que creció de 44 camas y 13 acres a un sistema de salud con diez hospitales, formador de generaciones de médicos y presente en millones de vidas.",
+    },
+    why: {
+      title: "Por qué la llamamos Abby",
+      problem:
+        "Abigail Geisinger vio que la atención médica estaba demasiado fragmentada, era demasiado inaccesible y resultaba demasiado difícil para quienes más la necesitaban. No aceptó que las cosas tuvieran que ser así. Construyó algo mejor.",
+      parthenon:
+        "Parthenon existe por la misma razón. El ecosistema OHDSI - Atlas, WebAPI, Achilles y muchas otras herramientas - es potente pero fragmentado. Los investigadores pasan más tiempo peleando con herramientas que respondiendo preguntas clínicas. Parthenon lo reúne todo bajo un mismo techo, igual que Abigail llevó la medicina moderna a una comunidad que no la tenía.",
+      abbyPrefix:
+        "Abby, nuestra asistente de IA, lleva el espíritu de su homónima: ayuda a los investigadores a describir cohortes en lenguaje claro, mapea conceptos entre vocabularios y trabaja para hacer accesible lo complejo. Es nuestro pequeño homenaje a una mujer que miró un problema imposible y dijo, sencillamente,",
+      abbyQuote: "\"Voy a arreglarlo.\"",
+    },
+    footer: {
+      dedication:
+        "Dedicado con admiración a la memoria de Abigail A. Geisinger (1827-1921)",
+      founder:
+        "Fundadora de Geisinger Medical Center - Danville, Pensilvania",
+    },
+  },
+});
+
+const koAbbyLayout: MessageTree = mergeMessageTrees(enAbbyLayout, {
+  panel: {
+    dialogLabel: "AI 어시스턴트",
+    title: "Abby AI",
+    conversationHistory: "대화 기록",
+    newChat: "새 대화",
+    closePanel: "AI 패널 닫기",
+    backToChat: "채팅으로 돌아가기",
+    noPastConversations: "이전 대화가 없습니다",
+    deleteConversation: "대화 삭제",
+    suggestedPrompts: "추천 질문",
+    sendMessage: "메시지 보내기",
+    untitledConversation: "제목 없음",
+    messagesAbbrev: "개 메시지",
+    inputPlaceholder: "Abby에게 {{context}}에 대해 물어보세요...",
+    time: {
+      justNow: "방금 전",
+      minutesAgo: "{{count}}분 전",
+      hoursAgo: "{{count}}시간 전",
+      daysAgo: "{{count}}일 전",
+    },
+  },
+  about: {
+    title: "Abby 소개",
+    images: {
+      abigailAlt: "Abigail A. Geisinger (1827-1921)",
+      abbyAlt: "Abby - Parthenon AI 어시스턴트",
+      abigailCaption: "Abigail A. Geisinger, 1827-1921",
+      abbyCaption: "Abby - AI 연구 어시스턴트",
+    },
+    subtitle: "Parthenon의 AI 연구 어시스턴트",
+    dedication: {
+      title: "Abigail Geisinger를 기리며",
+      namedPrefix: "Abby는",
+      namedName: "Abigail A. Geisinger",
+      namedSuffix:
+        "(1827-1921)를 기리기 위해 이름 붙였습니다. 그는 훗날 미국에서 가장 혁신적인 의료 시스템 중 하나가 될 기관을 세운 선구적인 자선가였습니다.",
+      age85:
+        "85세에 남편과 자녀 없이 지내던 Abigail은 펜실베이니아주 댄빌의 시골 공동체를 바라보며 아무도 해결하지 못하던 문제를 보았습니다. 병원이 없었던 것입니다. 아픈 사람들은 마차로, 나중에는 그녀의 개인 Hupmobile로, 가장 가까운 선버리의 시설까지 옮겨져야 했습니다. 그녀는 그 문제를 고치기로 결심했습니다.",
+      founding:
+        "1912년, 그녀는 사람들을 모아 자신의 비전을 실행에 옮겼습니다. 그녀는 Mayo 형제에게 병원을 이끌 만한 의사를 추천해 달라고 요청했습니다. 그들은 알래스카 Candle의 얼어붙은 Kiwalik 강가에서 진료하던 Harold Foss 박사를 보냈고, 그녀는 그를 펜실베이니아로 오도록 설득했습니다. 초석은 1913년에 놓였습니다. George F. Geisinger Memorial Hospital이 1915년 9월 12일 문을 열었을 때, 불과 2주 전 댄빌에는 장티푸스 유행이 휩쓸고 지나갔고, 그녀의 병원은 이미 생명을 구하고 있었습니다.",
+      mottoIntro: "건설 중 그녀의 신념은 흔들리지 않았습니다.",
+      motto: "\"내 병원을 제대로 만들어 주세요. 최고의 병원으로 만들어 주세요.\"",
+      service:
+        "그녀는 단순히 수표를 쓰는 후원자가 아니었습니다. 환자들을 찾아가고 자신의 정원에서 꽃을 가져다주었습니다. 크리스마스에는 지역사회 곳곳에 과일 바구니를 나누었습니다. 제1차 세계대전 중에는 부상병을 돌보겠다고 자원했고, 병원의 서비스를 제공하기 위해 국가 지도자들에게 직접 연락했습니다. 초석식 사진 속 그녀는 고개를 젖히고 웃고 있습니다. 따뜻함과 유머, 강철 같은 결의를 가진 사람이었습니다.",
+      legacy:
+        "Abigail Geisinger는 1921년 7월 8일, 94세의 나이로 세상을 떠나며 병원이 오래 지속되도록 백만 달러가 넘는 유산을 남겼습니다. 그녀는 자신이 세운 기관이 내려다보이는 묘지에 묻혀 있습니다. 44개 병상과 13에이커에서 시작해 10개 병원으로 이루어진 의료 시스템으로 성장하고, 여러 세대의 의사를 길러내며, 수백만 명의 삶에 닿은 업적을 조용히 지켜보는 파수꾼처럼 말입니다.",
+    },
+    why: {
+      title: "왜 Abby라는 이름을 붙였는가",
+      problem:
+        "Abigail Geisinger는 의료가 너무 파편화되어 있고, 너무 접근하기 어렵고, 가장 필요한 사람들에게 너무 어렵다는 사실을 보았습니다. 그녀는 그것이 당연하다고 받아들이지 않았습니다. 더 나은 것을 만들었습니다.",
+      parthenon:
+        "Parthenon도 같은 이유로 존재합니다. Atlas, WebAPI, Achilles와 수많은 도구로 이루어진 OHDSI 생태계는 강력하지만 파편화되어 있습니다. 연구자들은 임상 질문에 답하는 시간보다 도구와 씨름하는 데 더 많은 시간을 씁니다. Parthenon은 모든 것을 한 지붕 아래 모읍니다. Abigail이 현대 의학이 없던 공동체에 그것을 가져온 것처럼 말입니다.",
+      abbyPrefix:
+        "우리의 AI 어시스턴트 Abby는 그 이름의 정신을 이어받았습니다. 연구자가 코호트를 쉬운 언어로 설명하도록 돕고, 어휘 간 개념을 매핑하며, 복잡한 것을 접근 가능하게 만들기 위해 일합니다. 불가능해 보이는 문제를 바라보고 이렇게 말한 한 여성에게 바치는 작은 헌사입니다.",
+      abbyQuote: "\"내가 고치겠습니다.\"",
+    },
+    footer: {
+      dedication:
+        "Abigail A. Geisinger (1827-1921)의 기억에 존경을 담아 바칩니다",
+      founder:
+        "Geisinger Medical Center 창립자 - 펜실베이니아주 댄빌",
+    },
+  },
+});
+
+function withAbbyLayout(
+  namespaces: ParthenonNamespaces,
+  abbyLayout: MessageTree,
+): ParthenonNamespaces {
+  return {
+    ...namespaces,
+    layout: mergeMessageTrees(namespaces.layout, { abby: abbyLayout }),
+  };
+}
+
+const enCommonUi: MessageTree = {
+  aria: {
+    breadcrumb: "Breadcrumb",
+    copyCode: "Copy code",
+    close: "Close",
+    dismiss: "Dismiss",
+  },
+  codeFallback: "Code",
+  job: {
+    status: {
+      pending: "Pending",
+      running: "Running",
+      completed: "Completed",
+      failed: "Failed",
+    },
+    progress: "Progress",
+    duration: "Duration",
+    elapsed: "Elapsed",
+    completedSuccessfully: "Job completed successfully.",
+  },
+  tags: {
+    filterByTag: "Filter by tag:",
+    more: "{{count}} more",
+    search: "Search",
+    clearAll: "Clear all",
+    browseTags: "Browse Tags ({{count}})",
+    selected: "{{count}} selected",
+    noMatches: "No tags match \"{{query}}\"",
+    done: "Done",
+    searchPlaceholder: "Search tags...",
+    sort: {
+      selectedFirst: "Selected first",
+      byCount: "By count",
+    },
+  },
+};
+
+const esCommonUi: MessageTree = mergeMessageTrees(enCommonUi, {
+  aria: {
+    breadcrumb: "Ruta de navegación",
+    copyCode: "Copiar código",
+    close: "Cerrar",
+    dismiss: "Descartar",
+  },
+  codeFallback: "Código",
+  job: {
+    status: {
+      pending: "Pendiente",
+      running: "En ejecución",
+      completed: "Completado",
+      failed: "Fallido",
+    },
+    progress: "Progreso",
+    duration: "Duración",
+    elapsed: "Transcurrido",
+    completedSuccessfully: "Trabajo completado correctamente.",
+  },
+  tags: {
+    filterByTag: "Filtrar por etiqueta:",
+    more: "{{count}} más",
+    search: "Buscar",
+    clearAll: "Limpiar todo",
+    browseTags: "Explorar etiquetas ({{count}})",
+    selected: "{{count}} seleccionadas",
+    noMatches: "Ninguna etiqueta coincide con \"{{query}}\"",
+    done: "Listo",
+    searchPlaceholder: "Buscar etiquetas...",
+    sort: {
+      selectedFirst: "Seleccionadas primero",
+      byCount: "Por conteo",
+    },
+  },
+});
+
+const koCommonUi: MessageTree = mergeMessageTrees(enCommonUi, {
+  aria: {
+    breadcrumb: "이동 경로",
+    copyCode: "코드 복사",
+    close: "닫기",
+    dismiss: "닫기",
+  },
+  codeFallback: "코드",
+  job: {
+    status: {
+      pending: "대기 중",
+      running: "실행 중",
+      completed: "완료됨",
+      failed: "실패",
+    },
+    progress: "진행률",
+    duration: "소요 시간",
+    elapsed: "경과 시간",
+    completedSuccessfully: "작업이 성공적으로 완료되었습니다.",
+  },
+  tags: {
+    filterByTag: "태그로 필터:",
+    more: "{{count}}개 더",
+    search: "검색",
+    clearAll: "모두 지우기",
+    browseTags: "태그 찾아보기 ({{count}})",
+    selected: "{{count}}개 선택됨",
+    noMatches: "\"{{query}}\"와 일치하는 태그가 없습니다",
+    done: "완료",
+    searchPlaceholder: "태그 검색...",
+    sort: {
+      selectedFirst: "선택 항목 먼저",
+      byCount: "개수순",
+    },
+  },
+});
+
+function withCommonUi(
+  namespaces: ParthenonNamespaces,
+  commonUi: MessageTree,
+): ParthenonNamespaces {
+  return {
+    ...namespaces,
+    common: mergeMessageTrees(namespaces.common, { ui: commonUi }),
+  };
+}
+
+const enAuthSetup: MessageTree = {
+  setup: {
+    wizard: {
+      steps: {
+        welcome: "Welcome",
+        security: "Security",
+        health: "Health",
+        ai: "AI",
+        auth: "Auth",
+        dataSources: "Data Sources",
+        complete: "Complete",
+      },
+      close: "Close",
+      skipSetup: "Skip setup - return any time via Administration",
+      previous: "Previous",
+      next: "Next",
+      skip: "Skip",
+      skipStep: "Skip this step - configure later in Administration",
+    },
+    welcome: {
+      title: "Welcome to Parthenon",
+      intro:
+        "Let's configure your research platform. This wizard walks through the essential setup steps - each can be skipped and revisited any time from the Administration panel.",
+      configureTitle: "What we'll configure",
+      beforeTitle: "Before you start",
+      optionalNote: "None of the optional steps are required to proceed.",
+      overview: {
+        systemHealth: {
+          label: "System Health",
+          description: "Verify all platform services are running correctly.",
+        },
+        aiProvider: {
+          label: "AI Provider",
+          description: "Configure which AI backend powers Abby.",
+        },
+        authentication: {
+          label: "Authentication",
+          description: "Set up SSO providers like LDAP, OAuth, or OIDC.",
+        },
+        dataSources: {
+          label: "Data Sources",
+          description: "Connect CDM databases or import from legacy WebAPI.",
+        },
+      },
+      before: {
+        cdm: "Your OMOP CDM database is accessible from this server",
+        docker: "Docker and all containers are running (verified in the next step)",
+        ollama: "Ollama is running locally if you want AI features (optional)",
+        sso: "You have your organization's SSO details if enabling single sign-on (optional)",
+      },
+    },
+    changePassword: {
+      strength: {
+        weak: "Weak",
+        fair: "Fair",
+        good: "Good",
+        strong: "Strong",
+        excellent: "Excellent",
+        tooShort: "Too short",
+      },
+      errors: {
+        mismatch: "Passwords do not match.",
+        tooShort: "New password must be at least 8 characters.",
+        same: "New password must differ from the current password.",
+        failed: "Password change failed. Please try again.",
+      },
+      successTitle: "Password updated",
+      successDescription:
+        "Your account is secured. Continue to the next step.",
+      title: "Secure Your Account",
+      intro:
+        "A temporary password was generated during installation. Set a permanent password before continuing.",
+      temporaryTitle:
+        "Temporary credentials were generated during install",
+      temporaryPrefix: "Your temporary password is in",
+      credentialsFile: ".install-credentials",
+      temporarySuffix:
+        "at the repo root. Enter it below, then choose a permanent password.",
+      currentLabel: "Current (temporary) password",
+      currentPlaceholder: "Enter temporary password",
+      newLabel: "New password",
+      newPlaceholder: "Min 8 characters",
+      toggleNewVisibility: "Show or hide new password",
+      confirmLabel: "Confirm new password",
+      confirmPlaceholder: "Repeat new password",
+      submit: "Set permanent password",
+    },
+    systemHealth: {
+      status: {
+        healthy: "Healthy",
+        degraded: "Degraded",
+        down: "Down",
+      },
+      queue: {
+        pending: "Pending",
+        failed: "Failed",
+      },
+      aiUnhealthy:
+        "Abby AI is not responding - configure the provider in the next step.",
+      configureAi: "Configure AI",
+      title: "System Health Check",
+      intro: "Verifying that all platform services are running correctly.",
+      refresh: "Refresh",
+      checking: "Checking services...",
+      overall: "System {{status}}",
+      lastChecked: "Last checked at {{time}}",
+      autoRefresh: "Auto-refreshes every 30 seconds.",
+    },
+    aiProvider: {
+      regions: {
+        local: "Local",
+        us: "US",
+        china: "China",
+        eu: "EU",
+      },
+      switchToThis: "Switch to this",
+      testFailed: "Connection test failed.",
+      loading: "Loading AI providers...",
+      title: "AI Provider Configuration",
+      intro:
+        "Configure which AI backend powers Abby, the research assistant. Only one provider is active at a time.",
+      activeProvider: "Active provider:",
+      model: "Model",
+      modelPlaceholder: "Model name",
+      apiKey: "API Key",
+      baseUrl: "Base URL",
+      save: "Save",
+      testConnection: "Test Connection",
+      hideOtherProviders: "Hide other providers ({{count}})",
+      showOtherProviders: "Show other providers ({{count}})",
+    },
+    authentication: {
+      providers: {
+        ldap: {
+          label: "LDAP / Active Directory",
+          description: "Authenticate against AD or any LDAP v3 directory.",
+        },
+        oauth2: {
+          label: "OAuth 2.0",
+          description: "Delegate auth to GitHub, Google, Microsoft, or custom.",
+        },
+        saml2: {
+          label: "SAML 2.0",
+          description: "Enterprise SSO via Okta, Azure AD, ADFS, etc.",
+        },
+        oidc: {
+          label: "OpenID Connect",
+          description: "Modern SSO with PKCE and OIDC discovery.",
+        },
+      },
+      enabled: "Enabled",
+      disabled: "Disabled",
+      configure: "Configure",
+      testConnection: "Test Connection",
+      connectionSuccessful: "Connection successful",
+      connectionFailed: "Connection failed",
+      loading: "Loading auth providers...",
+      title: "Authentication Providers",
+      intro:
+        "Configure external identity providers for single sign-on. This step is optional - local username/password authentication is always available.",
+      usernamePassword: "Username & Password",
+      builtIn: "Built-in Sanctum authentication - always active.",
+      alwaysOn: "Always on",
+    },
+    onboarding: {
+      tour: {
+        sidebarTitle: "Navigation Sidebar",
+        sidebarContent:
+          "All your research tools live here: Data Explorer, Vocabulary, Cohort Definitions, Concept Sets, Analyses, and more.",
+        commandTitle: "Command Palette (Cmd K)",
+        commandContent:
+          "Quickly jump to any page or action without clicking through menus. Try Cmd K (or Ctrl+K) and search 'cohort'.",
+        dataSourcesTitle: "Data Sources",
+        dataSourcesContent:
+          "Connect your CDM sources here. All analyses run against these data sources.",
+        cohortDefinitionsTitle: "Cohort Definitions",
+        cohortDefinitionsContent:
+          "Build OHDSI-compatible cohort definitions using inclusion/exclusion criteria, then generate counts against any connected CDM.",
+        vocabularyTitle: "Vocabulary Explorer",
+        vocabularyContent:
+          "Search 7M+ OMOP concepts, browse hierarchies, and build concept sets to use in your cohort definitions.",
+      },
+      cards: {
+        vocabularyTitle: "Explore Vocabulary",
+        vocabularyDescription: "Search 7M+ OMOP concepts and build concept sets.",
+        cohortTitle: "Build a Cohort",
+        cohortDescription:
+          "Define inclusion/exclusion criteria and generate counts.",
+        quickStartTitle: "Read the Quick Start",
+        quickStartDescription: "From zero to a cohort count in 15 minutes.",
+      },
+      skipAria: "Skip onboarding",
+      title: "Welcome to Parthenon",
+      intro:
+        "A modern OMOP outcomes research platform. Let's get you started.",
+      startTour: "Start Quick Tour",
+      skip: "I'm already familiar - skip",
+    },
+    dataSources: {
+      demoTitle: "Eunomia GiBleed Demo Dataset loaded",
+      demoPrefix: "A synthetic OMOP CDM dataset with",
+      demoPatients: "2,694 patients",
+      demoSuffix:
+        "and gastrointestinal bleeding episodes. Safe to run cohort definitions and characterization analyses against - ideal for exploring Parthenon before connecting your real CDM.",
+      loading: "Loading data sources...",
+      title: "Data Sources",
+      intro:
+        "Connect CDM databases to run cohort definitions and analyses against. You can also import sources from a legacy OHDSI WebAPI instance.",
+      configuredSources: "Configured sources ({{count}})",
+      daimon: "daimon",
+      daimons: "daimons",
+      emptyTitle: "No data sources yet",
+      emptyDescription:
+        "Import from a legacy WebAPI instance or add sources from the Data Sources page later.",
+      importToggle: "Import from Legacy WebAPI",
+      webApiUrl: "WebAPI URL",
+      authType: "Auth Type",
+      auth: {
+        none: "None",
+        basic: "Basic",
+        bearer: "Bearer Token",
+        basicCredentials: "Username:Password",
+        bearerCredentials: "Token",
+        basicPlaceholder: "user:password",
+        bearerPlaceholder: "Bearer token",
+      },
+      importSources: "Import Sources",
+      importSuccess: "Imported {{count}} {{label}}",
+      importSkipped: ", {{count}} skipped (already exist)",
+      sourceSingular: "source",
+      sourcePlural: "sources",
+      importFailed: "Import failed. Please check the URL and try again.",
+      managePrefix: "Manage data sources any time from",
+      manageLink: "Settings > Data Sources",
+    },
+    complete: {
+      summaryItems: {
+        accountSecured: "Account Secured",
+        systemHealthVerified: "System Health Verified",
+        aiProviderConfigured: "AI Provider Configured",
+        authenticationConfigured: "Authentication Configured",
+        dataSourcesConnected: "Data Sources Connected",
+      },
+      nextSteps: {
+        exploreDemoData: "Explore Demo Data",
+        exploreDemoDataDescription: "Browse the Eunomia GiBleed dataset",
+        createFirstCohort: "Create Your First Cohort",
+        createFirstCohortDescription: "Build a patient cohort definition",
+        inviteTeam: "Invite Team Members",
+        inviteTeamDescription: "Add users and assign roles",
+      },
+      title: "Parthenon is ready!",
+      allDone:
+        "All setup steps completed. You can return to this wizard any time via Administration.",
+      partialDone:
+        "{{completed}} of {{total}} steps completed - skipped steps can be configured any time.",
+      setupSummary: "Setup summary",
+      skipped: "(skipped)",
+      goBackTitle: "Go back to {{label}}",
+      fix: "Fix",
+      nextTitle: "What to do next",
+      launch: "Launch Parthenon",
+    },
+  },
+};
+
+const esAuthSetup: MessageTree = mergeMessageTrees(enAuthSetup, {
+  setup: {
+    wizard: {
+      steps: {
+        welcome: "Bienvenida",
+        security: "Seguridad",
+        health: "Estado",
+        ai: "IA",
+        auth: "Autenticación",
+        dataSources: "Fuentes de datos",
+        complete: "Completo",
+      },
+      close: "Cerrar",
+      skipSetup: "Omitir configuración - vuelve cuando quieras desde Administración",
+      previous: "Anterior",
+      next: "Siguiente",
+      skip: "Omitir",
+      skipStep: "Omitir este paso - configúralo más tarde en Administración",
+    },
+    welcome: {
+      title: "Bienvenido a Parthenon",
+      intro:
+        "Configuremos tu plataforma de investigación. Este asistente recorre los pasos esenciales de configuración; cada uno puede omitirse y revisarse más tarde desde el panel de Administración.",
+      configureTitle: "Qué configuraremos",
+      beforeTitle: "Antes de empezar",
+      optionalNote: "Ningún paso opcional es obligatorio para continuar.",
+      overview: {
+        systemHealth: {
+          label: "Estado del sistema",
+          description: "Verifica que todos los servicios de la plataforma funcionen correctamente.",
+        },
+        aiProvider: {
+          label: "Proveedor de IA",
+          description: "Configura qué backend de IA impulsa a Abby.",
+        },
+        authentication: {
+          label: "Autenticación",
+          description: "Configura proveedores SSO como LDAP, OAuth u OIDC.",
+        },
+        dataSources: {
+          label: "Fuentes de datos",
+          description: "Conecta bases CDM o importa desde WebAPI heredado.",
+        },
+      },
+      before: {
+        cdm: "Tu base OMOP CDM es accesible desde este servidor",
+        docker: "Docker y todos los contenedores están en ejecución (se verifica en el siguiente paso)",
+        ollama: "Ollama se ejecuta localmente si quieres funciones de IA (opcional)",
+        sso: "Tienes los datos SSO de tu organización si habilitas inicio de sesión único (opcional)",
+      },
+    },
+    changePassword: {
+      strength: {
+        weak: "Débil",
+        fair: "Aceptable",
+        good: "Buena",
+        strong: "Fuerte",
+        excellent: "Excelente",
+        tooShort: "Demasiado corta",
+      },
+      errors: {
+        mismatch: "Las contraseñas no coinciden.",
+        tooShort: "La nueva contraseña debe tener al menos 8 caracteres.",
+        same: "La nueva contraseña debe ser distinta de la actual.",
+        failed: "No se pudo cambiar la contraseña. Inténtalo de nuevo.",
+      },
+      successTitle: "Contraseña actualizada",
+      successDescription:
+        "Tu cuenta está protegida. Continúa con el siguiente paso.",
+      title: "Protege tu cuenta",
+      intro:
+        "Durante la instalación se generó una contraseña temporal. Define una contraseña permanente antes de continuar.",
+      temporaryTitle:
+        "Se generaron credenciales temporales durante la instalación",
+      temporaryPrefix: "Tu contraseña temporal está en",
+      credentialsFile: ".install-credentials",
+      temporarySuffix:
+        "en la raíz del repositorio. Introdúcela abajo y luego elige una contraseña permanente.",
+      currentLabel: "Contraseña actual (temporal)",
+      currentPlaceholder: "Introduce la contraseña temporal",
+      newLabel: "Nueva contraseña",
+      newPlaceholder: "Mínimo 8 caracteres",
+      toggleNewVisibility: "Mostrar u ocultar nueva contraseña",
+      confirmLabel: "Confirmar nueva contraseña",
+      confirmPlaceholder: "Repite la nueva contraseña",
+      submit: "Definir contraseña permanente",
+    },
+    systemHealth: {
+      status: {
+        healthy: "Correcto",
+        degraded: "Degradado",
+        down: "Caído",
+      },
+      queue: {
+        pending: "Pendientes",
+        failed: "Fallidos",
+      },
+      aiUnhealthy:
+        "Abby AI no responde; configura el proveedor en el siguiente paso.",
+      configureAi: "Configurar IA",
+      title: "Comprobación del estado del sistema",
+      intro: "Verificando que todos los servicios de la plataforma funcionen correctamente.",
+      refresh: "Actualizar",
+      checking: "Comprobando servicios...",
+      overall: "Sistema {{status}}",
+      lastChecked: "Última comprobación a las {{time}}",
+      autoRefresh: "Se actualiza automáticamente cada 30 segundos.",
+    },
+    aiProvider: {
+      regions: {
+        local: "Local",
+        us: "EE. UU.",
+        china: "China",
+        eu: "UE",
+      },
+      switchToThis: "Cambiar a este",
+      testFailed: "La prueba de conexión falló.",
+      loading: "Cargando proveedores de IA...",
+      title: "Configuración del proveedor de IA",
+      intro:
+        "Configura qué backend de IA impulsa a Abby, la asistente de investigación. Solo un proveedor está activo a la vez.",
+      activeProvider: "Proveedor activo:",
+      model: "Modelo",
+      modelPlaceholder: "Nombre del modelo",
+      apiKey: "Clave API",
+      baseUrl: "URL base",
+      save: "Guardar",
+      testConnection: "Probar conexión",
+      hideOtherProviders: "Ocultar otros proveedores ({{count}})",
+      showOtherProviders: "Mostrar otros proveedores ({{count}})",
+    },
+    authentication: {
+      providers: {
+        ldap: {
+          label: "LDAP / Active Directory",
+          description: "Autentica contra AD o cualquier directorio LDAP v3.",
+        },
+        oauth2: {
+          label: "OAuth 2.0",
+          description: "Delega auth a GitHub, Google, Microsoft o uno personalizado.",
+        },
+        saml2: {
+          label: "SAML 2.0",
+          description: "SSO empresarial mediante Okta, Azure AD, ADFS, etc.",
+        },
+        oidc: {
+          label: "OpenID Connect",
+          description: "SSO moderno con PKCE y descubrimiento OIDC.",
+        },
+      },
+      enabled: "Habilitado",
+      disabled: "Deshabilitado",
+      configure: "Configurar",
+      testConnection: "Probar conexión",
+      connectionSuccessful: "Conexión correcta",
+      connectionFailed: "Conexión fallida",
+      loading: "Cargando proveedores de autenticación...",
+      title: "Proveedores de autenticación",
+      intro:
+        "Configura proveedores externos de identidad para inicio de sesión único. Este paso es opcional; la autenticación local con usuario y contraseña siempre está disponible.",
+      usernamePassword: "Usuario y contraseña",
+      builtIn: "Autenticación Sanctum integrada; siempre activa.",
+      alwaysOn: "Siempre activo",
+    },
+    onboarding: {
+      tour: {
+        sidebarTitle: "Barra lateral de navegación",
+        sidebarContent:
+          "Todas tus herramientas de investigación viven aquí: Explorador de datos, Vocabulario, Definiciones de cohortes, Conjuntos de conceptos, Análisis y más.",
+        commandTitle: "Paleta de comandos (Cmd K)",
+        commandContent:
+          "Salta rápidamente a cualquier página o acción sin navegar por menús. Prueba Cmd K (o Ctrl+K) y busca 'cohort'.",
+        dataSourcesTitle: "Fuentes de datos",
+        dataSourcesContent:
+          "Conecta aquí tus fuentes CDM. Todos los análisis se ejecutan contra estas fuentes de datos.",
+        cohortDefinitionsTitle: "Definiciones de cohortes",
+        cohortDefinitionsContent:
+          "Crea definiciones de cohortes compatibles con OHDSI usando criterios de inclusión/exclusión y genera conteos contra cualquier CDM conectado.",
+        vocabularyTitle: "Explorador de vocabulario",
+        vocabularyContent:
+          "Busca más de 7M conceptos OMOP, explora jerarquías y crea conjuntos de conceptos para tus definiciones de cohortes.",
+      },
+      cards: {
+        vocabularyTitle: "Explorar vocabulario",
+        vocabularyDescription: "Busca más de 7M conceptos OMOP y crea conjuntos de conceptos.",
+        cohortTitle: "Crear una cohorte",
+        cohortDescription: "Define criterios de inclusión/exclusión y genera conteos.",
+        quickStartTitle: "Leer inicio rápido",
+        quickStartDescription: "De cero a un conteo de cohorte en 15 minutos.",
+      },
+      skipAria: "Omitir incorporación",
+      title: "Bienvenido a Parthenon",
+      intro:
+        "Una plataforma moderna de investigación de resultados basada en OMOP. Empecemos.",
+      startTour: "Iniciar recorrido rápido",
+      skip: "Ya estoy familiarizado - omitir",
+    },
+    dataSources: {
+      demoTitle: "Dataset demo Eunomia GiBleed cargado",
+      demoPrefix: "Un dataset OMOP CDM sintético con",
+      demoPatients: "2.694 pacientes",
+      demoSuffix:
+        "y episodios de sangrado gastrointestinal. Es seguro para ejecutar definiciones de cohortes y análisis de caracterización; ideal para explorar Parthenon antes de conectar tu CDM real.",
+      loading: "Cargando fuentes de datos...",
+      title: "Fuentes de datos",
+      intro:
+        "Conecta bases CDM para ejecutar definiciones de cohortes y análisis. También puedes importar fuentes desde una instancia OHDSI WebAPI heredada.",
+      configuredSources: "Fuentes configuradas ({{count}})",
+      daimon: "daimon",
+      daimons: "daimons",
+      emptyTitle: "Aún no hay fuentes de datos",
+      emptyDescription:
+        "Importa desde una instancia WebAPI heredada o agrega fuentes más tarde desde la página Fuentes de datos.",
+      importToggle: "Importar desde WebAPI heredado",
+      webApiUrl: "URL de WebAPI",
+      authType: "Tipo de autenticación",
+      auth: {
+        none: "Ninguna",
+        basic: "Básica",
+        bearer: "Token Bearer",
+        basicCredentials: "Usuario:Contraseña",
+        bearerCredentials: "Token",
+        basicPlaceholder: "usuario:contraseña",
+        bearerPlaceholder: "Token Bearer",
+      },
+      importSources: "Importar fuentes",
+      importSuccess: "Importadas {{count}} {{label}}",
+      importSkipped: ", {{count}} omitidas (ya existen)",
+      sourceSingular: "fuente",
+      sourcePlural: "fuentes",
+      importFailed: "La importación falló. Revisa la URL e inténtalo de nuevo.",
+      managePrefix: "Gestiona fuentes de datos en cualquier momento desde",
+      manageLink: "Configuración > Fuentes de datos",
+    },
+    complete: {
+      summaryItems: {
+        accountSecured: "Cuenta protegida",
+        systemHealthVerified: "Estado del sistema verificado",
+        aiProviderConfigured: "Proveedor de IA configurado",
+        authenticationConfigured: "Autenticación configurada",
+        dataSourcesConnected: "Fuentes de datos conectadas",
+      },
+      nextSteps: {
+        exploreDemoData: "Explorar datos demo",
+        exploreDemoDataDescription: "Explora el dataset Eunomia GiBleed",
+        createFirstCohort: "Crear tu primera cohorte",
+        createFirstCohortDescription: "Crea una definición de cohorte de pacientes",
+        inviteTeam: "Invitar miembros del equipo",
+        inviteTeamDescription: "Agrega usuarios y asigna roles",
+      },
+      title: "Parthenon está listo",
+      allDone:
+        "Todos los pasos de configuración están completos. Puedes volver a este asistente en cualquier momento desde Administración.",
+      partialDone:
+        "{{completed}} de {{total}} pasos completados - los pasos omitidos se pueden configurar en cualquier momento.",
+      setupSummary: "Resumen de configuración",
+      skipped: "(omitido)",
+      goBackTitle: "Volver a {{label}}",
+      fix: "Corregir",
+      nextTitle: "Qué hacer ahora",
+      launch: "Abrir Parthenon",
+    },
+  },
+});
+
+const koAuthSetup: MessageTree = mergeMessageTrees(enAuthSetup, {
+  setup: {
+    wizard: {
+      steps: {
+        welcome: "환영",
+        security: "보안",
+        health: "상태",
+        ai: "AI",
+        auth: "인증",
+        dataSources: "데이터 소스",
+        complete: "완료",
+      },
+      close: "닫기",
+      skipSetup: "설정 건너뛰기 - 언제든지 관리에서 다시 설정할 수 있습니다",
+      previous: "이전",
+      next: "다음",
+      skip: "건너뛰기",
+      skipStep: "이 단계 건너뛰기 - 나중에 관리에서 설정",
+    },
+    welcome: {
+      title: "Parthenon에 오신 것을 환영합니다",
+      intro:
+        "연구 플랫폼을 설정해 보겠습니다. 이 마법사는 필수 설정 단계를 안내하며, 각 단계는 건너뛰고 나중에 관리 패널에서 다시 설정할 수 있습니다.",
+      configureTitle: "설정할 항목",
+      beforeTitle: "시작하기 전에",
+      optionalNote: "선택 단계는 진행에 필수는 아닙니다.",
+      overview: {
+        systemHealth: {
+          label: "시스템 상태",
+          description: "모든 플랫폼 서비스가 올바르게 실행 중인지 확인합니다.",
+        },
+        aiProvider: {
+          label: "AI 제공자",
+          description: "Abby를 구동할 AI 백엔드를 설정합니다.",
+        },
+        authentication: {
+          label: "인증",
+          description: "LDAP, OAuth, OIDC 같은 SSO 제공자를 설정합니다.",
+        },
+        dataSources: {
+          label: "데이터 소스",
+          description: "CDM 데이터베이스를 연결하거나 기존 WebAPI에서 가져옵니다.",
+        },
+      },
+      before: {
+        cdm: "이 서버에서 OMOP CDM 데이터베이스에 접근할 수 있습니다",
+        docker: "Docker와 모든 컨테이너가 실행 중입니다(다음 단계에서 확인)",
+        ollama: "AI 기능을 사용하려면 Ollama가 로컬에서 실행 중입니다(선택)",
+        sso: "싱글 사인온을 활성화하려면 조직의 SSO 정보가 있습니다(선택)",
+      },
+    },
+    changePassword: {
+      strength: {
+        weak: "약함",
+        fair: "보통",
+        good: "좋음",
+        strong: "강함",
+        excellent: "매우 강함",
+        tooShort: "너무 짧음",
+      },
+      errors: {
+        mismatch: "비밀번호가 일치하지 않습니다.",
+        tooShort: "새 비밀번호는 최소 8자여야 합니다.",
+        same: "새 비밀번호는 현재 비밀번호와 달라야 합니다.",
+        failed: "비밀번호 변경에 실패했습니다. 다시 시도하세요.",
+      },
+      successTitle: "비밀번호 업데이트됨",
+      successDescription:
+        "계정이 보호되었습니다. 다음 단계로 계속 진행하세요.",
+      title: "계정 보호",
+      intro:
+        "설치 중 임시 비밀번호가 생성되었습니다. 계속하기 전에 영구 비밀번호를 설정하세요.",
+      temporaryTitle: "설치 중 임시 자격 증명이 생성되었습니다",
+      temporaryPrefix: "임시 비밀번호는",
+      credentialsFile: ".install-credentials",
+      temporarySuffix:
+        "파일의 저장소 루트에 있습니다. 아래에 입력한 뒤 영구 비밀번호를 선택하세요.",
+      currentLabel: "현재(임시) 비밀번호",
+      currentPlaceholder: "임시 비밀번호 입력",
+      newLabel: "새 비밀번호",
+      newPlaceholder: "최소 8자",
+      toggleNewVisibility: "새 비밀번호 표시 또는 숨기기",
+      confirmLabel: "새 비밀번호 확인",
+      confirmPlaceholder: "새 비밀번호 다시 입력",
+      submit: "영구 비밀번호 설정",
+    },
+    systemHealth: {
+      status: {
+        healthy: "정상",
+        degraded: "저하",
+        down: "중단",
+      },
+      queue: {
+        pending: "대기 중",
+        failed: "실패",
+      },
+      aiUnhealthy:
+        "Abby AI가 응답하지 않습니다. 다음 단계에서 제공자를 설정하세요.",
+      configureAi: "AI 설정",
+      title: "시스템 상태 확인",
+      intro: "모든 플랫폼 서비스가 올바르게 실행 중인지 확인합니다.",
+      refresh: "새로고침",
+      checking: "서비스 확인 중...",
+      overall: "시스템 {{status}}",
+      lastChecked: "{{time}}에 마지막 확인",
+      autoRefresh: "30초마다 자동으로 새로고침됩니다.",
+    },
+    aiProvider: {
+      regions: {
+        local: "로컬",
+        us: "미국",
+        china: "중국",
+        eu: "EU",
+      },
+      switchToThis: "이 제공자로 전환",
+      testFailed: "연결 테스트에 실패했습니다.",
+      loading: "AI 제공자를 불러오는 중...",
+      title: "AI 제공자 설정",
+      intro:
+        "연구 어시스턴트 Abby를 구동할 AI 백엔드를 설정하세요. 한 번에 하나의 제공자만 활성화됩니다.",
+      activeProvider: "활성 제공자:",
+      model: "모델",
+      modelPlaceholder: "모델 이름",
+      apiKey: "API 키",
+      baseUrl: "Base URL",
+      save: "저장",
+      testConnection: "연결 테스트",
+      hideOtherProviders: "다른 제공자 숨기기 ({{count}})",
+      showOtherProviders: "다른 제공자 표시 ({{count}})",
+    },
+    authentication: {
+      providers: {
+        ldap: {
+          label: "LDAP / Active Directory",
+          description: "AD 또는 LDAP v3 디렉터리로 인증합니다.",
+        },
+        oauth2: {
+          label: "OAuth 2.0",
+          description: "GitHub, Google, Microsoft 또는 사용자 지정 제공자에 인증을 위임합니다.",
+        },
+        saml2: {
+          label: "SAML 2.0",
+          description: "Okta, Azure AD, ADFS 등을 통한 엔터프라이즈 SSO.",
+        },
+        oidc: {
+          label: "OpenID Connect",
+          description: "PKCE와 OIDC discovery를 사용하는 현대적인 SSO.",
+        },
+      },
+      enabled: "활성화됨",
+      disabled: "비활성화됨",
+      configure: "설정",
+      testConnection: "연결 테스트",
+      connectionSuccessful: "연결 성공",
+      connectionFailed: "연결 실패",
+      loading: "인증 제공자를 불러오는 중...",
+      title: "인증 제공자",
+      intro:
+        "싱글 사인온을 위한 외부 ID 제공자를 설정하세요. 이 단계는 선택 사항이며, 로컬 사용자명/비밀번호 인증은 항상 사용할 수 있습니다.",
+      usernamePassword: "사용자명 및 비밀번호",
+      builtIn: "내장 Sanctum 인증 - 항상 활성화되어 있습니다.",
+      alwaysOn: "항상 켜짐",
+    },
+    onboarding: {
+      tour: {
+        sidebarTitle: "탐색 사이드바",
+        sidebarContent:
+          "데이터 탐색기, Vocabulary, 코호트 정의, 개념 집합, 분석 등 모든 연구 도구가 여기에 있습니다.",
+        commandTitle: "명령 팔레트 (Cmd K)",
+        commandContent:
+          "메뉴를 클릭하지 않고도 페이지나 작업으로 빠르게 이동하세요. Cmd K(또는 Ctrl+K)를 누르고 'cohort'를 검색해 보세요.",
+        dataSourcesTitle: "데이터 소스",
+        dataSourcesContent:
+          "CDM 소스를 여기에서 연결합니다. 모든 분석은 이 데이터 소스를 대상으로 실행됩니다.",
+        cohortDefinitionsTitle: "코호트 정의",
+        cohortDefinitionsContent:
+          "포함/제외 기준으로 OHDSI 호환 코호트 정의를 만들고 연결된 CDM에서 카운트를 생성합니다.",
+        vocabularyTitle: "Vocabulary 탐색기",
+        vocabularyContent:
+          "700만 개 이상의 OMOP 개념을 검색하고, 계층을 탐색하고, 코호트 정의에 사용할 개념 집합을 만듭니다.",
+      },
+      cards: {
+        vocabularyTitle: "Vocabulary 탐색",
+        vocabularyDescription: "700만 개 이상의 OMOP 개념을 검색하고 개념 집합을 만듭니다.",
+        cohortTitle: "코호트 만들기",
+        cohortDescription: "포함/제외 기준을 정의하고 카운트를 생성합니다.",
+        quickStartTitle: "빠른 시작 읽기",
+        quickStartDescription: "15분 만에 코호트 카운트까지 진행합니다.",
+      },
+      skipAria: "온보딩 건너뛰기",
+      title: "Parthenon에 오신 것을 환영합니다",
+      intro:
+        "OMOP 기반의 현대적인 성과 연구 플랫폼입니다. 시작해 보겠습니다.",
+      startTour: "빠른 둘러보기 시작",
+      skip: "이미 익숙합니다 - 건너뛰기",
+    },
+    dataSources: {
+      demoTitle: "Eunomia GiBleed 데모 데이터셋 로드됨",
+      demoPrefix: "합성 OMOP CDM 데이터셋:",
+      demoPatients: "환자 2,694명",
+      demoSuffix:
+        "및 위장관 출혈 에피소드가 포함되어 있습니다. 실제 CDM을 연결하기 전에 Parthenon을 탐색하기에 적합하며, 코호트 정의와 특성화 분석을 안전하게 실행할 수 있습니다.",
+      loading: "데이터 소스를 불러오는 중...",
+      title: "데이터 소스",
+      intro:
+        "코호트 정의와 분석을 실행할 CDM 데이터베이스를 연결하세요. 기존 OHDSI WebAPI 인스턴스에서 소스를 가져올 수도 있습니다.",
+      configuredSources: "설정된 소스 ({{count}})",
+      daimon: "daimon",
+      daimons: "daimons",
+      emptyTitle: "아직 데이터 소스가 없습니다",
+      emptyDescription:
+        "기존 WebAPI 인스턴스에서 가져오거나 나중에 데이터 소스 페이지에서 추가하세요.",
+      importToggle: "기존 WebAPI에서 가져오기",
+      webApiUrl: "WebAPI URL",
+      authType: "인증 유형",
+      auth: {
+        none: "없음",
+        basic: "Basic",
+        bearer: "Bearer 토큰",
+        basicCredentials: "사용자명:비밀번호",
+        bearerCredentials: "토큰",
+        basicPlaceholder: "user:password",
+        bearerPlaceholder: "Bearer token",
+      },
+      importSources: "소스 가져오기",
+      importSuccess: "{{count}}개 {{label}} 가져옴",
+      importSkipped: ", {{count}}개 건너뜀(이미 존재)",
+      sourceSingular: "소스",
+      sourcePlural: "소스",
+      importFailed: "가져오기에 실패했습니다. URL을 확인하고 다시 시도하세요.",
+      managePrefix: "데이터 소스는 언제든지 여기에서 관리할 수 있습니다:",
+      manageLink: "설정 > 데이터 소스",
+    },
+    complete: {
+      summaryItems: {
+        accountSecured: "계정 보안 완료",
+        systemHealthVerified: "시스템 상태 확인됨",
+        aiProviderConfigured: "AI 제공자 설정됨",
+        authenticationConfigured: "인증 설정됨",
+        dataSourcesConnected: "데이터 소스 연결됨",
+      },
+      nextSteps: {
+        exploreDemoData: "데모 데이터 탐색",
+        exploreDemoDataDescription: "Eunomia GiBleed 데이터셋 살펴보기",
+        createFirstCohort: "첫 코호트 만들기",
+        createFirstCohortDescription: "환자 코호트 정의 만들기",
+        inviteTeam: "팀원 초대",
+        inviteTeamDescription: "사용자를 추가하고 역할을 할당",
+      },
+      title: "Parthenon 준비 완료",
+      allDone:
+        "모든 설정 단계가 완료되었습니다. 언제든지 관리에서 이 마법사로 돌아올 수 있습니다.",
+      partialDone:
+        "{{total}}단계 중 {{completed}}단계 완료 - 건너뛴 단계는 언제든지 설정할 수 있습니다.",
+      setupSummary: "설정 요약",
+      skipped: "(건너뜀)",
+      goBackTitle: "{{label}} 단계로 돌아가기",
+      fix: "수정",
+      nextTitle: "다음에 할 일",
+      launch: "Parthenon 시작",
+    },
+  },
+});
+
+function withAuthSetup(auth: MessageTree, setup: MessageTree): MessageTree {
+  return mergeMessageTrees(auth, setup);
+}
+
+const enSettingsNotificationPage: MessageTree = {
+  notifications: {
+    pageTitle: "Notification Preferences",
+    pageSubtitle: "Configure how and when you receive notifications",
+  },
+};
+
 function withProductResources(
   namespaces: ParthenonNamespaces,
   settings: MessageTree,
@@ -3627,7 +4771,10 @@ function withProductResources(
 } {
   return {
     ...namespaces,
-    settings: mergeMessageTrees(settings, details),
+    settings: mergeMessageTrees(
+      settings,
+      mergeMessageTrees(enSettingsNotificationPage, details),
+    ),
     help,
     auth,
   };
@@ -3635,82 +4782,91 @@ function withProductResources(
 
 export const resources: Resource = {
   "en-US": withProductResources(
-    enUS,
+    withCommonUi(withAbbyLayout(enUS, enAbbyLayout), enCommonUi),
     enSettings,
     enSettingsDetails,
     enHelp,
-    enAuth,
+    withAuthSetup(enAuth, enAuthSetup),
   ),
   "es-ES": withProductResources(
-    esES,
+    withCommonUi(withAbbyLayout(esES, esAbbyLayout), esCommonUi),
     esSettings,
     esSettingsDetails,
     esHelp,
-    esAuth,
+    withAuthSetup(esAuth, esAuthSetup),
   ),
   "fr-FR": withProductResources(
-    frFR,
+    withCommonUi(withAbbyLayout(frFR, enAbbyLayout), enCommonUi),
     frSettings,
     frSettingsDetails,
     frHelp,
-    frAuth,
+    withAuthSetup(frAuth, enAuthSetup),
   ),
   "de-DE": withProductResources(
-    deDE,
+    withCommonUi(withAbbyLayout(deDE, enAbbyLayout), enCommonUi),
     deSettings,
     deSettingsDetails,
     deHelp,
-    deAuth,
+    withAuthSetup(deAuth, enAuthSetup),
   ),
   "pt-BR": withProductResources(
-    ptBR,
+    withCommonUi(withAbbyLayout(ptBR, enAbbyLayout), enCommonUi),
     ptSettings,
     ptSettingsDetails,
     ptHelp,
-    ptAuth,
+    withAuthSetup(ptAuth, enAuthSetup),
   ),
   "fi-FI": withProductResources(
-    fiFI,
+    withCommonUi(withAbbyLayout(fiFI, enAbbyLayout), enCommonUi),
     fiSettings,
     fiSettingsDetails,
     fiHelp,
-    fiAuth,
+    withAuthSetup(fiAuth, enAuthSetup),
   ),
   "ja-JP": withProductResources(
-    jaJP,
+    withCommonUi(withAbbyLayout(jaJP, enAbbyLayout), enCommonUi),
     jaSettings,
     jaSettingsDetails,
     jaHelp,
-    jaAuth,
+    withAuthSetup(jaAuth, enAuthSetup),
   ),
   "zh-Hans": withProductResources(
-    zhHans,
+    withCommonUi(withAbbyLayout(zhHans, enAbbyLayout), enCommonUi),
     zhSettings,
     zhSettingsDetails,
     zhHelp,
-    zhAuth,
+    withAuthSetup(zhAuth, enAuthSetup),
   ),
   "ko-KR": withProductResources(
-    koKR,
+    withCommonUi(withAbbyLayout(koKR, koAbbyLayout), koCommonUi),
     koSettings,
     koSettingsDetails,
     koHelp,
-    koAuth,
+    withAuthSetup(koAuth, koAuthSetup),
   ),
   "hi-IN": withProductResources(
-    hiIN,
+    withCommonUi(withAbbyLayout(hiIN, enAbbyLayout), enCommonUi),
     hiSettings,
     hiSettingsDetails,
     hiHelp,
-    hiAuth,
+    withAuthSetup(hiAuth, enAuthSetup),
   ),
-  ar: withProductResources(ar, arSettings, arSettingsDetails, arHelp, arAuth),
+  ar: withProductResources(
+    withCommonUi(withAbbyLayout(ar, enAbbyLayout), enCommonUi),
+    arSettings,
+    arSettingsDetails,
+    arHelp,
+    withAuthSetup(arAuth, enAuthSetup),
+  ),
   "en-XA": withProductResources(
-    pseudoNamespaces(enUS),
+    withCommonUi(
+      withAbbyLayout(pseudoNamespaces(enUS), pseudoTree(enAbbyLayout)),
+      pseudoTree(enCommonUi),
+    ),
     pseudoTree(enSettings),
     pseudoTree(enSettingsDetails),
     pseudoTree(enHelp),
-    pseudoTree(enAuth),
+    withAuthSetup(pseudoTree(enAuth), pseudoTree(enAuthSetup)),
   ),
 };
 

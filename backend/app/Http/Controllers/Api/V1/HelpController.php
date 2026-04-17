@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Support\ApiMessage;
 use Illuminate\Http\JsonResponse;
 
 /**
@@ -19,7 +20,7 @@ class HelpController extends Controller
     {
         // Sanitize key — only allow alphanumeric, hyphens, and dots
         if (! preg_match('/^[a-z0-9\-\.]+$/', $key)) {
-            return response()->json(['message' => __('help.not_found')], 404);
+            return response()->json(ApiMessage::payload('help.not_found'), 404);
         }
 
         $requestedLocale = (string) config(
@@ -29,13 +30,13 @@ class HelpController extends Controller
         $match = $this->findHelpFile($key, $requestedLocale);
 
         if ($match === null) {
-            return response()->json(['message' => __('help.not_found')], 404);
+            return response()->json(ApiMessage::payload('help.not_found'), 404);
         }
 
         $raw = file_get_contents($match['path']);
         $content = json_decode((string) $raw, true);
         if (! is_array($content)) {
-            return response()->json(['message' => __('help.malformed')], 500);
+            return response()->json(ApiMessage::payload('help.malformed'), 500);
         }
 
         $content['locale'] = $match['locale'];

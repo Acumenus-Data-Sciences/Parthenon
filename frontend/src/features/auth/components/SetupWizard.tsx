@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { Check, X, ArrowLeft, ArrowRight, SkipForward } from "lucide-react";
 import apiClient from "@/lib/api-client";
 import { useAuthStore } from "@/stores/authStore";
@@ -38,26 +39,63 @@ interface Props {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function buildSteps(mustChangePassword: boolean): StepDef[] {
+function buildSteps(
+  mustChangePassword: boolean,
+  t: (key: string) => string,
+): StepDef[] {
   return [
-    { key: "welcome", label: "Welcome", skippable: false },
+    {
+      key: "welcome",
+      label: t("setup.wizard.steps.welcome"),
+      skippable: false,
+    },
     ...(mustChangePassword
-      ? [{ key: "change-password" as StepKey, label: "Security", skippable: false }]
+      ? [
+        {
+          key: "change-password" as StepKey,
+          label: t("setup.wizard.steps.security"),
+          skippable: false,
+        },
+      ]
       : []),
-    { key: "system-health", label: "Health", skippable: true },
-    { key: "ai-provider", label: "AI", skippable: true },
-    { key: "authentication", label: "Auth", skippable: true },
-    { key: "data-sources", label: "Data Sources", skippable: true },
-    { key: "complete", label: "Complete", skippable: false },
+    {
+      key: "system-health",
+      label: t("setup.wizard.steps.health"),
+      skippable: true,
+    },
+    {
+      key: "ai-provider",
+      label: t("setup.wizard.steps.ai"),
+      skippable: true,
+    },
+    {
+      key: "authentication",
+      label: t("setup.wizard.steps.auth"),
+      skippable: true,
+    },
+    {
+      key: "data-sources",
+      label: t("setup.wizard.steps.dataSources"),
+      skippable: true,
+    },
+    {
+      key: "complete",
+      label: t("setup.wizard.steps.complete"),
+      skippable: false,
+    },
   ];
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function SetupWizard({ mustChangePassword, onClose }: Props) {
+  const { t } = useTranslation("auth");
   const updateUser = useAuthStore((s) => s.updateUser);
 
-  const steps = useMemo(() => buildSteps(mustChangePassword), [mustChangePassword]);
+  const steps = useMemo(
+    () => buildSteps(mustChangePassword, t),
+    [mustChangePassword, t],
+  );
 
   const [currentStep, setCurrentStep] = useState(0);
   const [slideDir, setSlideDir] = useState<"forward" | "back">("forward");
@@ -252,7 +290,7 @@ export function SetupWizard({ mustChangePassword, onClose }: Props) {
               type="button"
               onClick={dismiss}
               disabled={completing}
-              title={onClose ? "Close" : "Skip setup — return any time via Administration"}
+              title={onClose ? t("setup.wizard.close") : t("setup.wizard.skipSetup")}
               className="absolute right-4 top-4 z-10 rounded-md p-1.5 text-text-ghost hover:text-text-muted transition-colors disabled:opacity-50"
             >
               <X size={18} />
@@ -289,7 +327,7 @@ export function SetupWizard({ mustChangePassword, onClose }: Props) {
                 )}
               >
                 <ArrowLeft size={14} />
-                Previous
+                {t("setup.wizard.previous")}
               </button>
 
               <div className="flex items-center gap-3">
@@ -298,11 +336,11 @@ export function SetupWizard({ mustChangePassword, onClose }: Props) {
                   <button
                     type="button"
                     onClick={goNext}
-                    title="Skip this step — configure later in Administration"
+                    title={t("setup.wizard.skipStep")}
                     className="inline-flex items-center gap-1.5 text-sm text-text-ghost hover:text-text-muted transition-colors"
                   >
                     <SkipForward size={14} />
-                    Skip
+                    {t("setup.wizard.skip")}
                   </button>
                 )}
 
@@ -316,7 +354,7 @@ export function SetupWizard({ mustChangePassword, onClose }: Props) {
                     "hover:bg-accent-light transition-colors disabled:opacity-40 disabled:cursor-not-allowed",
                   )}
                 >
-                  Next
+                  {t("setup.wizard.next")}
                   <ArrowRight size={14} />
                 </button>
               </div>

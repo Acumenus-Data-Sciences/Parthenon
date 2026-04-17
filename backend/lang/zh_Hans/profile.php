@@ -7,4 +7,6 @@ return [
     'avatar_upload_failed' => '无法保存头像文件',
     'avatar_uploaded' => '头像已成功上传',
     'avatar_removed' => '头像已成功移除',
+    'theme_updated' => '主题偏好已更新',
+    'locale_updated' => '语言偏好已更新',
 ];

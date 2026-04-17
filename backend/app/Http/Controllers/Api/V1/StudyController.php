@@ -14,6 +14,7 @@ use App\Support\CharacterizationResultNormalizer;
 use App\Support\EstimationResultNormalizer;
 use App\Support\EvidenceSynthesisResultNormalizer;
 use App\Support\IncidenceRateResultNormalizer;
+use App\Support\ApiMessage;
 use App\Support\PredictionResultNormalizer;
 use App\Support\SccsResultNormalizer;
 use Illuminate\Http\JsonResponse;
@@ -158,7 +159,7 @@ class StudyController extends Controller
 
             return response()->json($result);
         } catch (\Throwable $e) {
-            return $this->errorResponse('Failed to retrieve studies', $e);
+            return $this->errorResponse('study.errors.retrieve_many', $e);
         }
     }
 
@@ -203,11 +204,11 @@ class StudyController extends Controller
             $study->load(['author:id,name,email', 'principalInvestigator:id,name,email']);
 
             return response()->json([
+                ...ApiMessage::payload('study.created'),
                 'data' => $study,
-                'message' => 'Study created.',
             ], 201);
         } catch (\Throwable $e) {
-            return $this->errorResponse('Failed to create study', $e);
+            return $this->errorResponse('study.errors.create', $e);
         }
     }
 
@@ -234,7 +235,7 @@ class StudyController extends Controller
                 'data' => $study,
             ]);
         } catch (\Throwable $e) {
-            return $this->errorResponse('Failed to retrieve study', $e);
+            return $this->errorResponse('study.errors.retrieve', $e);
         }
     }
 
@@ -273,11 +274,11 @@ class StudyController extends Controller
             $study->update($validated);
 
             return response()->json([
+                ...ApiMessage::payload('study.updated'),
                 'data' => $study->fresh('author:id,name,email'),
-                'message' => 'Study updated.',
             ]);
         } catch (\Throwable $e) {
-            return $this->errorResponse('Failed to update study', $e);
+            return $this->errorResponse('study.errors.update', $e);
         }
     }
 
@@ -291,11 +292,9 @@ class StudyController extends Controller
         try {
             $study->delete();
 
-            return response()->json([
-                'message' => 'Study deleted.',
-            ]);
+            return response()->json(ApiMessage::payload('study.deleted'));
         } catch (\Throwable $e) {
-            return $this->errorResponse('Failed to delete study', $e);
+            return $this->errorResponse('study.errors.delete', $e);
         }
     }
 
@@ -316,11 +315,11 @@ class StudyController extends Controller
             $this->studyService->executeAll($study, $source);
 
             return response()->json([
-                'message' => 'Study execution started. All analyses have been queued.',
+                ...ApiMessage::payload('study.execution_started'),
                 'data' => $this->studyService->getProgress($study),
             ], 202);
         } catch (\Throwable $e) {
-            return $this->errorResponse('Failed to execute study', $e);
+            return $this->errorResponse('study.errors.execute', $e);
         }
     }
 
@@ -338,7 +337,7 @@ class StudyController extends Controller
                 'data' => $progress,
             ]);
         } catch (\Throwable $e) {
-            return $this->errorResponse('Failed to retrieve study progress', $e);
+            return $this->errorResponse('study.errors.retrieve_progress', $e);
         }
     }
 
@@ -358,7 +357,7 @@ class StudyController extends Controller
                 'data' => $analyses,
             ]);
         } catch (\Throwable $e) {
-            return $this->errorResponse('Failed to retrieve study analyses', $e);
+            return $this->errorResponse('study.errors.retrieve_analyses', $e);
         }
     }
 
@@ -384,21 +383,27 @@ class StudyController extends Controller
             $studyAnalysis->load('analysis');
 
             return response()->json([
+                ...ApiMessage::payload('study.analysis_added'),
                 'data' => $studyAnalysis,
-                'message' => 'Analysis added to study.',
             ], 201);
         } catch (\InvalidArgumentException $e) {
+            $payload = ApiMessage::payload('study.errors.invalid_analysis_type');
+
             return response()->json([
-                'error' => 'Invalid analysis type.',
-                'message' => $e->getMessage(),
+                ...$payload,
+                'error' => $payload['message'],
+                'detail' => $e->getMessage(),
             ], 422);
         } catch (\RuntimeException $e) {
+            $payload = ApiMessage::payload('study.errors.add_analysis_failed');
+
             return response()->json([
-                'error' => 'Failed to add analysis.',
-                'message' => $e->getMessage(),
+                ...$payload,
+                'error' => $payload['message'],
+                'detail' => $e->getMessage(),
             ], 422);
         } catch (\Throwable $e) {
-            return $this->errorResponse('Failed to add analysis to study', $e);
+            return $this->errorResponse('study.errors.add_analysis', $e);
         }
     }
 
@@ -424,18 +429,21 @@ class StudyController extends Controller
             $study->load(['author:id,name,email', 'principalInvestigator:id,name,email']);
 
             return response()->json([
+                ...ApiMessage::payload('study.transitioned', ['status' => $validated['status']]),
                 'data' => $study,
-                'message' => "Study transitioned to '{$validated['status']}'.",
                 'allowed_transitions' => StudyStatusStateMachine::allowedTransitions($study->status),
             ]);
         } catch (\InvalidArgumentException $e) {
+            $payload = ApiMessage::payload('study.errors.invalid_status_transition');
+
             return response()->json([
-                'error' => 'Invalid status transition.',
-                'message' => $e->getMessage(),
+                ...$payload,
+                'error' => $payload['message'],
+                'detail' => $e->getMessage(),
                 'allowed_transitions' => StudyStatusStateMachine::allowedTransitions($study->status),
             ], 422);
         } catch (\Throwable $e) {
-            return $this->errorResponse('Failed to transition study status', $e);
+            return $this->errorResponse('study.errors.transition', $e);
         }
     }
 
@@ -462,28 +470,28 @@ class StudyController extends Controller
     public function removeAnalysis(Study $study, StudyAnalysis $studyAnalysis): JsonResponse
     {
         if ((int) $studyAnalysis->study_id !== (int) $study->id) {
-            return response()->json(['message' => 'Analysis does not belong to this study.'], 404);
+            return response()->json(ApiMessage::payload('study.analysis_not_in_study'), 404);
         }
 
         try {
             $studyAnalysis->delete();
 
-            return response()->json([
-                'message' => 'Analysis removed from study.',
-            ]);
+            return response()->json(ApiMessage::payload('study.analysis_removed'));
         } catch (\Throwable $e) {
-            return $this->errorResponse('Failed to remove analysis from study', $e);
+            return $this->errorResponse('study.errors.remove_analysis', $e);
         }
     }
 
     /**
      * Build a standardized error response for database/service failures.
      */
-    private function errorResponse(string $message, \Throwable $exception): JsonResponse
+    private function errorResponse(string $messageKey, \Throwable $exception): JsonResponse
     {
+        $payload = ApiMessage::payload($messageKey);
         $response = [
-            'error' => $message,
-            'message' => $exception->getMessage(),
+            ...$payload,
+            'error' => $payload['message'],
+            'detail' => $exception->getMessage(),
         ];
 
         if (config('app.debug')) {

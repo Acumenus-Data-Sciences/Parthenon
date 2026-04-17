@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 import { X, CheckCircle, AlertTriangle, AlertCircle, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -60,6 +61,7 @@ export const toast = {
 };
 
 export function ToastContainer() {
+  const { t } = useTranslation("common");
   const [items, setItems] = useState<ToastMessage[]>([]);
 
   useEffect(() => {
@@ -75,19 +77,23 @@ export function ToastContainer() {
 
   return createPortal(
     <div className="toast-container">
-      {items.map((t) => (
-        <div key={t.id} className={cn("toast", `toast-${t.variant}`)}>
-          <span className="toast-icon">{icons[t.variant]}</span>
-          <span className="toast-message">{t.message}</span>
-          {t.action && (
+      {items.map((item) => (
+        <div key={item.id} className={cn("toast", `toast-${item.variant}`)}>
+          <span className="toast-icon">{icons[item.variant]}</span>
+          <span className="toast-message">{item.message}</span>
+          {item.action && (
             <button
               className="toast-action"
-              onClick={() => { t.action!.onClick(); dismiss(t.id); }}
+              onClick={() => { item.action!.onClick(); dismiss(item.id); }}
             >
-              {t.action.label}
+              {item.action.label}
             </button>
           )}
-          <button className="toast-close" onClick={() => dismiss(t.id)} aria-label="Dismiss">
+          <button
+            className="toast-close"
+            onClick={() => dismiss(item.id)}
+            aria-label={t("ui.aria.dismiss")}
+          >
             <X size={14} />
           </button>
         </div>

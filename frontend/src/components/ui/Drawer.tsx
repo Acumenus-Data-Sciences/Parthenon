@@ -1,5 +1,6 @@
 import { useEffect, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +23,8 @@ export function Drawer({
   children,
   className,
 }: DrawerProps) {
+  const { t } = useTranslation("common");
+
   useEffect(() => {
     if (!open) return;
     const handleEsc = (e: KeyboardEvent) => {
@@ -52,7 +55,7 @@ export function Drawer({
           <button
             className="modal-close"
             onClick={onClose}
-            aria-label="Close"
+            aria-label={t("ui.aria.close")}
           >
             <X size={18} />
           </button>

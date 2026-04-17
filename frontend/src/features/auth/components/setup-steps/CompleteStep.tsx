@@ -1,4 +1,5 @@
 import { CheckCircle2, Circle, Rocket, Loader2, ArrowUpRight, RotateCcw } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
@@ -35,36 +36,63 @@ interface Props {
 
 const SUMMARY_ITEMS: {
   key: keyof WizardState;
-  label: string;
+  labelKey: string;
   stepKey: StepKey;
   always: boolean;
 }[] = [
-  { key: "passwordChanged", label: "Account Secured", stepKey: "change-password", always: false },
-  { key: "healthChecked", label: "System Health Verified", stepKey: "system-health", always: true },
-  { key: "aiConfigured", label: "AI Provider Configured", stepKey: "ai-provider", always: true },
-  { key: "authConfigured", label: "Authentication Configured", stepKey: "authentication", always: true },
-  { key: "sourcesConfigured", label: "Data Sources Connected", stepKey: "data-sources", always: true },
+  {
+    key: "passwordChanged",
+    labelKey: "setup.complete.summaryItems.accountSecured",
+    stepKey: "change-password",
+    always: false,
+  },
+  {
+    key: "healthChecked",
+    labelKey: "setup.complete.summaryItems.systemHealthVerified",
+    stepKey: "system-health",
+    always: true,
+  },
+  {
+    key: "aiConfigured",
+    labelKey: "setup.complete.summaryItems.aiProviderConfigured",
+    stepKey: "ai-provider",
+    always: true,
+  },
+  {
+    key: "authConfigured",
+    labelKey: "setup.complete.summaryItems.authenticationConfigured",
+    stepKey: "authentication",
+    always: true,
+  },
+  {
+    key: "sourcesConfigured",
+    labelKey: "setup.complete.summaryItems.dataSourcesConnected",
+    stepKey: "data-sources",
+    always: true,
+  },
 ];
 
 const NEXT_STEPS = [
   {
-    label: "Explore Demo Data",
-    description: "Browse the Eunomia GiBleed dataset",
+    labelKey: "setup.complete.nextSteps.exploreDemoData",
+    descriptionKey: "setup.complete.nextSteps.exploreDemoDataDescription",
     href: "/data-explorer",
   },
   {
-    label: "Create Your First Cohort",
-    description: "Build a patient cohort definition",
+    labelKey: "setup.complete.nextSteps.createFirstCohort",
+    descriptionKey: "setup.complete.nextSteps.createFirstCohortDescription",
     href: "/cohorts/new",
   },
   {
-    label: "Invite Team Members",
-    description: "Add users and assign roles",
+    labelKey: "setup.complete.nextSteps.inviteTeam",
+    descriptionKey: "setup.complete.nextSteps.inviteTeamDescription",
     href: "/admin/users",
   },
 ];
 
 export function CompleteStep({ wizardState, steps, onFinish, completing, onGoToStep }: Props) {
+  const { t } = useTranslation("auth");
+
   // Only show summary items for steps that are present in this wizard run
   const stepKeys = new Set(steps.map((s) => s.key));
   const visibleItems = SUMMARY_ITEMS.filter(
@@ -77,11 +105,16 @@ export function CompleteStep({ wizardState, steps, onFinish, completing, onGoToS
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-text-primary">Parthenon is ready!</h2>
+        <h2 className="text-2xl font-bold text-text-primary">
+          {t("setup.complete.title")}
+        </h2>
         <p className="mt-2 text-base text-text-muted">
           {allDone
-            ? "All setup steps completed. You can return to this wizard any time via Administration."
-            : `${completedCount} of ${visibleItems.length} steps completed — skipped steps can be configured any time.`}
+            ? t("setup.complete.allDone")
+            : t("setup.complete.partialDone", {
+              completed: completedCount,
+              total: visibleItems.length,
+            })}
         </p>
       </div>
 
@@ -89,11 +122,12 @@ export function CompleteStep({ wizardState, steps, onFinish, completing, onGoToS
         {/* Summary checklist */}
         <div className="space-y-2">
           <p className="text-sm font-medium uppercase tracking-wide text-text-muted">
-            Setup summary
+            {t("setup.complete.setupSummary")}
           </p>
           {visibleItems.map((item) => {
             const done = wizardState[item.key];
             const stepPresent = stepKeys.has(item.stepKey);
+            const label = t(item.labelKey);
             return (
               <div
                 key={item.key}
@@ -110,18 +144,22 @@ export function CompleteStep({ wizardState, steps, onFinish, completing, onGoToS
                     done ? "text-text-primary" : "text-text-ghost",
                   )}
                 >
-                  {item.label}
-                  {!done && <span className="ml-1 text-sm">(skipped)</span>}
+                  {label}
+                  {!done && (
+                    <span className="ml-1 text-sm">
+                      {t("setup.complete.skipped")}
+                    </span>
+                  )}
                 </span>
                 {!done && stepPresent && (
                   <button
                     type="button"
                     onClick={() => onGoToStep(item.stepKey)}
                     className="flex shrink-0 items-center gap-1 text-sm text-text-ghost transition-colors hover:text-accent"
-                    title={`Go back to ${item.label}`}
+                    title={t("setup.complete.goBackTitle", { label })}
                   >
                     <RotateCcw size={11} />
-                    Fix
+                    {t("setup.complete.fix")}
                   </button>
                 )}
               </div>
@@ -132,7 +170,7 @@ export function CompleteStep({ wizardState, steps, onFinish, completing, onGoToS
         {/* Quick-start next steps */}
         <div className="space-y-2">
           <p className="text-sm font-medium uppercase tracking-wide text-text-muted">
-            What to do next
+            {t("setup.complete.nextTitle")}
           </p>
           {NEXT_STEPS.map((ns) => (
             <Link
@@ -143,9 +181,11 @@ export function CompleteStep({ wizardState, steps, onFinish, completing, onGoToS
             >
               <div>
                 <p className="text-base font-medium text-text-primary group-hover:text-accent transition-colors">
-                  {ns.label}
+                  {t(ns.labelKey)}
                 </p>
-                <p className="mt-0.5 text-sm text-text-muted">{ns.description}</p>
+                <p className="mt-0.5 text-sm text-text-muted">
+                  {t(ns.descriptionKey)}
+                </p>
               </div>
               <ArrowUpRight
                 size={14}
@@ -172,7 +212,7 @@ export function CompleteStep({ wizardState, steps, onFinish, completing, onGoToS
           ) : (
             <>
               <Rocket size={16} />
-              Launch Parthenon
+              {t("setup.complete.launch")}
             </>
           )}
         </button>

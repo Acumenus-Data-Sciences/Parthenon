@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Loader2, CheckCircle2, XCircle, Clock, X } from "lucide-react";
 
 export interface JobProgressModalProps {
@@ -23,22 +24,22 @@ function formatElapsed(seconds: number): string {
 const STATUS_CONFIG = {
   pending: {
     badge: "bg-amber-900/40 text-amber-400 border-amber-700/50",
-    label: "Pending",
+    labelKey: "ui.job.status.pending",
     icon: <Clock className="h-3.5 w-3.5" />,
   },
   running: {
     badge: "bg-blue-900/40 text-blue-400 border-blue-700/50",
-    label: "Running",
+    labelKey: "ui.job.status.running",
     icon: <Loader2 className="h-3.5 w-3.5 animate-spin" />,
   },
   completed: {
     badge: "bg-emerald-900/40 text-emerald-400 border-emerald-700/50",
-    label: "Completed",
+    labelKey: "ui.job.status.completed",
     icon: <CheckCircle2 className="h-3.5 w-3.5" />,
   },
   failed: {
     badge: "bg-red-900/40 text-red-400 border-red-700/50",
-    label: "Failed",
+    labelKey: "ui.job.status.failed",
     icon: <XCircle className="h-3.5 w-3.5" />,
   },
 } as const;
@@ -55,6 +56,7 @@ export function JobProgressModal({
   completedAt,
   errorMessage,
 }: JobProgressModalProps) {
+  const { t } = useTranslation("common");
   const [elapsed, setElapsed] = useState(0);
   const logRef = useRef<HTMLPreElement>(null);
   const isTerminal = status === "completed" || status === "failed";
@@ -114,7 +116,7 @@ export function JobProgressModal({
                 className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-medium ${cfg.badge}`}
               >
                 {cfg.icon}
-                {cfg.label}
+                {t(cfg.labelKey)}
               </span>
             </div>
             {description && (
@@ -125,7 +127,7 @@ export function JobProgressModal({
             onClick={onClose}
             disabled={!isTerminal}
             className="ml-3 rounded p-1 text-text-ghost transition-colors hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-30"
-            aria-label="Close"
+            aria-label={t("ui.aria.close")}
           >
             <X className="h-4 w-4" />
           </button>
@@ -136,7 +138,7 @@ export function JobProgressModal({
           {/* Progress bar + percentage */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-text-muted">Progress</span>
+              <span className="text-text-muted">{t("ui.job.progress")}</span>
               <span className="font-mono font-medium text-text-primary">
                 {Math.round(progress)}%
               </span>
@@ -154,7 +156,7 @@ export function JobProgressModal({
             <div className="flex items-center gap-1.5 text-xs text-text-muted">
               <Clock className="h-3 w-3" />
               <span>
-                {isTerminal ? "Duration" : "Elapsed"}:{" "}
+                {isTerminal ? t("ui.job.duration") : t("ui.job.elapsed")}:{" "}
                 <span className="font-mono text-text-primary">
                   {formatElapsed(elapsed)}
                 </span>
@@ -176,7 +178,7 @@ export function JobProgressModal({
           {status === "completed" && (
             <div className="flex items-center gap-2 rounded-lg border border-emerald-800/50 bg-emerald-950/30 px-3 py-2 text-sm text-emerald-400">
               <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
-              <span>Job completed successfully.</span>
+              <span>{t("ui.job.completedSuccessfully")}</span>
             </div>
           )}
 
@@ -196,7 +198,7 @@ export function JobProgressModal({
               onClick={onClose}
               className="rounded-lg bg-surface-elevated px-4 py-1.5 text-sm font-medium text-text-primary transition-colors hover:bg-surface-accent"
             >
-              Close
+              {t("ui.aria.close")}
             </button>
           </div>
         )}

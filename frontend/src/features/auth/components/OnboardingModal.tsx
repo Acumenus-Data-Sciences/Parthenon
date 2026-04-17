@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Joyride, STATUS, type Step } from "react-joyride";
 import { BookOpen, Database, FlaskConical, X, ArrowRight, Loader2 } from "lucide-react";
@@ -7,78 +8,94 @@ import { useAuthStore } from "@/stores/authStore";
 import type { User } from "@/types/models";
 import { cn } from "@/lib/utils";
 
-const TOUR_STEPS: Step[] = [
+const TOUR_STEP_DEFS = [
   {
     target: "[data-tour='sidebar']",
-    title: "Navigation Sidebar",
-    content:
-      "All your research tools live here: Data Explorer, Vocabulary, Cohort Definitions, Concept Sets, Analyses, and more.",
+    titleKey: "setup.onboarding.tour.sidebarTitle",
+    contentKey: "setup.onboarding.tour.sidebarContent",
     skipBeacon: true,
     placement: "right",
   },
   {
     target: "[data-tour='cmd-palette']",
-    title: "Command Palette (⌘K)",
-    content:
-      "Quickly jump to any page or action without clicking through menus. Try ⌘K (or Ctrl+K) and search 'cohort'.",
+    titleKey: "setup.onboarding.tour.commandTitle",
+    contentKey: "setup.onboarding.tour.commandContent",
     placement: "bottom",
   },
   {
     target: "[data-tour='data-sources']",
-    title: "Data Sources",
-    content:
-      "Connect your CDM sources here. All analyses run against these data sources.",
+    titleKey: "setup.onboarding.tour.dataSourcesTitle",
+    contentKey: "setup.onboarding.tour.dataSourcesContent",
     placement: "right",
   },
   {
     target: "[data-tour='cohort-definitions']",
-    title: "Cohort Definitions",
-    content:
-      "Build OHDSI-compatible cohort definitions using inclusion/exclusion criteria, then generate counts against any connected CDM.",
+    titleKey: "setup.onboarding.tour.cohortDefinitionsTitle",
+    contentKey: "setup.onboarding.tour.cohortDefinitionsContent",
     placement: "right",
   },
   {
     target: "[data-tour='vocabulary']",
-    title: "Vocabulary Explorer",
-    content:
-      "Search 7M+ OMOP concepts, browse hierarchies, and build concept sets to use in your cohort definitions.",
+    titleKey: "setup.onboarding.tour.vocabularyTitle",
+    contentKey: "setup.onboarding.tour.vocabularyContent",
     placement: "right",
   },
-];
+] as const;
 
-const ACTION_CARDS = [
+const ACTION_CARD_DEFS = [
   {
     icon: Database,
-    title: "Explore Vocabulary",
-    description: "Search 7M+ OMOP concepts and build concept sets.",
+    titleKey: "setup.onboarding.cards.vocabularyTitle",
+    descriptionKey: "setup.onboarding.cards.vocabularyDescription",
     href: "/vocabulary",
     color: "text-blue-400",
     bg: "bg-blue-500/10",
   },
   {
     icon: FlaskConical,
-    title: "Build a Cohort",
-    description: "Define inclusion/exclusion criteria and generate counts.",
+    titleKey: "setup.onboarding.cards.cohortTitle",
+    descriptionKey: "setup.onboarding.cards.cohortDescription",
     href: "/cohort-definitions",
     color: "text-purple-400",
     bg: "bg-purple-500/10",
   },
   {
     icon: BookOpen,
-    title: "Read the Quick Start",
-    description: "From zero to a cohort count in 15 minutes.",
+    titleKey: "setup.onboarding.cards.quickStartTitle",
+    descriptionKey: "setup.onboarding.cards.quickStartDescription",
     href: "/data-explorer",
     color: "text-amber-400",
     bg: "bg-amber-500/10",
   },
-];
+] as const;
 
 export function OnboardingModal() {
+  const { t } = useTranslation("auth");
   const navigate = useNavigate();
   const updateUser = useAuthStore((s) => s.updateUser);
 
   const [runTour, setRunTour] = useState(false);
   const [completing, setCompleting] = useState(false);
+
+  const tourSteps = useMemo<Step[]>(
+    () =>
+      TOUR_STEP_DEFS.map(({ titleKey, contentKey, ...step }) => ({
+        ...step,
+        title: t(titleKey),
+        content: t(contentKey),
+      })),
+    [t],
+  );
+
+  const actionCards = useMemo(
+    () =>
+      ACTION_CARD_DEFS.map((card) => ({
+        ...card,
+        title: t(card.titleKey),
+        description: t(card.descriptionKey),
+      })),
+    [t],
+  );
 
   async function markComplete() {
     if (completing) return;
@@ -119,7 +136,7 @@ export function OnboardingModal() {
     <>
       {/* Joyride tour (runs over the app, not the overlay) */}
       <Joyride
-        steps={TOUR_STEPS}
+        steps={tourSteps}
         run={runTour}
         continuous
         onEvent={handleJoyrideEvent}
@@ -156,7 +173,7 @@ export function OnboardingModal() {
               onClick={markComplete}
               disabled={completing}
               className="absolute right-4 top-4 rounded-md p-1.5 text-text-ghost hover:text-text-muted transition-colors"
-              aria-label="Skip onboarding"
+              aria-label={t("setup.onboarding.skipAria")}
             >
               <X size={18} />
             </button>
@@ -164,16 +181,16 @@ export function OnboardingModal() {
             {/* Header */}
             <div className="mb-6 text-center">
               <h1 className="text-2xl font-bold text-text-primary">
-                Welcome to Parthenon
+                {t("setup.onboarding.title")}
               </h1>
               <p className="mt-2 text-sm text-text-muted">
-                A modern OMOP outcomes research platform. Let's get you started.
+                {t("setup.onboarding.intro")}
               </p>
             </div>
 
             {/* Action cards */}
             <div className="mb-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
-              {ACTION_CARDS.map((card) => {
+              {actionCards.map((card) => {
                 const Icon = card.icon;
                 return (
                   <button
@@ -210,7 +227,7 @@ export function OnboardingModal() {
                   <Loader2 size={15} className="animate-spin" />
                 ) : (
                   <>
-                    Start Quick Tour
+                    {t("setup.onboarding.startTour")}
                     <ArrowRight size={15} />
                   </>
                 )}
@@ -221,7 +238,7 @@ export function OnboardingModal() {
                 disabled={completing}
                 className="text-xs text-text-ghost hover:text-text-muted transition-colors"
               >
-                I'm already familiar — skip
+                {t("setup.onboarding.skip")}
               </button>
             </div>
           </div>

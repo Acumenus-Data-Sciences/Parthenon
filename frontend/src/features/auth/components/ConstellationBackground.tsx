@@ -190,7 +190,7 @@ export function ConstellationBackground() {
             <circle cx="168" cy="82" r="7" fill="url(#gw)" style={{ animation: "gp3 6s ease-in-out infinite" }} />
             <circle cx="168" cy="82" r="2" fill="#F0EDE8" opacity="0.85" style={{ animation: "sb1 6s ease-in-out infinite" }} />
             <circle cx="192" cy="95" r="1.7" fill="#F0EDE8" opacity="0.8" />
-            <text x="70" y="148" fontFamily="var(--font-mono)" fontSize="6.5" fill="#F0EDE8" letterSpacing="2" style={{ animation: "lf 11s ease-in-out infinite 3s" }}>URSA MAJOR</text>
+            <text x="70" y="148" fontFamily="var(--font-mono)" fontSize="6.5" fill="#F0EDE8" letterSpacing="2" style={{ animation: "lf 11s ease-in-out infinite 3s" }}>{"URSA MAJOR"}</text>
           </g>
 
           {/* ══════ 3. CASSIOPEIA — upper right ══════ */}
@@ -273,7 +273,7 @@ export function ConstellationBackground() {
             <circle cx="285" cy="640" r="1.3" fill="#F0EDE8" opacity="0.55" />
             <circle cx="295" cy="595" r="1.3" fill="#F0EDE8" opacity="0.55" />
             <circle cx="212" cy="658" r="1.3" fill="#F0EDE8" opacity="0.55" />
-            <text x="198" y="678" fontFamily="var(--font-mono)" fontSize="6" fill="#F0EDE8" letterSpacing="1.5" style={{ animation: "lf 9s ease-in-out infinite 2s" }}>CANIS MAJOR</text>
+            <text x="198" y="678" fontFamily="var(--font-mono)" fontSize="6" fill="#F0EDE8" letterSpacing="1.5" style={{ animation: "lf 9s ease-in-out infinite 2s" }}>{"CANIS MAJOR"}</text>
           </g>
 
           {/* ══════ 7. LEO — left center ══════ */}
@@ -358,7 +358,7 @@ export function ConstellationBackground() {
             <circle cx="148" cy="222" r="1.5" fill="#F0EDE8" opacity="0.65" style={{ animation: "sb4 6s ease-in-out infinite" }} />
             <circle cx="210" cy="220" r="1.4" fill="#F0EDE8" opacity="0.6" style={{ animation: "sb2 8s ease-in-out infinite" }} />
             <circle cx="230" cy="238" r="1.3" fill="#F0EDE8" opacity="0.55" />
-            <text x="132" y="258" fontFamily="var(--font-mono)" fontSize="5.5" fill="#F0EDE8" letterSpacing="1.5" style={{ animation: "lf 13s ease-in-out infinite 1s" }}>CORONA BOREALIS</text>
+            <text x="132" y="258" fontFamily="var(--font-mono)" fontSize="5.5" fill="#F0EDE8" letterSpacing="1.5" style={{ animation: "lf 13s ease-in-out infinite 1s" }}>{"CORONA BOREALIS"}</text>
           </g>
 
           {/* ══════ 11. CYGNUS — right ══════ */}

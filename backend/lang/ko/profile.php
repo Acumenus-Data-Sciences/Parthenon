@@ -7,4 +7,6 @@ return [
     'avatar_upload_failed' => '아바타 파일을 저장할 수 없습니다',
     'avatar_uploaded' => '아바타가 성공적으로 업로드되었습니다',
     'avatar_removed' => '아바타가 성공적으로 제거되었습니다',
+    'theme_updated' => '테마 환경설정이 업데이트되었습니다',
+    'locale_updated' => '언어 환경설정이 업데이트되었습니다',
 ];

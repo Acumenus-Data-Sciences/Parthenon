@@ -7,4 +7,6 @@ return [
     'avatar_upload_failed' => 'Avatar-Datei konnte nicht gespeichert werden',
     'avatar_uploaded' => 'Avatar erfolgreich hochgeladen',
     'avatar_removed' => 'Avatar erfolgreich entfernt',
+    'theme_updated' => 'Design-Einstellung aktualisiert',
+    'locale_updated' => 'Spracheinstellung aktualisiert',
 ];
